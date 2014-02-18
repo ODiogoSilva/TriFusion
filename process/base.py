@@ -39,7 +39,7 @@ class Base ():
 			header = next(file_handle)
 	     
 	    # Recognition of NEXUS files is based on the existence of the string '#NEXUS' in the first non-empty line
-		if header.upper().startswith("#NEXUS"):
+		if header.upper().strip().startswith("#NEXUS"):
 			autofind = "nexus"
 			for line in file_handle:
 				if line.strip().lower() == "matrix":
@@ -47,7 +47,7 @@ class Base ():
 					break
 
 	    # Recognition of FASTA files is based on the existence of a ">" character as the first character of a non-empty line     
-		elif header.startswith(">"):
+		elif header.strip().startswith(">"):
 			autofind = "fasta"
 			for line in file_handle:
 				if line.strip() != "" and line.strip()[0] != ">":
