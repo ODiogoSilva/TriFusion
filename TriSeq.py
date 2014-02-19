@@ -120,7 +120,7 @@ def main_parser(alignment_list):
 
 		# If only to reverse a concatenated alignment into individual loci do this and exit
 		if arg.reverse != None:
-			partition = Data.Partitions(arg.reverse)
+			partition = data.Partitions(arg.reverse)
 			reverse_alignments = alignment.reverse_concatenate(partition)
 			reverse_alignments.write_to_file(output_format,form=sequence_format, outgroup_list=outgroup_taxa)
 			return 0
@@ -153,7 +153,7 @@ def main_parser(alignment_list):
 
 			# If zorro weigth files are provided, concatenate them as well
 			if arg.zorro != None:
-				zorro = Data.Zorro(alignment_list, arg.zorro)
+				zorro = data.Zorro(alignment_list, arg.zorro)
 
 	# Removing taxa
 	if arg.remove != None:
