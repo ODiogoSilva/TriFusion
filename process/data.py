@@ -61,7 +61,7 @@ class Partitions ():
 			for line in part_file:
 				fields = line.split(",")
 				model = fields[0]
-				partition_name = fields[1].split("=")[0]
+				partition_name = fields[1].split("=")[0].strip()
 				partition_range_temp = fields[1].split("=")[1]
 				partition_range = partition_range_temp.strip().split("-")
 				partition_storage.append((model, partition_name, partition_range)) # Format of partition storage: ["str","str",["str","str"]]
@@ -69,7 +69,7 @@ class Partitions ():
 		elif self.partition_format == "nexus":
 			for line in part_file:
 				fields = line.split("=")
-				partition_name = fields[0].split()[1]
+				partition_name = fields[0].split()[1].strip()
 				partition_range = fields[1].replace(";","").strip().split("-")
 				partition_storage.append((self.model_nexus, partition_name, partition_range)) # Format of partition storage: ["str", str", ["str","str"]]
 			

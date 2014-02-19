@@ -65,17 +65,18 @@ class Alignment (Base,MissingFilter):
 			self._init_dicObj(input_alignment) # Gets several attributes from the dictionary alignment 
 			self.input_format = input_format # The input format of the alignment (str)
 			self.model = model_list # A list containing the alignment model(s) (list)
-			self.loci_ranges = loci_ranges # A list containing the ranges of the alignment, in case it's a concatenation
+			if loci_ranges != None:
+				self.loci_ranges = loci_ranges # A list containing the ranges of the alignment, in case it's a concatenation
 
 	def _set_loci_ranges (self, loci_list):
-		""" Use this function to mannyally set the list with the loci ranges """
+		""" Use this function to mannually set the list with the loci ranges """
 
 		self.loci_ranges = loci_list
 
 	def _set_format (self, input_format):
 		""" Use this function to manually set the input format associated with the Alignment object """
 
-		self.input_format = _set_format
+		self.input_format = input_format
 
 	def _set_model (self, model_list):
 		""" Use this function to manyally set the model associated with the Alignment object. Since this object supports concatenated alignments, the model specification must be in list format and the list size must be of the same size of the alignment partitions """
@@ -265,7 +266,7 @@ class Alignment (Base,MissingFilter):
 			models.append(model)
 			names.append(name)
 
-		alignmentlist_obj = AlignmentList (alignment_list, model_list=models, name_list=names)
+		alignmentlist_obj = AlignmentList (alignment_list, model_list=models, name_list=names, input_format=self.input_format)
 
 		return alignmentlist_obj
 
@@ -467,7 +468,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		It inherits methods from Base and Alignment classes for the write_to_file methods """
 
-	def __init__ (self, alignment_list, model_list=None, name_list=None, verbose=True):
+	def __init__ (self, alignment_list, model_list=None, name_list=None, verbose=True, input_format=None):
 
 		self.log_progression = Progression()
 
@@ -486,9 +487,15 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		elif type(alignment_list[0]) is OrderedDict:
 
+			# Setting class flag so that the object is aware that is a result of reverse concatenation and not an actual list of alignments
+			self.reverse_concatenation = True
+
 			for alignment, model, name in zip(alignment_list, model_list, name_list):
 
 				alignment_object = Alignment(alignment, model_list=[model], alignment_name=name)
+				# In some cases, like reverse concatenting, the input format must be manually set
+				if input_format != None:
+					alignment_object._set_format(input_format)
 				self.alignment_object_list.append(alignment_object)
 
 
@@ -580,7 +587,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
 		""" This method writes a list of alignment objects or a concatenated alignment into a file """
 
 		for alignment_obj in self.alignment_object_list:
-			if alignment_obj.input_format in output_format:
+			if alignment_obj.input_format in output_format and self.reverse_concatenation == None:
 				output_file_name = alignment_obj.input_alignment.split(".")[0]+"_conv"
 			else:
 				output_file_name = alignment_obj.input_alignment.split(".")[0]
