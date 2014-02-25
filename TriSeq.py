@@ -20,9 +20,11 @@
 #  MA 02110-1301, USA.
 #  
 #  Author: Diogo N. Silva
-#  Version: 0.1
-#  Last update: 11/02/14
+#  Version: 0.1.1.0
+#  Last update: 25/02/14
 
+import os
+import shutil
 import argparse
 from process import alignment as Alignment
 from process import data
@@ -45,6 +47,7 @@ alternative.add_argument("-c",dest="conversion",action="store_const",const=True,
 alternative.add_argument("-r",dest="reverse",help="Reverse a concatenated file into its original single locus alignments. A partition file similar to the one read by RAxML must be provided")
 alternative.add_argument("-z","--zorro-suffix",dest="zorro",type=str, help="Use this option if you wish to concatenate auxiliary Zorro files associated with each alignment. Provide the sufix for the concatenated zorro file")
 alternative.add_argument("-p","--partition-file", dest="partition_file", type=str, help="Using this option and providing the partition file will convert it between a RAxML or Nexus format")
+alternative.add_argument("-s",dest="select",nargs="*", help="Selects alignments containing the provided taxa (separate multiple taxa with whitespace)")
 alternative.add_argument("-collapse", dest="collapse",action="store_const",const=True, default=False, help="Use this flag if you would like to collapse the input alignment(s) into unique haplotypes")
 alternative.add_argument("-gcoder",dest="gcoder", action="store_const", const=True, default=False, help="Use this flag to code the gaps of the alignment into a binary state matrix that is appended to the end of the alignment")
 alternative.add_argument("-filter", dest="filter", nargs=2, help="Use this option if you wish to filter the alignment's missing data. Along with this option provide the threshold percentages for gap and missing data, respectively (e.g. -filter 50 75 - filters alignments columns with more than 50%% of gap+missing data and columns with more than 75%% of true missing data)")
@@ -107,7 +110,6 @@ def main_parser(alignment_list):
 			partition.write_to_file("nexus", outfile)
 		return 0
 
-
 	# From here, the input file is mandatory
 	if len(alignment_list) == 1:
 
@@ -145,6 +147,23 @@ def main_parser(alignment_list):
 					alignments.remove_taxa(arg.remove)
 
 			alignments.write_to_file(output_format, form=sequence_format, outgroup_list=outgroup_taxa)
+			return 0
+
+		elif arg.select != None:
+
+			if not os.path.exists("Selection"):
+				os.makedirs("Selection")
+
+			# Retrive the alignments in which at least one of the specified taxa exists
+			selected_alignments = alignments.select_by_taxa(arg.select, mode="relaxed")
+
+			# Copying selected alignments to appropriate directory
+			for alignment in selected_alignments:
+
+				alignment_file = alignment.input_alignment
+
+				shutil.copy(alignment_file, "Selection")
+
 			return 0
 
 		else:
@@ -191,7 +210,7 @@ def main_check ():
 	if arg.partition_file != None:
 		return 0
 		
-	if arg.conversion == None and arg.outfile == None and arg.reverse == None:
+	if arg.conversion == None and arg.outfile == None and arg.reverse == None and arg.select == None:
 		raise ArgumentError("If you wish to concatenate provide the output file name using the '-o' option. If you wish to convert a file, specify it using the '-c' option")
 		
 	if len(arg.infile) == 1 and arg.conversion == None and arg.reverse == None and arg.collapse == None:
