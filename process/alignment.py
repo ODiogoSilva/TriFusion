@@ -163,8 +163,6 @@ class Alignment (Base,MissingFilter):
 					self.model.append(line.strip())
 
 			self.locus_length = len(list(self.alignment.values())[0])
-
-
 		
 		# Checks the size consistency of the alignment
 		if size_check == True:
