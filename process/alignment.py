@@ -115,7 +115,7 @@ class Alignment (Base,MissingFilter):
 			header = file_handle.readline().split() # Get the number of taxa and sequence length from the file header
 			self.locus_length = int(header[1])
 			for line in file_handle:
-				if line != "":
+				try:
 					taxa = line.split()[0].replace(" ","")
 					taxa = self.rm_illegal(taxa)
 					try:
@@ -124,6 +124,8 @@ class Alignment (Base,MissingFilter):
 						sequence = ""
 
 					self.alignment[taxa] = sequence
+				except:
+					pass
 					
 					## TO DO: Read phylip interleave
 			
@@ -504,16 +506,35 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		return self.alignment_object_list[0].input_format
 
+	def _get_taxa_list (self):
+		""" Gets the full taxa list of all alignment objects """
+
+		full_taxa = []
+
+		for alignment in self.alignment_object_list:
+
+			diff = set(alignment.iter_taxa())-set(full_taxa)
+
+			if diff != set():
+
+				full_taxa.extend(diff)
+
+		return full_taxa
+
 	def concatenate (self, progress_stat=True):
 		""" The concatenate method will concatenate the multiple sequence alignments and create several attributes 
 
 		This method sets the first three variables below and the concatenation variable containing the dict object"""
 
+		self.log_progression.record("Concatenating file",len(self.alignment_object_list))
+
+		taxa_list = self._get_taxa_list()
+
+		# Initializing alignment dict and other variables
+		self.concatenation = OrderedDict([(key,[]) for key in taxa_list])
 		self.loci_lengths = [] # Saves the sequence lengths of the 
 		self.loci_range = [] # Saves the loci names as keys and their range as values
 		self.models = [] # Saves the substitution models for each one
-
-		self.log_progression.record("Concatenating file",len(self.alignment_object_list))
 		
 		for alignment_object in self.alignment_object_list:
 			
@@ -527,29 +548,20 @@ class AlignmentList (Alignment, Base, MissingFilter):
 			# If input format is nexus, save the substution model, if any
 			if alignment_object.input_format == "nexus" and alignment_object.model != []:
 				self.models.append(alignment_object.model)
-
-			# Algorithm that fills absent taxa with missing data
-			if self.loci_lengths == []:
-				self.concatenation = alignment_object.alignment # Create the main alignment dictionary from the first current alignment and never visit this statement again
-				self.loci_lengths.append(alignment_object.locus_length)
-				self.loci_range.append((alignment_object.input_alignment.split(".")[0],"1-%s" % (alignment_object.locus_length))) # Saving the range for the first loci
 	
-			else:
-				for taxa, sequence in alignment_object.alignment.items(): 
-					if taxa in self.concatenation: 
-						self.concatenation[taxa] += sequence # Append the sequence from the current alignment to the respective taxa in the main alignment
-					elif taxa not in self.concatenation:
-						self.concatenation[taxa] = missing*sum(self.loci_lengths)+sequence # If the taxa does not yet exist in the main alignment, create the new entry with a sequence of 'n' characters of the same size as the length of the missed loci and the sequence from the current alignment
+			for taxa in taxa_list:
+				try:
+					sequence = alignment_object.alignment[taxa]
+					self.concatenation[taxa].append(sequence)
+				except:
+					self.concatenation[taxa].append(missing*alignment_object.locus_length)
 
-				# Saving the range for the subsequent loci
-				self.loci_range.append((alignment_object.input_alignment.split(".")[0],"%s-%s" % (sum(self.loci_lengths)+1, sum(self.loci_lengths)+alignment_object.locus_length)))
-				self.loci_lengths.append(alignment_object.locus_length)
-				
-				# Check if any taxa from the main alignment are missing from the current alignment. If yes, fill them with 'n'
-				for taxa in self.concatenation:
-					if taxa not in alignment_object.alignment: 
-						self.concatenation[taxa] += missing*alignment_object.locus_length
+			# Saving the range for the subsequent loci
+			self.loci_range.append((alignment_object.input_alignment.split(".")[0],"%s-%s" % (sum(self.loci_lengths)+1, sum(self.loci_lengths)+alignment_object.locus_length)))
+			self.loci_lengths.append(alignment_object.locus_length)
 
+		for taxa, seq in self.concatenation.items():
+			self.concatenation[taxa] = "".join(seq)
 
 		concatenated_alignment = Alignment(self.concatenation, input_format=self._get_format(),model_list=self.models, loci_ranges=self.loci_range)
 		return concatenated_alignment
