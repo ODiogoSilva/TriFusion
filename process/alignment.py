@@ -20,7 +20,7 @@
 #  MA 02110-1301, USA.
 #  
 #  Author: Diogo N. Silva
-#  Version: 0.1
+#  Version: 0.1.1
 #  Last update: 11/02/14
 
 from process.base import *
@@ -576,12 +576,52 @@ class AlignmentList (Alignment, Base, MissingFilter):
 	def remove_taxa (self, taxa_list, verbose=False):
 		""" Wrapper of the remove_taxa method of the Alignment object for multiple alignemnts """
 
+		if verbose == True:
+			self.log_progression.write("Removing taxa")
+
 		for alignment_obj in self.alignment_object_list:
 
-			if verbose == True:
-				self.log_progression.write("Removing taxa")
-
 			alignment_obj.remove_taxa(taxa_list)
+
+	def select_by_taxa (self, taxa_list, mode="strict", verbose=True):
+		""" This method is used to selected gene alignments according to a list of taxa. 
+		The modes of the method include:
+		- strict: The taxa of the alignment must be exactly the same as the specified taxa
+		- inclusive: The taxa of the alignment must contain all specified taxa
+		- relaxed: At least on of the specified taxa must be in the taxa of the alignment """
+
+		selected_alignments = []
+
+		if verbose == True:
+			self.log_progression.write("Selecting alignmenets")
+
+		for alignment_obj in self.alignment_object_list:
+
+			alignment_taxa = alignment_obj.iter_taxa()
+
+			# Selected only the alignments with the exact same taxa
+			if mode == "strict":
+
+				if set(taxa_list) == set(alignment_taxa):
+
+					selected_alignments.append(alignment_obj)
+
+			# Selected alignments that include the specified taxa
+			if mode == "inclusive":
+
+				if set(taxa_list) - set(alignment_taxa) == set():
+
+					selected_alignments.append(alignment_obj)
+
+			if mode == "relaxed":
+
+				for taxon in taxa_list:
+
+					if taxon in alignment_taxa:
+
+						selected_alignments.append(alignment_obj)
+
+		return selected_alignments
 
 	def write_to_file (self, output_format, form="leave",outgroup_list=[]):
 		""" This method writes a list of alignment objects or a concatenated alignment into a file """
