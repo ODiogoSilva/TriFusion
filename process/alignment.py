@@ -439,18 +439,18 @@ class Alignment (Base,MissingFilter):
 				if compliant_outgroups != []:
 					out_file.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" % (" ".join(compliant_outgroups)))
 
-				# Concatenates the substitution models of the individual partitions
-				if self.model:
-					loci_number = 1
-					out_file.write("begin mrbayes;\n")
-					for model in self.model:
-						m1 = model[0].split()
-						m2 = model[1].split()
-						m1_final = m1[0]+" applyto=("+str(loci_number)+") "+" ".join(m1[1:])
-						m2_final = m2[0]+" applyto=("+str(loci_number)+") "+" ".join(m2[1:])
-						out_file.write("\t%s\n\t%s\n" % (m1_final, m2_final))
-						loci_number += 1
-					out_file.write("end;\n")
+			# Concatenates the substitution models of the individual partitions
+			if self.model:
+				loci_number = 1
+				out_file.write("begin mrbayes;\n")
+				for model in self.model:
+					m1 = model[0].split()
+					m2 = model[1].split()
+					m1_final = m1[0]+" applyto=("+str(loci_number)+") "+" ".join(m1[1:])
+					m2_final = m2[0]+" applyto=("+str(loci_number)+") "+" ".join(m2[1:])
+					out_file.write("\t%s\n\t%s\n" % (m1_final, m2_final))
+					loci_number += 1
+				out_file.write("end;\n")
 
 			out_file.close()
 
