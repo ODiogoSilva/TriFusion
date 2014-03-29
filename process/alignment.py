@@ -630,6 +630,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
 					if taxon in alignment_taxa:
 
 						selected_alignments.append(alignment_obj)
+						continue
 
 		return selected_alignments
 
