@@ -188,15 +188,26 @@ class Alignment (Base,MissingFilter):
 
 		return sequences
 
-	def remove_taxa (self, taxa_list_file):
-		""" Removes specified taxa from the alignment. As taxa_list, this method supports a python list or an input csv file with a single column containing the unwanted species in separate lines """
+	def remove_taxa (self, taxa_list_file, mode="remove"):
+		""" Removes specified taxa from the alignment. As taxa_list, this method supports a python list or an input csv file with a single column containing the unwanted species in separate lines.
+			It currently supports two modes:
+			remove: removes the specificed taxa
+			inverse: removes all but the specificed taxa """
+
+		new_alignment = OrderedDict()
 
 		def remove (taxa_list):
 
-			new_alignment = OrderedDict()
-
 			for taxa,seq in self.alignment.items():
 				if taxa not in taxa_list:
+					new_alignment[taxa] = seq
+
+			self.alignment = new_alignment
+
+		def inverse (taxa_list):
+
+			for taxa, seq in self.alignment.items():
+				if taxa in taxa_list:
 					new_alignment[taxa] = seq
 
 			self.alignment = new_alignment
@@ -205,16 +216,16 @@ class Alignment (Base,MissingFilter):
 		try:
 			file_handle = open(taxa_list_file[0])
 
-			taxa_list = []
+			taxa_list = self.read_basic_csv(file_handle)
 
-			for line in file_handle:
-				taxa_list.append(line.strip())
 		# If not, then the method's argument is already the final list
 		except:
 			taxa_list = taxa_list_file
 
-		remove (taxa_list)
-
+		if mode == "remove":
+			remove (taxa_list)
+		if mode == "inverse":
+			inverse (taxa_list)
 
 	def collapse (self, write_haplotypes=True, haplotypes_file=None):
 		""" Collapses equal sequences into haplotypes. This method changes the alignment variable and only returns a dictionary with the correspondance between the haplotypes and the original taxa names  """
@@ -583,15 +594,17 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 			alignment_obj.filter_missing_data(gap_threshold=gap_threshold, missing_threshold=missing_threshold)
 
-	def remove_taxa (self, taxa_list, verbose=False):
-		""" Wrapper of the remove_taxa method of the Alignment object for multiple alignemnts """
+	def remove_taxa (self, taxa_list, verbose=False, mode="remove"):
+		""" Wrapper of the remove_taxa method of the Alignment object for multiple alignemnts. It current supports two modes:
+			remove: removes specified taxa
+			inverse: removes all but the specified taxa """
 
 		if verbose == True:
 			self.log_progression.write("Removing taxa")
 
 		for alignment_obj in self.alignment_object_list:
 
-			alignment_obj.remove_taxa(taxa_list)
+			alignment_obj.remove_taxa(taxa_list, mode=mode)
 
 	def select_by_taxa (self, taxa_list, mode="strict", verbose=True):
 		""" This method is used to selected gene alignments according to a list of taxa. 
@@ -604,6 +617,13 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		if verbose == True:
 			self.log_progression.write("Selecting alignmenets")
+
+		# taxa_list may be a file name (string) or a list containing the name of the taxa. If taxa_list is a file name, this code will parse the csv file and return a list of the taxa. Otherwise, the taxa_list variable remains the same.
+		try:
+			file_handle = open("".join(taxa_list))
+			taxa_list = self.read_basic_csv(file_handle)
+		except:
+			pass
 
 		for alignment_obj in self.alignment_object_list:
 

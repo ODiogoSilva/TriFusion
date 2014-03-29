@@ -158,6 +158,17 @@ class Base ():
 		if difLength != {}:
 			print ("\nWARNING: Unequal sequence lenght detected in %s" % (current_file))
 
+	def read_basic_csv (self,file_handle):
+		""" This will parse a simples csv file with only one column and one or more lines. It returns a list containing the contents of each line as an element. This can be used by any class/function of the process submodule granted that a previous check for the presence of the file is made """ 
+
+		storage = []
+
+		for line in file_handle:
+
+			storage.append(line.strip())
+
+		return storage
+
 class Progression ():
 
 	def record (self,name,obj_size,window_size=50):

@@ -62,6 +62,7 @@ formatting.add_argument("-interleave",dest="interleave",action="store_const",con
 # Data manipulation
 manipulation = parser.add_argument_group("Data manipultation")
 manipulation.add_argument("-rm",dest="remove",nargs="*",help="Removes the specified taxa from the final alignment. Unwanted taxa my be provided in a csv file containing 1 column with a species name in each line or they may be specified in the command line and separated by whitespace")
+manipulation.add_argument("-grep",dest="grep",nargs="*",help="The inverse of the -rm command. It removes all taxa from the alignment except for the ones specified with this option. Taxa names may be specified in a csv file containing 1 column with a species name in each line or in the command line separated by whitespace")
 manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*", help="Provide taxon names/number for the outgroup (This option is only supported for NEXUS output format files)")
 
 miscellaneous = parser.add_argument_group("Miscellaneous")
@@ -145,6 +146,11 @@ def main_parser(alignment_list):
 					alignments.remove_taxa(arg.remove, verbose=True)
 				else:
 					alignments.remove_taxa(arg.remove)
+			if arg.grep != None:
+				if arg.quiet is False:
+					alignments.remove_taxa(arg.grep, verbose=True, mode="inverse")
+				else:
+					alignments.remove_taxa(arg.grep, mode="inverse")
 
 			alignments.write_to_file(output_format, form=sequence_format, outgroup_list=outgroup_taxa)
 			return 0
