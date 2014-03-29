@@ -138,7 +138,7 @@ def main_parser(alignment_list):
 			# In case multiple files are to be converted and an alignment filter is to be carried out
 			if arg.filter != None:
 
-				alignments.filter_missing_data64(arg.filter[0], arg.filter[1], verbose=True)
+				alignments.filter_missing_data(arg.filter[0], arg.filter[1], verbose=True)
 
 			# In case taxa are to be removed while converting
 			if arg.remove != None:

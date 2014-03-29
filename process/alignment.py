@@ -658,8 +658,11 @@ class AlignmentList (Alignment, Base, MissingFilter):
 		""" This method writes a list of alignment objects or a concatenated alignment into a file """
 
 		for alignment_obj in self.alignment_object_list:
-			if alignment_obj.input_format in output_format and self.reverse_concatenation == None:
-				output_file_name = alignment_obj.input_alignment.split(".")[0]+"_conv"
+			if alignment_obj.input_format in output_format:
+				try:
+					self.reverse_concatenation
+				except:
+					output_file_name = alignment_obj.input_alignment.split(".")[0]+"_conv"
 			else:
 				output_file_name = alignment_obj.input_alignment.split(".")[0]
 			alignment_obj.write_to_file(output_format, output_file=output_file_name, form=form, outgroup_list=outgroup_list)
