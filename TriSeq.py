@@ -44,7 +44,7 @@ main_exec.add_argument("-if", dest="input_format", default="guess", choices=["fa
 							"the input format and genetic code automatically")
 main_exec.add_argument("-of", dest="output_format", nargs="+", default="nexus",
 							choices=["nexus", "phylip", "fasta", "mcmctree"],
-							help="Format of the ouput file(s). You may select multiple output formats simultaneously "
+							help="Format of the output file(s). You may select multiple output formats simultaneously "
 							"(default is '%(default)s')")
 main_exec.add_argument("-o", dest="outfile", help="Name of the output file")
 
@@ -113,6 +113,7 @@ miscellaneous.add_argument("-quiet", dest="quiet", action="store_const", const=T
 arg = parser.parse_args()
 
 ##### MAIN FUNCTIONS ######
+
 
 def main_parser(alignment_list):
 	""" Function with the main operations of TriSeq """

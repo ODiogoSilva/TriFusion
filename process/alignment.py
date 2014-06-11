@@ -53,7 +53,7 @@ class Alignment (Base, MissingFilter):
 		self.log_progression = Progression()
 		# The locus_length and restriction_range variables are only properly defined elsewhere, but to avoid NoneType
 		# errors, it is defined here
-		self.locus_length = None
+		self.locus_length = 0
 		self.restriction_range = None
 
 		# In case the class is initialized with an input file name
@@ -219,18 +219,18 @@ class Alignment (Base, MissingFilter):
 
 		new_alignment = OrderedDict()
 
-		def remove(taxa_list):
+		def remove(list_taxa):
 
 			for taxa, seq in self.alignment.items():
-				if taxa not in taxa_list:
+				if taxa not in list_taxa:
 					new_alignment[taxa] = seq
 
 			self.alignment = new_alignment
 
-		def inverse(taxa_list):
+		def inverse(list_taxa):
 
 			for taxa, seq in self.alignment.items():
-				if taxa in taxa_list:
+				if taxa in list_taxa:
 					new_alignment[taxa] = seq
 
 			self.alignment = new_alignment
@@ -242,7 +242,7 @@ class Alignment (Base, MissingFilter):
 			taxa_list = self.read_basic_csv(file_handle)
 
 		# If not, then the method's argument is already the final list
-		except:
+		except FileNotFoundError:
 			taxa_list = taxa_list_file
 
 		if mode == "remove":
@@ -277,11 +277,11 @@ class Alignment (Base, MissingFilter):
 			self.write_loci_correspondence(correspondence_dic, haplotypes_file)
 
 	@staticmethod
-	def write_loci_correspondence(self, dic_obj, output_file):
+	def write_loci_correspondence(dic_obj, output_file):
 		""" This function supports the collapse method by writing the correspondence between the unique haplotypes and
 		the loci into a new file """
 
-		output_handle = open(output_file+".haplotypes","w")
+		output_handle = open(output_file + ".haplotypes", "w")
 
 		for haplotype, taxa_list in dic_obj.items():
 			output_handle.write("%s: %s\n" % (haplotype, "; ".join(taxa_list)))
@@ -304,7 +304,7 @@ class Alignment (Base, MissingFilter):
 			models.append(model)
 			names.append(name)
 
-		alignmentlist_obj = AlignmentList (alignment_list, model_list=models, name_list=names, input_format=self.input_format)
+		alignmentlist_obj = AlignmentList(alignment_list, model_list=models, name_list=names, input_format=self.input_format)
 
 		return alignmentlist_obj
 
@@ -446,7 +446,7 @@ class Alignment (Base, MissingFilter):
 				if self.restriction_range is not None:
 					out_file.write("#NEXUS\n\nBegin data;\n\tdimensions ntax=%s nchar=%s ;\n\tformat datatype=mixed"
 								   "(%s:1-%s, restriction:%s) interleave=yes gap=%s missing=%s ;\n\tmatrix\n" %
-								   (len(alignment), self.locus_length, self.sequence_code[0], self.locus_length-1,
+								   (len(alignment), self.locus_length, self.sequence_code[0], self.locus_length - 1,
 									self.restriction_range, gap, self.sequence_code[1]))
 				else:
 					out_file.write("#NEXUS\n\nBegin data;\n\tdimensions ntax=%s nchar=%s ;\n\tformat datatype=%s "
@@ -483,9 +483,8 @@ class Alignment (Base, MissingFilter):
 																					self.sequence_code[0],
 																					gap, self.sequence_code[1]))
 				for key, seq in alignment.items():
-					out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(seq_space_nex),seq))
+					out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(seq_space_nex), seq))
 				out_file.write(";\n\tend;")
-
 
 			if self.loci_ranges is not True:
 				out_file.write("\nbegin mrbayes;\n")
@@ -511,8 +510,8 @@ class Alignment (Base, MissingFilter):
 				for model in self.model:
 					m1 = model[0].split()
 					m2 = model[1].split()
-					m1_final = m1[0] + " applyto=("+str(loci_number)+") "+" ".join(m1[1:])
-					m2_final = m2[0] + " applyto=("+str(loci_number)+") "+" ".join(m2[1:])
+					m1_final = m1[0] + " applyto=(" + str(loci_number) + ") " + " ".join(m1[1:])
+					m2_final = m2[0] + " applyto=(" + str(loci_number) + ") " + " ".join(m2[1:])
 					out_file.write("\t%s\n\t%s\n" % (m1_final, m2_final))
 					loci_number += 1
 				out_file.write("end;\n")
@@ -713,7 +712,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		return selected_alignments
 
-	def write_to_file(self, output_format, form="leave",outgroup_list=[]):
+	def write_to_file(self, output_format, form="leave", outgroup_list=[]):
 		""" This method writes a list of alignment objects or a concatenated alignment into a file """
 
 		for alignment_obj in self.alignment_object_list:
