@@ -23,6 +23,8 @@
 #  Version: 0.1
 #  Last update: 11/02/14
 
+## TODO: Replace the progression prints with calls of the progression class
+
 
 class MissingFilter ():
 	""" Contains several methods used to trim and filter missing data from alignments. It's mainly used for inheritance """
@@ -84,7 +86,8 @@ class MissingFilter ():
 				print("\rFiltering alignment column %s out of %s" % (column_position + 1, self.old_locus_length + 1),
 					   end="")
 
-			column = [char[column_position] for char in filtered_alignment.values()]
+			column = [char[column_position] for char in filtered_alignment.values()] # This greatly speeds things up
+			# compared to using a string
 
 			# Calculating metrics
 			gap_proportion = (float(column.count(self.gap)) / float(taxa_number)) * float(100)
