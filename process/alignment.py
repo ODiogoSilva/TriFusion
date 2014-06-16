@@ -30,12 +30,11 @@ from process.missing_filter import MissingFilter
 from collections import OrderedDict
 import re
 
-### To Do
-# - Create a SequenceSet class for sets of sequences that do not conform to an alignment, i.e. unequal length. This
-# would eliminate the problems of applying methods designed for alignments to sets of sequences with unequal length and
-#  would allows these sets of sequences to have methods of their own.
-# - After creating the SequenceSet class, an additional class should be used to make the triage of files to either the
-# Alignment or SequenceSet classes
+## TODO: Create a SequenceSet class for sets of sequences that do not conform to an alignment, i.e. unequal length.
+# This would eliminate the problems of applying methods designed for alignments to sets of sequences with unequal
+# length would allows these sets of sequences to have methods of their own.
+## TODO After creating the SequenceSet class, an additional class should be used to make the triage of files to either
+# the Alignment or SequenceSet classes
 
 
 class Alignment (Base, MissingFilter):
@@ -61,7 +60,7 @@ class Alignment (Base, MissingFilter):
 
 			self.input_alignment = input_alignment
 			# Get alignment format and code. Sequence code is a tuple of (DNA, N) or (Protein, X)
-			self.input_format, self.sequence_code = self.autofinder (input_alignment)
+			self.input_format, self.sequence_code = self.autofinder(input_alignment)
 
 			# In case the input format is specified, overwrite the attribute
 			if input_format is not None:
