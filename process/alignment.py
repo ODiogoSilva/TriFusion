@@ -725,3 +725,11 @@ class AlignmentList (Alignment, Base, MissingFilter):
 				output_file_name = alignment_obj.input_alignment.split(".")[0]
 			alignment_obj.write_to_file(output_format, output_file=output_file_name, form=form, outgroup_list=outgroup_list)
 
+__author__ = "Diogo N. Silva"
+__copyright__ = "Diogo N. Silva"
+__credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
+__license__ = "GPL"
+__version__ = "0.1.0"
+__maintainer__ = "Diogo N. Silva"
+__email__ = "o.diogosilva@gmail.com"
+__status__ = "Prototype"

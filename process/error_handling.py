@@ -37,3 +37,13 @@ class OutputFormatError(Exception):
 		self.value = value
 	def __str__(self):
 		return repr(self.value)
+
+
+__author__ = "Diogo N. Silva"
+__copyright__ = "Diogo N. Silva"
+__credits__ = ["Diogo N. Silva"]
+__license__ = "GPL"
+__version__ = "0.1.0"
+__maintainer__ = "Diogo N. Silva"
+__email__ = "o.diogosilva@gmail.com"
+__status__ = "Prototype"
