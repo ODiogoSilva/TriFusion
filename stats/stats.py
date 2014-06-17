@@ -72,9 +72,14 @@ class MultiReport():
 	""" This will create a report object for multiple alignments. Its most basic instance will be a list of UniReport
 	objects
 	"""
-	def __init__(self, report_list):
+	def __init__(self, alignment_list):
 
-		self.report_list = report_list
+		self.report_list = []
+
+		for report in alignment_list:
+			report_object = UniReport(report)
+
+			self.report_list.append(report_object)
 
 
 	def report_table (self, output_file):
