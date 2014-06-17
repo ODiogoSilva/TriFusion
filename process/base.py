@@ -161,7 +161,7 @@ class Base ():
 			if seq == "":
 				empty_taxa.append(taxa)
 
-		if empty_taxa is not []:
+		if empty_taxa is []:
 
 			print("\nInputError: The following taxa contain empty sequences in the file %s: %s\nPlease verify and "
 					"re-run the program. Exiting...\n" % (current_file, " ".join(empty_taxa)))
