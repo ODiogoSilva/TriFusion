@@ -51,7 +51,9 @@ class UniReport(Alignment):
 				variable += 1
 
 				# Check for parsimonious informative sites
-				if len([val for char, val in Counter(column).items() if x > 1 and y not in "-" and y not in "n"]) > \
+				if len([val for char, val in Counter(column).items() if val > 1 and char not in "-" and char not in
+						"n"])\
+						> \
 						1:  # Filters the Counter dictionary with key:val pairs with vals that are not missing
 						# data or gap and higher than 1
 					parsimonious += 1
