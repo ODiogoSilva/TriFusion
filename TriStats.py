@@ -30,12 +30,12 @@ from stats import stats
 
 parser = argparse.ArgumentParser(description="Filters alignment files and creates statistics and graphics for "
 											 "alignments")
-parser.add_argument("-in",dest="infile",nargs="+",required=True,help="Provide the input files")
+parser.add_argument("-in", dest="infile", nargs="+", required=True, help="Provide the input files")
 parser.add_argument("-o", dest="project_name", required=True, help="Provide a name for the project")
 
 modes = parser.add_argument_group("Report options")
-modes.add_argument("-f", dest="full_report",action="store_const",const=True, help="Generate full report")
-modes.add_argument("-m", dest="mode", nargs="+", choices=["1"], help="Specify which report(s): \n\t\t1: Basic " \
+modes.add_argument("-f", dest="full_report", action="store_const", const=True, help="Generate full report")
+modes.add_argument("-m", dest="mode", nargs="+", choices=["1"], help="Specify which report(s): \n\t\t1: Basic "
 																	"phylogenetic information")
 
 arg = parser.parse_args()
