@@ -79,14 +79,14 @@ class MissingFilter ():
 		filtered_alignment = dict((taxa, list(seq)) for taxa, seq in self.alignment.items())
 
 		# Creating the column list variable
-		for column_position in range(self.old_locus_length-1, -1, -1):  # The reverse iteration over the sequences is
+		for column_position in range(self.old_locus_length - 1, -1, -1):  # The reverse iteration over the sequences is
 		#  necessary to maintain the column numbers when removing them
 
 			if verbose is True:
 				print("\rFiltering alignment column %s out of %s" % (column_position + 1, self.old_locus_length + 1),
 					   end="")
 
-			column = [char[column_position] for char in filtered_alignment.values()] # This greatly speeds things up
+			column = [char[column_position] for char in filtered_alignment.values()]  # This greatly speeds things up
 			# compared to using a string
 
 			# Calculating metrics
