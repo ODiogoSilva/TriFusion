@@ -193,7 +193,8 @@ class MultiReport():
 		if plot is True:
 
 			missing_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
-										  label_font_size=8, legend_font_size=20, margin=50, major_label_font_size=10)
+										  label_font_size=8, legend_font_size=20, margin=50,
+										  major_label_font_size=10, print_values=False)
 			missing_bar_chart.title = "Character missing data per species"
 			missing_bar_chart.x_labels = [taxon[0] for taxon in sorted_data_list]
 
