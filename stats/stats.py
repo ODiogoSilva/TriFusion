@@ -24,6 +24,7 @@ from process.alignment import Alignment
 from collections import OrderedDict
 import pygal
 
+
 class UniReport(Alignment):
 	""" This will create a report object for single alignments and will inherit from the Alignment class. As with its
 	base class, it will be possible to create a UniReport object directly from an external file or from an ordered
@@ -47,7 +48,7 @@ class UniReport(Alignment):
 			column = [char[column_position].lower() for char in self.alignment.values()]
 
 			# Check for variable sites
-			column_set = len(set(column) - set(["n",self.sequence_code[1]]))
+			column_set = len(set(column) - {"n", self.sequence_code[1]})
 			if column_set > 1:
 				variable += 1
 
@@ -67,7 +68,7 @@ class UniReport(Alignment):
 		for sequence in self.alignment.values():
 			cumulative_gap += sequence.count(self.sequence_code[1]) + sequence.count("-")
 
-		indel_perc = float(cumulative_gap) / (self.locus_length*len(self.alignment))
+		indel_perc = float(cumulative_gap) / (self.locus_length * len(self.alignment))
 
 		return indel, indel_perc, variable, parsimonious
 
@@ -123,7 +124,7 @@ class MultiReport():
 		Generates a csv table containing basic phylogenetic statistics for each alignment
 		"""
 
-		output_handle = open(output_file,"w")
+		output_handle = open(output_file, "w")
 		output_handle.write("Gene; Number of sites; Number of indels; Percentage of missing data; Variable sites; "
 							"Parsimonious sites\n")
 
@@ -153,7 +154,7 @@ class MultiReport():
 		"""
 
 		taxa_set = self._get_species_set()
-		missing_data_contents = dict((taxa, [0,0,0]) for taxa in taxa_set)
+		missing_data_contents = dict((taxa, [0, 0, 0]) for taxa in taxa_set)
 		alignment_length = 0
 
 		for report in self.report_list:
@@ -165,15 +166,15 @@ class MultiReport():
 
 		# Convert missing_data_contents to list and sort by missing data
 		data_list = [(taxon, [vals[0], vals[1], vals[2]]) for taxon, vals in missing_data_contents.items()]
-		sorted_data_list = sorted(data_list, key=lambda  x: x[1][2], reverse=True)
+		sorted_data_list = sorted(data_list, key=lambda x: x[1][2], reverse=True)
 
 		# Table
 		if table is True:
 
 			try:
-				output_handle = open(output_file,"w")
+				output_handle = open(output_file, "w")
 			except TypeError:
-				print ("TypeError: Please specify an output file name")
+				print("TypeError: Please specify an output file name")
 				raise SystemExit
 
 			output_handle.write("Taxon; Gap chars; Missing chars; Total missing chars; Effective chars; Total chars\n")
@@ -191,27 +192,27 @@ class MultiReport():
 		# Plot
 		if plot is True:
 
-			missing_bar_chart = pygal.StackedBar(x_label_rotation=90,width=1200, legend_at_bottom=True, height=800,
-										  label_font_size=8,legend_font_size=20,margin=50,major_label_font_size=10)
+			missing_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
+										  label_font_size=8, legend_font_size=20, margin=50, major_label_font_size=10)
 			missing_bar_chart.title = "Character missing data per species"
 			missing_bar_chart.x_labels = [taxon[0] for taxon in sorted_data_list]
 
 			gap_list = []
-			missing_list =[]
+			missing_list = []
 			character_list = []
 
 			for taxon, vals in sorted_data_list:
 				# Adjusting missing data values to be in proportion
 				gap_proportion = float(vals[0]) / float(alignment_length)
 				missing_proportion = float(vals[1]) / float(alignment_length)
-				character_proportion = (float(alignment_length)-float(vals[2])) / float(alignment_length)
+				character_proportion = (float(alignment_length) - float(vals[2])) / float(alignment_length)
 
-				print (taxon, gap_proportion, missing_proportion, character_proportion)
+				print(taxon, gap_proportion, missing_proportion, character_proportion)
 
 				# Creating chart variables
 				gap_list.append({"value": gap_proportion, "label": str(vals[0])})
 				missing_list.append({"value": missing_proportion, "label": str(vals[1])})
-				character_list.append({"value": character_proportion, "label": str(alignment_length-vals[2])})
+				character_list.append({"value": character_proportion, "label": str(alignment_length - vals[2])})
 
 			# Adding chart variables
 			missing_bar_chart.add("Gaps", gap_list)
