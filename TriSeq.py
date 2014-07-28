@@ -134,12 +134,13 @@ def main_parser(alignment_list):
 	else:
 		sequence_format = "interleave"
 
+	print (conversion, arg.outfile)
 	# Defining output file name
 	if conversion is None and arg.outfile is not None:
 		outfile = "".join(arg.outfile)
 	elif conversion is None and arg.outfile is not None:
 		outfile = "".join(arg.outfile)
-	elif conversion is None and arg.outfile is not None:
+	elif conversion is not None and arg.outfile is None:
 		outfile = "".join(alignment_list).split(".")[0]
 
 	# The input file at this stage is not necessary
