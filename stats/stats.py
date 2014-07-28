@@ -194,7 +194,7 @@ class MultiReport():
 
 			missing_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
 										  label_font_size=8, legend_font_size=20, margin=50,
-										  major_label_font_size=10, print_values=False)
+										  major_label_font_size=10, print_values=False, y_title='Proportion')
 			missing_bar_chart.title = "Character missing data per species"
 			missing_bar_chart.x_labels = [taxon[0] for taxon in sorted_data_list]
 
@@ -207,8 +207,6 @@ class MultiReport():
 				gap_proportion = float(vals[0]) / float(alignment_length)
 				missing_proportion = float(vals[1]) / float(alignment_length)
 				character_proportion = (float(alignment_length) - float(vals[2])) / float(alignment_length)
-
-				print(taxon, gap_proportion, missing_proportion, character_proportion)
 
 				# Creating chart variables
 				gap_list.append({"value": gap_proportion, "label": str(vals[0])})
