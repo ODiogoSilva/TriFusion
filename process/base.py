@@ -205,7 +205,7 @@ class Progression():
 		try:
 			self.msg
 			sys.stdout.write('\r' + ' ' * len(self.msg))
-		except NameError:
+		except AttributeError:
 			pass
 
 		# The progress bar
