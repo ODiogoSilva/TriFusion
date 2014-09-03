@@ -485,13 +485,15 @@ class Alignment (Base, MissingFilter):
 					out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(seq_space_nex), seq))
 				out_file.write(";\n\tend;")
 
-			if self.loci_ranges is not True:
+			try:
+				self.loci_ranges
 				out_file.write("\nbegin mrbayes;\n")
 				for partition, lrange in self.loci_ranges:
 					out_file.write("\tcharset %s = %s;\n" % (partition, lrange))
+
 				out_file.write("\tpartition part = %s: %s;\n\tset partition=part;\nend;\n" % (len(self.loci_ranges),
 																", ".join([part[0] for part in self.loci_ranges])))
-			else:
+			except:
 				pass
 
 			# In case outgroup taxa are specified
