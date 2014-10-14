@@ -23,3 +23,33 @@
 #  Version: 0.1
 #  Last update: 11/02/14
 
+from collections import OrderedDict
+
+
+class Group ():
+	""" This represents the main object of the orthomcl toolbox module. It is initialized with a file name of a
+	orthomcl groups file and provides several methods that act on that group file. To process multiple Group objects,
+	see MultiGroups object """
+
+	def __init__(self, groups_file):
+
+		# Initialize groups attribute
+		self.groups = OrderedDict()
+		# Parse groups file and populate groups attribute
+		self.parse_groups(groups_file)
+
+	def parse_groups(self, groups_file):
+		"""
+		Parses the ortholog clusters in the groups file and creates an ordered dictionary attributed containing the
+		group number as key and the sequence references as values in list mode (e.x., {group1:[seq_spA, seq_spB (...)]})
+		:param groups_file: File name for the orthomcl groups file
+		:return: populates the groups attribute
+		"""
+
+		groups_file_handle = open(groups_file)
+
+		for line in groups_file_handle:
+			group_key = line.split(":")[0].strip()
+			group_vals = line.split(":")[1].strip().split()
+
+			self.groups[group_key] = group_vals
