@@ -25,6 +25,10 @@
 
 from collections import OrderedDict
 
+class Cluster():
+	""" Object for clusters of the OrhtoMCL groups file. It is usefull to set a number of attributes that will make
+	subsequent filtration and processing much easier """
+
 
 class Group ():
 	""" This represents the main object of the orthomcl toolbox module. It is initialized with a file name of a
