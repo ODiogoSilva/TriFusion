@@ -25,9 +25,64 @@
 
 from collections import OrderedDict
 
+
 class Cluster():
-	""" Object for clusters of the OrhtoMCL groups file. It is usefull to set a number of attributes that will make
+	""" Object for clusters of the OrthoMCL groups file. It is useful to set a number of attributes that will make
 	subsequent filtration and processing much easier """
+
+	def __init__(self, line_string):
+		"""
+		To initialize a Cluster object, only a string compliant with the format of a cluster in an OrthoMCL groups
+		file has to be provided. This line should contain the name of the group, a colon, and the sequences belonging
+		to that group separated by whitespace
+		:param line_string: String of a cluster
+		"""
+
+		# Initializing attributes for parse_string
+		self.name = None
+		self.sequences = None
+		self.species_frequency = []
+
+		# Initializing attributes for apply filter
+		self.gene_compliant = None  # If the value is different than None, this will inform downstream objects of
+		# whether this cluster is compliant with the specified gene_threshold
+		self.species_compliant = None  # If the value is different than None, this will inform downstream objects of
+		# whether this cluster is compliant with the specified species_threshold
+
+	def parse_string(self, cluster_string):
+		"""
+		Parses the string and sets the group name and sequence list attributes
+		"""
+
+		fields = cluster_string.split(":")
+		# Setting the name and sequence list of the clusters
+		self.name = fields[0].strip()
+		self.sequences = fields[1].strip().split()
+
+		# Setting the gene frequency for each species in the cluster
+		species_list = set([field.split("|")[1] for field in self.sequences])
+		self.species_frequency = dict((species, frequency) for species, frequency in zip(species_list,
+										map(lambda species: str(self.sequences).count(species), species_list)))
+
+	def apply_filter(self, gene_threshold, species_threshold):
+		"""
+		This method will update two Cluster attributes, self.gene_flag and self.species_flag, which will inform
+		downstream objects if this cluster respects the gene and species threshold
+		:param gene_threshold: Integer for the maximum number of gene copies per species
+		:param species_threshold: Integer for the minimum number of species present
+		"""
+
+		# Check whether cluster is compliant with species_threshold
+		if len(self.species_frequency) >= species_threshold:
+			self.species_compliant = True
+		else:
+			self.species_compliant = False
+
+		# Check whether cluster is compliant with gene_threshold
+		if max(self.species_frequency.values()) <= gene_threshold:
+			self.gene_compliant = True
+		else:
+			self.gene_compliant = False
 
 
 class Group ():
@@ -40,7 +95,7 @@ class Group ():
 		# Initialize the project prefix for possible ouput files
 		self.prefix = project_prefix
 		# Initialize attributes for the parser_groups method
-		self.groups = OrderedDict()
+		self.groups = []
 		self.name = None
 		# Parse groups file and populate groups attribute
 		self.__parse_groups(groups_file)
@@ -56,28 +111,11 @@ class Group ():
 		:return: populates the groups attribute
 		"""
 
-		def species_frequency(group_cluster):
-			"""
-			:param group_cluster: List containing the sequence references for each ortholog cluster
-			:return: a dictionary containing the frequency of each species in this cluster
-			"""
-
-			species_list = set([field.split("|")[1] for field in group_cluster])
-			species_frequency_dictionary = dict((species, frequency) for species, frequency in zip(species_list,
-											map(lambda species: str(group_cluster).count(species), species_list)))
-
-			return species_frequency_dictionary
-
 		self.name = groups_file
 		groups_file_handle = open(groups_file)
 
 		for line in groups_file_handle:
-			group_key = line.split(":")[0].strip()
-			group_vals = line.split(":")[1].strip().split()
-
-			group_species_frequency = species_frequency(group_vals)
-
-			self.groups[group_key] = [group_vals, group_species_frequency]
+			self.groups.append(Cluster(line))
 
 	def basic_group_statistics(self, gene_threshold, species_threshold):
 		"""
@@ -97,21 +135,21 @@ class Group ():
 		clusters_gene_threshold = 0
 		clusters_species_threshold = 0
 		clusters_all_threshold = 0
-		for group_vals in self.groups.values():
+
+		for cluster in self.groups:
 			# For total number of sequences
-			sequence_num = len(group_vals[0])
+			sequence_num = len(cluster.sequences)
 			total_sequence_num += sequence_num
 
-			species_freq = group_vals[1]
 			# For clusters above species threshold
-			if len(species_freq) >= species_threshold:
+			if cluster.species_compliant is True:
 				clusters_species_threshold += 1
 
 			# For clusters below gene threshold
-			if max(species_freq.values()) <= gene_threshold:
+			if cluster.gene_compliant is True:
 				clusters_gene_threshold += 1
 
-			if len(species_freq) >= species_threshold and max(species_freq.values()) <= gene_threshold:
+			if cluster.species_compliant is True and cluster.gene_compliant is True:
 				clusters_all_threshold += 1
 
 		statistics = [total_cluster_num, total_sequence_num, clusters_species_threshold, clusters_gene_threshold,
