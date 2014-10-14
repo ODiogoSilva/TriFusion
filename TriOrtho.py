@@ -27,5 +27,26 @@
 __author__ = 'DiogoNSilva'
 
 import argparse
+from ortho import OrthomclToolbox as ot
 
-parser = argparse.ArgumentParser(description="Concatenates DNA data matrices")
+parser = argparse.ArgumentParser(description="Toolbox to analyse and filter OrthoMCL group files")
+
+parser.add_argument("-in", dest="infile", nargs="+", help="Provide the OrthoMCL group file(s)")
+
+arg = parser.parse_args()
+
+### Execution
+
+
+def main():
+
+	# Arguments
+	groups_file = arg.infile
+
+	if len(groups_file) == 1:
+
+		group_file = groups_file[0]
+		group_object = ot.Group(group_file)
+
+
+main()
