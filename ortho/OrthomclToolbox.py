@@ -36,9 +36,9 @@ class Group ():
 		# Initialize groups attribute
 		self.groups = OrderedDict()
 		# Parse groups file and populate groups attribute
-		self.parse_groups(groups_file)
+		self.__parse_groups(groups_file)
 
-	def parse_groups(self, groups_file):
+	def __parse_groups(self, groups_file):
 		"""
 		Parses the ortholog clusters in the groups file and creates an ordered dictionary attributed containing the
 		group number as key and the sequence references as values in list mode (e.x., {group1:[seq_spA, seq_spB (...)]})
