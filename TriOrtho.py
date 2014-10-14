@@ -32,6 +32,11 @@ from ortho import OrthomclToolbox as OT
 parser = argparse.ArgumentParser(description="Toolbox to analyse and filter OrthoMCL group files")
 
 parser.add_argument("-in", dest="infile", nargs="+", help="Provide the OrthoMCL group file(s)")
+parser.add_argument("-t1", "--gene-threshold", dest="gene_threshold", nargs=1, default=1, help="Provide the maximum "
+					"threshold of gene copy numbers per species that should be allowed")
+parser.add_argument("-t2", "--species-threshold", dest="species_threshold", nargs=1, default=200, help="Provide the "
+					"minimum number of species that should be allowed.")
+
 
 arg = parser.parse_args()
 
@@ -42,10 +47,14 @@ def main():
 
 	# Arguments
 	groups_file = arg.infile
+	gene_threshold = int(arg.gene_threshold[0])
+	species_threshold = int(arg.species_threshold[0])
 
 	if len(groups_file) == 1:
 
 		group_file = groups_file[0]
 		group_object = OT.Group(group_file)
+
+		print(group_object.basic_group_statistics(gene_threshold, species_threshold))
 
 main()

@@ -71,3 +71,42 @@ class Group ():
 
 			self.groups[group_key] = [group_vals, group_species_frequency]
 
+	def basic_group_statistics(self, gene_threshold, species_threshold):
+		"""
+		This method creates a basic table in list format containing basic information of the groups file (total
+		number of clusters, total number of sequences, number of clusters below the gene threshold, number of
+		clusters below the species threshold and number of clusters below the gene AND species threshold
+		:param gene_threshold: Integer with the maximum number of gene copies per species
+		:param species_threshold: Integer with the minimum number of species per cluster
+		:return: List containing number of [total clusters, total sequences, clusters above gene threshold,
+		clusters above species threshold, clusters above gene and species threshold]
+		"""
+		# Total number of clusters
+		total_cluster_num = len(self.groups)
+
+		# Remaining counters
+		total_sequence_num = 0
+		clusters_gene_threshold = 0
+		clusters_species_threshold = 0
+		clusters_all_threshold = 0
+		for group_vals in self.groups.values():
+			# For total number of sequences
+			sequence_num = len(group_vals[0])
+			total_sequence_num += sequence_num
+
+			species_freq = group_vals[1]
+			# For clusters above species threshold
+			if len(species_freq) >= species_threshold:
+				clusters_species_threshold += 1
+
+			# For clusters below gene threshold
+			if max(species_freq.values()) <= gene_threshold:
+				clusters_gene_threshold += 1
+
+			if len(species_freq) >= species_threshold and max(species_freq.values()) <= gene_threshold:
+				clusters_all_threshold += 1
+
+		statistics = [total_cluster_num, total_sequence_num, clusters_species_threshold, clusters_gene_threshold,
+					 clusters_all_threshold]
+
+		return statistics
