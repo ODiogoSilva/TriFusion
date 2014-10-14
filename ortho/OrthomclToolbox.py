@@ -41,13 +41,15 @@ class Cluster():
 		# Initializing attributes for parse_string
 		self.name = None
 		self.sequences = None
-		self.species_frequency = []
+		self.species_frequency = {}
 
 		# Initializing attributes for apply filter
 		self.gene_compliant = None  # If the value is different than None, this will inform downstream objects of
 		# whether this cluster is compliant with the specified gene_threshold
 		self.species_compliant = None  # If the value is different than None, this will inform downstream objects of
 		# whether this cluster is compliant with the specified species_threshold
+
+		self.parse_string(line_string)
 
 	def parse_string(self, cluster_string):
 		"""
@@ -90,7 +92,11 @@ class Group ():
 	orthomcl groups file and provides several methods that act on that group file. To process multiple Group objects,
 	see MultiGroups object """
 
-	def __init__(self, groups_file, project_prefix="MyGroups"):
+	def __init__(self, groups_file, gene_threshold=None, species_threshold=None, project_prefix="MyGroups"):
+
+		# Initializing thresholds. These may be set from the start, or using some method that uses them as arguments
+		self.gene_threshold = gene_threshold
+		self.species_threshold = species_threshold
 
 		# Initialize the project prefix for possible ouput files
 		self.prefix = project_prefix
@@ -115,15 +121,17 @@ class Group ():
 		groups_file_handle = open(groups_file)
 
 		for line in groups_file_handle:
-			self.groups.append(Cluster(line))
+			cluster_object = Cluster(line)
 
-	def basic_group_statistics(self, gene_threshold, species_threshold):
+			if self.species_threshold is not None and self.gene_threshold is not None:
+				cluster_object.apply_filter(self.gene_threshold, self.species_threshold)
+				self.groups.append(cluster_object)
+
+	def basic_group_statistics(self):
 		"""
 		This method creates a basic table in list format containing basic information of the groups file (total
 		number of clusters, total number of sequences, number of clusters below the gene threshold, number of
-		clusters below the species threshold and number of clusters below the gene AND species threshold
-		:param gene_threshold: Integer with the maximum number of gene copies per species
-		:param species_threshold: Integer with the minimum number of species per cluster
+		clusters below the species threshold and number of clusters below the gene AND species threshold)
 		:return: List containing number of [total clusters, total sequences, clusters above gene threshold,
 		clusters above species threshold, clusters above gene and species threshold]
 		"""
@@ -161,11 +169,15 @@ class Group ():
 class MultiGroups ():
 	""" Creates an object composed of multiple Group objects """
 
-	def __init__(self, groups_files, project_prefix="MyGroups"):
+	def __init__(self, groups_files, gene_threshold=None, species_threshold=None, project_prefix="MyGroups"):
 		"""
 		:param groups_files: A list containing the file names of the multiple group files
 		:return: Populates the self.multiple_groups attribute
 		"""
+
+		# Initializing thresholds. These may be set from the start, or using some method that uses them as arguments
+		self.gene_threshold = gene_threshold
+		self.species_threshold = species_threshold
 
 		self.prefix = project_prefix
 
@@ -173,14 +185,11 @@ class MultiGroups ():
 
 		for group_file in groups_files:
 
-			group_object = Group(group_file)
+			group_object = Group(group_file, self.gene_threshold, self.species_threshold)
 			self.multiple_groups.append(group_object)
 
-	def basic_multigroup_statistics(self, gene_threshold, species_threshold,
-									output_file_name="multigroup_base_statistics.csv"):
+	def basic_multigroup_statistics(self, output_file_name="multigroup_base_statistics.csv"):
 		"""
-		:param gene_threshold: Integer with the maximum number of gene copies per species
-		:param species_threshold:
 		:param output_file_name:
 		:return:
 		"""
@@ -189,7 +198,7 @@ class MultiGroups ():
 		statistics_storage = OrderedDict()
 
 		for group in self.multiple_groups:
-			group_statistics = group.basic_group_statistics(gene_threshold, species_threshold)
+			group_statistics = group.basic_group_statistics()
 			statistics_storage[group.name] = group_statistics
 
 		output_handle = open(self.prefix + "." + output_file_name, "w")
