@@ -33,18 +33,33 @@ class Group ():
 
 	def __init__(self, groups_file):
 
-		# Initialize groups attribute
+		# Initialize attributes for the parser_groups method
 		self.groups = OrderedDict()
 		# Parse groups file and populate groups attribute
 		self.__parse_groups(groups_file)
 
 	def __parse_groups(self, groups_file):
 		"""
-		Parses the ortholog clusters in the groups file and creates an ordered dictionary attributed containing the
-		group number as key and the sequence references as values in list mode (e.x., {group1:[seq_spA, seq_spB (...)]})
+		Parses the ortholog clusters in the groups file and populates the self.groups ordered dictionary containing the
+		group number as key and the sequence references as values in list mode.
+		For each group, it also creates a dictionary containing the gene frequency of each species. This dictionary
+		is added as the second elements of the group's dictionary value.
+		A final self.groups dictionary should be like: {groups1: [[seq_spA, seq_spB, seq_spC], {spA:1, spB:1, spC:1}]}
 		:param groups_file: File name for the orthomcl groups file
 		:return: populates the groups attribute
 		"""
+
+		def species_frequency(group_cluster):
+			"""
+			:param group_cluster: List containing the sequence references for each ortholog cluster
+			:return: a dictionary containing the frequency of each species in this cluster
+			"""
+
+			species_list = set([field[1] for field in group_cluster.split("|")])
+			species_frequency_dictionary = dict((species, frequency) for species, frequency in zip(species_list,
+											map(lambda species: group_cluster.count(species), species_list)))
+
+			return species_frequency_dictionary
 
 		groups_file_handle = open(groups_file)
 
@@ -52,4 +67,7 @@ class Group ():
 			group_key = line.split(":")[0].strip()
 			group_vals = line.split(":")[1].strip().split()
 
-			self.groups[group_key] = group_vals
+			group_species_frequency = species_frequency(group_vals)
+
+			self.groups[group_key] = [group_vals, group_species_frequency]
+
