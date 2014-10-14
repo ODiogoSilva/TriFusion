@@ -27,7 +27,7 @@
 __author__ = 'DiogoNSilva'
 
 import argparse
-from ortho import OrthomclToolbox as ot
+from ortho import OrthomclToolbox as OT
 
 parser = argparse.ArgumentParser(description="Toolbox to analyse and filter OrthoMCL group files")
 
@@ -46,7 +46,6 @@ def main():
 	if len(groups_file) == 1:
 
 		group_file = groups_file[0]
-		group_object = ot.Group(group_file)
-
+		group_object = OT.Group(group_file)
 
 main()

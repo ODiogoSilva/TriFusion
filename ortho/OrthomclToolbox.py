@@ -55,9 +55,9 @@ class Group ():
 			:return: a dictionary containing the frequency of each species in this cluster
 			"""
 
-			species_list = set([field[1] for field in group_cluster.split("|")])
+			species_list = set([field.split("|")[1] for field in group_cluster])
 			species_frequency_dictionary = dict((species, frequency) for species, frequency in zip(species_list,
-											map(lambda species: group_cluster.count(species), species_list)))
+											map(lambda species: str(group_cluster).count(species), species_list)))
 
 			return species_frequency_dictionary
 
