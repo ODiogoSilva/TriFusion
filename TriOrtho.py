@@ -53,11 +53,11 @@ def main():
 	if len(groups_file) == 1:
 
 		group_file = groups_file[0]
-		group_object = OT.Group(group_file)
+		group_object = OT.Group(group_file, gene_threshold, species_threshold)
 
 	else:
-		multiple_groups_object = OT.MultiGroups(groups_file)
-		multiple_groups_object.basic_multigroup_statistics(gene_threshold, species_threshold)
+		multiple_groups_object = OT.MultiGroups(groups_file, gene_threshold, species_threshold)
+		multiple_groups_object.basic_multigroup_statistics()
 
 
 main()
