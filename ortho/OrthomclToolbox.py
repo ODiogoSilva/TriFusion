@@ -31,10 +31,13 @@ class Group ():
 	orthomcl groups file and provides several methods that act on that group file. To process multiple Group objects,
 	see MultiGroups object """
 
-	def __init__(self, groups_file):
+	def __init__(self, groups_file, project_prefix="MyGroups"):
 
+		# Initialize the project prefix for possible ouput files
+		self.prefix = project_prefix
 		# Initialize attributes for the parser_groups method
 		self.groups = OrderedDict()
+		self.name = None
 		# Parse groups file and populate groups attribute
 		self.__parse_groups(groups_file)
 
@@ -61,6 +64,7 @@ class Group ():
 
 			return species_frequency_dictionary
 
+		self.name = groups_file
 		groups_file_handle = open(groups_file)
 
 		for line in groups_file_handle:
@@ -110,3 +114,47 @@ class Group ():
 					 clusters_all_threshold]
 
 		return statistics
+
+
+class MultiGroups ():
+	""" Creates an object composed of multiple Group objects """
+
+	def __init__(self, groups_files, project_prefix="MyGroups"):
+		"""
+		:param groups_files: A list containing the file names of the multiple group files
+		:return: Populates the self.multiple_groups attribute
+		"""
+
+		self.prefix = project_prefix
+
+		self.multiple_groups = []
+
+		for group_file in groups_files:
+
+			group_object = Group(group_file)
+			self.multiple_groups.append(group_object)
+
+	def basic_multigroup_statistics(self, gene_threshold, species_threshold,
+									output_file_name="multigroup_base_statistics.csv"):
+		"""
+		:param gene_threshold: Integer with the maximum number of gene copies per species
+		:param species_threshold:
+		:param output_file_name:
+		:return:
+		"""
+
+		# Creates the storage for the statistics of the several files
+		statistics_storage = OrderedDict()
+
+		for group in self.multiple_groups:
+			group_statistics = group.basic_group_statistics(gene_threshold, species_threshold)
+			statistics_storage[group.name] = group_statistics
+
+		output_handle = open(self.prefix + "." + output_file_name, "w")
+		output_handle.write("Group file; Total clusters; Total sequences; Clusters below gene threshold; Clusters "
+							"above species threshold; Clusters below gene and above species thresholds\n")
+
+		for group, vals in statistics_storage.items():
+			output_handle.write("%s; %s\n" % (group, ";".join([str(x) for x in vals])))
+
+		output_handle.close()
