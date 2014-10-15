@@ -168,7 +168,7 @@ class Group ():
 	def export_filtered_group(self, output_file_name="filtered_groups"):
 		""" Writes the filtered groups into a new file """
 
-		output_handle = open(output_file_name)
+		output_handle = open(output_file_name, "w")
 
 		for cluster in self.groups:
 			if cluster.species_compliant is True and cluster.gene_compliant is True:

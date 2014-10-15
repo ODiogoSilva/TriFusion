@@ -56,6 +56,9 @@ def main():
 		group_file = groups_file[0]
 		group_object = OT.Group(group_file, gene_threshold, species_threshold)
 
+		if arg.export:
+			group_object.export_filtered_group()
+
 	else:
 		multiple_groups_object = OT.MultiGroups(groups_file, gene_threshold, species_threshold)
 		multiple_groups_object.basic_multigroup_statistics()
