@@ -176,6 +176,7 @@ class Group ():
 
 		output_handle.close()
 
+
 class MultiGroups ():
 	""" Creates an object composed of multiple Group objects """
 

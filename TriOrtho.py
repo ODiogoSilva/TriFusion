@@ -38,6 +38,9 @@ parser.add_argument("-t2", "--species-threshold", dest="species_threshold", narg
 					"minimum number of species that should be allowed.")
 parser.add_argument("-e", dest="export", action="store_const", const=True, help="Exports the filtered groups into a "
 					"new file")
+parser.add_argument("-s", dest="stats", choices=["1"], help="Use the available choices to perform statistical "
+					"analyses or summaries of the groups file. 1: Generates basic summary statistics on the number of "
+					"clusters and sequences of the groups file.")
 
 arg = parser.parse_args()
 
@@ -59,9 +62,15 @@ def main():
 		if arg.export:
 			group_object.export_filtered_group()
 
+		#if arg.stats:
+			#if "1" in arg.stats:
+
 	else:
 		multiple_groups_object = OT.MultiGroups(groups_file, gene_threshold, species_threshold)
-		multiple_groups_object.basic_multigroup_statistics()
+
+		if arg.stats:
+			if "1" in arg.stats:
+				multiple_groups_object.basic_multigroup_statistics()
 
 
 main()
