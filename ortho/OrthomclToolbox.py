@@ -24,6 +24,7 @@
 #  Last update: 11/02/14
 
 from collections import OrderedDict
+import subprocess
 
 
 class Cluster():
@@ -175,6 +176,15 @@ class Group ():
 				output_handle.write("%s: %s\n" % (cluster.name, " ".join(cluster.sequences)))
 
 		output_handle.close()
+
+	def retrieve_fasta(self, database):
+		""" When provided with the BLAST database used in the OrthoMCL analysis, this will retrieve the fasta
+		sequences from each cluster and save them in an individual fasta file """
+
+		for cluster in self.groups:
+			for sequence_id in cluster.sequences:
+				subprocess.Popen(["blastdbcmd -db %s -dbtype prot -entry '%s' >> %s" % (database, sequence_id,
+								cluster.name)], shell=True).wait()
 
 
 class MultiGroups ():
