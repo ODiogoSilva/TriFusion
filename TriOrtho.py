@@ -67,8 +67,8 @@ def main():
 		#if arg.stats:
 			#if "1" in arg.stats:
 
-		if arg.group2fasta:
-			database = arg.group2fasta
+		if arg.groups2fasta:
+			database = arg.groups2fasta
 			group_object.retrieve_fasta(database)
 
 	else:
