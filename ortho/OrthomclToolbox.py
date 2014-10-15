@@ -165,6 +165,16 @@ class Group ():
 
 		return statistics
 
+	def export_filtered_group(self, output_file_name="filtered_groups"):
+		""" Writes the filtered groups into a new file """
+
+		output_handle = open(output_file_name)
+
+		for cluster in self.groups:
+			if cluster.species_compliant is True and cluster.gene_compliant is True:
+				output_handle.write("%s: %s\n" % (cluster.name, " ".join(cluster.sequences)))
+
+		output_handle.close()
 
 class MultiGroups ():
 	""" Creates an object composed of multiple Group objects """
