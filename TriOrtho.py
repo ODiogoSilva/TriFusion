@@ -36,7 +36,8 @@ parser.add_argument("-t1", "--gene-threshold", dest="gene_threshold", nargs=1, d
 					"threshold of gene copy numbers per species that should be allowed")
 parser.add_argument("-t2", "--species-threshold", dest="species_threshold", nargs=1, default=200, help="Provide the "
 					"minimum number of species that should be allowed.")
-
+parser.add_argument("-e", dest="export", action="store_const", const=True, help="Exports the filtered groups into a "
+					"new file")
 
 arg = parser.parse_args()
 
