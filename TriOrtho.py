@@ -41,6 +41,8 @@ parser.add_argument("-e", dest="export", action="store_const", const=True, help=
 parser.add_argument("-s", dest="stats", choices=["1"], help="Use the available choices to perform statistical "
 					"analyses or summaries of the groups file. 1: Generates basic summary statistics on the number of "
 					"clusters and sequences of the groups file.")
+parser.add_argument("-g2f", dest="groups2fasta", help="Retrieves the sequences of each cluster to a single file per "
+					"cluster. The BLAST database must be provided with this option")
 
 arg = parser.parse_args()
 
@@ -64,6 +66,10 @@ def main():
 
 		#if arg.stats:
 			#if "1" in arg.stats:
+
+		if arg.group2fasta:
+			database = arg.group2fasta
+			group_object.retrieve_fasta(database)
 
 	else:
 		multiple_groups_object = OT.MultiGroups(groups_file, gene_threshold, species_threshold)
