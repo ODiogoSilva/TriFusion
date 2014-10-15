@@ -183,7 +183,7 @@ class Group ():
 
 		for cluster in self.groups:
 			for sequence_id in cluster.sequences:
-				subprocess.Popen(["blastdbcmd -db %s -dbtype prot -entry '%s' >> %s" % (database, sequence_id,
+				subprocess.Popen(["blastdbcmd -db %s -dbtype prot -entry '%s' >> %s.fas" % (database, sequence_id,
 								cluster.name)], shell=True).wait()
 
 
