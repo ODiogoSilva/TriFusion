@@ -43,6 +43,9 @@ parser.add_argument("-s", dest="stats", choices=["1"], help="Use the available c
 					"clusters and sequences of the groups file.")
 parser.add_argument("-g2f", dest="groups2fasta", help="Retrieves the sequences of each cluster to a single file per "
 					"cluster. The BLAST database must be provided with this option")
+parser.add_argument("-p", dest="pipeline", nargs="*", choices=["1"], help="TriOrtho can be used in pipeline format to "
+					"perform sequential steps that users most often use. 1: Filter the original groups file and "
+					"retrieve the Fasta sequences. ")
 
 arg = parser.parse_args()
 
@@ -55,21 +58,29 @@ def main():
 	groups_file = arg.infile
 	gene_threshold = int(arg.gene_threshold[0])
 	species_threshold = int(arg.species_threshold[0])
+	pipeline_mode = arg.pipeline
 
 	if len(groups_file) == 1:
 
 		group_file = groups_file[0]
 		group_object = OT.Group(group_file, gene_threshold, species_threshold)
 
-		if arg.export:
-			group_object.export_filtered_group()
+		if pipeline_mode:
 
-		#if arg.stats:
-			#if "1" in arg.stats:
+			if "1" in pipeline_mode:
+				group_object.export_filtered_group()
 
-		if arg.groups2fasta:
-			database = arg.groups2fasta
-			group_object.retrieve_fasta(database)
+		else:
+
+			if arg.export:
+				group_object.export_filtered_group()
+
+			#if arg.stats:
+				#if "1" in arg.stats:
+
+			if arg.groups2fasta:
+				database = arg.groups2fasta
+				group_object.retrieve_fasta(database)
 
 	else:
 		multiple_groups_object = OT.MultiGroups(groups_file, gene_threshold, species_threshold)

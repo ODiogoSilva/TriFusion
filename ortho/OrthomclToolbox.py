@@ -50,6 +50,9 @@ class Cluster():
 		self.species_compliant = None  # If the value is different than None, this will inform downstream objects of
 		# whether this cluster is compliant with the specified species_threshold
 
+		# Initialize the name of some output files created by Group's methods, so that they can be used by other methods
+		self.filtered_output_file = None
+
 		self.parse_string(line_string)
 
 	def parse_string(self, cluster_string):
@@ -168,6 +171,9 @@ class Group ():
 
 	def export_filtered_group(self, output_file_name="filtered_groups"):
 		""" Writes the filtered groups into a new file """
+
+		# Sets the output_file_name attribute so that the created file may be used by other methods
+		self.filtered_output_file = output_file_name
 
 		output_handle = open(output_file_name, "w")
 
