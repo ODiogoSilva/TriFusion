@@ -56,11 +56,12 @@ start_ID = "1000"  # Starting number for the groups
 groups_file = "groups.txt"
 
 
-def loading(current_state, size, prefix, width, proteome):
+def loading(current_state, size, prefix_txt, width, proteome):
 	""" Function that prints the loading progress of the script """
 	percentage = int((current_state / size) * 100)
 	complete = int(width * percentage * 0.01)
-	sys.stdout.write("\r%s [%s%s] %s%%  %s" % (prefix, "#" * complete, "." * (width - complete), percentage, proteome))
+	sys.stdout.write("\r%s [%s%s] %s%%  %s" % (prefix_txt, "#" * complete, "." * (width - complete), percentage,
+											   proteome))
 	sys.stdout.flush()
 
 
@@ -223,11 +224,12 @@ def mcl():
 		subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_" + val.replace(".", "")], shell=True).wait()
 
 
-def mcl_groups(prefix, start_id, groups_file):
+def mcl_groups(mcl_prefix, start_id, group_file):
 	print("Dumping groups")
 	for val in inflation:
-		subprocess.Popen(["orthomclMclToGroups " + prefix + " " + start_id + " < mclOutput_" + val.replace(".", "") +
-						  " > " + groups_file], shell=True).wait()
+		subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " + start_id + " < mclOutput_" + val.replace(".",
+																											   "") +
+						  " > " + group_file], shell=True).wait()
 
 
 if arg.adjust:
