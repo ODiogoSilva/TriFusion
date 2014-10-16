@@ -181,9 +181,12 @@ class Group ():
 		""" When provided with the BLAST database used in the OrthoMCL analysis, this will retrieve the fasta
 		sequences from each cluster and save them in an individual fasta file """
 
+		subprocess.Popen(["mkdir Retrieved_sequences"], shell=True).wait()
+
 		for cluster in self.groups:
 			for sequence_id in cluster.sequences:
-				subprocess.Popen(["blastdbcmd -db %s -dbtype prot -entry '%s' >> %s.fas" % (database, sequence_id,
+				subprocess.Popen(["blastdbcmd -db %s -dbtype prot -entry '%s' >> Retrieved_sequences/%s.fas" % (
+				database, sequence_id,
 								cluster.name)], shell=True).wait()
 
 
