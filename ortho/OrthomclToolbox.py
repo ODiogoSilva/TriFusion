@@ -177,6 +177,20 @@ class Group ():
 
 		output_handle.close()
 
+	def update_filtered_group(self):
+		"""
+		This method creates a new filtered group variable, like export_filtered_group, but instead of writing into a
+		new file, it replaces the self.groups variable
+		"""
+
+		updated_group = []
+
+		for cluster in self.groups:
+			if cluster.species_compliant is True and cluster.gene_compliant is True:
+				updated_group.append(cluster)
+
+		self.groups = updated_group
+
 	def retrieve_fasta(self, database, ):
 		""" When provided with the BLAST database used in the OrthoMCL analysis, this will retrieve the fasta
 		sequences from each cluster and save them in an individual fasta file """
