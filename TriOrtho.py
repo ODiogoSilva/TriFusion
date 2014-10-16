@@ -70,7 +70,7 @@ def main():
 
 			if "1" in pipeline_mode:
 				group_object.update_filtered_group()
-				group_object.retrieve_fasta()
+				group_object.retrieve_fasta(blast_database)
 
 		else:
 
