@@ -59,6 +59,7 @@ def main():
 	gene_threshold = int(arg.gene_threshold[0])
 	species_threshold = int(arg.species_threshold[0])
 	pipeline_mode = arg.pipeline
+	blast_database = arg.groups2fasta
 
 	if len(groups_file) == 1:
 
@@ -68,7 +69,8 @@ def main():
 		if pipeline_mode:
 
 			if "1" in pipeline_mode:
-				group_object.export_filtered_group()
+				group_object.update_filtered_group()
+				group_object.retrieve_fasta()
 
 		else:
 
@@ -78,9 +80,8 @@ def main():
 			#if arg.stats:
 				#if "1" in arg.stats:
 
-			if arg.groups2fasta:
-				database = arg.groups2fasta
-				group_object.retrieve_fasta(database)
+			if blast_database:
+				group_object.retrieve_fasta(blast_database)
 
 	else:
 		multiple_groups_object = OT.MultiGroups(groups_file, gene_threshold, species_threshold)
