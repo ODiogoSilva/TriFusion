@@ -228,8 +228,7 @@ def mcl_groups(mcl_prefix, start_id, group_file):
 	print("Dumping groups")
 	for val in inflation:
 		subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " + start_id + " < mclOutput_" + val.replace(".",
-																											   "") +
-						  " > " + group_file], shell=True).wait()
+						"") + " > " + group_file], shell=True).wait()
 
 
 if arg.adjust:
