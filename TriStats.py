@@ -23,8 +23,6 @@
 #  Version: 0.1
 #  Last update: 11/02/14
 
-## TODO [URGENT]: This was originally in python2. I'll need to port to python3
-
 import argparse
 from stats import stats
 from base import html_creator
