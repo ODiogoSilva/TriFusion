@@ -110,16 +110,20 @@ class Group ():
 	def __parse_groups(self, groups_file):
 		"""
 		Parses the ortholog clusters in the groups file and populates the self.groups list with Cluster objects for
-		each line in the groups file
+		each line in the groups file.
 		:param groups_file: File name for the orthomcl groups file
 		:return: populates the groups attribute
 		"""
 
 		self.name = groups_file
+		self.species_list = []
 		groups_file_handle = open(groups_file)
 
 		for line in groups_file_handle:
 			cluster_object = Cluster(line)
+
+			cluster_species = cluster_object.species_frequency.keys()
+			[self.species_list.append(species) for species in cluster_species if species not in self.species_list]
 
 			if self.species_threshold is not None and self.gene_threshold is not None:
 				cluster_object.apply_filter(self.gene_threshold, self.species_threshold)
