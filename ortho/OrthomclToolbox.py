@@ -166,6 +166,10 @@ class Group ():
 
 		return statistics
 
+	def paralog_per_species_statistic(self):
+		""" This method creates a CSV table with information on the number of paralog clusters per species """
+
+
 	def export_filtered_group(self, output_file_name="filtered_groups"):
 		""" Writes the filtered groups into a new file """
 
