@@ -38,9 +38,10 @@ parser.add_argument("-t2", "--species-threshold", dest="species_threshold", narg
 					"minimum number of species that should be allowed.")
 parser.add_argument("-e", dest="export", action="store_const", const=True, help="Exports the filtered groups into a "
 					"new file")
-parser.add_argument("-s", dest="stats", choices=["1"], help="Use the available choices to perform statistical "
+parser.add_argument("-s", dest="stats", choices=["1", "2"], help="Use the available choices to perform statistical "
 					"analyses or summaries of the groups file. 1: Generates basic summary statistics on the number of "
-					"clusters and sequences of the groups file.")
+					"clusters and sequences of the groups file; 2: Generates csv table with the number of clusters "
+					"containing paralogs per species.")
 parser.add_argument("-g2f", dest="groups2fasta", help="Retrieves the sequences of each cluster to a single file per "
 					"cluster. The BLAST database must be provided with this option")
 parser.add_argument("-p", dest="pipeline", nargs="*", choices=["1"], help="TriOrtho can be used in pipeline format to "
@@ -77,8 +78,11 @@ def main():
 			if arg.export:
 				group_object.export_filtered_group()
 
-			#if arg.stats:
+			if arg.stats:
 				#if "1" in arg.stats:
+
+				if "2" in arg.stats:
+					group_object.export_filtered_group()
 
 			if blast_database:
 				group_object.retrieve_fasta(blast_database)
