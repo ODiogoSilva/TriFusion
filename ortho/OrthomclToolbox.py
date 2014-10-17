@@ -167,9 +167,24 @@ class Group ():
 
 		return statistics
 
-	def paralog_per_species_statistic(self):
+	def paralog_per_species_statistic(self, output_file_name="Paralog_per_species.csv"):
 		""" This method creates a CSV table with information on the number of paralog clusters per species """
 
+		paralog_count = dict((species, 0) for species in self.species_list)
+
+		for cluster in self.groups:
+			for species in paralog_count:
+				if cluster.species_frequency[species] > 1:
+					paralog_count[species] += 1
+
+		# Writing table
+		output_handle = open(output_file_name, "w")
+		output_handle.write("Species; Clusters with paralogs\n")
+
+		for species, val in paralog_count.items():
+			output_handle.write("%s; %s\n" % (species, val))
+
+		output_handle.close()
 
 	def export_filtered_group(self, output_file_name="filtered_groups"):
 		""" Writes the filtered groups into a new file """
