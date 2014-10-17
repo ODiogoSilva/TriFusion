@@ -109,11 +109,8 @@ class Group ():
 
 	def __parse_groups(self, groups_file):
 		"""
-		Parses the ortholog clusters in the groups file and populates the self.groups ordered dictionary containing the
-		group number as key and the sequence references as values in list mode.
-		For each group, it also creates a dictionary containing the gene frequency of each species. This dictionary
-		is added as the second elements of the group's dictionary value.
-		A final self.groups dictionary should be like: {groups1: [[seq_spA, seq_spB, seq_spC], {spA:1, spB:1, spC:1}]}
+		Parses the ortholog clusters in the groups file and populates the self.groups list with Cluster objects for
+		each line in the groups file
 		:param groups_file: File name for the orthomcl groups file
 		:return: populates the groups attribute
 		"""
