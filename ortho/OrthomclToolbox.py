@@ -267,3 +267,12 @@ class MultiGroups ():
 			output_handle.write("%s; %s\n" % (group, ";".join([str(x) for x in vals])))
 
 		output_handle.close()
+
+__author__ = "Diogo N. Silva"
+__copyright__ = "Diogo N. Silva"
+__credits__ = ["Diogo N. Silva"]
+__license__ = "GPL"
+__version__ = "0.1.0"
+__maintainer__ = "Diogo N. Silva"
+__email__ = "o.diogosilva@gmail.com"
+__status__ = "Prototype"
