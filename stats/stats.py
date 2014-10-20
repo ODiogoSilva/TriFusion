@@ -118,6 +118,13 @@ class MultiReport():
 
 		return list(species_set)
 
+	def _get_gene_set(self):
+		"""
+		:return: A list containing the name of the gene alignments
+		"""
+
+		return [report.input_alignment for report in self.report_list]
+
 	def report_table(self, output_file):
 		"""
 		:param output_file: output file name string
@@ -146,7 +153,8 @@ class MultiReport():
 
 	def gene_variation_plot(self, output_file=None):
 		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
-		to the species_missing_data method, but the focus in on variation instead of missing data """
+		to the species_missing_data method, but the focus in on variation per gene instead of missing data per
+		species """
 
 		variation_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
 												label_font_size=8, legend_font_size=20, margin=50,
