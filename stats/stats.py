@@ -144,6 +144,17 @@ class MultiReport():
 
 		output_handle.close()
 
+	def gene_variation_plot(self, output_file=None):
+		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
+		to the species_missing_data method, but the focus in on variation instead of missing data """
+
+		variation_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
+												label_font_size=8, legend_font_size=20, margin=50,
+												major_label_font_size=10, print_values=False, y_title='Proportion')
+
+		variation_bar_chart.title = "Character missing data per species"
+		variation_bar_chart.x_labels = [taxon[0] for taxon in sorted_data_list]
+
 	def species_missing_data(self, table=False, plot=False, output_file=None):
 		"""
 		:param table: Boolean. True will generate a csv table with information on the missing data for each species
