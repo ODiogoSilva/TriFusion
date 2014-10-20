@@ -156,6 +156,24 @@ class MultiReport():
 		to the species_missing_data method, but the focus in on variation per gene instead of missing data per
 		species """
 
+		plot_contents = []
+
+		for report in self.report_list:
+
+			gene_statistics = report.base_statistics
+
+			#Get absolute values
+			parsimoniously_informative = float(gene_statistics[3])
+			singletons = float(gene_statistics[2] - gene_statistics[3])
+			missing_data = float(gene_statistics[0])
+			total_characters = float(report.locus_length)
+			gene_data_absolute = [parsimoniously_informative, singletons, missing_data]
+
+			# Get proportions
+			gene_data = [(val / total_characters) for val in gene_data_absolute]
+
+			plot_contents.append((report.input_alignment, gene_datae))
+
 		variation_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
 												label_font_size=8, legend_font_size=20, margin=50,
 												major_label_font_size=10, print_values=False, y_title='Proportion')
