@@ -103,7 +103,7 @@ class MultiReport():
 
 			self.report_list.append(report_object)
 
-	def _get_species_set(self):
+	def get_species_set(self):
 		"""
 		:return: A list containing the unique taxa names from all alignment files
 		"""
@@ -118,7 +118,7 @@ class MultiReport():
 
 		return list(species_set)
 
-	def _get_gene_set(self):
+	def get_gene_set(self):
 		"""
 		:return: A list containing the name of the gene alignments
 		"""
