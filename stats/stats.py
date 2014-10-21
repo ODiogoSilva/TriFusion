@@ -172,7 +172,7 @@ class MultiReport():
 			# Get proportions
 			gene_data = [(val / total_characters) for val in gene_data_absolute]
 
-			plot_contents.append((report.input_alignment, gene_datae))
+			plot_contents.append((report.input_alignment, gene_data))
 
 		variation_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
 												label_font_size=8, legend_font_size=20, margin=50,
