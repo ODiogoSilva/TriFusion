@@ -34,13 +34,12 @@ parser.add_argument("-o", dest="project_name", required=True, help="Provide a na
 
 modes = parser.add_argument_group("Report options")
 modes.add_argument("-f", dest="full_report", action="store_const", const=True, help="Generate full report")
-modes.add_argument("-m", dest="mode", choices=["1", "2", "2a", "2b"], help="Specify which report(s): "
-																			   "\n\t\t1: Basic phylogenetic statistics;"
-																			   "\n\t\t2: Species specific missing data "
-																			   "plot and table;\n\t\t2a: Species "
-																			   "specific missing data plot;\n\n\t2b: "
-																			   "Species specific missing data table"
-																			   "phylogenetic information")
+modes.add_argument("-m", dest="mode", choices=["1", "2", "2a", "2b", "3", "all"], help="Specify which report(s): "
+					"\n\t\t1: Basic phylogenetic statistics;"
+					"\n\t\t2: Species specific missing data plot and table;\n\t\t2a: Species specific missing data "
+					"plot;"
+					"\n\t\t2b: Species specific missing data table phylogenetic information"
+					"\n\t\t3: Information on average gene length per species")
 
 arg = parser.parse_args()
 
@@ -62,30 +61,37 @@ def main():
 	html_instance = html_creator.HTML_template()
 	html_instance.addTitle(project)
 
-	if "1" in mode or mode == "all":
+	if "1" in mode or "all" in mode:
 
 		# Defining output file name based on project
 		file_name = "%s_basic_table.csv" % project
 
 		report.report_table(file_name)
 
-	if "2a" in mode or "2" in mode or mode == "all":
+	if "2a" in mode or "2" in mode or "all" in mode:
 
 		# Defining output file name based on project
 		file_name = "%s_species_missing_data.svg" % project
 
-		plot_object = report.species_missing_data(plot=True)
+		plot_object = report.species_missing_data(file_name, plot=True)
 		plot_object.render_to_file(file_name)
 
 		# Adding plot to html template object
 		html_instance.addSinglePlot("Species specific missing data", file_name, heading_level=3)
 
-	if "2b" in mode or "2" in mode or mode == "all":
+	if "2b" in mode or "2" in mode or "all" in mode:
 
 		# Defining output file name based on project
 		file_name = "%s_species_missing_data.csv" % project
 
 		report.species_missing_data(table=True, output_file=file_name)
+
+	if "3" in mode or "all" in mode:
+
+		# Defining output file name based on project
+		file_name = "%s_species_gene_length.csv" % project
+
+		report.species_gene_length(file_name, table=True, plot=True)
 
 	# Finally, write the html file
 	html_instance.write_file(project + "_report")
