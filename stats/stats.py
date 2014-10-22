@@ -176,6 +176,27 @@ class MultiReport():
 
 		data = dict((sp, []) for sp in self.get_species_set())
 
+		for report in self.report_list:
+
+			current_data = report.species_gene_length()
+
+			for sp in data:
+				if sp not in current_data:
+					data[sp].append(0)
+				else:
+					data[sp].append(current_data[sp])
+
+		if table is not False:
+
+			output_handle = open(self.project + output_file + ".csv", "w")
+
+		if plot is not False:
+
+			gene_length_bar_chart = pygal.Bar(x_label_rotation=45, width=1200, legend_at_bottom=True, height=800,
+											  label_font_size=8, legend_font_size=20, margin=50,
+											  major_label_font_size=10, show_legend=False)
+
+
 	def gene_variation_plot(self, output_file=None):
 		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
 		to the species_missing_data method, but the focus in on variation per gene instead of missing data per
