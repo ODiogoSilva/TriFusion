@@ -58,8 +58,8 @@ def main():
 
 	# Initialize report and html creator instances
 	report = stats.MultiReport(input_list)
-	html_instance = html_creator.HTML_template()
-	html_instance.addTitle(project)
+	html_instance = html_creator.HtmlTemplate()
+	html_instance.add_title(project)
 
 	if "1" in mode or "all" in mode:
 
@@ -77,7 +77,7 @@ def main():
 		plot_object.render_to_file(file_name)
 
 		# Adding plot to html template object
-		html_instance.addSinglePlot("Species specific missing data", file_name, heading_level=3)
+		html_instance.add_single_plot("Species specific missing data", file_name, heading_level=3)
 
 	if "2b" in mode or "2" in mode or "all" in mode:
 
@@ -95,7 +95,7 @@ def main():
 		gene_length_plot.render_to_file(file_name + ".svg")
 
 		# Adding plot to html template object
-		html_instance.addSinglePlot("Average gene length per species", file_name + ".svg", heading_level=3)
+		html_instance.add_single_plot("Average gene length per species", file_name + ".svg", heading_level=3)
 
 	# Finally, write the html file
 	html_instance.write_file(project + "_report")
