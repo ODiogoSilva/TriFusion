@@ -202,7 +202,7 @@ class MultiReport():
 
 			gene_length_box_chart = pygal.Box(x_label_rotation=45, width=1200, legend_at_bottom=True, height=800,
 											  label_font_size=8, legend_font_size=20, margin=50,
-											  major_label_font_size=10, show_legend=False)
+											  major_label_font_size=10)
 			gene_length_box_chart.title = "Average gene length per species"
 
 			for sp, vals in raw_data.items():
