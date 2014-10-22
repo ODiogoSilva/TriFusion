@@ -23,30 +23,31 @@
 #  Version: 0.1
 #  Last update: 11/02/14
 
-class HTML_template ():
-	def __init__ (self):
+
+class HtmlTemplate ():
+	def __init__(self):
 		self.hcontents = []
 		self.bcontents = []
 
-	def addTitle(self, title):
+	def add_title(self, title):
 		htitle = "<title> %s </title>\n" % title
 		self.hcontents.extend([htitle])
 
-	def addText (self,text):
+	def add_text(self, text):
 		""" Adds plain text to body (no tags) """
 		content = text
 		self.bcontents.extend([content])
 
-	def addSinglePlot(self,heading,plot_file,heading_level="1"):
+	def add_single_plot(self, heading, plot_file, heading_level="1"):
 		""" Adds single plot with heading """
-		head = "<h%s> %s </h1>\n" % (heading_level,heading)
-		plot = "<figure> <embed type='image/svg+xml' src='%s' /> </figure>\n" % (plot_file)
+		head = "<h%s> %s </h1>\n" % (heading_level, heading)
+		plot = "<figure> <embed type='image/svg+xml' src='%s' /> </figure>\n" % plot_file
 		self.bcontents.extend([head, plot])
 
-	def addPlotGrid(self):
-		""" TODO """
+	#def add_plot_grid(self):
+		#""" TODO """
 
-	def write_file (self, file_name):
+	def write_file(self, file_name):
 		string = """<!DOCTYPE html>
 <html>
 	<head>
@@ -61,6 +62,6 @@ class HTML_template ():
 
 		""" % ("\n".join(self.hcontents), "\n".join(self.bcontents))
 
-		output_handle = open(file_name+".html","w")
+		output_handle = open(file_name + ".html", "w")
 		output_handle.write(string)
 		output_handle.close()
