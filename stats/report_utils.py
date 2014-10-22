@@ -28,7 +28,7 @@
 import pygal
 import numpy as np
 
-class Report ():
+class Report2 ():
 	def __init__ (self, alignment_dictionaries):
 		self.alignment_list = alignment_dictionaries
 

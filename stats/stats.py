@@ -22,6 +22,7 @@
 
 from process.alignment import Alignment
 from collections import OrderedDict
+import numpy as np
 import pygal
 
 
@@ -174,21 +175,29 @@ class MultiReport():
 		deviation) for each species
 		"""
 
-		data = dict((sp, []) for sp in self.get_species_set())
+		raw_data = dict((sp, []) for sp in self.get_species_set())
 
 		for report in self.report_list:
 
 			current_data = report.species_gene_length()
 
-			for sp in data:
+			for sp in raw_data:
 				if sp not in current_data:
-					data[sp].append(0)
+					raw_data[sp].append(0)
 				else:
-					data[sp].append(current_data[sp])
+					raw_data[sp].append(current_data[sp])
+
+		data = dict((sp, [np.mean(val), np.std(val)]) for sp, val in raw_data.items())
 
 		if table is not False:
 
 			output_handle = open(self.project + output_file + ".csv", "w")
+			output_handle.write("Species; Average gene length; SD\n")
+
+			for sp, val in data:
+				output_handle.write("%s; %s; %s\n" % (sp, val[0], val[1]))
+
+			output_handle.close()
 
 		if plot is not False:
 
