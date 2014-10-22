@@ -201,10 +201,16 @@ class MultiReport():
 
 		if plot is not False:
 
-			gene_length_bar_chart = pygal.Bar(x_label_rotation=45, width=1200, legend_at_bottom=True, height=800,
+			gene_length_box_chart = pygal.Box(x_label_rotation=45, width=1200, legend_at_bottom=True, height=800,
 											  label_font_size=8, legend_font_size=20, margin=50,
 											  major_label_font_size=10, show_legend=False)
+			gene_length_box_chart.title = "Average gene length per species"
 
+			for sp, vals in raw_data.items():
+
+				gene_length_box_chart.add(sp, vals)
+
+			return gene_length_box_chart
 
 	def gene_variation_plot(self, output_file=None):
 		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
