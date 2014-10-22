@@ -193,7 +193,7 @@ class MultiReport():
 			output_handle = open(output_file, "w")
 			output_handle.write("Species; Average gene length; SD\n")
 
-			for sp, val in data:
+			for sp, val in data.items():
 				output_handle.write("%s; %s; %s\n" % (sp, val[0], val[1]))
 
 			output_handle.close()
