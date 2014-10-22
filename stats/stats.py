@@ -89,6 +89,21 @@ class UniReport(Alignment):
 
 		return contents_missing_data
 
+	def species_gene_length(self):
+		"""
+		:return: A dictionary with the gene length information for each species. The keys will be species names and
+		the values floats with the gene length
+		"""
+
+		species_gene_length = {}
+
+		for taxon, sequence in self.alignment.items():
+
+			strip_sequence = sequence.replace("-", "")
+			species_gene_length[taxon] = float(len(strip_sequence))
+
+		return species_gene_length
+
 
 class MultiReport():
 	""" This will create a report object for multiple alignments. Its most basic instance will be a list of UniReport
@@ -159,7 +174,7 @@ class MultiReport():
 		deviation) for each species
 		"""
 
-		data = dict((sp, 0) for sp in self.get_species_set())
+		data = dict((sp, []) for sp in self.get_species_set())
 
 	def gene_variation_plot(self, output_file=None):
 		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
