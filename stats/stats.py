@@ -110,10 +110,9 @@ class MultiReport():
 	""" This will create a report object for multiple alignments. Its most basic instance will be a list of UniReport
 	objects
 	"""
-	def __init__(self, alignment_list, project_prefix="My_stats_"):
+	def __init__(self, alignment_list):
 
 		self.report_list = []
-		self.project = project_prefix
 
 		for report in alignment_list:
 			report_object = UniReport(report)
@@ -142,13 +141,13 @@ class MultiReport():
 
 		return [report.input_alignment for report in self.report_list]
 
-	def report_table(self, output_file="report_table.csv"):
+	def report_table(self, output_file):
 		"""
 		:param output_file: output file name string
 		Generates a csv table containing basic phylogenetic statistics for each alignment
 		"""
 
-		output_handle = open(self.project + output_file, "w")
+		output_handle = open(output_file, "w")
 		output_handle.write("Gene; Number of sites; Number of indels; Percentage of missing data; Variable sites; "
 							"Parsimonious sites\n")
 
@@ -168,7 +167,7 @@ class MultiReport():
 
 		output_handle.close()
 
-	def species_gene_length(self, table=False, plot=False, output_file="species_gene_length"):
+	def species_gene_length(self, output_file, table=False, plot=False):
 		"""
 		:param output_file: String with the name of the output file
 		:return: Creates a table and/or plot with information on the average gene length (and corresponding standard
@@ -191,7 +190,7 @@ class MultiReport():
 
 		if table is not False:
 
-			output_handle = open(self.project + output_file + ".csv", "w")
+			output_handle = open(output_file, "w")
 			output_handle.write("Species; Average gene length; SD\n")
 
 			for sp, val in data:
@@ -212,7 +211,7 @@ class MultiReport():
 
 			return gene_length_box_chart
 
-	def gene_variation_plot(self, output_file=None):
+	def gene_variation_plot(self, output_file):
 		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
 		to the species_missing_data method, but the focus in on variation per gene instead of missing data per
 		species """
@@ -243,7 +242,7 @@ class MultiReport():
 		variation_bar_chart.title = "Character missing data per species"
 		variation_bar_chart.x_labels = [taxon[0] for taxon in self.get_gene_set()]
 
-	def species_missing_data(self, table=False, plot=False, output_file="species_missing_data"):
+	def species_missing_data(self, output_file, table=False, plot=False):
 		"""
 		:param table: Boolean. True will generate a csv table with information on the missing data for each species
 		:param plot: Boolean. True will generate a stacked bar plot with information on the missing data for each
@@ -271,7 +270,7 @@ class MultiReport():
 		if table is True:
 
 			try:
-				output_handle = open(self.project + output_file + ".csv", "w")
+				output_handle = open(output_file, "w")
 			except TypeError:
 				print("TypeError: Please specify an output file name")
 				raise SystemExit
