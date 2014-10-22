@@ -89,9 +89,13 @@ def main():
 	if "3" in mode or "all" in mode:
 
 		# Defining output file name based on project
-		file_name = "%s_species_gene_length.csv" % project
+		file_name = "%s_species_gene_length" % project
 
-		report.species_gene_length(file_name, table=True, plot=True)
+		gene_length_plot = report.species_gene_length(file_name + ".csv", table=True, plot=True)
+		gene_length_plot.render_to_file(file_name + ".svg")
+
+		# Adding plot to html template object
+		html_instance.addSinglePlot("Average gene length per species", file_name + ".svg", heading_level=3)
 
 	# Finally, write the html file
 	html_instance.write_file(project + "_report")
