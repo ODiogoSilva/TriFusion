@@ -152,11 +152,14 @@ class MultiReport():
 
 		output_handle.close()
 
-	def species_gene_lenght(self, output_file=None):
+	def species_gene_length(self, table=False, plot=False, output_file="species_gene_length"):
 		"""
 		:param output_file: String with the name of the output file
-		:return:
+		:return: Creates a table and/or plot with information on the average gene length (and corresponding standard
+		deviation) for each species
 		"""
+
+		data = dict((sp, 0) for sp in self.get_species_set())
 
 	def gene_variation_plot(self, output_file=None):
 		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
