@@ -126,13 +126,13 @@ class MultiReport():
 
 		return [report.input_alignment for report in self.report_list]
 
-	def report_table(self, output_file):
+	def report_table(self, output_file="report_table.csv"):
 		"""
 		:param output_file: output file name string
 		Generates a csv table containing basic phylogenetic statistics for each alignment
 		"""
 
-		output_handle = open(output_file, "w")
+		output_handle = open(self.project + output_file, "w")
 		output_handle.write("Gene; Number of sites; Number of indels; Percentage of missing data; Variable sites; "
 							"Parsimonious sites\n")
 
@@ -163,6 +163,7 @@ class MultiReport():
 		to the species_missing_data method, but the focus in on variation per gene instead of missing data per
 		species """
 
+		# UNFINISHED
 		plot_contents = []
 
 		for report in self.report_list:
@@ -188,7 +189,7 @@ class MultiReport():
 		variation_bar_chart.title = "Character missing data per species"
 		variation_bar_chart.x_labels = [taxon[0] for taxon in self._get_gene_set()]
 
-	def species_missing_data(self, table=False, plot=False, output_file=None):
+	def species_missing_data(self, table=False, plot=False, output_file="species_missing_data"):
 		"""
 		:param table: Boolean. True will generate a csv table with information on the missing data for each species
 		:param plot: Boolean. True will generate a stacked bar plot with information on the missing data for each
@@ -216,7 +217,7 @@ class MultiReport():
 		if table is True:
 
 			try:
-				output_handle = open(output_file, "w")
+				output_handle = open(self.project + output_file + ".csv", "w")
 			except TypeError:
 				print("TypeError: Please specify an output file name")
 				raise SystemExit
