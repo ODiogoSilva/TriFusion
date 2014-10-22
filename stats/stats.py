@@ -151,6 +151,12 @@ class MultiReport():
 
 		output_handle.close()
 
+	def species_gene_lenght(self, output_file=None):
+		"""
+		:param output_file: String with the name of the output file
+		:return:
+		"""
+
 	def gene_variation_plot(self, output_file=None):
 		""" Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
 		to the species_missing_data method, but the focus in on variation per gene instead of missing data per
