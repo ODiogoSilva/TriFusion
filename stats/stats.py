@@ -187,7 +187,7 @@ class MultiReport():
 												major_label_font_size=10, print_values=False, y_title='Proportion')
 
 		variation_bar_chart.title = "Character missing data per species"
-		variation_bar_chart.x_labels = [taxon[0] for taxon in self._get_gene_set()]
+		variation_bar_chart.x_labels = [taxon[0] for taxon in self.get_gene_set()]
 
 	def species_missing_data(self, table=False, plot=False, output_file="species_missing_data"):
 		"""
@@ -198,7 +198,7 @@ class MultiReport():
 		the missing data for each species
 		"""
 
-		taxa_set = self._get_species_set()
+		taxa_set = self.get_species_set()
 		missing_data_contents = dict((taxa, [0, 0, 0]) for taxa in taxa_set)
 		alignment_length = 0
 
