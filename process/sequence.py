@@ -32,7 +32,9 @@ import re
 
 ## TODO: Create a SequenceSet class for sets of sequences that do not conform to an alignment, i.e. unequal length.
 # This would eliminate the problems of applying methods designed for alignments to sets of sequences with unequal
-# length would allows these sets of sequences to have methods of their own.
+# length would allows these sets of sequences to have methods of their own. However, the __init__ of the current
+# Alignment object should apply to both SequenceSet and Alignment classes. So, I'll have to re-structure the code
+# somehow.
 ## TODO After creating the SequenceSet class, an additional class should be used to make the triage of files to either
 # the Alignment or SequenceSet classes
 
