@@ -633,10 +633,12 @@ class AlignmentList (Alignment, Base, MissingFilter):
 		return concatenated_alignment
 
 	def iter_alignment_dic(self):
+		""" Returns a list of the dictionary alignments """
 
 		return [alignment.alignment for alignment in self.alignment_object_list]
 
 	def iter_alignment_obj(self):
+		""" Returns a list of the alignments objects """
 
 		return [alignment for alignment in self.alignment_object_list]
 
