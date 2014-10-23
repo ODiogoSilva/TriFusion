@@ -50,65 +50,53 @@ main_exec.add_argument("-o", dest="outfile", help="Name of the output file")
 
 # Alternative modes
 alternative = parser.add_argument_group("Alternative execution modes")
-alternative.add_argument("-c", dest="conversion", action="store_const", const=True,
-							help="Used for convertion of the input files passed as arguments with the -in option. This "
-							"flag precludes the usage of the -o option, as the output file name is automatically "
-							"generated based on the input file name")
-alternative.add_argument("-r", dest="reverse",
-							help="Reverse a concatenated file into its original single locus alignments. A partition file "
-							"similar to the one read by RAxML must be provided")
-alternative.add_argument("-z", "--zorro-suffix", dest="zorro", type=str,
-							help="Use this option if you wish to concatenate auxiliary Zorro files associated with each "
-							"alignment. Provide the sufix for the concatenated zorro file")
-alternative.add_argument("-p", "--partition-file", dest="partition_file", type=str,
-							help="Using this option and providing the partition file will convert it between a RAxML or "
-							"Nexus format")
-alternative.add_argument("-s", dest="select", nargs="*",
-							help="Selects alignments containing the provided taxa (separate multiple taxa with whitespace)"
-							"")
-alternative.add_argument("-collapse", dest="collapse", action="store_const", const=True, default=False,
-							help="Use this flag if you would like to collapse the input alignment(s) into unique "
-							"haplotypes")
-alternative.add_argument("-gcoder", dest="gcoder", action="store_const", const=True, default=False,
-							help="Use this flag to code the gaps of the alignment into a binary state matrix that is "
-							"appended to the end of the alignment")
-alternative.add_argument("-filter", dest="filter", nargs=2,
-							help="Use this option if you wish to filter the alignment's missing data. Along with this "
-							"option provide the threshold percentages for gap and missing data, respectively "
-							"(e.g. -filter 50 75 - filters alignments columns with more than 50%% of gap+missing "
-							"data and columns with more than 75%% of true missing data)")
+alternative.add_argument("-c", dest="conversion", action="store_const", const=True, help="Used for convertion of the "
+						"input files passed as arguments with the -in option. This flag precludes the usage of the -o "
+						"option, as the output file name is automatically generated based on the input file name")
+alternative.add_argument("-r", dest="reverse", help="Reverse a concatenated file into its original single locus "
+						"alignments. A partition file similar to the one read by RAxML must be provided")
+alternative.add_argument("-z", "--zorro-suffix", dest="zorro", type=str, help="Use this option if you wish to "
+						"concatenate auxiliary Zorro files associated with each alignment. Provide the sufix for the "
+						"concatenated zorro file")
+alternative.add_argument("-p", "--partition-file", dest="partition_file", type=str, help="Using this option and "
+						"providing the partition file will convert it between a RAxML or Nexus format")
+alternative.add_argument("-s", dest="select", nargs="*", help="Selects alignments containing the provided taxa ("
+						"separate multiple taxa with whitespace)")
+alternative.add_argument("-collapse", dest="collapse", action="store_const", const=True, default=False, help="Use this"
+						" flag if you would like to collapse the input alignment(s) into unique haplotypes")
+alternative.add_argument("-gcoder", dest="gcoder", action="store_const", const=True, default=False, help="Use this "
+						"flag to code the gaps of the alignment into a binary state matrix that is appended to the end "
+						"of the alignment")
+alternative.add_argument("-filter", dest="filter", nargs=2, help="Use this option if you wish to filter the "
+						"alignment's missing data. Along with this option provide the threshold percentages for gap "
+						"and missing data, respectively (e.g. -filter 50 75 - filters alignments columns with more "
+						"than 50%% of gap+missing data and columns with more than 75%% of true missing data)")
 
 # Formatting options
 formatting = parser.add_argument_group("Formatting options")
-formatting.add_argument("-model", dest="model_phy", default="LG",
-							choices=["DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG", "RTREV", "CPREV", "VT", "BLOSUM62", "MTMAM",
-							"LG"],
-							help="This option only applies for the concatenation of protein data into phylip format. "
-							"Specify the model for all partitions defined in the partition file (default is "
-							"'%(default)s')")
-formatting.add_argument("-interleave", dest="interleave", action="store_const", const="interleave",
-							help="Specify this option to write output files in interleave format (currently only "
-							"supported for nexus files")
-#formatting.add_argument("-g", dest="gap",default="-",help="Symbol for gap (default is '%(default)s')")
-#formatting.add_argument("-m", dest="missing",default="n",help="Symbol for missing data (default is '%(default)s')")
+formatting.add_argument("-model", dest="model_phy", default="LG", choices=["DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG",
+						"RTREV", "CPREV", "VT", "BLOSUM62", "MTMAM","LG"], help="This option only applies for the "
+						"concatenation of protein data into phylip format. Specify the model for all partitions "
+						"defined in the partition file (default is '%(default)s')")
+formatting.add_argument("-interleave", dest="interleave", action="store_const", const="interleave", help="Specify "
+						"this option to write output files in interleave format (currently only supported for nexus "
+						"files")
 
 # Data manipulation
-manipulation = parser.add_argument_group("Data manipultation")
-manipulation.add_argument("-rm", dest="remove", nargs="*",
-							help="Removes the specified taxa from the final alignment. Unwanted taxa my be provided in "
-							"a csv file containing 1 column with a species name in each line or they may be specified "
-							"in the command line and separated by whitespace")
-manipulation.add_argument("-grep", dest="grep", nargs="*",
-							help="The inverse of the -rm command. It removes all taxa from the alignment except for the"
-							" ones specified with this option. Taxa names may be specified in a csv file containing 1 "
-							"column with a species name in each line or in the command line separated by whitespace")
-manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*",
-							help="Provide taxon names/number for the outgroup (This option is only supported for NEXUS "
-							"output format files)")
+manipulation = parser.add_argument_group("Data manipulation")
+manipulation.add_argument("-rm", dest="remove", nargs="*", help="Removes the specified taxa from the final alignment. "
+						"Unwanted taxa my be provided in a csv file containing 1 column with a species name in each "
+						"line or they may be specified in the command line and separated by whitespace")
+manipulation.add_argument("-grep", dest="grep", nargs="*", help="The inverse of the -rm command. It removes all taxa "
+						"from the alignment except for the ones specified with this option. Taxa names may be specified"
+						" in a csv file containing 1 column with a species name in each line or in the command line "
+						"separated by whitespace")
+manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*", help="Provide taxon names/number for the "
+						"outgroup (This option is only supported for NEXUS output format files)")
 
 miscellaneous = parser.add_argument_group("Miscellaneous")
-miscellaneous.add_argument("-quiet", dest="quiet", action="store_const", const=True, default=False,
-							help="Removes all terminal output")
+miscellaneous.add_argument("-quiet", dest="quiet", action="store_const", const=True, default=False, help="Removes all "
+						"terminal output")
 
 arg = parser.parse_args()
 
