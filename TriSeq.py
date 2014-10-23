@@ -26,7 +26,7 @@
 import os
 import shutil
 import argparse
-from process import alignment as Alignment
+from process import sequence as seqset
 from process import data
 from process.error_handling import *
 
@@ -75,7 +75,7 @@ alternative.add_argument("-filter", dest="filter", nargs=2, help="Use this optio
 # Formatting options
 formatting = parser.add_argument_group("Formatting options")
 formatting.add_argument("-model", dest="model_phy", default="LG", choices=["DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG",
-						"RTREV", "CPREV", "VT", "BLOSUM62", "MTMAM","LG"], help="This option only applies for the "
+						"RTREV", "CPREV", "VT", "BLOSUM62", "MTMAM", "LG"], help="This option only applies for the "
 						"concatenation of protein data into phylip format. Specify the model for all partitions "
 						"defined in the partition file (default is '%(default)s')")
 formatting.add_argument("-interleave", dest="interleave", action="store_const", const="interleave", help="Specify "
@@ -146,7 +146,7 @@ def main_parser(alignment_list):
 	if len(alignment_list) == 1:
 
 		# In case only one alignment
-		alignment = Alignment.Alignment("".join(alignment_list))
+		alignment = seqset.Alignment("".join(alignment_list))
 
 		# Check if input format is the same as output format. If so, and no output file name has been provided, update
 		# the default output file name
@@ -163,7 +163,7 @@ def main_parser(alignment_list):
 	else:
 
 		# With many alignments
-		alignments = Alignment.AlignmentList(alignment_list)
+		alignments = seqset.AlignmentList(alignment_list)
 
 		if conversion is not None:
 
