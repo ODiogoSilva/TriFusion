@@ -187,6 +187,7 @@ def main_parser(alignment_list):
 			return 0
 
 		elif arg.select is not None:
+			print("\rSelecting alignments", end="")
 
 			if not os.path.exists("Taxa_selection"):
 				os.makedirs("Taxa_selection")
