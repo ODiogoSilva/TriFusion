@@ -721,7 +721,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
 				try:
 					self.reverse_concatenation
 				except:
-					output_file_name = alignment_obj.input_alignment.split(".")[0]+"_conv"
+					output_file_name = alignment_obj.input_alignment.split(".")[0] + "_conv"
 			else:
 				output_file_name = alignment_obj.input_alignment.split(".")[0]
 			alignment_obj.write_to_file(output_format, output_file=output_file_name, form=form, outgroup_list=outgroup_list)
