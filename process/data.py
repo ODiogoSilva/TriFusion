@@ -109,7 +109,7 @@ class Zorro ():
 
 	def __init__(self, alignment_list, suffix="_zorro.out"):
 
-		def zorro2rax (self, alignment_list):
+		def zorro2rax(self, alignment_list):
 			""" Function that converts the floating point numbers contained in the original zorro output files into
 			integers that can be interpreted by RAxML. If multiple alignment files are provided, it also concatenates
 			them in the same order """
@@ -124,13 +124,13 @@ class Zorro ():
 		self.suffix = suffix
 		self.weigth_values = zorro2rax(alignment_list)
 
-		def write_to_file (self, output_file):
-			""" Creates a concatenated file with the zorro weights for the corresponding alignment files """
-			outfile = output_file+"_zorro.out"
-			outfile_handle = open(outfile,"w")
-			for weigth in self.weigth_values:
-				outfile_handle.write("%s\n" % weigth)
-			outfile_handle.close()
+	def write_to_file(self, output_file):
+		""" Creates a concatenated file with the zorro weights for the corresponding alignment files """
+		outfile = output_file+"_zorro.out"
+		outfile_handle = open(outfile,"w")
+		for weigth in self.weigth_values:
+			outfile_handle.write("%s\n" % weigth)
+		outfile_handle.close()
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
