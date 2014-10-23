@@ -584,9 +584,18 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		return full_taxa
 
-	def concatenate(self, progress_stat=True):
-		""" The concatenate method will concatenate the multiple sequence alignments and create several attributes 
+	def iter_alignment_dic(self):
+		""" Returns a list of the dictionary alignments """
 
+		return [alignment.alignment for alignment in self.alignment_object_list]
+
+	def iter_alignment_obj(self):
+		""" Returns a list of the alignments objects """
+
+		return [alignment for alignment in self.alignment_object_list]
+
+	def concatenate(self, progress_stat=True):
+		""" The concatenate method will concatenate the multiple sequence alignments and create several attributes
 		This method sets the first three variables below and the concatenation variable containing the dict object"""
 
 		self.log_progression.record("Concatenating file", len(self.alignment_object_list))
@@ -631,16 +640,6 @@ class AlignmentList (Alignment, Base, MissingFilter):
 		concatenated_alignment = Alignment(self.concatenation, input_format=self._get_format(), model_list=self
 			.models, loci_ranges=self.loci_range)
 		return concatenated_alignment
-
-	def iter_alignment_dic(self):
-		""" Returns a list of the dictionary alignments """
-
-		return [alignment.alignment for alignment in self.alignment_object_list]
-
-	def iter_alignment_obj(self):
-		""" Returns a list of the alignments objects """
-
-		return [alignment for alignment in self.alignment_object_list]
 
 	def filter_missing_data(self, gap_threshold, missing_threshold, verbose=True):
 		""" Wrapper of the MissingFilter class that iterates over multiple Alignment objects """
