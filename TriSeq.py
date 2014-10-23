@@ -188,8 +188,8 @@ def main_parser(alignment_list):
 
 		elif arg.select is not None:
 
-			if not os.path.exists("Selection"):
-				os.makedirs("Selection")
+			if not os.path.exists("Taxa_selection"):
+				os.makedirs("Taxa_selection")
 
 			# Retrieve the alignments in which at least one of the specified taxa exists
 			selected_alignments = alignments.select_by_taxa(arg.select, mode="relaxed")
@@ -198,7 +198,7 @@ def main_parser(alignment_list):
 			for alignment in selected_alignments:
 				alignment_file = alignment.input_alignment
 
-				shutil.copy(alignment_file, "Selection")
+				shutil.copy(alignment_file, "Taxa_selection")
 
 			return 0
 
