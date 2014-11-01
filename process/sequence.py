@@ -596,6 +596,18 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		return [alignment for alignment in self.alignment_object_list]
 
+	def write_taxa_to_file(self):
+		"""
+		Compiles the taxa names of all alignments and writes them in a single column .csv file
+		"""
+
+		output_handle = open("Taxa_list.csv", "w")
+
+		for taxon in self._get_taxa_list():
+			output_handle.write(taxon + "\n")
+
+		output_handle.close()
+
 	def concatenate(self, progress_stat=True):
 		""" The concatenate method will concatenate the multiple sequence alignments and create several attributes
 		This method sets the first three variables below and the concatenation variable containing the dict object"""
