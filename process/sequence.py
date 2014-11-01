@@ -415,7 +415,7 @@ class Alignment (Base, MissingFilter):
 			population_handle = open(ima2_params["pop_file"])
 			population_storage = OrderedDict()
 			for line in population_handle:
-				taxon, population = line.strip().split(";")
+				taxon, population = re.split(r'[\t;,]', line)
 				try:
 					population_storage[population].append(taxon)
 				except KeyError:
