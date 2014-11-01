@@ -82,13 +82,13 @@ formatting.add_argument("-interleave", dest="interleave", action="store_const", 
 						"this option to write output files in interleave format (currently only supported for nexus "
 						"files")
 formatting.add_argument("--ima2-parms", dest="ima2_params", nargs=4, help="Provide 4 additional arguments needed to "
-						"write the output in a format compliant with IMa2. The order of the required arguments is as "
-						"follows: [(1) File name of population mapping] [(2) Population tree] [(3) Mutational model] "
-						"[ (4) Inheritance Scalar]. Additional notes: (1) The population mapping file is a simple "
-						".csv file containing two columns separated by a semi-colon, in which the first column "
-						"contains the taxon name and the second column contains the corresponding population name; ("
-						"2) The order of the population names in the population tree must be the same as the order in"
-						"the file with the population mapping")
+						"write the output in a format compliant with IMa2. The order of the required arguments ("
+						"separated by whitespace is as follows: [(1) File name of population mapping] "
+						"[(2) Population tree] [(3) Mutational model] [ (4) Inheritance Scalar]. Additional notes: (1) "
+						"The population mapping file is a simple .csv file containing two columns separated by a "
+						"semi-colon, in which the first column contains the taxon name and the second column contains "
+						"the corresponding population name; (2) The order of the population names in the population "
+						"tree must be the same as the order in the file with the population mapping")
 
 # Data manipulation
 manipulation = parser.add_argument_group("Data manipulation")
@@ -261,6 +261,10 @@ def main_parser(alignment_list):
 def main_check():
 	if arg.partition_file is not None and arg.outfile is None:
 		raise ArgumentError("An output file must be provided with option '-o'")
+
+	if "ima2" in arg.output_format and len(arg.ima2_params) != 4:
+		raise ArgumentError("Four additional arguments must be provided with option --ima2-params when selecting the "
+							"ima2 output format. %s were given" % (len(arg.ima2_params)))
 
 	if arg.partition_file is not None:
 		return 0
