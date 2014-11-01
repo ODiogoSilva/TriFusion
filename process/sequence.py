@@ -422,9 +422,9 @@ class Alignment (Base, MissingFilter):
 			for line in population_handle:
 				taxon, population = re.split(r'[\t;,]', line)
 				try:
-					population_storage[population].append(taxon)
+					population_storage[population.strip()].append(taxon)
 				except KeyError:
-					population_storage[population] = [taxon]
+					population_storage[population.strip()] = [taxon]
 
 			# Write the general header of the IMa2 input file
 			out_file = open(output_file + ".txt", "w")
@@ -443,7 +443,7 @@ class Alignment (Base, MissingFilter):
 					partition_range = lrange.split("-")
 					# Write the header of each partition
 					out_file.write("%s %s %s %s %s\n" % (partition,
-													" ".join(population_storage.values()),
+													" ".join([str(len(x)) for x in list(population_storage.values())]),
 													(int(lrange[1]) - int(lrange[0])),
 													mutational_model,
 													inheritance_scalar))
