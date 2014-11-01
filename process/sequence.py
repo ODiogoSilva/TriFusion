@@ -451,7 +451,15 @@ class Alignment (Base, MissingFilter):
 
 					for population, taxa_list in population_storage.items():
 						for taxon in taxa_list:
-							seq = self.alignment[taxon][(int(partition_range[0]) - 1):(int(partition_range[1]) - 1)].upper()
+							# This try statement catches common errors, such as providing a species in the mapping
+							# file that does not exist in the alignment
+							try:
+								seq = self.alignment[taxon][(int(partition_range[0]) - 1):(int(partition_range[1]) - 1)].upper()
+							except KeyError:
+								print("Taxon %s provided in auxiliary population mapping file is not found in the "
+									  "alignment")
+								raise SystemExit
+
 							if seq.replace("N", "") != "":
 								new_alignment.append((taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
 								current_locus_populations[population].append(taxon)
