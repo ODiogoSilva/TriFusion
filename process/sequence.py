@@ -385,11 +385,11 @@ class Alignment (Base, MissingFilter):
 		outgroup. This may be useful for analyses with MrBayes or other software that may require outgroups
 
 		The ima2_params argument is used to provide information for the ima2 output format. If the argument is used,
-		it should be in a dictionary format and contain the following information:
-		  {pop_file:[str, file_name containing the species and populations]
-		  pop_tree:[str, the population tree in newick format, e.g. (0,1):2]
-		  mut_model:[str, mutational model for all alignments]
-		  in_scal: [str, inheritance scalar]
+		it should be in a list format and contain the following information:
+		  [[str, file_name containing the species and populations],
+		  [str, the population tree in newick format, e.g. (0,1):2],
+		  [mut_model:[str, mutational model for all alignments],
+		  [str, inheritance scalar]]
 		"""
 
 		# If this function is called in the AlignmentList class, there may be a need to specify a new alignment
@@ -411,8 +411,13 @@ class Alignment (Base, MissingFilter):
 		# Writes file in IMa2 format
 		if "ima2" in output_format:
 
+			population_file = ima2_params[0]
+			population_tree = ima2_params[1]
+			mutational_model = ima2_params[2]
+			inheritance_scalar = ima2_params[3]
+
 			# Get information on which species belong to each population from the populations file
-			population_handle = open(ima2_params["pop_file"])
+			population_handle = open(population_file)
 			population_storage = OrderedDict()
 			for line in population_handle:
 				taxon, population = re.split(r'[\t;,]', line)
@@ -428,7 +433,7 @@ class Alignment (Base, MissingFilter):
 						"%s\n"  # Line with name of populations
 						"%s\n"  # Line with population string
 						% (len(self.loci_ranges), len(population_storage), " ".join(population_storage.keys()),
-						   ima2_params["pop_tree"]))
+						   population_tree))
 
 			if self.loci_ranges is not None:
 				# Write each locus
@@ -440,8 +445,8 @@ class Alignment (Base, MissingFilter):
 					out_file.write("%s %s %s %s %s\n" % (partition,
 													" ".join(population_storage.values()),
 													(int(lrange[1]) - int(lrange[0])),
-													ima2_params["mut_model"],
-													ima2_params["in_scal"]))
+													mutational_model,
+													inheritance_scalar))
 
 					# Write sequence data according to the order of the population mapping file
 					for population, taxa_list in population_storage.items():
@@ -454,8 +459,8 @@ class Alignment (Base, MissingFilter):
 				out_file.write("%s %s %s %s %s\n" % (partition,
 													" ".join(population_storage.values()),
 													self.locus_length,
-													ima2_params["mut_model"],
-													ima2_params["in_scal"]))
+													mutational_model,
+													inheritance_scalar))
 
 				#Write sequence data
 				for population, taxa_list in population_storage.items():
