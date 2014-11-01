@@ -414,7 +414,7 @@ class Alignment (Base, MissingFilter):
 
 			# Get information on which species belong to each population from the populations file
 			population_handle = open(ima2_params["pop_file"])
-			population_storage = {}
+			population_storage = OrderedDict()
 			for line in population_handle:
 				taxon, population = line.strip().split(";")
 				try:
@@ -422,11 +422,44 @@ class Alignment (Base, MissingFilter):
 				except KeyError:
 					population_storage[population] = [taxon]
 
-			#
-
+			# Write the general header of the IMa2 input file
 			out_file = open(output_file + ".txt", "w")
-			out_file.write("Input file for IMa2 using %s alignments\n"
-						   "" % len(self.loci_ranges))
+			out_file.write("Input file for IMa2 using %s alignments\n"  # First line with general description
+						"%s\n"  # Line with number of loci
+						"%s\n"  # Line with name of populations
+						"%s\n"  # Line with population string
+						% (len(self.loci_ranges), len(population_storage), " ".join(population_storage.keys()),
+						   ima2_params["pop_tree"]))
+
+			if self.loci_ranges is not None:
+				# Write each locus
+				for partition, lrange in self.loci_ranges:
+
+					# Defining a list variable with the range of the current loci
+					partition_range = lrange.split("-")
+					# Write the header of each partition
+					out_file.write("%s %s %s %s %s\n" % (partition,
+													" ".join(population_storage.values()),
+													(int(lrange[1]) - int(lrange[0])),
+													ima2_params["mut_model"],
+													ima2_params["in_scal"]))
+
+					# Write sequence data
+					for taxon, seq in self.alignment.items():
+						out_file.write("%s%s\n" % (taxon[:cut_space_ima2].ljust(seq_space_ima2),
+										seq[(int(partition_range[0]) - 1):(int(partition_range[1]) - 1)].upper()))
+
+			if self.loci_ranges is None:
+				#Write the header for the single
+				out_file.write("%s %s %s %s %s\n" % (partition,
+													" ".join(population_storage.values()),
+													self.locus_length,
+													ima2_params["mut_model"],
+													ima2_params["in_scal"]))
+
+				#Write sequence data
+				for taxon, seq in self.alignment.items():
+					out_file.write("%s%s\n" % (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
 
 		# Writes file in phylip format
 		if "phylip" in output_format:
@@ -681,6 +714,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
 		concatenated_alignment = Alignment(self.concatenation, input_format=self._get_format(), model_list=self
 			.models, loci_ranges=self.loci_range)
+
 		return concatenated_alignment
 
 	def filter_missing_data(self, gap_threshold, missing_threshold, verbose=True):
