@@ -97,6 +97,8 @@ manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*", help="Pr
 miscellaneous = parser.add_argument_group("Miscellaneous")
 miscellaneous.add_argument("-quiet", dest="quiet", action="store_const", const=True, default=False, help="Removes all "
 						"terminal output")
+miscellaneous.add_argument("--get-taxa", dest="get_taxa", action="store_const", const=True, default=False,
+						help="Writes all taxa names into a .csv file")
 
 arg = parser.parse_args()
 
@@ -164,6 +166,10 @@ def main_parser(alignment_list):
 
 		# With many alignments
 		alignments = seqset.AlignmentList(alignment_list)
+
+		if arg.get_taxa is True:
+			alignments.write_taxa_to_file()
+			return 0
 
 		if conversion is not None:
 
@@ -251,7 +257,8 @@ def main_check():
 	if arg.partition_file is not None:
 		return 0
 
-	if arg.conversion is None and arg.outfile is None and arg.reverse is None and arg.select is None:
+	if arg.conversion is None and arg.outfile is None and arg.reverse is None and arg.select is None and arg.get_taxa\
+			is False:
 		raise ArgumentError(
 			"If you wish to concatenate provide the output file name using the '-o' option. If you wish to convert a "
 			"file, specify it using the '-c' option")
