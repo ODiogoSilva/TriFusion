@@ -441,18 +441,29 @@ class Alignment (Base, MissingFilter):
 
 					# Defining a list variable with the range of the current loci
 					partition_range = lrange.split("-")
+
+					# Retrieving taxon names and sequence data. This step is the first because it will enable the
+					# removal of species containing only missing data.
+					new_alignment = []
+					current_locus_populations = OrderedDict((x, []) for x in population_storage)
+
+					for population, taxa_list in population_storage.items():
+						for taxon in taxa_list:
+							seq = self.alignment[taxon][(int(partition_range[0]) - 1):(int(partition_range[1]) - 1)].upper()
+							if seq.replace("N", "") != "":
+								new_alignment.append((taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
+								current_locus_populations[population].append(taxon)
+
 					# Write the header of each partition
 					out_file.write("%s %s %s %s %s\n" % (partition,
-													" ".join([str(len(x)) for x in list(population_storage.values())]),
-													(int(lrange[1]) - int(lrange[0])),
+													" ".join([str(len(x)) for x in list(current_locus_populations.values())]),
+													(int(partition_range[1]) - int(partition_range[0])),
 													mutational_model,
 													inheritance_scalar))
 
 					# Write sequence data according to the order of the population mapping file
-					for population, taxa_list in population_storage.items():
-						for taxon in taxa_list:
-							seq = self.alignment[taxon][(int(partition_range[0]) - 1):(int(partition_range[1]) - 1)].upper()
-							out_file.write("%s%s\n" % (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
+					for taxon, seq in new_alignment:
+						out_file.write("%s%s\n" % (taxon, seq))
 
 			if self.loci_ranges is None:
 				#Write the header for the single
