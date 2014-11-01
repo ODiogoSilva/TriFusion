@@ -374,7 +374,7 @@ class Alignment (Base, MissingFilter):
 
 	def write_to_file(self, output_format, output_file, new_alignment=None, seq_space_nex=40, seq_space_phy=30,
 						seq_space_ima2=10, cut_space_nex=50, cut_space_phy=50, cut_space_ima2=8, form="leave",
-						gap="-", model_phylip="LG", model_list=[], outgroup_list=None):
+						gap="-", model_phylip="LG", outgroup_list=None, ima2_params=None):
 		""" Writes the alignment object into a specified output file, automatically adding the extension, according to
 		the output format
 		This function supports the writing of both converted (no partitions) and concatenated (partitioned files).
@@ -382,7 +382,16 @@ class Alignment (Base, MissingFilter):
 		If its None, there are no partitions and no partitions files will be created. If there are partitions, then
 		the appropriate partitions will be written.
 		The outgroup_list argument is used only for Nexus output format and consists in writing a line defining the
-		outgroup. This may be useful for analyses with MrBayes or other software that may require outgroups"""
+		outgroup. This may be useful for analyses with MrBayes or other software that may require outgroups
+
+		The ima2_params argument is used to provide information for the ima2 output format. If the argument is used,
+		it should be in a dictionary format and contain the following information:
+		  {pop_file:[str, file_name containing the species and populations]
+		  pop_names:[list, names of populations in the same order as the auxiliary file]
+		  pop_tree:[str, the population tree in newick format, e.g. (0,1):2]
+		  mut_model:[str, mutational model for all alignments]
+		  in_scal: [str, inheritance scalar]
+		"""
 
 		# If this function is called in the AlignmentList class, there may be a need to specify a new alignment
 		# dictionary, such as a concatenated one
@@ -399,6 +408,25 @@ class Alignment (Base, MissingFilter):
 				return 0
 		else:
 			pass
+
+		# Writes file in IMa2 format
+		if "ima2" in output_format:
+
+			# Get information on which species belong to each population from the populations file
+			population_handle = open(ima2_params["pop_file"])
+			population_storage = {}
+			for line in population_handle:
+				taxon, population = line.strip().split(";")
+				try:
+					population_storage[population].append(taxon)
+				except KeyError:
+					population_storage[population] = [taxon]
+
+			#
+
+			out_file = open(output_file + ".txt", "w")
+			out_file.write("Input file for IMa2 using %s alignments\n"
+						   "" % len(self.loci_ranges))
 
 		# Writes file in phylip format
 		if "phylip" in output_format:
