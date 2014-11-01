@@ -387,7 +387,6 @@ class Alignment (Base, MissingFilter):
 		The ima2_params argument is used to provide information for the ima2 output format. If the argument is used,
 		it should be in a dictionary format and contain the following information:
 		  {pop_file:[str, file_name containing the species and populations]
-		  pop_names:[list, names of populations in the same order as the auxiliary file]
 		  pop_tree:[str, the population tree in newick format, e.g. (0,1):2]
 		  mut_model:[str, mutational model for all alignments]
 		  in_scal: [str, inheritance scalar]
@@ -444,10 +443,11 @@ class Alignment (Base, MissingFilter):
 													ima2_params["mut_model"],
 													ima2_params["in_scal"]))
 
-					# Write sequence data
-					for taxon, seq in self.alignment.items():
-						out_file.write("%s%s\n" % (taxon[:cut_space_ima2].ljust(seq_space_ima2),
-										seq[(int(partition_range[0]) - 1):(int(partition_range[1]) - 1)].upper()))
+					# Write sequence data according to the order of the population mapping file
+					for population, taxa_list in population_storage.items():
+						for taxon in taxa_list:
+							seq = self.alignment[taxon][(int(partition_range[0]) - 1):(int(partition_range[1]) - 1)].upper()
+							out_file.write("%s%s\n" % (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
 
 			if self.loci_ranges is None:
 				#Write the header for the single
@@ -458,8 +458,10 @@ class Alignment (Base, MissingFilter):
 													ima2_params["in_scal"]))
 
 				#Write sequence data
-				for taxon, seq in self.alignment.items():
-					out_file.write("%s%s\n" % (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
+				for population, taxa_list in population_storage.items():
+					for taxon in taxa_list:
+						seq = self.alignment[taxon].upper()
+						out_file.write("%s%s\n" % (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
 
 		# Writes file in phylip format
 		if "phylip" in output_format:
