@@ -445,6 +445,8 @@ class Alignment (Base, MissingFilter):
 					# Retrieving taxon names and sequence data. This step is the first because it will enable the
 					# removal of species containing only missing data.
 					new_alignment = []
+					# This temporary ordered dictionary is created so that the number of taxa per populations is
+					# corrected in each locus
 					current_locus_populations = OrderedDict((x, []) for x in population_storage)
 
 					for population, taxa_list in population_storage.items():
