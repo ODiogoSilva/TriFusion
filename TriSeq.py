@@ -81,7 +81,7 @@ formatting.add_argument("-model", dest="model_phy", default="LG", choices=["DAYH
 formatting.add_argument("-interleave", dest="interleave", action="store_const", const="interleave", help="Specify "
 						"this option to write output files in interleave format (currently only supported for nexus "
 						"files")
-formatting.add_argument("--ima2-parms", dest="ima2_params", nargs=4, help="Provide 4 additional arguments needed to "
+formatting.add_argument("--ima2-params", dest="ima2_params", nargs="*", help="Provide 4 additional arguments needed to "
 						"write the output in a format compliant with IMa2. The order of the required arguments ("
 						"separated by whitespace is as follows: [(1) File name of population mapping] "
 						"[(2) Population tree] [(3) Mutational model] [ (4) Inheritance Scalar]. Additional notes: (1) "
@@ -214,7 +214,6 @@ def main_parser(alignment_list):
 				alignment_file = alignment.input_alignment
 
 				shutil.copy(alignment_file, "Taxa_selection")
-
 			return 0
 
 		else:
@@ -251,7 +250,9 @@ def main_parser(alignment_list):
 	## Writing files
 	if arg.quiet is False:
 		print("\rWriting output file(s)", end="")
-	alignment.write_to_file(output_format, outfile, form=sequence_format, outgroup_list=outgroup_taxa)
+
+	alignment.write_to_file(output_format, outfile, form=sequence_format, outgroup_list=outgroup_taxa,
+							ima2_params=arg.ima2_params)
 
 	# In case zorro weight files are provide, write the concatenated file
 	if arg.zorro is not None:
@@ -261,6 +262,10 @@ def main_parser(alignment_list):
 def main_check():
 	if arg.partition_file is not None and arg.outfile is None:
 		raise ArgumentError("An output file must be provided with option '-o'")
+
+	if "ima2" in arg.output_format and arg.ima2_params is None:
+		raise ArgumentError("Additional arguments must be provided with the option --ima2-params when selecting ima2 "
+							"output format")
 
 	if "ima2" in arg.output_format and len(arg.ima2_params) != 4:
 		raise ArgumentError("Four additional arguments must be provided with option --ima2-params when selecting the "
