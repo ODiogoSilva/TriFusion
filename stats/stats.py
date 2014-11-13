@@ -20,22 +20,24 @@
 #  MA 02110-1301, USA.
 
 
-from process.alignment import Alignment
+from process.sequence import Alignment
 from collections import OrderedDict
 import numpy as np
 import pygal
 
 
 class UniReport(Alignment):
-    """ This will create a report object for single alignments and will inherit from the Alignment class. As with its
-    base class, it will be possible to create a UniReport object directly from an external file or from an ordered
-    dictionary object
+    """ This will create a report object for single alignments and will
+    inherit from the Alignment class. As with its base class, it will be
+    possible to create a UniReport object directly from an external file or
+    from an ordered dictionary object
     """
 
     def base_statistics(self):
         """
-        returns a list with the basic phylogenetic statistics, such as number of indels, overall percentage of
-        indels variable sites,parsimony informative sites.
+        returns a list with the basic phylogenetic statistics, such as number
+         of indels, overall percentage of indels variable sites,parsimony
+         informative sites.
         """
 
         from collections import Counter
@@ -46,7 +48,8 @@ class UniReport(Alignment):
 
         for column_position in range(self.locus_length):
 
-            column = [char[column_position].lower() for char in self.alignment.values()]
+            column = [char[column_position].lower() for char in
+                      self.alignment.values()]
 
             # Check for variable sites
             column_set = len(set(column) - {"n", self.sequence_code[1]})
@@ -54,11 +57,11 @@ class UniReport(Alignment):
                 variable += 1
 
                 # Check for parsimonious informative sites
-                if len([val for char, val in Counter(column).items() if val > 1 and char not in "-" and char not in
-                        "n"])\
-                        > \
-                        1:  # Filters the Counter dictionary with key:val pairs with vals that are not missing
-                        # data or gap and higher than 1
+                # Filters the Counter dictionary with key:val pairs with vals
+                # that are not missing data or gap and higher than 1
+                if len([val for char, val in Counter(column).items()
+                        if val > 1 and char not in "-" and
+                        char not in "n"]) > 1:
                     parsimonious += 1
 
             # Check for indels
@@ -67,33 +70,39 @@ class UniReport(Alignment):
 
         cumulative_gap = 0
         for sequence in self.alignment.values():
-            cumulative_gap += sequence.count(self.sequence_code[1]) + sequence.count("-")
+            cumulative_gap += sequence.count(self.sequence_code[1]) +\
+                              sequence.count("-")
 
-        indel_perc = float(cumulative_gap) / (self.locus_length * len(self.alignment))
+        indel_perc = float(cumulative_gap) / (self.locus_length *
+                                              len(self.alignment))
 
         return indel, indel_perc, variable, parsimonious
 
     def missing_data(self):
         """
-        Returns a dictionary with the missing data information for each species. Each dictionary entry will be:
+        Returns a dictionary with the missing data information for each
+        species. Each dictionary entry will be:
         "taxon":[missing_int, gap_int, gap_int+missing_int]
         """
 
         contents_missing_data = OrderedDict()
-        # contents_missing_data = dict((taxa, []) for taxa in self.iter_taxa())  # Creates the base dictionary with
-        # taxa names as keys and empty lists as values
+        # Creates the base dictionary with taxa names as keys and empty lists
+        # as values
+        # contents_missing_data = dict((taxa, []) for taxa in self.iter_taxa())
 
         for taxon, sequence in self.alignment.items():
             gap_value = sequence.count("-")
             missing_value = sequence.count(self.sequence_code[1])
-            contents_missing_data[taxon] = [gap_value, missing_value, gap_value + missing_value]
+            contents_missing_data[taxon] = [gap_value, missing_value,
+                                            gap_value + missing_value]
 
         return contents_missing_data
 
     def species_gene_length(self):
         """
-        :return: A dictionary with the gene length information for each species. The keys will be species names and
-        the values floats with the gene length
+        :return: A dictionary with the gene length information for each
+        species. The keys will be species names and the values floats with
+        the gene length
         """
 
         species_gene_length = {}
@@ -107,8 +116,8 @@ class UniReport(Alignment):
 
 
 class MultiReport():
-    """ This will create a report object for multiple alignments. Its most basic instance will be a list of UniReport
-    objects
+    """ This will create a report object for multiple alignments. Its most
+     basic instance will be a list of UniReport objects
     """
     def __init__(self, alignment_list):
 
@@ -121,7 +130,8 @@ class MultiReport():
 
     def get_species_set(self):
         """
-        :return: A list containing the unique taxa names from all alignment files
+        :return: A list containing the unique taxa names from all alignment
+        files
         """
 
         species_set = set()
@@ -144,11 +154,13 @@ class MultiReport():
     def report_table(self, output_file):
         """
         :param output_file: output file name string
-        Generates a csv table containing basic phylogenetic statistics for each alignment
+        Generates a csv table containing basic phylogenetic statistics for
+        each alignment
         """
 
         output_handle = open(output_file, "w")
-        output_handle.write("Gene; Number of sites; Number of indels; Percentage of missing data; Variable sites; "
+        output_handle.write("Gene; Number of sites; Number of indels; "
+                            "Percentage of missing data; Variable sites; "
                             "Parsimonious sites\n")
 
         table_contents = OrderedDict()
@@ -159,18 +171,22 @@ class MultiReport():
             indel, indel_perc, variable, parsimonious = report.base_statistics()
 
             # In case I'll need this in anything other than a table
-            table_contents[name] = [sites, indel, indel_perc, variable, parsimonious]
+            table_contents[name] = [sites, indel, indel_perc, variable,
+                                    parsimonious]
 
         for gene, vals in table_contents.items():
 
-            output_handle.write("%s; %s; %s; %s; %s; %s\n" % (gene, vals[0], vals[1], vals[2], vals[3], vals[4]))
+            output_handle.write("%s; %s; %s; %s; %s; %s\n" % (gene, vals[0],
+                                                              vals[1], vals[2],
+                                                              vals[3], vals[4]))
 
         output_handle.close()
 
     def species_gene_length(self, output_file, table=False, plot=False):
         """
         :param output_file: String with the name of the output file
-        :return: Creates a table and/or plot with information on the average gene length (and corresponding standard
+        :return: Creates a table and/or plot with information on the average
+        gene length (and corresponding standard
         deviation) for each species
         """
 
@@ -186,7 +202,8 @@ class MultiReport():
                 else:
                     raw_data[sp].append(current_data[sp])
 
-        data = dict((sp, [np.mean(val), np.std(val)]) for sp, val in raw_data.items())
+        data = dict((sp, [np.mean(val), np.std(val)]) for sp, val in
+                    raw_data.items())
 
         if table is not False:
 
@@ -200,8 +217,10 @@ class MultiReport():
 
         if plot is not False:
 
-            gene_length_box_chart = pygal.Box(x_label_rotation=45, width=1200, legend_at_bottom=True, height=800,
-                                              label_font_size=8, legend_font_size=20, margin=50,
+            gene_length_box_chart = pygal.Box(x_label_rotation=45, width=1200,
+                                              legend_at_bottom=True, height=800,
+                                              label_font_size=8,
+                                              legend_font_size=20, margin=50,
                                               major_label_font_size=10)
             gene_length_box_chart.title = "Average gene length per species"
 
@@ -212,9 +231,10 @@ class MultiReport():
             return gene_length_box_chart
 
     def gene_variation_plot(self, output_file):
-        """ Creates a bar plot with basic information on the variation and missing data for each gene. It is similar
-        to the species_missing_data method, but the focus in on variation per gene instead of missing data per
-        species """
+        """ Creates a bar plot with basic information on the variation and
+        missing data for each gene. It is similar to the species_missing_data
+         method, but the focus in on variation per gene instead of missing
+         data per species """
 
         # UNFINISHED
         plot_contents = []
@@ -228,27 +248,35 @@ class MultiReport():
             singletons = float(gene_statistics[2] - gene_statistics[3])
             missing_data = float(gene_statistics[0])
             total_characters = float(report.locus_length)
-            gene_data_absolute = [parsimoniously_informative, singletons, missing_data]
+            gene_data_absolute = [parsimoniously_informative, singletons,
+                                  missing_data]
 
             # Get proportions
             gene_data = [(val / total_characters) for val in gene_data_absolute]
 
             plot_contents.append((report.input_alignment, gene_data))
 
-        variation_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
-                                                label_font_size=8, legend_font_size=20, margin=50,
-                                                major_label_font_size=10, print_values=False, y_title='Proportion')
+        variation_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200,
+                                               legend_at_bottom=True,
+                                               height=800, label_font_size=8,
+                                               legend_font_size=20, margin=50,
+                                                major_label_font_size=10,
+                                                print_values=False,
+                                                y_title='Proportion')
 
         variation_bar_chart.title = "Character missing data per species"
-        variation_bar_chart.x_labels = [taxon[0] for taxon in self.get_gene_set()]
+        variation_bar_chart.x_labels = [taxon[0] for taxon in
+                                        self.get_gene_set()]
 
     def species_missing_data(self, output_file, table=False, plot=False):
         """
-        :param table: Boolean. True will generate a csv table with information on the missing data for each species
-        :param plot: Boolean. True will generate a stacked bar plot with information on the missing data for each
+        :param table: Boolean. True will generate a csv table with information
+        on the missing data for each species
+        :param plot: Boolean. True will generate a stacked bar plot with
+        information on the missing data for each species
+        Depending on the table and plot argument values, this will generate a
+        table and/or a plot with information on the missing data for each
         species
-        Depending on the table and plot argument values, this will generate a table and/or a plot with information on
-        the missing data for each species
         """
 
         taxa_set = self.get_species_set()
@@ -260,11 +288,15 @@ class MultiReport():
             alignment_length += report.locus_length
 
             for taxon, vals in report_missing_data.items():
-                missing_data_contents[taxon] = [x + y for x, y in zip(missing_data_contents[taxon], vals)]
+                missing_data_contents[taxon] = [x + y for x, y in
+                                                zip(missing_data_contents[
+                                                        taxon], vals)]
 
         # Convert missing_data_contents to list and sort by missing data
-        data_list = [(taxon, [vals[0], vals[1], vals[2]]) for taxon, vals in missing_data_contents.items()]
-        sorted_data_list = sorted(data_list, key=lambda x: x[1][2], reverse=True)
+        data_list = [(taxon, [vals[0], vals[1], vals[2]]) for taxon, vals in
+                     missing_data_contents.items()]
+        sorted_data_list = sorted(data_list, key=lambda x: x[1][2],
+                                  reverse=True)
 
         # Table
         if table is True:
@@ -275,24 +307,33 @@ class MultiReport():
                 print("TypeError: Please specify an output file name")
                 raise SystemExit
 
-            output_handle.write("Taxon; Gap chars; Missing chars; Total missing chars; Effective chars; Total chars\n")
+            output_handle.write("Taxon; Gap chars; Missing chars; Total missing"
+                                " chars; Effective chars; Total chars\n")
 
             for taxon, vals in sorted_data_list:
-                output_handle.write("%s; %s; %s; %s; %s; %s\n" % (taxon,
-                                                                  vals[0],
-                                                                  vals[1],
-                                                                  vals[2],
-                                                                  alignment_length - vals[2],
-                                                                  alignment_length))
+                output_handle.write("%s; %s; %s; %s; %s; %s\n" % (
+                                    taxon,
+                                    vals[0],
+                                    vals[1],
+                                    vals[2],
+                                    alignment_length - vals[2],
+                                    alignment_length))
             else:
                 output_handle.close()
 
         # Plot
         if plot is True:
 
-            missing_bar_chart = pygal.StackedBar(x_label_rotation=90, width=1200, legend_at_bottom=True, height=800,
-                                                label_font_size=8, legend_font_size=20, margin=50,
-                                                major_label_font_size=10, print_values=False, y_title='Proportion')
+            missing_bar_chart = pygal.StackedBar(x_label_rotation=90,
+                                                 width=1200,
+                                                 legend_at_bottom=True,
+                                                 height=800,
+                                                label_font_size=8,
+                                                legend_font_size=20, margin=50,
+                                                major_label_font_size=10,
+                                                print_values=False,
+                                                y_title='Proportion')
+
             missing_bar_chart.title = "Character missing data per species"
             missing_bar_chart.x_labels = [taxon[0] for taxon in sorted_data_list]
 
@@ -304,12 +345,18 @@ class MultiReport():
                 # Adjusting missing data values to be in proportion
                 gap_proportion = float(vals[0]) / float(alignment_length)
                 missing_proportion = float(vals[1]) / float(alignment_length)
-                character_proportion = (float(alignment_length) - float(vals[2])) / float(alignment_length)
+                character_proportion = (float(alignment_length) -
+                                        float(vals[2])) / \
+                                        float(alignment_length)
 
                 # Creating chart variables
-                gap_list.append({"value": gap_proportion, "label": str(vals[0])})
-                missing_list.append({"value": missing_proportion, "label": str(vals[1])})
-                character_list.append({"value": character_proportion, "label": str(alignment_length - vals[2])})
+                gap_list.append({"value": gap_proportion,
+                                 "label": str(vals[0])})
+                missing_list.append({"value": missing_proportion,
+                                     "label": str(vals[1])})
+                character_list.append({"value": character_proportion,
+                                       "label": str(alignment_length -
+                                                    vals[2])})
 
             # Adding chart variables
             missing_bar_chart.add("Gaps", gap_list)
