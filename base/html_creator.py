@@ -41,7 +41,8 @@ class HtmlTemplate ():
     def add_single_plot(self, heading, plot_file, heading_level="1"):
         """ Adds single plot with heading """
         head = "<h%s> %s </h1>\n" % (heading_level, heading)
-        plot = "<figure> <embed type='image/svg+xml' src='%s' /> </figure>\n" % plot_file
+        plot = "<figure> <embed type='image/svg+xml' src='%s' /> </figure>\n" %\
+               plot_file
         self.bcontents.extend([head, plot])
 
     #def add_plot_grid(self):
