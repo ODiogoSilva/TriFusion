@@ -196,16 +196,20 @@ def main_parser(alignment_list):
         # In case only one alignment
         alignment = seqset.Alignment("".join(alignment_list))
 
-        # Check if input format is the same as output format. If so, and no output file name has been provided, update
+        # Check if input format is the same as output format. If so, and no
+        # output file name has been provided, update
         # the default output file name
         if alignment.input_format in output_format and output_format is None:
             outfile = "".join(alignment_list).split(".")[0] + "_conv"
 
-        # If only to reverse a concatenated alignment into individual loci do this and exit
+        # If only to reverse a concatenated alignment into individual loci do
+        # this and exit
         if arg.reverse is not None:
             partition = data.Partitions(arg.reverse)
             reverse_alignments = alignment.reverse_concatenate(partition)
-            reverse_alignments.write_to_file(output_format, form=sequence_format, outgroup_list=outgroup_taxa)
+            reverse_alignments.write_to_file(output_format,
+                                             form=sequence_format,
+                                             outgroup_list=outgroup_taxa)
             return 0
 
     else:
@@ -219,9 +223,11 @@ def main_parser(alignment_list):
 
         if conversion is not None:
 
-            # In case multiple files are to be converted and an alignment filter is to be carried out
+            # In case multiple files are to be converted and an alignment
+            # filter is to be carried out
             if arg.filter is not None:
-                alignments.filter_missing_data(arg.filter[0], arg.filter[1], verbose=True)
+                alignments.filter_missing_data(arg.filter[0], arg.filter[1],
+                                               verbose=True)
 
             # In case taxa are to be removed while converting
             if arg.remove is not None:
@@ -231,11 +237,13 @@ def main_parser(alignment_list):
                     alignments.remove_taxa(arg.remove)
             if arg.grep is not None:
                 if arg.quiet is False:
-                    alignments.remove_taxa(arg.grep, verbose=True, mode="inverse")
+                    alignments.remove_taxa(arg.grep, verbose=True,
+                                           mode="inverse")
                 else:
                     alignments.remove_taxa(arg.grep, mode="inverse")
 
-            alignments.write_to_file(output_format, form=sequence_format, outgroup_list=outgroup_taxa)
+            alignments.write_to_file(output_format, form=sequence_format,
+                                     outgroup_list=outgroup_taxa)
             return 0
 
         elif arg.select is not None:
@@ -244,8 +252,10 @@ def main_parser(alignment_list):
             if not os.path.exists("Taxa_selection"):
                 os.makedirs("Taxa_selection")
 
-            # Retrieve the alignments in which at least one of the specified taxa exists
-            selected_alignments = alignments.select_by_taxa(arg.select, mode="relaxed")
+            # Retrieve the alignments in which at least one of the specified
+            # taxa exists
+            selected_alignments = alignments.select_by_taxa(arg.select,
+                                                            mode="relaxed")
 
             # Copying selected alignments to appropriate directory
             for alignment in selected_alignments:
@@ -279,7 +289,8 @@ def main_parser(alignment_list):
         if arg.quiet is False:
             print("\rCoding gaps", end="")
         if output_format != ["nexus"]:
-            raise OutputFormatError("Alignments with gaps coded can only be written in Nexus format")
+            raise OutputFormatError("Alignments with gaps coded can only be"
+                                    " written in Nexus format")
         alignment.code_gaps()
 
     if arg.filter is not None:
@@ -289,7 +300,8 @@ def main_parser(alignment_list):
     if arg.quiet is False:
         print("\rWriting output file(s)", end="")
 
-    alignment.write_to_file(output_format, outfile, form=sequence_format, outgroup_list=outgroup_taxa,
+    alignment.write_to_file(output_format, outfile, form=sequence_format,
+                            outgroup_list=outgroup_taxa,
                             ima2_params=arg.ima2_params)
 
     # In case zorro weight files are provide, write the concatenated file
@@ -302,30 +314,39 @@ def main_check():
         raise ArgumentError("An output file must be provided with option '-o'")
 
     if "ima2" in arg.output_format and arg.ima2_params is None:
-        raise ArgumentError("Additional arguments must be provided with the option --ima2-params when selecting ima2 "
+        raise ArgumentError("Additional arguments must be provided with the"
+                            " option --ima2-params when selecting ima2 "
                             "output format")
 
     if "ima2" in arg.output_format and len(arg.ima2_params) != 4:
-        raise ArgumentError("Four additional arguments must be provided with option --ima2-params when selecting the "
-                            "ima2 output format. %s were given" % (len(arg.ima2_params)))
+        raise ArgumentError("Four additional arguments must be provided with"
+                            " option --ima2-params when selecting the "
+                            "ima2 output format. %s were given" %
+                            (len(arg.ima2_params)))
 
     if arg.partition_file is not None:
         return 0
 
-    if arg.conversion is None and arg.outfile is None and arg.reverse is None and arg.select is None and arg.get_taxa\
-            is False:
+    if arg.conversion is None and arg.outfile is None and arg.reverse is None\
+            and arg.select is None and arg.get_taxa is False:
+
         raise ArgumentError(
-            "If you wish to concatenate provide the output file name using the '-o' option. If you wish to convert a "
+            "If you wish to concatenate provide the output file name using "
+            "the '-o' option. If you wish to convert a "
             "file, specify it using the '-c' option")
 
-    if len(arg.infile) == 1 and arg.conversion is None and arg.reverse is None and arg.collapse is None:
+    if len(arg.infile) == 1 and arg.conversion is None and arg.reverse is None\
+            and arg.collapse is None:
+
         raise ArgumentError(
-            "Cannot perform concatenation of a single file. Please provide additional files to concatenate, or specify"
-            " the conversion '-c' option")
+            "Cannot perform concatenation of a single file. Please provide"
+            " additional files to concatenate, or specify the conversion "
+            "'-c' option")
 
     if arg.zorro is not None and len(arg.infile) == 1:
         raise ArgumentError(
-            "The '-z' option cannot be invoked when only a single input file is provided. This option is reserved for"
+            "The '-z' option cannot be invoked when only a single input "
+            "file is provided. This option is reserved for"
             " concatenation of multiple alignment files")
 
     else:
