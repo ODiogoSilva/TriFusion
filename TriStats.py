@@ -27,19 +27,26 @@ import argparse
 from stats import stats
 from base import html_creator
 
-parser = argparse.ArgumentParser(description="Filters alignment files and creates statistics and graphics for "
-                                             "alignments")
-parser.add_argument("-in", dest="infile", nargs="+", required=True, help="Provide the input files")
-parser.add_argument("-o", dest="project_name", required=True, help="Provide a name for the project")
+parser = argparse.ArgumentParser(description="Filters alignment files and "
+                                 "creates statistics and graphics for "
+                                 "alignments")
+parser.add_argument("-in", dest="infile", nargs="+", required=True,
+                    help="Provide the input files")
+parser.add_argument("-o", dest="project_name", required=True,
+                    help="Provide a name for the project")
 
 modes = parser.add_argument_group("Report options")
-modes.add_argument("-f", dest="full_report", action="store_const", const=True, help="Generate full report")
-modes.add_argument("-m", dest="mode", choices=["1", "2", "2a", "2b", "3", "all"], help="Specify which report(s): "
-                    "\n\t\t1: Basic phylogenetic statistics;"
-                    "\n\t\t2: Species specific missing data plot and table;\n\t\t2a: Species specific missing data "
-                    "plot;"
-                    "\n\t\t2b: Species specific missing data table phylogenetic information"
-                    "\n\t\t3: Information on average gene length per species")
+modes.add_argument("-f", dest="full_report", action="store_const", const=True,
+                   help="Generate full report")
+modes.add_argument("-m", dest="mode", choices=["1", "2", "2a", "2b", "3", "all"]
+                   , help="Specify which report(s): "
+                   "\n\t\t1: Basic phylogenetic statistics;"
+                   "\n\t\t2: Species specific missing data plot and table;"
+                   "\n\t\t2a: Species specific missing data "
+                   "plot;"
+                   "\n\t\t2b: Species specific missing data table phylogenetic "
+                   "information"
+                   "\n\t\t3: Information on average gene length per species")
 
 arg = parser.parse_args()
 
@@ -77,7 +84,8 @@ def main():
         plot_object.render_to_file(file_name)
 
         # Adding plot to html template object
-        html_instance.add_single_plot("Species specific missing data", file_name, heading_level=3)
+        html_instance.add_single_plot("Species specific missing data",
+                                      file_name, heading_level=3)
 
     if "2b" in mode or "2" in mode or "all" in mode:
 
@@ -91,11 +99,13 @@ def main():
         # Defining output file name based on project
         file_name = "%s_species_gene_length" % project
 
-        gene_length_plot = report.species_gene_length(file_name + ".csv", table=True, plot=True)
+        gene_length_plot = report.species_gene_length(file_name + ".csv",
+                                                      table=True, plot=True)
         gene_length_plot.render_to_file(file_name + ".svg")
 
         # Adding plot to html template object
-        html_instance.add_single_plot("Average gene length per species", file_name + ".svg", heading_level=3)
+        html_instance.add_single_plot("Average gene length per species",
+                                      file_name + ".svg", heading_level=3)
 
     # Finally, write the html file
     html_instance.write_file(project + "_report")
@@ -103,4 +113,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
