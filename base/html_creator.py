@@ -25,43 +25,43 @@
 
 
 class HtmlTemplate ():
-	def __init__(self):
-		self.hcontents = []
-		self.bcontents = []
+    def __init__(self):
+        self.hcontents = []
+        self.bcontents = []
 
-	def add_title(self, title):
-		htitle = "<title> %s </title>\n" % title
-		self.hcontents.extend([htitle])
+    def add_title(self, title):
+        htitle = "<title> %s </title>\n" % title
+        self.hcontents.extend([htitle])
 
-	def add_text(self, text):
-		""" Adds plain text to body (no tags) """
-		content = text
-		self.bcontents.extend([content])
+    def add_text(self, text):
+        """ Adds plain text to body (no tags) """
+        content = text
+        self.bcontents.extend([content])
 
-	def add_single_plot(self, heading, plot_file, heading_level="1"):
-		""" Adds single plot with heading """
-		head = "<h%s> %s </h1>\n" % (heading_level, heading)
-		plot = "<figure> <embed type='image/svg+xml' src='%s' /> </figure>\n" % plot_file
-		self.bcontents.extend([head, plot])
+    def add_single_plot(self, heading, plot_file, heading_level="1"):
+        """ Adds single plot with heading """
+        head = "<h%s> %s </h1>\n" % (heading_level, heading)
+        plot = "<figure> <embed type='image/svg+xml' src='%s' /> </figure>\n" % plot_file
+        self.bcontents.extend([head, plot])
 
-	#def add_plot_grid(self):
-		#""" TODO """
+    #def add_plot_grid(self):
+        #""" TODO """
 
-	def write_file(self, file_name):
-		string = """<!DOCTYPE html>
+    def write_file(self, file_name):
+        string = """<!DOCTYPE html>
 <html>
-	<head>
-	%s
-	</head>
-	<body style='background-color:#eeeeee'>
-	<h1> Alignments Report </h1>
-	<p> Alignment report results ran on #DATE using options #OPTIONS 
-	%s
-	</body>
+    <head>
+    %s
+    </head>
+    <body style='background-color:#eeeeee'>
+    <h1> Alignments Report </h1>
+    <p> Alignment report results ran on #DATE using options #OPTIONS
+    %s
+    </body>
 </html>
 
-		""" % ("\n".join(self.hcontents), "\n".join(self.bcontents))
+        """ % ("\n".join(self.hcontents), "\n".join(self.bcontents))
 
-		output_handle = open(file_name + ".html", "w")
-		output_handle.write(string)
-		output_handle.close()
+        output_handle = open(file_name + ".html", "w")
+        output_handle.write(string)
+        output_handle.close()
