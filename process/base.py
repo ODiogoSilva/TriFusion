@@ -39,16 +39,18 @@ class Base ():
         while header.startswith("\n"):
             header = next(file_handle)
 
-        # Recognition of NEXUS files is based on the existence of the string '#NEXUS' in the first non-empty line
+        # Recognition of NEXUS files is based on the existence of the string
+        # '#NEXUS' in the first non-empty line
         if header.upper().strip().startswith("#NEXUS"):
             autofind = "nexus"
             for line in file_handle:
                 if line.strip().lower() == "matrix":
-                    sequence = "".join(file_handle.readline().split()[1:]).strip()
+                    sequence = "".join(file_handle.readline().split()[1:])\
+                        .strip()
                     break
 
-        # Recognition of FASTA files is based on the existence of a ">" character as the first character of a non-empty
-        # line
+        # Recognition of FASTA files is based on the existence of a ">"
+        # character as the first character of a non-empty line
         elif header.strip().startswith(">"):
             autofind = "fasta"
             for line in file_handle:
@@ -57,15 +59,19 @@ class Base ():
                 elif line.strip() != "" and line.strip()[0] == ">":
                     break
 
-        # Recognition of Phylip files is based on the existence of two integers separated by whitespace on the first
-        # non-empy line
-        elif len(header.strip().split()) == 2 and header.strip().split()[0].isdigit() and header.strip().split()[1].isdigit():
+        # Recognition of Phylip files is based on the existence of two
+        # integers separated by whitespace on the first non-empy line
+        elif len(header.strip().split()) == 2 and header.strip().split()[0]\
+                .isdigit() and header.strip().split()[1].isdigit():
+
             autofind = "phylip"
             sequence = "".join(file_handle.readline().split()[1:]).strip()
 
-        # Check if there is any sequence. If not, the alignment file has no sequence
+        # Check if there is any sequence. If not, the alignment file has no
+        # sequence
         if sequence.replace("-", "") == "":
-            print("\nAlignment file %s has no sequence or the first sequence is empty. Please check the file." % reference_file)
+            print("\nAlignment file %s has no sequence or the first sequence "
+                  "is empty. Please check the file." % reference_file)
             raise SystemExit
 
         # Guessing the genetic code
@@ -74,7 +80,8 @@ class Base ():
         return autofind, code
 
     def partition_format(self, partition_file):
-        """ Tries to guess the format of the partition file (Whether it is Nexus of RAxML's) """
+        """ Tries to guess the format of the partition file (Whether it is
+        Nexus of RAxML's) """
         file_handle = open(partition_file)
 
         # Skips first empty lines, if any
@@ -91,11 +98,14 @@ class Base ():
         return p_format
 
     def guess_code(self, sequence):
-        """ Function that guesses the code of the molecular sequences (i.e., DNA or Protein) based on the first
-        sequence of a reference file """
-        sequence = sequence.upper().replace("-", "")  # Removes gaps from the sequence so that the frequencies are not
-        #  biased
-        dna_count = sequence.count("A") + sequence.count("T") + sequence.count("G") + sequence.count("C") + \
+        """ Function that guesses the code of the molecular sequences (i.e.,
+        DNA or Protein) based on the first sequence of a reference file """
+
+        # Removes gaps from the sequence so that the frequencies are not biased
+        sequence = sequence.upper().replace("-", "")
+
+        dna_count = sequence.count("A") + sequence.count("T") + \
+                    sequence.count("G") + sequence.count("C") + \
                     sequence.count("N")
         dna_proportion = float(dna_count) / float(len(sequence))
         if dna_proportion > 0.9:  # The 0.9 cut-off has been effective so far
@@ -106,20 +116,26 @@ class Base ():
 
     def rm_illegal(self, string):
         """ Function that removes illegal characters from taxa names """
-        illegal_chars = [":", ",", ")", "(", ";", "[", "]", "'", '"']  # Additional illegal characters are added here
-        clean_name = "".join([char for char in string if char not in illegal_chars])
+
+        # Additional illegal characters are added here
+        illegal_chars = [":", ",", ")", "(", ";", "[", "]", "'", '"']
+
+        clean_name = "".join([char for char in string if char not in
+                              illegal_chars])
 
         return clean_name
 
     def duplicate_taxa(self, taxa_list):
         """ Function that identifies duplicated taxa """
         import collections
-        duplicated_taxa = [x for x, y in collections.Counter(taxa_list).items() if y > 1]
+        duplicated_taxa = [x for x, y in collections.Counter(taxa_list).items()
+                           if y > 1]
         return duplicated_taxa
 
     def check_format(self, input_alignment, alignment_format):
-        """ This function performs some very basic checks to see if the format of the input file is in accordance to
-        the input file format specified when the script is executed """
+        """ This function performs some very basic checks to see if the format
+         of the input file is in accordance to the input file format
+         specified when the script is executed """
         input_handle = open(input_alignment)
         line = input_handle.readline()
         while line.strip() == "":
@@ -127,14 +143,18 @@ class Base ():
 
         if alignment_format == "fasta":
             if line.strip()[0] != ">":
-                print("File not in Fasta format. First non-empty line of the input file %s does not start with '>'. "
-                        "Please verify the file, or the input format settings\nExiting..." % input_alignment)
+                print("File not in Fasta format. First non-empty line of the"
+                      " input file %s does not start with '>'. Please verify "
+                      "the file, or the input format settings\nExiting..." %
+                      input_alignment)
                 raise SystemExit
 
         elif alignment_format == "nexus":
             if line.strip().lower() != "#nexus":
-                print("File not in Nexus format. First non-empty line of the input file %s does not start with "
-                        "'#NEXUS'. Please verify the file, or the input format settings\nExiting..." % input_alignment)
+                print("File not in Nexus format. First non-empty line of the"
+                      " input file %s does not start with '#NEXUS'. Please "
+                      "verify the file, or the input format settings\n"
+                      "Exiting..." % input_alignment)
                 raise SystemExit
 
         elif alignment_format == "phylip":
@@ -143,16 +163,19 @@ class Base ():
                 int(header[0])
                 int(header[1])
             except:
-                print("File not in correct Phylip format. First non-empty line of the input file %s does not start "
-                        "with two integers separated by whitespace. Please verify the file, or the input format "
-                        "settings\nExiting..." % input_alignment)
+                print("File not in correct Phylip format. First non-empty "
+                      "line of the input file %s does not start with two "
+                      "integers separated by whitespace. Please verify the "
+                      "file, or the input format settings\nExiting..." %
+                      input_alignment)
                 raise SystemExit
 
     def check_sizes(self, alignment_dic, current_file):
-        """ This will make two sanity checks of the alignment contained in the alignment_dic object: First, it will
-        check if none of the sequences is empty; If True, it will raise an error informing which taxa have empty
-        sequences. If False, this will also test whether all sequences are of the same size and, if not, which are
-        different """
+        """ This will make two sanity checks of the alignment contained in
+        the alignment_dic object: First, it will check if none of the
+        sequences is empty; If True, it will raise an error informing which
+        taxa have empty sequences. If False, this will also test whether all
+        sequences are of the same size and, if not, which are different """
 
         # Checking for taxa with empty sequences
         empty_taxa = []
@@ -163,22 +186,30 @@ class Base ():
 
         if empty_taxa is []:
 
-            print("\nInputError: The following taxa contain empty sequences in the file %s: %s\nPlease verify and "
-                    "re-run the program. Exiting...\n" % (current_file, " ".join(empty_taxa)))
+            print("\nInputError: The following taxa contain empty sequences "
+                  "in the file %s: %s\nPlease verify and re-run the program. "
+                  "Exiting...\n" % (current_file, " ".join(empty_taxa)))
             raise SystemExit
 
         # Checking sequence lengths
         # Determine the most common length
-        commonseq = max(set([v for v in alignment_dic.values()]), key=[v for v in alignment_dic.values()].count)
-        # Creates a dictionary with the sequences, and respective length, of different length
-        diflength = dict((key, value) for key, value in alignment_dic.items() if len(commonseq) != len(value))
+        commonseq = max(set([v for v in alignment_dic.values()]),
+                        key=[v for v in alignment_dic.values()].count)
+        # Creates a dictionary with the sequences, and respective length,
+        # of different length
+        diflength = dict((key, value) for key, value in alignment_dic.items()
+                         if len(commonseq) != len(value))
+
         if diflength != {}:
-            print("\nWARNING: Unequal sequence length detected in %s" % current_file)
+            print("\nWARNING: Unequal sequence length detected in %s" %
+                  current_file)
 
     def read_basic_csv(self, file_handle):
-        """ This will parse a simples csv file with only one column and one or more lines. It returns a list containing
-        the contents of each line as an element. This can be used by any class/function of the process submodule
-        granted that a previous check for the presence of the file is made """
+        """ This will parse a simples csv file with only one column and one
+        or more lines. It returns a list containing the contents of each line
+        as an element. This can be used by any class/function of the process
+        submodule granted that a previous check for the presence of the file
+        is made """
 
         storage = []
 
@@ -198,8 +229,10 @@ class Progression():
         self.width = window_size
 
     def progress_bar(self, position):
-        """ this function requires the record method to be previously defined, as it will need its attributes. It will
-        print a progress bar with a specified weight according to the position on the current data structure """
+        """ this function requires the record method to be previously defined,
+        as it will need its attributes. It will print a progress bar with a
+        specified weight according to the position on the current data
+        structure """
 
         # If there is a previous message in the output, erase it
         try:
@@ -211,8 +244,10 @@ class Progression():
         # The progress bar
         position_proportion = int((position / self.size) * self.width)
 
-        msg = "\r%s [%s%s] %s%%" % (self.name, "#" * position_proportion, "-" * (self.width-position_proportion),
-                                    int((position_proportion/self.width) * 100))
+        msg = "\r%s [%s%s] %s%%" % (self.name, "#" * position_proportion,
+                                    "-" * (self.width - position_proportion),
+                                    int((position_proportion / self.width) *
+                                        100))
 
         print(msg, end="")
 
