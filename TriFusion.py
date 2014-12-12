@@ -102,8 +102,9 @@ class TriFusionApp(App):
         else:
             width = 0
 
-        Animation(width=width, d=.3, t="out_quart").\
-            start(self.root.ids.sp)
+        Animation(width=width, d=.3, t="out_quart").start(self.root.ids.sp)
+        Animation(width=width * .8, d=.3, t="out_quart").start(
+            self.root.ids.sv_but)
 
 
 
