@@ -3,23 +3,11 @@ ShowcaseScreen:
 
     BoxLayout:
         orientation: "vertical"
-        TabbedPanel:
-            padding: 15
-            tab_pos: "top_mid"
-            default_tab_text: "List"
-            default_tab_content: list_view_tab
 
-            TabbedPanelHeader:
-                text: "Icon"
-                content: icon_view_tab
-
-            FileChooserListView:
-                id: list_view_tab
-                multiselect: True
-
-            FileChooserIconView:
-                id: icon_view_tab
-                multiselect: True
+        FileChooserIconView:
+            id: icon_view_tab
+            multiselect: True
+            path: "/home/diogo/Diogo"
 
         BoxLayout:
             size_hint_y: .1
@@ -28,9 +16,10 @@ ShowcaseScreen:
 
             Button:
                 text: "Open"
+                on_release:
+                    app.load(icon_view_tab.path, icon_view_tab.selection)
 
 
             Button:
                 text: "Cancel"
-                on_release:
-                    app.go_previous_screen()
+                on_release: app.go_previous_screen()

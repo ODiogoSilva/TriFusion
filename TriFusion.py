@@ -50,6 +50,9 @@ class TriFusionApp(App):
     # Variable containing screen names
     screen_names = ListProperty([])
 
+    # Getting current directory to fetch the screen kv files
+    cur_dir = dirname(__file__)
+
     # Current screen
     current_screen = StringProperty()
     previous_screen = StringProperty()
@@ -62,14 +65,11 @@ class TriFusionApp(App):
         # Setting main window title
         self.title = "TriFusion - Streamline phylogenomics"
 
-        # Getting current directory to fetch the screen kv files
-        cur_dir = dirname(__file__)
-
         # Setting available screens
         self.available_screens = ["main", "Orthology", "Process",
                                   "Statistics", "fc"]
         self.screen_names = self.available_screens
-        self.available_screens = [join(cur_dir, "data", "screens",
+        self.available_screens = [join(self.cur_dir, "data", "screens",
                                  "{}.kv".format(screen)) for screen in
                                   self.available_screens]
 
@@ -89,6 +89,8 @@ class TriFusionApp(App):
             previous_idx = self.screen_names.index(self.previous_screen)
             self.go_screen(previous_idx)
 
+    def load(self, path, selection):
+        print(path, selection)
 
     def load_screen(self, idx):
         screen = Builder.load_file(self.available_screens[idx])
