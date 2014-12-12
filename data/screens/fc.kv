@@ -1,0 +1,33 @@
+ShowcaseScreen:
+    name: "fc"
+
+    BoxLayout:
+        orientation: "vertical"
+        TabbedPanel:
+            padding: 15
+            tab_pos: "top_mid"
+            default_tab_text: "List"
+            default_tab_content: list_view_tab
+
+            TabbedPanelHeader:
+                text: "Icon"
+                content: icon_view_tab
+
+            FileChooserListView:
+                id: list_view_tab
+                multiselect: True
+
+            FileChooserIconView:
+                id: icon_view_tab
+                multiselect: True
+
+        BoxLayout:
+            size_hint_y: .1
+            padding: 10
+            spacing: 30
+
+            Button:
+                text: "Open"
+
+            Button:
+                text: "Cancel"

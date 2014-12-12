@@ -99,6 +99,9 @@ BoxLayout:
                     Button:
                         text: "Open file(s)"
                         height: 50
+                        on_release:
+                            idx = app.screen_names.index("fc")
+                            app.go_screen(idx)
 
         ScreenManager:
             id: sm

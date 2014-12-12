@@ -65,7 +65,8 @@ class TriFusionApp(App):
         cur_dir = dirname(__file__)
 
         # Setting available screens
-        self.available_screens = ["main", "Orthology", "Process", "Statistics"]
+        self.available_screens = ["main", "Orthology", "Process",
+                                  "Statistics", "fc"]
         self.screen_names = self.available_screens
         self.available_screens = [join(cur_dir, "data", "screens",
                                  "{}.kv".format(screen)) for screen in
@@ -75,8 +76,9 @@ class TriFusionApp(App):
 
     def go_screen(self, idx):
         self.index = idx
-        self.current_screen = self.screen_names[idx]
-        self.root.ids.sm.switch_to(self.load_screen(idx), direction='left')
+        if self.current_screen != self.screen_names[idx]:
+            self.current_screen = self.screen_names[idx]
+            self.root.ids.sm.switch_to(self.load_screen(idx), direction='left')
 
     def load_screen(self, idx):
         screen = Builder.load_file(self.available_screens[idx])
