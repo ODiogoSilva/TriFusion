@@ -86,7 +86,7 @@ class TriFusionApp(App):
 
     def go_previous_screen(self):
         if self.previous_screen != "":
-            previous_idx = self.available_screens.index(self.previous_screen)
+            previous_idx = self.screen_names.index(self.previous_screen)
             self.go_screen(previous_idx)
 
 
