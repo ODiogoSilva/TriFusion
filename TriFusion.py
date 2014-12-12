@@ -52,6 +52,7 @@ class TriFusionApp(App):
 
     # Current screen
     current_screen = StringProperty()
+    previous_screen = StringProperty()
 
     # Attribute to load screens
     index = NumericProperty(-1)
@@ -77,8 +78,17 @@ class TriFusionApp(App):
     def go_screen(self, idx):
         self.index = idx
         if self.current_screen != self.screen_names[idx]:
+            # Update previous screen
+            self.previous_screen = self.current_screen
+            # Update current screen
             self.current_screen = self.screen_names[idx]
             self.root.ids.sm.switch_to(self.load_screen(idx), direction='left')
+
+    def go_previous_screen(self):
+        if self.previous_screen != "":
+            previous_idx = self.available_screens.index(self.previous_screen)
+            self.go_screen(previous_idx)
+
 
     def load_screen(self, idx):
         screen = Builder.load_file(self.available_screens[idx])
@@ -103,10 +113,9 @@ class TriFusionApp(App):
             width = 0
 
         Animation(width=width, d=.3, t="out_quart").start(self.root.ids.sp)
+        # Animate the button so that the folding of the panel is smoother
         Animation(width=width * .8, d=.3, t="out_quart").start(
             self.root.ids.sv_but)
-
-
 
 if __name__ == '__main__':
     TriFusionApp().run()
