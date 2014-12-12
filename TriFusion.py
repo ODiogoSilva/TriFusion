@@ -23,17 +23,87 @@
 #  Version:
 #  Last update:
 #
-
-import kivy
-
 from kivy.app import App
-from kivy.uix.label import Label
+from kivy.animation import Animation
+from kivy.lang import Builder
+from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
+    ListProperty
+from kivy.uix.screenmanager import Screen
+from os.path import dirname, join
 
-class MyApp(App):
+
+class ShowcaseScreen(Screen):
+    fullscreen = BooleanProperty(False)
+
+    def add_widget(self, *args):
+        if 'content' in self.ids:
+            return self.ids.content.add_widget(*args)
+        return super(ShowcaseScreen, self).add_widget(*args)
+
+
+class TriFusionApp(App):
+
+    # Setting Boolean controlling the toggling of main headers
+    show_options = BooleanProperty(False)
+    show_side_panel = BooleanProperty(False)
+
+    # Variable containing screen names
+    screen_names = ListProperty([])
+
+    # Current screen
+    current_screen = StringProperty()
+
+    # Attribute to load screens
+    index = NumericProperty(-1)
 
     def build(self):
-        return Label(text='Hello world')
+
+        # Setting main window title
+        self.title = "TriFusion - Streamline phylogenomics"
+
+        # Getting current directory to fetch the screen kv files
+        cur_dir = dirname(__file__)
+
+        # Setting available screens
+        self.available_screens = ["main", "Orthology", "Process", "Statistics"]
+        self.screen_names = self.available_screens
+        self.available_screens = [join(cur_dir, "data", "screens",
+                                 "{}.kv".format(screen)) for screen in
+                                  self.available_screens]
+
+        self.go_screen(0)
+
+    def go_screen(self, idx):
+        self.index = idx
+        self.current_screen = self.screen_names[idx]
+        self.root.ids.sm.switch_to(self.load_screen(idx), direction='left')
+
+    def load_screen(self, idx):
+        screen = Builder.load_file(self.available_screens[idx])
+        return screen
+
+    def main_toggle(self):
+        self.show_options = not self.show_options
+
+        if self.show_options:
+            height = self.root.height * .2
+        else:
+            height = 0
+
+        Animation(height=height, d=.3, t='out_quart').start(self.root.ids.sv)
+
+    def side_panel_toggle(self):
+        self.show_side_panel = not self.show_side_panel
+
+        if self.show_side_panel:
+            width = self.root.width * .3
+        else:
+            width = 0
+
+        Animation(width=width, d=.3, t="out_quart").\
+            start(self.root.ids.sp)
+
 
 
 if __name__ == '__main__':
-    MyApp().run()
+    TriFusionApp().run()

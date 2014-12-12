@@ -1,0 +1,105 @@
+#:kivy 1.8.0
+#:import KivyLexer kivy.extras.highlight.KivyLexer
+#:import Factory kivy.factory.Factory
+
+<ShowcaseScreen>:
+    ScrollView:
+        do_scroll_x: False
+        do_scroll_y: False if root.fullscreen else (content.height > root.height - dp(16))
+        AnchorLayout:
+            size_hint_y: None
+            height: root.height if root.fullscreen else max(root.height, content.height)
+            GridLayout:
+                id: content
+                cols: 1
+
+<MainHeader@ActionButton>:
+    size_hint_x: 1
+    font_size: 20
+    bold: True
+
+<MainAction@ActionBar>:
+    pos_hint: {'top':1}
+
+    ActionView:
+        ActionPrevious:
+            size_hint_x: 0.2
+            with_previous: False
+            on_release:
+                app.side_panel_toggle()
+
+        MainHeader:
+            text: "Orthology"
+            canvas.before:
+                Color:
+                    rgba: [255, .200, .200, .8]
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            on_release:
+                idx = app.screen_names.index("Orthology")
+                app.go_screen(idx)
+
+        MainHeader:
+            text: "Process"
+            canvas.before:
+                Color:
+                    rgba: (0.200, 0.200, 255, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            on_release:
+                idx = app.screen_names.index("Process")
+                app.go_screen(idx)
+
+        MainHeader:
+            text: "Statistics"
+            canvas.before:
+                Color:
+                    rgba: (0.200, 255, 0.200, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            on_release:
+                idx = app.screen_names.index("Statistics")
+                app.go_screen(idx)
+
+        ActionButton:
+            size_hint_x: 0.2
+
+
+BoxLayout:
+    orientation: "vertical"
+
+    MainAction
+
+    BoxLayout:
+        orientation: "horizontal"
+
+        ScrollView:
+            id: sp
+            size_hint_x: None
+            #size_hint_y: 1000
+            width: 0
+
+            BoxLayout:
+                padding: 10
+
+                StackLayout:
+                    orientation: "tb-lr"
+                    padding: 10
+
+                    canvas.before:
+                        Color:
+                            rgba: (0.180, 0.180, 0.180, .8)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+
+                    Button:
+                        text: "Open file(s)"
+                        height: 50
+
+        ScreenManager:
+            id: sm
+
