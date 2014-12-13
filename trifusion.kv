@@ -74,6 +74,7 @@ BoxLayout:
     MainAction
 
     BoxLayout:
+        id: bx1
         orientation: "horizontal"
 
         ScrollView:
@@ -108,14 +109,28 @@ BoxLayout:
                     TabbedPanel:
                         id: main_tp
                         do_default_tab: False
+                        background_color: (0,0,0,0)
 
                         TabbedPanelItem:
                             id: file_tp
                             text: "Files"
+                            StackLayout:
+                                id: file_sl
+                                padding: 15
+                                spacing: 10
+                                Button:
+                                    id: file_temp
+                                    height: root.height*.08
+                                    disabled: True
+                                    text: "No files loaded"
 
                         TabbedPanelItem:
                             id: taxa_tp
                             text: "Taxa"
+                            StackLayout:
+                                id: taxa_sl
+                                padding: 15
+                                spacing: 10
 
         ScreenManager:
             id: sm

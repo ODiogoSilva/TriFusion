@@ -24,6 +24,7 @@
 #  Last update:
 #
 from kivy.app import App
+from kivy.uix.togglebutton import ToggleButton
 from kivy.animation import Animation
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
@@ -55,6 +56,7 @@ class TriFusionApp(App):
 
     # Setting the list of input files variable
     file_list = ListProperty([])
+    file_path_list = ListProperty([])
 
     # Current screen
     current_screen = StringProperty()
@@ -94,7 +96,10 @@ class TriFusionApp(App):
 
     def load(self, selection):
 
-        self.file_list = selection
+        self.file_path_list = selection
+        self.file_list = [x.split("/")[-1] for x in selection]
+
+        self.populate_input_files()
 
     def load_screen(self, idx):
         screen = Builder.load_file(self.available_screens[idx])
@@ -126,6 +131,16 @@ class TriFusionApp(App):
         # Animate the button so that the folding of the panel is smoother
         Animation(width=width * .8, d=.3, t="out_quart").start(
             self.root.ids.sv_but)
+
+    def populate_input_files(self):
+
+        self.root.ids.file_sl.remove_widget(self.root.ids.file_temp)
+
+        for infile in self.file_list:
+
+            bt = ToggleButton(text=infile, id=infile, state="down",
+                              height=self.root.height * .05)
+            self.root.ids.file_sl.add_widget(bt)
 
 if __name__ == '__main__':
     TriFusionApp().run()
