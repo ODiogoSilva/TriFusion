@@ -75,19 +75,19 @@ class TriFusionApp(App):
 
         self.go_screen(0)
 
-    def go_screen(self, idx):
+    def go_screen(self, idx, direct="left"):
         self.index = idx
         if self.current_screen != self.screen_names[idx]:
             # Update previous screen
             self.previous_screen = self.current_screen
             # Update current screen
             self.current_screen = self.screen_names[idx]
-            self.root.ids.sm.switch_to(self.load_screen(idx), direction='left')
+            self.root.ids.sm.switch_to(self.load_screen(idx), direction=direct)
 
     def go_previous_screen(self):
         if self.previous_screen != "":
             previous_idx = self.screen_names.index(self.previous_screen)
-            self.go_screen(previous_idx)
+            self.go_screen(previous_idx, "right")
 
     def load(self, path, selection):
         print(path, selection)
@@ -109,10 +109,14 @@ class TriFusionApp(App):
     def side_panel_toggle(self):
         self.show_side_panel = not self.show_side_panel
 
+        # Saving original button text to restore it
+
         if self.show_side_panel:
             width = self.root.width * .3
+            self.root.ids.sv_but.text = "Open File(s)"
         else:
             width = 0
+            self.root.ids.sv_but.text = ""
 
         Animation(width=width, d=.3, t="out_quart").start(self.root.ids.sp)
         # Animate the button so that the folding of the panel is smoother
