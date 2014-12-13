@@ -106,6 +106,17 @@ BoxLayout:
                             idx = app.screen_names.index("fc")
                             app.go_screen(idx)
 
+                    TabbedPanel:
+                        id: main_tp
+
+                        TabbedPanelItem:
+                            id: file_tp
+                            text: "Files"
+
+                        TabbedPanelItem:
+                            id: taxa_tp
+                            text: "Taxa"
+
         ScreenManager:
             id: sm
 
