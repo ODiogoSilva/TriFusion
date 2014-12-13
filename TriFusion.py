@@ -62,6 +62,13 @@ class TriFusionApp(App):
     current_screen = StringProperty()
     previous_screen = StringProperty()
 
+    # The input files already specified will be stored in this variable,
+    # which will be needed in order to prevent duplication of files.
+    # However, this is a temporary hack because I should be able to get
+    # the list of id's from the stacklayout. In the meantime, this will
+    # produce the same result
+    available_files = ListProperty([])
+
     # Attribute to load screens
     index = NumericProperty(-1)
 
@@ -138,9 +145,14 @@ class TriFusionApp(App):
 
         for infile in self.file_list:
 
-            bt = ToggleButton(text=infile, id=infile, state="down",
-                              height=self.root.height * .05)
-            self.root.ids.file_sl.add_widget(bt)
+            if infile not in self.available_files:
+
+                bt = ToggleButton(text=infile, id=infile.split(".")[0].lower(),
+                                  state="down", height=self.root.height * .05)
+                self.root.ids.file_sl.add_widget(bt)
+
+                # Update available_files list
+                self.available_files.append(infile)
 
 if __name__ == '__main__':
     TriFusionApp().run()
