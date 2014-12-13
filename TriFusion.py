@@ -112,7 +112,7 @@ class TriFusionApp(App):
         # Saving original button text to restore it
 
         if self.show_side_panel:
-            width = self.root.width * .3
+            width = self.root.width * .32
             self.root.ids.sv_but.text = "Open File(s)"
         else:
             width = 0
