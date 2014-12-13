@@ -1,8 +1,13 @@
 ShowcaseScreen:
     name: "Process"
 
-    BoxLayout:
-        orientation: "vertical"
+    ScrollView:
+        Accordion:
+            orientation: "vertical"
 
-        Button:
-            text: "I'm in Process"
+            AccordionItem:
+                title: "Main operations"
+                collapse: False
+            AccordionItem:
+                title: "Alternative operations"
+                collapse: True
