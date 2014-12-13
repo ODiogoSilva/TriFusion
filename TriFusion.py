@@ -53,6 +53,9 @@ class TriFusionApp(App):
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
 
+    # Setting the list of input files variable
+    file_list = ListProperty([])
+
     # Current screen
     current_screen = StringProperty()
     previous_screen = StringProperty()
@@ -89,8 +92,9 @@ class TriFusionApp(App):
             previous_idx = self.screen_names.index(self.previous_screen)
             self.go_screen(previous_idx, "right")
 
-    def load(self, path, selection):
-        print(path, selection)
+    def load(self, selection):
+
+        self.file_list = selection
 
     def load_screen(self, idx):
         screen = Builder.load_file(self.available_screens[idx])
