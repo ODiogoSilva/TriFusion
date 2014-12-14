@@ -114,28 +114,49 @@ BoxLayout:
                         TabbedPanelItem:
                             id: file_tp
                             text: "Files"
-                            StackLayout:
-                                id: file_sl
-                                padding: 15
-                                spacing: 10
-                                Button:
-                                    id: file_temp
-                                    height: root.height*.08
-                                    disabled: True
-                                    text: "No files loaded"
+                            ScrollView:
+                                size_hint_y: 7.5
+                                height: root.height
+                                id: sv_file
+                                GridLayout:
+                                    cols: 1
+                                    size_hint_y: None
+                                    id: file_sl
+                                    padding: 15
+                                    spacing: 10
+                                    height: root.height*.2
+                                    minimum_height: root.height*.1
+                                    Button:
+                                        id: file_temp
+                                        height: root.height*.08
+                                        disabled: True
+                                        size_hint_y: None
+                                        text: "No files loaded"
+
+
 
                         TabbedPanelItem:
                             id: taxa_tp
                             text: "Taxa"
-                            StackLayout:
-                                id: taxa_sl
-                                padding: 15
-                                spacing: 10
-                                Button:
-                                    id: species_temp
-                                    height: root.height*.08
-                                    disabled: True
-                                    text: "No species loaded"
+                            ScrollView:
+                                size_hint_y: 7.5
+                                height: root.height
+                                id: sv_sp
+                                GridLayout:
+                                    cols: 1
+                                    size_hint_y: None
+                                    id: taxa_sl
+                                    padding: 15
+                                    spacing: 10
+                                    height: root.height*.2
+                                    minimum_height: root.height*.1
+                                    Button:
+                                        id: species_temp
+                                        height: root.height*.08
+                                        disabled: True
+                                        size_hint_y: None
+                                        text: "No species loaded"
+
 
         ScreenManager:
             id: sm

@@ -28,17 +28,18 @@
 from kivy.app import App
 from kivy.uix.togglebutton import ToggleButton
 from kivy.animation import Animation
+#from kivy.uix.gridlayout import GridLayout
+#from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ListProperty
 from kivy.uix.screenmanager import Screen
 
 # Main program imports
-from process.sequence import AlignmentList
+from process.sequence import Alignment, AlignmentList
 
 # Other imports
 from os.path import dirname, join
-
 
 
 class ShowcaseScreen(Screen):
@@ -129,6 +130,8 @@ class TriFusionApp(App):
         self.file_list = [x.split("/")[-1] for x in selection]
 
         self.populate_input_files()
+        self.load_files()
+        self.populate_species()
 
     def load_screen(self, idx):
         screen = Builder.load_file(self.available_screens[idx])
@@ -169,14 +172,33 @@ class TriFusionApp(App):
 
             if infile not in self.available_files:
 
-                bt = ToggleButton(text=infile, id=infile.split(".")[0].lower(),
-                                  state="down", height=self.root.height * .05)
+                bt = ToggleButton(text=infile, state="down",
+                                  height=self.root.height * .05,
+                                  size_hint_y=None)
+
+                self.root.ids.file_sl.height += self.root.height * .05
+
                 self.root.ids.file_sl.add_widget(bt)
 
                 # Update available_files list
                 self.available_files.append(infile)
 
+    def populate_species(self):
+
+        self.root.ids.taxa_sl.remove_widget(self.root.ids.species_temp)
+
+        for tx in self.alignment_list.taxa_names:
+
+            bt = ToggleButton(text=tx, state="down", height=self.root.height
+                              * 0.05, size_hint_y=None)
+
+            self.root.ids.taxa_sl.height += self.root.height * 0.05
+
+            self.root.ids.taxa_sl.add_widget(bt)
+
     def load_files(self):
+
+        self.alignment_list = AlignmentList(self.file_path_list)
 
 
 
