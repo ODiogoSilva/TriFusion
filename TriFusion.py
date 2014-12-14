@@ -77,13 +77,6 @@ class TriFusionApp(App):
     current_screen = StringProperty()
     previous_screen = StringProperty()
 
-    # The input files already specified will be stored in this variable,
-    # which will be needed in order to prevent duplication of files.
-    # However, this is a temporary hack because I should be able to get
-    # the list of id's from the stacklayout. In the meantime, this will
-    # produce the same result
-    available_files = ListProperty([])
-
     # Attribute to load screens
     index = NumericProperty(-1)
 
@@ -166,35 +159,47 @@ class TriFusionApp(App):
 
     def populate_input_files(self):
 
-        self.root.ids.file_sl.remove_widget(self.root.ids.file_temp)
+        if "file_temp" in self.root.ids.keys():
+            self.root.ids.file_sl.remove_widget(self.root.ids.file_temp)
+            del self.root.ids["file_temp"]
 
         for infile in self.file_list:
 
-            if infile not in self.available_files:
+            if infile not in [x.id for x in self.root.ids.file_sl.children]:
 
-                bt = ToggleButton(text=infile, state="down",
+                bt = ToggleButton(text=infile, state="down", id=infile,
                                   height=self.root.height * .05,
-                                  size_hint_y=None)
+                                  size_hint=(.8, None))
 
                 self.root.ids.file_sl.height += self.root.height * .05
 
                 self.root.ids.file_sl.add_widget(bt)
+                self.root.ids.file_sl.add_widget(ToggleButton(text="X",
+                     size_hint_x=.2))
 
                 # Update available_files list
-                self.available_files.append(infile)
+                #self.available_files.append(infile)
+
 
     def populate_species(self):
 
-        self.root.ids.taxa_sl.remove_widget(self.root.ids.species_temp)
+        if "species_temp" in self.root.ids.keys():
+            self.root.ids.taxa_sl.remove_widget(self.root.ids.species_temp)
+            del self.root.ids["species_temp"]
 
         for tx in self.alignment_list.taxa_names:
 
-            bt = ToggleButton(text=tx, state="down", height=self.root.height
-                              * 0.05, size_hint_y=None)
+            if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
 
-            self.root.ids.taxa_sl.height += self.root.height * 0.05
+                bt = ToggleButton(text=tx, state="down", id=tx,
+                                  height=self.root.height * 0.05,
+                                  size_hint=(.8, None))
 
-            self.root.ids.taxa_sl.add_widget(bt)
+                self.root.ids.taxa_sl.height += self.root.height * 0.05
+
+                self.root.ids.taxa_sl.add_widget(bt)
+                self.root.ids.taxa_sl.add_widget(ToggleButton(text="X",
+                         size_hint_x=.2))
 
     def load_files(self):
 
