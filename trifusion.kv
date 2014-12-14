@@ -115,8 +115,8 @@ BoxLayout:
                             id: file_tp
                             text: "Files"
                             ScrollView:
-                                size_hint_y: 7.5
-                                height: root.height
+                                size_hint_y: None
+                                height: root.height*.65
                                 id: sv_file
                                 GridLayout:
                                     cols: 2
@@ -139,8 +139,8 @@ BoxLayout:
                             id: taxa_tp
                             text: "Taxa"
                             ScrollView:
-                                size_hint_y: 7.5
-                                height: root.height
+                                size_hint_y: None
+                                height: root.height*.65
                                 id: sv_sp
                                 GridLayout:
                                     cols: 2
@@ -148,8 +148,6 @@ BoxLayout:
                                     id: taxa_sl
                                     padding: 15
                                     spacing: 10
-                                    height: root.height*.2
-                                    minimum_height: root.height*.1
                                     Button:
                                         id: species_temp
                                         height: root.height*.08
