@@ -60,20 +60,22 @@ class TriFusionApp(App):
     #######################
 
     # Setting Boolean controlling the toggling of main headers
-    show_options = BooleanProperty(False)
     show_side_panel = BooleanProperty(False)
 
     # Variable containing screen names
     screen_names = ListProperty([])
+    available_screens = ListProperty([])
 
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
 
     # Setting the list of input files variable
+    # Only the file names
     file_list = ListProperty([])
+    # The complete path
     file_path_list = ListProperty([])
 
-    # Current screen
+    # Attributes to know current and previous screen
     current_screen = StringProperty()
     previous_screen = StringProperty()
 
@@ -86,6 +88,7 @@ class TriFusionApp(App):
     #
     ################################
 
+    # List storing alignment object variables
     alignment_list = []
 
     def build(self):
@@ -97,53 +100,59 @@ class TriFusionApp(App):
         self.available_screens = ["main", "Orthology", "Process",
                                   "Statistics", "fc"]
         self.screen_names = self.available_screens
+
+        # Transforming screen names into complete paths to be loaded by kivy
         self.available_screens = [join(self.cur_dir, "data", "screens",
                                  "{}.kv".format(screen)) for screen in
                                   self.available_screens]
 
+        # First thing is go to main screen
         self.go_screen(0)
 
     def go_screen(self, idx, direct="left"):
+        """
+        Method used to go to a specific screen by specifying and index and
+        transition direction
+        :param idx: integer. Index value of the screen from self.screen_names
+        :param direct: string. The direction of the transition
+        """
+
         self.index = idx
+
+        # Precludes a transition if the current screen is the same as the
+        # target screen
         if self.current_screen != self.screen_names[idx]:
             # Update previous screen
             self.previous_screen = self.current_screen
             # Update current screen
             self.current_screen = self.screen_names[idx]
+            # Make the switch
             self.root.ids.sm.switch_to(self.load_screen(idx), direction=direct)
 
     def go_previous_screen(self):
+        """
+        Method that returns to the previous screen, set by self.previous_screen
+        """
+
         if self.previous_screen != "":
             previous_idx = self.screen_names.index(self.previous_screen)
             self.go_screen(previous_idx, "right")
 
-    def load(self, selection):
-
-        self.file_path_list = selection
-        self.file_list = [x.split("/")[-1] for x in selection]
-
-        self.populate_input_files()
-        self.load_files()
-        self.populate_species()
-
     def load_screen(self, idx):
+        """
+        Loads the current screen according to the corresponding kv file
+        :param idx: The index of the screen to be loaded
+        """
         screen = Builder.load_file(self.available_screens[idx])
         return screen
 
-    def main_toggle(self):
-        self.show_options = not self.show_options
-
-        if self.show_options:
-            height = self.root.height * .2
-        else:
-            height = 0
-
-        Animation(height=height, d=.3, t='out_quart').start(self.root.ids.sv)
-
     def side_panel_toggle(self):
-        self.show_side_panel = not self.show_side_panel
+        """
+        Method controlling the animation toggling of the side panel
+        """
 
-        # Saving original button text to restore it
+        # Toggling the state of the panel
+        self.show_side_panel = not self.show_side_panel
 
         if self.show_side_panel:
             width = self.root.width * .32
@@ -157,44 +166,80 @@ class TriFusionApp(App):
         Animation(width=width * .8, d=.3, t="out_quart").start(
             self.root.ids.sv_but)
 
-    def populate_input_files(self):
+    def load(self, selection):
+        """
+        Loads selected input files into the program. This should be switched
+        after selecting files in a FileChooser widget. The selected files
+        will be parsed and the side panel will be populated with information
+        on file names and taxa names
+        :param selection: list. Contains the paths to the selected input files
+        """
 
+        self.file_path_list = selection
+
+        # Setting a list containing only the file names
+        self.file_list = [x.split("/")[-1] for x in selection]
+
+        # Populates the files tab in the side panel
+        self.populate_input_files()
+        # Parses the files into the program
+        self.load_files()
+        # Populates the taxa tab in the side panel
+        self.populate_species()
+
+    def populate_input_files(self):
+        """
+        This method grabs the input files that were selected in the
+        FileChooser widget and populates the File tab in the main side panel
+        with toggle and remove buttons for each file
+        """
+
+        # Remove the initial disabled button, if it's still there
         if "file_temp" in self.root.ids.keys():
             self.root.ids.file_sl.remove_widget(self.root.ids.file_temp)
             del self.root.ids["file_temp"]
 
         for infile in self.file_list:
 
+            # This prevents duplicate files from being added
             if infile not in [x.id for x in self.root.ids.file_sl.children]:
 
                 bt = ToggleButton(text=infile, state="down", id=infile,
                                   height=self.root.height * .05,
                                   size_hint=(.8, None))
 
+                # Updates the size of the grid layout according to the added
+                # buttons
                 self.root.ids.file_sl.height += self.root.height * .05
 
+                # Adds both a toggle button and a button to remove the file
                 self.root.ids.file_sl.add_widget(bt)
                 self.root.ids.file_sl.add_widget(ToggleButton(text="X",
                      size_hint_x=.2))
 
-                # Update available_files list
-                #self.available_files.append(infile)
-
-
     def populate_species(self):
+        """
+        This method grabs the taxa names from the input files that were
+        selected in the FileChooser widget and populates the Taxa tab in the
+        main side panel with toggle and remove buttons for each taxon
+        """
 
+        # Remove the initial disabled button if it's still there
         if "species_temp" in self.root.ids.keys():
             self.root.ids.taxa_sl.remove_widget(self.root.ids.species_temp)
             del self.root.ids["species_temp"]
 
         for tx in self.alignment_list.taxa_names:
 
+            # Prevents duplicate taxa from being entered
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
 
                 bt = ToggleButton(text=tx, state="down", id=tx,
                                   height=self.root.height * 0.05,
                                   size_hint=(.8, None))
 
+                # Updates the size of the grid layout according to the added
+                # button
                 self.root.ids.taxa_sl.height += self.root.height * 0.05
 
                 self.root.ids.taxa_sl.add_widget(bt)
@@ -204,9 +249,6 @@ class TriFusionApp(App):
     def load_files(self):
 
         self.alignment_list = AlignmentList(self.file_path_list)
-
-
-
 
 
 if __name__ == '__main__':
