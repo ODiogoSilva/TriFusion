@@ -23,6 +23,8 @@
 #  Version:
 #  Last update:
 #
+
+# Kivy imports
 from kivy.app import App
 from kivy.uix.togglebutton import ToggleButton
 from kivy.animation import Animation
@@ -30,7 +32,13 @@ from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ListProperty
 from kivy.uix.screenmanager import Screen
+
+# Main program imports
+from process.sequence import AlignmentList
+
+# Other imports
 from os.path import dirname, join
+
 
 
 class ShowcaseScreen(Screen):
@@ -43,6 +51,12 @@ class ShowcaseScreen(Screen):
 
 
 class TriFusionApp(App):
+
+    #######################
+    #
+    # GUI RELATED VARIABLES
+    #
+    #######################
 
     # Setting Boolean controlling the toggling of main headers
     show_options = BooleanProperty(False)
@@ -71,6 +85,14 @@ class TriFusionApp(App):
 
     # Attribute to load screens
     index = NumericProperty(-1)
+
+    ################################
+    #
+    # CORE PROGRAM RELATED VARIABLES
+    #
+    ################################
+
+    alignment_list = []
 
     def build(self):
 
@@ -153,6 +175,12 @@ class TriFusionApp(App):
 
                 # Update available_files list
                 self.available_files.append(infile)
+
+    def load_files(self):
+
+
+
+
 
 if __name__ == '__main__':
     TriFusionApp().run()
