@@ -807,8 +807,13 @@ class AlignmentList (Alignment, Base, MissingFilter):
                     alignment_object._set_format(input_format)
                 self.alignment_object_list.append(alignment_object)
 
-        # Setting general attributes
+        #### SETTING GENERAL ATTRIBUTES
+
+        # list of file names, complete with path
         self.filename_list = self._get_filename_list()
+
+        # list of taxon names
+        self.taxa_names = self._get_taxa_list()
 
     def _get_format(self):
         """ Gets the input format of the first alignment in the list """
