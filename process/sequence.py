@@ -68,7 +68,7 @@ class Alignment (Base, MissingFilter):
         # In case the class is initialized with an input file name
         if type(input_alignment) is str:
 
-            self.input_alignment = input_alignment
+            self.name = input_alignment
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
             self.input_format, self.sequence_code = self.autofinder(
@@ -87,7 +87,7 @@ class Alignment (Base, MissingFilter):
         elif type(input_alignment) is OrderedDict:
 
             # The name of the alignment (str)
-            self.input_alignment = alignment_name
+            self.name = alignment_name
             # Gets several attributes from the dictionary alignment
             self.init_dicobj(input_alignment)
             #The input format of the alignment (str)
@@ -807,6 +807,9 @@ class AlignmentList (Alignment, Base, MissingFilter):
                     alignment_object._set_format(input_format)
                 self.alignment_object_list.append(alignment_object)
 
+        # Setting general attributes
+        self.filename_list = self._get_filename_list()
+
     def _get_format(self):
         """ Gets the input format of the first alignment in the list """
 
@@ -826,6 +829,12 @@ class AlignmentList (Alignment, Base, MissingFilter):
                 full_taxa.extend(diff)
 
         return full_taxa
+
+    def _get_filename_list(self):
+        """
+        Returns a list with the input file names
+        """
+        return [alignment.name for alignment in self.alignment_object_list]
 
     def iter_alignment_dic(self):
         """ Returns a list of the dictionary alignments """
@@ -895,7 +904,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
                                              * alignment_object.locus_length)
 
             # Saving the range for the subsequent loci
-            self.loci_range.append((alignment_object.input_alignment.split(".")
+            self.loci_range.append((alignment_object.name.split(".")
                                     [0], "%s-%s" % (sum(self.loci_lengths)
                                     + 1, sum(self.loci_lengths)
                                     + alignment_object.locus_length)))
@@ -1003,9 +1012,10 @@ class AlignmentList (Alignment, Base, MissingFilter):
                 try:
                     self.reverse_concatenation
                 except:
-                    output_file_name = alignment_obj.input_alignment.split(".")[0] + "_conv"
+                    output_file_name = alignment_obj.name.split(".")[0]\
+                                       + "_conv"
             else:
-                output_file_name = alignment_obj.input_alignment.split(".")[0]
+                output_file_name = alignment_obj.name.split(".")[0]
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
                                         form=form,
