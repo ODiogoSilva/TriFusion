@@ -27,6 +27,7 @@
 # Kivy imports
 from kivy.app import App
 from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.button import Button
 from kivy.animation import Animation
 #from kivy.uix.gridlayout import GridLayout
 #from kivy.uix.scrollview import ScrollView
@@ -243,8 +244,16 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.height += self.root.height * 0.05
 
                 self.root.ids.taxa_sl.add_widget(bt)
-                self.root.ids.taxa_sl.add_widget(ToggleButton(text="X",
-                         size_hint_x=.2))
+                x_bt = Button(text="X", size_hint_x=.2, id="%sX" % tx)
+                x_bt.bind(on_press=self.remove_bt)
+                self.root.ids.taxa_sl.add_widget(x_bt)
+
+    def remove_bt(self, value):
+
+        bt_idx = value.id[:-1]
+        bt = [x for x in self.root.ids.taxa_sl.children if bt_idx == x.id][0]
+        self.root.ids.taxa_sl.remove_widget(value)
+        self.root.ids.taxa_sl.remove_widget(bt)
 
     def load_files(self):
 
