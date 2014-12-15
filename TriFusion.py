@@ -244,7 +244,8 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.height += self.root.height * 0.05
 
                 self.root.ids.taxa_sl.add_widget(bt)
-                x_bt = Button(text="X", size_hint_x=.2, id="%sX" % tx)
+                x_bt = Button(text="X", size_hint=(.2, None),
+                              height=self.root.height * 0.05, id="%sX" % tx)
                 x_bt.bind(on_press=self.remove_bt)
                 self.root.ids.taxa_sl.add_widget(x_bt)
 
