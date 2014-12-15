@@ -241,7 +241,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # button
-                self.root.ids.taxa_sl.height += self.root.height * 0.05
+                self.root.ids.taxa_sl.height += self.root.height * 0.06
 
                 self.root.ids.taxa_sl.add_widget(bt)
                 x_bt = Button(text="X", size_hint=(.2, None),
@@ -255,6 +255,9 @@ class TriFusionApp(App):
         bt = [x for x in self.root.ids.taxa_sl.children if bt_idx == x.id][0]
         self.root.ids.taxa_sl.remove_widget(value)
         self.root.ids.taxa_sl.remove_widget(bt)
+
+        # Updates the size of the grid layout according to the removed button
+        self.root.ids.taxa_sl.height -= self.root.height * .06
 
     def load_files(self):
 
