@@ -209,14 +209,18 @@ class TriFusionApp(App):
                                   height=self.root.height * .05,
                                   size_hint=(.8, None))
 
+                # Adds toggle button with file name
+                self.root.ids.file_sl.add_widget(bt)
+
+                # Set remove button with event binded and add the widget
+                x_bt = Button(text="X", size_hint=(.2, None),
+                              height=self.root.height * 0.05, id="%sX" % infile)
+                x_bt.bind(on_release=self.remove_bt)
+                self.root.ids.file_sl.add_widget(x_bt)
+
                 # Updates the size of the grid layout according to the added
                 # buttons
                 self.root.ids.file_sl.height += self.root.height * .05
-
-                # Adds both a toggle button and a button to remove the file
-                self.root.ids.file_sl.add_widget(bt)
-                self.root.ids.file_sl.add_widget(ToggleButton(text="X",
-                     size_hint_x=.2))
 
     def populate_species(self):
         """
@@ -251,13 +255,19 @@ class TriFusionApp(App):
 
     def remove_bt(self, value):
 
+        # Get the parent layout object from where the widget will be removed
+        parent_obj = value.parent
+
+        # Get button widgets to be removed
         bt_idx = value.id[:-1]
-        bt = [x for x in self.root.ids.taxa_sl.children if bt_idx == x.id][0]
-        self.root.ids.taxa_sl.remove_widget(value)
-        self.root.ids.taxa_sl.remove_widget(bt)
+        bt = [x for x in parent_obj.children if bt_idx == x.id][0]
+
+        # Remove widgets
+        parent_obj.remove_widget(value)
+        parent_obj.remove_widget(bt)
 
         # Updates the size of the grid layout according to the removed button
-        self.root.ids.taxa_sl.height -= self.root.height * .06
+        parent_obj.height -= self.root.height * .06
 
     def load_files(self):
 
