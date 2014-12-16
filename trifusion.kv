@@ -84,78 +84,76 @@ BoxLayout:
             width: 0
 
             BoxLayout:
+                orientation: "vertical"
                 padding: 10
+                spacing: 10
 
-                StackLayout:
-                    orientation: "tb-lr"
-                    padding: 10
-                    spacing: 10
+                canvas.before:
+                    Color:
+                        rgba: (0.180, 0.180, 0.180, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
 
-                    canvas.before:
-                        Color:
-                            rgba: (0.180, 0.180, 0.180, .8)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
+                Button:
+                    id: sv_but
+                    text: "Open file(s)"
+                    size_hint_y: None
+                    height: 50
+                    on_release:
+                        idx = app.screen_names.index("fc")
+                        app.go_screen(idx)
 
-                    Button:
-                        id: sv_but
-                        text: "Open file(s)"
-                        height: 50
-                        on_release:
-                            idx = app.screen_names.index("fc")
-                            app.go_screen(idx)
+                TabbedPanel:
+                    id: main_tp
+                    do_default_tab: False
+                    background_color: (0,0,0,0)
+                    tab_pos: "top_mid"
 
-                    TabbedPanel:
-                        id: main_tp
-                        do_default_tab: False
-                        background_color: (0,0,0,0)
-                        tab_pos: "top_mid"
+                    TabbedPanelItem:
+                        id: file_tp
+                        text: "Files"
 
-                        TabbedPanelItem:
-                            id: file_tp
-                            text: "Files"
-
-                            ScrollView:
+                        ScrollView:
+                            size_hint_y: None
+                            height: root.height*.65
+                            id: sv_file
+                            GridLayout:
+                                cols: 2
                                 size_hint_y: None
-                                height: root.height*.65
-                                id: sv_file
-                                GridLayout:
-                                    cols: 2
+                                id: file_sl
+                                padding: 15
+                                spacing: 10
+                                height: root.height*.2
+                                minimum_height: root.height*.1
+
+                                Button:
+                                    id: file_temp
+                                    height: root.height*.08
+                                    disabled: True
                                     size_hint_y: None
-                                    id: file_sl
-                                    padding: 15
-                                    spacing: 10
-                                    height: root.height*.2
-                                    minimum_height: root.height*.1
+                                    #size_hint_x: None
+                                    text: "No files loaded"
 
-                                    Button:
-                                        id: file_temp
-                                        height: root.height*.08
-                                        disabled: True
-                                        size_hint_y: None
-                                        #size_hint_x: None
-                                        text: "No files loaded"
-
-                        TabbedPanelItem:
-                            id: taxa_tp
-                            text: "Taxa"
-                            ScrollView:
+                    TabbedPanelItem:
+                        id: taxa_tp
+                        text: "Taxa"
+                        ScrollView:
+                            size_hint_y: None
+                            height: root.height*.65
+                            id: sv_sp
+                            GridLayout:
+                                cols: 2
                                 size_hint_y: None
-                                height: root.height*.65
-                                id: sv_sp
-                                GridLayout:
-                                    cols: 2
+                                id: taxa_sl
+                                padding: 15
+                                spacing: 10
+                                Button:
+                                    id: species_temp
+                                    height: root.height*.08
+                                    disabled: True
                                     size_hint_y: None
-                                    id: taxa_sl
-                                    padding: 15
-                                    spacing: 10
-                                    Button:
-                                        id: species_temp
-                                        height: root.height*.08
-                                        disabled: True
-                                        size_hint_y: None
-                                        text: "No species loaded"
+                                    text: "No species loaded"
 
 
 
