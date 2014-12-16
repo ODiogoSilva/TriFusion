@@ -85,6 +85,8 @@ class TriFusionApp(App):
 
     # Setting the list of taxa names
     active_taxa_list = ListProperty([])
+    # Dictionary mapping the taxa names to the buttons widgets
+    taxa_button_map = {}
 
     # Attributes to know current and previous screen
     current_screen = StringProperty()
@@ -225,7 +227,6 @@ class TriFusionApp(App):
 
         self.active_taxa_list = self.active_alignment_list.taxa_names
 
-
     def populate_input_files(self):
         """
         This method grabs the input files that were selected in the
@@ -304,6 +305,9 @@ class TriFusionApp(App):
                               background_color=(255, .9, .9, 1))
                 self.root.ids.taxa_sl.add_widget(x_bt)
                 x_bt.bind(on_press=self.remove_bt)
+
+                # Update taxa button mapping attribute
+                self.taxa_button_map[tx] = [bt, x_bt]
 
     def remove_bt(self, value):
         """
