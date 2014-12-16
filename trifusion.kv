@@ -114,6 +114,7 @@ BoxLayout:
                         TabbedPanelItem:
                             id: file_tp
                             text: "Files"
+
                             ScrollView:
                                 size_hint_y: None
                                 height: root.height*.65
@@ -126,14 +127,14 @@ BoxLayout:
                                     spacing: 10
                                     height: root.height*.2
                                     minimum_height: root.height*.1
+
                                     Button:
                                         id: file_temp
                                         height: root.height*.08
                                         disabled: True
                                         size_hint_y: None
+                                        #size_hint_x: None
                                         text: "No files loaded"
-
-
 
                         TabbedPanelItem:
                             id: taxa_tp
@@ -154,6 +155,9 @@ BoxLayout:
                                         disabled: True
                                         size_hint_y: None
                                         text: "No species loaded"
+
+
+
 
 
         ScreenManager:
