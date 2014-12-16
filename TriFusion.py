@@ -204,6 +204,7 @@ class TriFusionApp(App):
         if self.file_list:
             for i in self.root.ids.sb_file.children:
                 i.disabled = False
+                i.bind(on_release=self.select_bt)
 
         for infile in self.file_list:
 
@@ -244,6 +245,7 @@ class TriFusionApp(App):
         if self.alignment_list.taxa_names:
             for i in self.root.ids.sb_taxa.children:
                 i.disabled = False
+                i.bind(on_release=self.select_bt)
 
         for tx in self.alignment_list.taxa_names:
 
@@ -262,10 +264,8 @@ class TriFusionApp(App):
                 x_bt = Button(text="X", size_hint=(.2, None),
                               height=self.root.height * 0.05, id="%sX" % tx,
                               background_color=(255, .9, .9, 1))
-                x_bt.bind(on_press=self.remove_bt)
                 self.root.ids.taxa_sl.add_widget(x_bt)
-
-        print(dir(self.root.ids.sb_file.parent.children[1]))
+                x_bt.bind(on_press=self.remove_bt)
 
     def remove_bt(self, value):
 
@@ -282,6 +282,18 @@ class TriFusionApp(App):
 
         # Updates the size of the grid layout according to the removed button
         parent_obj.height -= self.root.height * .06
+
+    def select_bt(self, value):
+
+        sv_parent = [x for x in value.parent.parent.children if "scrollview" in
+                     str(x.__class__)][0]
+
+        for i in sv_parent.children[0].children:
+            if "togglebutton" in str(i.__class__):
+                if value.text == "Select All":
+                    i.state = "down"
+                elif value.text == "Deselect All":
+                    i.state = "normal"
 
     def load_files(self):
 
