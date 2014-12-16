@@ -202,8 +202,8 @@ class TriFusionApp(App):
 
         # Enable selection buttons if file list is not empty
         if self.file_list:
-
-
+            for i in self.root.ids.sb_file.children:
+                i.disabled = False
 
         for infile in self.file_list:
 
@@ -240,6 +240,11 @@ class TriFusionApp(App):
             self.root.ids.taxa_sl.remove_widget(self.root.ids.species_temp)
             del self.root.ids["species_temp"]
 
+        # Enable selection buttons if taxa list is not empty
+        if self.alignment_list.taxa_names:
+            for i in self.root.ids.sb_taxa.children:
+                i.disabled = False
+
         for tx in self.alignment_list.taxa_names:
 
             # Prevents duplicate taxa from being entered
@@ -259,6 +264,8 @@ class TriFusionApp(App):
                               background_color=(255, .9, .9, 1))
                 x_bt.bind(on_press=self.remove_bt)
                 self.root.ids.taxa_sl.add_widget(x_bt)
+
+        print(dir(self.root.ids.sb_file.parent.children[1]))
 
     def remove_bt(self, value):
 
