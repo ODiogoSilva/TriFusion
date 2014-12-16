@@ -268,6 +268,11 @@ class TriFusionApp(App):
                 x_bt.bind(on_press=self.remove_bt)
 
     def remove_bt(self, value):
+        """
+        Functionality for the "X" remove buttons in the side panel. It
+        removes button pairs with similar id's and can be used in both files
+        and taxa tabs
+        """
 
         # Get the parent layout object from where the widget will be removed
         parent_obj = value.parent
@@ -283,12 +288,21 @@ class TriFusionApp(App):
         # Updates the size of the grid layout according to the removed button
         parent_obj.height -= self.root.height * .06
 
-    def select_bt(self, value):
+    @staticmethod
+    def select_bt(value):
+        """
+        Functionality to the Select All/Deselect All buttons of the side
+        panel. The method was made in such a way that it could be of general
+        use for buttons in the files and taxa tabs
+        """
 
         sv_parent = [x for x in value.parent.parent.children if "scrollview" in
                      str(x.__class__)][0]
 
+        # This will iterate over the first child of the parent scrollview.
+        # Since scroll view only supports one child, this should be fine
         for i in sv_parent.children[0].children:
+            # Skips the X buttons
             if "togglebutton" in str(i.__class__):
                 if value.text == "Select All":
                     i.state = "down"
