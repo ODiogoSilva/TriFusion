@@ -82,11 +82,8 @@ class TriFusionApp(App):
     # Dynamic list containing only the activated path files
     active_file_path_list = ListProperty([])
 
-
     # Setting the list of taxa names
     active_taxa_list = ListProperty([])
-    # Dictionary mapping the taxa names to the buttons widgets
-    taxa_button_map = {}
 
     # Attributes to know current and previous screen
     current_screen = StringProperty()
@@ -218,12 +215,15 @@ class TriFusionApp(App):
     def update_taxa(self):
 
         # If taxa were removed during the update, remove those buttons too
-        removed_taxa = list(set(self.active_file_list) - set(
+        removed_taxa = list(set(self.active_taxa_list) - set(
             self.active_alignment_list.taxa_names))
-
-        # if removed_taxa:
-        #     for i in removed_taxa:
-        #         self.remove_bt()
+        if removed_taxa:
+            for i in removed_taxa:
+                # Get the corresponding buttons:
+                x_but_txt = "%sX" % i
+                bt_obj = [x for x in self.root.ids.taxa_sl.children if x_but_txt
+                          == x.id][0]
+                self.remove_bt(bt_obj)
 
         self.active_taxa_list = self.active_alignment_list.taxa_names
 
@@ -306,9 +306,6 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.add_widget(x_bt)
                 x_bt.bind(on_press=self.remove_bt)
 
-                # Update taxa button mapping attribute
-                self.taxa_button_map[tx] = [bt, x_bt]
-
     def remove_bt(self, value):
         """
         Functionality for the "X" remove buttons in the side panel. It
@@ -339,14 +336,13 @@ class TriFusionApp(App):
             self.active_file_list.remove(bt_idx)
             # Update alignment object list
             complete_path = self.path + "/" + bt_idx
-            print(complete_path)
             self.active_alignment_list.remove_file([complete_path])
+
+            self.update_taxa()
 
         if parent_obj == self.root.ids.taxa_sl:
             self.active_alignment_list.remove_taxa([bt_idx])
-
-        self.update_taxa()
-
+            self.active_taxa_list = self.active_alignment_list.taxa_names
 
     @staticmethod
     def select_bt(value):
@@ -375,6 +371,7 @@ class TriFusionApp(App):
         self.alignment_list = AlignmentList(self.file_path_list)
         # Updating active alignment list
         self.active_alignment_list = self.alignment_list
+        self.active_taxa_list = self.active_alignment_list.taxa_names
 
 
 if __name__ == '__main__':
