@@ -71,10 +71,20 @@ class TriFusionApp(App):
     cur_dir = dirname(__file__)
 
     # Setting the list of input files variable
-    # Only the file names
+    # The path ONLY attribute
+    path = StringProperty()
+    # Only the original file names. SHOULD NOT BE MODIFIED
     file_list = ListProperty([])
-    # The complete path
+    # Dynamic list containing only the activated files
+    active_file_list = ListProperty([])
+    # The original complete path. SHOULD NOT BE MODIFIED
     file_path_list = ListProperty([])
+    # Dynamic list containing only the activated path files
+    active_file_path_list = ListProperty([])
+
+
+    # Setting the list of taxa names
+    active_taxa_list = ListProperty([])
 
     # Attributes to know current and previous screen
     current_screen = StringProperty()
@@ -89,8 +99,11 @@ class TriFusionApp(App):
     #
     ################################
 
-    # List storing alignment object variables
-    alignment_list = []
+    # List storing the original alignment object variables. SHOULD NOT BE
+    # MODIFIED
+    alignment_list = None
+    # List of active alignment object variables.
+    active_alignment_list = None
 
     def build(self):
 
@@ -167,7 +180,7 @@ class TriFusionApp(App):
         Animation(width=width * .8, d=.3, t="out_quart").start(
             self.root.ids.sv_but)
 
-    def load(self, selection):
+    def load(self, selection, path):
         """
         Loads selected input files into the program. This should be switched
         after selecting files in a FileChooser widget. The selected files
@@ -176,17 +189,42 @@ class TriFusionApp(App):
         :param selection: list. Contains the paths to the selected input files
         """
 
+        # Storing the path ONLY of the input files
+        self.path = path
+
         self.file_path_list = selection
 
         # Setting a list containing only the file names
         self.file_list = [x.split("/")[-1] for x in selection]
 
-        # Populates the files tab in the side panel
-        self.populate_input_files()
+        # Updating active file list and path list
+        self.active_file_list = self.file_list
+        self.active_file_path_list = self.file_path_list
+
         # Parses the files into the program
         self.load_files()
-        # Populates the taxa tab in the side panel
+        # Update active taxa list
+        self.update_taxa()
+        # Populates files and taxa contents
+        self.update_tabs()
+
+    def update_tabs(self):
+
+        self.populate_input_files()
         self.populate_species()
+
+    def update_taxa(self):
+
+        # If taxa were removed during the update, remove those buttons too
+        removed_taxa = list(set(self.active_file_list) - set(
+            self.active_alignment_list.taxa_names))
+
+        # if removed_taxa:
+        #     for i in removed_taxa:
+        #         self.remove_bt()
+
+        self.active_taxa_list = self.active_alignment_list.taxa_names
+
 
     def populate_input_files(self):
         """
@@ -242,12 +280,12 @@ class TriFusionApp(App):
             del self.root.ids["species_temp"]
 
         # Enable selection buttons if taxa list is not empty
-        if self.alignment_list.taxa_names:
+        if self.active_taxa_list:
             for i in self.root.ids.sb_taxa.children:
                 i.disabled = False
                 i.bind(on_release=self.select_bt)
 
-        for tx in self.alignment_list.taxa_names:
+        for tx in self.active_taxa_list:
 
             # Prevents duplicate taxa from being entered
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
@@ -274,6 +312,7 @@ class TriFusionApp(App):
         and taxa tabs
         """
 
+        ####### APP CHANGES
         # Get the parent layout object from where the widget will be removed
         parent_obj = value.parent
 
@@ -287,6 +326,23 @@ class TriFusionApp(App):
 
         # Updates the size of the grid layout according to the removed button
         parent_obj.height -= self.root.height * .06
+
+        ####### CORE CHANGES
+        # Get the parent tab
+
+        if parent_obj == self.root.ids.file_sl:
+            # Update active file list
+            self.active_file_list.remove(bt_idx)
+            # Update alignment object list
+            complete_path = self.path + "/" + bt_idx
+            print(complete_path)
+            self.active_alignment_list.remove_file([complete_path])
+
+        if parent_obj == self.root.ids.taxa_sl:
+            self.active_alignment_list.remove_taxa([bt_idx])
+
+        self.update_taxa()
+
 
     @staticmethod
     def select_bt(value):
@@ -311,7 +367,10 @@ class TriFusionApp(App):
 
     def load_files(self):
 
+        # Populate original alignment list
         self.alignment_list = AlignmentList(self.file_path_list)
+        # Updating active alignment list
+        self.active_alignment_list = self.alignment_list
 
 
 if __name__ == '__main__':
