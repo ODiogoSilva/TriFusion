@@ -148,7 +148,8 @@ BoxLayout:
                                         size_hint_y: None
                                         #size_hint_x: None
                                         text: "No files loaded"
-                            SelectionBox
+                            SelectionBox:
+                                id: sb_file
 
                     TabbedPanelItem:
                         id: taxa_tp
@@ -172,7 +173,8 @@ BoxLayout:
                                         disabled: True
                                         size_hint_y: None
                                         text: "No species loaded"
-                            SelectionBox
+                            SelectionBox:
+                                id: sb_taxa
 
 
 

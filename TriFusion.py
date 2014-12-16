@@ -200,6 +200,11 @@ class TriFusionApp(App):
             self.root.ids.file_sl.remove_widget(self.root.ids.file_temp)
             del self.root.ids["file_temp"]
 
+        # Enable selection buttons if file list is not empty
+        if self.file_list:
+
+
+
         for infile in self.file_list:
 
             # This prevents duplicate files from being added
