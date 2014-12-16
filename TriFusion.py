@@ -37,7 +37,7 @@ from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
 from kivy.uix.screenmanager import Screen
 
 # Main program imports
-from process.sequence import Alignment, AlignmentList
+from process.sequence import AlignmentList
 
 # Other imports
 from os.path import dirname, join
