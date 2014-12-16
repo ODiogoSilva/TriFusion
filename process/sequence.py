@@ -955,6 +955,18 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
             alignment_obj.remove_taxa(taxa_list, mode=mode)
 
+    def remove_file(self, filename_list, verbose=False):
+        """
+        Removes alignment objects based on their name
+        :param filename_list: list with the names of the alignment objects to
+        be removed
+        :param verbose: Boolean. True enables terminal printing
+        """
+
+        for nm in filename_list:
+            self.alignment_object_list = [x for x in self.alignment_object_list
+                                          if nm == x.name]
+
     def select_by_taxa(self, taxa_list, mode="strict", verbose=True):
         """ This method is used to selected gene alignments according to a list
          of taxa. The modes of the method include:
