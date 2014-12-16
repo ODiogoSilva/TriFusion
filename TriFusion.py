@@ -64,8 +64,8 @@ class TriFusionApp(App):
     show_side_panel = BooleanProperty(False)
 
     # Variable containing screen names
-    screen_names = ListProperty([])
-    available_screens = ListProperty([])
+    screen_names = ListProperty()
+    available_screens = ListProperty()
 
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
@@ -74,16 +74,16 @@ class TriFusionApp(App):
     # The path ONLY attribute
     path = StringProperty()
     # Only the original file names. SHOULD NOT BE MODIFIED
-    file_list = ListProperty([])
+    file_list = ListProperty()
     # Dynamic list containing only the activated files
-    active_file_list = ListProperty([])
+    active_file_list = ListProperty()
     # The original complete path. SHOULD NOT BE MODIFIED
-    file_path_list = ListProperty([])
+    file_path_list = ListProperty()
     # Dynamic list containing only the activated path files
-    active_file_path_list = ListProperty([])
+    active_file_path_list = ListProperty()
 
     # Setting the list of taxa names
-    active_taxa_list = ListProperty([])
+    active_taxa_list = ListProperty()
 
     # Attributes to know current and previous screen
     current_screen = StringProperty()
