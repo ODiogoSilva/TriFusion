@@ -266,7 +266,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # buttons
-                self.root.ids.file_sl.height += self.root.height * .05
+                self.root.ids.file_sl.height += self.root.height * .062
 
     def populate_species(self):
         """
@@ -297,7 +297,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # button
-                self.root.ids.taxa_sl.height += self.root.height * 0.06
+                self.root.ids.taxa_sl.height += self.root.height * 0.062
 
                 self.root.ids.taxa_sl.add_widget(bt)
                 x_bt = Button(text="X", size_hint=(.2, None),
