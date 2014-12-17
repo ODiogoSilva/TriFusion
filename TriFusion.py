@@ -268,8 +268,14 @@ class TriFusionApp(App):
                 # Adds toggle button with file name
                 self.root.ids.file_sl.add_widget(bt)
 
+                # Set Information button and add the widget
+                inf_bt = Button(text="?", size_hint=(.14, None),
+                                height=self.root.height * 0.05,
+                                id="%s?" % infile, bold=True)
+                self.root.ids.file_sl.add_widget(inf_bt)
+
                 # Set remove button with event binded and add the widget
-                x_bt = Button(text="X", size_hint=(.2, None),
+                x_bt = Button(text="X", size_hint=(.14, None),
                               height=self.root.height * 0.05, id="%sX" % infile,
                               background_color=(255, .9, .9, 1), bold=True)
                 x_bt.bind(on_release=self.remove_bt)
@@ -309,16 +315,25 @@ class TriFusionApp(App):
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.8
 
-                # Updates the size of the grid layout according to the added
-                # button
-                self.root.ids.taxa_sl.height += self.root.height * 0.062
-
+                # Add toggle button with taxa name
                 self.root.ids.taxa_sl.add_widget(bt)
-                x_bt = Button(text="X", size_hint=(.2, None),
+
+                # Set Information button and add the widget
+                inf_bt = Button(text="?", size_hint=(.14, None),
+                                height=self.root.height * 0.05,
+                                id="%s?" % tx, bold=True)
+                self.root.ids.taxa_sl.add_widget(inf_bt)
+
+                # Set remove button with event binded and add the widget
+                x_bt = Button(text="X", size_hint=(.14, None),
                               height=self.root.height * 0.05, id="%sX" % tx,
                               background_color=(255, .9, .9, 1), bold=True)
                 self.root.ids.taxa_sl.add_widget(x_bt)
                 x_bt.bind(on_press=self.remove_bt)
+
+                # Updates the size of the grid layout according to the added
+                # button
+                self.root.ids.taxa_sl.height += self.root.height * 0.062
 
     def remove_bt(self, value):
         """
@@ -333,11 +348,14 @@ class TriFusionApp(App):
 
         # Get button widgets to be removed
         bt_idx = value.id[:-1]
+        inf_idx = value.id[:-1] + "?"
         bt = [x for x in parent_obj.children if bt_idx == x.id][0]
+        inf_bt = [x for x in parent_obj.children if inf_idx == x.id][0]
 
         # Remove widgets
         parent_obj.remove_widget(value)
         parent_obj.remove_widget(bt)
+        parent_obj.remove_widget(inf_bt)
 
         # Updates the size of the grid layout according to the removed button
         parent_obj.height -= self.root.height * .06
