@@ -26,6 +26,12 @@
             with_previous: False
             on_release:
                 app.side_panel_toggle()
+            canvas.before:
+                Color:
+                    rgba: (0.180, 0.180, 0.180, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
         MainHeader:
             text: "Orthology"
@@ -80,6 +86,11 @@
         text: "Deselect All"
         disabled: True
 
+<SideButton@ToggleButton>:
+    group: "side_buttons"
+    size_hint_y: .1
+
+
 
 BoxLayout:
     orientation: "vertical"
@@ -110,7 +121,18 @@ BoxLayout:
                 size_hint_x: None
                 width: 0
                 BoxLayout:
-                    Button:
+                    orientation: "vertical"
+                    SideButton:
+                        state: "down"
+                    SideButton
+                    Widget:
+                        size_hint_y: .8
+                        canvas.before:
+                            Color:
+                                rgba: (0.180, 0.180, 0.180, .8)
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
 
             ScrollView:
                 id: sp
