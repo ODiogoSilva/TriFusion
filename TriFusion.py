@@ -182,7 +182,8 @@ class TriFusionApp(App):
         Animation(width=sv_panel_width * 1.2, d=.3, t="out_quart").start(
             self.root.ids.main_box)
         # Animation of both scrollviews
-        Animation(width=sv_panel_width, d=.3, t="out_quart").start(self.root.ids.sp)
+        Animation(width=sv_panel_width, d=.3, t="out_quart").start(
+            self.root.ids.sp)
         Animation(width=sv_bts_width, d=.3, t="out_quart").start(
             self.root.ids.sp_bts)
 
@@ -259,7 +260,10 @@ class TriFusionApp(App):
 
                 bt = ToggleButton(text=infile, state="down", id=infile,
                                   height=self.root.height * .05,
-                                  size_hint=(.8, None))
+                                  size_hint=(.8, None), shorten=True,
+                                  shorten_from="right", halign="center")
+                # Setting horizontal text size for shortening
+                bt.text_size[0] = bt.size[0] * 1.8
 
                 # Adds toggle button with file name
                 self.root.ids.file_sl.add_widget(bt)
@@ -300,7 +304,10 @@ class TriFusionApp(App):
 
                 bt = ToggleButton(text=tx, state="down", id=tx,
                                   height=self.root.height * 0.05,
-                                  size_hint=(.8, None))
+                                  size_hint=(.8, None), shorten=True,
+                                  shorten_from="right", halign="center")
+                # Setting horizontal text size for shortening
+                bt.text_size[0] = bt.size[0] * 1.8
 
                 # Updates the size of the grid layout according to the added
                 # button
