@@ -259,7 +259,7 @@ class TriFusionApp(App):
             if infile not in [x.id for x in self.root.ids.file_sl.children]:
 
                 bt = ToggleButton(text=infile, state="down", id=infile,
-                                  height=self.root.height * .05,
+                                  height=self.root.height * 0.05,
                                   size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Setting horizontal text size for shortening
@@ -283,7 +283,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # buttons
-                self.root.ids.file_sl.height += self.root.height * .062
+                self.root.ids.file_sl.height += self.root.height * .068
 
     def populate_species(self):
         """
@@ -333,7 +333,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # button
-                self.root.ids.taxa_sl.height += self.root.height * 0.062
+                self.root.ids.taxa_sl.height += self.root.height * 0.068
 
     def remove_bt(self, value):
         """
@@ -358,7 +358,7 @@ class TriFusionApp(App):
         parent_obj.remove_widget(inf_bt)
 
         # Updates the size of the grid layout according to the removed button
-        parent_obj.height -= self.root.height * .06
+        parent_obj.height -= self.root.height * .0715
 
         ####### CORE CHANGES
         # Get the parent tab
