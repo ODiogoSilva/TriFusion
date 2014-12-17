@@ -168,16 +168,19 @@ class TriFusionApp(App):
         self.show_side_panel = not self.show_side_panel
 
         if self.show_side_panel:
-            width = self.root.width * .32
-            self.root.ids.sv_but.text = "Open File(s)"
+            sv_panel_width = self.root.width * .32
+            sv_bts_width = self.root.ids.ap.children[0].children[-1].width
         else:
-            width = 0
-            self.root.ids.sv_but.text = ""
+            sv_panel_width, sv_bts_width = 0, 0
 
-        Animation(width=width, d=.3, t="out_quart").start(self.root.ids.sp)
-        # Animate the button so that the folding of the panel is smoother
-        Animation(width=width * .8, d=.3, t="out_quart").start(
-            self.root.ids.sv_but)
+        ## ANIMATIONS with hierarchy
+        # Animation of main BoxLayout containing child ScrollViews
+        Animation(width=sv_panel_width * 1.2, d=.3, t="out_quart").start(
+            self.root.ids.main_box)
+        # Animation of both scrollviews
+        Animation(width=sv_panel_width, d=.3, t="out_quart").start(self.root.ids.sp)
+        Animation(width=sv_bts_width, d=.3, t="out_quart").start(
+            self.root.ids.sp_bts)
 
     def load(self, selection, path):
         """
