@@ -271,7 +271,7 @@ class TriFusionApp(App):
                 # Set remove button with event binded and add the widget
                 x_bt = Button(text="X", size_hint=(.2, None),
                               height=self.root.height * 0.05, id="%sX" % infile,
-                              background_color=(255, .9, .9, 1))
+                              background_color=(255, .9, .9, 1), bold=True)
                 x_bt.bind(on_release=self.remove_bt)
                 self.root.ids.file_sl.add_widget(x_bt)
 
@@ -316,7 +316,7 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.add_widget(bt)
                 x_bt = Button(text="X", size_hint=(.2, None),
                               height=self.root.height * 0.05, id="%sX" % tx,
-                              background_color=(255, .9, .9, 1))
+                              background_color=(255, .9, .9, 1), bold=True)
                 self.root.ids.taxa_sl.add_widget(x_bt)
                 x_bt.bind(on_press=self.remove_bt)
 
