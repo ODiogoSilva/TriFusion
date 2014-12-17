@@ -286,7 +286,7 @@ class TriFusionApp(App):
                 i.disabled = False
                 i.bind(on_release=self.select_bt)
 
-        for tx in self.active_taxa_list:
+        for tx in sorted(self.active_taxa_list):
 
             # Prevents duplicate taxa from being entered
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
