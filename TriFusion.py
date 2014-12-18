@@ -111,6 +111,10 @@ class TriFusionApp(App):
     # List of active alignment object variables.
     active_alignment_list = None
 
+    # Attribute containing information for each taxa. See
+    # get_taxa_information method
+    tx_inf = {}
+
     ##################################
     #
     # GUI RELATED METHODS AND FUCTIONS
@@ -227,6 +231,8 @@ class TriFusionApp(App):
         self.update_taxa()
         # Populates files and taxa contents
         self.update_tabs()
+        # Gathers taxa information
+        self.get_taxa_information()
 
     def update_tabs(self):
 
@@ -360,10 +366,14 @@ class TriFusionApp(App):
         # it is the only widget (along with TextInput) that allow text
         # selection and it may be even possible to add text formatting using
         # python lexer.
-        content = CodeInput(text="Sequence length: \n"
-                                 "Number of indels: \n"
-                                 "Effective sequence: length: \n\n"
-                                 "Nucleotide proportions (A, T, C, G): \n",
+        content = CodeInput(text="Sequence length: %s\n"
+                                 "Number of indels: %s\n"
+                                 "Effective sequence: length: %s\n"
+                                 "File coverage: %s" % (
+                                 self.tx_inf["length"],
+                                 self.tx_inf["indel"],
+                                 self.tx_inf["length"] - self.tx_inf["indel"],
+                                 self.tx_inf["fl_coverage"]),
                             readonly=True)
 
         popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
@@ -455,6 +465,45 @@ class TriFusionApp(App):
         # Updating active alignment list
         self.active_alignment_list = self.alignment_list
         self.active_taxa_list = self.active_alignment_list.taxa_names
+
+    def get_taxa_information(self):
+        """
+        This method will gather all available information for all taxa and set
+        a number of related attributes.
+
+        # TODO:
+        It will probably be usefull to provide information for both complete
+        and active datasets
+        """
+
+        # main storage defined in class initialization:
+        # self.taxa_information = {}
+
+        for tx in self.alignment_list.taxa_names:
+
+            # Add entry to storage dictionary
+            self.tx_inf[tx] = {}
+            # Counter for alignment missing the taxa
+            tx_missing = 0
+
+            # Get full sequence
+            sequence = ""
+            for aln in self.alignment_list:
+                if tx in aln.alignment:
+                    sequence += aln.alignment[tx]
+                else:
+                    tx_missing += 1
+
+            # Get sequence length
+            seq_len = len(sequence)
+            self.tx_inf["length"] = seq_len
+
+            # Get indel number.
+            self.tx_inf["indel"] = sequence.count("-")
+
+            # Get number of files containing the taxa
+            self.tx_inf["fl_coverage"] = len(
+                self.alignment_list.alignment_object_list) - tx_missing
 
 
 if __name__ == '__main__':
