@@ -284,6 +284,8 @@ class TriFusionApp(App):
                                   shorten_from="right", halign="center")
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.8
+                # Binding functionality to toggle button
+                bt.bind(on_release=self.toggle_selection)
 
                 # Adds toggle button with file name
                 self.root.ids.file_sl.add_widget(bt)
@@ -334,6 +336,8 @@ class TriFusionApp(App):
                                   shorten_from="right", halign="center")
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.8
+                # Binding functionality to toggle button
+                bt.bind(on_release=self.toggle_selection)
 
                 # Add toggle button with taxa name
                 self.root.ids.taxa_sl.add_widget(bt)
@@ -363,6 +367,11 @@ class TriFusionApp(App):
         :param value: the button object is provided when binding
         """
 
+        # Get the information from the content list. This is done when
+        # calling the popup to avoid repeating this operation every time taxa
+        #  or files are added/removed.
+        self.active_tx_inf = self.get_taxa_information()
+
         # For now, the pop up content will be in a CodeInput widget because
         # it is the only widget (along with TextInput) that allow text
         # selection and it may be even possible to add text formatting using
@@ -374,23 +383,68 @@ class TriFusionApp(App):
                                  "Effective sequence: length: %s (%s%%)\n"
                                  "File coverage: %s (%s%%)\n\n"
                                  " -- Active data set -- \n"
-                                 "Sequence length: \n"
-                                 "Number of indels: \n"
-                                 "Effective sequence length: \n"
-                                 "File coverage: \n" % (
+                                 "Sequence length: %s\n"
+                                 "Number of indels: %s\n"
+                                 "Number missing data: %s\n"
+                                 "Effective sequence length: %s (%s%%)\n"
+                                 "File coverage: %s (%s%%)\n" % (
+                                 # Original data set contents
                                  self.original_tx_inf["length"],
                                  self.original_tx_inf["indel"],
                                  self.original_tx_inf["missing"],
                                  self.original_tx_inf["effective_len"],
                                  self.original_tx_inf["effective_len_per"],
                                  self.original_tx_inf["fl_coverage"],
-                                 self.original_tx_inf["fl_coverage_per"]),
+                                 self.original_tx_inf["fl_coverage_per"],
+                                 # Active data set contents
+                                 self.active_tx_inf["length"],
+                                 self.active_tx_inf["indel"],
+                                 self.active_tx_inf["missing"],
+                                 self.active_tx_inf["effective_len"],
+                                 self.active_tx_inf["effective_len_per"],
+                                 self.active_tx_inf["fl_coverage"],
+                                 self.active_tx_inf["fl_coverage_per"]),
                             readonly=True)
 
         popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
                           size_hint=(None, None), size=(400, 400))
 
         popup_wgt.open()
+
+    def toggle_selection(self, value):
+        """
+        Adds functionality for the file and taxa toggle buttons in the side
+        panel. It adds or removes the selected taxa from the active lists
+        """
+
+        print(len(self.active_taxa_list))
+
+        # Get the parent layout object
+        parent_obj = value.parent
+
+        # Changes concerning the files tab
+        if parent_obj == self.root.ids.file_sl:
+
+            # When button is normal (unselected) remove from active list
+            if value.state == "normal":
+                self.active_file_list.remove(value.id)
+                self.active_alignment_list.remove_file(value.id)
+            # When button is down (selected) add to active list
+            elif value.state == "down":
+                self.active_file_list.append(value.id)
+
+
+        # Changes concerning the taxa tab
+        if parent_obj == self.root.ids.taxa_sl:
+
+            # When button is normal (unselected) remove from active list
+            if value.state == "normal":
+                self.active_taxa_list.remove(value.id)
+            # When button is down (selected) add to active list
+            elif value.state == "down":
+                self.active_taxa_list.append(value.id)
+
+        print(len(self.active_taxa_list))
 
     def remove_bt(self, value):
         """
@@ -490,7 +544,7 @@ class TriFusionApp(App):
         # main storage defined in class initialization:
         tx_inf = {}
 
-        for tx in self.alignment_list.taxa_names:
+        for tx in self.active_taxa_list:
 
             # Add entry to storage dictionary
             tx_inf[tx] = {}
@@ -499,7 +553,7 @@ class TriFusionApp(App):
 
             # Get full sequence
             sequence = ""
-            for aln in self.alignment_list:
+            for aln in self.active_alignment_list:
                 if tx in aln.alignment:
                     sequence += aln.alignment[tx]
                 else:
@@ -527,8 +581,8 @@ class TriFusionApp(App):
             # Get number of files containing the taxa in absolute and percentage
             tx_inf["fl_coverage"] = len(
                 self.alignment_list.alignment_object_list) - tx_missing
-            tx_inf["fl_coverage_per"] = round(((tx_inf["fl_coverage"]
-                * 100) / len(self.alignment_list.alignment_object_list)), 2)
+            tx_inf["fl_coverage_per"] = round(((tx_inf["fl_coverage"] * 100) /
+                len(self.active_alignment_list.alignment_object_list)), 2)
 
         return tx_inf
 

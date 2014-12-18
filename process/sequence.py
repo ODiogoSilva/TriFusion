@@ -854,6 +854,20 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         self.alignment_object_list.append(alignment_obj)
 
+    def _retrieve_alignment(self, name):
+        """
+        :param name: string. Name of the input alignment
+        :return: Returns an Alignment object with a given name attribute
+        """
+
+        alignment_obj = [x for x in self.alignment_object_list if x.name ==
+                         name][0]
+
+        if alignment_obj:
+            return alignment_obj
+        else:
+            return None
+
     def iter_alignment_dic(self):
         """ Returns a list of the dictionary alignments """
 
