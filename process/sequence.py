@@ -65,6 +65,10 @@ class Alignment (Base, MissingFilter):
         self.locus_length = 0
         self.restriction_range = None
 
+        # Boolean attribute to know if Alignment object is truly an alignment
+        #  or a sequence set
+        self.is_alignment = None
+
         # In case the class is initialized with an input file name
         if type(input_alignment) is str:
 
@@ -226,7 +230,8 @@ class Alignment (Base, MissingFilter):
 
         # Checks the size consistency of the alignment
         if size_check is True:
-            self.check_sizes(self.alignment, input_alignment)
+            self.is_alignment = self.check_sizes(self.alignment,
+                                                 input_alignment)
 
         # Checks for duplicate taxa
         if len(list(self.alignment)) != len(set(list(self.alignment))):
