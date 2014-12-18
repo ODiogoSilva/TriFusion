@@ -366,14 +366,24 @@ class TriFusionApp(App):
         # it is the only widget (along with TextInput) that allow text
         # selection and it may be even possible to add text formatting using
         # python lexer.
-        content = CodeInput(text="Sequence length: %s\n"
+        content = CodeInput(text=" -- Complete data set -- \n"
+                                 "Sequence length: %s\n"
                                  "Number of indels: %s\n"
-                                 "Effective sequence: length: %s\n"
-                                 "File coverage: %s" % (
+                                 "Number missing data: %s\n"
+                                 "Effective sequence: length: %s (%s%%)\n"
+                                 "File coverage: %s (%s%%)\n\n"
+                                 " -- Active data set -- \n"
+                                 "Sequence length: \n"
+                                 "Number of indels: \n"
+                                 "Effective sequence length: \n"
+                                 "File coverage: \n" % (
                                  self.tx_inf["length"],
                                  self.tx_inf["indel"],
-                                 self.tx_inf["length"] - self.tx_inf["indel"],
-                                 self.tx_inf["fl_coverage"]),
+                                 self.tx_inf["missing"],
+                                 self.tx_inf["effective_len"],
+                                 self.tx_inf["effective_len_per"],
+                                 self.tx_inf["fl_coverage"],
+                                 self.tx_inf["fl_coverage_per"]),
                             readonly=True)
 
         popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
@@ -493,6 +503,9 @@ class TriFusionApp(App):
                     sequence += aln.alignment[tx]
                 else:
                     tx_missing += 1
+            else:
+                # Retrieve missing data symbol
+                missing_symbol = aln.sequence_code[1]
 
             # Get sequence length
             seq_len = len(sequence)
@@ -501,9 +514,20 @@ class TriFusionApp(App):
             # Get indel number.
             self.tx_inf["indel"] = sequence.count("-")
 
-            # Get number of files containing the taxa
+            # Get missing data
+            self.tx_inf["missing"] = sequence.count(missing_symbol)
+
+            # Get effective sequence length in absolute and percentage
+            self.tx_inf["effective_len"] = seq_len - (self.tx_inf["indel"] +
+                                                      self.tx_inf["missing"])
+            self.tx_inf["effective_len_per"] = round(
+                (self.tx_inf["effective_len"] * 100) / seq_len, 2)
+
+            # Get number of files containing the taxa in absolute and percentage
             self.tx_inf["fl_coverage"] = len(
                 self.alignment_list.alignment_object_list) - tx_missing
+            self.tx_inf["fl_coverage_per"] = round(((self.tx_inf["fl_coverage"]
+                * 100) / len(self.alignment_list.alignment_object_list)), 2)
 
 
 if __name__ == '__main__':
