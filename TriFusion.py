@@ -111,6 +111,12 @@ class TriFusionApp(App):
     # List of active alignment object variables.
     active_alignment_list = None
 
+    ##################################
+    #
+    # GUI RELATED METHODS AND FUCTIONS
+    #
+    ##################################
+
     def build(self):
 
         # Setting main window title
@@ -427,7 +433,22 @@ class TriFusionApp(App):
                 elif value.text == "Deselect All":
                     i.state = "normal"
 
+    ###################################
+    #
+    # CORE RELATED METHODS AND FUCTIONS
+    #
+    ###################################
+
     def load_files(self):
+        """
+        Loads the selected input files into the program using the
+        AlignmentList object.
+
+        I also sets the alignment and taxa active lists, which should be used
+        to perform subsequent operations. For now, the original taxa and
+        alignment lists should remain untouched for future implementation of
+        undo/redo functionality and as backups
+        """
 
         # Populate original alignment list
         self.alignment_list = AlignmentList(self.file_path_list)
