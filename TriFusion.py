@@ -48,6 +48,7 @@ from process.sequence import AlignmentList
 
 # Other imports
 from os.path import dirname, join
+from copy import deepcopy
 
 
 class ShowcaseScreen(Screen):
@@ -223,8 +224,8 @@ class TriFusionApp(App):
         self.file_list = [x.split("/")[-1] for x in selection]
 
         # Updating active file list and path list
-        self.active_file_list = self.file_list
-        self.active_file_path_list = self.file_path_list
+        self.active_file_list = deepcopy(self.file_list)
+        self.active_file_path_list = deepcopy(self.file_path_list)
 
         # Parses the files into the program
         self.load_files()
@@ -388,7 +389,6 @@ class TriFusionApp(App):
                                  "Number missing data: %s\n"
                                  "Effective sequence length: %s (%s%%)\n"
                                  "File coverage: %s (%s%%)\n" % (
-                                 # Original data set contents
                                  self.original_tx_inf["length"],
                                  self.original_tx_inf["indel"],
                                  self.original_tx_inf["missing"],
@@ -396,7 +396,6 @@ class TriFusionApp(App):
                                  self.original_tx_inf["effective_len_per"],
                                  self.original_tx_inf["fl_coverage"],
                                  self.original_tx_inf["fl_coverage_per"],
-                                 # Active data set contents
                                  self.active_tx_inf["length"],
                                  self.active_tx_inf["indel"],
                                  self.active_tx_inf["missing"],
@@ -417,8 +416,6 @@ class TriFusionApp(App):
         panel. It adds or removes the selected taxa from the active lists
         """
 
-        print(len(self.active_taxa_list))
-
         # Get the parent layout object
         parent_obj = value.parent
 
@@ -428,11 +425,14 @@ class TriFusionApp(App):
             # When button is normal (unselected) remove from active list
             if value.state == "normal":
                 self.active_file_list.remove(value.id)
-                self.active_alignment_list.remove_file(value.id)
+                self.active_alignment_list.remove_file([self.path + "/" +
+                                                       value.id])
             # When button is down (selected) add to active list
             elif value.state == "down":
                 self.active_file_list.append(value.id)
-
+                self.active_alignment_list.add_alignment(
+                    self.alignment_list.retrieve_alignment(self.path + "/" +
+                                                           value.id))
 
         # Changes concerning the taxa tab
         if parent_obj == self.root.ids.taxa_sl:
@@ -440,11 +440,9 @@ class TriFusionApp(App):
             # When button is normal (unselected) remove from active list
             if value.state == "normal":
                 self.active_taxa_list.remove(value.id)
-            # When button is down (selected) add to active list
+            # When button is down (selected) add to active
             elif value.state == "down":
                 self.active_taxa_list.append(value.id)
-
-        print(len(self.active_taxa_list))
 
     def remove_bt(self, value):
         """
@@ -528,7 +526,7 @@ class TriFusionApp(App):
         # Populate original alignment list
         self.alignment_list = AlignmentList(self.file_path_list)
         # Updating active alignment list
-        self.active_alignment_list = self.alignment_list
+        self.active_alignment_list = deepcopy(self.alignment_list)
         self.active_taxa_list = self.active_alignment_list.taxa_names
 
     def get_taxa_information(self):
@@ -580,7 +578,7 @@ class TriFusionApp(App):
 
             # Get number of files containing the taxa in absolute and percentage
             tx_inf["fl_coverage"] = len(
-                self.alignment_list.alignment_object_list) - tx_missing
+                self.active_alignment_list.alignment_object_list) - tx_missing
             tx_inf["fl_coverage_per"] = round(((tx_inf["fl_coverage"] * 100) /
                 len(self.active_alignment_list.alignment_object_list)), 2)
 
