@@ -374,27 +374,29 @@ class TriFusionApp(App):
             # Get taxa name
             tx = value.id[:-1]
 
-            # Get the information from the content list. This is done when
-            # calling the popup to avoid repeating this operation every time
-            # taxa  or files are added/removed.
-            self.active_tx_inf = self.get_taxa_information()
+            if tx in self.active_taxa_list:
 
-            # For now, the pop up content will be in a CodeInput widget because
-            # it is the only widget (along with TextInput) that allow text
-            # selection and it may be even possible to add text formatting using
-            # python lexer.
-            content = CodeInput(text=" -- Complete data set -- \n"
-                                     "Sequence length: %s\n"
-                                     "Number of indels: %s\n"
-                                     "Number missing data: %s\n"
-                                     "Effective sequence length: %s (%s%%)\n"
-                                     "File coverage: %s (%s%%)\n\n"
-                                     " -- Active data set -- \n"
-                                     "Sequence length: %s\n"
-                                     "Number of indels: %s\n"
-                                     "Number missing data: %s\n"
-                                     "Effective sequence length: %s (%s%%)\n"
-                                     "File coverage: %s (%s%%)\n" % (
+                # Get the information from the content list. This is done when
+                # calling the popup to avoid repeating this operation every time
+                # taxa  or files are added/removed.
+                self.active_tx_inf = self.get_taxa_information()
+
+                # For now, the pop up content will be in a CodeInput widget
+                # because it is the only widget (along with TextInput) that
+                # allow text selection and it may be even possible to add text
+                # formatting using python lexer.
+                content = CodeInput(text=" -- Complete data set -- \n"
+                                    "Sequence length: %s\n"
+                                    "Number of indels: %s\n"
+                                    "Number missing data: %s\n"
+                                    "Effective sequence length: %s (%s%%)\n"
+                                    "File coverage: %s (%s%%)\n\n"
+                                    " -- Active data set -- \n"
+                                    "Sequence length: %s\n"
+                                    "Number of indels: %s\n"
+                                    "Number missing data: %s\n"
+                                    "Effective sequence length: %s (%s%%)\n"
+                                    "File coverage: %s (%s%%)\n" % (
                                  self.original_tx_inf[tx]["length"],
                                  self.original_tx_inf[tx]["indel"],
                                  self.original_tx_inf[tx]["missing"],
@@ -409,10 +411,13 @@ class TriFusionApp(App):
                                  self.active_tx_inf[tx]["effective_len_per"],
                                  self.active_tx_inf[tx]["fl_coverage"],
                                  self.active_tx_inf[tx]["fl_coverage_per"]),
-                                readonly=True)
+                                    readonly=True)
 
-            popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
-                              size_hint=(None, None), size=(400, 400))
+                popup_wgt = Popup(title="Taxon: %s" % value.id[:-1],
+                                  content=content, size_hint=(None, None),
+                                  size=(400, 400))
+
+                popup_wgt.open()
 
         elif value.parent == self.root.ids.file_sl:
 
@@ -420,9 +425,6 @@ class TriFusionApp(App):
                                      ""
                                      " -- Active data set -- \n",
                                 read_only=True)
-
-
-        popup_wgt.open()
 
     def toggle_selection(self, value):
         """
