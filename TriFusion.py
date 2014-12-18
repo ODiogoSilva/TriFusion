@@ -572,6 +572,8 @@ class TriFusionApp(App):
 
             # Get full sequence
             sequence = ""
+            # This assures that the information will only be gathered if the
+            # active data set is not empty
             if self.active_alignment_list.alignment_object_list:
                 for aln in self.active_alignment_list:
                     if tx in aln.alignment:
@@ -607,6 +609,7 @@ class TriFusionApp(App):
                     / len(self.active_alignment_list.alignment_object_list)), 2)
 
             else:
+                # This handles the case where the active data set is empty
                 tx_inf["length"] = "NA"
                 tx_inf["indel"] = "NA"
                 tx_inf["missing"] = "NA"
