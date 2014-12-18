@@ -371,6 +371,9 @@ class TriFusionApp(App):
         # Determining if the request comes from file or taxa tab
         if value.parent == self.root.ids.taxa_sl:
 
+            # Get taxa name
+            tx = value.id[:-1]
+
             # Get the information from the content list. This is done when
             # calling the popup to avoid repeating this operation every time
             # taxa  or files are added/removed.
@@ -384,7 +387,7 @@ class TriFusionApp(App):
                                      "Sequence length: %s\n"
                                      "Number of indels: %s\n"
                                      "Number missing data: %s\n"
-                                     "Effective sequence: length: %s (%s%%)\n"
+                                     "Effective sequence length: %s (%s%%)\n"
                                      "File coverage: %s (%s%%)\n\n"
                                      " -- Active data set -- \n"
                                      "Sequence length: %s\n"
@@ -392,24 +395,32 @@ class TriFusionApp(App):
                                      "Number missing data: %s\n"
                                      "Effective sequence length: %s (%s%%)\n"
                                      "File coverage: %s (%s%%)\n" % (
-                                     self.original_tx_inf["length"],
-                                     self.original_tx_inf["indel"],
-                                     self.original_tx_inf["missing"],
-                                     self.original_tx_inf["effective_len"],
-                                     self.original_tx_inf["effective_len_per"],
-                                     self.original_tx_inf["fl_coverage"],
-                                     self.original_tx_inf["fl_coverage_per"],
-                                     self.active_tx_inf["length"],
-                                     self.active_tx_inf["indel"],
-                                     self.active_tx_inf["missing"],
-                                     self.active_tx_inf["effective_len"],
-                                     self.active_tx_inf["effective_len_per"],
-                                     self.active_tx_inf["fl_coverage"],
-                                     self.active_tx_inf["fl_coverage_per"]),
+                                 self.original_tx_inf[tx]["length"],
+                                 self.original_tx_inf[tx]["indel"],
+                                 self.original_tx_inf[tx]["missing"],
+                                 self.original_tx_inf[tx]["effective_len"],
+                                 self.original_tx_inf[tx]["effective_len_per"],
+                                 self.original_tx_inf[tx]["fl_coverage"],
+                                 self.original_tx_inf[tx]["fl_coverage_per"],
+                                 self.active_tx_inf[tx]["length"],
+                                 self.active_tx_inf[tx]["indel"],
+                                 self.active_tx_inf[tx]["missing"],
+                                 self.active_tx_inf[tx]["effective_len"],
+                                 self.active_tx_inf[tx]["effective_len_per"],
+                                 self.active_tx_inf[tx]["fl_coverage"],
+                                 self.active_tx_inf[tx]["fl_coverage_per"]),
                                 readonly=True)
 
-        popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
-                          size_hint=(None, None), size=(400, 400))
+            popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
+                              size_hint=(None, None), size=(400, 400))
+
+        elif value.parent == self.root.ids.file_sl:
+
+            content = CodeInput(text=" -- Complete data set --\n"
+                                     ""
+                                     " -- Active data set -- \n",
+                                read_only=True)
+
 
         popup_wgt.open()
 
@@ -588,37 +599,38 @@ class TriFusionApp(App):
 
                 # Get sequence length
                 seq_len = len(sequence)
-                tx_inf["length"] = seq_len
+                tx_inf[tx]["length"] = seq_len
 
                 # Get indel number.
-                tx_inf["indel"] = sequence.count("-")
+                tx_inf[tx]["indel"] = sequence.count("-")
 
                 # Get missing data
-                tx_inf["missing"] = sequence.count(missing_symbol)
+                tx_inf[tx]["missing"] = sequence.count(missing_symbol)
 
                 # Get effective sequence length in absolute and percentage
-                tx_inf["effective_len"] = seq_len - (tx_inf["indel"] +
-                                                          tx_inf["missing"])
-                tx_inf["effective_len_per"] = round(
-                    (tx_inf["effective_len"] * 100) / seq_len, 2)
+                tx_inf[tx]["effective_len"] = seq_len - (tx_inf[tx]["indel"] +
+                                                          tx_inf[tx]["missing"])
+                tx_inf[tx]["effective_len_per"] = round(
+                    (tx_inf[tx]["effective_len"] * 100) / seq_len, 2)
 
                 # Get number of files containing the taxa in absolute and
                 # percentage
-                tx_inf["fl_coverage"] = len(
+                tx_inf[tx]["fl_coverage"] = len(
                     self.active_alignment_list.alignment_object_list) - \
                     tx_missing
-                tx_inf["fl_coverage_per"] = round(((tx_inf["fl_coverage"] * 100)
-                    / len(self.active_alignment_list.alignment_object_list)), 2)
+                tx_inf[tx]["fl_coverage_per"] = round(((
+                    tx_inf[tx]["fl_coverage"] * 100) / len(
+                    self.active_alignment_list.alignment_object_list)), 2)
 
             else:
                 # This handles the case where the active data set is empty
-                tx_inf["length"] = "NA"
-                tx_inf["indel"] = "NA"
-                tx_inf["missing"] = "NA"
-                tx_inf["effective_len"] = "NA"
-                tx_inf["effective_len_per"] = "NA"
-                tx_inf["fl_coverage"] = "NA"
-                tx_inf["fl_coverage_per"] = "NA"
+                tx_inf[tx]["length"] = "NA"
+                tx_inf[tx]["indel"] = "NA"
+                tx_inf[tx]["missing"] = "NA"
+                tx_inf[tx]["effective_len"] = "NA"
+                tx_inf[tx]["effective_len_per"] = "NA"
+                tx_inf[tx]["fl_coverage"] = "NA"
+                tx_inf[tx]["fl_coverage_per"] = "NA"
 
         return tx_inf
 
