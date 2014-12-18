@@ -111,9 +111,10 @@ class TriFusionApp(App):
     # List of active alignment object variables.
     active_alignment_list = None
 
-    # Attribute containing information for each taxa. See
-    # get_taxa_information method
-    tx_inf = {}
+    # Attributes containing the original and active taxa information
+    # dictionaries
+    original_tx_inf = None
+    active_tx_inf = None
 
     ##################################
     #
@@ -232,7 +233,7 @@ class TriFusionApp(App):
         # Populates files and taxa contents
         self.update_tabs()
         # Gathers taxa information
-        self.get_taxa_information()
+        self.original_tx_inf = self.get_taxa_information()
 
     def update_tabs(self):
 
@@ -377,13 +378,13 @@ class TriFusionApp(App):
                                  "Number of indels: \n"
                                  "Effective sequence length: \n"
                                  "File coverage: \n" % (
-                                 self.tx_inf["length"],
-                                 self.tx_inf["indel"],
-                                 self.tx_inf["missing"],
-                                 self.tx_inf["effective_len"],
-                                 self.tx_inf["effective_len_per"],
-                                 self.tx_inf["fl_coverage"],
-                                 self.tx_inf["fl_coverage_per"]),
+                                 self.original_tx_inf["length"],
+                                 self.original_tx_inf["indel"],
+                                 self.original_tx_inf["missing"],
+                                 self.original_tx_inf["effective_len"],
+                                 self.original_tx_inf["effective_len_per"],
+                                 self.original_tx_inf["fl_coverage"],
+                                 self.original_tx_inf["fl_coverage_per"]),
                             readonly=True)
 
         popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
@@ -487,12 +488,12 @@ class TriFusionApp(App):
         """
 
         # main storage defined in class initialization:
-        # self.taxa_information = {}
+        tx_inf = {}
 
         for tx in self.alignment_list.taxa_names:
 
             # Add entry to storage dictionary
-            self.tx_inf[tx] = {}
+            tx_inf[tx] = {}
             # Counter for alignment missing the taxa
             tx_missing = 0
 
@@ -509,25 +510,27 @@ class TriFusionApp(App):
 
             # Get sequence length
             seq_len = len(sequence)
-            self.tx_inf["length"] = seq_len
+            tx_inf["length"] = seq_len
 
             # Get indel number.
-            self.tx_inf["indel"] = sequence.count("-")
+            tx_inf["indel"] = sequence.count("-")
 
             # Get missing data
-            self.tx_inf["missing"] = sequence.count(missing_symbol)
+            tx_inf["missing"] = sequence.count(missing_symbol)
 
             # Get effective sequence length in absolute and percentage
-            self.tx_inf["effective_len"] = seq_len - (self.tx_inf["indel"] +
-                                                      self.tx_inf["missing"])
-            self.tx_inf["effective_len_per"] = round(
-                (self.tx_inf["effective_len"] * 100) / seq_len, 2)
+            tx_inf["effective_len"] = seq_len - (tx_inf["indel"] +
+                                                      tx_inf["missing"])
+            tx_inf["effective_len_per"] = round(
+                (tx_inf["effective_len"] * 100) / seq_len, 2)
 
             # Get number of files containing the taxa in absolute and percentage
-            self.tx_inf["fl_coverage"] = len(
+            tx_inf["fl_coverage"] = len(
                 self.alignment_list.alignment_object_list) - tx_missing
-            self.tx_inf["fl_coverage_per"] = round(((self.tx_inf["fl_coverage"]
+            tx_inf["fl_coverage_per"] = round(((tx_inf["fl_coverage"]
                 * 100) / len(self.alignment_list.alignment_object_list)), 2)
+
+        return tx_inf
 
 
 if __name__ == '__main__':
