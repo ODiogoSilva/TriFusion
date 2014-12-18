@@ -847,14 +847,14 @@ class AlignmentList (Alignment, Base, MissingFilter):
         """
         return [alignment.name for alignment in self.alignment_object_list]
 
-    def _add_alignment(self, alignment_obj):
+    def add_alignment(self, alignment_obj):
         """
         Adds a new Alignment object
         """
 
         self.alignment_object_list.append(alignment_obj)
 
-    def _retrieve_alignment(self, name):
+    def retrieve_alignment(self, name):
         """
         :param name: string. Name of the input alignment
         :return: Returns an Alignment object with a given name attribute
