@@ -31,6 +31,7 @@ from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy.uix.codeinput import CodeInput
 from kivy.uix.textinput import TextInput
 from kivy.uix.rst import RstDocument
 from kivy.uix.boxlayout import BoxLayout
@@ -343,12 +344,21 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.height += self.root.height * 0.068
 
     def popup_info(self, value):
+        """
+        Generates the pop up information content for the pressed taxa or file
+        button
+        :param value: the button object is provided when binding
+        """
 
-        content = TextInput(text="Sequence length: \n"
+        # For now, the pop up content will be in a CodeInput widget because
+        # it is the only widget (along with TextInput) that allow text
+        # selection and it may be even possible to add text formatting using
+        # python lexer.
+        content = CodeInput(text="Sequence length: \n"
                                  "Number of indels: \n"
-                                 "Effective sequence: length: \n"
-                                 "-------------------"
-                                 "Proportions (A, T, C, G): \n")
+                                 "Effective sequence: length: \n\n"
+                                 "Nucleotide proportions (A, T, C, G): \n",
+                            readonly=True)
 
         popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
                           size_hint=(None, None), size=(400, 400))
