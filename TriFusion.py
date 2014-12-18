@@ -553,11 +553,10 @@ class TriFusionApp(App):
     def get_taxa_information(self):
         """
         This method will gather all available information for all taxa and set
-        a number of related attributes.
-
-        # TODO:
-        It will probably be useful to provide information for both complete
-        and active data sets
+        a number of related attributes. The way the method is implemented,
+        allow the generation of information for both complete (if the method
+        is applied in the original data set) and active (if the method is
+        applied to the currently data set) data sets.
         """
 
         # main storage defined in class initialization:
