@@ -48,6 +48,7 @@ from process.sequence import AlignmentList
 
 # Other imports
 from os.path import dirname, join
+from os.path import expanduser
 from copy import deepcopy
 
 
@@ -99,6 +100,9 @@ class TriFusionApp(App):
 
     # Attribute to load screens
     index = NumericProperty(-1)
+
+    # Attribute to the home path
+    home_path = expanduser("~")
 
     ################################
     #
@@ -176,6 +180,13 @@ class TriFusionApp(App):
         :param idx: The index of the screen to be loaded
         """
         screen = Builder.load_file(self.available_screens[idx])
+
+        # If the screen to be loaded is the filechooser, set the home path as
+        # the default
+        print(self.available_screens[idx])
+        if self.available_screens[idx] == "data/screens/fc.kv":
+            screen.ids.icon_view_tab.path = self.home_path
+
         return screen
 
     def side_panel_toggle(self):
