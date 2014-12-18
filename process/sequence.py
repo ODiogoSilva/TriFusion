@@ -1000,6 +1000,14 @@ class AlignmentList (Alignment, Base, MissingFilter):
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
 
+    def clear_files(self):
+        """
+        Removes all Alignment objects from the AlignmentList
+        :return:
+        """
+
+        self.alignment_object_list = []
+
     def select_by_taxa(self, taxa_list, mode="strict", verbose=True):
         """ This method is used to selected gene alignments according to a list
          of taxa. The modes of the method include:
