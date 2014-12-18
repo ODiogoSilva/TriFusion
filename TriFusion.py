@@ -295,7 +295,7 @@ class TriFusionApp(App):
                                   size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Setting horizontal text size for shortening
-                bt.text_size[0] = bt.size[0] * 1.8
+                bt.text_size[0] = bt.size[0] * 1.3
                 # Binding functionality to toggle button
                 bt.bind(on_release=self.toggle_selection)
 
@@ -347,7 +347,7 @@ class TriFusionApp(App):
                                   size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Setting horizontal text size for shortening
-                bt.text_size[0] = bt.size[0] * 1.8
+                bt.text_size[0] = bt.size[0] * 1.3
                 # Binding functionality to toggle button
                 bt.bind(on_release=self.toggle_selection)
 
@@ -654,8 +654,6 @@ class TriFusionApp(App):
         """
 
         file_inf = {}
-
-
 
 if __name__ == '__main__':
     TriFusionApp().run()
