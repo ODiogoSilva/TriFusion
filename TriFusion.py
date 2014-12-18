@@ -29,6 +29,12 @@ from kivy.app import App
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
 from kivy.animation import Animation
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.rst import RstDocument
+from kivy.uix.boxlayout import BoxLayout
+from kivy.clock import Clock
 #from kivy.uix.gridlayout import GridLayout
 #from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
@@ -323,6 +329,7 @@ class TriFusionApp(App):
                                 height=self.root.height * 0.05,
                                 id="%s?" % tx, bold=True)
                 self.root.ids.taxa_sl.add_widget(inf_bt)
+                inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
                 x_bt = Button(text="X", size_hint=(.14, None),
@@ -334,6 +341,19 @@ class TriFusionApp(App):
                 # Updates the size of the grid layout according to the added
                 # button
                 self.root.ids.taxa_sl.height += self.root.height * 0.068
+
+    def popup_info(self, value):
+
+        content = TextInput(text="Sequence length: \n"
+                                 "Number of indels: \n"
+                                 "Effective sequence: length: \n"
+                                 "-------------------"
+                                 "Proportions (A, T, C, G): \n")
+
+        popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
+                          size_hint=(None, None), size=(400, 400))
+
+        popup_wgt.open()
 
     def remove_bt(self, value):
         """
