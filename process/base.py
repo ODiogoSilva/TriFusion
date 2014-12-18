@@ -201,8 +201,9 @@ class Base ():
                          if len(commonseq) != len(value))
 
         if diflength != {}:
-            print("\nWARNING: Unequal sequence length detected in %s" %
-                  current_file)
+            return False
+        else:
+            return True
 
     def read_basic_csv(self, file_handle):
         """ This will parse a simples csv file with only one column and one
