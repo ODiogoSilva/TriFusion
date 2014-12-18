@@ -485,8 +485,7 @@ class TriFusionApp(App):
             self.active_alignment_list.remove_taxa([bt_idx])
             self.active_taxa_list = self.active_alignment_list.taxa_names
 
-    @staticmethod
-    def select_bt(value):
+    def select_bt(self, value):
         """
         Functionality to the Select All/Deselect All buttons of the side
         panel. The method was made in such a way that it could be of general
@@ -501,10 +500,32 @@ class TriFusionApp(App):
         for i in sv_parent.children[0].children:
             # Skips the X buttons
             if "togglebutton" in str(i.__class__):
+
                 if value.text == "Select All":
+                    # App related action
                     i.state = "down"
+
+                    # Core changes to files
+                    if sv_parent == self.root.ids.sv_file:
+                        self.active_file_list = deepcopy(self.file_list)
+                        self.active_alignment_list = deepcopy(
+                            self.alignment_list)
+                    #Core changes to taxa
+                    if sv_parent == self.root.ids.sv_sp:
+                        self.active_taxa_list = deepcopy(
+                            self.alignment_list.taxa_names)
+
                 elif value.text == "Deselect All":
+                    # App related action
                     i.state = "normal"
+
+                    # Core changes to files
+                    if sv_parent == self.root.ids.sv_file:
+                        self.active_file_list = []
+                        self.active_alignment_list.clear_files()
+                    # Core changes to taxa
+                    if sv_parent == self.root.ids.sv_sp:
+                        self.active_taxa_list = []
 
     ###################################
     #
@@ -551,36 +572,48 @@ class TriFusionApp(App):
 
             # Get full sequence
             sequence = ""
-            for aln in self.active_alignment_list:
-                if tx in aln.alignment:
-                    sequence += aln.alignment[tx]
+            if self.active_alignment_list.alignment_object_list:
+                for aln in self.active_alignment_list:
+                    if tx in aln.alignment:
+                        sequence += aln.alignment[tx]
+                    else:
+                        tx_missing += 1
                 else:
-                    tx_missing += 1
+                    # Retrieve missing data symbol
+                    missing_symbol = aln.sequence_code[1]
+
+                # Get sequence length
+                seq_len = len(sequence)
+                tx_inf["length"] = seq_len
+
+                # Get indel number.
+                tx_inf["indel"] = sequence.count("-")
+
+                # Get missing data
+                tx_inf["missing"] = sequence.count(missing_symbol)
+
+                # Get effective sequence length in absolute and percentage
+                tx_inf["effective_len"] = seq_len - (tx_inf["indel"] +
+                                                          tx_inf["missing"])
+                tx_inf["effective_len_per"] = round(
+                    (tx_inf["effective_len"] * 100) / seq_len, 2)
+
+                # Get number of files containing the taxa in absolute and
+                # percentage
+                tx_inf["fl_coverage"] = len(
+                    self.active_alignment_list.alignment_object_list) - \
+                    tx_missing
+                tx_inf["fl_coverage_per"] = round(((tx_inf["fl_coverage"] * 100)
+                    / len(self.active_alignment_list.alignment_object_list)), 2)
+
             else:
-                # Retrieve missing data symbol
-                missing_symbol = aln.sequence_code[1]
-
-            # Get sequence length
-            seq_len = len(sequence)
-            tx_inf["length"] = seq_len
-
-            # Get indel number.
-            tx_inf["indel"] = sequence.count("-")
-
-            # Get missing data
-            tx_inf["missing"] = sequence.count(missing_symbol)
-
-            # Get effective sequence length in absolute and percentage
-            tx_inf["effective_len"] = seq_len - (tx_inf["indel"] +
-                                                      tx_inf["missing"])
-            tx_inf["effective_len_per"] = round(
-                (tx_inf["effective_len"] * 100) / seq_len, 2)
-
-            # Get number of files containing the taxa in absolute and percentage
-            tx_inf["fl_coverage"] = len(
-                self.active_alignment_list.alignment_object_list) - tx_missing
-            tx_inf["fl_coverage_per"] = round(((tx_inf["fl_coverage"] * 100) /
-                len(self.active_alignment_list.alignment_object_list)), 2)
+                tx_inf["length"] = "NA"
+                tx_inf["indel"] = "NA"
+                tx_inf["missing"] = "NA"
+                tx_inf["effective_len"] = "NA"
+                tx_inf["effective_len_per"] = "NA"
+                tx_inf["fl_coverage"] = "NA"
+                tx_inf["fl_coverage_per"] = "NA"
 
         return tx_inf
 
