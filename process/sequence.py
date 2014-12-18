@@ -847,6 +847,13 @@ class AlignmentList (Alignment, Base, MissingFilter):
         """
         return [alignment.name for alignment in self.alignment_object_list]
 
+    def _add_alignment(self, alignment_obj):
+        """
+        Adds a new Alignment object
+        """
+
+        self.alignment_object_list.append(alignment_obj)
+
     def iter_alignment_dic(self):
         """ Returns a list of the dictionary alignments """
 
