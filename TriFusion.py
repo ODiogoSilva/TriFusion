@@ -445,7 +445,7 @@ class TriFusionApp(App):
 
     ###################################
     #
-    # CORE RELATED METHODS AND FUCTIONS
+    # CORE RELATED METHODS AND FUNCTIONS
     #
     ###################################
 
@@ -472,8 +472,8 @@ class TriFusionApp(App):
         a number of related attributes.
 
         # TODO:
-        It will probably be usefull to provide information for both complete
-        and active datasets
+        It will probably be useful to provide information for both complete
+        and active data sets
         """
 
         # main storage defined in class initialization:
