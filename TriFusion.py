@@ -368,42 +368,45 @@ class TriFusionApp(App):
         :param value: the button object is provided when binding
         """
 
-        # Get the information from the content list. This is done when
-        # calling the popup to avoid repeating this operation every time taxa
-        #  or files are added/removed.
-        self.active_tx_inf = self.get_taxa_information()
+        # Determining if the request comes from file or taxa tab
+        if value.parent == self.root.ids.taxa_sl:
 
-        # For now, the pop up content will be in a CodeInput widget because
-        # it is the only widget (along with TextInput) that allow text
-        # selection and it may be even possible to add text formatting using
-        # python lexer.
-        content = CodeInput(text=" -- Complete data set -- \n"
-                                 "Sequence length: %s\n"
-                                 "Number of indels: %s\n"
-                                 "Number missing data: %s\n"
-                                 "Effective sequence: length: %s (%s%%)\n"
-                                 "File coverage: %s (%s%%)\n\n"
-                                 " -- Active data set -- \n"
-                                 "Sequence length: %s\n"
-                                 "Number of indels: %s\n"
-                                 "Number missing data: %s\n"
-                                 "Effective sequence length: %s (%s%%)\n"
-                                 "File coverage: %s (%s%%)\n" % (
-                                 self.original_tx_inf["length"],
-                                 self.original_tx_inf["indel"],
-                                 self.original_tx_inf["missing"],
-                                 self.original_tx_inf["effective_len"],
-                                 self.original_tx_inf["effective_len_per"],
-                                 self.original_tx_inf["fl_coverage"],
-                                 self.original_tx_inf["fl_coverage_per"],
-                                 self.active_tx_inf["length"],
-                                 self.active_tx_inf["indel"],
-                                 self.active_tx_inf["missing"],
-                                 self.active_tx_inf["effective_len"],
-                                 self.active_tx_inf["effective_len_per"],
-                                 self.active_tx_inf["fl_coverage"],
-                                 self.active_tx_inf["fl_coverage_per"]),
-                            readonly=True)
+            # Get the information from the content list. This is done when
+            # calling the popup to avoid repeating this operation every time
+            # taxa  or files are added/removed.
+            self.active_tx_inf = self.get_taxa_information()
+
+            # For now, the pop up content will be in a CodeInput widget because
+            # it is the only widget (along with TextInput) that allow text
+            # selection and it may be even possible to add text formatting using
+            # python lexer.
+            content = CodeInput(text=" -- Complete data set -- \n"
+                                     "Sequence length: %s\n"
+                                     "Number of indels: %s\n"
+                                     "Number missing data: %s\n"
+                                     "Effective sequence: length: %s (%s%%)\n"
+                                     "File coverage: %s (%s%%)\n\n"
+                                     " -- Active data set -- \n"
+                                     "Sequence length: %s\n"
+                                     "Number of indels: %s\n"
+                                     "Number missing data: %s\n"
+                                     "Effective sequence length: %s (%s%%)\n"
+                                     "File coverage: %s (%s%%)\n" % (
+                                     self.original_tx_inf["length"],
+                                     self.original_tx_inf["indel"],
+                                     self.original_tx_inf["missing"],
+                                     self.original_tx_inf["effective_len"],
+                                     self.original_tx_inf["effective_len_per"],
+                                     self.original_tx_inf["fl_coverage"],
+                                     self.original_tx_inf["fl_coverage_per"],
+                                     self.active_tx_inf["length"],
+                                     self.active_tx_inf["indel"],
+                                     self.active_tx_inf["missing"],
+                                     self.active_tx_inf["effective_len"],
+                                     self.active_tx_inf["effective_len_per"],
+                                     self.active_tx_inf["fl_coverage"],
+                                     self.active_tx_inf["fl_coverage_per"]),
+                                readonly=True)
 
         popup_wgt = Popup(title="Taxon: %s" % value.id[:-1], content=content,
                           size_hint=(None, None), size=(400, 400))
@@ -618,6 +621,15 @@ class TriFusionApp(App):
                 tx_inf["fl_coverage_per"] = "NA"
 
         return tx_inf
+
+    def get_file_information(self):
+        """
+        Simiar to get_taxa_information, but generating information for the
+        files in the file tab.
+        """
+
+        file_inf = {}
+
 
 
 if __name__ == '__main__':
