@@ -815,6 +815,12 @@ class AlignmentList (Alignment, Base, MissingFilter):
         # list of taxon names
         self.taxa_names = self._get_taxa_list()
 
+    def __iter__(self):
+        """
+        Iterate over Alignment objects
+        """
+        return iter(self.alignment_object_list)
+
     def _get_format(self):
         """ Gets the input format of the first alignment in the list """
 
