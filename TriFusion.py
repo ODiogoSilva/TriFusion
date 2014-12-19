@@ -120,6 +120,9 @@ class TriFusionApp(App):
     # dictionaries
     original_tx_inf = None
     active_tx_inf = None
+    # Same as before but for file information
+    original_file_inf = None
+    active_file_inf = None
 
     ##################################
     #
@@ -183,7 +186,6 @@ class TriFusionApp(App):
 
         # If the screen to be loaded is the filechooser, set the home path as
         # the default
-        print(self.available_screens[idx])
         if self.available_screens[idx] == "data/screens/fc.kv":
             screen.ids.icon_view_tab.path = self.home_path
 
@@ -244,8 +246,9 @@ class TriFusionApp(App):
         self.update_taxa()
         # Populates files and taxa contents
         self.update_tabs()
-        # Gathers taxa information
+        # Gathers taxa  and file information
         self.original_tx_inf = self.get_taxa_information()
+        self.original_file_inf = self.get_file_information()
 
     def update_tabs(self):
 
@@ -307,6 +310,7 @@ class TriFusionApp(App):
                                 height=self.root.height * 0.05,
                                 id="%s?" % infile, bold=True)
                 self.root.ids.file_sl.add_widget(inf_bt)
+                inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
                 x_bt = Button(text="X", size_hint=(.14, None),
@@ -432,10 +436,35 @@ class TriFusionApp(App):
 
         elif value.parent == self.root.ids.file_sl:
 
-            content = CodeInput(text=" -- Complete data set --\n"
-                                     ""
-                                     " -- Active data set -- \n",
-                                read_only=True)
+            # Get file name
+            file_name = value.id[:-1]
+
+            if file_name in self.active_file_list:
+
+                # Get the information from the content list. This is done when
+                # calling the popup to avoid repeating this operation every time
+                # taxa  or files are added/removed.
+                self.active_file_inf = self.get_file_information()
+
+                content = CodeInput(text=" -- Complete data set --\n"
+                                         "Number of species: %s\n"
+                                         "Alignment: %s\n"
+                                         "Sequence size: %s\n"
+                                         " -- Active data set -- \n"
+                                         "Number of species: %s\n"
+                                         "Sequence size: %s\n" % (
+                                 self.original_file_inf[file_name]["n_taxa"],
+                                 self.original_file_inf[file_name]["is_aln"],
+                                 self.original_file_inf[file_name]["aln_len"],
+                                 self.active_file_inf[file_name]["n_taxa"],
+                                 self.active_file_inf[file_name]["aln_len"]),
+                                    read_only=True)
+
+                popup_wgt = Popup(title="File: %s" % file_name,
+                                  content=content, size_hint=(None, None),
+                                  size=(400, 400))
+
+                popup_wgt.open()
 
     def toggle_selection(self, value):
         """
@@ -586,7 +615,7 @@ class TriFusionApp(App):
         applied to the currently data set) data sets.
         """
 
-        # main storage defined in class initialization:
+        # main storage defined
         tx_inf = {}
 
         for tx in self.active_taxa_list:
@@ -653,7 +682,36 @@ class TriFusionApp(App):
         files in the file tab.
         """
 
+        # main storage
         file_inf = {}
+
+        # Iterating over file path since the name of the Alignment
+        # objects contain the full path
+
+        file_path_list = [self.path + "/" + x for x in
+                          self.active_file_list]
+
+        if file_path_list:
+            for infile in file_path_list:
+                file_name = infile.split("/")[-1]
+                print(infile, file_name)
+                file_inf[file_name] = {}
+
+                # Get alignment object
+                aln = self.active_alignment_list.retrieve_alignment(infile)
+
+                # Get number of species
+                file_inf[file_name]["n_taxa"] = len([x for x in aln.iter_taxa() if
+                                                  x in self.active_taxa_list])
+
+                # Get if is alignment
+                file_inf[file_name]["is_aln"] = str(aln.is_alignment)
+
+                # Get length of largest sequence if not aligned, or alignment
+                # length
+                file_inf[file_name]["aln_len"] = aln.locus_length
+
+        return file_inf
 
 if __name__ == '__main__':
     TriFusionApp().run()
