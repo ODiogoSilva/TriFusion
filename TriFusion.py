@@ -466,6 +466,14 @@ class TriFusionApp(App):
 
                 popup_wgt.open()
 
+    def get_mouse_pos(self):
+
+        def tracker(id):
+
+            self.mouse_position = self.root_window.mouse_pos
+
+        Clock.schedule_interval(tracker, 1)
+
     def toggle_selection(self, value):
         """
         Adds functionality for the file and taxa toggle buttons in the side
