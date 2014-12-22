@@ -528,11 +528,14 @@ class TriFusionApp(App):
         # Get the parent tab
 
         if parent_obj == self.root.ids.file_sl:
-            # Update active file list
-            self.active_file_list.remove(bt_idx)
+            # Update file list
+            self.file_list.remove(bt_idx)
             # Update alignment object list
             complete_path = self.path + "/" + bt_idx
-            self.active_alignment_list.remove_file([complete_path])
+            self.alignment_list.remove_file([complete_path])
+            # Update active attributes
+            self.active_file_list = deepcopy(self.file_list)
+            self.active_alignment_list = deepcopy(self.alignment_list)
 
             self.update_taxa()
 
