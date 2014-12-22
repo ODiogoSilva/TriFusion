@@ -251,11 +251,18 @@ class TriFusionApp(App):
         self.original_file_inf = self.get_file_information()
 
     def update_tabs(self):
+        """
+        Wrapper that updates the contents of the files and taxa tabs
+        """
 
         self.populate_input_files()
         self.populate_species()
 
     def update_taxa(self):
+        """
+        This checks whether some taxa that were specific to some file(s) were
+        removed when that file is removed.
+        """
 
         # If taxa were removed during the update, remove those buttons too
         removed_taxa = list(set(self.active_taxa_list) - set(
