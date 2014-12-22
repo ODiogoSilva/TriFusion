@@ -445,16 +445,15 @@ class TriFusionApp(App):
                 # calling the popup to avoid repeating this operation every time
                 # taxa  or files are added/removed.
                 self.active_file_inf = self.get_file_information()
-
-                content = CodeInput(text=" -- Complete data set --\n"
+                content = CodeInput(text="Alignment: %s\n"
+                                         " -- Complete data set --\n"
                                          "Number of species: %s\n"
-                                         "Alignment: %s\n"
                                          "Sequence size: %s\n"
                                          " -- Active data set -- \n"
                                          "Number of species: %s\n"
                                          "Sequence size: %s\n" % (
-                                 self.original_file_inf[file_name]["n_taxa"],
                                  self.original_file_inf[file_name]["is_aln"],
+                                 self.original_file_inf[file_name]["n_taxa"],
                                  self.original_file_inf[file_name]["aln_len"],
                                  self.active_file_inf[file_name]["n_taxa"],
                                  self.active_file_inf[file_name]["aln_len"]),
