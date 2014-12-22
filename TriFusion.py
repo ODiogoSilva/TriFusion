@@ -543,6 +543,10 @@ class TriFusionApp(App):
             # Update active attributes
             self.active_file_list = deepcopy(self.file_list)
             self.active_alignment_list = deepcopy(self.alignment_list)
+            # Update pop up content. Since the file has been removed,
+            # it should also be excluded from the complete data set
+            self.original_tx_inf = self.get_taxa_information(
+                alt_list=self.alignment_list)
 
             self.update_taxa()
 
@@ -615,17 +619,28 @@ class TriFusionApp(App):
         self.active_alignment_list = deepcopy(self.alignment_list)
         self.active_taxa_list = self.active_alignment_list.taxa_names
 
-    def get_taxa_information(self):
+    def get_taxa_information(self, alt_list=None):
         """
         This method will gather all available information for all taxa and set
         a number of related attributes. The way the method is implemented,
         allow the generation of information for both complete (if the method
         is applied in the original data set) and active (if the method is
         applied to the currently data set) data sets.
+
+        :param: alt_list: This argument provides a way to override the
+        self.active_alignment_list that is used by default. This may be helpful
+        when the complete/original list has been modified and the contents of
+        the taxa popup have to reflect those modifications. If no alternative
+        is provided, the method will use the self.active_taxa_list.
         """
 
         # main storage defined
         tx_inf = {}
+
+        if alt_list:
+            aln_list = alt_list
+        else:
+            aln_list = self.active_alignment_list
 
         for tx in self.active_taxa_list:
 
@@ -638,8 +653,8 @@ class TriFusionApp(App):
             sequence = ""
             # This assures that the information will only be gathered if the
             # active data set is not empty
-            if self.active_alignment_list.alignment_object_list:
-                for aln in self.active_alignment_list:
+            if aln_list.alignment_object_list:
+                for aln in aln_list:
                     if tx in aln.alignment:
                         sequence += aln.alignment[tx]
                     else:
@@ -667,11 +682,11 @@ class TriFusionApp(App):
                 # Get number of files containing the taxa in absolute and
                 # percentage
                 tx_inf[tx]["fl_coverage"] = len(
-                    self.active_alignment_list.alignment_object_list) - \
+                    aln_list.alignment_object_list) - \
                     tx_missing
                 tx_inf[tx]["fl_coverage_per"] = round(((
                     tx_inf[tx]["fl_coverage"] * 100) / len(
-                    self.active_alignment_list.alignment_object_list)), 2)
+                    aln_list.alignment_object_list)), 2)
 
             else:
                 # This handles the case where the active data set is empty
@@ -709,8 +724,8 @@ class TriFusionApp(App):
                 aln = self.active_alignment_list.retrieve_alignment(infile)
 
                 # Get number of species
-                file_inf[file_name]["n_taxa"] = len([x for x in aln.iter_taxa() if
-                                                  x in self.active_taxa_list])
+                file_inf[file_name]["n_taxa"] = len([x for x in aln.iter_taxa()
+                                                if x in self.active_taxa_list])
 
                 # Get if is alignment
                 file_inf[file_name]["is_aln"] = str(aln.is_alignment)
