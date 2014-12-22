@@ -540,9 +540,6 @@ class TriFusionApp(App):
             # Update alignment object list
             complete_path = self.path + "/" + bt_idx
             self.alignment_list.remove_file([complete_path])
-            # Update active attributes
-            self.active_file_list = deepcopy(self.file_list)
-            self.active_alignment_list = deepcopy(self.alignment_list)
             # Update pop up content. Since the file has been removed,
             # it should also be excluded from the complete data set
             self.original_tx_inf = self.get_taxa_information(
@@ -641,6 +638,8 @@ class TriFusionApp(App):
             aln_list = alt_list
         else:
             aln_list = self.active_alignment_list
+
+        print(aln_list.alignment_object_list)
 
         for tx in self.active_taxa_list:
 
