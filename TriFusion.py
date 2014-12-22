@@ -694,7 +694,6 @@ class TriFusionApp(App):
         if file_path_list:
             for infile in file_path_list:
                 file_name = infile.split("/")[-1]
-                print(infile, file_name)
                 file_inf[file_name] = {}
 
                 # Get alignment object
