@@ -26,7 +26,9 @@
 # NEEDS FIXING:
 # Issue 1. The size of the scrollview for the files and taxa tabs does not
 # update perfectly with the addition of taxa/files buttons
-
+# Issue 2. The side panel should not compress the contents of the main
+# screens (Orthology, Process and Statistics). A FloatLayout may be necessary
+#  instead of the BoxLayout that is currently in use.
 
 # Kivy imports
 from kivy.app import App
