@@ -458,18 +458,18 @@ class TriFusionApp(App):
                 # calling the popup to avoid repeating this operation every time
                 # taxa  or files are added/removed.
                 self.active_file_inf = self.get_file_information()
-                content = CodeInput(text="Alignment: %s\n"
-                                         " -- Complete data set --\n"
-                                         "Number of species: %s\n"
+                content = CodeInput(text="Input format: %s\n"
+                                         "Sequence type: %s\n"
+                                         "Alignment: %s\n"
                                          "Sequence size: %s\n"
-                                         " -- Active data set -- \n"
-                                         "Number of species: %s\n"
-                                         "Sequence size: %s\n" % (
-                                 self.original_file_inf[file_name]["is_aln"],
-                                 self.original_file_inf[file_name]["n_taxa"],
-                                 self.original_file_inf[file_name]["aln_len"],
-                                 self.active_file_inf[file_name]["n_taxa"],
-                                 self.active_file_inf[file_name]["aln_len"]),
+                                         "Number of taxa: %s\n"
+                                         "Model: %s\n" % (
+                             self.original_file_inf[file_name]["aln_format"],
+                             self.original_file_inf[file_name]["seq_type"],
+                             self.original_file_inf[file_name]["is_aln"],
+                             self.active_file_inf[file_name]["aln_len"],
+                             self.active_file_inf[file_name]["n_taxa"],
+                             self.active_file_inf[file_name]["model"]),
                                     read_only=True)
 
                 popup_wgt = Popup(title="File: %s" % file_name,
@@ -705,8 +705,20 @@ class TriFusionApp(App):
 
     def get_file_information(self):
         """
-        Simiar to get_taxa_information, but generating information for the
+        Similar to get_taxa_information, but generating information for the
         files in the file tab.
+
+        :return: file_inf (dictionary). Contains all relevant content for the
+        file popup. It contains the following keys:
+
+            - aln_format: The format of the input file
+            - seq_type: The sequence type. If DNA, RNA, Protein.
+            - n_taxa: Number of taxa
+            - aln_len: Length of the alignment
+            - is_aln: If the input file is in alignment format of non-aligned
+            sequence set format
+            - model: The model of sequence evolution, if applicable. This is
+            usually only present on Nexus input format
         """
 
         # main storage
@@ -725,6 +737,18 @@ class TriFusionApp(App):
 
                 # Get alignment object
                 aln = self.active_alignment_list.retrieve_alignment(infile)
+
+                # Get input format
+                file_inf[file_name]["aln_format"] = aln.input_format
+
+                # Get sequence type
+                file_inf[file_name]["seq_type"] = aln.sequence_code[0]
+
+                # Get sequence model
+                if aln.model:
+                    file_inf[file_name]["model"] = " ".join(aln.model)
+                else:
+                    file_inf[file_name]["model"] = "NA"
 
                 # Get number of species
                 file_inf[file_name]["n_taxa"] = len([x for x in aln.iter_taxa()
