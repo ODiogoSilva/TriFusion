@@ -26,7 +26,11 @@
 # NEEDS FIXING:
 # Issue 1. The size of the scrollview for the files and taxa tabs does not
 # update perfectly with the addition of taxa/files buttons
-
+#
+# TODO:
+# The FileChooser panel now encompasses the whole screen. A useful addition
+# would be a Favorites/History or whatever panel for quick access to certain
+# directories
 
 # Kivy imports
 from kivy.app import App
