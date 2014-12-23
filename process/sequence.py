@@ -859,6 +859,9 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         self.alignment_object_list.append(alignment_obj)
 
+        # Update taxa names with the new alignment
+        self.taxa_names = self._get_taxa_list()
+
     def retrieve_alignment(self, name):
         """
         :param name: string. Name of the input alignment
