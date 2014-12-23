@@ -26,9 +26,7 @@
 # NEEDS FIXING:
 # Issue 1. The size of the scrollview for the files and taxa tabs does not
 # update perfectly with the addition of taxa/files buttons
-# Issue 2. The side panel should not compress the contents of the main
-# screens (Orthology, Process and Statistics). A FloatLayout may be necessary
-#  instead of the BoxLayout that is currently in use.
+
 
 # Kivy imports
 from kivy.app import App
@@ -207,6 +205,12 @@ class TriFusionApp(App):
         self.show_side_panel = not self.show_side_panel
 
         if self.show_side_panel:
+
+            # Redraw the side panel layout. This will ensure that the widget
+            # is always on top of all widgets.
+            self.root.ids.bx1.remove_widget(self.root.ids.panel_float)
+            self.root.ids.bx1.add_widget(self.root.ids.panel_float)
+
             # The width of the side panel contents will be relative to the
             # widget width
             sv_panel_width = self.root.width * .32
