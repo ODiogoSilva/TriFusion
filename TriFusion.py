@@ -639,8 +639,6 @@ class TriFusionApp(App):
         else:
             aln_list = self.active_alignment_list
 
-        print(aln_list.alignment_object_list)
-
         for tx in self.active_taxa_list:
 
             # Add entry to storage dictionary
