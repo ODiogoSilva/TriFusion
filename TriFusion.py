@@ -635,6 +635,18 @@ class TriFusionApp(App):
         when the complete/original list has been modified and the contents of
         the taxa popup have to reflect those modifications. If no alternative
         is provided, the method will use the self.active_taxa_list.
+
+        :return: tx_inf (dictionary): Contains the relevant information for
+        the taxa popup. All corresponding values are the result of additions
+        across all active input alignments. Contains the following keys:
+
+            - length: Total alignment length including missing data and gaps
+            - indel: The number columns containing indel/gaps
+            - missing: The number of columns containing missing data
+            - effective_len: Alignment length excluding gaps and missing data
+            - effective_len_per: Same as above but in percentage
+            - fl_coverage: The number of files containing the focal taxon
+            - fl_coverage_per: Same as above but in percentage
         """
 
         # main storage defined
