@@ -55,9 +55,10 @@ from kivy.uix.screenmanager import Screen
 from process.sequence import AlignmentList
 
 # Other imports
-from os.path import dirname, join
+from os.path import dirname, join, exists
 from os.path import expanduser
 from copy import deepcopy
+import pickle
 
 
 class ShowcaseScreen(Screen):
@@ -112,6 +113,9 @@ class TriFusionApp(App):
 
     # Attribute to the home path
     home_path = expanduser("~")
+
+    # Attribute with bookmarks for file chooser
+    bookmarks = []
 
     ################################
     #
@@ -199,6 +203,37 @@ class TriFusionApp(App):
             screen.ids.icon_view_tab.path = self.home_path
 
         return screen
+
+    def init_bookmark(self):
+        """
+        This will create a pickle file containing a list with the bookmarks
+        for the file chooser menu. If no file exists, it will create an empty
+        one. If a file already exists, it will load the available bookmarks
+        """
+
+        bm_file = self.cur_dir + "/data/resources/bookmarks"
+
+        if exists(bm_file):
+            self.bookmarks = pickle.load(open(bm_file, "rb"))
+            #TODO: Load bookmarks into widget
+        else:
+            pickle.dump(self.bookmarks, open(bm_file, "wb"))
+
+    def save_bookmark(self, path):
+        """
+        This adds functionality to the FileChooser "Add bookmark" button. It
+        will grab the selected path and add it to a storage list that
+        will be saved as a pickle object
+        :param path: String containing the path of the bookmark
+        """
+
+        bm_file = self.cur_dir + "/data/resources/bookmarks"
+
+        # Load bookmarks object
+        self.bookmarks = pickle.load(open(bm_file, "rb"))
+        # Add bookmarks and save file
+        self.bookmarks.append(path)
+        pickle.dump(self.bookmarks, open(bm_file, "wb"))
 
     def side_panel_toggle(self):
         """
