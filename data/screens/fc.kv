@@ -2,23 +2,33 @@ ShowcaseScreen:
     name: "fc"
 
     BoxLayout:
-        orientation: "vertical"
-
-        FileChooserIconView:
-            id: icon_view_tab
-            multiselect: True
+        orientation: "horizontal"
 
         BoxLayout:
-            size_hint_y: .13
-            padding: 10
-            spacing: 30
-
+            size_hint_x: .3
+            orientation: "vertical"
             Button:
-                text: "Open"
-                on_release:
-                    app.load(icon_view_tab.selection)
-                    app.go_previous_screen()
+                text: "Place holder for favorites/history"
 
-            Button:
-                text: "Cancel"
-                on_release: app.go_previous_screen()
+        BoxLayout:
+            size_hint_x: .7
+            orientation: "vertical"
+
+            FileChooserIconView:
+                id: icon_view_tab
+                multiselect: True
+
+            BoxLayout:
+                size_hint_y: .13
+                padding: 10
+                spacing: 30
+
+                Button:
+                    text: "Open"
+                    on_release:
+                        app.load(icon_view_tab.selection)
+                        app.go_previous_screen()
+
+                Button:
+                    text: "Cancel"
+                    on_release: app.go_previous_screen()
