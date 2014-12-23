@@ -231,7 +231,15 @@ class TriFusionApp(App):
         Loads selected input files into the program. This should be switched
         after selecting files in a FileChooser widget. The selected files
         will be parsed and the side panel will be populated with information
-        on file names and taxa names
+        on file names and taxa names.
+
+        To allow different files to be loaded on independent occasions,
+        before performing the loading operations, the self.file_list
+        attribute that contains the full paths to the input files will be
+        checked to see if its empty or populated. When empty, attributes will
+        be loaded anew; otherwise, the existing populated attributes will be
+        extended.
+
         :param selection: list. Contains the paths to the selected input files
         """
 
