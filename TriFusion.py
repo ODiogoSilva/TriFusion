@@ -88,14 +88,15 @@ class TriFusionApp(App):
     # Setting the list of input files variable
     # The path ONLY attribute
     path = StringProperty()
-    # Only the original file names. SHOULD NOT BE MODIFIED
+    # Only the original input files. SHOULD NOT BE MODIFIED
     file_list = ListProperty()
     # Dynamic list containing only the activated files
     active_file_list = ListProperty()
-    # The original complete path. SHOULD NOT BE MODIFIED
-    file_path_list = ListProperty()
-    # Dynamic list containing only the activated path files
-    active_file_path_list = ListProperty()
+    # Dictionary mapping file names to their corresponding full paths. This
+    # attribute must exist, because some parts of the code need only the file
+    #  name instead of the full path, but a connection to the full path must
+    # be maintained for future reference
+    filename_map = {}
 
     # Setting the list of taxa names
     active_taxa_list = ListProperty()
@@ -225,7 +226,7 @@ class TriFusionApp(App):
         Animation(width=sv_bts_width, d=.3, t="out_quart").start(
             self.root.ids.sp_bts)
 
-    def load(self, selection, path):
+    def load(self, selection):
         """
         Loads selected input files into the program. This should be switched
         after selecting files in a FileChooser widget. The selected files
@@ -234,20 +235,26 @@ class TriFusionApp(App):
         :param selection: list. Contains the paths to the selected input files
         """
 
-        # Storing the path ONLY of the input files
-        self.path = path
+        if self.file_list:
+            # Updating complete and active file lists
+            self.file_list.extend(selection)
+            self.active_file_list.extend(selection)
+            # Update the filename - path mapping attribute
+            self.filename_map = dict(list(self.filename_map.items()) +
+                list((x, y) for x, y in zip([x.split("/")[-1] for x in
+                                             selection], selection)))
 
-        self.file_path_list = selection
-
-        # Setting a list containing only the file names
-        self.file_list = [x.split("/")[-1] for x in selection]
-
-        # Updating active file list and path list
-        self.active_file_list = deepcopy(self.file_list)
-        self.active_file_path_list = deepcopy(self.file_path_list)
+        else:
+            # Set an attribute with the input file list
+            self.file_list = selection
+            # Setting active file list and path list
+            self.active_file_list = deepcopy(self.file_list)
+            # Sett the filename - path mapping attribute
+            self.filename_map = dict((x, y) for x, y in zip(
+                [x.split("/")[-1] for x in selection], selection))
 
         # Parses the files into the program
-        self.load_files()
+        self.load_files(selection)
         # Update active taxa list
         self.update_taxa()
         # Populates files and taxa contents
@@ -303,10 +310,11 @@ class TriFusionApp(App):
 
         for infile in self.file_list:
 
+            file_name = infile.split("/")[-1]
             # This prevents duplicate files from being added
-            if infile not in [x.id for x in self.root.ids.file_sl.children]:
+            if file_name not in [x.id for x in self.root.ids.file_sl.children]:
 
-                bt = ToggleButton(text=infile, state="down", id=infile,
+                bt = ToggleButton(text=file_name, state="down", id=file_name,
                                   height=self.root.height * 0.05,
                                   size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
@@ -321,14 +329,15 @@ class TriFusionApp(App):
                 # Set Information button and add the widget
                 inf_bt = Button(text="?", size_hint=(.14, None),
                                 height=self.root.height * 0.05,
-                                id="%s?" % infile, bold=True)
+                                id="%s?" % file_name, bold=True)
                 self.root.ids.file_sl.add_widget(inf_bt)
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
                 x_bt = Button(text="X", size_hint=(.14, None),
-                              height=self.root.height * 0.05, id="%sX" % infile,
-                              background_color=(255, .9, .9, 1), bold=True)
+                              height=self.root.height * 0.05, id="%sX" %
+                              file_name, background_color=(255, .9, .9, 1),
+                              bold=True)
                 x_bt.bind(on_release=self.remove_bt)
                 self.root.ids.file_sl.add_widget(x_bt)
 
@@ -452,7 +461,7 @@ class TriFusionApp(App):
             # Get file name
             file_name = value.id[:-1]
 
-            if file_name in self.active_file_list:
+            if self.filename_map[file_name] in self.active_file_list:
 
                 # Get the information from the content list. This is done when
                 # calling the popup to avoid repeating this operation every time
@@ -492,15 +501,15 @@ class TriFusionApp(App):
 
             # When button is normal (unselected) remove from active list
             if value.state == "normal":
-                self.active_file_list.remove(value.id)
-                self.active_alignment_list.remove_file([self.path + "/" +
-                                                       value.id])
+                self.active_file_list.remove(self.filename_map[value.id])
+                self.active_alignment_list.remove_file(
+                    [self.filename_map[value.id]])
             # When button is down (selected) add to active list
             elif value.state == "down":
-                self.active_file_list.append(value.id)
+                self.active_file_list.append(self.filename_map[value.id])
                 self.active_alignment_list.add_alignment(
-                    self.alignment_list.retrieve_alignment(self.path + "/" +
-                                                           value.id))
+                    self.alignment_list.retrieve_alignment(
+                        self.filename_map[value.id]))
 
         # Changes concerning the taxa tab
         if parent_obj == self.root.ids.taxa_sl:
@@ -542,16 +551,22 @@ class TriFusionApp(App):
 
         if parent_obj == self.root.ids.file_sl:
             # Update file list
-            self.file_list.remove(bt_idx)
+            file_path = self.filename_map[bt_idx]
+            self.file_list.remove(file_path)
             # Update alignment object list
-            complete_path = self.path + "/" + bt_idx
-            self.alignment_list.remove_file([complete_path])
+            self.alignment_list.remove_file([self.filename_map[bt_idx]])
+            self.active_alignment_list.remove_file([self.filename_map[bt_idx]])
+
+            # Update active taxa list. This must be executed before calling
+            # self.get_taxa_information since this method relies on an
+            # updated active taxa list
+            self.update_taxa()
+
             # Update pop up content. Since the file has been removed,
             # it should also be excluded from the complete data set
             self.original_tx_inf = self.get_taxa_information(
                 alt_list=self.alignment_list)
 
-            self.update_taxa()
 
         if parent_obj == self.root.ids.taxa_sl:
             self.active_alignment_list.remove_taxa([bt_idx])
@@ -605,7 +620,7 @@ class TriFusionApp(App):
     #
     ###################################
 
-    def load_files(self):
+    def load_files(self, files):
         """
         Loads the selected input files into the program using the
         AlignmentList object.
@@ -616,11 +631,24 @@ class TriFusionApp(App):
         undo/redo functionality and as backups
         """
 
-        # Populate original alignment list
-        self.alignment_list = AlignmentList(self.file_path_list)
-        # Updating active alignment list
-        self.active_alignment_list = deepcopy(self.alignment_list)
-        self.active_taxa_list = self.active_alignment_list.taxa_names
+        aln_list = AlignmentList(files)
+
+        # In case the alignment list object is already populated with
+        # previously loaded files, then add to the object
+        if self.alignment_list:
+            for aln_obj in aln_list:
+                self.alignment_list.add_alignment(aln_obj)
+                self.active_alignment_list.add_alignment(aln_obj)
+            # Update active taxa list
+            self.active_taxa_list = self.active_alignment_list.taxa_names
+
+        # In case the alignment list object is empty, load it as is
+        else:
+            # Populate original alignment list
+            self.alignment_list = aln_list
+            # Updating active alignment list
+            self.active_alignment_list = deepcopy(self.alignment_list)
+            self.active_taxa_list = self.active_alignment_list.taxa_names
 
     def get_taxa_information(self, alt_list=None):
         """
@@ -739,11 +767,8 @@ class TriFusionApp(App):
         # Iterating over file path since the name of the Alignment
         # objects contain the full path
 
-        file_path_list = [self.path + "/" + x for x in
-                          self.active_file_list]
-
-        if file_path_list:
-            for infile in file_path_list:
+        if self.file_list:
+            for infile in self.file_list:
                 file_name = infile.split("/")[-1]
                 file_inf[file_name] = {}
 
