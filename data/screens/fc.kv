@@ -5,13 +5,30 @@ ShowcaseScreen:
         orientation: "horizontal"
 
         BoxLayout:
-            size_hint_x: .3
+            size_hint_x: .25
             orientation: "vertical"
+            padding: 10
+            spacing: 10
+
+            Label:
+                text: "Bookmarks"
+                bold: True
+                size_hint_y: .1
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+
+            ScrollView:
+                id: sv_book
+                size_hint_y:.8
+
             Button:
-                text: "Place holder for favorites/history"
+                size_hint_y: None
+                height: root.height * .08
+                text: "Add Bookmark"
 
         BoxLayout:
-            size_hint_x: .7
+            size_hint_x: .75
             orientation: "vertical"
 
             FileChooserIconView:
