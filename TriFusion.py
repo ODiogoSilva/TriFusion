@@ -27,10 +27,6 @@
 # Issue 1. The size of the scrollview for the files and taxa tabs does not
 # update perfectly with the addition of taxa/files buttons
 #
-# TODO:
-# The FileChooser panel now encompasses the whole screen. A useful addition
-# would be a Favorites/History or whatever panel for quick access to certain
-# directories
 
 # Kivy imports
 from kivy.app import App
@@ -257,12 +253,18 @@ class TriFusionApp(App):
         bookmark_name = bk.split("/")[-1]
         bt = Button(text=bookmark_name, id=bk,
                     height=self.root.height * 0.05, size_hint=(.8, None))
+        bt.bind(on_release=self.load_bookmark)
         xbt = Button(text="X", size_hint=(.14, None),
                      height=self.root.height * 0.05, id="%sX" % bk,
                      background_color=(255, .9, .9, 1), bold=True)
         xbt.bind(on_release=self.remove_bookmark_bt)
         self.screen.ids.sv_book.add_widget(bt)
         self.screen.ids.sv_book.add_widget(xbt)
+
+    def load_bookmark(self, value):
+
+        path = value.id
+        self.screen.ids.icon_view_tab.path = path
 
     def remove_bookmark_bt(self, value):
 
