@@ -11,12 +11,18 @@ ShowcaseScreen:
             spacing: 10
 
             Label:
-                text: "Bookmarks"
+                text: " Bookmarks"
                 bold: True
                 size_hint_y: .1
                 halign: "center"
                 valign: "middle"
                 text_size: self.size
+                canvas.before:
+                    Color:
+                        rgba: (0.3, 0.3, 0.3, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
 
             ScrollView:
                 size_hint_y: .8
