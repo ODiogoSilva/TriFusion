@@ -215,7 +215,9 @@ class TriFusionApp(App):
 
         if exists(bm_file):
             self.bookmarks = pickle.load(open(bm_file, "rb"))
-            #TODO: Load bookmarks into widget
+            for bk in self.bookmarks:
+                self.add_bookmark_bt(bk)
+
         else:
             pickle.dump(self.bookmarks, open(bm_file, "wb"))
 
@@ -233,7 +235,15 @@ class TriFusionApp(App):
         self.bookmarks = pickle.load(open(bm_file, "rb"))
         # Add bookmarks and save file
         self.bookmarks.append(path)
+        self.add_bookmark_bt(path)
         pickle.dump(self.bookmarks, open(bm_file, "wb"))
+
+    def add_bookmark_bt(self, bk):
+
+        bookmark_name = bk.split("/")[-1]
+        bt = Button(text=bookmark_name, id=bk + "bk",
+                    height=self.root.height * 0.05, size_hint_x=None)
+        self.root.ids.sv_book.add_widget(bt)
 
     def side_panel_toggle(self):
         """
