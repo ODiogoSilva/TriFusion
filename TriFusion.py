@@ -117,8 +117,11 @@ class TriFusionApp(App):
     # Attribute to the home path
     home_path = expanduser("~")
 
-    # Attribute with bookmarks for file chooser
-    bookmarks = []
+    # Attribute with bookmarks for file chooser. The bookmark attribute is a
+    # list containing a list with the full path of the bookmarks as the
+    # first element and a dictionary mapping the full path to the bookmark
+    # name as the second element
+    bookmarks = [[], {}]
 
     ################################
     #
@@ -220,7 +223,9 @@ class TriFusionApp(App):
 
         if exists(bm_file):
             self.bookmarks = pickle.load(open(bm_file, "rb"))
-            for bk in self.bookmarks:
+            # Retrieving the bookmark path list from the self.bookmarks
+            bk_list = self.bookmarks[0]
+            for bk in bk_list:
                 self.add_bookmark_bt(bk)
 
         else:
@@ -238,18 +243,22 @@ class TriFusionApp(App):
 
         # Load bookmarks object
         self.bookmarks = pickle.load(open(bm_file, "rb"))
-        # Add bookmarks and save file
-        self.bookmarks.append(path)
+        # Add bookmarks to the full path list
+        self.bookmarks[0].append(path)
+        # Add mapping of the full path to the bookmark name
+        new_map = {path.split("/")[-1]: path}
+        self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
+                                 list(new_map.items()))
         self.add_bookmark_bt(path)
         pickle.dump(self.bookmarks, open(bm_file, "wb"))
 
     def add_bookmark_bt(self, bk):
 
         bookmark_name = bk.split("/")[-1]
-        bt = Button(text=bookmark_name, id=bk + "bk",
+        bt = Button(text=bookmark_name, id=bk,
                     height=self.root.height * 0.05, size_hint=(.8, None))
         xbt = Button(text="X", size_hint=(.14, None),
-                     height=self.root.height * 0.05, id="%sbkX" % bk,
+                     height=self.root.height * 0.05, id="%sX" % bk,
                      background_color=(255, .9, .9, 1), bold=True)
         xbt.bind(on_release=self.remove_bookmark_bt)
         self.screen.ids.sv_book.add_widget(bt)
@@ -264,6 +273,11 @@ class TriFusionApp(App):
 
         parent_obj.remove_widget(value)
         parent_obj.remove_widget(bk_bt)
+
+        # Core changes
+        bk_name = bk_idx.split("/")[-1]
+        self.bookmarks[0].remove(bk_idx)
+        del self.bookmarks[1][bk_name]
 
     def side_panel_toggle(self):
         """
