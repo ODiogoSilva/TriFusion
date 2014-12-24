@@ -81,6 +81,9 @@ class TriFusionApp(App):
     # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
 
+    # Attribute for current screen object
+    screen = None
+
     # Variable containing screen names
     screen_names = ListProperty()
     available_screens = ListProperty()
@@ -195,14 +198,16 @@ class TriFusionApp(App):
         Loads the current screen according to the corresponding kv file
         :param idx: The index of the screen to be loaded
         """
-        screen = Builder.load_file(self.available_screens[idx])
+        self.screen = Builder.load_file(self.available_screens[idx])
 
         # If the screen to be loaded is the filechooser, set the home path as
         # the default
-        if self.available_screens[idx] == "data/screens/fc.kv":
-            screen.ids.icon_view_tab.path = self.home_path
+        if self.available_screens[idx].split("/")[-1] == "fc.kv":
+            self.screen.ids.icon_view_tab.path = self.home_path
+            # Initialize bookmarks
+            self.init_bookmark()
 
-        return screen
+        return self.screen
 
     def init_bookmark(self):
         """
@@ -242,8 +247,12 @@ class TriFusionApp(App):
 
         bookmark_name = bk.split("/")[-1]
         bt = Button(text=bookmark_name, id=bk + "bk",
-                    height=self.root.height * 0.05, size_hint_x=None)
-        self.root.ids.sv_book.add_widget(bt)
+                    height=self.root.height * 0.05, size_hint=(.8, None))
+        xbt = Button(text="X", size_hint=(.14, None),
+                     height=self.root.height * 0.05, id="%sbkX" % bk,
+                     background_color=(255, .9, .9, 1), bold=True)
+        self.screen.ids.sv_book.add_widget(bt)
+        self.screen.ids.sv_book.add_widget(xbt)
 
     def side_panel_toggle(self):
         """

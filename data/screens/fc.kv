@@ -19,13 +19,19 @@ ShowcaseScreen:
                 text_size: self.size
 
             ScrollView:
-                id: sv_book
-                size_hint_y:.8
+                size_hint_y: .8
+                GridLayout:
+                    cols: 2
+                    id: sv_book
+                    orientation: "vertical"
+                    spacing: [5, 10]
+
 
             Button:
                 size_hint_y: None
                 height: root.height * .08
                 text: "Add Bookmark"
+                on_release: app.save_bookmark(icon_view_tab.path)
 
         BoxLayout:
             size_hint_x: .75
