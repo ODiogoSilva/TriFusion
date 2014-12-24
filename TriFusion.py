@@ -118,6 +118,7 @@ class TriFusionApp(App):
     # first element and a dictionary mapping the full path to the bookmark
     # name as the second element
     bookmarks = [[], {}]
+    bm_file = cur_dir + "/data/resources/bookmarks"
 
     ################################
     #
@@ -215,17 +216,15 @@ class TriFusionApp(App):
         one. If a file already exists, it will load the available bookmarks
         """
 
-        bm_file = self.cur_dir + "/data/resources/bookmarks"
-
-        if exists(bm_file):
-            self.bookmarks = pickle.load(open(bm_file, "rb"))
+        if exists(self.bm_file):
+            self.bookmarks = pickle.load(open(self.bm_file, "rb"))
             # Retrieving the bookmark path list from the self.bookmarks
             bk_list = self.bookmarks[0]
             for bk in bk_list:
                 self.add_bookmark_bt(bk)
 
         else:
-            pickle.dump(self.bookmarks, open(bm_file, "wb"))
+            pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     def save_bookmark(self, path):
         """
@@ -235,10 +234,8 @@ class TriFusionApp(App):
         :param path: String containing the path of the bookmark
         """
 
-        bm_file = self.cur_dir + "/data/resources/bookmarks"
-
         # Load bookmarks object
-        self.bookmarks = pickle.load(open(bm_file, "rb"))
+        self.bookmarks = pickle.load(open(self.bm_file, "rb"))
         # Add bookmarks to the full path list
         self.bookmarks[0].append(path)
         # Add mapping of the full path to the bookmark name
@@ -246,7 +243,7 @@ class TriFusionApp(App):
         self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
                                  list(new_map.items()))
         self.add_bookmark_bt(path)
-        pickle.dump(self.bookmarks, open(bm_file, "wb"))
+        pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     def add_bookmark_bt(self, bk):
 
@@ -280,6 +277,7 @@ class TriFusionApp(App):
         bk_name = bk_idx.split("/")[-1]
         self.bookmarks[0].remove(bk_idx)
         del self.bookmarks[1][bk_name]
+        pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     def side_panel_toggle(self):
         """
