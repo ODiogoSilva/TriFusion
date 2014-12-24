@@ -251,6 +251,7 @@ class TriFusionApp(App):
         xbt = Button(text="X", size_hint=(.14, None),
                      height=self.root.height * 0.05, id="%sbkX" % bk,
                      background_color=(255, .9, .9, 1), bold=True)
+        xbt.bind(on_release=self.remove_bookmark_bt)
         self.screen.ids.sv_book.add_widget(bt)
         self.screen.ids.sv_book.add_widget(xbt)
 
