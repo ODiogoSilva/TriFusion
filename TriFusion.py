@@ -254,6 +254,16 @@ class TriFusionApp(App):
         self.screen.ids.sv_book.add_widget(bt)
         self.screen.ids.sv_book.add_widget(xbt)
 
+    def remove_bookmark_bt(self, value):
+
+        parent_obj = value.parent
+
+        bk_idx = value.id[:-1]
+        bk_bt = [x for x in parent_obj.children if bk_idx == x.id][0]
+
+        parent_obj.remove_widget(value)
+        parent_obj.remove_widget(bk_bt)
+
     def side_panel_toggle(self):
         """
         Method controlling the animation toggling of the side panel
