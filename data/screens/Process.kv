@@ -1,13 +1,115 @@
+<FormatBt@Button>:
+    size_hint_y: None
+    height: 10
+
+<Sidebt@Button>:
+    #background_color: [0,0,0,1]
+    size_hint_y: None
+    height: 70
+
+# Vertical light grey separator
+<Vseparator@Widget>:
+    size_hint_x: None
+    width: 3
+    canvas:
+        Color:
+            rgb: .9, .9, .9
+        Rectangle:
+            pos: self.center_x, -5
+            size: .3, self.height
+
+# Horizontal light grey separator
+<Hseparator@Widget>:
+    size_hint_y: None
+    height: 3
+    canvas:
+        Color:
+            rgb: .9, .9, .9
+        Rectangle:
+            pos: 0, self.center_y
+            size: self.width, .2
+
+<LightBox@BoxLayout>:
+    height: 70
+    orientation: "horizontal"
+    size_hint_y: None
+    padding: 10
+    canvas.before:
+        Color:
+            rgba: (.2, .2, .2, .8)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<DarkBox@BoxLayout>:
+    height: 70
+    orientation: "horizontal"
+    size_hint_y: None
+    padding: 10
+
+<Hseparator@Widget>:
+    size_hint_y: None
+    height: 3
+    canvas:
+        Color:
+            rgb: .9, .9, .9
+        Rectangle:
+            pos: -2, self.center_y
+            size: self.width , .2
+
 ShowcaseScreen:
     name: "Process"
 
-    ScrollView:
-        Accordion:
-            orientation: "vertical"
+    BoxLayout:
+        orientation: "horizontal"
 
-            AccordionItem:
-                title: "Main operations"
-                collapse: False
-            AccordionItem:
-                title: "Alternative operations"
-                collapse: True
+        #This will be the side selectors
+        GridLayout:
+            cols:1
+            size_hint_x: .25
+            padding: 5
+            spacing: 1
+            Sidebt:
+                text: "Conversion/Concatenation"
+                state: "down"
+            Sidebt:
+                text: "Filter"
+            Sidebt:
+                text: "Gcoder"
+
+        Vseparator
+
+        # This will be the main screen with the options and stuff
+        ScrollView:
+            size_hint_x: .75
+            GridLayout:
+                orientation: "vertical"
+                cols: 1
+
+                DarkBox:
+                    Label:
+                        size_hint_x: .8
+                        markup: True
+                        text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
+                        halign: "left"
+                        valign: "middle"
+                        text_size: self.size
+                    Button:
+                        background_color: 0,0,0,1
+                        size_hint_x: .2
+                        bold: True
+                        text: "Fasta"
+
+                Hseparator
+
+                LightBox:
+                    Label:
+                        size_hint_x: .8
+                        markup: True
+                        text: "[size=18][b]Concatenation[/b][/size]\n[size=13]Set on to perform concatenation of selected files. Otherwise it will convert[/size]"
+                        halign: "left"
+                        valign: "middle"
+                        text_size: self.size
+                    Switch:
+                        size_hint_x: .2
+
