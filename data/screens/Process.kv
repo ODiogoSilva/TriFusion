@@ -2,10 +2,12 @@
     size_hint_y: None
     height: 10
 
-<Sidebt@Button>:
+<Sidebt@ToggleButton>:
     #background_color: [0,0,0,1]
     size_hint_y: None
     height: 70
+    background_normal: "data/backgrounds/bt_sideprocess_normal.png"
+    background_down: "data/backgrounds/bt_sideprocess.png"
 
 # Vertical light grey separator
 <Vseparator@Widget>:
@@ -56,18 +58,21 @@ ShowcaseScreen:
         GridLayout:
             cols:1
             size_hint_x: .25
-            padding: 5
-            spacing: 1
+            padding: 10
+            spacing: 10
             Sidebt:
                 text: "Conversion/Concatenation"
                 state: "down"
+                group: "process_panel"
                 on_release: carousel.load_slide(carousel.slides[0])
             Sidebt:
                 text: "Filter"
                 on_release: carousel.load_slide(carousel.slides[1])
+                group: "process_panel"
             Sidebt:
                 text: "Gcoder"
                 on_release: carousel.load_slide(carousel.slides[2])
+                group: "process_panel"
 
         Vseparator
 
