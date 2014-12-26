@@ -13,24 +13,13 @@
     width: 3
     canvas:
         Color:
-            rgb: .9, .9, .9
+            rgb: .5, .5, .5
         Rectangle:
             pos: self.center_x, -5
             size: .3, self.height
 
-# Horizontal light grey separator
-<Hseparator@Widget>:
-    size_hint_y: None
-    height: 3
-    canvas:
-        Color:
-            rgb: .9, .9, .9
-        Rectangle:
-            pos: 0, self.center_y
-            size: self.width, .2
-
 <LightBox@BoxLayout>:
-    height: 70
+    height: 35
     orientation: "horizontal"
     size_hint_y: None
     padding: 10
@@ -49,13 +38,13 @@
 
 <Hseparator@Widget>:
     size_hint_y: None
-    height: 3
+    height: 1
     canvas:
         Color:
-            rgb: .9, .9, .9
+            rgb: .5, .5, .5
         Rectangle:
-            pos: -2, self.center_y
-            size: self.width , .2
+            pos: 0, self.center_y
+            size: self.width*1.5, .2
 
 ShowcaseScreen:
     name: "Process"
@@ -91,6 +80,31 @@ ShowcaseScreen:
                 GridLayout:
                     orientation: "vertical"
                     cols: 1
+                    padding: 5
+                    spacing: 5
+
+                    LightBox:
+                        Label:
+                            markup: True
+                            text: "[size=15][b]General[/b][/size]"
+                            halign: "left"
+                            valign: "middle"
+                            text_size: self.size
+
+                    Hseparator
+
+                    DarkBox:
+                        Label:
+                            size_hint_x: .8
+                            markup: True
+                            text: "[size=18][b]Concatenation[/b][/size]\n[size=13]Set on to perform concatenation of selected files. Otherwise it will convert[/size]"
+                            halign: "left"
+                            valign: "middle"
+                            text_size: self.size
+                        Switch:
+                            size_hint_x: .2
+
+                    Hseparator
 
                     DarkBox:
                         Label:
@@ -101,23 +115,12 @@ ShowcaseScreen:
                             valign: "middle"
                             text_size: self.size
                         Button:
-                            background_color: 0,0,0,1
+                            background_normal: "data/backgrounds/bt_process.png"
                             size_hint_x: .2
                             bold: True
                             text: "Fasta"
 
                     Hseparator
-
-                    LightBox:
-                        Label:
-                            size_hint_x: .8
-                            markup: True
-                            text: "[size=18][b]Concatenation[/b][/size]\n[size=13]Set on to perform concatenation of selected files. Otherwise it will convert[/size]"
-                            halign: "left"
-                            valign: "middle"
-                            text_size: self.size
-                        Switch:
-                            size_hint_x: .2
 
                 Button
 
