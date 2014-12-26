@@ -1,7 +1,3 @@
-<FormatBt@Button>:
-    size_hint_y: None
-    height: 10
-
 <Sidebt@ToggleButton>:
     #background_color: [0,0,0,1]
     size_hint_y: None
@@ -21,7 +17,7 @@
             size: .3, self.height
 
 <LightBox@BoxLayout>:
-    height: 35
+    height: 40
     orientation: "horizontal"
     size_hint_y: None
     padding: 10
@@ -33,20 +29,22 @@
             size: self.size
 
 <DarkBox@BoxLayout>:
-    height: 70
+    height: 60
     orientation: "horizontal"
     size_hint_y: None
     padding: 10
 
 <Hseparator@Widget>:
     size_hint_y: None
-    height: 1
+    height: self.thickness + 2 * self.margin
+    thickness: 1
+    margin: 1
     canvas:
         Color:
             rgb: .5, .5, .5
         Rectangle:
-            pos: 0, self.center_y
-            size: self.width*1.5, .2
+            pos: self.x + self.margin, self.y + self.margin +1
+            size: self.width - 2 * self.margin, self.thickness
 
 ShowcaseScreen:
     name: "Process"
@@ -73,59 +71,144 @@ ShowcaseScreen:
                 text: "Gcoder"
                 on_release: carousel.load_slide(carousel.slides[2])
                 group: "process_panel"
+            Widget
+            Button:
+                size_hint_y: .30
+                background_normal: "data/backgrounds/process_exec.png"
+                background_down: "data/backgrounds/process_exec_down.png"
+                text: "Execute"
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                color: (0.2,0.2,0.2,1)
+
 
         Vseparator
 
         # This will be the main screen with the options and stuff
+
+        # The inclusion of the Carousel in the ScrollView is apparently
+        # necessary. Otherwise, widgets in general will not respond as they
+        # should to touch events
         ScrollView:
             size_hint_x: .75
             Carousel:
                 id: carousel
                 direction: "bottom"
-                GridLayout:
+                BoxLayout:
                     orientation: "vertical"
-                    cols: 1
-                    padding: 5
-                    spacing: 5
 
-                    LightBox:
-                        Label:
-                            markup: True
-                            text: "[size=15][b]General[/b][/size]"
-                            halign: "left"
-                            valign: "middle"
-                            text_size: self.size
+                    ScrollView:
+                        size_hint_y: .85
 
-                    Hseparator
+                        GridLayout:
+                            orientation: "vertical"
+                            cols: 1
+                            padding: 5
+                            spacing: 5
+                            height: root.height*1.15
+                            size_hint_y: None
 
-                    DarkBox:
-                        Label:
-                            size_hint_x: .8
-                            markup: True
-                            text: "[size=18][b]Concatenation[/b][/size]\n[size=13]Set on to perform concatenation of selected files. Otherwise it will convert[/size]"
-                            halign: "left"
-                            valign: "middle"
-                            text_size: self.size
-                        Switch:
-                            size_hint_x: .2
+                            LightBox:
+                                Label:
+                                    markup: True
+                                    text: "[size=15][b]General[/b][/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: [.85, .85, .85, 1]
+                                    text_size: self.size
 
-                    Hseparator
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Concatenation[/b][/size]\n[size=13]Set on to perform concatenation of selected files. Otherwise it will convert[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Switch:
+                                    size_hint_x: .2
 
-                    DarkBox:
-                        Label:
-                            size_hint_x: .8
-                            markup: True
-                            text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
-                            halign: "left"
-                            valign: "middle"
-                            text_size: self.size
-                        Button:
-                            background_normal: "data/backgrounds/bt_process.png"
-                            size_hint_x: .2
-                            bold: True
-                            text: "Fasta"
+                            Hseparator
 
-                    Hseparator
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Switch:
+                                    size_hint_x: .2
+                                    disabled: True
+
+                            Hseparator
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Button:
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    size_hint_x: .2
+                                    bold: True
+                                    text: "Fasta"
+
+                            LightBox:
+                                Label:
+                                    markup: True
+                                    text: "[size=15][b]Formatting options[/b][/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: [.85, .85, .85, 1]
+                                    text_size: self.size
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Interleave[/b][/size]\n[size=13] If sequences should be in interleave format or leave"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Switch:
+                                    size_hint_x: .2
+
+                            Hseparator
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Zorro support[/b][/size]\n[size=13] If concatenating, also concatenate auxiliary Zorro weight files"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Switch:
+                                    size_hint_x: .2
+                                    disabled: True
+
+                            Hseparator
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Substitution model[/b][/size]\n[size=13] Specify the substitution model. Only supported for Nexus and Phylip formats"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Switch:
+                                    size_hint_x: .2
+                                    disabled: True
+
+                            Hseparator
 
                 Button
 
