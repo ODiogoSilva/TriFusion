@@ -257,6 +257,71 @@ ShowcaseScreen:
 
                             Hseparator
 
-                Button
+                BoxLayout:
+                    orientation: "vertical"
+
+                    ScrollView:
+                        size_hint_y: .85
+
+                        GridLayout:
+                            orientation: "vertical"
+                            cols: 1
+                            padding: 5
+                            spacing: 5
+                            height: root.height
+                            size_hint_y: None
+
+                            LightBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=15][b]Activate sequence collapsing[/b][/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: [.85, .85, .85, 1]
+                                    text_size: self.size
+                                Switch:
+                                    size_hint_x: .2
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to of collapse procedures[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: (0.4, 0.4, 0.4, 1)
+                                    text_size: self.size
+                                Button:
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    size_hint_x: .2
+                                    bold: True
+                                    disabled: True
+                                    text: "Select..."
+
+                            LightBox:
+                                Label:
+                                    markup: True
+                                    text: "[size=15][b]General[/b][/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: [.85, .85, .85, 1]
+                                    text_size: self.size
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Haplotype prefix[/b][/size]\n[size=13]Select the prefix name for the haplotypes[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: (0.4, 0.4, 0.4, 1)
+                                    text_size: self.size
+                                Button:
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    size_hint_x: .2
+                                    bold: True
+                                    disabled: True
+                                    text: "Select..."
 
                 Button
