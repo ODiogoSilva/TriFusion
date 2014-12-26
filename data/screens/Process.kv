@@ -72,44 +72,53 @@ ShowcaseScreen:
             Sidebt:
                 text: "Conversion/Concatenation"
                 state: "down"
+                on_release: carousel.load_slide(carousel.slides[0])
             Sidebt:
                 text: "Filter"
+                on_release: carousel.load_slide(carousel.slides[1])
             Sidebt:
                 text: "Gcoder"
+                on_release: carousel.load_slide(carousel.slides[2])
 
         Vseparator
 
         # This will be the main screen with the options and stuff
         ScrollView:
             size_hint_x: .75
-            GridLayout:
-                orientation: "vertical"
-                cols: 1
+            Carousel:
+                id: carousel
+                direction: "bottom"
+                GridLayout:
+                    orientation: "vertical"
+                    cols: 1
 
-                DarkBox:
-                    Label:
-                        size_hint_x: .8
-                        markup: True
-                        text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
-                        halign: "left"
-                        valign: "middle"
-                        text_size: self.size
-                    Button:
-                        background_color: 0,0,0,1
-                        size_hint_x: .2
-                        bold: True
-                        text: "Fasta"
+                    DarkBox:
+                        Label:
+                            size_hint_x: .8
+                            markup: True
+                            text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
+                            halign: "left"
+                            valign: "middle"
+                            text_size: self.size
+                        Button:
+                            background_color: 0,0,0,1
+                            size_hint_x: .2
+                            bold: True
+                            text: "Fasta"
 
-                Hseparator
+                    Hseparator
 
-                LightBox:
-                    Label:
-                        size_hint_x: .8
-                        markup: True
-                        text: "[size=18][b]Concatenation[/b][/size]\n[size=13]Set on to perform concatenation of selected files. Otherwise it will convert[/size]"
-                        halign: "left"
-                        valign: "middle"
-                        text_size: self.size
-                    Switch:
-                        size_hint_x: .2
+                    LightBox:
+                        Label:
+                            size_hint_x: .8
+                            markup: True
+                            text: "[size=18][b]Concatenation[/b][/size]\n[size=13]Set on to perform concatenation of selected files. Otherwise it will convert[/size]"
+                            halign: "left"
+                            valign: "middle"
+                            text_size: self.size
+                        Switch:
+                            size_hint_x: .2
 
+                Button
+
+                Button
