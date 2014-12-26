@@ -73,7 +73,7 @@ ShowcaseScreen:
                 group: "process_panel"
                 on_release: carousel.load_slide(carousel.slides[0])
             Sidebt:
-                text: "Filter"
+                text: "Collapse"
                 on_release: carousel.load_slide(carousel.slides[1])
                 group: "process_panel"
             Sidebt:
@@ -116,8 +116,22 @@ ShowcaseScreen:
                             cols: 1
                             padding: 5
                             spacing: 5
-                            height: root.height*1.4
+                            height: root.height*1.52
                             size_hint_y: None
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Button:
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    size_hint_x: .2
+                                    bold: True
+                                    text: "Select..."
 
                             LightBox:
                                 Label:
