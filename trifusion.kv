@@ -48,15 +48,18 @@
                 on_release: root.cancel()
 
 <FormatDialog>:
+    padding: 30
+    spacing: 10
+    orientation: "vertical"
     ToggleButton:
         id: fasta
         text: "Fasta"
     ToggleButton:
         id: phylip
-        text: "phylip"
+        text: "Phylip"
     ToggleButton:
         id: nexus
-        text: "nexus"
+        text: "Mexus"
     ToggleButton:
         id: mcmctree
         text: "MCMCTree"
@@ -64,6 +67,14 @@
         id: ima2
         text: "IMa2"
         disabled: True
+
+    BoxLayout:
+        orientation: "horizontal"
+        Button:
+            text: "Done"
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
 
 <MainHeader@ActionToggleButton>:
     size_hint_x: 1

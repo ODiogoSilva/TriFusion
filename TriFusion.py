@@ -75,7 +75,7 @@ class SaveDialog(FloatLayout):
 
 
 class FormatDialog(BoxLayout):
-    pass
+    cancel = ObjectProperty(None)
 
 
 class TriFusionApp(App):
@@ -525,10 +525,17 @@ class TriFusionApp(App):
 
             break
 
-    def show_popup(self, title, content):
+    def show_popup(self, title, content, size_hint=(.9, .9)):
 
-        self._popup = Popup(title=title, content=content, size_hint=(.9, .9))
+        self._popup = Popup(title=title, content=content, size_hint=size_hint)
         self._popup.open()
+
+    def format_dialog(self):
+
+        content = FormatDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Choose output format", content=content,
+                        size_hint=(.3, .8))
 
     def filechooser_dialog(self, value):
         """
