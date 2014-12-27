@@ -42,9 +42,11 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 #from kivy.uix.gridlayout import GridLayout
 #from kivy.uix.scrollview import ScrollView
+from kivy.factory import Factory
+from kivy.uix.floatlayout import FloatLayout
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
-    ListProperty
+    ListProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
 
 # Main program imports
@@ -64,6 +66,12 @@ class ShowcaseScreen(Screen):
         if 'content' in self.ids:
             return self.ids.content.add_widget(*args)
         return super(ShowcaseScreen, self).add_widget(*args)
+
+
+class SaveDialog(FloatLayout):
+    save = ObjectProperty(None)
+    text_input = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
 
 class TriFusionApp(App):
@@ -120,6 +128,8 @@ class TriFusionApp(App):
     bookmarks = [[], {}]
     bm_file = cur_dir + "/data/resources/bookmarks"
 
+    _popup = ObjectProperty(None)
+
     ################################
     #
     # CORE PROGRAM RELATED VARIABLES
@@ -139,6 +149,9 @@ class TriFusionApp(App):
     # Same as before but for file information
     original_file_inf = None
     active_file_inf = None
+
+    # Attribute containing the objects for the several possible output files.
+    output_files = {"conversion": None, "collapse": None, "gcoder": None}
 
     ##################################
     #
@@ -492,6 +505,35 @@ class TriFusionApp(App):
                 # Updates the size of the grid layout according to the added
                 # button
                 self.root.ids.taxa_sl.height += self.root.height * 0.068
+
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def save_file(self, path, filename, idx):
+
+        file_handle = open(join(path, filename), "w")
+
+        self.output_files[idx] = file_handle
+
+        self.screen.ids.conversion.text = filename
+
+        self.dismiss_popup()
+
+    def popup_filechooser(self, value):
+        """
+        Generates a file chooser popup for the user to select an output file
+        """
+
+        content = SaveDialog(cancel=self.dismiss_popup)
+        content.ids.sd_filechooser.path = self.home_path
+
+        if value == "conversion":
+            content.ids.sd_filechooser.text = "conversion"
+
+        self._popup = Popup(title="Choose output file",
+                 content=content, size_hint=(.9, .9))
+
+        self._popup.open()
 
     def popup_info(self, value):
         """

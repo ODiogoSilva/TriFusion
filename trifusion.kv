@@ -11,6 +11,45 @@
                 id: content
                 cols: 1
 
+<SaveDialog>:
+    id: master
+    text: "master"
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        spacing:10
+
+        FileChooserListView:
+            id: sd_filechooser
+            text: "master"
+            on_selection: text_input.text = self.selection
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 30
+            Label:
+                size_hint_x: None
+                width: 100
+                text: "File name:"
+            TextInput:
+                id: text_input
+                multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+
+            Button:
+                text: "Save"
+                on_release: app.save_file(sd_filechooser.path, text_input.text, sd_filechooser.text)
+
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+
 <MainHeader@ActionToggleButton>:
     size_hint_x: 1
     font_size: 20

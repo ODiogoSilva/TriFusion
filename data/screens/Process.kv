@@ -92,7 +92,6 @@ ShowcaseScreen:
                 text_size: self.size
                 color: (0.2,0.2,0.2,1)
 
-
         Vseparator
 
         # This will be the main screen with the options and stuff
@@ -130,8 +129,15 @@ ShowcaseScreen:
                                 Button:
                                     background_normal: "data/backgrounds/bt_process.png"
                                     size_hint_x: .2
+                                    id: conversion
+                                    shorten: True
+                                    shorten_from: "right"
+                                    text_size: self.size
+                                    halign: "center"
+                                    valign: "middle"
                                     bold: True
                                     text: "Select..."
+                                    on_release: app.popup_filechooser(self.id)
 
                             LightBox:
                                 Label:
