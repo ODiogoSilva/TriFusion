@@ -120,27 +120,6 @@ ShowcaseScreen:
                             size_hint_y: None
                             id: concatenation_slide
 
-                            DarkBox:
-                                Label:
-                                    size_hint_x: .8
-                                    markup: True
-                                    text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
-                                    halign: "left"
-                                    valign: "middle"
-                                    text_size: self.size
-                                Button:
-                                    background_normal: "data/backgrounds/bt_process.png"
-                                    size_hint_x: .2
-                                    id: conversion
-                                    shorten: True
-                                    shorten_from: "right"
-                                    text_size: self.size
-                                    halign: "center"
-                                    valign: "middle"
-                                    bold: True
-                                    text: "Select..."
-                                    on_release: app.filechooser_dialog("conversion")
-
                             LightBox:
                                 Label:
                                     markup: True
@@ -168,7 +147,7 @@ ShowcaseScreen:
                                 Label:
                                     size_hint_x: .8
                                     markup: True
-                                    text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files[/size]"
+                                    text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files (In development) [/size]"
                                     halign: "left"
                                     valign: "middle"
                                     text_size: self.size
@@ -176,6 +155,29 @@ ShowcaseScreen:
                                     id: rev_concatenation
                                     size_hint_x: .2
                                     disabled: True
+
+                            Hseparator
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Button:
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    size_hint_x: .2
+                                    id: conversion
+                                    shorten: True
+                                    shorten_from: "right"
+                                    text_size: self.size
+                                    halign: "center"
+                                    valign: "middle"
+                                    bold: True
+                                    text: "Select..."
+                                    on_release: app.filechooser_dialog("conversion")
 
                             Hseparator
 
