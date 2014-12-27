@@ -91,6 +91,7 @@ ShowcaseScreen:
                 valign: "middle"
                 text_size: self.size
                 color: (0.2,0.2,0.2,1)
+                on_release: app.process_exec()
 
         Vseparator
 
@@ -117,6 +118,7 @@ ShowcaseScreen:
                             spacing: 5
                             height: root.height*1.52
                             size_hint_y: None
+                            id: concatenation_slide
 
                             DarkBox:
                                 Label:
@@ -137,7 +139,7 @@ ShowcaseScreen:
                                     valign: "middle"
                                     bold: True
                                     text: "Select..."
-                                    on_release: app.filechooser_dialog(self.id)
+                                    on_release: app.filechooser_dialog("conversion")
 
                             LightBox:
                                 Label:
@@ -157,6 +159,7 @@ ShowcaseScreen:
                                     valign: "middle"
                                     text_size: self.size
                                 Switch:
+                                    id: concatenation
                                     size_hint_x: .2
 
                             Hseparator
@@ -170,6 +173,7 @@ ShowcaseScreen:
                                     valign: "middle"
                                     text_size: self.size
                                 Switch:
+                                    id: rev_concatenation
                                     size_hint_x: .2
                                     disabled: True
 
@@ -208,6 +212,7 @@ ShowcaseScreen:
                                     valign: "middle"
                                     text_size: self.size
                                 Switch:
+                                    id: interleave
                                     size_hint_x: .2
 
                             Hseparator
@@ -221,6 +226,7 @@ ShowcaseScreen:
                                     valign: "middle"
                                     text_size: self.size
                                 Switch:
+                                    id: zorro
                                     size_hint_x: .2
                                     disabled: True
 

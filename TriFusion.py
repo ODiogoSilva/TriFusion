@@ -745,9 +745,7 @@ class TriFusionApp(App):
 
         while filename != "":
 
-            file_handle = open(join(path, filename), "w")
-
-            self.output_files[idx] = file_handle
+            self.output_files[idx] = join(path, filename)
             self.screen.ids.conversion.text = filename
             self.dismiss_popup()
 
@@ -984,9 +982,10 @@ class TriFusionApp(App):
             if idx in self.process_switches:
                 self.process_switches[idx] = wgt.active
 
-        # if self.process_switches["concatenation"]:
-        #     concatenated_aln = self.active_alignment_list.concatenate()
-        #     concatenated_aln.write_to_file
+        if self.process_switches["concatenation"]:
+            concatenated_aln = self.active_alignment_list.concatenate()
+            concatenated_aln.write_to_file(self.output_formats,
+                                           self.output_files["conversion"])
 
 if __name__ == '__main__':
     TriFusionApp().run()

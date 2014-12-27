@@ -51,8 +51,10 @@
     padding: 30
     spacing: 10
     orientation: "vertical"
+    id: format_dlg
     ToggleButton:
         id: fasta
+        state: "down"
         text: "Fasta"
     ToggleButton:
         id: phylip
@@ -72,6 +74,7 @@
         orientation: "horizontal"
         Button:
             text: "Done"
+            on_release: app.save_format(format_dlg)
         Button:
             text: "Cancel"
             on_release: root.cancel()
