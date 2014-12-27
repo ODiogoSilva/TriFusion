@@ -116,7 +116,7 @@ ShowcaseScreen:
                             cols: 1
                             padding: 5
                             spacing: 5
-                            height: root.height*1.52
+                            height: root.height*2
                             size_hint_y: None
                             id: concatenation_slide
 
@@ -150,22 +150,6 @@ ShowcaseScreen:
                                 Label:
                                     size_hint_x: .8
                                     markup: True
-                                    id: test2
-                                    text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files (In development) [/size]"
-                                    halign: "left"
-                                    valign: "middle"
-                                    text_size: self.size
-                                Switch:
-                                    id: rev_concatenation
-                                    size_hint_x: .2
-                                    disabled: True
-
-                            Hseparator
-
-                            DarkBox:
-                                Label:
-                                    size_hint_x: .8
-                                    markup: True
                                     text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
                                     halign: "left"
                                     valign: "middle"
@@ -190,6 +174,47 @@ ShowcaseScreen:
                                     size_hint_x: .8
                                     markup: True
                                     text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Button:
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    size_hint_x: .2
+                                    bold: True
+                                    text: "Fasta"
+                                    on_release: app.format_dialog()
+
+                            LightBox:
+                                Label:
+                                    markup: True
+                                    text: "[size=15][b]Partitioning options[/b][/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: [.85, .85, .85, 1]
+                                    text_size: self.size
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    id: test2
+                                    text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files (In development) [/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Switch:
+                                    id: rev_concatenation
+                                    size_hint_x: .2
+                                    disabled: True
+
+                            Hseparator
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    id: test2
+                                    text: "[size=18][b]Partition file[/b][/size]\n[size=13]Provide the partitioning file either in nexus or RAxML like format [/size]"
                                     halign: "left"
                                     valign: "middle"
                                     text_size: self.size
