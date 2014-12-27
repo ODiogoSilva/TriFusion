@@ -140,6 +140,9 @@ ShowcaseScreen:
                                 Switch:
                                     id: concatenation
                                     size_hint_x: .2
+                                    active: True
+                                    on_active: if self.active is False: root.ids.conversion.disabled = True
+                                    on_active: if self.active is True: root.ids.conversion.disabled = False
 
                             Hseparator
 
@@ -147,6 +150,7 @@ ShowcaseScreen:
                                 Label:
                                     size_hint_x: .8
                                     markup: True
+                                    id: test2
                                     text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files (In development) [/size]"
                                     halign: "left"
                                     valign: "middle"
@@ -223,7 +227,7 @@ ShowcaseScreen:
                                 Label:
                                     size_hint_x: .8
                                     markup: True
-                                    text: "[size=18][b]Zorro support[/b][/size]\n[size=13] If concatenating, also concatenate auxiliary Zorro weight files"
+                                    text: "[size=18][b]Zorro support[/b][/size]\n[size=13] If concatenating, also concatenate auxiliary Zorro weight files. In development."
                                     halign: "left"
                                     valign: "middle"
                                     text_size: self.size
