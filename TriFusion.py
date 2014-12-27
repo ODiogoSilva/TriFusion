@@ -515,13 +515,15 @@ class TriFusionApp(App):
 
     def save_file(self, path, filename, idx):
 
-        file_handle = open(join(path, filename), "w")
+        while filename != "":
 
-        self.output_files[idx] = file_handle
+            file_handle = open(join(path, filename), "w")
 
-        self.screen.ids.conversion.text = filename
+            self.output_files[idx] = file_handle
+            self.screen.ids.conversion.text = filename
+            self.dismiss_popup()
 
-        self.dismiss_popup()
+            break
 
     def show_popup(self, title, content):
 

@@ -47,6 +47,23 @@
                 text: "Cancel"
                 on_release: root.cancel()
 
+<FormatDialog>:
+    ToggleButton:
+        id: fasta
+        text: "Fasta"
+    ToggleButton:
+        id: phylip
+        text: "phylip"
+    ToggleButton:
+        id: nexus
+        text: "nexus"
+    ToggleButton:
+        id: mcmctree
+        text: "MCMCTree"
+    ToggleButton:
+        id: ima2
+        text: "IMa2"
+        disabled: True
 
 <MainHeader@ActionToggleButton>:
     size_hint_x: 1
