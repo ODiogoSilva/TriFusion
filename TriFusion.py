@@ -74,6 +74,10 @@ class SaveDialog(FloatLayout):
     cancel = ObjectProperty(None)
 
 
+class FormatDialog(BoxLayout):
+    pass
+
+
 class TriFusionApp(App):
 
     #######################
@@ -519,7 +523,12 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-    def popup_filechooser(self, value):
+    def show_popup(self, title, content):
+
+        self._popup = Popup(title=title, content=content, size_hint=(.9, .9))
+        self._popup.open()
+
+    def filechooser_dialog(self, value):
         """
         Generates a file chooser popup for the user to select an output file
         """
@@ -530,10 +539,7 @@ class TriFusionApp(App):
         if value == "conversion":
             content.ids.sd_filechooser.text = "conversion"
 
-        self._popup = Popup(title="Choose output file",
-                 content=content, size_hint=(.9, .9))
-
-        self._popup.open()
+        self.show_popup(title="Choose output file", content=content)
 
     def popup_info(self, value):
         """
