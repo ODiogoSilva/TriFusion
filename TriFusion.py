@@ -48,7 +48,7 @@ from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ListProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
-
+from kivy.config import Config
 # Main program imports
 from process.sequence import AlignmentList
 
@@ -57,6 +57,8 @@ from os.path import dirname, join, exists
 from os.path import expanduser
 from copy import deepcopy
 import pickle
+
+Config.set("kivy", "log_level", "warning")
 
 
 class ShowcaseScreen(Screen):
@@ -134,6 +136,10 @@ class TriFusionApp(App):
 
     _popup = ObjectProperty(None)
 
+    # Dictionary containing all values of the switches in the process screen
+    process_switches = {"concatenation": None, "rev_concatenation": None,
+                        "interleave": None, "zorro": None}
+
     ################################
     #
     # CORE PROGRAM RELATED VARIABLES
@@ -156,6 +162,9 @@ class TriFusionApp(App):
 
     # Attribute containing the objects for the several possible output files.
     output_files = {"conversion": None, "collapse": None, "gcoder": None}
+
+    # Attribute storing active output formats
+    output_formats = []
 
     ##################################
     #
@@ -510,46 +519,6 @@ class TriFusionApp(App):
                 # button
                 self.root.ids.taxa_sl.height += self.root.height * 0.068
 
-    def dismiss_popup(self):
-        self._popup.dismiss()
-
-    def save_file(self, path, filename, idx):
-
-        while filename != "":
-
-            file_handle = open(join(path, filename), "w")
-
-            self.output_files[idx] = file_handle
-            self.screen.ids.conversion.text = filename
-            self.dismiss_popup()
-
-            break
-
-    def show_popup(self, title, content, size_hint=(.9, .9)):
-
-        self._popup = Popup(title=title, content=content, size_hint=size_hint)
-        self._popup.open()
-
-    def format_dialog(self):
-
-        content = FormatDialog(cancel=self.dismiss_popup)
-
-        self.show_popup(title="Choose output format", content=content,
-                        size_hint=(.3, .8))
-
-    def filechooser_dialog(self, value):
-        """
-        Generates a file chooser popup for the user to select an output file
-        """
-
-        content = SaveDialog(cancel=self.dismiss_popup)
-        content.ids.sd_filechooser.path = self.home_path
-
-        if value == "conversion":
-            content.ids.sd_filechooser.text = "conversion"
-
-        self.show_popup(title="Choose output file", content=content)
-
     def popup_info(self, value):
         """
         Generates the pop up information content for the pressed taxa or file
@@ -765,6 +734,60 @@ class TriFusionApp(App):
                     if sv_parent == self.root.ids.sv_sp:
                         self.active_taxa_list = []
 
+    ####
+    # PROCESS SCREEN RELATED
+    ####
+
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def save_file(self, path, filename, idx):
+
+        while filename != "":
+
+            file_handle = open(join(path, filename), "w")
+
+            self.output_files[idx] = file_handle
+            self.screen.ids.conversion.text = filename
+            self.dismiss_popup()
+
+            break
+
+    def show_popup(self, title, content, size_hint=(.9, .9)):
+
+        self._popup = Popup(title=title, content=content, size_hint=size_hint)
+        self._popup.open()
+
+    def save_format(self, value):
+
+        for idx, wgt in value.ids.items():
+            if wgt.state == "down" and idx not in self.output_formats:
+                self.output_formats.append(idx)
+            elif wgt.state == "normal" and idx in self.output_formats:
+                self.output_formats.remove(idx)
+
+        self.dismiss_popup()
+
+    def format_dialog(self):
+
+        content = FormatDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Choose output format", content=content,
+                        size_hint=(.3, .8))
+
+    def filechooser_dialog(self, value):
+        """
+        Generates a file chooser popup for the user to select an output file
+        """
+
+        content = SaveDialog(cancel=self.dismiss_popup)
+        content.ids.sd_filechooser.path = self.home_path
+
+        if value == "conversion":
+            content.ids.sd_filechooser.text = "conversion"
+
+        self.show_popup(title="Choose output file", content=content)
+
     ###################################
     #
     # CORE RELATED METHODS AND FUNCTIONS
@@ -950,6 +973,20 @@ class TriFusionApp(App):
                 file_inf[file_name]["aln_len"] = aln.locus_length
 
         return file_inf
+
+    def process_exec(self):
+        """
+        Main function that executes all queued procedures of the process module
+        """
+
+        # Collecting switch information
+        for idx, wgt in self.screen.ids.items():
+            if idx in self.process_switches:
+                self.process_switches[idx] = wgt.active
+
+        # if self.process_switches["concatenation"]:
+        #     concatenated_aln = self.active_alignment_list.concatenate()
+        #     concatenated_aln.write_to_file
 
 if __name__ == '__main__':
     TriFusionApp().run()
