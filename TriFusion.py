@@ -766,9 +766,25 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
+        if len(self.output_formats) == 1:
+            self.screen.ids.conv_formatbt.text = self.output_formats[0].title()
+        elif len(self.output_formats) == 0:
+            self.screen.ids.conv_formatbt.font_size = 12
+            self.screen.ids.conv_formatbt.text = "No formats selected"
+        else:
+            self.screen.ids.conv_formatbt.font_size = 13
+            self.screen.ids.conv_formatbt.text = "%s formats selected" % (
+                len(self.output_formats))
+
     def format_dialog(self):
 
         content = FormatDialog(cancel=self.dismiss_popup)
+
+        for idx, wgt in content.ids.items():
+            if idx in self.output_formats:
+                wgt.state = "down"
+            else:
+                wgt.state = "normal"
 
         self.show_popup(title="Choose output format", content=content,
                         size_hint=(.3, .8))
