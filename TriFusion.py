@@ -704,7 +704,6 @@ class TriFusionApp(App):
             self.original_tx_inf = self.get_taxa_information(
                 alt_list=self.alignment_list)
 
-
         if parent_obj == self.root.ids.taxa_sl:
             self.active_alignment_list.remove_taxa([bt_idx])
             self.active_taxa_list = self.active_alignment_list.taxa_names
