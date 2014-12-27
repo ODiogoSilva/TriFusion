@@ -301,6 +301,8 @@ ShowcaseScreen:
                                     text_size: self.size
                                 Switch:
                                     size_hint_x: .2
+                                    on_active: if self.active == True: root.ids.col_outputbt.disabled = False; root.ids.col_hapbt.disabled = False
+                                    on_active: if self.active == False: root.ids.col_outputbt.disabled = True; root.ids.col_hapbt.disabled = True
 
                             DarkBox:
                                 Label:
@@ -309,9 +311,9 @@ ShowcaseScreen:
                                     text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file of collapse procedures[/size]"
                                     halign: "left"
                                     valign: "middle"
-                                    color: (0.4, 0.4, 0.4, 1)
                                     text_size: self.size
                                 Button:
+                                    id: col_outputbt
                                     background_normal: "data/backgrounds/bt_process.png"
                                     size_hint_x: .2
                                     bold: True
@@ -334,9 +336,9 @@ ShowcaseScreen:
                                     text: "[size=18][b]Haplotype prefix[/b][/size]\n[size=13]Select the prefix name for the haplotypes[/size]"
                                     halign: "left"
                                     valign: "middle"
-                                    color: (0.4, 0.4, 0.4, 1)
                                     text_size: self.size
                                 Button:
+                                    id: col_hapbt
                                     background_normal: "data/backgrounds/bt_process.png"
                                     size_hint_x: .2
                                     bold: True
@@ -368,6 +370,8 @@ ShowcaseScreen:
                                     text_size: self.size
                                 Switch:
                                     size_hint_x: .2
+                                    on_active: if self.active == True: root.ids.cm_outputbt.disabled = False
+                                    on_active: if self.active == False: root.ids.cm_outputbt.disabled = True
 
                             DarkBox:
                                 Label:
@@ -376,9 +380,9 @@ ShowcaseScreen:
                                     text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to gap coding procedures[/size]"
                                     halign: "left"
                                     valign: "middle"
-                                    color: (0.4, 0.4, 0.4, 1)
                                     text_size: self.size
                                 Button:
+                                    id: cm_outputbt
                                     background_normal: "data/backgrounds/bt_process.png"
                                     size_hint_x: .2
                                     bold: True
@@ -401,9 +405,9 @@ ShowcaseScreen:
                                     text: "[size=18][b]Coding method[/b][/size]\n[size=13]Select the gap coding method[/size]"
                                     halign: "left"
                                     valign: "middle"
-                                    color: (0.4, 0.4, 0.4, 1)
                                     text_size: self.size
                                 Button:
+                                    id: cm_methodbt
                                     background_normal: "data/backgrounds/bt_process.png"
                                     size_hint_x: .2
                                     bold: True
