@@ -809,6 +809,7 @@ class TriFusionApp(App):
         # specified, the text will inform the number of selected formats; if no
         # format is specified, a no selected format text will appear
         if len(self.output_formats) == 1:
+            self.screen.ids.conv_formatbt.font_size = 15
             self.screen.ids.conv_formatbt.text = self.output_formats[0].title()
         elif len(self.output_formats) == 0:
             self.screen.ids.conv_formatbt.font_size = 12
