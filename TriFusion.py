@@ -771,7 +771,8 @@ class TriFusionApp(App):
 
         # Ignore size_hint is absolute size is provided
         if size:
-            self._popup = Popup(title=title, content=content, size=size)
+            self._popup = Popup(title=title, content=content, size=size,
+                                size_hint=(None, None))
         else:
             self._popup = Popup(title=title, content=content,
                                 size_hint=size_hint)
@@ -884,7 +885,7 @@ class TriFusionApp(App):
         content = FilterDialog(cancel=self.dismiss_popup)
 
         self.show_popup(title="Set filter thresholds", content=content,
-                        size_hint=(.5, .5))
+                        size=(400, 300))
 
     ###################################
     #
