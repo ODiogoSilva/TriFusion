@@ -356,7 +356,7 @@ class TriFusionApp(App):
 
             self.toggle_midpanel(over_width)
 
-        Clock.schedule_interval(toggle_mouse_over, .5)
+        Clock.schedule_interval(toggle_mouse_over, .1)
 
     def side_panel_toggle(self):
         """
