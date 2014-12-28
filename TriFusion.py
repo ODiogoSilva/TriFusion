@@ -71,13 +71,28 @@ class ShowcaseScreen(Screen):
 
 
 class SaveDialog(FloatLayout):
+    """
+    Class controlling the layout of the save file dialog in the Process screen
+    """
     save = ObjectProperty(None)
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
 
 class FormatDialog(BoxLayout):
+    """
+    Class controlling the layout of the output format dialog in the Process
+    screen
+    """
     cancel = ObjectProperty(None)
+
+
+class FilterDialog(BoxLayout):
+    """
+    Class controlling the layout of the gap/missing filtering options in the
+    Process screen
+    """
+    pass
 
 
 class TriFusionApp(App):
