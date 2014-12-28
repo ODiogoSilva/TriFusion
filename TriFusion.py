@@ -153,7 +153,7 @@ class TriFusionApp(App):
 
     # Dictionary containing all values of the switches in the process screen
     process_switches = {"concatenation": None, "rev_concatenation": None,
-                        "interleave": None, "zorro": None}
+                        "interleave": None, "zorro": None, "filter": None}
 
     ################################
     #
@@ -1171,13 +1171,21 @@ class TriFusionApp(App):
         # Perform operations
         #####
 
+        # Setting the alignment to use
+        aln_object = self.active_alignment_list
+
+        # Sequence gap/missing data filtering
+        if self.process_switches["filter"]:
+            aln_object.filter_missing_data(self.filter_settings[0],
+                                           self.filter_settings[1])
+
         # Concatenation
         if self.process_switches["concatenation"]:
-            concatenated_aln = self.active_alignment_list.concatenate()
-            concatenated_aln.write_to_file(self.output_formats,
+            aln_object = aln_object.concatenate()
+            aln_object.write_to_file(self.output_formats,
                                      self.output_files["conversion"])
         elif self.process_switches["concatenation"] is False:
-            self.active_alignment_list.write_to_file(self.output_formats)
+            aln_object.write_to_file(self.output_formats)
 
 if __name__ == '__main__':
     TriFusionApp().run()

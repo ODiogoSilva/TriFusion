@@ -196,6 +196,7 @@ ShowcaseScreen:
                                     color: [.85, .85, .85, 1]
                                     text_size: self.size
                                 Switch:
+                                    id: filter
                                     size_hint_x: .2
                                     on_active: if self.active == True: root.ids.cv_filterbt.disabled = False
                                     on_active: if self.active == False: root.ids.cv_filterbt.disabled = True
