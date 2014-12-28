@@ -739,25 +739,63 @@ class TriFusionApp(App):
     ####
 
     def dismiss_popup(self):
+        """
+        General purpose method to close popups from the process screen
+        """
         self._popup.dismiss()
 
-    def save_file(self, path, filename, idx):
-
-        while filename != "":
-
-            self.output_files[idx] = join(path, filename)
-            self.screen.ids.conversion.text = filename
-            self.dismiss_popup()
-
-            break
-
     def show_popup(self, title, content, size_hint=(.9, .9)):
+        """
+        General purpose method to create a popup widget
+        :param title: string. Title of the popup
+        :param content: widget object. The contents of the popup widget
+        :param size_hint: tuple. Size hint for the widget
+        """
 
         self._popup = Popup(title=title, content=content, size_hint=size_hint)
         self._popup.open()
 
-    def save_format(self, value):
+    def save_file(self, path, filename, idx):
+        """
+        Adds functionality to the save button in the output file chooser. It
+        gathers information on the specified path through filechooser, file
+        name through textinput and the widget id when called.
 
+        The output file name is stored in a dictionary storage that contains
+        the file names for the widget that was used. If, for example, the
+        file name has been specified on the Conversion/Concatenation widget,
+        than the file name will be stored with "conversion" as the associated
+        key
+
+        :param path: string. complete path
+        :param filename: string. file name only
+        :param idx: sting. widget id
+        """
+
+        # Ensures that empty file names cannot be specified
+        while filename != "":
+
+            # Adds output file to storage
+            self.output_files[idx] = join(path, filename)
+            # Renames the output file button text
+            self.screen.ids.conversion.text = filename
+            # Close popup
+            self.dismiss_popup()
+            # Breaks loop
+            break
+
+    def save_format(self, value):
+        """
+        Method that stores the output formats specified through the formats
+        dialog in the Process screen.
+
+        The active formats are stored in a self.output_formats list
+
+        :param value: widget object.
+        """
+
+        # Add the selected output formats to the storage list and remove
+        # deselected formats if they have been selected before
         for idx, wgt in value.ids.items():
             if wgt.state == "down" and idx not in self.output_formats:
                 self.output_formats.append(idx)
@@ -766,6 +804,10 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
+        # Updates the text in the select format button. In case only one format
+        # is specified, the text will be that format; if multiple formats are
+        # specified, the text will inform the number of selected formats; if no
+        # format is specified, a no selected format text will appear
         if len(self.output_formats) == 1:
             self.screen.ids.conv_formatbt.text = self.output_formats[0].title()
         elif len(self.output_formats) == 0:
@@ -777,15 +819,24 @@ class TriFusionApp(App):
                 len(self.output_formats))
 
     def format_dialog(self):
+        """
+        Creates the dialog containing the buttons to select output formats.
+        """
 
+        # Inherits the layout defined in the .kv file under <FormatDialog>
         content = FormatDialog(cancel=self.dismiss_popup)
 
+        # This will mark the respective buttons for each format as active or not
+        # depending on whether they have been previously selected or not. It
+        # allows the selected button states to be persistent when visiting the
+        # popup multiple times
         for idx, wgt in content.ids.items():
             if idx in self.output_formats:
                 wgt.state = "down"
             else:
                 wgt.state = "normal"
 
+        # Show popup
         self.show_popup(title="Choose output format", content=content,
                         size_hint=(.3, .8))
 
@@ -794,9 +845,12 @@ class TriFusionApp(App):
         Generates a file chooser popup for the user to select an output file
         """
 
+        # Inherits the layout defined in the .kv file under <SaveDialog>
         content = SaveDialog(cancel=self.dismiss_popup)
+        # Sets the home path as starting point
         content.ids.sd_filechooser.path = self.home_path
 
+        # Save output file for conversion/concatenation purposes
         if value == "conversion":
             content.ids.sd_filechooser.text = "conversion"
 
