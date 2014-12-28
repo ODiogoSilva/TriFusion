@@ -880,6 +880,20 @@ class TriFusionApp(App):
 
         self.show_popup(title="Choose output file", content=content)
 
+    def filter_validater(self, value):
+
+        try:
+            x = float(value.replace(",", "."))
+            if x > 1:
+                corrected_val = 1
+            elif x < 0:
+                corrected_val = 0
+            else:
+                corrected_val = x
+            return True, corrected_val
+        except ValueError:
+            return False
+
     def filter_dialog(self):
 
         content = FilterDialog(cancel=self.dismiss_popup)

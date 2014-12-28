@@ -95,14 +95,20 @@
         orientation: "horizontal"
         size_hint_y: None
         height: 30
+        spacing: 20
         Slider:
+            id: gap_sli
             size_hint_x: .85
             min: 0
             max: 1
             step: 0.01
+            value: 0.25
         TextInput:
             size_hint_x: .15
             id: gap_ti
+            text: "{}".format(round(gap_sli.value, 2))
+            multiline: False
+            on_text_validate: if app.filter_validater(gap_ti.text): gap_sli.value = app.filter_validater(gap_ti.text)[1]
 
     Label:
         text: "Missing data threshold"
@@ -115,14 +121,20 @@
         orientation: "horizontal"
         size_hint_y: None
         height: 30
+        spacing: 20
         Slider:
+            id: mis_sli
             size_hint_x: .85
             min: 0
             max: 1
             step: 0.01
+            value: 0.5
         TextInput:
             size_hint_x: .15
-            id: gap_ti
+            id: mis_ti
+            text: "{}".format(round(mis_sli.value, 2))
+            multiline: False
+            on_text_validate: if app.filter_validater(mis_ti.text): mis_sli.value = app.filter_validater(mis_ti.text)[1]
 
     BoxLayout:
         orientation: "horizontal"
