@@ -69,6 +69,10 @@ class Alignment (Base, MissingFilter):
         #  or a sequence set
         self.is_alignment = None
 
+        # Initialize loci_ranges attribute, which will inform if input
+        # alignment is a concatenation or not
+        self.loci_ranges = None
+
         # In case the class is initialized with an input file name
         if type(input_alignment) is str:
 
