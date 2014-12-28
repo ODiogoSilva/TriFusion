@@ -449,7 +449,7 @@ class Alignment (Base, MissingFilter):
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
                       cut_space_nex=50, cut_space_phy=50, cut_space_ima2=8,
-                      form="leave", gap="-", model_phylip="LG",
+                      interleave=False, gap="-", model_phylip="LG",
                       outgroup_list=None, ima2_params=None):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
@@ -653,7 +653,7 @@ class Alignment (Base, MissingFilter):
             out_file = open(output_file + ".nex", "w")
 
             # This writes the output in interleave format
-            if form == "interleave":
+            if interleave:
                 if self.restriction_range is not None:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
                                    "ntax=%s nchar=%s ;\n\tformat datatype="
@@ -1073,7 +1073,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         return selected_alignments
 
-    def write_to_file(self, output_format, form="leave", outgroup_list=[]):
+    def write_to_file(self, output_format, interleave=False, outgroup_list=[]):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
 
@@ -1088,7 +1088,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
                 output_file_name = alignment_obj.name.split(".")[0]
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
-                                        form=form,
+                                        interleave=interleave,
                                         outgroup_list=outgroup_list)
 
 __author__ = "Diogo N. Silva"

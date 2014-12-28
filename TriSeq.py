@@ -102,9 +102,9 @@ formatting.add_argument("-model", dest="model_phy", default="LG",
                         " for all partitions defined in the partition file "
                         "(default is '%(default)s')")
 formatting.add_argument("-interleave", dest="interleave", action="store_const",
-                        const="interleave", help="Specify this option to write"
-                        " output files in interleave format (currently only "
-                        "supported for nexus files")
+                        const="interleave", default=False, help="Specify this "
+                        "option to write output files in interleave format "
+                        "(currently only supported for nexus files")
 formatting.add_argument("--ima2-params", dest="ima2_params", nargs="*",
                         help="Provide 4 additional arguments needed to write "
                         "the output in a format compliant with IMa2. The order"
@@ -165,12 +165,6 @@ def main_parser(alignment_list):
     model_phy = arg.model_phy
     outgroup_taxa = arg.outgroup_taxa
 
-    # Setting leave/interleave format
-    if interleave is None:
-        sequence_format = "leave"
-    else:
-        sequence_format = "interleave"
-
     # Defining output file name
     if conversion is None and arg.outfile is not None:
         outfile = "".join(arg.outfile)
@@ -208,7 +202,7 @@ def main_parser(alignment_list):
             partition = data.Partitions(arg.reverse)
             reverse_alignments = alignment.reverse_concatenate(partition)
             reverse_alignments.write_to_file(output_format,
-                                             form=sequence_format,
+                                             interleave=interleave,
                                              outgroup_list=outgroup_taxa)
             return 0
 
@@ -242,7 +236,7 @@ def main_parser(alignment_list):
                 else:
                     alignments.remove_taxa(arg.grep, mode="inverse")
 
-            alignments.write_to_file(output_format, form=sequence_format,
+            alignments.write_to_file(output_format, interleave=interleave,
                                      outgroup_list=outgroup_taxa)
             return 0
 
@@ -300,7 +294,7 @@ def main_parser(alignment_list):
     if arg.quiet is False:
         print("\rWriting output file(s)", end="")
 
-    alignment.write_to_file(output_format, outfile, form=sequence_format,
+    alignment.write_to_file(output_format, outfile, interleave=interleave,
                             outgroup_list=outgroup_taxa,
                             ima2_params=arg.ima2_params)
 
