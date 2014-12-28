@@ -178,8 +178,8 @@ class TriFusionApp(App):
     # Attribute containing the objects for the several possible output files.
     output_files = {"conversion": None, "collapse": None, "gcoder": None}
 
-    # Attribute storing active output formats
-    output_formats = []
+    # Attribute storing active output formats. Fasta is True by default
+    output_formats = ["fasta"]
 
     # Attribute storing the filter settings. The list should contain gap
     # threshold as first element and missing data threshold as second element
