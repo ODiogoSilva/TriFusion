@@ -1149,10 +1149,17 @@ class TriFusionApp(App):
             if idx in self.process_switches:
                 self.process_switches[idx] = wgt.active
 
+        #####
+        # Perform operations
+        #####
+
+        # Concatenation
         if self.process_switches["concatenation"]:
             concatenated_aln = self.active_alignment_list.concatenate()
             concatenated_aln.write_to_file(self.output_formats,
-                                           self.output_files["conversion"])
+                                     self.output_files["conversion"])
+        elif self.process_switches["concatenation"] is False:
+            self.active_alignment_list.write_to_file(self.output_formats)
 
 if __name__ == '__main__':
     TriFusionApp().run()
