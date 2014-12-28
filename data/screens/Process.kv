@@ -117,7 +117,7 @@ ShowcaseScreen:
                             cols: 1
                             padding: 5
                             spacing: 5
-                            height: root.height*2
+                            height: dark_l.height * (len(self.children)-6) + 15
                             size_hint_y: None
                             id: concatenation_slide
 
@@ -131,6 +131,7 @@ ShowcaseScreen:
                                     text_size: self.size
 
                             DarkBox:
+                                id: dark_l
                                 Label:
                                     size_hint_x: .8
                                     markup: True
