@@ -1184,9 +1184,11 @@ class TriFusionApp(App):
         if self.process_switches["concatenation"]:
             aln_object = aln_object.concatenate()
             aln_object.write_to_file(self.output_formats,
-                                     self.output_files["conversion"])
+                       self.output_files["conversion"],
+                       interleave=self.process_switches["interleave"])
         elif self.process_switches["concatenation"] is False:
-            aln_object.write_to_file(self.output_formats)
+            aln_object.write_to_file(self.output_formats,
+                       interleave=self.process_switches["interleave"])
 
 if __name__ == '__main__':
     TriFusionApp().run()
