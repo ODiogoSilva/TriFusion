@@ -225,7 +225,8 @@
 <SideButton@ToggleButton>:
     group: "side_buttons"
     size_hint_y: .1
-
+    font_size: 30
+    bold: True
 
 
 BoxLayout:
@@ -269,10 +270,43 @@ BoxLayout:
                     BoxLayout:
                         orientation: "vertical"
                         SideButton:
+                            id: first_sidebt
                             state: "down"
                             on_release: carousel.load_slide(carousel.slides[0])
+                            background_down: "data/backgrounds/side_panel_bt_down.png"
+                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
+                            text: "H"
                         SideButton:
+                            id: second_sidebt
+                            background_down: "data/backgrounds/side_panel_bt_down.png"
+                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
                             on_release: carousel.load_slide(carousel.slides[1])
+                            text: "G"
+                        Widget:
+                            size_hint_y: .8
+                            canvas.before:
+                                Color:
+                                    rgba: (0.180, 0.180, 0.180, .8)
+                                Rectangle:
+                                    pos: self.pos
+                                    size: self.size
+                ScrollView:
+                    id: sv_over
+                    size_hint_x: None
+                    width: 0
+                    BoxLayout:
+                        orientation: "vertical"
+                        Button:
+                            id: first_lb
+                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
+                            size_hint_y: .1
+                            border: (16,16,32,16)
+                            text: "Some stuff"
+                        Button:
+                            id: second_lb
+                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
+                            size_hint_y: .1
+                            text: "Some stuff"
                         Widget:
                             size_hint_y: .8
                             canvas.before:

@@ -49,6 +49,8 @@ from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ListProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
 from kivy.config import Config
+from kivy.clock import Clock
+
 # Main program imports
 from process.sequence import AlignmentList
 
@@ -209,6 +211,8 @@ class TriFusionApp(App):
         # First thing is go to main screen
         self.go_screen(0)
 
+        self.sine_panel_routine()
+
     def go_screen(self, idx, direct="left"):
         """
         Method used to go to a specific screen by specifying and index and
@@ -323,6 +327,36 @@ class TriFusionApp(App):
         self.bookmarks[0].remove(bk_idx)
         del self.bookmarks[1][bk_name]
         pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
+
+    def toggle_midpanel(self, width):
+
+        Animation(width=width, d=.32, t="out_quart").start(
+            self.root.ids.sv_over)
+
+    def sine_panel_routine(self):
+
+        def toggle_mouse_over(dt):
+
+            mp = self.root_window.mouse_pos
+
+            over_bg_down = "data/backgrounds/side_panel_bt_over.png"
+            bg_normal = "data/backgrounds/side_panel_bt_normal.png"
+
+            first_bt = self.root.ids.first_sidebt
+            second_bt = self.root.ids.second_sidebt
+
+            if first_bt.collide_point(mp[0], mp[1]):
+                over_width = self.root.width * .325
+
+            elif second_bt.collide_point(mp[0], mp[1]):
+                over_width = self.root.width * .325
+
+            else:
+                over_width = 0
+
+            self.toggle_midpanel(over_width)
+
+        Clock.schedule_interval(toggle_mouse_over, .5)
 
     def side_panel_toggle(self):
         """
