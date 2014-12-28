@@ -116,7 +116,7 @@ ShowcaseScreen:
                             cols: 1
                             padding: 5
                             spacing: 5
-                            height: root.height*2
+                            height: root.height*2.3
                             size_hint_y: None
                             id: concatenation_slide
 
@@ -184,6 +184,30 @@ ShowcaseScreen:
                                     bold: True
                                     text: "Fasta"
                                     on_release: app.format_dialog()
+
+                            LightBox:
+                                Label:
+                                    markup: True
+                                    text: "[size=15][b]Sequence filter options[/b][/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    color: [.85, .85, .85, 1]
+                                    text_size: self.size
+
+                            DarkBox:
+                                Label:
+                                    size_hint_x: .8
+                                    markup: True
+                                    id: test2
+                                    text: "[size=18][b]Gap/Missing data filter[/b][/size]\n[size=13] Set filters to remove alignment columns with excessive gap and/or missing data [/size]"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Button:
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    size_hint_x: .2
+                                    bold: True
+                                    text: "Set filters"
 
                             LightBox:
                                 Label:
