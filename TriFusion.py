@@ -181,6 +181,10 @@ class TriFusionApp(App):
     # Attribute storing active output formats
     output_formats = []
 
+    # Attribute storing the filter settings. The list should contain gap
+    # threshold as first element and missing data threshold as second element
+    filter_settings = []
+
     ##################################
     #
     # GUI RELATED METHODS AND FUCTIONS
@@ -894,6 +898,16 @@ class TriFusionApp(App):
             self.screen.ids.conv_formatbt.text = "%s formats selected" % (
                 len(self.output_formats))
 
+    def save_filter(self, gap_val, mis_val):
+        """
+        Stores the information of the FilterDialog
+        """
+
+        self.filter_settings = [gap_val,
+                                mis_val]
+
+        self.dismiss_popup()
+
     def format_dialog(self):
         """
         Creates the dialog containing the buttons to select output formats.
@@ -932,6 +946,17 @@ class TriFusionApp(App):
 
         self.show_popup(title="Choose output file", content=content)
 
+    def filter_dialog(self):
+
+        content = FilterDialog(cancel=self.dismiss_popup)
+        # Update filter values if they were changed
+        if self.filter_settings:
+            content.ids.gap_sli.value = self.filter_settings[0]
+            content.ids.mis_sli.value = self.filter_settings[1]
+
+        self.show_popup(title="Set filter thresholds", content=content,
+                        size=(400, 300))
+
     def filter_validater(self, value):
 
         try:
@@ -945,13 +970,6 @@ class TriFusionApp(App):
             return True, corrected_val
         except ValueError:
             return False
-
-    def filter_dialog(self):
-
-        content = FilterDialog(cancel=self.dismiss_popup)
-
-        self.show_popup(title="Set filter thresholds", content=content,
-                        size=(400, 300))
 
     ###################################
     #

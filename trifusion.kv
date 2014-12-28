@@ -142,7 +142,7 @@
         height: 30
         Button:
             text: "Done"
-            #on_release: app.save_format(format_dlg)
+            on_release: app.save_filter(gap_sli.value, mis_sli.value)
         Button:
             text: "Cancel"
             on_release: root.cancel()
