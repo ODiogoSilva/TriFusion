@@ -92,7 +92,7 @@ class FilterDialog(BoxLayout):
     Class controlling the layout of the gap/missing filtering options in the
     Process screen
     """
-    pass
+    cancel = ObjectProperty(None)
 
 
 class TriFusionApp(App):
@@ -759,7 +759,7 @@ class TriFusionApp(App):
         """
         self._popup.dismiss()
 
-    def show_popup(self, title, content, size_hint=(.9, .9)):
+    def show_popup(self, title, content, size_hint=(.9, .9), size=None):
         """
         General purpose method to create a popup widget
         :param title: string. Title of the popup
@@ -871,6 +871,13 @@ class TriFusionApp(App):
             content.ids.sd_filechooser.text = "conversion"
 
         self.show_popup(title="Choose output file", content=content)
+
+    def filter_dialog(self):
+
+        content = FilterDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Set filter thresholds", content=content,
+                        size_hint=(.5, .5))
 
     ###################################
     #

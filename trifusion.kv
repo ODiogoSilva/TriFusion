@@ -79,6 +79,62 @@
             text: "Cancel"
             on_release: root.cancel()
 
+<FilterDialog>:
+    orientation: "vertical"
+    padding: 20
+    spacing: 20
+
+    Label:
+        text: "Gap threshold"
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        Slider:
+            size_hint_x: .85
+            min: 0
+            max: 1
+            step: 0.01
+        TextInput:
+            size_hint_x: .15
+            id: gap_ti
+
+    Label:
+        text: "Missing data threshold"
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        Slider:
+            size_hint_x: .85
+            min: 0
+            max: 1
+            step: 0.01
+        TextInput:
+            size_hint_x: .15
+            id: gap_ti
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        Button:
+            text: "Done"
+            #on_release: app.save_format(format_dlg)
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
 <MainHeader@ActionToggleButton>:
     size_hint_x: 1
     font_size: 20
