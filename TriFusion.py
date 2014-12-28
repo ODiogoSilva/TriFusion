@@ -723,7 +723,12 @@ class TriFusionApp(App):
             # Update file list
             file_path = self.filename_map[bt_idx]
             self.file_list.remove(file_path)
-            self.active_file_list.remove(file_path)
+            # Update active file list. If the file has been removed from the
+            # active list, this will handle the exception
+            try:
+                self.active_file_list.remove(file_path)
+            except ValueError:
+                pass
             # Update alignment object list
             self.alignment_list.remove_file([self.filename_map[bt_idx]])
             self.active_alignment_list.remove_file([self.filename_map[bt_idx]])
