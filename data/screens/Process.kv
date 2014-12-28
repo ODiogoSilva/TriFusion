@@ -188,12 +188,17 @@ ShowcaseScreen:
 
                             LightBox:
                                 Label:
+                                    size_hint_x: .8
                                     markup: True
                                     text: "[size=15][b]Sequence filter options[/b][/size]"
                                     halign: "left"
                                     valign: "middle"
                                     color: [.85, .85, .85, 1]
                                     text_size: self.size
+                                Switch:
+                                    size_hint_x: .2
+                                    on_active: if self.active == True: root.ids.cv_filterbt.disabled = False
+                                    on_active: if self.active == False: root.ids.cv_filterbt.disabled = True
 
                             DarkBox:
                                 Label:
@@ -205,9 +210,11 @@ ShowcaseScreen:
                                     valign: "middle"
                                     text_size: self.size
                                 Button:
+                                    id: cv_filterbt
                                     background_normal: "data/backgrounds/bt_process.png"
                                     size_hint_x: .2
                                     bold: True
+                                    disabled: True
                                     text: "Set filters"
                                     on_release: app.filter_dialog()
 
