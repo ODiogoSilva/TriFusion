@@ -624,7 +624,7 @@ class TriFusionApp(App):
                 # because it is the only widget (along with TextInput) that
                 # allow text selection and it may be even possible to add text
                 # formatting using python lexer.
-                content = CodeInput(text=" -- Complete data set -- \n"
+                text_content = CodeInput(text=" -- Complete data set -- \n"
                                     "Sequence length: %s\n"
                                     "Number of indels: %s\n"
                                     "Number missing data: %s\n"
@@ -650,13 +650,21 @@ class TriFusionApp(App):
                                  self.active_tx_inf[tx]["effective_len_per"],
                                  self.active_tx_inf[tx]["fl_coverage"],
                                  self.active_tx_inf[tx]["fl_coverage_per"]),
-                                    readonly=True)
+                                    readonly=True, size_hint_y=.9)
+
+                content = BoxLayout(orientation="vertical", spacing=5)
+                close_bt = Button(text="Close", size_hint_y=.1)
+
+                content.add_widget(text_content)
+                content.add_widget(close_bt)
 
                 popup_wgt = Popup(title="Taxon: %s" % value.id[:-1],
                                   content=content, size_hint=(None, None),
                                   size=(400, 400))
 
                 popup_wgt.open()
+
+                close_bt.bind(on_release=popup_wgt.dismiss)
 
         elif value.parent == self.root.ids.file_sl:
 
@@ -669,7 +677,7 @@ class TriFusionApp(App):
                 # calling the popup to avoid repeating this operation every time
                 # taxa  or files are added/removed.
                 self.active_file_inf = self.get_file_information()
-                content = CodeInput(text="Input format: %s\n"
+                text_content = CodeInput(text="Input format: %s\n"
                                          "Sequence type: %s\n"
                                          "Alignment: %s\n"
                                          "Sequence size: %s\n"
@@ -683,11 +691,19 @@ class TriFusionApp(App):
                              self.active_file_inf[file_name]["model"]),
                                     read_only=True)
 
+                content = BoxLayout(orientation="vertical", spacing=5)
+                close_bt = Button(text="Close", size_hint_y=.1)
+
+                content.add_widget(text_content)
+                content.add_widget(close_bt)
+
                 popup_wgt = Popup(title="File: %s" % file_name,
                                   content=content, size_hint=(None, None),
                                   size=(400, 400))
 
                 popup_wgt.open()
+
+                close_bt.bind(on_release=popup_wgt.dismiss)
 
     def toggle_selection(self, value):
         """
