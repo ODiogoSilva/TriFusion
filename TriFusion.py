@@ -957,7 +957,8 @@ class TriFusionApp(App):
         self.show_popup(title="Set filter thresholds", content=content,
                         size=(400, 300))
 
-    def filter_validater(self, value):
+    @staticmethod
+    def filter_validater(value):
 
         try:
             x = float(value.replace(",", "."))
