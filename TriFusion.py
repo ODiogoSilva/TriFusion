@@ -962,8 +962,8 @@ class TriFusionApp(App):
 
         try:
             x = float(value.replace(",", "."))
-            if x > 1:
-                corrected_val = 1
+            if x > 100:
+                corrected_val = 100
             elif x < 0:
                 corrected_val = 0
             else:
