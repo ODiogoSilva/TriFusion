@@ -149,7 +149,7 @@ class TriFusionApp(App):
     # first element and a dictionary mapping the full path to the bookmark
     # name as the second element
     bookmarks = [[], {}]
-    bm_file = cur_dir + "/data/resources/bookmarks"
+    bm_file = join(cur_dir, "data", "resources", "bookmarks")
 
     _popup = ObjectProperty(None)
 
