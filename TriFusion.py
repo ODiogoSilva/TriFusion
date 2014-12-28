@@ -765,9 +765,16 @@ class TriFusionApp(App):
         :param title: string. Title of the popup
         :param content: widget object. The contents of the popup widget
         :param size_hint: tuple. Size hint for the widget
+        :param size: tuple. The absolute size for the popup. If this argument is
+        used, the size_hint will be ignored
         """
 
-        self._popup = Popup(title=title, content=content, size_hint=size_hint)
+        # Ignore size_hint is absolute size is provided
+        if size:
+            self._popup = Popup(title=title, content=content, size=size)
+        else:
+            self._popup = Popup(title=title, content=content,
+                                size_hint=size_hint)
         self._popup.open()
 
     def save_file(self, path, filename, idx):
