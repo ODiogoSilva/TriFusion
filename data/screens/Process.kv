@@ -256,8 +256,8 @@ ShowcaseScreen:
                                     background_normal: "data/backgrounds/bt_process.png"
                                     size_hint_x: .2
                                     bold: True
-                                    text: "Fasta"
-                                    on_release: app.format_dialog()
+                                    text: "Select..."
+                                    disabled: True
 
                             LightBox:
                                 Label:
@@ -279,6 +279,7 @@ ShowcaseScreen:
                                 Switch:
                                     id: interleave
                                     size_hint_x: .2
+                                    disabled: True
 
                             Hseparator
 
