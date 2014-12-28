@@ -723,6 +723,7 @@ class TriFusionApp(App):
             # Update file list
             file_path = self.filename_map[bt_idx]
             self.file_list.remove(file_path)
+            self.active_file_list.remove(file_path)
             # Update alignment object list
             self.alignment_list.remove_file([self.filename_map[bt_idx]])
             self.active_alignment_list.remove_file([self.filename_map[bt_idx]])
@@ -743,6 +744,7 @@ class TriFusionApp(App):
 
         if parent_obj == self.root.ids.taxa_sl:
             self.active_alignment_list.remove_taxa([bt_idx])
+            self.alignment_list.remove_taxa([bt_idx])
             self.active_taxa_list = self.active_alignment_list.taxa_names
             # Updates label
             self.update_sp_label()
