@@ -346,6 +346,11 @@ BoxLayout:
                                                     size_hint_y: None
                                                     #size_hint_x: None
                                                     text: "No files loaded"
+                                        Label:
+                                            id: file_lab
+                                            size_hint_y: None
+                                            height: 1
+                                            color: (.6, .6, .6, 1)
                                         SelectionBox:
                                             id: sb_file
 
@@ -371,6 +376,11 @@ BoxLayout:
                                                     disabled: True
                                                     size_hint_y: None
                                                     text: "No species loaded"
+                                        Label:
+                                            id: sp_lab
+                                            size_hint_y: None
+                                            height: 1
+                                            color: (.6, .6, .6, 1)
                                         SelectionBox:
                                             id: sb_taxa
                         BoxLayout:

@@ -426,6 +426,26 @@ class TriFusionApp(App):
 
         self.active_taxa_list = self.active_alignment_list.taxa_names
 
+    def update_file_label(self):
+        """
+        Sets and updates a label on the Files tab of the side panel, informing
+        how many files are selected out of the total files
+        :return:
+        """
+        self.root.ids.file_lab.text = "%s of %s files selected" % (
+                                       len(self.active_file_list),
+                                       len(self.file_list))
+
+    def update_sp_label(self):
+        """
+        Sets and updates a label on the Taxa tab of the side panel, informing
+        how many taxa are selected out of the total taxa
+        :return:
+        """
+        self.root.ids.sp_lab.text = "%s of %s taxa selected" % (
+                                       len(self.active_taxa_list),
+                                       len(self.alignment_list.taxa_names))
+
     def populate_input_files(self):
         """
         This method grabs the input files that were selected in the
@@ -443,6 +463,10 @@ class TriFusionApp(App):
             for i in self.root.ids.sb_file.children:
                 i.disabled = False
                 i.bind(on_release=self.select_bt)
+
+        # Add a label at the end of the file list informing how many files are
+        # currently selected out of the total files
+        self.update_file_label()
 
         for infile in self.file_list:
 
@@ -498,6 +522,10 @@ class TriFusionApp(App):
             for i in self.root.ids.sb_taxa.children:
                 i.disabled = False
                 i.bind(on_release=self.select_bt)
+
+        # Add a label at the end of the taxa list informing how many taxa are
+        # currently selected out of the total taxa
+        self.update_sp_label()
 
         for tx in sorted(self.active_taxa_list):
 
@@ -647,6 +675,9 @@ class TriFusionApp(App):
                     self.alignment_list.retrieve_alignment(
                         self.filename_map[value.id]))
 
+            # Update label
+            self.update_file_label()
+
         # Changes concerning the taxa tab
         if parent_obj == self.root.ids.taxa_sl:
 
@@ -656,6 +687,9 @@ class TriFusionApp(App):
             # When button is down (selected) add to active
             elif value.state == "down":
                 self.active_taxa_list.append(value.id)
+
+            # Update label
+            self.update_sp_label()
 
     def remove_bt(self, value):
         """
@@ -703,9 +737,15 @@ class TriFusionApp(App):
             self.original_tx_inf = self.get_taxa_information(
                 alt_list=self.alignment_list)
 
+            # Updates labels
+            self.update_file_label()
+            self.update_sp_label()
+
         if parent_obj == self.root.ids.taxa_sl:
             self.active_alignment_list.remove_taxa([bt_idx])
             self.active_taxa_list = self.active_alignment_list.taxa_names
+            # Updates label
+            self.update_sp_label()
 
     def select_bt(self, value):
         """
@@ -732,6 +772,7 @@ class TriFusionApp(App):
                         self.active_file_list = deepcopy(self.file_list)
                         self.active_alignment_list = deepcopy(
                             self.alignment_list)
+                        # Update label
                     #Core changes to taxa
                     if sv_parent == self.root.ids.sv_sp:
                         self.active_taxa_list = deepcopy(
@@ -748,6 +789,10 @@ class TriFusionApp(App):
                     # Core changes to taxa
                     if sv_parent == self.root.ids.sv_sp:
                         self.active_taxa_list = []
+
+        # Updates labels
+        self.update_sp_label()
+        self.update_file_label()
 
     ####
     # PROCESS SCREEN RELATED
