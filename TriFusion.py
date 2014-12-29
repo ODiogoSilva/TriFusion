@@ -35,6 +35,7 @@ from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy.core.window import Window
 from kivy.uix.codeinput import CodeInput
 from kivy.uix.textinput import TextInput
 from kivy.uix.rst import RstDocument
@@ -211,7 +212,7 @@ class TriFusionApp(App):
         # First thing is go to main screen
         self.go_screen(0)
 
-        self.sine_panel_routine()
+        Window.bind(on_touch_up=self.on_touch_sidepanel)
 
     def go_screen(self, idx, direct="left"):
         """
@@ -356,7 +357,28 @@ class TriFusionApp(App):
 
             self.toggle_midpanel(over_width)
 
-        Clock.schedule_interval(toggle_mouse_over, .1)
+        Clock.schedule_interval(toggle_mouse_over, 1)
+
+    def on_touch_sidepanel(self, *args):
+
+        mous_pos = self.root_window.mouse_pos
+        side_panel_wgt = self.root.ids.main_box
+        ap = self.root.ids.ap
+
+        if side_panel_wgt.collide_point(mous_pos[0], mous_pos[1]) is False\
+                and self.show_side_panel \
+                and ap.collide_point(mous_pos[0], mous_pos[1]) is False:
+            ## ANIMATIONS with hierarchy
+            # Animation of main BoxLayout containing child ScrollViews
+            self.side_panel_animation(width=0,
+                                      wgt=self.root.ids.main_box)
+            # Animation of both scrollviews
+            self.side_panel_animation(width=0,
+                                      wgt=self.root.ids.sp)
+            self.side_panel_animation(width=0,
+                                      wgt=self.root.ids.sp_bts)
+
+            self.show_side_panel = not self.show_side_panel
 
     def side_panel_toggle(self):
         """
@@ -384,13 +406,18 @@ class TriFusionApp(App):
 
         ## ANIMATIONS with hierarchy
         # Animation of main BoxLayout containing child ScrollViews
-        Animation(width=sv_panel_width * 1.2, d=.3, t="out_quart").start(
-            self.root.ids.main_box)
+        self.side_panel_animation(width=sv_panel_width * 1.2,
+                                  wgt=self.root.ids.main_box)
         # Animation of both scrollviews
-        Animation(width=sv_panel_width, d=.3, t="out_quart").start(
-            self.root.ids.sp)
-        Animation(width=sv_bts_width, d=.3, t="out_quart").start(
-            self.root.ids.sp_bts)
+        self.side_panel_animation(width=sv_panel_width,
+                                  wgt=self.root.ids.sp)
+        self.side_panel_animation(width=sv_bts_width,
+                                  wgt=self.root.ids.sp_bts)
+
+    @staticmethod
+    def side_panel_animation(width, wgt):
+
+        Animation(width=width * 1.2, d=.3, t="out_quart").start(wgt)
 
     def load(self, selection):
         """
