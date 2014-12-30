@@ -1358,6 +1358,8 @@ class TriFusionApp(App):
             aln_object.write_to_file(self.output_formats,
                        self.output_files["conversion"],
                        interleave=self.process_switches["interleave"])
+
+        # Conversion
         elif self.process_switches["concatenation"] is False:
             aln_object.write_to_file(self.output_formats,
                        interleave=self.process_switches["interleave"])
