@@ -152,6 +152,7 @@
     font_size: 20
     bold: True
     group: "main_header"
+    disabled_color: (1, 1, 1, 1)
 
 <SelectionBox@BoxLayout>:
     orientation: "horizontal"
@@ -196,6 +197,7 @@ BoxLayout:
                 id: h_ortho
                 text: "Orthology"
                 background_down: "data/backgrounds/orthology_down.png"
+                background_disabled_down: "data/backgrounds/orthology_down.png"
                 canvas.before:
                     Color:
                         rgba: [255, .200, .200, .8]
@@ -211,6 +213,7 @@ BoxLayout:
                 id: h_process
                 text: "Process"
                 background_down: "data/backgrounds/process_down.png"
+                background_disabled_down: "data/backgrounds/process_down.png"
                 canvas.before:
                     Color:
                         rgba: (0.200, 0.200, 255, .8)
@@ -226,6 +229,7 @@ BoxLayout:
                 id: h_stat
                 text: "Statistics"
                 background_down: "data/backgrounds/statistics_down.png"
+                background_disabled_down: "data/backgrounds/statistics_down.png"
                 canvas.before:
                     Color:
                         rgba: (0.200, 255, 0.200, .8)
