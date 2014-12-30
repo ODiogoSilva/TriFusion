@@ -425,11 +425,29 @@ class TriFusionApp(App):
     ######################## SIDE PANEL OPERATIONS #############################
 
     def on_touch_sidepanel(self, *args):
+        """
+        This function is binded to the app Window so that it can handle any
+        touch_up events. Once the side panel is open, this allows any mouse
+        click outside the panel to close it. It gathers information on the
+        mouse and side panel position and evaluates a collision. It will
+        trigger the side panel closing only when three conditions are met:
 
+         - When there is a mouse input outside the side panel
+         - When the variable controling the side panel (show_side_panel) is
+         True, meaning that the panel is extended
+         - When the mouse input is outside the previous button in the action
+         bar, which is also used to toggle the side panel. This prevents issues
+         of toggling the side panel twice with one mouse input
+        """
+
+        # Get mouse position
         mous_pos = self.root_window.mouse_pos
+        # Get side panel and previous button widgets
         side_panel_wgt = self.root.ids.main_box
         ap = self.root.ids.ap
 
+        # Check for conditions to close the side panel. See the documetation of
+        # this method
         if side_panel_wgt.collide_point(mous_pos[0], mous_pos[1]) is False\
                 and self.show_side_panel \
                 and ap.collide_point(mous_pos[0], mous_pos[1]) is False:
@@ -450,7 +468,9 @@ class TriFusionApp(App):
         Method controlling the animation toggling of the side panel
         """
 
-        # Toggling the state of the panel
+        # Toggling the state of the panel. This attribute is the main
+        # controller of the side panel state. When its True, the side panel is
+        # extended, otherwise the side panel is hidden
         self.show_side_panel = not self.show_side_panel
 
         if self.show_side_panel:
