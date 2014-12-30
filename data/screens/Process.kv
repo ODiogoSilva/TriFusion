@@ -4,6 +4,8 @@
     height: 70
     background_normal: "data/backgrounds/bt_sideprocess_normal.png"
     background_down: "data/backgrounds/bt_sideprocess.png"
+    background_disabled_down: "data/backgrounds/bt_sideprocess.png"
+    disabled_color: (1, 1, 1, 1)
     halign: "left"
     valign: "middle"
     text_size: self.size
@@ -70,16 +72,23 @@ ShowcaseScreen:
             Sidebt:
                 text: "Conversion\nConcatenation"
                 state: "down"
+                disabled: True
                 group: "process_panel"
-                on_release: carousel.load_slide(carousel.slides[0])
+                on_release:
+                    carousel.load_slide(carousel.slides[0])
+                    app.toggle_groups(self)
             Sidebt:
                 text: "Collapse"
-                on_release: carousel.load_slide(carousel.slides[1])
                 group: "process_panel"
+                on_release:
+                    carousel.load_slide(carousel.slides[1])
+                    app.toggle_groups(self)
             Sidebt:
                 text: "Gcoder"
-                on_release: carousel.load_slide(carousel.slides[2])
                 group: "process_panel"
+                on_release:
+                    carousel.load_slide(carousel.slides[2])
+                    app.toggle_groups(self)
             Widget
             Button:
                 size_hint_y: .30
