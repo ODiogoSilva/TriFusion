@@ -313,7 +313,8 @@ class TriFusionApp(App):
         """
         This adds functionality to the FileChooser "Add bookmark" button. It
         will grab the selected path and add it to a storage list that
-        will be saved as a pickle object
+        will be saved as a pickle object and stored in a file defined in
+        self.bm_file.
         :param path: String containing the path of the bookmark
         """
 
@@ -329,37 +330,67 @@ class TriFusionApp(App):
         pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     def add_bookmark_bt(self, bk):
+        """
+        This will add a bookmark button, along with its removal button. Only
+        a bookmark path will be necessary.
+
+        The path of the bookmark will be associated to the respective button
+        by it's id.
+
+        :param bk: string. bookmark file path
+        """
 
         bookmark_name = bk.split("/")[-1]
+        # Define bookmark button
         bt = Button(text=bookmark_name, id=bk,
                     height=self.root.height * 0.05, size_hint=(.8, None))
+        # Bind to function that loads bookmark path into filechooser
         bt.bind(on_release=self.load_bookmark)
+        # Define bookmark removal button
         xbt = Button(text="X", size_hint=(.14, None),
                      height=self.root.height * 0.05, id="%sX" % bk,
                      background_color=(255, .9, .9, 1), bold=True)
+        # Bind to function that removes bookmark button as well as the path
+        # from self.bm_file
         xbt.bind(on_release=self.remove_bookmark_bt)
+        # Add widgets
         self.screen.ids.sv_book.add_widget(bt)
         self.screen.ids.sv_book.add_widget(xbt)
 
     def load_bookmark(self, value):
+        """
+        Provided a bookmark button object, it loads the bookmark file path
+        that is stored in the button id.
+        :param value: bookmark button object
+        """
 
         path = value.id
         self.screen.ids.icon_view_tab.path = path
 
     def remove_bookmark_bt(self, value):
+        """
+        Adds functionality to the removal button associated with each bookmark
+        button. This will not only remove the
+        :param value: The removal button widget
+        """
 
+        # Get the widget to remove the button
         parent_obj = value.parent
 
+        # Get the bookmark button, using the removal button id
         bk_idx = value.id[:-1]
         bk_bt = [x for x in parent_obj.children if bk_idx == x.id][0]
 
+        # Remove both bookmark and removal buttons
         parent_obj.remove_widget(value)
         parent_obj.remove_widget(bk_bt)
 
         # Core changes
         bk_name = bk_idx.split("/")[-1]
+        # Remove bookmark path from list and mapping dictionary
         self.bookmarks[0].remove(bk_idx)
         del self.bookmarks[1][bk_name]
+        # Update self.bm_file
         pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     ########################### SIDE PANEL EXP #################################
