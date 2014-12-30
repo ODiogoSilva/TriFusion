@@ -215,6 +215,8 @@ class TriFusionApp(App):
         Window.bind(on_touch_up=self.on_touch_sidepanel)
         #self.sine_panel_routine()
 
+    ########################## SCREEN NAVIGATION ###############################
+
     def go_screen(self, idx, direct="left"):
         """
         Method used to go to a specific screen by specifying and index and
@@ -268,6 +270,8 @@ class TriFusionApp(App):
                 i.disabled = False
 
         wgt.disabled = True
+
+    ####################### BOOKMARKS OPERATIONS ###############################
 
     def init_bookmark(self):
         """
@@ -339,6 +343,8 @@ class TriFusionApp(App):
         del self.bookmarks[1][bk_name]
         pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
+    ########################### SIDE PANEL EXP #################################
+
     def toggle_midpanel(self, width):
 
         Animation(width=width, d=.32, t="out_quart").start(
@@ -365,6 +371,8 @@ class TriFusionApp(App):
             self.toggle_midpanel(over_width)
 
         Clock.schedule_interval(toggle_mouse_over, 1)
+
+    ######################## SIDE PANEL OPERATIONS #############################
 
     def on_touch_sidepanel(self, *args):
 
@@ -889,9 +897,7 @@ class TriFusionApp(App):
         self.update_sp_label()
         self.update_file_label()
 
-    ####
-    # PROCESS SCREEN RELATED
-    ####
+    ########################### PROCESS SCREEN #################################
 
     def dismiss_popup(self):
         """
