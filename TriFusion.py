@@ -1107,6 +1107,9 @@ class TriFusionApp(App):
         self.show_popup(title="Choose output file", content=content)
 
     def filter_dialog(self):
+        """
+        Generates the settings popup for filtering options
+        """
 
         content = FilterDialog(cancel=self.dismiss_popup)
         # Update filter values if they were changed
@@ -1119,6 +1122,15 @@ class TriFusionApp(App):
 
     @staticmethod
     def filter_validater(value):
+        """
+        Method that validates the input of the text input in filter settings.
+        It handles common misktakes, such as using "," instead of "." for
+        decimal places and truncates values between the range of 0 and 100.
+        If the text input cannot be converted to float, it will return false
+        and the slider value will not change
+        :param value: text_input.text
+        :return:
+        """
 
         try:
             x = float(value.replace(",", "."))
