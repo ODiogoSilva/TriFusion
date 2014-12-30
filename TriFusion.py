@@ -407,7 +407,7 @@ class TriFusionApp(App):
             sv_panel_width = self.root.width * .32
             # The width of the side panel buttons will be the same as the
             # actionprevious button of the action bar
-            sv_bts_width = self.root.ids.ap.width
+            sv_bts_width = self.root.ids.av.children[0].width
         else:
             sv_panel_width, sv_bts_width = 0, 0
 
@@ -424,7 +424,7 @@ class TriFusionApp(App):
     @staticmethod
     def side_panel_animation(width, wgt):
 
-        Animation(width=width * 1.2, d=.3, t="out_quart").start(wgt)
+        Animation(width=width, d=.3, t="out_quart").start(wgt)
 
     def load(self, selection):
         """
