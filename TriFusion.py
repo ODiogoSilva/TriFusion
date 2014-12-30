@@ -264,7 +264,26 @@ class TriFusionApp(App):
 
     @staticmethod
     def toggle_groups(wgt):
+        """
+        This method generates a desired behaviour for groups of toggle buttons
+        that control screens or slides. By default, when a toggle button is
+        pressed, the state will be down and a new screen/slide is presented.
+        However, if the same toggle button is pressed again, it's state will
+        return to normal while the same screen/slide is showed. To prevent this
+        behaviour, this method will disable the active toggle button in the
+        group and enable any other previously disabled button.
 
+        To allow a seamless transition, ensure that background_disabled_dow is
+        the same as background_down, and that disabled_color is the same as
+        color.
+
+        :param wgt: The toggle button widget. Must belong to a group.
+        """
+
+        # Iterating over the children of the parent may not be optimal, but
+        # using the get_widgets(groupname) method could result in some issues
+        # with garbage collector of kivy. So, for now, this will iterate over
+        # all children of the toggle button's parent
         for i in wgt.parent.children:
             if i.disabled:
                 i.disabled = False
