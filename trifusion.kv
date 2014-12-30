@@ -153,65 +153,6 @@
     bold: True
     group: "main_header"
 
-<MainAction@ActionBar>:
-    pos_hint: {'top':1}
-
-    ActionView:
-        ActionPrevious:
-            id: start_bt
-            size_hint_x: 0.2
-            with_previous: False
-            on_release:
-                app.side_panel_toggle()
-            canvas.before:
-                Color:
-                    rgba: (0.180, 0.180, 0.180, .8)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-        MainHeader:
-            text: "Orthology"
-            background_down: "data/backgrounds/orthology_down.png"
-            canvas.before:
-                Color:
-                    rgba: [255, .200, .200, .8]
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            on_release:
-                idx = app.screen_names.index("Orthology")
-                app.go_screen(idx)
-
-        MainHeader:
-            text: "Process"
-            background_down: "data/backgrounds/process_down.png"
-            canvas.before:
-                Color:
-                    rgba: (0.200, 0.200, 255, .8)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            on_release:
-                idx = app.screen_names.index("Process")
-                app.go_screen(idx)
-
-        MainHeader:
-            text: "Statistics"
-            background_down: "data/backgrounds/statistics_down.png"
-            canvas.before:
-                Color:
-                    rgba: (0.200, 255, 0.200, .8)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            on_release:
-                idx = app.screen_names.index("Statistics")
-                app.go_screen(idx)
-
-        ActionButton:
-            size_hint_x: 0.2
-
 <SelectionBox@BoxLayout>:
     orientation: "horizontal"
     size_hint_y: .11
@@ -233,8 +174,69 @@
 BoxLayout:
     orientation: "vertical"
 
-    MainAction:
-        id: ap
+    ActionBar:
+        pos_hint: {'top':1}
+
+        ActionView:
+            id: av
+            ActionPrevious:
+                id: ap
+                size_hint_x: 0.2
+                with_previous: False
+                on_release:
+                    app.side_panel_toggle()
+                canvas.before:
+                    Color:
+                        rgba: (0.180, 0.180, 0.180, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+            MainHeader:
+                id: h_ortho
+                text: "Orthology"
+                background_down: "data/backgrounds/orthology_down.png"
+                canvas.before:
+                    Color:
+                        rgba: [255, .200, .200, .8]
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                on_release:
+                    idx = app.screen_names.index("Orthology")
+                    app.go_screen(idx)
+                    app.toggle_headers()
+
+            MainHeader:
+                id: h_process
+                text: "Process"
+                background_down: "data/backgrounds/process_down.png"
+                canvas.before:
+                    Color:
+                        rgba: (0.200, 0.200, 255, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                on_release:
+                    idx = app.screen_names.index("Process")
+                    app.go_screen(idx)
+
+            MainHeader:
+                id: h_stat
+                text: "Statistics"
+                background_down: "data/backgrounds/statistics_down.png"
+                canvas.before:
+                    Color:
+                        rgba: (0.200, 255, 0.200, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                on_release:
+                    idx = app.screen_names.index("Statistics")
+                    app.go_screen(idx)
+
+            ActionButton:
+                size_hint_x: 0.2
 
     BoxLayout:
         id: bx1
