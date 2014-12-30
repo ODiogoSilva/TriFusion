@@ -261,7 +261,7 @@ class TriFusionApp(App):
         return self.screen
 
     @staticmethod
-    def toggle_headers(wgt):
+    def toggle_groups(wgt):
 
         for i in wgt.parent.children:
             if i.disabled:

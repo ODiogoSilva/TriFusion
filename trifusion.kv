@@ -207,7 +207,7 @@ BoxLayout:
                 on_release:
                     idx = app.screen_names.index("Orthology")
                     app.go_screen(idx)
-                    app.toggle_headers(self)
+                    app.toggle_groups(self)
 
             MainHeader:
                 id: h_process
@@ -223,7 +223,7 @@ BoxLayout:
                 on_release:
                     idx = app.screen_names.index("Process")
                     app.go_screen(idx)
-                    app.toggle_headers(self)
+                    app.toggle_groups(self)
 
             MainHeader:
                 id: h_stat
@@ -239,7 +239,7 @@ BoxLayout:
                 on_release:
                     idx = app.screen_names.index("Statistics")
                     app.go_screen(idx)
-                    app.toggle_headers(self)
+                    app.toggle_groups(self)
 
             ActionButton:
                 size_hint_x: 0.2
