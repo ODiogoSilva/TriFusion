@@ -175,6 +175,64 @@
     background_disabled_down: "data/backgrounds/side_panel_bt_down.png"
     disabled_color: (1,1,1,1)
 
+############################ PROCESS SCREEN ####################################
+
+<Sidebt@ToggleButton>:
+    #background_color: [0,0,0,1]
+    size_hint_y: None
+    height: 70
+    background_normal: "data/backgrounds/bt_sideprocess_normal.png"
+    background_down: "data/backgrounds/bt_sideprocess.png"
+    background_disabled_down: "data/backgrounds/bt_sideprocess.png"
+    disabled_color: (1, 1, 1, 1)
+    halign: "left"
+    valign: "middle"
+    text_size: self.size
+    bold: True
+    font_size: 16
+    padding: (20, 0)
+
+# Vertical light grey separator
+<Vseparator@Widget>:
+    size_hint_x: None
+    width: 3
+    canvas:
+        Color:
+            rgb: .5, .5, .5
+        Rectangle:
+            pos: self.center_x, -5
+            size: .3, self.height
+
+<LightBox@BoxLayout>:
+    height: 40
+    orientation: "horizontal"
+    size_hint_y: None
+    padding: 10
+    canvas.before:
+        Color:
+            rgba: (.2, .2, .2, .8)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<DarkBox@BoxLayout>:
+    height: 60
+    orientation: "horizontal"
+    size_hint_y: None
+    padding: 10
+
+<Hseparator@Widget>:
+    size_hint_y: None
+    height: self.thickness + 2 * self.margin
+    thickness: 1
+    margin: 1
+    canvas:
+        Color:
+            rgb: .5, .5, .5
+        Rectangle:
+            pos: self.x + self.margin, self.y + self.margin +1
+            size: self.width - 2 * self.margin, self.thickness
+
 BoxLayout:
     orientation: "vertical"
 
