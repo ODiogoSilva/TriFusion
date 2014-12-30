@@ -213,6 +213,7 @@ class TriFusionApp(App):
         self.go_screen(0)
 
         Window.bind(on_touch_up=self.on_touch_sidepanel)
+        #self.sine_panel_routine()
 
     def go_screen(self, idx, direct="left"):
         """
@@ -258,6 +259,14 @@ class TriFusionApp(App):
             self.init_bookmark()
 
         return self.screen
+
+    def toggle_headers(self, wgt):
+
+        for i in self.root.ids.av.children:
+            if i.disabled:
+                i.disabled = False
+
+        wgt.disabled = True
 
     def init_bookmark(self):
         """
@@ -340,9 +349,6 @@ class TriFusionApp(App):
 
             mp = self.root_window.mouse_pos
 
-            over_bg_down = "data/backgrounds/side_panel_bt_over.png"
-            bg_normal = "data/backgrounds/side_panel_bt_normal.png"
-
             first_bt = self.root.ids.first_sidebt
             second_bt = self.root.ids.second_sidebt
 
@@ -400,7 +406,7 @@ class TriFusionApp(App):
             sv_panel_width = self.root.width * .32
             # The width of the side panel buttons will be the same as the
             # actionprevious button of the action bar
-            sv_bts_width = self.root.ids.ap.children[0].children[-1].width
+            sv_bts_width = self.root.ids.ap.width
         else:
             sv_panel_width, sv_bts_width = 0, 0
 
