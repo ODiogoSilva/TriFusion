@@ -170,7 +170,10 @@
     size_hint_y: .1
     font_size: 30
     bold: True
-
+    background_down: "data/backgrounds/side_panel_bt_down.png"
+    background_normal: "data/backgrounds/side_panel_bt_normal.png"
+    background_disabled_down: "data/backgrounds/side_panel_bt_down.png"
+    disabled_color: (1,1,1,1)
 
 BoxLayout:
     orientation: "vertical"
@@ -281,16 +284,17 @@ BoxLayout:
                         SideButton:
                             id: first_sidebt
                             state: "down"
-                            on_release: carousel.load_slide(carousel.slides[0])
-                            background_down: "data/backgrounds/side_panel_bt_down.png"
-                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
+                            disabled: True
                             text: "H"
+                            on_release:
+                                carousel.load_slide(carousel.slides[0])
+                                app.toggle_groups(self)
                         SideButton:
                             id: second_sidebt
-                            background_down: "data/backgrounds/side_panel_bt_down.png"
-                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
-                            on_release: carousel.load_slide(carousel.slides[1])
                             text: "G"
+                            on_release:
+                                carousel.load_slide(carousel.slides[1])
+                                app.toggle_groups(self)
                         Widget:
                             size_hint_y: .8
                             canvas.before:
