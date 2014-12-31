@@ -1101,8 +1101,9 @@ class TriFusionApp(App):
         content.ids.sd_filechooser.path = self.home_path
 
         # Save output file for conversion/concatenation purposes
-        if value == "conversion":
-            content.ids.sd_filechooser.text = "conversion"
+        # Providing this operation will allow the filechooser widget to
+        # know which output file is this
+        content.ids.sd_filechooser.text = value
 
         self.show_popup(title="Choose output file", content=content)
 
