@@ -998,7 +998,7 @@ class TriFusionApp(App):
         """
         Adds functionality to the save button in the output file chooser. It
         gathers information on the specified path through filechooser, file
-        name through textinput and the widget id when called.
+        name through textinput and the widget text when called.
 
         The output file name is stored in a dictionary storage that contains
         the file names for the widget that was used. If, for example, the
