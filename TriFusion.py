@@ -98,6 +98,13 @@ class FilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class TextDialog(BoxLayout):
+    """
+    Class controlling a simple text input popup
+    """
+    cancel = ObjectProperty(None)
+
+
 class TriFusionApp(App):
 
     #######################

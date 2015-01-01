@@ -79,6 +79,17 @@
             text: "Cancel"
             on_release: root.cancel()
 
+<TextDialog>:
+    TextInput
+    BoxLayout:
+        orientation: "horizontal"
+        Button:
+            text: "Done"
+            on_release: app.save_format(format_dlg)
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
 <FilterDialog>:
     orientation: "vertical"
     padding: 20
