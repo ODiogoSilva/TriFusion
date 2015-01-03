@@ -492,7 +492,7 @@ class TriFusionApp(App):
             sv_panel_width = self.root.width * .32
             # The width of the side panel buttons will be the same as the
             # actionprevious button of the action bar
-            sv_bts_width = self.root.ids.av.children[0].width
+            sv_bts_width = self.root.ids.av.children[-1].width * .5
         else:
             sv_panel_width, sv_bts_width = 0, 0
 

@@ -254,7 +254,8 @@ BoxLayout:
             id: av
             ActionPrevious:
                 id: ap
-                size_hint_x: 0.2
+                size_hint_x: 0.4
+                title: "Menu"
                 with_previous: False
                 on_release:
                     app.side_panel_toggle()
@@ -312,9 +313,6 @@ BoxLayout:
                     idx = app.screen_names.index("Statistics")
                     app.go_screen(idx)
                     app.toggle_groups(self)
-
-            ActionButton:
-                size_hint_x: 0.2
 
     BoxLayout:
         id: bx1
