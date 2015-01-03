@@ -195,6 +195,9 @@ class TriFusionApp(App):
     # threshold as first element and missing data threshold as second element
     filter_settings = []
 
+    # Attribute storing the haplotype prefix
+    hap_prefix = "Hap"
+
     ##################################
     #
     # GUI RELATED METHODS AND FUCTIONS
@@ -1151,6 +1154,26 @@ class TriFusionApp(App):
             return True, corrected_val
         except ValueError:
             return False
+
+    def text_dialog(self, title=""):
+        """
+        Generates a simple text dialog to capture text input
+        """
+
+        content = TextDialog(cancel=self.dismiss_popup)
+        content.ids.txt_dlg.text = self.hap_prefix
+
+        self.show_popup(title=title, content=content,
+                        size=(200, 150))
+
+    def save_hap_prefix(self, text_wgt):
+        """
+        Saves the specified string suffix for haplotypes when collapsing
+        :param text_wgt. The widget of the text input to retrieve its text
+        property
+        """
+
+        self.hap_prefix = text_wgt.text
 
     ###################################
     #

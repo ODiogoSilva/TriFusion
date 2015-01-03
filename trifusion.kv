@@ -80,12 +80,18 @@
             on_release: root.cancel()
 
 <TextDialog>:
-    TextInput
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    TextInput:
+        id: txt_dlg
     BoxLayout:
         orientation: "horizontal"
         Button:
             text: "Done"
-            on_release: app.save_format(format_dlg)
+            on_release:
+                app.save_hap_prefix(txt_dlg)
+                root.cancel()
         Button:
             text: "Cancel"
             on_release: root.cancel()
