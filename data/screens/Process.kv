@@ -2,51 +2,39 @@ ShowcaseScreen:
     name: "Process"
 
     BoxLayout:
-        orientation: "horizontal"
+        orientation: "vertical"
+        spacing: 10
 
-        ####
-        #This will be the side selectors for conversion, filter, gcoder
-        ####
-
-        GridLayout:
-            cols:1
-            size_hint_x: .25
-            padding: 10
-            spacing: 10
-            Sidebt:
-                text: "Conversion\nConcatenation"
-                state: "down"
-                disabled: True
-                group: "process_panel"
-                on_release:
-                    carousel.load_slide(carousel.slides[0])
-                    app.toggle_groups(self)
-            Sidebt:
-                text: "Collapse"
-                group: "process_panel"
-                on_release:
-                    carousel.load_slide(carousel.slides[1])
-                    app.toggle_groups(self)
-            Sidebt:
-                text: "Gcoder"
-                group: "process_panel"
-                on_release:
-                    carousel.load_slide(carousel.slides[2])
-                    app.toggle_groups(self)
-            Widget
-            Button:
-                size_hint_y: .30
-                background_normal: "data/backgrounds/process_exec.png"
-                background_down: "data/backgrounds/process_exec_down.png"
-                text: "Execute"
-                bold: True
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                color: (0.2,0.2,0.2,1)
-                on_release: app.process_exec()
-
-        Vseparator
+        BoxLayout:
+            size_hint_y: None
+            padding: 5
+            spacing: 5
+            height: 110
+            orientation: "vertical"
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]Choose your destiny[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
+            BoxLayout:
+                orientation: "horizontal"
+                Sidebt:
+                    text: "Conversion"
+                    state: "down"
+                    disabled: True
+                    group: "process_panel"
+                    on_release:
+                        carousel.load_slide(carousel.slides[0])
+                        app.toggle_groups(self)
+                Sidebt:
+                    text: "Concatenation"
+                    group: "process_panel"
+                    on_release:
+                        carousel.load_slide(carousel.slides[1])
+                        app.toggle_groups(self)
 
         # This will be the main screen with the options and stuff
 
@@ -54,16 +42,26 @@ ShowcaseScreen:
         # necessary. Otherwise, widgets in general will not respond as they
         # should to touch events
         ScrollView:
-            size_hint_x: .75
             Carousel:
                 id: carousel
-                direction: "bottom"
+                direction: "right"
                 BoxLayout:
                     orientation: "vertical"
 
+
+                    ##### Conversion slide #####
+
                     ScrollView:
-                        size_hint_y: .85
+                        #size_hint_y: .85
                         bar_width: 4.5
+
+                        canvas.before:
+                            Color:
+                                rgba: (1,1,1,.5)
+                            Rectangle:
+                                source: "data/backgrounds/conversion_background.png"
+                                pos: self.pos
+                                size: self.size
 
                         GridLayout:
                             orientation: "vertical"
@@ -293,8 +291,18 @@ ShowcaseScreen:
                 BoxLayout:
                     orientation: "vertical"
 
+                    ##### Conversion slide #####
+
                     ScrollView:
                         size_hint_y: .85
+
+                        canvas.before:
+                            Color:
+                                rgba: (1,1,1,.3)
+                            Rectangle:
+                                source: "data/backgrounds/concatenation_background.png"
+                                pos: self.pos
+                                size: self.size
 
                         GridLayout:
                             orientation: "vertical"
@@ -314,6 +322,7 @@ ShowcaseScreen:
                                     color: [.85, .85, .85, 1]
                                     text_size: self.size
                                 Switch:
+                                    id: collapse
                                     size_hint_x: .2
                                     on_active: if self.active == True: root.ids.col_outputbt.disabled = False; root.ids.col_hapbt.disabled = False
                                     on_active: if self.active == False: root.ids.col_outputbt.disabled = True; root.ids.col_hapbt.disabled = True
@@ -431,3 +440,40 @@ ShowcaseScreen:
                                     bold: True
                                     disabled: True
                                     text: "Select..."
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 50
+            padding: 10
+            spacing: 20
+            Button:
+                height: 20
+                background_normal: "data/backgrounds/process_exec.png"
+                background_down: "data/backgrounds/process_exec_down.png"
+                text: "Execute"
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                color: (0.2,0.2,0.2,1)
+                on_release: app.process_exec()
+            Button:
+                height: 20
+                background_normal: "data/backgrounds/process_exec.png"
+                background_down: "data/backgrounds/process_exec_down.png"
+                text: "View queue"
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                color: (0.2,0.2,0.2,1)
+            Button:
+                height: 20
+                background_normal: "data/backgrounds/process_exec.png"
+                background_down: "data/backgrounds/process_exec_down.png"
+                text: "Change data set"
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                color: (0.2,0.2,0.2,1)

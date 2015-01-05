@@ -163,7 +163,8 @@ class TriFusionApp(App):
 
     # Dictionary containing all values of the switches in the process screen
     process_switches = {"concatenation": None, "rev_concatenation": None,
-                        "interleave": None, "zorro": None, "filter": None}
+                        "interleave": None, "zorro": None, "filter": None,
+                        "collapse": None}
 
     ################################
     #
