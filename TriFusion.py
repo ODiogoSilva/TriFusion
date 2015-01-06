@@ -1085,14 +1085,17 @@ class TriFusionApp(App):
         # specified, the text will inform the number of selected formats; if no
         # format is specified, a no selected format text will appear
         if len(self.output_formats) == 1:
-            self.screen.ids.conv_formatbt.font_size = 15
-            self.screen.ids.conv_formatbt.text = self.output_formats[0].title()
+            self.process_grid_wgt.ids.conv_formatbt.font_size = 15
+            self.process_grid_wgt.ids.conv_formatbt.text = \
+                self.output_formats[0].title()
+
         elif len(self.output_formats) == 0:
-            self.screen.ids.conv_formatbt.font_size = 12
-            self.screen.ids.conv_formatbt.text = "No formats selected"
+            self.process_grid_wgt.ids.conv_formatbt.font_size = 14
+            self.process_grid_wgt.ids.conv_formatbt.text = "No formats selected"
+
         else:
-            self.screen.ids.conv_formatbt.font_size = 13
-            self.screen.ids.conv_formatbt.text = "%s formats selected" % (
+            self.process_grid_wgt.ids.conv_formatbt.font_size = 16
+            self.process_grid_wgt.ids.conv_formatbt.text = "%s selected" % (
                 len(self.output_formats))
 
     def save_filter(self, gap_val, mis_val):
