@@ -290,12 +290,12 @@ class TriFusionApp(App):
         else:
             self.screen = Builder.load_file(self.available_screens[idx])
 
-            # If the screen to be loaded is the filechooser, set the home path as
-            # the default
-            if self.available_screens[idx].split("/")[-1] == "fc.kv":
-                self.screen.ids.icon_view_tab.path = self.home_path
-                # Initialize bookmarks
-                self.init_bookmark()
+        # If the screen to be loaded is the filechooser, set the home path as
+        # the default
+        if self.available_screens[idx].split("/")[-1] == "fc.kv":
+            self.screen.ids.icon_view_tab.path = self.home_path
+            # Initialize bookmarks
+            self.init_bookmark()
 
         return self.screen
 
