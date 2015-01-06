@@ -110,6 +110,10 @@ class ProcessGeneral(GridLayout):
     pass
 
 
+class AdditionalProcessContents(Widget):
+    pass
+
+
 class TriFusionApp(App):
 
     #######################
@@ -127,6 +131,7 @@ class TriFusionApp(App):
     # Variable containing screen names
     screen_names = ListProperty()
     available_screens = ListProperty()
+    loaded_screens = {}
 
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
@@ -230,6 +235,7 @@ class TriFusionApp(App):
         self.available_screens = [join(self.cur_dir, "data", "screens",
                                  "{}.kv".format(screen)) for screen in
                                   self.available_screens]
+        self.loaded_screens = dict((sc, None) for sc in self.available_screens)
 
         # First thing is go to main screen
         self.go_screen(0)
@@ -246,6 +252,11 @@ class TriFusionApp(App):
         :param idx: integer. Index value of the screen from self.screen_names
         :param direct: string. The direction of the transition
         """
+
+        if self.screen:
+            screen_path = join(self.cur_dir, "data", "screens", "{}.kv".format(
+                self.screen.name))
+            self.loaded_screens[screen_path] = self.screen
 
         self.index = idx
 
@@ -273,14 +284,18 @@ class TriFusionApp(App):
         Loads the current screen according to the corresponding kv file
         :param idx: The index of the screen to be loaded
         """
-        self.screen = Builder.load_file(self.available_screens[idx])
 
-        # If the screen to be loaded is the filechooser, set the home path as
-        # the default
-        if self.available_screens[idx].split("/")[-1] == "fc.kv":
-            self.screen.ids.icon_view_tab.path = self.home_path
-            # Initialize bookmarks
-            self.init_bookmark()
+        if self.loaded_screens[self.available_screens[idx]]:
+            self.screen = self.loaded_screens[self.available_screens[idx]]
+        else:
+            self.screen = Builder.load_file(self.available_screens[idx])
+
+            # If the screen to be loaded is the filechooser, set the home path as
+            # the default
+            if self.available_screens[idx].split("/")[-1] == "fc.kv":
+                self.screen.ids.icon_view_tab.path = self.home_path
+                # Initialize bookmarks
+                self.init_bookmark()
 
         return self.screen
 
@@ -1205,9 +1220,6 @@ class TriFusionApp(App):
     def show_process_options(self):
 
         self.process_grid_wgt.remove_widget(self.process_grid_wgt.ids.opt_bt)
-
-        class AdditionalProcessContents(Widget):
-            pass
 
         contents = AdditionalProcessContents()
         for i in contents.children[::-1]:
