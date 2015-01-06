@@ -1222,7 +1222,7 @@ class TriFusionApp(App):
 
     def show_process_options(self):
 
-        self.process_grid_wgt.remove_widget(self.process_grid_wgt.ids.opt_bt)
+        print(self.process_grid_wgt.ids.opt_bt)
 
         contents = AdditionalProcessContents()
         for i in contents.children[::-1]:
