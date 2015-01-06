@@ -1223,6 +1223,11 @@ class TriFusionApp(App):
             else:
                 self.main_operations[k] = False
 
+        if op == "conversion":
+            self.process_grid_wgt.ids.conversion.disabled = True
+        else:
+            self.process_grid_wgt.ids.conversion.disabled = False
+
     def toggle_process_options(self):
 
         if self.process_grid_wgt.ids.opt_bt.text == "Show additional options":
