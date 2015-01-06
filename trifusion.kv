@@ -250,72 +250,79 @@
             pos: self.x + self.margin, self.y + self.margin +1
             size: self.width - 2 * self.margin, self.thickness
 
-<ProcessGeneral>:
-    orientation: "vertical"
+<ProcessGeneral@GridLayout>:
+    size_hint_y: None
+    height: 45 * len([x for y in [z.children for z in self.children] for x in y])
+    cols: 1
+    GridLayout:
+        cols: 1
+        padding: 5
+        spacing: 5
+        size_hint_y: None
+        height: 50 * len(self.children)
+        LightBox:
+            Label:
+                markup: True
+                text: "[size=15][b]General[/b][/size]"
+                halign: "left"
+                valign: "middle"
+                color: [.85, .85, .85, 1]
+                text_size: self.size
+
+        DarkBox:
+            Label:
+                size_hint_x: .8
+                markup: True
+                text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Button:
+                id: conv_formatbt
+                background_normal: "data/backgrounds/bt_process.png"
+                size_hint_x: .2
+                bold: True
+                text: "Fasta"
+                on_release: app.format_dialog()
+        Hseparator
+
+        DarkBox:
+            id: dark_l
+            Label:
+                size_hint_x: .8
+                markup: True
+                text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Button:
+                background_normal: "data/backgrounds/bt_process.png"
+                size_hint_x: .2
+                id: conversion
+                shorten: True
+                shorten_from: "right"
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                bold: True
+                text: "Select..."
+                on_release: app.filechooser_dialog("conversion")
+
+        BoxLayout:
+            padding: [100,10,100,10]
+            size_hint_y: None
+            height: 60
+            Button:
+                id: opt_bt
+                text: "Show more options"
+                on_release:
+                    app.toggle_process_options()
+
+<AdditionalProcessContents@GridLayout>:
     cols: 1
     padding: 5
     spacing: 5
-    height: 45 * len(self.children)
-    opacity: 1
-    size_hint_y: None
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]General[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
-
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Button:
-            id: conv_formatbt
-            background_normal: "data/backgrounds/bt_process.png"
-            size_hint_x: .2
-            bold: True
-            text: "Fasta"
-            on_release: app.format_dialog()
-    Hseparator
-
-    DarkBox:
-        id: dark_l
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Button:
-            background_normal: "data/backgrounds/bt_process.png"
-            size_hint_x: .2
-            id: conversion
-            shorten: True
-            shorten_from: "right"
-            text_size: self.size
-            halign: "center"
-            valign: "middle"
-            bold: True
-            text: "Select..."
-            on_release: app.filechooser_dialog("conversion")
-
-    BoxLayout:
-        id: opt_bt
-        padding: [100,10,100,10]
-        size_hint_y: None
-        height: 60
-        Button:
-            text: "Show more options"
-            on_release: app.show_process_options()
-
-<AdditionalProcessContents>:
+    opacity: 0
     LightBox:
         Label:
             size_hint_x: .8

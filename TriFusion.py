@@ -110,7 +110,7 @@ class ProcessGeneral(GridLayout):
     pass
 
 
-class AdditionalProcessContents(Widget):
+class AdditionalProcessContents(GridLayout):
     pass
 
 
@@ -181,6 +181,7 @@ class TriFusionApp(App):
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
     process_grid_wgt = None
+    process_options = None
 
     ################################
     #
@@ -1220,16 +1221,27 @@ class TriFusionApp(App):
             else:
                 self.main_operations[k] = False
 
-    def show_process_options(self):
+        self.process_options = AdditionalProcessContents()
 
-        print(self.process_grid_wgt.ids.opt_bt)
+    def toggle_process_options(self):
 
-        contents = AdditionalProcessContents()
-        for i in contents.children[::-1]:
-            contents.remove_widget(i)
-            i.opacity = 0
-            self.process_grid_wgt.add_widget(i)
-            Animation(opacity=1, d=.32, t="in_quad").start(i)
+        if self.process_grid_wgt.ids.opt_bt.text == "Show more options":
+
+            # for i in self.process_options.children[::-1]:
+            #     self.process_options.remove_widget(i)
+            #     i.opacity = 0
+            #     self.process_grid_wgt.add_widget(i)
+            #     Animation(opacity=1, d=.32, t="in_quad").start(i)
+            self.process_grid_wgt.add_widget(self.process_options)
+            Animation(opacity=1, d=.32, t="in_quad").start(self.process_options)
+
+            self.process_grid_wgt.ids.opt_bt.text = "Hide options"
+
+        elif self.process_grid_wgt.ids.opt_bt.text == "Hide options":
+            Animation(opacity=0, d=.32, t="in_quad").start(self.process_options)
+            self.process_grid_wgt.remove_widget(self.process_options)
+
+            self.process_grid_wgt.ids.opt_bt.text = "Show more options"
 
     ###################################
     #
