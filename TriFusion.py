@@ -62,6 +62,7 @@ from os.path import dirname, join, exists
 from os.path import expanduser
 from copy import deepcopy
 import pickle
+import time
 
 Config.set("kivy", "log_level", "warning")
 
@@ -1237,17 +1238,14 @@ class TriFusionApp(App):
         if self.process_grid_wgt.ids.opt_bt.text == "Show additional options":
 
             self.process_grid_wgt.add_widget(self.process_options)
-            Animation(opacity=1, d=.32, t="in_quad").start(self.process_options)
+            Animation(opacity=1, d=.5, t="in_quad").start(self.process_options)
 
             self.process_grid_wgt.height = self.process_height + (55 * len(
                 self.process_options.ids.main_grid.children))
 
             self.process_grid_wgt.ids.opt_bt.text = "Hide additional options"
 
-            print(self.process_grid_wgt.height)
-
         elif self.process_grid_wgt.ids.opt_bt.text == "Hide additional options":
-            Animation(opacity=0, d=.32, t="in_quad").start(self.process_options)
             self.process_grid_wgt.remove_widget(self.process_options)
 
             self.process_grid_wgt.ids.opt_bt.text = "Show additional options"
