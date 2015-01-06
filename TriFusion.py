@@ -1054,7 +1054,7 @@ class TriFusionApp(App):
             # Adds output file to storage
             self.output_files[idx] = join(path, filename)
             # Renames the output file button text
-            self.screen.ids.conversion.text = filename
+            self.process_grid_wgt.ids.conversion.text = filename
             # Close popup
             self.dismiss_popup()
             # Breaks loop
