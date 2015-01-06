@@ -306,15 +306,17 @@
             text: "Select..."
             on_release: app.filechooser_dialog("conversion")
 
-    BoxLayout:
+    FloatLayout:
         id: opt_bt
-        padding: 10
-        spacing: 10
         size_hint_y: None
-        height: 70
-        Button:
-            text: "More options"
-            on_release: app.show_process_options()
+        height: 40
+        BoxLayout:
+            size_hint_x: None
+            center_x: opt_bt.center_x
+            width: root.width/4
+            Button:
+                text: "Show more options"
+                on_release: app.show_process_options()
 
 <AdditionalProcessContents>:
     LightBox:
