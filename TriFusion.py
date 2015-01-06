@@ -45,6 +45,7 @@ from kivy.clock import Clock
 from kivy.uix.gridlayout import GridLayout
 #from kivy.uix.scrollview import ScrollView
 from kivy.factory import Factory
+from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
@@ -110,7 +111,7 @@ class ProcessGeneral(GridLayout):
     pass
 
 
-class AdditionalProcessContents(GridLayout):
+class AdditionalProcessContents(TabbedPanel):
     pass
 
 
@@ -1215,7 +1216,7 @@ class TriFusionApp(App):
             self.process_options = AdditionalProcessContents()
 
             Animation(opacity=1, d=.32, t="in_quad").start(
-                self.process_grid_wgt)
+               self.process_grid_wgt)
 
         for k in self.main_operations:
             if op == k:
@@ -1232,15 +1233,15 @@ class TriFusionApp(App):
 
         if self.process_grid_wgt.ids.opt_bt.text == "Show additional options":
 
-            # for i in self.process_options.children[::-1]:
-            #     self.process_options.remove_widget(i)
-            #     i.opacity = 0
-            #     self.process_grid_wgt.add_widget(i)
-            #     Animation(opacity=1, d=.32, t="in_quad").start(i)
             self.process_grid_wgt.add_widget(self.process_options)
             Animation(opacity=1, d=.32, t="in_quad").start(self.process_options)
 
+            self.process_grid_wgt.height += (75 * len(
+                self.process_options.ids.main_grid.children))
+
             self.process_grid_wgt.ids.opt_bt.text = "Hide additional options"
+
+            print(self.process_grid_wgt.height)
 
         elif self.process_grid_wgt.ids.opt_bt.text == "Hide additional options":
             Animation(opacity=0, d=.32, t="in_quad").start(self.process_options)

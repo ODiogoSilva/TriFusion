@@ -252,8 +252,10 @@
 
 <ProcessGeneral@GridLayout>:
     size_hint_y: None
-    height: 45 * len([x for y in [z.children for z in self.children] for x in y])
+    #height: 45 * len([x for y in [z.children for z in self.children] for x in y])
+    height: 45 * len(self.children[0].children)
     cols: 1
+    opacity: 0
     GridLayout:
         cols: 1
         padding: 5
@@ -319,160 +321,284 @@
                 on_release:
                     app.toggle_process_options()
 
-<AdditionalProcessContents@GridLayout>:
-    cols: 1
-    padding: 5
-    spacing: 5
-    opacity: 0
-    LightBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=15][b]Sequence filter options[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
-        Switch:
-            id: filter
-            size_hint_x: .2
-            on_active: if self.active == True: root.ids.cv_filterbt.disabled = False
-            on_active: if self.active == False: root.ids.cv_filterbt.disabled = True
+<AdditionalProcessContents@TabbedPanel>:
+    do_default_tab: False
+    tab_pos: "top_left"
+    background_color: (0,0,0,0)
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            id: test2
-            text: "[size=18][b]Gap/Missing data filter[/b][/size]\n[size=13] Set filters to remove alignment columns with excessive gap and/or missing data [/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Button:
-            id: cv_filterbt
-            background_normal: "data/backgrounds/bt_process.png"
-            size_hint_x: .2
-            bold: True
-            disabled: True
-            text: "Set filters"
-            on_release: app.filter_dialog()
+    TabbedPanelItem:
+        id: main_tab
+        text: "Formatting"
 
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]Partitioning options[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
+        GridLayout:
+            id: main_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            id: test2
-            text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files (In development) [/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Switch:
-            id: rev_concatenation
-            size_hint_x: .2
-            disabled: True
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]Formatting options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
 
-    Hseparator
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Interleave[/b][/size]\n[size=13] If sequences should be in interleave format or leave"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Switch:
+                    id: interleave
+                    size_hint_x: .2
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            id: test2
-            text: "[size=18][b]Partition file[/b][/size]\n[size=13]Provide the partitioning file either in nexus or RAxML like format [/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Button:
-            background_normal: "data/backgrounds/bt_process.png"
-            size_hint_x: .2
-            bold: True
-            text: "Select..."
-            disabled: True
+            Hseparator
 
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]Formatting options[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Zorro support[/b][/size]\n[size=13] If concatenating, also concatenate auxiliary Zorro weight files. In development."
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Switch:
+                    id: zorro
+                    size_hint_x: .2
+                    disabled: True
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Interleave[/b][/size]\n[size=13] If sequences should be in interleave format or leave"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Switch:
-            id: interleave
-            size_hint_x: .2
+            Hseparator
 
-    Hseparator
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Substitution model[/b][/size]\n[size=13] Specify the substitution model. Only supported for Nexus and Phylip formats"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Switch:
+                    size_hint_x: .2
+                    disabled: True
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Zorro support[/b][/size]\n[size=13] If concatenating, also concatenate auxiliary Zorro weight files. In development."
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Switch:
-            id: zorro
-            size_hint_x: .2
-            disabled: True
+    TabbedPanelItem:
+        id: partition_tab
+        text: "Partitions"
 
-    Hseparator
+        GridLayout:
+            id: partition_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Substitution model[/b][/size]\n[size=13] Specify the substitution model. Only supported for Nexus and Phylip formats"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Switch:
-            size_hint_x: .2
-            disabled: True
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]Partitioning options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
 
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]Special options[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files (In development) [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Switch:
+                    id: rev_concatenation
+                    size_hint_x: .2
+                    disabled: True
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]IMa2 [/b][/size]\n[size=13] Additional options for IMa2 format"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        Button:
-            background_normal: "data/backgrounds/bt_process.png"
-            size_hint_x: .2
-            text: "TOUCH ME!"
-            on_press: self.text = "XUPEXA!"
-            on_release: self.text = "TOUCH ME!"
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Partition file[/b][/size]\n[size=13]Provide the partitioning file either in nexus or RAxML like format [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Button:
+                    background_normal: "data/backgrounds/bt_process.png"
+                    size_hint_x: .2
+                    bold: True
+                    text: "Select..."
+                    disabled: True
 
-    Hseparator
+    TabbedPanelItem:
+        id: collapse_tab
+        text: "Collapse"
+
+        GridLayout:
+            id: collapse_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
+
+            LightBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=15][b]Collapse sequences[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
+                Switch:
+                    id: filter
+                    size_hint_x: .2
+                    on_active:
+                        if self.active == True: root.ids.hapbt.disabled = False; root.ids.hapcheck.disabled = False
+                        if self.active == False: root.ids.hapbt.disabled = True; root.ids.hapcheck.disabled = True
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Save in new output file[/b][/size]\n[size=13] If checked, the collapsed alignments will be saved in a file with an '_haplotype' suffix in addition to the main output file[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                CheckBox:
+                    id: hapcheck
+                    size_hint_x: .2
+                    disabled: True
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Haplotype prefix[/b][/size]\n[size=13] Select the prefix name for the haplotypes [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Button:
+                    id: hapbt
+                    background_normal: "data/backgrounds/bt_process.png"
+                    size_hint_x: .2
+                    bold: True
+                    disabled: True
+                    text: "Select..."
+                    on_release:
+                        app.text_dialog("Haplotype prefix")
+
+    TabbedPanelItem:
+        id: filter_tab
+        text: "Filter"
+
+        GridLayout:
+            id: filter_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
+
+            LightBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=15][b]Sequence filter options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
+                Switch:
+                    id: filter
+                    size_hint_x: .2
+                    on_active: if self.active == True: root.ids.cv_filterbt.disabled = False
+                    on_active: if self.active == False: root.ids.cv_filterbt.disabled = True
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Gap/Missing data filter[/b][/size]\n[size=13] Set filters to remove alignment columns with excessive gap and/or missing data [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Button:
+                    id: cv_filterbt
+                    background_normal: "data/backgrounds/bt_process.png"
+                    size_hint_x: .2
+                    bold: True
+                    disabled: True
+                    text: "Set filters"
+                    on_release: app.filter_dialog()
+
+    TabbedPanelItem:
+        id: gcoder_tab
+        text: "Gcoder"
+
+        GridLayout:
+            id: gcoder_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
+
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]Gap coding options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
+
+    TabbedPanelItem:
+        id: special_tab
+        text: "Special"
+
+        GridLayout:
+            id: special_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
+
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]Special options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]IMa2 [/b][/size]\n[size=13] Additional options for IMa2 format"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Button:
+                    background_normal: "data/backgrounds/bt_process.png"
+                    size_hint_x: .2
+                    text: "TOUCH ME!"
+                    on_press: self.text = "XUPEXA!"
+                    on_release: self.text = "TOUCH ME!"
+
+            Hseparator
 
 ############################# ROOT SCREEN ######################################
 
