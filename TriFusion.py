@@ -1223,10 +1223,9 @@ class TriFusionApp(App):
             else:
                 self.main_operations[k] = False
 
-
     def toggle_process_options(self):
 
-        if self.process_grid_wgt.ids.opt_bt.text == "Show more options":
+        if self.process_grid_wgt.ids.opt_bt.text == "Show additional options":
 
             # for i in self.process_options.children[::-1]:
             #     self.process_options.remove_widget(i)
@@ -1236,13 +1235,13 @@ class TriFusionApp(App):
             self.process_grid_wgt.add_widget(self.process_options)
             Animation(opacity=1, d=.32, t="in_quad").start(self.process_options)
 
-            self.process_grid_wgt.ids.opt_bt.text = "Hide options"
+            self.process_grid_wgt.ids.opt_bt.text = "Hide additional options"
 
-        elif self.process_grid_wgt.ids.opt_bt.text == "Hide options":
+        elif self.process_grid_wgt.ids.opt_bt.text == "Hide additional options":
             Animation(opacity=0, d=.32, t="in_quad").start(self.process_options)
             self.process_grid_wgt.remove_widget(self.process_options)
 
-            self.process_grid_wgt.ids.opt_bt.text = "Show more options"
+            self.process_grid_wgt.ids.opt_bt.text = "Show additional options"
 
     ###################################
     #
