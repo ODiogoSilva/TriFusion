@@ -183,6 +183,7 @@ class TriFusionApp(App):
     # for the process module
     process_grid_wgt = None
     process_options = None
+    process_height = None
 
     ################################
     #
@@ -1213,6 +1214,8 @@ class TriFusionApp(App):
             self.process_grid_wgt = ProcessGeneral()
             self.screen.ids.process_sv.add_widget(self.process_grid_wgt)
 
+            self.process_height = self.process_grid_wgt.height
+
             self.process_options = AdditionalProcessContents()
 
             Animation(opacity=1, d=.32, t="in_quad").start(
@@ -1236,7 +1239,7 @@ class TriFusionApp(App):
             self.process_grid_wgt.add_widget(self.process_options)
             Animation(opacity=1, d=.32, t="in_quad").start(self.process_options)
 
-            self.process_grid_wgt.height += (75 * len(
+            self.process_grid_wgt.height = self.process_height + (55 * len(
                 self.process_options.ids.main_grid.children))
 
             self.process_grid_wgt.ids.opt_bt.text = "Hide additional options"
