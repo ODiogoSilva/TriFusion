@@ -34,6 +34,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.uix.popup import Popup
+from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.core.window import Window
 from kivy.uix.codeinput import CodeInput
@@ -41,7 +42,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.rst import RstDocument
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
-#from kivy.uix.gridlayout import GridLayout
+from kivy.uix.gridlayout import GridLayout
 #from kivy.uix.scrollview import ScrollView
 from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
@@ -105,6 +106,10 @@ class TextDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class ProcessGeneral(GridLayout):
+    pass
+
+
 class TriFusionApp(App):
 
     #######################
@@ -161,10 +166,16 @@ class TriFusionApp(App):
 
     _popup = ObjectProperty(None)
 
+    # Dictionary containing the values for the main process operations
+    main_operations = {"concatenation": None, "conversion": None}
+
     # Dictionary containing all values of the switches in the process screen
-    process_switches = {"concatenation": None, "rev_concatenation": None,
-                        "interleave": None, "zorro": None, "filter": None,
-                        "collapse": None}
+    process_switches = {"rev_concatenation": None, "interleave": None,
+                        "zorro": None, "filter": None, "collapse": None}
+
+    # Attribute for the gridlayout widget that will contain all main options
+    # for the process module
+    process_grid_wgt = None
 
     ################################
     #
@@ -1175,6 +1186,35 @@ class TriFusionApp(App):
         """
 
         self.hap_prefix = text_wgt.text
+
+    def set_main_operation(self, op):
+
+        if self.process_grid_wgt is None:
+            self.process_grid_wgt = ProcessGeneral()
+            self.screen.ids.process_sv.add_widget(self.process_grid_wgt)
+
+            Animation(opacity=1, d=.32, t="in_quad").start(
+                self.process_grid_wgt)
+
+        for k in self.main_operations:
+            if op == k:
+                self.main_operations[op] = True
+            else:
+                self.main_operations[k] = False
+
+    def show_process_options(self):
+
+        self.process_grid_wgt.remove_widget(self.process_grid_wgt.ids.opt_bt)
+
+        class AdditionalProcessContents(Widget):
+            pass
+
+        contents = AdditionalProcessContents()
+        for i in contents.children[::-1]:
+            contents.remove_widget(i)
+            i.opacity = 0
+            self.process_grid_wgt.add_widget(i)
+            Animation(opacity=1, d=.32, t="in_quad").start(i)
 
     ###################################
     #
