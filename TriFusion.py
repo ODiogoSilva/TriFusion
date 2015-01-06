@@ -1212,6 +1212,8 @@ class TriFusionApp(App):
             self.process_grid_wgt = ProcessGeneral()
             self.screen.ids.process_sv.add_widget(self.process_grid_wgt)
 
+            self.process_options = AdditionalProcessContents()
+
             Animation(opacity=1, d=.32, t="in_quad").start(
                 self.process_grid_wgt)
 
@@ -1221,7 +1223,6 @@ class TriFusionApp(App):
             else:
                 self.main_operations[k] = False
 
-        self.process_options = AdditionalProcessContents()
 
     def toggle_process_options(self):
 
