@@ -474,7 +474,7 @@ class TriFusionApp(App):
         touch_up events. Once the side panel is open, this allows any mouse
         click outside the panel to close it. It gathers information on the
         mouse and side panel position and evaluates a collision. It will
-        trigger the side panel closing only when three conditions are met:
+        trigger the side panel closing only when four conditions are met:
 
          - When there is a mouse input outside the side panel
          - When the variable controling the side panel (show_side_panel) is
@@ -482,6 +482,9 @@ class TriFusionApp(App):
          - When the mouse input is outside the previous button in the action
          bar, which is also used to toggle the side panel. This prevents issues
          of toggling the side panel twice with one mouse input
+         - When a popup is not open. There are several buttons in the side bar
+         that open whose position is outside the side bar. The user should be
+         able to click anywhere in the popup without the side panel closing.
         """
 
         # Get mouse position
@@ -490,11 +493,14 @@ class TriFusionApp(App):
         side_panel_wgt = self.root.ids.main_box
         ap = self.root.ids.ap
 
-        # Check for conditions to close the side panel. See the documetation of
-        # this method
+        # Check for conditions to close the side panel.
+        # If touch is out of panel; if panel is open; is touch is out of menu
+        # button; a popup is not open
         if side_panel_wgt.collide_point(mous_pos[0], mous_pos[1]) is False\
                 and self.show_side_panel \
-                and ap.collide_point(mous_pos[0], mous_pos[1]) is False:
+                and ap.collide_point(mous_pos[0], mous_pos[1]) is False \
+                and self._popup not in self.root_window.children:
+
             ## ANIMATIONS with hierarchy
             # Animation of main BoxLayout containing child ScrollViews
             self.side_panel_animation(width=0,
@@ -813,14 +819,10 @@ class TriFusionApp(App):
 
                 content.add_widget(text_content)
                 content.add_widget(close_bt)
+                close_bt.bind(on_release=self.dismiss_popup)
 
-                popup_wgt = Popup(title="Taxon: %s" % value.id[:-1],
-                                  content=content, size_hint=(None, None),
-                                  size=(400, 400))
-
-                popup_wgt.open()
-
-                close_bt.bind(on_release=popup_wgt.dismiss)
+                self.show_popup(title="Taxon: %s" % value.id[:-1],
+                                content=content, size=(400, 400))
 
         elif value.parent == self.root.ids.file_sl:
 
@@ -852,14 +854,11 @@ class TriFusionApp(App):
 
                 content.add_widget(text_content)
                 content.add_widget(close_bt)
+                close_bt.bind(on_release=self.dismiss_popup)
 
-                popup_wgt = Popup(title="File: %s" % file_name,
-                                  content=content, size_hint=(None, None),
-                                  size=(400, 400))
+                self.show_popup(title="File: %s" % value.id[:-1],
+                                content=content, size=(400, 400))
 
-                popup_wgt.open()
-
-                close_bt.bind(on_release=popup_wgt.dismiss)
 
     def toggle_selection(self, value):
         """
@@ -1013,7 +1012,7 @@ class TriFusionApp(App):
 
     ########################### PROCESS SCREEN #################################
 
-    def dismiss_popup(self):
+    def dismiss_popup(self, *args):
         """
         General purpose method to close popups from the process screen
         """
