@@ -932,7 +932,24 @@ BoxLayout:
                                         SelectionBox:
                                             id: sb_taxa
                         BoxLayout:
-                            Button
+                            orientation: "vertical"
+                            padding: 10
+                            spacing: 5
+                            Label:
+                                size_hint_y: .1
+                                text: "Taxa groups"
+                                font_size: 18
+                                halign: "center"
+                                valign: "middle"
+                                text_size: self.size
+                                bold: True
+                            ScrollView:
+                                size_hint_y: .8
+                                GridLayout:
+                                    cols: 2
+                            Button:
+                                size_hint_y: .1
+                                text: "Set new taxa group"
 
         ScreenManager:
             id: sm
