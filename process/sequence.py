@@ -1082,6 +1082,14 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         return selected_alignments
 
+    def code_gaps(self):
+        """
+        Wrapper for the code_gaps method of the Alignment object.
+        """
+
+        for alignment_obj in self.alignment_object_list:
+            alignment_obj.code_gaps()
+
     def collapse(self, write_haplotypes=True, haplotypes_file="",
                  haplotype_name="Hap"):
         """
