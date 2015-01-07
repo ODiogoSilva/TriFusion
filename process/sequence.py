@@ -1082,7 +1082,8 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         return selected_alignments
 
-    def collapse(self, write_haplotypes=True, haplotype_name="Hap"):
+    def collapse(self, write_haplotypes=True, haplotypes_file="",
+                 haplotype_name="Hap"):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
@@ -1096,14 +1097,15 @@ class AlignmentList (Alignment, Base, MissingFilter):
         for alignment_obj in self.alignment_object_list:
             if write_haplotypes:
                 # Set name for haplotypes file
-                output_file = alignment_obj.name.split(".")[0]
+                output_file = alignment_obj.name.split(".")[0] + haplotypes_file
                 alignment_obj.collapse(haplotypes_file=output_file,
                                        haplotype_name=haplotype_name)
             else:
                 alignment_obj.collapse(write_haplotypes=False,
                                        haplotype_name=haplotype_name)
 
-    def write_to_file(self, output_format, interleave=False, outgroup_list=[]):
+    def write_to_file(self, output_format, output_suffix="", interleave=False,
+                      outgroup_list=[]):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
 
@@ -1113,9 +1115,10 @@ class AlignmentList (Alignment, Base, MissingFilter):
                     self.reverse_concatenation
                 except:
                     output_file_name = alignment_obj.name.split(".")[0]\
-                                       + "_conv"
+                                       + output_suffix + "_conv"
             else:
-                output_file_name = alignment_obj.name.split(".")[0]
+                output_file_name = alignment_obj.name.split(".")[0] + \
+                                   output_suffix
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
                                         interleave=interleave,
