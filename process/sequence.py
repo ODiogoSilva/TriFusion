@@ -301,10 +301,19 @@ class Alignment (Base, MissingFilter):
         if mode == "inverse":
             inverse(taxa_list)
 
-    def collapse(self, write_haplotypes=True, haplotypes_file=None):
-        """ Collapses equal sequences into haplotypes. This method changes
+    def collapse(self, write_haplotypes=True, haplotypes_file=None,
+                 haplotype_name="Hap"):
+        """
+        Collapses equal sequences into haplotypes. This method changes
         the alignment variable and only returns a dictionary with the
-        correspondence between the haplotypes and the original taxa names  """
+        correspondence between the haplotypes and the original taxa names
+        :param write_haplotypes: Boolean, If true, a haplotype list
+        mapping the haplotype names file will be created for each individual
+        input alignment.
+        :param haplotypes_file: String, Name of the haplotype list mapping file
+        referenced in write_haplotypes
+        :param haplotype_name: String, Custom name of the haplotypes
+        """
 
         collapsed_dic, correspondence_dic = OrderedDict(), OrderedDict()
         counter = 1
@@ -317,7 +326,7 @@ class Alignment (Base, MissingFilter):
 
         self.alignment = OrderedDict()
         for seq, taxa_list in collapsed_dic.items():
-            haplotype = "Hap_%s" % counter
+            haplotype = "%s_%s" % (haplotype_name, counter)
             self.alignment[haplotype] = seq
             correspondence_dic[haplotype] = taxa_list
             counter += 1
@@ -326,7 +335,7 @@ class Alignment (Base, MissingFilter):
             # If no output file for the haplotype correspondence is provided,
             #  use the input alignment name as reference
             if haplotypes_file is None:
-                haplotypes_file = self.input_alignment.split(".")[0]
+                haplotypes_file = self.name.split(".")[0]
             self.write_loci_correspondence(correspondence_dic, haplotypes_file)
 
     @staticmethod
@@ -1073,23 +1082,26 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         return selected_alignments
 
-    def collapse(self, write_haplotypes=True):
+    def collapse(self, write_haplotypes=True, haplotype_name="Hap"):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
         individual input file
         :param write_haplotypes: Boolean, if True, a haplotype list
-         mapping the haplotype names file will be created for each individual
-         input alignment.
+        mapping the haplotype names file will be created for each individual
+        input alignment.
+        :param haplotype_name: String, Custom name of the haplotypes
         """
 
         for alignment_obj in self.alignment_object_list:
             if write_haplotypes:
                 # Set name for haplotypes file
                 output_file = alignment_obj.name.split(".")[0]
-                alignment_obj.collapse(haplotypes_file=output_file)
+                alignment_obj.collapse(haplotypes_file=output_file,
+                                       haplotype_name=haplotype_name)
             else:
-                alignment_obj.collapse(write_haplotypes=False)
+                alignment_obj.collapse(write_haplotypes=False,
+                                       haplotype_name=haplotype_name)
 
     def write_to_file(self, output_format, interleave=False, outgroup_list=[]):
         """ This method writes a list of alignment objects or a concatenated
