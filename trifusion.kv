@@ -488,6 +488,8 @@
                     id: hapcheck
                     size_hint_x: .2
                     disabled: True
+                    on_active:
+                        app.update_process_switch("collapse_file", self.active)
 
             Hseparator
 
@@ -550,6 +552,8 @@
                     id: filtercheck
                     size_hint_x: .2
                     disabled: True
+                    on_active:
+                        app.update_process_switch("filter_file", self.active)
 
             Hseparator
 
@@ -611,6 +615,8 @@
                     id: gcodcheck
                     size_hint_x: .2
                     disabled: True
+                    on_active:
+                        app.update_process_switch("gcoder_file", self.active)
 
             Hseparator
 

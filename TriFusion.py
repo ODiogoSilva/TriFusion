@@ -176,10 +176,12 @@ class TriFusionApp(App):
     # Dictionary containing the values for the main process operations
     main_operations = {"concatenation": None, "conversion": None}
 
-    # Dictionary containing all values of the switches in the process screen
+    # Dictionary containing all values of the switches and checkboxes in the
+    # process screen
     process_switches = {"rev_concatenation": None, "interleave": None,
                         "zorro": None, "filter": None, "collapse": None,
-                        "gcoder": None}
+                        "gcoder": None, "collapse_file": None, "filter_file":
+                        None, "gcoder_file": None}
 
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
@@ -1450,6 +1452,8 @@ class TriFusionApp(App):
         Main function that executes all queued procedures of the process module
         """
 
+        write_aln = {}
+
         #####
         # Perform operations
         #####
@@ -1461,6 +1465,17 @@ class TriFusionApp(App):
         if self.main_operations["concatenation"]:
             aln_object = aln_object.concatenate()
 
+        # Filtering
+        if self.process_switches["filter"]:
+            if self.process_switches["filter_file"]:
+                filtered_aln_obj = deepcopy(aln_object)
+                filtered_aln_obj.filter_missing_data(self.filter_settings[0],
+                                                 self.filter_settings[1])
+                write_aln[self.output_file + "_filtered"] = filtered_aln_obj
+            else:
+                aln_object.filter_missing_data(self.filter_settings[0],
+                                               self.filter_settings[1])
+
         # The output file(s) will only be written after all the required
         # operations have been concluded. The reason why there are two "if"
         # statement for "concatenation" is that the input alignments must be
@@ -1470,12 +1485,15 @@ class TriFusionApp(App):
         # it is, when "concatenation", the aln_obj is firstly converted into
         # the concatenated alignment, and then all additional operations are
         # conducted in the same aln_obj
+        write_aln[self.output_file] = aln_object
         if self.main_operations["concatenation"]:
-            aln_object.write_to_file(self.output_formats, self.output_file,
-                            interleave=self.process_switches["interleave"])
+            for name, obj in write_aln.items():
+                obj.write_to_file(self.output_formats, name,
+                                interleave=self.process_switches["interleave"])
         else:
-            aln_object.write_to_file(self.output_formats,
-                            interleave=self.process_switches["interleave"])
+            for obj in write_aln.values():
+                obj.write_to_file(self.output_formats,
+                                interleave=self.process_switches["interleave"])
 
 
 if __name__ == '__main__':
