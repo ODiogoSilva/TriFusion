@@ -1073,6 +1073,24 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         return selected_alignments
 
+    def collapse(self, write_haplotypes=True):
+        """
+        Wrapper for the collapse method of the Alignment object. If
+        write_haplotypes is True, the haplotypes file name will be based on the
+        individual input file
+        :param write_haplotypes: Boolean, if True, a haplotype list
+         mapping the haplotype names file will be created for each individual
+         input alignment.
+        """
+
+        for alignment_obj in self.alignment_object_list:
+            if write_haplotypes:
+                # Set name for haplotypes file
+                output_file = alignment_obj.name.split(".")[0]
+                alignment_obj.collapse(haplotypes_file=output_file)
+            else:
+                alignment_obj.collapse(write_haplotypes=False)
+
     def write_to_file(self, output_format, interleave=False, outgroup_list=[]):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
