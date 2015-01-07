@@ -178,7 +178,8 @@ class TriFusionApp(App):
 
     # Dictionary containing all values of the switches in the process screen
     process_switches = {"rev_concatenation": None, "interleave": None,
-                        "zorro": None, "filter": None, "collapse": None}
+                        "zorro": None, "filter": None, "collapse": None,
+                        "gcoder": None}
 
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
@@ -1432,6 +1433,19 @@ class TriFusionApp(App):
                 file_inf[file_name]["aln_len"] = aln.locus_length
 
         return file_inf
+
+    def update_process_switch(self, switch_id, state):
+        """
+        Listens and updates the attribute process_switches when their state
+        changes.
+        :param switch_id: string, name of the switch according to the keys in
+        process_switches
+        :param state: Boolean, current state of the corresponding switch
+        """
+
+        self.process_switches[switch_id] = state
+
+        print(self.process_switches)
 
     def process_exec(self):
         """
