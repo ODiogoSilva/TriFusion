@@ -217,7 +217,7 @@ class TriFusionApp(App):
 
     # Attribute storing the filter settings. The list should contain gap
     # threshold as first element and missing data threshold as second element
-    filter_settings = []
+    filter_settings = [25, 50]
 
     # Attribute storing the haplotype prefix
     hap_prefix = "Hap"
