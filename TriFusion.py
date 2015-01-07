@@ -1494,6 +1494,15 @@ class TriFusionApp(App):
                 aln_object.filter_missing_data(self.filter_settings[0],
                                                self.filter_settings[1])
 
+        # Gcoder
+        if self.process_switches["gcoder"]:
+            if self.process_switches["gcoder_file"]:
+                gcoded_aln_obj = deepcopy(aln_object)
+                gcoded_aln_obj.code_gaps()
+                write_aln[self.output_file + "_coded"] = gcoded_aln_obj
+            else:
+                aln_object.code_gaps()
+
         # The output file(s) will only be written after all the required
         # operations have been concluded. The reason why there are two "if"
         # statement for "concatenation" is that the input alignments must be
