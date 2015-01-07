@@ -1102,6 +1102,14 @@ class TriFusionApp(App):
             self.process_grid_wgt.ids.conv_formatbt.text = "%s selected" % (
                 len(self.output_formats))
 
+        # Updates the Gcoder option depending on whether the nexus output format
+        # is the only one selected
+        if self.output_formats == ["nexus"]:
+            self.process_options.ids.gcoder_switch.disabled = False
+        else:
+            self.process_options.ids.gcoder_switch.active = False
+            self.process_options.ids.gcoder_switch.disabled = True
+
     def save_filter(self, gap_val, mis_val):
         """
         Stores the information of the FilterDialog

@@ -598,8 +598,9 @@
                     color: [.85, .85, .85, 1]
                     text_size: self.size
                 Switch:
-                    id: filter
+                    id: gcoder_switch
                     size_hint_x: .2
+                    disabled: True
                     on_active:
                         if self.active == True: root.ids.gcodcheck.disabled = False
                         if self.active == False: root.ids.gcodcheck.disabled = True
