@@ -1445,8 +1445,6 @@ class TriFusionApp(App):
 
         self.process_switches[switch_id] = state
 
-        print(self.process_switches)
-
     def process_exec(self):
         """
         Main function that executes all queued procedures of the process module
@@ -1462,11 +1460,13 @@ class TriFusionApp(App):
         # Concatenation
         if self.main_operations["concatenation"]:
             aln_object = aln_object.concatenate()
-            aln_object.write_to_file(self.output_formats, self.output_file)
+            aln_object.write_to_file(self.output_formats, self.output_file,
+                            interleave=self.process_switches["interleave"])
 
         # Conversion
         elif self.main_operations["conversion"]:
-            aln_object.write_to_file(self.output_formats)
+            aln_object.write_to_file(self.output_formats,
+                            interleave=self.process_switches["interleave"])
 
 if __name__ == '__main__':
     TriFusionApp().run()
