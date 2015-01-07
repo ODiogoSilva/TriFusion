@@ -859,7 +859,6 @@ class TriFusionApp(App):
                 self.show_popup(title="File: %s" % value.id[:-1],
                                 content=content, size=(400, 400))
 
-
     def toggle_selection(self, value):
         """
         Adds functionality for the file and taxa toggle buttons in the side
@@ -1031,10 +1030,10 @@ class TriFusionApp(App):
         # Ignore size_hint is absolute size is provided
         if size:
             self._popup = Popup(title=title, content=content, size=size,
-                                size_hint=(None, None))
+                                size_hint=(None, None), auto_dismiss=False)
         else:
             self._popup = Popup(title=title, content=content,
-                                size_hint=size_hint)
+                                size_hint=size_hint, auto_dismiss=False)
         self._popup.open()
 
     def save_file(self, path, filename, idx):
