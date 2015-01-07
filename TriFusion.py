@@ -1465,6 +1465,16 @@ class TriFusionApp(App):
         if self.main_operations["concatenation"]:
             aln_object = aln_object.concatenate()
 
+        # Collapsing
+        if self.process_switches["collapse"]:
+            if self.process_switches["collapse_file"]:
+                collapsed_aln_obj = deepcopy(aln_object)
+                collapsed_aln_obj.collapse(haplotype_name=self.hap_prefix,
+                                           haplotypes_file="_collapsed")
+                write_aln[self.output_file + "_collapsed"] = collapsed_aln_obj
+            else:
+                aln_object.collapse(haplotype_name=self.hap_prefix)
+
         # Filtering
         if self.process_switches["filter"]:
             if self.process_switches["filter_file"]:
@@ -1491,8 +1501,9 @@ class TriFusionApp(App):
                 obj.write_to_file(self.output_formats, name,
                                 interleave=self.process_switches["interleave"])
         else:
-            for obj in write_aln.values():
-                obj.write_to_file(self.output_formats,
+            for name, obj in write_aln.items():
+                name = name.replace(self.output_file, "")
+                obj.write_to_file(self.output_formats, output_suffix=name,
                                 interleave=self.process_switches["interleave"])
 
 
