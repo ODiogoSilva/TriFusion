@@ -1438,11 +1438,6 @@ class TriFusionApp(App):
         Main function that executes all queued procedures of the process module
         """
 
-        # Collecting switch information
-        for idx, wgt in self.screen.ids.items():
-            if idx in self.process_switches:
-                self.process_switches[idx] = wgt.active
-
         #####
         # Perform operations
         #####
@@ -1450,22 +1445,14 @@ class TriFusionApp(App):
         # Setting the alignment to use
         aln_object = self.active_alignment_list
 
-        # Sequence gap/missing data filtering
-        if self.process_switches["filter"]:
-            aln_object.filter_missing_data(self.filter_settings[0],
-                                           self.filter_settings[1])
-
         # Concatenation
-        if self.process_switches["concatenation"]:
+        if self.main_operations["concatenation"]:
             aln_object = aln_object.concatenate()
-            aln_object.write_to_file(self.output_formats,
-                       self.output_file,
-                       interleave=self.process_switches["interleave"])
+            aln_object.write_to_file(self.output_formats, self.output_file)
 
         # Conversion
-        elif self.process_switches["concatenation"] is False:
-            aln_object.write_to_file(self.output_formats,
-                       interleave=self.process_switches["interleave"])
+        elif self.main_operations["conversion"]:
+            aln_object.write_to_file(self.output_formats)
 
 if __name__ == '__main__':
     TriFusionApp().run()
