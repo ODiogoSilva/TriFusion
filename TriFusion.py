@@ -1460,13 +1460,23 @@ class TriFusionApp(App):
         # Concatenation
         if self.main_operations["concatenation"]:
             aln_object = aln_object.concatenate()
+
+        # The output file(s) will only be written after all the required
+        # operations have been concluded. The reason why there are two "if"
+        # statement for "concatenation" is that the input alignments must be
+        # concatenated before any other additional operations. If the first
+        # if statement did not exist, then all additional options would have
+        # to be manually written for both "conversion" and "concatenation". As
+        # it is, when "concatenation", the aln_obj is firstly converted into
+        # the concatenated alignment, and then all additional operations are
+        # conducted in the same aln_obj
+        if self.main_operations["concatenation"]:
             aln_object.write_to_file(self.output_formats, self.output_file,
                             interleave=self.process_switches["interleave"])
-
-        # Conversion
-        elif self.main_operations["conversion"]:
+        else:
             aln_object.write_to_file(self.output_formats,
                             interleave=self.process_switches["interleave"])
+
 
 if __name__ == '__main__':
     TriFusionApp().run()
