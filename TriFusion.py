@@ -207,7 +207,7 @@ class TriFusionApp(App):
     active_file_inf = None
 
     # Attribute containing the objects for the several possible output files.
-    output_files = {"conversion": None, "collapse": None, "gcoder": None}
+    output_file = StringProperty()
 
     # Attribute storing active output formats. Fasta is True by default
     output_formats = ["fasta"]
@@ -221,7 +221,7 @@ class TriFusionApp(App):
 
     ##################################
     #
-    # GUI RELATED METHODS AND FUCTIONS
+    # GUI RELATED METHODS AND FUNCTIONS
     #
     ##################################
 
@@ -1041,11 +1041,8 @@ class TriFusionApp(App):
         gathers information on the specified path through filechooser, file
         name through textinput and the widget text when called.
 
-        The output file name is stored in a dictionary storage that contains
-        the file names for the widget that was used. If, for example, the
-        file name has been specified on the Conversion/Concatenation widget,
-        than the file name will be stored with "conversion" as the associated
-        key
+        For now, only one main output file can be provided, so the its path
+        is stored in a string attribute.
 
         :param path: string. complete path
         :param filename: string. file name only
@@ -1056,7 +1053,7 @@ class TriFusionApp(App):
         while filename != "":
 
             # Adds output file to storage
-            self.output_files[idx] = join(path, filename)
+            self.output_file = join(path, filename)
             # Renames the output file button text
             self.process_grid_wgt.ids.conversion.text = filename
             # Close popup
@@ -1462,7 +1459,7 @@ class TriFusionApp(App):
         if self.process_switches["concatenation"]:
             aln_object = aln_object.concatenate()
             aln_object.write_to_file(self.output_formats,
-                       self.output_files["conversion"],
+                       self.output_file,
                        interleave=self.process_switches["interleave"])
 
         # Conversion
