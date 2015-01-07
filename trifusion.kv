@@ -526,8 +526,25 @@
                 Switch:
                     id: filter
                     size_hint_x: .2
-                    on_active: if self.active == True: root.ids.cv_filterbt.disabled = False
-                    on_active: if self.active == False: root.ids.cv_filterbt.disabled = True
+                    on_active:
+                        if self.active == True: root.ids.cv_filterbt.disabled = False; root.ids.filtercheck.disabled = False
+                        if self.active == False: root.ids.cv_filterbt.disabled = True; root.ids.filtercheck.disabled = True
+
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Save in new output file[/b][/size]\n[size=13] If checked, the filtered alignments will be saved in a file with an '_filtered' suffix in addition to the main output file[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                CheckBox:
+                    id: filtercheck
+                    size_hint_x: .2
+                    disabled: True
+
+            Hseparator
 
             DarkBox:
                 Label:
