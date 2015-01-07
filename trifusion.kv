@@ -577,12 +577,50 @@
 
             LightBox:
                 Label:
+                    size_hint_x: .8
                     markup: True
                     text: "[size=15][b]Gap coding options[/b][/size]"
                     halign: "left"
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
+                Switch:
+                    id: filter
+                    size_hint_x: .2
+                    on_active:
+                        if self.active == True: root.ids.gcodcheck.disabled = False
+                        if self.active == False: root.ids.gcodcheck.disabled = True
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Save in new output file[/b][/size]\n[size=13] If checked, the coded alignments will be saved in a file with an '_filtered' suffix in addition to the main output file[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                CheckBox:
+                    id: gcodcheck
+                    size_hint_x: .2
+                    disabled: True
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Gap coding method[/b][/size]\n[size=13] Choose the coding method [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                Button:
+                    id: gcode_bt
+                    background_normal: "data/backgrounds/bt_process.png"
+                    size_hint_x: .2
+                    bold: True
+                    disabled: True
+                    text: "Choose..."
 
     TabbedPanelItem:
         id: special_tab
