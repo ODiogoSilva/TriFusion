@@ -1108,7 +1108,7 @@ class TriFusionApp(App):
         for tx in self.taxa_groups[name_wgt.text]:
             bt = Button(text=tx, size_hint_y=None, height=30)
             gl.add_widget(bt)
-            gl.height += 40
+            gl.height += 35
 
         sv.add_widget(gl)
         content.add_widget(sv)
@@ -1116,6 +1116,26 @@ class TriFusionApp(App):
 
         self.show_popup(title="Taxa group: %s" % name_wgt.text, content=content,
                         size_hint=(.3, .7))
+
+    def remove_taxa_group(self, rm_wgt):
+        """
+        Removes the taxa group button from the app list and taxa_groups
+        attribute
+        :param rm_wgt: widget, widget of the removal button
+        :return:
+        """
+
+        # Remove from app
+        parent_wgt = rm_wgt.parent
+
+        bt_idx = rm_wgt.id[:-1]
+        bt = [x for x in parent_wgt.children if bt_idx == x.id][0]
+
+        parent_wgt.remove_widget(bt)
+        parent_wgt.remove_widget(rm_wgt)
+
+        # Remove from program attribute
+        del self.taxa_groups[bt_idx]
 
     def save_taxa_group(self, source_wgt, name):
         """
@@ -1139,6 +1159,7 @@ class TriFusionApp(App):
         x_bt = Button(text="X", bold=True, size_hint=(.14, None),
                         height=30, id="%sX" % name,
                         background_color=(255, .9, .9, 1))
+        x_bt.bind(on_release=self.remove_taxa_group)
 
         # Add buttons to gridlayout
         for i in [bt, x_bt]:
