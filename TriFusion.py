@@ -364,14 +364,17 @@ class TriFusionApp(App):
 
         # Load bookmarks object
         self.bookmarks = pickle.load(open(self.bm_file, "rb"))
-        # Add bookmarks to the full path list
-        self.bookmarks[0].append(path)
-        # Add mapping of the full path to the bookmark name
-        new_map = {path.split("/")[-1]: path}
-        self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
-                                 list(new_map.items()))
-        self.add_bookmark_bt(path)
-        pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
+        # Check if bookmark already exists. Only add bookmark if it does not
+        # exist
+        if path not in self.bookmarks[0]:
+            # Add bookmarks to the full path list
+            self.bookmarks[0].append(path)
+            # Add mapping of the full path to the bookmark name
+            new_map = {path.split("/")[-1]: path}
+            self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
+                                     list(new_map.items()))
+            self.add_bookmark_bt(path)
+            pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     def add_bookmark_bt(self, bk):
         """
