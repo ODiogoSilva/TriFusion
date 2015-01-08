@@ -124,7 +124,11 @@ class AdditionalProcessContents(TabbedPanel):
 
 
 class TaxaGroupDialog(BoxLayout):
-    pass
+    """
+    Class controlling the layout of the taxa group creation dialogue in the
+    side panel
+    """
+    cancel = ObjectProperty(None)
 
 
 class TriFusionApp(App):
@@ -1034,7 +1038,7 @@ class TriFusionApp(App):
 
     def taxa_group_dialog(self):
 
-        content = TaxaGroupDialog()
+        content = TaxaGroupDialog(cancel=self.dismiss_popup)
 
         self.show_popup(title="Set taxa groups", content=content,
                         size_hint=(.9, .9))
