@@ -699,43 +699,6 @@
                     disabled: True
                     text: "Choose..."
 
-    TabbedPanelItem:
-        id: special_tab
-        text: "Special"
-
-        GridLayout:
-            id: special_grid
-            cols: 1
-            padding: 5
-            spacing: 5
-            opacity: 1
-
-            LightBox:
-                Label:
-                    markup: True
-                    text: "[size=15][b]Special options[/b][/size]"
-                    halign: "left"
-                    valign: "middle"
-                    color: [.85, .85, .85, 1]
-                    text_size: self.size
-
-            DarkBox:
-                Label:
-                    size_hint_x: .8
-                    markup: True
-                    text: "[size=18][b]IMa2 [/b][/size]\n[size=13] Additional options for IMa2 format"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Button:
-                    background_normal: "data/backgrounds/bt_process.png"
-                    size_hint_x: .2
-                    text: "TOUCH ME!"
-                    on_press: self.text = "XUPEXA!"
-                    on_release: self.text = "TOUCH ME!"
-
-            Hseparator
-
 ############################# ROOT SCREEN ######################################
 
 BoxLayout:
