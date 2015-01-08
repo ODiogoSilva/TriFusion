@@ -459,7 +459,8 @@ class Alignment (Base, MissingFilter):
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
                       cut_space_nex=50, cut_space_phy=50, cut_space_ima2=8,
                       interleave=False, gap="-", model_phylip="LG",
-                      outgroup_list=None, ima2_params=None):
+                      outgroup_list=None, ima2_params=None,
+                      partition_file=True):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -615,7 +616,7 @@ class Alignment (Base, MissingFilter):
                                    seq.upper()))
 
             # In case there is a concatenated alignment being written
-            if self.loci_ranges is not None:
+            if self.loci_ranges is not None and partition_file:
                 partition_file = open(output_file + "_part.File", "a")
                 for partition, lrange in self.loci_ranges:
                     partition_file.write("%s, %s = %s\n" % (
@@ -1113,7 +1114,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
                                        haplotype_name=haplotype_name)
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
-                      outgroup_list=[]):
+                      outgroup_list=[], partition_file=True):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
 
@@ -1130,7 +1131,8 @@ class AlignmentList (Alignment, Base, MissingFilter):
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
                                         interleave=interleave,
-                                        outgroup_list=outgroup_list)
+                                        outgroup_list=outgroup_list,
+                                        partition_file=partition_file)
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
