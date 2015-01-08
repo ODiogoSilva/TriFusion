@@ -23,6 +23,8 @@
                 text: "Set group name:"
                 size_hint_x: .5
             TextInput:
+                id: group_name
+                text: "untitled_1"
         Widget:
             size_hint_x: .15
         Widget
@@ -59,6 +61,9 @@
             Button:
                 size_hint_y: .15
                 text: "Save"
+                on_release:
+                    app.save_taxa_group(root.ids.select_grid, root.ids.group_name.text)
+                    root.cancel()
         BoxLayout:
             orientation: "vertical"
             size_hint_x: .15
@@ -1079,10 +1084,22 @@ BoxLayout:
                                 valign: "middle"
                                 text_size: self.size
                                 bold: True
+                                canvas.before:
+                                    Color:
+                                        rgba: .35, .35, .35, 1
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+                            Hseparator
                             ScrollView:
                                 size_hint_y: .8
                                 GridLayout:
-                                    cols: 2
+                                    id: group_grid
+                                    size_hint_y: None
+                                    height: 0
+                                    padding: 5
+                                    spacing: 5
+                                    cols: 3
                             Button:
                                 size_hint_y: .1
                                 text: "Set new taxa group"

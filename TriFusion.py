@@ -225,6 +225,9 @@ class TriFusionApp(App):
     original_file_inf = None
     active_file_inf = None
 
+    # Attribute for taxa groups
+    taxa_groups = {}
+
     # Attribute containing the objects for the several possible output files.
     output_file = StringProperty()
 
@@ -1089,7 +1092,34 @@ class TriFusionApp(App):
                     bt.state = "normal"
                     self.add_taxa_bt(bt, sink_wgt)
 
+    def save_taxa_group(self, source_wgt, name):
+        """
+        Adds a taxa group declared using the taxa group creator popup to the
+        list of taxa groups in the side panel
+        :param source_wgt, gridlayout of the selected taxa
+        :param name: string, name of the group
+        """
 
+        # Make core changes by populating self.taxa_groups dictionary
+        self.taxa_groups[name] = []
+
+        for bt in source_wgt.children:
+            self.taxa_groups[name].append(bt.text)
+
+        # App changes by adding three buttons for the taxa group
+        # Taxa button itself
+        bt = Button(text=name, size_hint=(.8, None), height=30, id=name)
+        # Removal button
+        x_bt = Button(text="X", bold=True, size_hint=(.14, None),
+                        height=30, id="%sX" % name,
+                        background_color=(255, .9, .9, 1))
+
+        # Add buttons to gridlayout
+        for i in [bt, x_bt]:
+            self.root.ids.group_grid.add_widget(i)
+
+        # Update gridlayout height
+        self.root.ids.group_grid.height += 40
 
     ########################### PROCESS SCREEN #################################
 
