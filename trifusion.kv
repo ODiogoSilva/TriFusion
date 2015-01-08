@@ -20,7 +20,7 @@
         BoxLayout:
             spacing: 10
             Label:
-                text: "Taxa group name:"
+                text: "Set group name:"
                 size_hint_x: .5
             TextInput:
         Widget:
@@ -29,7 +29,18 @@
     BoxLayout:
         BoxLayout:
             orientation: "vertical"
-            spacing: 10
+            Label:
+                canvas.before:
+                    Color:
+                        rgba: .2, .2, .2, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                text: "Selected taxa"
+                size_hint_y: None
+                height: 40
+                bold: True
+            Hseparator
             ScrollView:
                 canvas.before:
                     Color:
@@ -41,18 +52,10 @@
                     id: select_grid
                     cols:1
                     size_hint_y: None
-                    height: root.height * .1
-                    Label:
-                        canvas.before:
-                            Color:
-                                rgba: .2, .2, .2, 1
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                        text: "Selected taxa"
-                        size_hint_y: .1
-                        bold: True
-                    Hseparator
+                    height: 0
+            Widget:
+                size_hint_y: None
+                height: 15
             Button:
                 size_hint_y: .15
                 text: "Save"
@@ -67,20 +70,39 @@
                 Button:
                     text: "<<"
                     bold: True
+                    on_release:
+                        app.move_taxa(root.ids.all_grid, root.ids.select_grid, True)
                 Button:
                     text: "<"
                     bold: True
+                    on_release:
+                        app.move_taxa(root.ids.all_grid, root.ids.select_grid, False)
                 Button:
                     text: ">"
                     bold: True
+                    on_release:
+                        app.move_taxa(root.ids.select_grid, root.ids.all_grid, False)
                 Button:
                     text: ">>"
                     bold: True
+                    on_release:
+                        app.move_taxa(root.ids.select_grid, root.ids.all_grid, True)
             Widget:
                 size_hint_y: .15
         BoxLayout:
             orientation: "vertical"
-            spacing: 10
+            Label:
+                canvas.before:
+                    Color:
+                        rgba: .2, .2, .2, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                text: "All taxa"
+                size_hint_y: None
+                height: 40
+                bold: True
+            Hseparator
             ScrollView:
                 canvas.before:
                     Color:
@@ -92,18 +114,10 @@
                     id: all_grid
                     cols:1
                     size_hint_y: None
-                    height: root.height * .1
-                    Label:
-                        canvas.before:
-                            Color:
-                                rgba: .2, .2, .2, 1
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                        text: "All taxa"
-                        size_hint_y: .1
-                        bold: True
-                    Hseparator
+                    height: 0
+            Widget:
+                size_hint_y: None
+                height: 15
             Button:
                 size_hint_y: .15
                 text: "Cancel"
@@ -1072,6 +1086,8 @@ BoxLayout:
                             Button:
                                 size_hint_y: .1
                                 text: "Set new taxa group"
+                                id: tx_group_bt
+                                disabled: True
                                 on_release:
                                     app.taxa_group_dialog()
 

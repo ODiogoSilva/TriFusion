@@ -626,6 +626,9 @@ class TriFusionApp(App):
         self.original_tx_inf = self.get_taxa_information()
         self.original_file_inf = self.get_file_information()
 
+        # Unlocks options dependent on the availability of input data
+        self.root.ids.tx_group_bt.disabled = False
+
     def update_tabs(self):
         """
         Wrapper that updates the contents of the files and taxa tabs
@@ -1040,8 +1043,53 @@ class TriFusionApp(App):
 
         content = TaxaGroupDialog(cancel=self.dismiss_popup)
 
-        self.show_popup(title="Set taxa groups", content=content,
+        # Populate the gridlayout for all taxa
+        for i in self.alignment_list.taxa_names:
+            # Create togglebutton for each taxa
+            bt = ToggleButton(text=i, size_hint_y=None, height=30)
+            self.add_taxa_bt(bt, content.ids.all_grid)
+
+        self.show_popup(title="Create taxa groups", content=content,
                         size_hint=(.9, .9))
+
+    @staticmethod
+    def add_taxa_bt(bt, wgt):
+
+        wgt.add_widget(bt)
+        wgt.height += 30
+
+    @staticmethod
+    def remove_taxa_bt(bt, wgt):
+
+        wgt.remove_widget(bt)
+        wgt.height -= 30
+
+    def move_taxa(self, source_wgt, sink_wgt, all_taxa):
+        """
+        Method that adds functionality to the addition/removal buttons (<<, <,
+        >>, >) in the taxa group dialog.
+        :param source_wgt: widget, the gridlayout from where the buttons will
+        be moved
+        :param sink_wgt: widget, the gridlayout to where buttons will be moved
+        :param all_taxa: Boolean, if True its as if alsa taxa were selected to
+        be moved
+        """
+
+        # In case all taxa are to be moved
+        if all_taxa:
+            # Ensures that only toggle buttons are moved
+            for bt in source_wgt.children[::-1]:
+                self.remove_taxa_bt(bt, source_wgt)
+                bt.state = "normal"
+                self.add_taxa_bt(bt, sink_wgt)
+        else:
+            for bt in source_wgt.children[::-1]:
+                if bt.state == "down":
+                    self.remove_taxa_bt(bt, source_wgt)
+                    bt.state = "normal"
+                    self.add_taxa_bt(bt, sink_wgt)
+
+
 
     ########################### PROCESS SCREEN #################################
 
