@@ -1550,12 +1550,14 @@ class TriFusionApp(App):
         if self.main_operations["concatenation"]:
             for name, obj in write_aln.items():
                 obj.write_to_file(self.output_formats, name,
-                                interleave=self.process_switches["interleave"])
+                                interleave=self.process_switches["interleave"],
+                                partition_file=self.create_partfile)
         else:
             for name, obj in write_aln.items():
                 name = name.replace(self.output_file, "")
                 obj.write_to_file(self.output_formats, output_suffix=name,
-                                interleave=self.process_switches["interleave"])
+                                interleave=self.process_switches["interleave"],
+                                partition_file=self.create_partfile)
 
 
 if __name__ == '__main__':
