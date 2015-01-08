@@ -108,6 +108,13 @@ class TextDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class PhylipExtra(BoxLayout):
+    """
+    Class controlling the dialog with extra options for phylip output format
+    """
+    cancel = ObjectProperty(None)
+
+
 class ProcessGeneral(GridLayout):
     pass
 
@@ -172,6 +179,7 @@ class TriFusionApp(App):
     bm_file = join(cur_dir, "data", "resources", "bookmarks")
 
     _popup = ObjectProperty(None)
+    _subpopup = ObjectProperty(None)
 
     # Dictionary containing the values for the main process operations
     main_operations = {"concatenation": None, "conversion": None}
@@ -214,6 +222,10 @@ class TriFusionApp(App):
 
     # Attribute storing active output formats. Fasta is True by default
     output_formats = ["fasta"]
+
+    # Attributes for extra options of output formats
+    # Determines whether the part.File associated with phylip format is created
+    create_partfile = True
 
     # Attribute storing the filter settings. The list should contain gap
     # threshold as first element and missing data threshold as second element
@@ -1024,6 +1036,12 @@ class TriFusionApp(App):
         """
         self._popup.dismiss()
 
+    def dismiss_subpopup(self, *args):
+        """
+    General purpose method to close sub-popups from the process screen
+        """
+        self._subpopup.dismiss()
+
     def show_popup(self, title, content, size_hint=(.9, .9), size=None):
         """
         General purpose method to create a popup widget
@@ -1124,6 +1142,17 @@ class TriFusionApp(App):
                                 mis_val]
 
         self.dismiss_popup()
+
+    def phylip_extra_opt(self):
+
+        content = PhylipExtra(cancel=self.dismiss_subpopup)
+
+        content.ids.part_check.active = self.create_partfile
+
+        self._subpopup = Popup(title="Phylip extra options", content=content,
+                           size=(400, 200), size_hint=(None, None))
+
+        self._subpopup.open()
 
     def format_dialog(self):
         """

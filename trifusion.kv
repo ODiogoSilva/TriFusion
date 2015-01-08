@@ -48,33 +48,93 @@
                 on_release: root.cancel()
 
 <FormatDialog>:
-    padding: 30
+    padding: [30, 20, 30, 20]
     spacing: 10
     orientation: "vertical"
     id: format_dlg
-    ToggleButton:
-        id: fasta
-        state: "down"
-        text: "Fasta"
-    ToggleButton:
-        id: phylip
-        text: "Phylip"
-    ToggleButton:
-        id: nexus
-        text: "Nexus"
-    ToggleButton:
-        id: mcmctree
-        text: "MCMCTree"
-    ToggleButton:
-        id: ima2
-        text: "IMa2"
-        disabled: True
+    BoxLayout:
+        ToggleButton:
+            id: fasta
+            state: "down"
+            text: "Fasta"
+        Button:
+            size_hint_x: .2
+            text: "..."
+            bold: True
+            disabled: True
+    BoxLayout:
+        ToggleButton:
+            id: phylip
+            text: "Phylip"
+        Button:
+            size_hint_x: .2
+            text: "..."
+            bold: True
+            on_release:
+                app.phylip_extra_opt()
+    BoxLayout:
+        ToggleButton:
+            id: nexus
+            text: "Nexus"
+        Button:
+            size_hint_x: .2
+            text: "..."
+            bold: True
+            disabled: True
+    BoxLayout:
+        ToggleButton:
+            id: mcmctree
+            text: "MCMCTree"
+        Button:
+            size_hint_x: .2
+            text: "..."
+            bold: True
+            disabled: True
+    BoxLayout:
+        ToggleButton:
+            id: ima2
+            text: "IMa2"
+            disabled: True
+        Button:
+            size_hint_x: .2
+            text: "..."
+            bold: True
+            disabled: True
+    Label:
+        text: "Press [b][...][/b] for more options"
+        markup: True
+        font_size: 13
 
     BoxLayout:
         orientation: "horizontal"
         Button:
             text: "Done"
             on_release: app.save_format(format_dlg)
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
+<PhylipExtra@BoxLayout>:
+    padding: 10
+    spacing: 10
+    orientation: "vertical"
+    BoxLayout:
+        Label:
+            text: "Create partition file when concatenating"
+        CheckBox:
+            id: part_check
+            size_hint_x: .2
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 20
+        Button:
+            text: "Done"
+            on_release:
+                app.create_partfile = root.ids.part_check.active
+                app.dismiss_subpopup()
         Button:
             text: "Cancel"
             on_release: root.cancel()
