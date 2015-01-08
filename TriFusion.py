@@ -34,6 +34,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.core.window import Window
@@ -1092,6 +1093,30 @@ class TriFusionApp(App):
                     bt.state = "normal"
                     self.add_taxa_bt(bt, sink_wgt)
 
+    def show_taxa(self, name_wgt):
+        """
+        Creates a popup listing the taxa included in a taxa group given by name
+        :param name: widget, widget containing the name of the group as text
+        """
+
+        content = BoxLayout(orientation="vertical", padding=10, spacing=10)
+        sv = ScrollView()
+        close_bt = Button(text="Close", size_hint_y=.2)
+        close_bt.bind(on_release=self.dismiss_popup)
+        gl = GridLayout(cols=1, size_hint_y=None, height=0, spacing=5)
+
+        for tx in self.taxa_groups[name_wgt.text]:
+            bt = Button(text=tx, size_hint_y=None, height=30)
+            gl.add_widget(bt)
+            gl.height += 40
+
+        sv.add_widget(gl)
+        content.add_widget(sv)
+        content.add_widget(close_bt)
+
+        self.show_popup(title="Taxa group: %s" % name_wgt.text, content=content,
+                        size_hint=(.3, .7))
+
     def save_taxa_group(self, source_wgt, name):
         """
         Adds a taxa group declared using the taxa group creator popup to the
@@ -1109,6 +1134,7 @@ class TriFusionApp(App):
         # App changes by adding three buttons for the taxa group
         # Taxa button itself
         bt = Button(text=name, size_hint=(.8, None), height=30, id=name)
+        bt.bind(on_release=self.show_taxa)
         # Removal button
         x_bt = Button(text="X", bold=True, size_hint=(.14, None),
                         height=30, id="%sX" % name,

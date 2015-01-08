@@ -62,8 +62,7 @@
                 size_hint_y: .15
                 text: "Save"
                 on_release:
-                    app.save_taxa_group(root.ids.select_grid, root.ids.group_name.text)
-                    root.cancel()
+                    if root.ids.group_name.text not in app.taxa_groups: app.save_taxa_group(root.ids.select_grid, root.ids.group_name.text); root.cancel()
         BoxLayout:
             orientation: "vertical"
             size_hint_x: .15
@@ -1099,7 +1098,7 @@ BoxLayout:
                                     height: 0
                                     padding: 5
                                     spacing: 5
-                                    cols: 3
+                                    cols: 2
                             Button:
                                 size_hint_y: .1
                                 text: "Set new taxa group"
