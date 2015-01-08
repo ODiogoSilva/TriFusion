@@ -383,7 +383,6 @@ class TriFusionApp(App):
 
         :param bk: string. bookmark file path
         """
-        print("here")
         bookmark_name = bk.split("/")[-1]
         # Define bookmark button
         bt = Button(text=bookmark_name, id=bk,
