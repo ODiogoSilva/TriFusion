@@ -123,6 +123,10 @@ class AdditionalProcessContents(TabbedPanel):
     pass
 
 
+class TaxaGroupDialog(BoxLayout):
+    pass
+
+
 class TriFusionApp(App):
 
     #######################
@@ -1027,6 +1031,13 @@ class TriFusionApp(App):
         # Updates labels
         self.update_sp_label()
         self.update_file_label()
+
+    def taxa_group_dialog(self):
+
+        content = TaxaGroupDialog()
+
+        self.show_popup(title="Set taxa groups", content=content,
+                        size_hint=(.9, .9))
 
     ########################### PROCESS SCREEN #################################
 

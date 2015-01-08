@@ -11,12 +11,109 @@
                 id: content
                 cols: 1
 
+<TaxaGroupDialog@BoxLayout>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    BoxLayout:
+        size_hint_y: .1
+        BoxLayout:
+            spacing: 10
+            Label:
+                text: "Taxa group name:"
+                size_hint_x: .5
+            TextInput:
+        Widget:
+            size_hint_x: .15
+        Widget
+    BoxLayout:
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            ScrollView:
+                canvas.before:
+                    Color:
+                        rgba: .3, .3, .3, .5
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                GridLayout:
+                    id: select_grid
+                    cols:1
+                    size_hint_y: None
+                    height: root.height * .1
+                    Label:
+                        canvas.before:
+                            Color:
+                                rgba: .2, .2, .2, 1
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+                        text: "Selected taxa"
+                        size_hint_y: .1
+                        bold: True
+                    Hseparator
+            Button:
+                size_hint_y: .15
+                text: "Save"
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_x: .15
+            spacing: 10
+            BoxLayout:
+                padding: 10
+                spacing: 10
+                orientation: "vertical"
+                Button:
+                    text: "<<"
+                    bold: True
+                Button:
+                    text: "<"
+                    bold: True
+                Button:
+                    text: ">"
+                    bold: True
+                Button:
+                    text: ">>"
+                    bold: True
+            Widget:
+                size_hint_y: .15
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            ScrollView:
+                canvas.before:
+                    Color:
+                        rgba: .3, .3, .3, .5
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                GridLayout:
+                    id: all_grid
+                    cols:1
+                    size_hint_y: None
+                    height: root.height * .1
+                    Label:
+                        canvas.before:
+                            Color:
+                                rgba: .2, .2, .2, 1
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+                        text: "All taxa"
+                        size_hint_y: .1
+                        bold: True
+                    Hseparator
+            Button:
+                size_hint_y: .15
+                text: "Cancel"
+
 <SaveDialog>:
     BoxLayout:
         size: root.size
         pos: root.pos
         orientation: "vertical"
-        spacing:10
+        spacing: 10
 
         FileChooserListView:
             id: sd_filechooser
@@ -973,6 +1070,8 @@ BoxLayout:
                             Button:
                                 size_hint_y: .1
                                 text: "Set new taxa group"
+                                on_release:
+                                    app.taxa_group_dialog()
 
         ScreenManager:
             id: sm
