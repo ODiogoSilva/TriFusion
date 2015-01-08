@@ -399,6 +399,8 @@ class TriFusionApp(App):
         # Bind to function that removes bookmark button as well as the path
         # from self.bm_file
         xbt.bind(on_release=self.remove_bookmark_bt)
+        # Update gridlayout height
+        self.screen.ids.sv_book.height += self.root.height * 0.07
         # Add widgets
         self.screen.ids.sv_book.add_widget(bt)
         self.screen.ids.sv_book.add_widget(xbt)
@@ -430,6 +432,9 @@ class TriFusionApp(App):
         # Remove both bookmark and removal buttons
         parent_obj.remove_widget(value)
         parent_obj.remove_widget(bk_bt)
+
+        # Update gridlayout height for scrolling purposes
+        parent_obj.height -= self.root.height * 0.07
 
         # Core changes
         bk_name = bk_idx.split("/")[-1]
