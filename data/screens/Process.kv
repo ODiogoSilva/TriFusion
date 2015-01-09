@@ -28,14 +28,14 @@ ShowcaseScreen:
                     on_press:
                         #carousel.load_slide(carousel.slides[0])
                         app.toggle_groups(self)
-                        app.set_main_operation("conversion")
+                        app.save_main_operation("conversion")
                 Sidebt:
                     text: "Concatenation"
                     group: "process_panel"
                     on_press:
                         #carousel.load_slide(carousel.slides[1])
                         app.toggle_groups(self)
-                        app.set_main_operation("concatenation")
+                        app.save_main_operation("concatenation")
 
         # This will be the main screen with the options and stuff
 

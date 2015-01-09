@@ -75,22 +75,22 @@
                     text: "<<"
                     bold: True
                     on_release:
-                        app.move_taxa(root.ids.all_grid, root.ids.select_grid, True)
+                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, True)
                 Button:
                     text: "<"
                     bold: True
                     on_release:
-                        app.move_taxa(root.ids.all_grid, root.ids.select_grid, False)
+                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, False)
                 Button:
                     text: ">"
                     bold: True
                     on_release:
-                        app.move_taxa(root.ids.select_grid, root.ids.all_grid, False)
+                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, False)
                 Button:
                     text: ">>"
                     bold: True
                     on_release:
-                        app.move_taxa(root.ids.select_grid, root.ids.all_grid, True)
+                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, True)
             Widget:
                 size_hint_y: .15
         BoxLayout:
@@ -192,7 +192,7 @@
         SettingsBt:
             disabled: False
             on_release:
-                app.phylip_extra_opt()
+                app.save_phylip_extra()
     BoxLayout:
         ToggleButton:
             id: nexus
@@ -290,7 +290,7 @@
             id: gap_ti
             text: "{}".format(round(gap_sli.value))
             multiline: False
-            on_text_validate: if app.filter_validater(gap_ti.text): gap_sli.value = app.filter_validater(gap_ti.text)[1]
+            on_text_validate: if app.check_filters(gap_ti.text): gap_sli.value = app.check_filters(gap_ti.text)[1]
 
     Label:
         text: "Missing data threshold"
@@ -316,7 +316,7 @@
             id: mis_ti
             text: "{}".format(round(mis_sli.value))
             multiline: False
-            on_text_validate: if app.filter_validater(mis_ti.text): mis_sli.value = app.filter_validater(mis_ti.text)[1]
+            on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
 
     BoxLayout:
         orientation: "horizontal"
@@ -450,7 +450,7 @@
                 size_hint_x: .2
                 bold: True
                 text: "Fasta"
-                on_release: app.format_dialog()
+                on_release: app.dialog_format()
         Hseparator
 
         DarkBox:
@@ -473,7 +473,7 @@
                 valign: "middle"
                 bold: True
                 text: "Select..."
-                on_release: app.filechooser_dialog("conversion")
+                on_release: app.dialog_filechooser("conversion")
 
         BoxLayout:
             padding: [100,10,100,10]
@@ -677,7 +677,7 @@
                     disabled: True
                     text: "Select..."
                     on_release:
-                        app.text_dialog("Haplotype prefix")
+                        app.dialog_text("Haplotype prefix")
 
     TabbedPanelItem:
         id: filter_tab
@@ -740,7 +740,7 @@
                     bold: True
                     disabled: True
                     text: "Set filters"
-                    on_release: app.filter_dialog()
+                    on_release: app.dialog_filter()
 
     TabbedPanelItem:
         id: gcoder_tab
@@ -820,7 +820,7 @@ BoxLayout:
                 title: "Menu"
                 with_previous: False
                 on_release:
-                    app.side_panel_toggle()
+                    app.toggle_sidepanel()
                 canvas.before:
                     Color:
                         rgba: (0.180, 0.180, 0.180, .8)
@@ -987,7 +987,7 @@ BoxLayout:
                                 on_release:
                                     idx = app.screen_names.index("fc")
                                     app.go_screen(idx)
-                                    app.side_panel_toggle()
+                                    app.toggle_sidepanel()
 
                             TabbedPanel:
                                 id: main_tp
@@ -1093,7 +1093,7 @@ BoxLayout:
                                 id: tx_group_bt
                                 disabled: True
                                 on_release:
-                                    app.taxa_group_dialog()
+                                    app.dialog_taxagroup()
 
         ScreenManager:
             id: sm

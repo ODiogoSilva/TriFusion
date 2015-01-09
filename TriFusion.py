@@ -266,8 +266,79 @@ class TriFusionApp(App):
         # First thing is go to main screen
         self.go_screen(0)
 
-        Window.bind(on_touch_up=self.on_touch_sidepanel)
+        Window.bind(on_touch_up=self.sidepanel_on_touch)
         #self.sine_panel_routine()
+
+        """
+        ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
+
+        Given the large number of methods needed to give functionality to the
+        app, this nomenclature guide was created to aid in the naming of new
+        methods so that the code can be more easily browsed and understood. Note
+        that this guide only targets methods that perform similar tasks and,
+        therefore, can be grouped by a common prefix name. Other methods that
+        perform more unique operations may have different names.
+
+        Method's names will be given based on their main operation and specific
+        task. For example, a method in charge of toggle the side panel, should
+        be named "toggle_sidepanel", being "toggle" the common prefix and
+        "sidepanel" the keyword linked ot the specific task.
+
+        1. Toggles.
+
+        "toggle_[specific_task]", e.g. "toggle_sidepanel"
+
+        Methods use to toggle certain widgets or values/attributes.
+
+        2. Dialogues.
+
+        "dialog_[specific_task]", e.g. "dialog_format"
+
+        Methods that generate dialogues throughout the app, usually in the form
+        of popups
+
+        3. Populating methods.
+
+        "populate_[specific_task]", e.g., "populate_input_files"
+
+        Methods that populate certain widgets, usually gridlayouts, with other
+        widgets
+
+        4. Add/Remove
+
+        "add_[specific_task]", e.g., "add_bookmark"
+        "remove_[specific_task]", e.g., "remove_taxa_group"
+
+        Methods that add or remove widgets, usually buttons/togglebuttons, from
+        other widgets
+
+        5. Saves.
+
+        "save_[specific_task]", e.g., "save_file"
+
+        Methods that save specific settings from the several options of the app
+
+        6. Updates.
+
+        "update_[specific_task]", e.g., "update_tabs"
+
+        Wrapper methods used to update several attributes or widgets of the app
+
+        7. Checks.
+
+        "check_[specific_task]", e.g., "check_filters"
+
+        Methods that perform some kind of sanity checks to user input data
+
+        8. Unique operations
+
+        [specific_task]_[unique_operation], e.g., "sidepanel_animation"
+
+        When the method performs a unique operations, the specific_task should
+        prefix the name of the method.
+
+
+        """
 
     ########################## SCREEN NAVIGATION ###############################
 
@@ -321,7 +392,7 @@ class TriFusionApp(App):
             if self.available_screens[idx].split("/")[-1] == "fc.kv":
                 self.screen.ids.icon_view_tab.path = self.home_path
                 # Initialize bookmarks
-                self.init_bookmark()
+                self.bookmark_init()
 
         return self.screen
 
@@ -329,12 +400,12 @@ class TriFusionApp(App):
     def toggle_groups(wgt):
         """
         This method generates a desired behaviour for groups of toggle buttons
-        that control screens or slides. By default, when a toggle button is
-        pressed, the state will be down and a new screen/slide is presented.
-        However, if the same toggle button is pressed again, it's state will
-        return to normal while the same screen/slide is showed. To prevent this
-        behaviour, this method will disable the active toggle button in the
-        group and enable any other previously disabled button.
+        By default, when a toggle button is pressed, the state will be down and
+        a new screen/slide is presented. However, if the same toggle button is
+        pressed again, it's state will return to the normal state while the
+        same screen/slide is showed. To prevent this behaviour, this method
+        will disable the active toggle button in the group and enable any
+        other previously disabled button.
 
         To allow a seamless transition, ensure that background_disabled_dow is
         the same as background_down, and that disabled_color is the same as
@@ -355,7 +426,7 @@ class TriFusionApp(App):
 
     ####################### BOOKMARKS OPERATIONS ###############################
 
-    def init_bookmark(self):
+    def bookmark_init(self):
         """
         This will create a pickle file containing a list with the bookmarks
         for the file chooser menu. If no file exists, it will create an empty
@@ -410,7 +481,7 @@ class TriFusionApp(App):
         bt = Button(text=bookmark_name, id=bk,
                     height=30, size_hint=(.8, None))
         # Bind to function that loads bookmark path into filechooser
-        bt.bind(on_release=self.load_bookmark)
+        bt.bind(on_release=self.bookmark_load)
         # Define bookmark removal button
         xbt = Button(text="X", size_hint=(.14, None),
                      height=30, id="%sX" % bk,
@@ -424,7 +495,7 @@ class TriFusionApp(App):
         self.screen.ids.sv_book.add_widget(bt)
         self.screen.ids.sv_book.add_widget(xbt)
 
-    def load_bookmark(self, value):
+    def bookmark_load(self, value):
         """
         Provided a bookmark button object, it loads the bookmark file path
         that is stored in the button id.
@@ -494,7 +565,7 @@ class TriFusionApp(App):
 
     ######################## SIDE PANEL OPERATIONS #############################
 
-    def on_touch_sidepanel(self, *args):
+    def sidepanel_on_touch(self, *args):
         """
         This function is binded to the app Window so that it can handle any
         touch_up events. Once the side panel is open, this allows any mouse
@@ -529,17 +600,17 @@ class TriFusionApp(App):
 
             ## ANIMATIONS with hierarchy
             # Animation of main BoxLayout containing child ScrollViews
-            self.side_panel_animation(width=0,
+            self.sidepanel_animation(width=0,
                                       wgt=self.root.ids.main_box)
             # Animation of both scrollviews
-            self.side_panel_animation(width=0,
+            self.sidepanel_animation(width=0,
                                       wgt=self.root.ids.sp)
-            self.side_panel_animation(width=0,
+            self.sidepanel_animation(width=0,
                                       wgt=self.root.ids.sp_bts)
 
             self.show_side_panel = not self.show_side_panel
 
-    def side_panel_toggle(self):
+    def toggle_sidepanel(self):
         """
         Method controlling the animation toggling of the side panel
         """
@@ -567,16 +638,16 @@ class TriFusionApp(App):
 
         ## ANIMATIONS with hierarchy
         # Animation of main BoxLayout containing child ScrollViews
-        self.side_panel_animation(width=sv_panel_width * 1.2,
+        self.sidepanel_animation(width=sv_panel_width * 1.2,
                                   wgt=self.root.ids.main_box)
         # Animation of both scrollviews
-        self.side_panel_animation(width=sv_panel_width,
+        self.sidepanel_animation(width=sv_panel_width,
                                   wgt=self.root.ids.sp)
-        self.side_panel_animation(width=sv_bts_width,
+        self.sidepanel_animation(width=sv_bts_width,
                                   wgt=self.root.ids.sp_bts)
 
     @staticmethod
-    def side_panel_animation(width, wgt):
+    def sidepanel_animation(width, wgt):
 
         Animation(width=width, d=.3, t="out_quart").start(wgt)
 
@@ -1035,7 +1106,7 @@ class TriFusionApp(App):
         self.update_sp_label()
         self.update_file_label()
 
-    def taxa_group_dialog(self):
+    def dialog_taxagroup(self):
 
         content = TaxaGroupDialog(cancel=self.dismiss_popup)
 
@@ -1060,7 +1131,7 @@ class TriFusionApp(App):
         wgt.remove_widget(bt)
         wgt.height -= 30
 
-    def move_taxa(self, source_wgt, sink_wgt, all_taxa):
+    def taxagroup_move_taxa(self, source_wgt, sink_wgt, all_taxa):
         """
         Method that adds functionality to the addition/removal buttons (<<, <,
         >>, >) in the taxa group dialog.
@@ -1085,7 +1156,7 @@ class TriFusionApp(App):
                     bt.state = "normal"
                     self.add_taxa_bt(bt, sink_wgt)
 
-    def show_taxa(self, name_wgt):
+    def taxagroups_show_taxa(self, name_wgt):
         """
         Creates a popup listing the taxa included in a taxa group given by name
         :param name: widget, widget containing the name of the group as text
@@ -1146,7 +1217,7 @@ class TriFusionApp(App):
         # App changes by adding three buttons for the taxa group
         # Taxa button itself
         bt = Button(text=name, size_hint=(.8, None), height=30, id=name)
-        bt.bind(on_release=self.show_taxa)
+        bt.bind(on_release=self.taxagroups_show_taxa)
         # Removal button
         x_bt = Button(text="X", bold=True, size_hint=(.14, None),
                         height=30, id="%sX" % name,
@@ -1275,7 +1346,7 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-    def phylip_extra_opt(self):
+    def save_phylip_extra(self):
 
         content = PhylipExtra(cancel=self.dismiss_subpopup)
 
@@ -1286,7 +1357,7 @@ class TriFusionApp(App):
 
         self._subpopup.open()
 
-    def format_dialog(self):
+    def dialog_format(self):
         """
         Creates the dialog containing the buttons to select output formats.
         """
@@ -1308,7 +1379,7 @@ class TriFusionApp(App):
         self.show_popup(title="Choose output format", content=content,
                         size=(300, 400))
 
-    def filechooser_dialog(self, value):
+    def dialog_filechooser(self, value):
         """
         Generates a file chooser popup for the user to select an output file
         """
@@ -1325,7 +1396,7 @@ class TriFusionApp(App):
 
         self.show_popup(title="Choose output file", content=content)
 
-    def filter_dialog(self):
+    def dialog_filter(self):
         """
         Generates the settings popup for filtering options
         """
@@ -1340,7 +1411,7 @@ class TriFusionApp(App):
                         size=(400, 300))
 
     @staticmethod
-    def filter_validater(value):
+    def check_filters(value):
         """
         Method that validates the input of the text input in filter settings.
         It handles common misktakes, such as using "," instead of "." for
@@ -1363,7 +1434,7 @@ class TriFusionApp(App):
         except ValueError:
             return False
 
-    def text_dialog(self, title=""):
+    def dialog_text(self, title=""):
         """
         Generates a simple text dialog to capture text input
         """
@@ -1383,7 +1454,7 @@ class TriFusionApp(App):
 
         self.hap_prefix = text_wgt.text
 
-    def set_main_operation(self, op):
+    def save_main_operation(self, op):
 
         if self.process_grid_wgt is None:
             self.process_grid_wgt = ProcessGeneral()
