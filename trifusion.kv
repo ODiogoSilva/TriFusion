@@ -11,6 +11,22 @@
                 id: content
                 cols: 1
 
+<WarningDialog@BoxLayout>:
+    padding: 10
+    orientation: "vertical"
+    Label:
+        id: warning_l
+        halign: "center"
+        valign: "middle"
+        text_size: self.size
+        markup: True
+    Button:
+        size_hint_y: None
+        height: 30
+        text: "Close"
+        on_release:
+            root.cancel()
+
 <TaxaGroupDialog@BoxLayout>:
     orientation: "vertical"
     padding: 10

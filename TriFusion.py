@@ -72,6 +72,10 @@ class ShowcaseScreen(Screen):
         return super(ShowcaseScreen, self).add_widget(*args)
 
 
+class WarningDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class SaveDialog(FloatLayout):
     """
     Class controlling the layout of the save file dialog in the Process screen
@@ -134,6 +138,9 @@ class TriFusionApp(App):
     # GUI RELATED VARIABLES
     #
     #######################
+
+    # Attribute for warning dialog
+    warning_wgt = None
 
     # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
@@ -1490,6 +1497,14 @@ class TriFusionApp(App):
         self.show_popup(title=title, content=content,
                         size=(200, 150))
 
+    def dialog_warning(self, msg1, msg2):
+
+        content = WarningDialog(cancel=self.dismiss_popup)
+        content.ids.warning_l.text = "[b][size=18]%s[/size][/b]\n\n%s" % (msg1,
+                                                                          msg2)
+
+        self.show_popup(title="Warning!", content=content, size=(300, 200))
+
     def save_hap_prefix(self, text_wgt):
         """
         Saves the specified string suffix for haplotypes when collapsing
@@ -1802,6 +1817,11 @@ class TriFusionApp(App):
         """
 
         write_aln = {}
+
+        # Perform checks
+        if self.alignment_list is None:
+            return self.dialog_warning("No input data", "Use 'Menu > Open "
+                                       "file(s)' to load input data")
 
         #####
         # Perform operations
