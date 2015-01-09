@@ -164,6 +164,16 @@
                 text: "Cancel"
                 on_release: root.cancel()
 
+<SettingsBt@Button>:
+    size_hint_x: .2
+    disabled: True
+    Image:
+        source: "data/backgrounds/settings.png"
+        pos: self.parent.x + 8, self.parent.y + 8
+        #x: self.parent.x
+        size: 18, 18
+        allow_stretch: True
+
 <FormatDialog>:
     padding: [30, 20, 30, 20]
     spacing: 10
@@ -174,54 +184,32 @@
             id: fasta
             state: "down"
             text: "Fasta"
-        Button:
-            size_hint_x: .2
-            text: "..."
-            bold: True
-            disabled: True
+        SettingsBt
     BoxLayout:
         ToggleButton:
             id: phylip
             text: "Phylip"
-        Button:
-            size_hint_x: .2
-            text: "..."
-            bold: True
+        SettingsBt:
+            disabled: False
             on_release:
                 app.phylip_extra_opt()
     BoxLayout:
         ToggleButton:
             id: nexus
             text: "Nexus"
-        Button:
-            size_hint_x: .2
-            text: "..."
-            bold: True
-            disabled: True
+        SettingsBt
     BoxLayout:
         ToggleButton:
             id: mcmctree
             text: "MCMCTree"
-        Button:
-            size_hint_x: .2
-            text: "..."
-            bold: True
-            disabled: True
+        SettingsBt
     BoxLayout:
         ToggleButton:
             id: ima2
             text: "IMa2"
             disabled: True
-        Button:
-            size_hint_x: .2
-            text: "..."
-            bold: True
-            disabled: True
-    Label:
-        text: "Press [b][...][/b] for more options"
-        markup: True
-        font_size: 13
-
+        SettingsBt
+    Widget
     BoxLayout:
         orientation: "horizontal"
         Button:
