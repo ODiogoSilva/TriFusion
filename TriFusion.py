@@ -686,6 +686,7 @@ class TriFusionApp(App):
         if "file_temp" in self.root.ids.keys():
             self.root.ids.file_sl.remove_widget(self.root.ids.file_temp)
             del self.root.ids["file_temp"]
+            self.root.ids.file_sl.height = 5
 
         # Enable selection buttons if file list is not empty
         if self.file_list:
@@ -704,8 +705,7 @@ class TriFusionApp(App):
             if file_name not in [x.id for x in self.root.ids.file_sl.children]:
 
                 bt = ToggleButton(text=file_name, state="down", id=file_name,
-                                  height=self.root.height * 0.05,
-                                  size_hint=(.8, None), shorten=True,
+                                  height=30, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.3
@@ -717,22 +717,20 @@ class TriFusionApp(App):
 
                 # Set Information button and add the widget
                 inf_bt = Button(text="?", size_hint=(.14, None),
-                                height=self.root.height * 0.05,
-                                id="%s?" % file_name, bold=True)
+                                height=30, id="%s?" % file_name, bold=True)
                 self.root.ids.file_sl.add_widget(inf_bt)
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
                 x_bt = Button(text="X", size_hint=(.14, None),
-                              height=self.root.height * 0.05, id="%sX" %
-                              file_name, background_color=(255, .9, .9, 1),
-                              bold=True)
+                              height=30, id="%sX" % file_name,
+                              background_color=(255, .9, .9, 1), bold=True)
                 x_bt.bind(on_release=self.remove_bt)
                 self.root.ids.file_sl.add_widget(x_bt)
 
                 # Updates the size of the grid layout according to the added
                 # buttons
-                self.root.ids.file_sl.height += self.root.height * .068
+                self.root.ids.file_sl.height += 35
 
     def populate_species(self):
         """
@@ -745,6 +743,7 @@ class TriFusionApp(App):
         if "species_temp" in self.root.ids.keys():
             self.root.ids.taxa_sl.remove_widget(self.root.ids.species_temp)
             del self.root.ids["species_temp"]
+            self.root.ids.taxa_sl.height = 5
 
         # Enable selection buttons if taxa list is not empty
         if self.active_taxa_list:
@@ -762,8 +761,7 @@ class TriFusionApp(App):
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
 
                 bt = ToggleButton(text=tx, state="down", id=tx,
-                                  height=self.root.height * 0.05,
-                                  size_hint=(.8, None), shorten=True,
+                                  height=30, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.3
@@ -775,21 +773,20 @@ class TriFusionApp(App):
 
                 # Set Information button and add the widget
                 inf_bt = Button(text="?", size_hint=(.14, None),
-                                height=self.root.height * 0.05,
-                                id="%s?" % tx, bold=True)
+                                height=30, id="%s?" % tx, bold=True)
                 self.root.ids.taxa_sl.add_widget(inf_bt)
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
                 x_bt = Button(text="X", size_hint=(.14, None),
-                              height=self.root.height * 0.05, id="%sX" % tx,
+                              height=30, id="%sX" % tx,
                               background_color=(255, .9, .9, 1), bold=True)
                 self.root.ids.taxa_sl.add_widget(x_bt)
                 x_bt.bind(on_press=self.remove_bt)
 
                 # Updates the size of the grid layout according to the added
                 # button
-                self.root.ids.taxa_sl.height += self.root.height * 0.068
+                self.root.ids.taxa_sl.height += 35
 
     def popup_info(self, value):
         """

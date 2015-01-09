@@ -1023,13 +1023,13 @@ BoxLayout:
                                                 size_hint_y: None
                                                 id: file_sl
                                                 padding: 10
-                                                spacing: [5, 10]
-                                                height: root.height*.2
-                                                minimum_height: root.height*.1
+                                                spacing: 5
+                                                height: 30
+                                                #minimum_height: root.height*.1
 
                                                 Button:
                                                     id: file_temp
-                                                    height: root.height*.08
+                                                    height: 40
                                                     disabled: True
                                                     size_hint_y: None
                                                     #size_hint_x: None
@@ -1057,10 +1057,10 @@ BoxLayout:
                                                 size_hint_y: None
                                                 id: taxa_sl
                                                 padding: 10
-                                                spacing: [5, 10]
+                                                spacing: 5
                                                 Button:
                                                     id: species_temp
-                                                    height: root.height*.08
+                                                    height: 40
                                                     disabled: True
                                                     size_hint_y: None
                                                     text: "No species loaded"
