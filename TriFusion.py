@@ -671,12 +671,11 @@ class TriFusionApp(App):
             self.root.ids.bx1.remove_widget(self.root.ids.panel_float)
             self.root.ids.bx1.add_widget(self.root.ids.panel_float)
 
-            # The width of the side panel contents will be relative to the
-            # widget width
-            sv_panel_width = self.root.width * .32
-            # The width of the side panel buttons will be the same as the
-            # actionprevious button of the action bar
-            sv_bts_width = self.root.ids.av.children[-1].width * .5
+            # Fixing the width of the side panel
+            # Main panel width
+            sv_panel_width = 300
+            # Side buttons width
+            sv_bts_width = 50
         else:
             sv_panel_width, sv_bts_width = 0, 0
 
