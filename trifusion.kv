@@ -11,6 +11,26 @@
                 id: content
                 cols: 1
 
+<CheckDialog@BoxLayout>:
+    orientation: "vertical"
+    id: check
+    text: None
+    Label:
+        text: "Are you sure?"
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 5
+        Button:
+            text: "Yes"
+            id: check_ok
+            on_release:
+                root.cancel()
+        Button:
+            text: "No"
+            on_release:
+                root.cancel()
+
 <WarningDialog@BoxLayout>:
     padding: 10
     orientation: "vertical"

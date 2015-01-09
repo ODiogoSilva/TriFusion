@@ -57,8 +57,8 @@ from process.sequence import AlignmentList
 from os.path import dirname, join, exists
 from os.path import expanduser
 from copy import deepcopy
+from functools import partial
 import pickle
-import time
 
 Config.set("kivy", "log_level", "warning")
 
@@ -71,6 +71,9 @@ class ShowcaseScreen(Screen):
             return self.ids.content.add_widget(*args)
         return super(ShowcaseScreen, self).add_widget(*args)
 
+
+class CheckDialog(BoxLayout):
+    cancel = ObjectProperty(None)
 
 class WarningDialog(BoxLayout):
     cancel = ObjectProperty(None)
@@ -437,6 +440,34 @@ class TriFusionApp(App):
 
         wgt.disabled = True
 
+    def check_action(self, func, bt_wgt):
+        """
+        General purpose method that pops a dialog checking if the user wants to
+        perform a certain action. This method should be passed as a function on
+        the 'on_*' with the final function and original widget triggering the
+        event as arguments
+        :param func: final function if the users choses to process
+        :param bt_wgt: widget where the initial 'on_' event occurred
+
+        Usage example:
+        This can be applied to the removal button of the bookmarks. In this
+        case, the event of the removal button must be like this:
+
+        remove_button.bind(partial(self.check_action, self.remove_bookmark_bt))
+
+        where, self.check_action is this method, and self.remove_bookmark_bt is
+        the function that will actually remove the bookmak button. This function
+        is then binder to the "OK" button of the check dialog. By default, the
+        last argument is the bt_wgt.
+
+        """
+
+        check_content = CheckDialog(cancel=self.dismiss_popup)
+        check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
+
+        self.show_popup(title="Warning!", content=check_content,
+                        size=(200, 150))
+
     ####################### BOOKMARKS OPERATIONS ###############################
 
     def bookmark_init(self):
@@ -501,7 +532,7 @@ class TriFusionApp(App):
                      background_color=(255, .9, .9, 1), bold=True)
         # Bind to function that removes bookmark button as well as the path
         # from self.bm_file
-        xbt.bind(on_release=self.remove_bookmark_bt)
+        xbt.bind(on_release=partial(self.check_action, self.remove_bookmark_bt))
         # Update gridlayout height
         self.screen.ids.sv_book.height += self.root.height * 0.07
         # Add widgets
