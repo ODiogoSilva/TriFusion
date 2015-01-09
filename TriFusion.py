@@ -1107,7 +1107,11 @@ class TriFusionApp(App):
         self.update_file_label()
 
     def dialog_taxagroup(self):
+        """
+        Creates the layout for the taxa group creation popup.
+        """
 
+        # Initializing instance for taxa group dialog
         content = TaxaGroupDialog(cancel=self.dismiss_popup)
 
         # Populate the gridlayout for all taxa
@@ -1116,18 +1120,32 @@ class TriFusionApp(App):
             bt = ToggleButton(text=i, size_hint_y=None, height=30)
             self.add_taxa_bt(bt, content.ids.all_grid)
 
+        # Show dialog
         self.show_popup(title="Create taxa groups", content=content,
                         size=(700, 500))
 
     @staticmethod
     def add_taxa_bt(bt, wgt):
+        """
+        Method for addition of a button to a widget. This method was created
+        for the automatic upated of the widgets height when moving buttons in
+        the taxa group creation dialog
+        :param bt: The button widget
+        :param wgt: The sink widget
+        """
 
         wgt.add_widget(bt)
         wgt.height += 30
 
     @staticmethod
     def remove_taxa_bt(bt, wgt):
-
+        """
+        Method for addition of a button to a widget. This method was created
+        for the automatic upated of the widgets height when moving buttons in
+        the taxa group creation dialog
+        :param bt: The button widget
+        :param wgt: The source widget
+        """
         wgt.remove_widget(bt)
         wgt.height -= 30
 
@@ -1159,24 +1177,33 @@ class TriFusionApp(App):
     def taxagroups_show_taxa(self, name_wgt):
         """
         Creates a popup listing the taxa included in a taxa group given by name
-        :param name: widget, widget containing the name of the group as text
+        :param name_wgt: widget, widget containing the name of the group as text
         """
 
+        # Create root boxlayout
         content = BoxLayout(orientation="vertical", padding=10, spacing=10)
+        # Create scroll view in which the gridlayout will be inserted
         sv = ScrollView()
+        # Create close button for the popup
         close_bt = Button(text="Close", size_hint_y=.2)
+        # Add functionality to the close button
         close_bt.bind(on_release=self.dismiss_popup)
+        # Create gridlayout that will store the buttons with taxa names
         gl = GridLayout(cols=1, size_hint_y=None, height=0, spacing=5)
 
+        # Add buttons with taxa names to the gridlayout and update the height
+        # of the gridlayout
         for tx in self.taxa_groups[name_wgt.text]:
             bt = Button(text=tx, size_hint_y=None, height=30)
             gl.add_widget(bt)
             gl.height += 35
 
+        # Create widget tree
         sv.add_widget(gl)
         content.add_widget(sv)
         content.add_widget(close_bt)
 
+        # Show dialog
         self.show_popup(title="Taxa group: %s" % name_wgt.text, content=content,
                         size_hint=(.3, .7))
 
