@@ -413,12 +413,12 @@ class TriFusionApp(App):
         bookmark_name = bk.split("/")[-1]
         # Define bookmark button
         bt = Button(text=bookmark_name, id=bk,
-                    height=self.root.height * 0.05, size_hint=(.8, None))
+                    height=30, size_hint=(.8, None))
         # Bind to function that loads bookmark path into filechooser
         bt.bind(on_release=self.load_bookmark)
         # Define bookmark removal button
         xbt = Button(text="X", size_hint=(.14, None),
-                     height=self.root.height * 0.05, id="%sX" % bk,
+                     height=30, id="%sX" % bk,
                      background_color=(255, .9, .9, 1), bold=True)
         # Bind to function that removes bookmark button as well as the path
         # from self.bm_file
@@ -1054,7 +1054,7 @@ class TriFusionApp(App):
             self.add_taxa_bt(bt, content.ids.all_grid)
 
         self.show_popup(title="Create taxa groups", content=content,
-                        size_hint=(.9, .9))
+                        size=(700, 500))
 
     @staticmethod
     def add_taxa_bt(bt, wgt):
@@ -1314,7 +1314,7 @@ class TriFusionApp(App):
 
         # Show popup
         self.show_popup(title="Choose output format", content=content,
-                        size_hint=(.3, .8))
+                        size=(300, 400))
 
     def filechooser_dialog(self, value):
         """

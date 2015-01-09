@@ -13,10 +13,12 @@ ShowcaseScreen:
             Label:
                 text: " Bookmarks"
                 bold: True
-                size_hint_y: .1
+                size_hint_y: None
+                height: 40
                 halign: "center"
                 valign: "middle"
                 text_size: self.size
+                font_size: 18
                 canvas.before:
                     Color:
                         rgba: (0.3, 0.3, 0.3, .8)
@@ -37,7 +39,7 @@ ShowcaseScreen:
 
             Button:
                 size_hint_y: None
-                height: root.height * .08
+                height: 40
                 text: "Add Bookmark"
                 on_release: app.save_bookmark(icon_view_tab.path)
 
@@ -50,7 +52,8 @@ ShowcaseScreen:
                 multiselect: True
 
             BoxLayout:
-                size_hint_y: .13
+                size_hint_y: None
+                height: 60
                 padding: 10
                 spacing: 30
 
