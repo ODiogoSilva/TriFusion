@@ -1477,8 +1477,9 @@ class TriFusionApp(App):
             self.process_height = self.process_grid_wgt.height
 
             # Create GridLayout instance for additional options. At this point,
-            # these options will be hidden but their appearance can be toggled
-            # using self.toggle_process_options
+            # this widget is not yet added to the Process widget tree. Its
+            # introduction and toggling can be done using
+            # self.toggle_process_options
             self.process_options = AdditionalProcessContents()
 
             # Animate the appearance of the general options via changes in
@@ -1500,20 +1501,34 @@ class TriFusionApp(App):
             self.process_grid_wgt.ids.conversion.disabled = False
 
     def toggle_process_options(self):
+        """
+        Controls the toggling of the GridLayout with the additional options for
+        the process screen.
+        """
 
+        # Shows additional options
         if self.process_grid_wgt.ids.opt_bt.text == "Show additional options":
 
+            # Adds widget to the Process widget tree an animates its
+            # appearance via changes in opacity to give impression of fade in
             self.process_grid_wgt.add_widget(self.process_options)
             Animation(opacity=1, d=.5, t="in_quad").start(self.process_options)
 
+            # Update the height of the GridLayout to allow scrolling
             self.process_grid_wgt.height = self.process_height + (55 * len(
                 self.process_options.ids.main_grid.children))
 
+            # Change text in the toggle button
             self.process_grid_wgt.ids.opt_bt.text = "Hide additional options"
 
+        # Hides additional options
         elif self.process_grid_wgt.ids.opt_bt.text == "Hide additional options":
+
+            # Removes widget from widget tree. However, all settings that were
+            # change while the widget was visible will be stored
             self.process_grid_wgt.remove_widget(self.process_options)
 
+            # Change text in the toggle button
             self.process_grid_wgt.ids.opt_bt.text = "Show additional options"
 
     ###################################
