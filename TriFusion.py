@@ -1578,9 +1578,9 @@ class TriFusionApp(App):
 
         # Disables output file button when conversion operation is active
         if op == "conversion":
-            self.process_grid_wgt.ids.conversion.disabled = True
+            self.screen.ids.conv.disabled = True
         else:
-            self.process_grid_wgt.ids.conversion.disabled = False
+            self.screen.ids.conv.disabled = False
 
     def toggle_process_options(self):
         """
