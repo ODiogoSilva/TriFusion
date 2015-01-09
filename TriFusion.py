@@ -1455,24 +1455,45 @@ class TriFusionApp(App):
         self.hap_prefix = text_wgt.text
 
     def save_main_operation(self, op):
+        """
+        This controls the appearance of the general options after the user
+        chooses the main operation (Conversion vs. Concatenation). When the
+        main operation is choosen for the first time, the general options
+        are introduced, but further selection of the main operation only
+        changes the state of the operations button.
+        :param op: string, the main operations. values are "concatenation" and
+        "conversion"
+        """
 
+        # If the general options widget is not shown yet, show them
         if self.process_grid_wgt is None:
+            # Creating GridLayout instance for general options
             self.process_grid_wgt = ProcessGeneral()
+            # Add to Process screen, via the appropriate scrollview
             self.screen.ids.process_sv.add_widget(self.process_grid_wgt)
 
+            # Store the original height of the gridlayout containing the
+            # general options so that it can be updated
             self.process_height = self.process_grid_wgt.height
 
+            # Create GridLayout instance for additional options. At this point,
+            # these options will be hidden but their appearance can be toggled
+            # using self.toggle_process_options
             self.process_options = AdditionalProcessContents()
 
+            # Animate the appearance of the general options via changes in
+            # opacity to give a fade in effect
             Animation(opacity=1, d=.32, t="in_quad").start(
                self.process_grid_wgt)
 
+        # Store the active main operation
         for k in self.main_operations:
             if op == k:
                 self.main_operations[op] = True
             else:
                 self.main_operations[k] = False
 
+        # Disables output file button when conversion operation is active
         if op == "conversion":
             self.process_grid_wgt.ids.conversion.disabled = True
         else:
