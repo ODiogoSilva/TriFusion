@@ -421,6 +421,7 @@
     height: 45 * len(self.children[0].children)
     cols: 1
     opacity: 0
+    __safe_id: [dataset_dropdown.__self__]
     GridLayout:
         cols: 1
         padding: 5
@@ -435,6 +436,66 @@
                 valign: "middle"
                 color: [.85, .85, .85, 1]
                 text_size: self.size
+
+        DarkBox:
+            Label:
+                size_hint_x: .8
+                markup: True
+                text: "[size=18][b]Data set[/b][/size]\n[size=13]Select the active taxa data set to perform operations[/size]"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Button:
+                id: btn
+                size_hint_x: .2
+                text: "Select..."
+                on_release: dataset_dropdown.open(self)
+
+            DropDown:
+                id: dataset_dropdown
+                on_select: btn.text = args[1]
+                canvas.before:
+                    Color:
+                        rgba: (0,0,0,1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+                Button:
+                    text: 'All taxa'
+                    size_hint_y: None
+                    height: 40
+                    on_release: dataset_dropdown.select(self.text)
+
+                Button:
+                    text: 'Active taxa'
+                    size_hint_y: None
+                    height: 40
+                    on_release: dataset_dropdown.select(self.text)
+
+                Label:
+                    text: "User taxa groups"
+                    size_hint_y: None
+                    height: 40
+                    bold: True
+                    color: (0,0,0,1)
+                    canvas.before:
+                        Color:
+                            rgba: (.7, .7, .7, 1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+
+                GridLayout:
+                    cols: 1
+                    size_hint_y: None
+                    id: dropdown_gl
+                    Button:
+                        size_hint_y: None
+                        height: 40
+                        disabled: True
+                        text: "[Empty]"
+        Hseparator
 
         DarkBox:
             Label:
