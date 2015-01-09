@@ -1764,13 +1764,25 @@ class TriFusionApp(App):
         This will take the complete taxa set from self.alignment_list.taxa_names
         and the currently active taxa set from self.active_taxa_list and remove
         the all taxa that are not present in the active taxa set from the
-        alignment object passed as argument.
+        alignment object passed as argument. If the lists are the same, no taxa
+        will be removed
         """
 
-        aln_obj.remove_taxa(list(set(self.alignment_list.taxa_names) -
-                                 set(self.active_taxa_list)))
+        # Determine the selected active taxa set from the dropdown menu
+        tx_set_name = self.process_grid_wgt.ids.active_taxa_set.text
 
-        print(aln_obj.taxa_names)
+        if tx_set_name == "All taxa":
+            return aln_obj
+
+        if tx_set_name == "Active taxa":
+            tx_set = self.active_taxa_list
+
+        else:
+            tx_set = self.taxa_groups[tx_set_name]
+
+        # Remove taxa
+        aln_obj.remove_taxa(list(set(self.alignment_list.taxa_names) -
+                                 set(tx_set)))
 
         return aln_obj
 

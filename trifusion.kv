@@ -446,14 +446,14 @@
                 valign: "middle"
                 text_size: self.size
             Button:
-                id: btn
+                id: active_taxa_set
                 size_hint_x: .2
-                text: "Select..."
+                text: "All taxa"
                 on_release: dataset_dropdown.open(self)
 
             DropDown:
                 id: dataset_dropdown
-                on_select: btn.text = args[1]
+                on_select: active_taxa_set.text = args[1]
                 canvas.before:
                     Color:
                         rgba: (0,0,0,1)
