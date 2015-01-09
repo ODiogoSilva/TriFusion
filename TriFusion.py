@@ -1755,6 +1755,25 @@ class TriFusionApp(App):
 
         self.process_switches[switch_id] = state
 
+    def update_active_taxaset(self, aln_obj):
+        """
+        Do not use this method on the original self.alignment_list or
+        self.active_alignment list, as it may cause unwanted permanent changes
+        to the taxa set.
+
+        This will take the complete taxa set from self.alignment_list.taxa_names
+        and the currently active taxa set from self.active_taxa_list and remove
+        the all taxa that are not present in the active taxa set from the
+        alignment object passed as argument.
+        """
+
+        aln_obj.remove_taxa(list(set(self.alignment_list.taxa_names) -
+                                 set(self.active_taxa_list)))
+
+        print(aln_obj.taxa_names)
+
+        return aln_obj
+
     def process_exec(self):
         """
         Main function that executes all queued procedures of the process module
@@ -1766,8 +1785,16 @@ class TriFusionApp(App):
         # Perform operations
         #####
 
-        # Setting the alignment to use
-        aln_object = self.active_alignment_list
+        # Setting the alignment to use. A deepcopy of the active alignment list
+        # is used because it may be possible to do changes in the taxa data set
+        # of the AlignmentList object, which should not change the original
+        # self.active_alignment_list. This is because when taxa are removed from
+        # the alignment list, there is no way to return those taxa to the
+        # object
+        aln_object = deepcopy(self.active_alignment_list)
+
+        # Update active taxa set of the alignment object
+        aln_object = self.update_active_taxaset(aln_object)
 
         # Concatenation
         if self.main_operations["concatenation"]:
