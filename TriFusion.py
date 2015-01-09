@@ -840,7 +840,7 @@ class TriFusionApp(App):
                 x_bt = Button(text="X", size_hint=(.14, None),
                               height=30, id="%sX" % file_name,
                               background_color=(255, .9, .9, 1), bold=True)
-                x_bt.bind(on_release=self.remove_bt)
+                x_bt.bind(on_release=partial(self.check_action, self.remove_bt))
                 self.root.ids.file_sl.add_widget(x_bt)
 
                 # Updates the size of the grid layout according to the added
@@ -897,7 +897,7 @@ class TriFusionApp(App):
                               height=30, id="%sX" % tx,
                               background_color=(255, .9, .9, 1), bold=True)
                 self.root.ids.taxa_sl.add_widget(x_bt)
-                x_bt.bind(on_press=self.remove_bt)
+                x_bt.bind(on_release=partial(self.check_action, self.remove_bt))
 
                 # Updates the size of the grid layout according to the added
                 # button
@@ -1293,7 +1293,7 @@ class TriFusionApp(App):
         x_bt = Button(text="X", bold=True, size_hint=(.14, None),
                         height=30, id="%sX" % name,
                         background_color=(255, .9, .9, 1))
-        x_bt.bind(on_release=self.remove_taxa_group)
+        x_bt.bind(on_release=partial(self.check_action, self.remove_taxa_group))
 
         # Add buttons to gridlayout
         for i in [bt, x_bt]:
