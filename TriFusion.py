@@ -269,6 +269,12 @@ class TriFusionApp(App):
         Window.bind(on_touch_up=self.sidepanel_on_touch)
         #self.sine_panel_routine()
 
+        # Creating GridLayout instance for general options of Process
+        self.process_grid_wgt = ProcessGeneral()
+
+        # Create GridLayout instance for additional options of Process.
+        self.process_options = AdditionalProcessContents()
+
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
 
@@ -1255,6 +1261,18 @@ class TriFusionApp(App):
         for i in [bt, x_bt]:
             self.root.ids.group_grid.add_widget(i)
 
+        # Add this options to the dropdown menu in the general options of the
+        # Process screen
+        if "empty_taxaset" in self.process_grid_wgt.ids.keys():
+            self.process_grid_wgt.ids.dropdown_gl.remove_widget(
+                self.process_grid_wgt.ids.empty_taxaset)
+            del self.process_grid_wgt.ids["empty_taxaset"]
+
+        dd_bt = Button(text=name, size_hint_y=None, height=40)
+        dd_bt.bind(on_release=lambda dd_bt:
+                   self.process_grid_wgt.ids.dataset_dropdown.select(name))
+        self.process_grid_wgt.ids.dropdown_gl.add_widget(dd_bt)
+
         # Update gridlayout height
         self.root.ids.group_grid.height += 40
 
@@ -1485,7 +1503,7 @@ class TriFusionApp(App):
         """
         This controls the appearance of the general options after the user
         chooses the main operation (Conversion vs. Concatenation). When the
-        main operation is choosen for the first time, the general options
+        main operation is chosen for the first time, the general options
         are introduced, but further selection of the main operation only
         changes the state of the operations button.
         :param op: string, the main operations. values are "concatenation" and
@@ -1493,21 +1511,13 @@ class TriFusionApp(App):
         """
 
         # If the general options widget is not shown yet, show them
-        if self.process_grid_wgt is None:
-            # Creating GridLayout instance for general options
-            self.process_grid_wgt = ProcessGeneral()
+        if self.process_grid_wgt.opacity == 0:
             # Add to Process screen, via the appropriate scrollview
             self.screen.ids.process_sv.add_widget(self.process_grid_wgt)
 
             # Store the original height of the gridlayout containing the
             # general options so that it can be updated
             self.process_height = self.process_grid_wgt.height
-
-            # Create GridLayout instance for additional options. At this point,
-            # this widget is not yet added to the Process widget tree. Its
-            # introduction and toggling can be done using
-            # self.toggle_process_options
-            self.process_options = AdditionalProcessContents()
 
             # Animate the appearance of the general options via changes in
             # opacity to give a fade in effect

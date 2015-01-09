@@ -23,6 +23,7 @@ ShowcaseScreen:
                 orientation: "horizontal"
                 spacing: 10
                 Sidebt:
+                    id: conv
                     text: "Conversion"
                     group: "process_panel"
                     on_press:
@@ -30,6 +31,7 @@ ShowcaseScreen:
                         app.toggle_groups(self)
                         app.save_main_operation("conversion")
                 Sidebt:
+                    id: conc
                     text: "Concatenation"
                     group: "process_panel"
                     on_press:
