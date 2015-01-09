@@ -22,11 +22,6 @@
 #  Author: Diogo N. Silva
 #  Version:
 #  Last update:
-#
-# NEEDS FIXING:
-# Issue 1. The size of the scrollview for the files and taxa tabs does not
-# update perfectly with the addition of taxa/files buttons
-#
 
 # Kivy imports
 from kivy.app import App
