@@ -47,15 +47,40 @@ ShowcaseScreen:
         BoxLayout:
             size_hint_x: .75
             orientation: "vertical"
+            padding: 10
+            spacing: 10
 
             FileChooserIconView:
                 id: icon_view_tab
                 multiselect: True
+                filters: ["*"]
+                filter_dirs: True
 
             BoxLayout:
                 size_hint_y: None
-                height: 60
-                padding: 10
+                height: 30
+
+                Label:
+                    canvas.before:
+                        Color:
+                            rgba: (.2,.2,.2,1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    size_hint_x: .15
+                    text: "Find:"
+                    bold: True
+                TextInput:
+                    id: text_filter
+                    multiline: False
+                    focus: True
+                    on_text:
+                        root.ids.icon_view_tab.filters = ["*"+self.text+"*"]
+
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                #padding: 10
                 spacing: 30
 
                 Button:
