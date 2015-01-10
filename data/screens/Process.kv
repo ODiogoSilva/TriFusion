@@ -1,3 +1,15 @@
+<ExecutionBt@Button>
+    size_hint_y: None
+    height: 45
+    background_normal: "data/backgrounds/process_exec.png"
+    background_down: "data/backgrounds/process_exec_down.png"
+    bold: True
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+    font_size: 22
+    color: (0.1,0.1,0.1,1)
+
 ShowcaseScreen:
     name: "Process"
 
@@ -54,39 +66,19 @@ ShowcaseScreen:
                     id: process_sv
 
         BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: (0,0,0,.5)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
             orientation: "horizontal"
             size_hint_y: None
-            height: 50
+            height: 65
             padding: 10
             spacing: 20
-            Button:
-                height: 20
-                background_normal: "data/backgrounds/process_exec.png"
-                background_down: "data/backgrounds/process_exec_down.png"
+            ExecutionBt:
                 text: "Execute"
-                bold: True
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                color: (0.2,0.2,0.2,1)
                 on_release: app.process_exec()
-            Button:
-                height: 20
-                background_normal: "data/backgrounds/process_exec.png"
-                background_down: "data/backgrounds/process_exec_down.png"
+            ExecutionBt:
                 text: "View queue"
-                bold: True
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                color: (0.2,0.2,0.2,1)
-            Button:
-                height: 20
-                background_normal: "data/backgrounds/process_exec.png"
-                background_down: "data/backgrounds/process_exec_down.png"
-                text: "Change data set"
-                bold: True
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                color: (0.2,0.2,0.2,1)

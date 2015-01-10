@@ -451,10 +451,20 @@
             pos: self.x + self.margin, self.y + self.margin +1
             size: self.width - 2 * self.margin, self.thickness
 
+<ProcessBt@Button>:
+    background_normal: "data/backgrounds/bt_process.png"
+    size_hint_x: .2
+    bold: True
+    shorten: True
+    shorten_from: "right"
+    text_size: self.size
+    halign: "center"
+    valign: "middle"
+
 <ProcessGeneral@GridLayout>:
     size_hint_y: None
     #height: 45 * len([x for y in [z.children for z in self.children] for x in y])
-    height: 45 * len(self.children[0].children)
+    height: (45 * len(self.children[0].children)) + 70
     cols: 1
     opacity: 0
     __safe_id: [dataset_dropdown.__self__]
@@ -481,9 +491,8 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            Button:
+            ProcessBt:
                 id: active_taxa_set
-                size_hint_x: .2
                 text: "All taxa"
                 on_release: dataset_dropdown.open(self)
 
@@ -496,42 +505,26 @@
                     Rectangle:
                         pos: self.pos
                         size: self.size
-
-                Button:
+                Widget:
+                    size_hint_y: None
+                    height: 3
+                ProcessBt:
+                    background_color: (1,1,1,.3)
                     text: 'All taxa'
                     size_hint_y: None
                     height: 40
                     on_release: dataset_dropdown.select(self.text)
-
-                Button:
+                Widget:
+                    size_hint_y: None
+                    height: 3
+                ProcessBt:
+                    background_color: (1,1,1,.3)
                     text: 'Active taxa'
                     size_hint_y: None
                     height: 40
                     on_release: dataset_dropdown.select(self.text)
 
-                Label:
-                    text: "User taxa groups"
-                    size_hint_y: None
-                    height: 30
-                    bold: True
-                    color: (0,0,0,1)
-                    canvas.before:
-                        Color:
-                            rgba: (.8, .8, .8, 1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
 
-                GridLayout:
-                    cols: 1
-                    size_hint_y: None
-                    id: dropdown_gl
-                    Button:
-                        id: empty_taxaset
-                        size_hint_y: None
-                        height: 40
-                        disabled: True
-                        text: "[Empty]"
         Hseparator
 
         DarkBox:
@@ -542,11 +535,8 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            Button:
+            ProcessBt:
                 id: conv_formatbt
-                background_normal: "data/backgrounds/bt_process.png"
-                size_hint_x: .2
-                bold: True
                 text: "Fasta"
                 on_release: app.dialog_format()
         Hseparator
@@ -560,16 +550,7 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            Button:
-                background_normal: "data/backgrounds/bt_process.png"
-                size_hint_x: .2
-                id: conversion
-                shorten: True
-                shorten_from: "right"
-                text_size: self.size
-                halign: "center"
-                valign: "middle"
-                bold: True
+            ProcessBt:
                 text: "Select..."
                 on_release: app.dialog_filechooser("conversion")
 
@@ -651,10 +632,7 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                Button:
-                    background_normal: "data/backgrounds/bt_process.png"
-                    size_hint_x: .2
-                    bold: True
+                ProcessBt:
                     text: "Select..."
                     disabled: True
 
@@ -705,10 +683,7 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                Button:
-                    background_normal: "data/backgrounds/bt_process.png"
-                    size_hint_x: .2
-                    bold: True
+                ProcessBt:
                     text: "Select..."
                     disabled: True
 
@@ -767,11 +742,8 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                Button:
+                ProcessBt:
                     id: hapbt
-                    background_normal: "data/backgrounds/bt_process.png"
-                    size_hint_x: .2
-                    bold: True
                     disabled: True
                     text: "Select..."
                     on_release:
@@ -831,11 +803,8 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                Button:
+                ProcessBt:
                     id: cv_filterbt
-                    background_normal: "data/backgrounds/bt_process.png"
-                    size_hint_x: .2
-                    bold: True
                     disabled: True
                     text: "Set filters"
                     on_release: app.dialog_filter()
@@ -894,11 +863,8 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                Button:
+                ProcessBt:
                     id: gcode_bt
-                    background_normal: "data/backgrounds/bt_process.png"
-                    size_hint_x: .2
-                    bold: True
                     disabled: True
                     text: "Choose..."
 
@@ -906,6 +872,13 @@
 
 BoxLayout:
     orientation: "vertical"
+    canvas.before:
+        Color:
+            rgba: (.8,.8,.8,.4)
+        Rectangle:
+            source: "data/backgrounds/master_background.jpg"
+            pos: self.pos
+            size: self.size
 
     ActionBar:
         pos_hint: {'top':1}

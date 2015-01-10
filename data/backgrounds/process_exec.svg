@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="bt_process.svg">
+   sodipodi:docname="process_exec.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.50000001"
-     inkscape:cx="436.44015"
-     inkscape:cy="832.26815"
+     inkscape:zoom="8.0000001"
+     inkscape:cx="691.05299"
+     inkscape:cy="795.46927"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -52,16 +52,16 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#cccccc;fill-opacity:1;fill-rule:nonzero;stroke:#0062ff;stroke-opacity:1"
+       style="fill:#ff5555;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-opacity:1"
        id="rect3050"
        width="554.28571"
        height="200"
        x="174.28572"
        y="258.07648"
-       ry="2.5859375"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/bt_process.png"
+       ry="0"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/process_exec.png"
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300"
-       rx="2.5859375" />
+       rx="0" />
   </g>
 </svg>
