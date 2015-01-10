@@ -49,6 +49,7 @@ from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
 from kivy.uix.screenmanager import Screen
 from kivy.config import Config
 from kivy.clock import Clock
+from kivy.core.text.markup import MarkupLabel
 
 # Main program imports
 from process.sequence import AlignmentList
@@ -277,6 +278,7 @@ class TriFusionApp(App):
         self.go_screen(0)
 
         Window.bind(on_touch_up=self.sidepanel_on_touch)
+        Window.bind(on_key_down=self._on_keyboard_events)
         #self.sine_panel_routine()
 
         # Creating GridLayout instance for general options of Process
@@ -355,6 +357,15 @@ class TriFusionApp(App):
 
 
         """
+
+    def _on_keyboard_events(self, *vals):
+
+        modifier = vals[-1]
+        key = vals[-2].encode("utf-8")
+
+        if "".join(modifier) == "ctrl" and key == b'\x06' and \
+                self.screen.name == "fc":
+            self.screen.ids.text_filter.focus = True
 
     ########################## SCREEN NAVIGATION ###############################
 
@@ -922,11 +933,13 @@ class TriFusionApp(App):
                 # taxa  or files are added/removed.
                 self.active_tx_inf = self.get_taxa_information()
 
+                test = MarkupLabel("[b]Some pretty shit[/b]")
+
                 # For now, the pop up content will be in a CodeInput widget
                 # because it is the only widget (along with TextInput) that
                 # allow text selection and it may be even possible to add text
                 # formatting using python lexer.
-                text_content = CodeInput(text=" -- Complete data set -- \n"
+                text_content = CodeInput(text=" -- %s -- \n"
                                     "Sequence length: %s\n"
                                     "Number of indels: %s\n"
                                     "Number missing data: %s\n"
@@ -938,6 +951,7 @@ class TriFusionApp(App):
                                     "Number missing data: %s\n"
                                     "Effective sequence length: %s (%s%%)\n"
                                     "File coverage: %s (%s%%)\n" % (
+                                 test,
                                  self.original_tx_inf[tx]["length"],
                                  self.original_tx_inf[tx]["indel"],
                                  self.original_tx_inf[tx]["missing"],
