@@ -400,7 +400,7 @@
     #background_color: [0,0,0,1]
     size_hint_y: None
     height: 50
-    #background_normal: "data/backgrounds/bt_sideprocess_normal.png"
+    background_normal: "data/backgrounds/main_op_bt.png"
     background_down: "data/backgrounds/bt_sideprocess.png"
     background_disabled_down: "data/backgrounds/bt_sideprocess.png"
     disabled_color: (1, 1, 1, 1)
@@ -908,7 +908,7 @@ BoxLayout:
                 background_disabled_down: "data/backgrounds/orthology_down.png"
                 canvas.before:
                     Color:
-                        rgba: [255, .200, .200, .8]
+                        rgba: [255, .200, .200, .3]
                     Rectangle:
                         pos: self.pos
                         size: self.size
@@ -924,7 +924,7 @@ BoxLayout:
                 background_disabled_down: "data/backgrounds/process_down.png"
                 canvas.before:
                     Color:
-                        rgba: (0.200, 0.200, 255, .8)
+                        rgba: (0.200, 0.200, 255, .3)
                     Rectangle:
                         pos: self.pos
                         size: self.size
@@ -940,7 +940,7 @@ BoxLayout:
                 background_disabled_down: "data/backgrounds/statistics_down.png"
                 canvas.before:
                     Color:
-                        rgba: (0.200, 255, 0.200, .8)
+                        rgba: (0.200, 255, 0.200, .3)
                     Rectangle:
                         pos: self.pos
                         size: self.size
@@ -1167,7 +1167,9 @@ BoxLayout:
                                     spacing: 5
                                     cols: 2
                             Button:
-                                size_hint_y: .1
+                                size_hint_y: None
+                                height: 45
+                                bold: True
                                 text: "Set new taxa group"
                                 id: tx_group_bt
                                 disabled: True
