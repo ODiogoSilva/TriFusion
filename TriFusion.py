@@ -359,13 +359,26 @@ class TriFusionApp(App):
         """
 
     def _on_keyboard_events(self, *vals):
+        """
+        Methods that listens to keyboard input and triggers events or changes
+        properties when acceptable keyboard shortcuts are entered
+        :param vals: input list from on_key_down function
+        """
 
-        modifier = vals[-1]
+        # Get modifier (usually ctrl or shift)
+        # TODO: The modifier in MacOS is different. Must check on this.
+        modifier = "".join(vals[-1])
+        # Get key
         key = vals[-2].encode("utf-8")
 
-        if "".join(modifier) == "ctrl" and key == b'\x06' and \
-                self.screen.name == "fc":
+        # Keybinding ctrl+f that brings focus to the "Find" field in the
+        # Filechooser screen
+        if modifier == "ctrl" and key == b'\x06' and self.screen.name == "fc":
             self.screen.ids.text_filter.focus = True
+
+        # Keybinding ctrl+o that opens the Filechooser screen
+        if modifier == "ctrl" and key == b'\x0f':
+            self.go_screen(self.screen_names.index("fc"))
 
     ########################## SCREEN NAVIGATION ###############################
 
