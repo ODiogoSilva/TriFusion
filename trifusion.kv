@@ -374,7 +374,8 @@
 
 <SelectionBox@BoxLayout>:
     orientation: "horizontal"
-    size_hint_y: .11
+    size_hint_y: None
+    height: 35
     spacing: 20
     Button:
         text: "Select All"
@@ -464,7 +465,7 @@
 <ProcessGeneral@GridLayout>:
     size_hint_y: None
     #height: 45 * len([x for y in [z.children for z in self.children] for x in y])
-    height: (45 * len(self.children[0].children)) + 70
+    height: (45 * len(self.children[0].children))
     cols: 1
     opacity: 0
     __safe_id: [dataset_dropdown.__self__]
@@ -1050,15 +1051,21 @@ BoxLayout:
                                     pos: self.pos
                                     size: self.size
 
-                            Button:
-                                id: sv_but
-                                text: "Open file(s)"
+                            BoxLayout:
                                 size_hint_y: None
                                 height: 50
-                                on_release:
-                                    idx = app.screen_names.index("fc")
-                                    app.go_screen(idx)
-                                    app.toggle_sidepanel()
+                                padding: (15,0,15, 0)
+                                Button:
+                                    id: sv_but
+                                    background_normal: "data/backgrounds/process_exec.png"
+                                    text: "Open file(s)"
+                                    bold: True
+                                    font_size: 18
+
+                                    on_release:
+                                        idx = app.screen_names.index("fc")
+                                        app.go_screen(idx)
+                                        app.toggle_sidepanel()
 
                             TabbedPanel:
                                 id: main_tp

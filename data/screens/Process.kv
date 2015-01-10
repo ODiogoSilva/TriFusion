@@ -1,14 +1,14 @@
 <ExecutionBt@Button>
-    size_hint_y: None
-    height: 45
+    #size_hint_y: None
+    #height: 45
     background_normal: "data/backgrounds/process_exec.png"
     background_down: "data/backgrounds/process_exec_down.png"
     bold: True
     halign: "center"
     valign: "middle"
     text_size: self.size
-    font_size: 22
-    color: (0.1,0.1,0.1,1)
+    font_size: 18
+    color: (1,1,1,1)
 
 ShowcaseScreen:
     name: "Process"
@@ -65,20 +65,25 @@ ShowcaseScreen:
                     bar_width: 4.5
                     id: process_sv
 
-        BoxLayout:
-            canvas.before:
-                Color:
-                    rgba: (0,0,0,.5)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            orientation: "horizontal"
+        FloatLayout:
             size_hint_y: None
             height: 65
-            padding: 10
-            spacing: 20
-            ExecutionBt:
-                text: "Execute"
-                on_release: app.process_exec()
-            ExecutionBt:
-                text: "View queue"
+            BoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: (0.3,0.3,0.3,.5)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                orientation: "horizontal"
+                #size_hint_y: None
+                #height: 65
+                padding: 10
+                spacing: 20
+                ExecutionBt:
+                    text: "Execute"
+                    on_release: app.process_exec()
+                ExecutionBt:
+                    text: "View Queue"
+                ExecutionBt:
+                    text: "Clear Options"
