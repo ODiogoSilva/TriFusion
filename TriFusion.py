@@ -1305,10 +1305,15 @@ class TriFusionApp(App):
                 self.process_grid_wgt.ids.empty_taxaset)
             del self.process_grid_wgt.ids["empty_taxaset"]
 
-        dd_bt = Button(text=name, size_hint_y=None, height=40)
+        # Create separator between dropdown items
+        separator = Widget(size_hint_y=None, height=3)
+        dd_bt = Button(text=name, size_hint_y=None, height=40,
+                       background_normal="data/backgrounds/bt_process.png",
+                       background_color=(1, 1, 1, .3))
         dd_bt.bind(on_release=lambda dd_bt:
                    self.process_grid_wgt.ids.dataset_dropdown.select(name))
-        self.process_grid_wgt.ids.dropdown_gl.add_widget(dd_bt)
+        self.process_grid_wgt.ids.dataset_dropdown.add_widget(separator)
+        self.process_grid_wgt.ids.dataset_dropdown.add_widget(dd_bt)
 
         # Update gridlayout height
         self.root.ids.group_grid.height += 40
