@@ -977,13 +977,11 @@ class TriFusionApp(App):
                 # taxa  or files are added/removed.
                 self.active_tx_inf = self.get_taxa_information()
 
-                test = MarkupLabel("[b]Some pretty shit[/b]")
-
                 # For now, the pop up content will be in a CodeInput widget
                 # because it is the only widget (along with TextInput) that
                 # allow text selection and it may be even possible to add text
                 # formatting using python lexer.
-                text_content = CodeInput(text=" -- %s -- \n"
+                text_content = CodeInput(text=" -- Complete data set -- \n"
                                     "Sequence length: %s\n"
                                     "Number of indels: %s\n"
                                     "Number missing data: %s\n"
@@ -995,7 +993,6 @@ class TriFusionApp(App):
                                     "Number missing data: %s\n"
                                     "Effective sequence length: %s (%s%%)\n"
                                     "File coverage: %s (%s%%)\n" % (
-                                 test,
                                  self.original_tx_inf[tx]["length"],
                                  self.original_tx_inf[tx]["indel"],
                                  self.original_tx_inf[tx]["missing"],
