@@ -680,7 +680,7 @@
                     valign: "middle"
                     text_size: self.size
                 Switch:
-                    id: rev_concatenation
+                    id: reverse_concatenation
                     size_hint_x: .2
                     disabled: True
                     on_active:
@@ -722,11 +722,11 @@
                     color: [.85, .85, .85, 1]
                     text_size: self.size
                 Switch:
-                    id: filter
+                    id: collapse
                     size_hint_x: .2
                     on_active:
-                        if self.active == True: root.ids.hapbt.disabled = False; root.ids.hapcheck.disabled = False
-                        if self.active == False: root.ids.hapbt.disabled = True; root.ids.hapcheck.disabled = True
+                        if self.active == True: root.ids.hapbt.disabled = False; root.ids.collapse_file.disabled = False
+                        if self.active == False: root.ids.hapbt.disabled = True; root.ids.collapse_file.disabled = True
                         app.update_process_switch("collapse", self.active)
 
             DarkBox:
@@ -739,7 +739,7 @@
                     valign: "middle"
                     text_size: self.size
                 CheckBox:
-                    id: hapcheck
+                    id: collapse_file
                     size_hint_x: .2
                     disabled: True
                     on_active:
@@ -787,8 +787,8 @@
                     id: filter
                     size_hint_x: .2
                     on_active:
-                        if self.active == True: root.ids.cv_filterbt.disabled = False; root.ids.filtercheck.disabled = False
-                        if self.active == False: root.ids.cv_filterbt.disabled = True; root.ids.filtercheck.disabled = True
+                        if self.active == True: root.ids.cv_filterbt.disabled = False; root.ids.filter_file.disabled = False
+                        if self.active == False: root.ids.cv_filterbt.disabled = True; root.ids.filter_file.disabled = True
                         app.update_process_switch("filter", self.active)
 
             DarkBox:
@@ -800,7 +800,7 @@
                     valign: "middle"
                     text_size: self.size
                 CheckBox:
-                    id: filtercheck
+                    id: filter_file
                     size_hint_x: .2
                     disabled: True
                     on_active:
@@ -844,12 +844,12 @@
                     color: [.85, .85, .85, 1]
                     text_size: self.size
                 Switch:
-                    id: gcoder_switch
+                    id: gcoder
                     size_hint_x: .2
                     disabled: True
                     on_active:
-                        if self.active == True: root.ids.gcodcheck.disabled = False
-                        if self.active == False: root.ids.gcodcheck.disabled = True
+                        if self.active == True: root.ids.gcoder_file.disabled = False
+                        if self.active == False: root.ids.gcoder_file.disabled = True
                         app.update_process_switch("gcoder", self.active)
 
             DarkBox:
@@ -861,7 +861,7 @@
                     valign: "middle"
                     text_size: self.size
                 CheckBox:
-                    id: gcodcheck
+                    id: gcoder_file
                     size_hint_x: .2
                     disabled: True
                     on_active:

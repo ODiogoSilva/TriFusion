@@ -200,20 +200,20 @@ class TriFusionApp(App):
     _subpopup = ObjectProperty(None)
 
     # Dictionary containing the values for the main process operations
-    main_operations = {"concatenation": None, "conversion": None}
+    main_operations = {"concatenation": False, "conversion": False}
 
     # Dictionary containing all values of the switches and checkboxes in the
     # process screen
-    secondary_operations = OrderedDict([("collapse", None),
-                                    ("filter", None),
-                                    ("gcoder", None),
-                                    ("reverse concatenation", None)])
+    secondary_operations = OrderedDict([("collapse", False),
+                                    ("filter", False),
+                                    ("gcoder", False),
+                                    ("reverse_concatenation", False)])
 
-    secondary_options = OrderedDict([("interleave", None),
-                                    ("zorro", None),
-                                    ("collapse_file", None),
-                                    ("filter_file", None),
-                                    ("gcoder_file", None)])
+    secondary_options = OrderedDict([("interleave", False),
+                                    ("zorro", False),
+                                    ("collapse_file", False),
+                                    ("filter_file", False),
+                                    ("gcoder_file", False)])
 
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
@@ -1496,6 +1496,54 @@ class TriFusionApp(App):
         else:
             self.main_nodes["main_file"].opacity = .2
 
+    def process_clear_options(self):
+
+        #### CORE CHANGES
+        # Clear main operations
+        self.main_operations = dict((op, False) for op in self.main_operations)
+
+        # Clear active data set
+        self.process_grid_wgt.ids.active_taxa_set.text = "All taxa"
+
+        # Clear output formats
+        self.output_formats = ["fasta"]
+
+        # Clear filters and haplotype name
+        self.filter_settings = [25, 50]
+        self.hap_prefix = "Hap"
+
+        # Clear output file
+        self.output_file = ""
+
+        # Clear secondary operations
+        self.secondary_operations = dict((op, False) for op in
+                                         self.secondary_operations)
+
+        # Clear secondary options
+        self.secondary_options = dict((op, False) for op in
+                                      self.secondary_options)
+
+        #### APP CHANGES
+        # Deselect main operation
+        for bt in ["conv", "conc"]:
+            self.screen.ids[bt].state = "normal"
+            self.screen.ids[bt].disabled = False
+
+        # Fade out of additional options
+        if self.process_options.opacity == 1:
+            self.toggle_process_options()
+
+        # Changes in buttons with dynamic text
+        self.process_grid_wgt.ids.conv_formatbt.text = "Fasta"
+        self.process_grid_wgt.ids.conv.text = "Select..."
+
+        # Turn switches off
+        for switch in self.secondary_operations:
+            self.process_options.ids[switch].active = False
+
+        for switch in self.secondary_options:
+            self.process_options.ids[switch].active = False
+
     ########################### PROCESS SCREEN #################################
 
     def dismiss_popup(self, *args):
@@ -1549,7 +1597,7 @@ class TriFusionApp(App):
             # Adds output file to storage
             self.output_file = join(path, filename)
             # Renames the output file button text
-            self.process_grid_wgt.ids.conversion.text = filename
+            self.process_grid_wgt.ids.conv.text = filename
             # Close popup
             self.dismiss_popup()
             # Breaks loop
@@ -1596,10 +1644,10 @@ class TriFusionApp(App):
         # Updates the Gcoder option depending on whether the nexus output format
         # is the only one selected
         if self.output_formats == ["nexus"]:
-            self.process_options.ids.gcoder_switch.disabled = False
+            self.process_options.ids.gcoder.disabled = False
         else:
-            self.process_options.ids.gcoder_switch.active = False
-            self.process_options.ids.gcoder_switch.disabled = True
+            self.process_options.ids.gcoder.active = False
+            self.process_options.ids.gcoder.disabled = True
 
     def save_filter(self, gap_val, mis_val):
         """
