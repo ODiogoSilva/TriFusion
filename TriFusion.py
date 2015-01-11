@@ -50,12 +50,14 @@ from kivy.uix.screenmanager import Screen
 from kivy.config import Config
 from kivy.clock import Clock
 from kivy.core.text.markup import MarkupLabel
+from kivy.uix.treeview import TreeView, TreeViewLabel
 
 # Main program imports
 from process.sequence import AlignmentList
 
 # Other imports
 from os.path import dirname, join, exists
+from collections import OrderedDict
 from os.path import expanduser
 from copy import deepcopy
 from functools import partial
@@ -75,6 +77,7 @@ class ShowcaseScreen(Screen):
 
 class CheckDialog(BoxLayout):
     cancel = ObjectProperty(None)
+
 
 class WarningDialog(BoxLayout):
     cancel = ObjectProperty(None)
@@ -201,16 +204,27 @@ class TriFusionApp(App):
 
     # Dictionary containing all values of the switches and checkboxes in the
     # process screen
-    process_switches = {"rev_concatenation": None, "interleave": None,
-                        "zorro": None, "filter": None, "collapse": None,
-                        "gcoder": None, "collapse_file": None, "filter_file":
-                        None, "gcoder_file": None}
+    secondary_operations = OrderedDict([("collapse", None),
+                                    ("filter", None),
+                                    ("gcoder", None),
+                                    ("reverse concatenation", None)])
+
+    secondary_options = OrderedDict([("interleave", None),
+                                    ("zorro", None),
+                                    ("collapse_file", None),
+                                    ("filter_file", None),
+                                    ("gcoder_file", None)])
 
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
     process_grid_wgt = None
     process_options = None
     process_height = None
+
+    # Attribute for the widget containint the treeview showing the operations
+    # queue
+    operation_tv = ObjectProperty(None)
+    main_nodes = {}
 
     ################################
     #
@@ -236,7 +250,7 @@ class TriFusionApp(App):
     taxa_groups = {}
 
     # Attribute containing the objects for the several possible output files.
-    output_file = StringProperty()
+    output_file = ""
 
     # Attribute storing active output formats. Fasta is True by default
     output_formats = ["fasta"]
@@ -286,6 +300,9 @@ class TriFusionApp(App):
 
         # Create GridLayout instance for additional options of Process.
         self.process_options = AdditionalProcessContents()
+
+        # Initialize operation queue treeview in side panel
+        self.operation_queue_init()
 
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
@@ -435,6 +452,11 @@ class TriFusionApp(App):
                 self.bookmark_init()
 
         return self.screen
+
+    def carousel_move(self, slide):
+
+        panel_car = self.root.ids.carousel
+        panel_car.load_slide(panel_car.slides[slide])
 
     @staticmethod
     def toggle_groups(wgt):
@@ -652,6 +674,20 @@ class TriFusionApp(App):
          able to click anywhere in the popup without the side panel closing.
         """
 
+        def animate_sidebar():
+
+            ## ANIMATIONS with hierarchy
+            # Animation of main BoxLayout containing child ScrollViews
+            self.sidepanel_animation(width=0,
+                                      wgt=self.root.ids.main_box)
+            # Animation of both scrollviews
+            self.sidepanel_animation(width=0,
+                                      wgt=self.root.ids.sp)
+            self.sidepanel_animation(width=0,
+                                      wgt=self.root.ids.sp_bts)
+
+            self.show_side_panel = not self.show_side_panel
+
         # Get mouse position
         mous_pos = self.root_window.mouse_pos
         # Get side panel and previous button widgets
@@ -666,17 +702,12 @@ class TriFusionApp(App):
                 and ap.collide_point(mous_pos[0], mous_pos[1]) is False \
                 and self._popup not in self.root_window.children:
 
-            ## ANIMATIONS with hierarchy
-            # Animation of main BoxLayout containing child ScrollViews
-            self.sidepanel_animation(width=0,
-                                      wgt=self.root.ids.main_box)
-            # Animation of both scrollviews
-            self.sidepanel_animation(width=0,
-                                      wgt=self.root.ids.sp)
-            self.sidepanel_animation(width=0,
-                                      wgt=self.root.ids.sp_bts)
-
-            self.show_side_panel = not self.show_side_panel
+            if self.screen.name == "Process":
+                queue_bt = self.screen.ids.queue_bt
+                if queue_bt.collide_point(mous_pos[0], mous_pos[1]) is False:
+                    animate_sidebar()
+            else:
+                animate_sidebar()
 
     def toggle_sidepanel(self):
         """
@@ -1345,6 +1376,126 @@ class TriFusionApp(App):
         # Update gridlayout height
         self.root.ids.group_grid.height += 40
 
+    def operation_queue_init(self):
+        """
+        This will create the skeleton for the tree view of the operations
+        queued for execution in an appropriate screen of the side panel.
+        """
+
+        # Create tree view instance
+        self.operation_tv = TreeView(hide_root=True, size_hint_y=None,
+                                     height=198)
+
+        # Create main nodes for each module
+        ortho_node = self.operation_tv.add_node(
+            TreeViewLabel(text="Orthology Operations", bold=True, font_size=20,
+                          color=(1, 0.3, 0.3, .2)))
+        proc_node = self.operation_tv.add_node(
+            TreeViewLabel(text="Process Operations", bold=True, font_size=20,
+                          color=(.3, .3, 1, 1)))
+        stat_node = self.operation_tv.add_node(
+            TreeViewLabel(text="Statistics Operations", bold=True, font_size=20,
+                          color=(.3, 1, .3, .2)))
+
+        # Main subnodes for Process
+        main_op_node = self.operation_tv.add_node(TreeViewLabel(
+            text="Main Operation", bold=True, font_size=15, opacity=.2),
+            proc_node)
+        secondary_op_node = self.operation_tv.add_node(TreeViewLabel(
+            text="Secondary Operations", bold=True, font_size=15, opacity=.2),
+            proc_node)
+        format_node = self.operation_tv.add_node(TreeViewLabel(
+            text="Output Formats", bold=True, font_size=15, opacity=.2),
+            proc_node)
+        main_file = self.operation_tv.add_node(TreeViewLabel(
+            text="Output File", bold=True, font_size=15, opacity=.2),
+            proc_node)
+
+        # Save main nodes
+        self.main_nodes = {"ortho": ortho_node, "proc": proc_node,
+                           "stat": stat_node, "proc_main": main_op_node,
+                           "proc_form": format_node,
+                           "proc_sec": secondary_op_node,
+                           "main_file": main_file}
+
+        self.root.ids.op_sv.add_widget(self.operation_tv)
+
+    def save_operation_queue(self):
+        """
+        This populate the operations queue tree view with the operations and
+        options selected by the user
+
+        As of now, it listens to information stored in:
+
+            - self.main_operations, to gather the main operation
+            - self.process_switches, to gather secondary operations
+            - self.output_formats, to gather information on the output formats
+            - self.
+        """
+
+        # Clear nodes
+        def clear_nodes(parent):
+            old_nodes = []
+            for node in self.operation_tv.iterate_all_nodes(parent):
+                if node.text != parent.text:
+                    old_nodes.append(node)
+            for node in old_nodes:
+                self.operation_tv.remove_node(node)
+                self.operation_tv.height -= 25
+
+        def add_node(text, parent):
+            self.operation_tv.add_node(TreeViewLabel(text=text, font_size=16),
+                                       parent)
+            self.operation_tv.height += 25
+            if parent.opacity != 1:
+                parent.opacity = 1
+
+        # PROCESS NODES
+        # Main operation
+        # Clear old nodes
+        clear_nodes(self.main_nodes["proc_main"])
+        try:
+            main_op = [nm for nm, bl in self.main_operations.items()
+                       if bl is True][0]
+            add_node("%s" % main_op, self.main_nodes["proc_main"])
+            self.operation_tv.toggle_node(self.main_nodes["proc_main"])
+        except IndexError:
+            self.main_nodes["proc_main"].opacity = .2
+
+        # Output format
+        # Clear old nodes
+        clear_nodes(self.main_nodes["proc_form"])
+        if self.output_formats:
+            for ft in self.output_formats:
+                add_node("%s" % ft, self.main_nodes["proc_form"])
+            self.operation_tv.toggle_node(self.main_nodes["proc_form"])
+        else:
+            self.main_nodes["proc_form"].opacity = .2
+
+        # Secondary operations
+        # Clear old nodes
+        clear_nodes(self.main_nodes["proc_sec"])
+        secondary_op = [nm for nm, bl in self.secondary_operations.items()
+                       if bl is True]
+        if secondary_op:
+            for op in secondary_op:
+                if self.secondary_options["%s_file" % op]:
+                    add_node("%s (Save as new file)" % op,
+                             self.main_nodes["proc_sec"])
+                else:
+                    add_node("%s" % op, self.main_nodes["proc_sec"])
+            self.operation_tv.toggle_node(self.main_nodes["proc_sec"])
+        else:
+            self.main_nodes["proc_sec"].opacity = .2
+
+        # Output file
+        clear_nodes(self.main_nodes["main_file"])
+        if self.output_file == "" and self.main_operations["conversion"]:
+            add_node("[Dependent on input data]", self.main_nodes["main_file"])
+            self.operation_tv.toggle_node(self.main_nodes["main_file"])
+        else:
+            self.main_nodes["main_file"].opacity = .2
+
     ########################### PROCESS SCREEN #################################
 
     def dismiss_popup(self, *args):
@@ -1840,7 +1991,10 @@ class TriFusionApp(App):
         :param state: Boolean, current state of the corresponding switch
         """
 
-        self.process_switches[switch_id] = state
+        if switch_id in self.secondary_operations:
+            self.secondary_operations[switch_id] = state
+        else:
+            self.secondary_options[switch_id] = state
 
     def update_active_taxaset(self, aln_obj):
         """
@@ -1905,8 +2059,8 @@ class TriFusionApp(App):
             aln_object = aln_object.concatenate()
 
         # Collapsing
-        if self.process_switches["collapse"]:
-            if self.process_switches["collapse_file"]:
+        if self.secondary_operations["collapse"]:
+            if self.secondary_options["collapse_file"]:
                 collapsed_aln_obj = deepcopy(aln_object)
                 collapsed_aln_obj.collapse(haplotype_name=self.hap_prefix,
                                            haplotypes_file="_collapsed")
@@ -1915,8 +2069,8 @@ class TriFusionApp(App):
                 aln_object.collapse(haplotype_name=self.hap_prefix)
 
         # Filtering
-        if self.process_switches["filter"]:
-            if self.process_switches["filter_file"]:
+        if self.secondary_operations["filter"]:
+            if self.secondary_options["filter_file"]:
                 filtered_aln_obj = deepcopy(aln_object)
                 filtered_aln_obj.filter_missing_data(self.filter_settings[0],
                                                  self.filter_settings[1])
@@ -1926,8 +2080,8 @@ class TriFusionApp(App):
                                                self.filter_settings[1])
 
         # Gcoder
-        if self.process_switches["gcoder"]:
-            if self.process_switches["gcoder_file"]:
+        if self.secondary_operations["gcoder"]:
+            if self.secondary_options["gcoder_file"]:
                 gcoded_aln_obj = deepcopy(aln_object)
                 gcoded_aln_obj.code_gaps()
                 write_aln[self.output_file + "_coded"] = gcoded_aln_obj
@@ -1947,13 +2101,13 @@ class TriFusionApp(App):
         if self.main_operations["concatenation"]:
             for name, obj in write_aln.items():
                 obj.write_to_file(self.output_formats, name,
-                                interleave=self.process_switches["interleave"],
+                                interleave=self.secondary_options["interleave"],
                                 partition_file=self.create_partfile)
         else:
             for name, obj in write_aln.items():
                 name = name.replace(self.output_file, "")
                 obj.write_to_file(self.output_formats, output_suffix=name,
-                                interleave=self.process_switches["interleave"],
+                                interleave=self.secondary_options["interleave"],
                                 partition_file=self.create_partfile)
 
 

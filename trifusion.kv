@@ -394,6 +394,18 @@
     background_disabled_down: "data/backgrounds/side_panel_bt_down.png"
     disabled_color: (1,1,1,1)
 
+<ModuleLabel@Label>:
+    size_hint_y: None
+    height: 40
+    bold: True
+    font_size: 20
+    canvas.before:
+        Color:
+            rgba: (.4,.4,.4,1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
 ############################ PROCESS SCREEN ####################################
 
 <Sidebt@ToggleButton>:
@@ -997,6 +1009,13 @@ BoxLayout:
                             on_release:
                                 carousel.load_slide(carousel.slides[1])
                                 app.toggle_groups(self)
+                        SideButton:
+                            id: third_sidebt
+                            text: "Q"
+                            on_release:
+                                app.save_operation_queue()
+                                carousel.load_slide(carousel.slides[2])
+                                app.toggle_groups(self)
                         Widget:
                             size_hint_y: .8
                             canvas.before:
@@ -1175,6 +1194,29 @@ BoxLayout:
                                 disabled: True
                                 on_release:
                                     app.dialog_taxagroup()
+
+                        BoxLayout:
+                            orientation: "vertical"
+                            padding: 10
+                            spacing: 5
+                            Label:
+                                size_hint_y: .1
+                                text: "Operations queue"
+                                font_size: 18
+                                halign: "center"
+                                valign: "middle"
+                                text_size: self.size
+                                bold: True
+                                canvas.before:
+                                    Color:
+                                        rgba: .35, .35, .35, 1
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+                            Hseparator
+                            ScrollView:
+                                size_hint_y: .8
+                                id: op_sv
 
         ScreenManager:
             id: sm

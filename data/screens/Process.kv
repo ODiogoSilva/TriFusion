@@ -80,5 +80,10 @@ ShowcaseScreen:
                     on_release: app.process_exec()
                 ExecutionBt:
                     text: "View Queue"
+                    id: queue_bt
+                    on_release:
+                        app.save_operation_queue()
+                        app.carousel_move(2)
+                        app.toggle_sidepanel()
                 ExecutionBt:
                     text: "Clear Options"
