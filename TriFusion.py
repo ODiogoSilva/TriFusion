@@ -1396,7 +1396,7 @@ class TriFusionApp(App):
 
         # Create tree view instance
         self.operation_tv = TreeView(hide_root=True, size_hint_y=None,
-                                     height=198)
+                                     height=269)
 
         # Create main nodes for each module
         ortho_node = self.operation_tv.add_node(
@@ -1453,12 +1453,12 @@ class TriFusionApp(App):
                     old_nodes.append(node)
             for node in old_nodes:
                 self.operation_tv.remove_node(node)
-                self.operation_tv.height -= 25
+                self.operation_tv.height -= 24
 
         def add_node(text, parent):
             self.operation_tv.add_node(TreeViewLabel(text=text, font_size=16),
                                        parent)
-            self.operation_tv.height += 25
+            self.operation_tv.height += 24
             if parent.opacity != 1:
                 parent.opacity = 1
 
