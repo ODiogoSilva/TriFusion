@@ -2095,7 +2095,8 @@ class TriFusionApp(App):
         write_aln = {}
 
         # Perform checks
-        if self.alignment_list is None:
+        if self.alignment_list is None or not\
+                self.alignment_list.alignment_object_list:
             return self.dialog_warning("No input data", "Use 'Menu > Open "
                                        "file(s)' to load input data")
 
