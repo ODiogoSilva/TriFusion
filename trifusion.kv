@@ -1186,8 +1186,7 @@ BoxLayout:
                                     spacing: 5
                                     cols: 2
                             Button:
-                                size_hint_y: None
-                                height: 45
+                                size_hint_y: .1
                                 bold: True
                                 text: "Set new taxa group"
                                 id: tx_group_bt
@@ -1217,6 +1216,9 @@ BoxLayout:
                             ScrollView:
                                 size_hint_y: .8
                                 id: op_sv
+                            Widget:
+                                size_hint_y: .1
+
 
         ScreenManager:
             id: sm
