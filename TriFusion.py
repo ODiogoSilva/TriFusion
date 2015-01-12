@@ -830,9 +830,17 @@ class TriFusionApp(App):
         how many files are selected out of the total files
         :return:
         """
+
         self.root.ids.file_lab.text = "%s of %s files selected" % (
                                        len(self.active_file_list),
                                        len(self.file_list))
+
+        # Check if there are 0 out of 0 files. In this case, disabled the
+        # select/unselect all buttons
+        if len(self.active_file_list) == 0 and len(self.file_list) == 0:
+            self.root.ids.sb_file.disabled = True
+        else:
+            self.root.ids.sb_file.disabled = False
 
     def update_sp_label(self):
         """
@@ -843,6 +851,14 @@ class TriFusionApp(App):
         self.root.ids.sp_lab.text = "%s of %s taxa selected" % (
                                        len(self.active_taxa_list),
                                        len(self.alignment_list.taxa_names))
+
+        # Check if there are 0 out of 0 taxa. In this case, disabled the
+        # select/unselect all buttons
+        if len(self.active_taxa_list) == 0 and \
+                len(self.alignment_list.taxa_names) == 0:
+            self.root.ids.sb_taxa.disabled = True
+        else:
+            self.root.ids.sb_taxa.disabled = False
 
     def populate_input_files(self):
         """
@@ -1121,7 +1137,6 @@ class TriFusionApp(App):
 
         ####### CORE CHANGES
         # Get the parent tab
-
         if parent_obj == self.root.ids.file_sl:
             # Update file list
             file_path = self.filename_map[bt_idx]
