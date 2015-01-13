@@ -77,6 +77,14 @@ class ShowcaseScreen(Screen):
         return super(ShowcaseScreen, self).add_widget(*args)
 
 
+class FilePopup(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
+class TaxaPopup(BoxLayout):
+    pass
+
+
 class CheckDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -1036,47 +1044,55 @@ class TriFusionApp(App):
                 # taxa  or files are added/removed.
                 self.active_tx_inf = self.get_taxa_information()
 
-                # For now, the pop up content will be in a CodeInput widget
-                # because it is the only widget (along with TextInput) that
-                # allow text selection and it may be even possible to add text
-                # formatting using python lexer.
-                text_content = CodeInput(text=" -- Complete data set -- \n"
-                                    "Sequence length: %s\n"
-                                    "Number of indels: %s\n"
-                                    "Number missing data: %s\n"
-                                    "Effective sequence length: %s (%s%%)\n"
-                                    "File coverage: %s (%s%%)\n\n"
-                                    " -- Active data set -- \n"
-                                    "Sequence length: %s\n"
-                                    "Number of indels: %s\n"
-                                    "Number missing data: %s\n"
-                                    "Effective sequence length: %s (%s%%)\n"
-                                    "File coverage: %s (%s%%)\n" % (
-                                 self.original_tx_inf[tx]["length"],
-                                 self.original_tx_inf[tx]["indel"],
-                                 self.original_tx_inf[tx]["missing"],
-                                 self.original_tx_inf[tx]["effective_len"],
-                                 self.original_tx_inf[tx]["effective_len_per"],
-                                 self.original_tx_inf[tx]["fl_coverage"],
-                                 self.original_tx_inf[tx]["fl_coverage_per"],
-                                 self.active_tx_inf[tx]["length"],
-                                 self.active_tx_inf[tx]["indel"],
-                                 self.active_tx_inf[tx]["missing"],
-                                 self.active_tx_inf[tx]["effective_len"],
-                                 self.active_tx_inf[tx]["effective_len_per"],
-                                 self.active_tx_inf[tx]["fl_coverage"],
-                                 self.active_tx_inf[tx]["fl_coverage_per"]),
-                                    readonly=True, size_hint_y=.9)
+                content = BoxLayout(orientation="vertical", padding=10,
+                                    spacing=10)
+                sv = ScrollView(scroll_type=["bars"], bar_width=10)
+                all_ds = BoxLayout(orientation="vertical",
+                                   height=2 * (30 * 7) + 10, size_hint_y=None)
+                total_ds = TaxaPopup(height=30 * 7)
+                total_ds.ids.dataset_label.text = "Complete data set"
+                active_ds = TaxaPopup(height=30 * 7)
+                active_ds.ids.dataset_label.text = "Active data set"
 
-                content = BoxLayout(orientation="vertical", spacing=5)
-                close_bt = Button(text="Close", size_hint_y=.1)
+                # Populate complete data set contents
+                total_ds.ids.seq_len.text = "%s" % \
+                                            self.original_tx_inf[tx]["length"]
+                total_ds.ids.indels.text = "%s" % \
+                                           self.original_tx_inf[tx]["indel"]
+                total_ds.ids.missing.text = "%s" %\
+                                            self.original_tx_inf[tx]["missing"]
+                total_ds.ids.ef_seq_len.text = ("%s (%s%%)" % (
+                    self.original_tx_inf[tx]["effective_len"],
+                    self.original_tx_inf[tx]["effective_len_per"]))
+                total_ds.ids.file_cov.text = ("%s (%s%%)" % (
+                    self.original_tx_inf[tx]["fl_coverage"],
+                    self.original_tx_inf[tx]["fl_coverage_per"]))
 
-                content.add_widget(text_content)
-                content.add_widget(close_bt)
+                # Populate active data set contents
+                active_ds.ids.seq_len.text = "%s" % \
+                                             self.active_tx_inf[tx]["length"]
+                active_ds.ids.indels.text = "%s" %\
+                                            self.active_tx_inf[tx]["indel"]
+                active_ds.ids.missing.text = "%s" %\
+                                             self.active_tx_inf[tx]["missing"]
+                active_ds.ids.ef_seq_len.text = ("%s (%s%%)" % (
+                    self.active_tx_inf[tx]["effective_len"],
+                    self.active_tx_inf[tx]["effective_len_per"]))
+                active_ds.ids.file_cov.text = ("%s (%s%%)" % (
+                    self.active_tx_inf[tx]["fl_coverage"],
+                    self.active_tx_inf[tx]["fl_coverage_per"]))
+
+                close_bt = Button(text="Close", size_hint_y=None, height=40)
                 close_bt.bind(on_release=self.dismiss_popup)
 
+                all_ds.add_widget(total_ds)
+                all_ds.add_widget(active_ds)
+                sv.add_widget(all_ds)
+                content.add_widget(sv)
+                content.add_widget(close_bt)
+
                 self.show_popup(title="Taxon: %s" % value.id[:-1],
-                                content=content, size=(400, 400))
+                                content=content, size=(450, 400))
 
         elif value.parent == self.root.ids.file_sl:
 
@@ -1085,33 +1101,26 @@ class TriFusionApp(App):
 
             if self.filename_map[file_name] in self.active_file_list:
 
+                content = FilePopup(cancel=self.dismiss_popup)
+
                 # Get the information from the content list. This is done when
                 # calling the popup to avoid repeating this operation every time
                 # taxa  or files are added/removed.
                 self.active_file_inf = self.get_file_information()
-                text_content = CodeInput(text="Input format: %s\n"
-                                         "Sequence type: %s\n"
-                                         "Alignment: %s\n"
-                                         "Sequence size: %s\n"
-                                         "Number of taxa: %s\n"
-                                         "Model: %s\n" % (
-                             self.original_file_inf[file_name]["aln_format"],
-                             self.original_file_inf[file_name]["seq_type"],
-                             self.original_file_inf[file_name]["is_aln"],
-                             self.active_file_inf[file_name]["aln_len"],
-                             self.active_file_inf[file_name]["n_taxa"],
-                             self.active_file_inf[file_name]["model"]),
-                                    read_only=True)
 
-                content = BoxLayout(orientation="vertical", spacing=5)
-                close_bt = Button(text="Close", size_hint_y=.1)
-
-                content.add_widget(text_content)
-                content.add_widget(close_bt)
-                close_bt.bind(on_release=self.dismiss_popup)
+                content.ids.in_format.text = "%s" % \
+                                self.original_file_inf[file_name]["aln_format"]
+                content.ids.seq_type.text = "%s" % \
+                                self.original_file_inf[file_name]["seq_type"]
+                content.ids.is_aln.text = "%s" % \
+                                self.original_file_inf[file_name]["is_aln"]
+                content.ids.seq_size.text = "%s" % \
+                                self.active_file_inf[file_name]["aln_len"]
+                content.ids.n_taxa.text = "%s" % \
+                                self.active_file_inf[file_name]["n_taxa"]
 
                 self.show_popup(title="File: %s" % value.id[:-1],
-                                content=content, size=(400, 400))
+                                content=content, size=(350, 310))
 
     def toggle_selection(self, value):
         """
