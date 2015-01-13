@@ -11,6 +11,116 @@
                 id: content
                 cols: 1
 
+<PopupLabel@Label>:
+    bold: True
+    halign: "left"
+    valign: "middle"
+    text_size: self.size
+    size_hint_x: .6
+
+<PopupText@TextInput>:
+    multiline: False
+    readonly: True
+    size_hint_x: .4
+
+<PopupBox@BoxLayout>:
+    size_hint_y: None
+    height: 30
+    spacing: 10
+
+<FilePopup@BoxLayout>
+    orientation: "vertical"
+    padding: 10
+    spacing: 5
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 10
+        PopupBox:
+            PopupLabel:
+                text: "Input format:"
+            PopupText:
+                id: in_format
+        PopupBox:
+            PopupLabel:
+                text: "Sequence type:"
+            PopupText:
+                id: seq_type
+        PopupBox:
+            PopupLabel:
+                text: "Alignment:"
+            PopupText:
+                id: is_aln
+        PopupBox:
+            PopupLabel:
+                text: "Sequence size:"
+            PopupText:
+                id: seq_size
+        PopupBox:
+            PopupLabel:
+                text: "Number of taxa:"
+            PopupText:
+                id: n_taxa
+    Button:
+        size_hint_y: None
+        height: 30
+        text: "Cancel"
+        on_release:
+            root.cancel()
+
+<TaxaPopup>
+    orientation: "vertical"
+    size_hint_y: None
+    padding: 15
+    spacing: 5
+    PopupLabel:
+        background_color: (.7, .7, .7)
+        id: dataset_label
+        halign: "center"
+        size_hint_x: 1
+        size_hint_y: None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: .35, .35, .35, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+    PopupBox:
+        PopupLabel:
+            #size_hint_x: .45
+            text: "Sequence length:"
+        PopupText:
+            #size_hint_x: .55
+            id: seq_len
+    PopupBox:
+        PopupLabel:
+            #size_hint_x: .45
+            text: "Number of indels:"
+        PopupText:
+            #size_hint_x: .55
+            id: indels
+    PopupBox:
+        PopupLabel:
+            #size_hint_x: .65
+            text: "Number of missing data:"
+        PopupText:
+            #size_hint_x: .35
+            id: missing
+    PopupBox:
+        PopupLabel:
+            #size_hint_x: .7
+            text: "Effective sequence length:"
+        PopupText:
+            #size_hint_x: .3
+            id: ef_seq_len
+    PopupBox:
+        PopupLabel:
+            #size_hint_x: .35
+            text: "File coverage"
+        PopupText:
+            #size_hint_x: .65
+            id: file_cov
+
 <CheckDialog@BoxLayout>:
     orientation: "vertical"
     id: check
