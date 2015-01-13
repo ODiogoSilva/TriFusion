@@ -6,6 +6,8 @@
     text_size: self.size
     font_size: 18
     color: (1,1,1,1)
+    size_hint_y: None
+    height: 45
 
 ShowcaseScreen:
     name: "Process"
@@ -52,40 +54,33 @@ ShowcaseScreen:
         # necessary. Otherwise, widgets in general will not respond as they
         # should to touch events
         ScrollView:
-            BoxLayout:
-                orientation: "vertical"
+            bar_width: 4.5
+            scroll_type: ["bars"]
+            id: process_sv
 
-                ScrollView:
-                    #size_hint_y: .85
-                    bar_width: 4.5
-                    id: process_sv
-
-        FloatLayout:
+        BoxLayout:
             size_hint_y: None
-            height: 65
-            BoxLayout:
-                canvas.before:
-                    Color:
-                        rgba: (0.3,0.3,0.3,.5)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                orientation: "horizontal"
-                #size_hint_y: None
-                #height: 65
-                padding: 10
-                spacing: 20
-                ExecutionBt:
-                    text: "Execute"
-                    on_release: app.process_exec()
-                ExecutionBt:
-                    text: "View Queue"
-                    id: queue_bt
-                    on_release:
-                        app.save_operation_queue()
-                        app.go_carousel(2, "third_sidebt")
-                        app.toggle_sidepanel()
-                ExecutionBt:
-                    text: "Clear Options"
-                    on_release:
-                        app.process_clear_options()
+            height: 60
+            padding: 10
+            spacing: 10
+            canvas.before:
+                Color:
+                    rgba: (.1,.1,.1,.3)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ExecutionBt:
+                id: execute
+                text: "Execute"
+                on_press: app.process_exec()
+            ExecutionBt:
+                text: "View Queue"
+                id: queue_bt
+                on_release:
+                    app.save_operation_queue()
+                    app.go_carousel(2, "third_sidebt")
+                    app.toggle_sidepanel()
+            ExecutionBt:
+                text: "Clear Options"
+                on_release:
+                    app.process_clear_options()
