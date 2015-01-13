@@ -54,6 +54,7 @@ from kivy.uix.treeview import TreeView, TreeViewLabel
 
 # Main program imports
 from process.sequence import AlignmentList
+from process import data
 
 # Other imports
 from os.path import dirname, join, exists
@@ -137,6 +138,12 @@ class TaxaGroupDialog(BoxLayout):
     """
     cancel = ObjectProperty(None)
 
+
+class ZorroDialog(BoxLayout):
+    """
+    Class controlling the layout of the ZORRO operation dialog
+    """
+    cancel = ObjectProperty(None)
 
 class TriFusionApp(App):
 
@@ -262,6 +269,9 @@ class TriFusionApp(App):
     # Attribute storing the filter settings. The list should contain gap
     # threshold as first element and missing data threshold as second element
     filter_settings = [25, 50]
+
+    # Attribute for ZORRO settings
+    zorro_suffix = ""
 
     # Attribute storing the haplotype prefix
     hap_prefix = "Hap"
@@ -1682,6 +1692,31 @@ class TriFusionApp(App):
 
         self._subpopup.open()
 
+    def save_zorro_settings(self, suffix):
+        """
+        Handles the information provided by the user in the ZorroDialog
+        :param suffix: string, suffix of the ZORRO files
+        """
+
+        self.update_process_switch("zorro",
+                                   self._popup.content.ids.zorro_switch.active)
+
+        if self.secondary_options["zorro"]:
+            # Save auxiliary files suffix
+            self.zorro_suffix = suffix
+            # Change background and text of the Zorro button in process
+            # options
+            self.process_options.ids.zorro.background_normal = \
+                "data/backgrounds/bt_process.png"
+            self.process_options.ids.zorro.text = "Active"
+
+        else:
+            self.process_options.ids.zorro.background_normal = \
+                "data/backgrounds/bt_process_off.png"
+            self.process_options.ids.zorro.text = "Off"
+
+        self.dismiss_popup()
+
     def dialog_format(self):
         """
         Creates the dialog containing the buttons to select output formats.
@@ -1778,6 +1813,16 @@ class TriFusionApp(App):
 
         self.show_popup(title="Warning!", content=content, size=(300, 200))
 
+    def dialog_zorro(self):
+
+        content = ZorroDialog(cancel=self.dismiss_popup)
+
+        content.ids.zorro_switch.active = self.secondary_options["zorro"]
+        content.ids.zorro_txt.text = self.zorro_suffix
+
+        self.show_popup(title="ZORRO support", content=content,
+                        size=(350, 200))
+
     def save_hap_prefix(self, text_wgt):
         """
         Saves the specified string suffix for haplotypes when collapsing
@@ -1819,11 +1864,14 @@ class TriFusionApp(App):
             else:
                 self.main_operations[k] = False
 
-        # Disables output file button when conversion operation is active
+        # Disables output file button and other conversion/concatenation
+        # specific buttons
         if op == "conversion":
             self.process_grid_wgt.ids.conv.disabled = True
+            self.process_options.ids.zorro.disabled = True
         else:
             self.process_grid_wgt.ids.conv.disabled = False
+            self.process_options.ids.zorro.disabled = False
 
     def toggle_process_options(self):
         """
@@ -2118,6 +2166,11 @@ class TriFusionApp(App):
         # Concatenation
         if self.main_operations["concatenation"]:
             aln_object = aln_object.concatenate()
+
+            # Concatenation of ZORRO files
+            if self.secondary_options["zorro"]:
+                zorro_data = data.Zorro(aln_object, self.zorro_suffix)
+                zorro_data.write_to_file(self.output_file)
 
         # Collapsing
         if self.secondary_operations["collapse"]:

@@ -280,6 +280,39 @@
             text: "Cancel"
             on_release: root.cancel()
 
+<ZorroDialog>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 15
+    Switch:
+        id: zorro_switch
+    BoxLayout:
+        spacing: 10
+        size_hint_y: None
+        height: 30
+        Label:
+            valign: "middle"
+            halign: "left"
+            text_size: self.size
+            size_hint_x: .5
+            text: "ZORRO files suffix:"
+            bold: True
+        TextInput:
+            id: zorro_txt
+            multiline: False
+            size_hint_x: .5
+
+    BoxLayout:
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            text: "Done"
+            on_release: app.save_zorro_settings(zorro_txt.text)
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
+
 <TextDialog>:
     orientation: "vertical"
     padding: 10
@@ -609,7 +642,7 @@
                 Label:
                     size_hint_x: .8
                     markup: True
-                    text: "[size=18][b]Interleave[/b][/size]\n[size=13] If sequences should be in interleave format or leave"
+                    text: "[size=18][b]Interleave[/b][/size]\n[size=13]If sequences should be in interleave format or leave"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
@@ -625,16 +658,18 @@
                 Label:
                     size_hint_x: .8
                     markup: True
-                    text: "[size=18][b]Zorro support[/b][/size]\n[size=13] If concatenating, also concatenate auxiliary Zorro weight files. In development."
+                    text: "[size=18][b]ZORRO weights support[/b][/size]\n[size=13]Concatenation only. Concatenates auxiliary Zorro weight files into a single *_zorro.out file."
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                Switch:
+                ProcessBt:
                     id: zorro
+                    background_normal: "data/backgrounds/bt_process_off.png"
                     size_hint_x: .2
+                    text: "OFF"
                     disabled: True
-                    on_active:
-                        app.update_process_switch("zorro", self.active)
+                    on_release:
+                        app.dialog_zorro()
 
             Hseparator
 
