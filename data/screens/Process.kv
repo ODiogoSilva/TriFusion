@@ -83,7 +83,7 @@ ShowcaseScreen:
                     id: queue_bt
                     on_release:
                         app.save_operation_queue()
-                        app.carousel_move(2)
+                        app.go_carousel(2, "third_sidebt")
                         app.toggle_sidepanel()
                 ExecutionBt:
                     text: "Clear Options"
