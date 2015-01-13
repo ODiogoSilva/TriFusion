@@ -51,17 +51,19 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.3535534"
-     inkscape:cx="-47.919813"
-     inkscape:cy="639.59551"
+     inkscape:zoom="0.50000001"
+     inkscape:cx="776.79594"
+     inkscape:cy="406.87411"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1362"
      inkscape:window-height="729"
-     inkscape:window-x="1920"
+     inkscape:window-x="0"
      inkscape:window-y="37"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="0"
+     showguides="true"
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -126,5 +128,17 @@
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300"
        rx="2.5859375" />
+    <rect
+       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3050-2-7"
+       width="554.28571"
+       height="200"
+       x="884.85712"
+       y="482.36218"
+       ry="1.3671875"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/bt_process_off.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"
+       rx="1.3671875" />
   </g>
 </svg>
