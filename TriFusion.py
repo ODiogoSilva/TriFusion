@@ -58,6 +58,7 @@ from process import data
 
 # Other imports
 from os.path import dirname, join, exists
+from os import sep
 from collections import OrderedDict
 from os.path import expanduser
 from copy import deepcopy
@@ -787,14 +788,36 @@ class TriFusionApp(App):
         :param selection: list. Contains the paths to the selected input files
         """
 
+        # Parses the files into the program
+        bad_aln = self.load_files(selection)
+
+        # Checking if there are invalid input alignments
+        if bad_aln:
+            if len(bad_aln) == 1:
+                self.dialog_warning("Invalid input file detected",
+                                    "The following input file is invalid:\n\n"
+                                    "[b]%s[/b]" %
+                                    bad_aln[0].name.split(sep)[-1])
+            else:
+                self.dialog_warning("Invalid input files detected",
+                                    "The following input files are invalid:\n\n"
+                                    "[b]%s[/b]" %
+                                    "\n".join(x.name.split(sep)[-1] for x
+                                              in bad_aln))
+
+        # removes bad alignment files from selection list
+        selection = [path for path in selection if path not in
+                    [x.name for x in bad_aln]]
+
         if self.file_list:
             # Updating complete and active file lists
             self.file_list.extend(selection)
             self.active_file_list.extend(selection)
             # Update the filename - path mapping attribute
             self.filename_map = dict(list(self.filename_map.items()) +
-                list((x, y) for x, y in zip([x.split("/")[-1] for x in
-                                             selection], selection)))
+                                     list((x, y) for x, y in
+                                     zip([x.split("/")[-1] for x in selection],
+                                         selection)))
 
         else:
             # Set an attribute with the input file list
@@ -805,18 +828,17 @@ class TriFusionApp(App):
             self.filename_map = dict((x, y) for x, y in zip(
                 [x.split("/")[-1] for x in selection], selection))
 
-        # Parses the files into the program
-        self.load_files(selection)
-        # Update active taxa list
-        self.update_taxa()
-        # Populates files and taxa contents
-        self.update_tabs()
-        # Gathers taxa  and file information
-        self.original_tx_inf = self.get_taxa_information()
-        self.original_file_inf = self.get_file_information()
+        if self.active_alignment_list:
+            # Update active taxa list
+            self.update_taxa()
+            # Populates files and taxa contents
+            self.update_tabs()
+            # Gathers taxa  and file information
+            self.original_tx_inf = self.get_taxa_information()
+            self.original_file_inf = self.get_file_information()
 
-        # Unlocks options dependent on the availability of input data
-        self.root.ids.tx_group_bt.disabled = False
+            # Unlocks options dependent on the availability of input data
+            self.root.ids.tx_group_bt.disabled = False
 
     def update_tabs(self):
         """
@@ -1830,7 +1852,7 @@ class TriFusionApp(App):
         content.ids.warning_l.text = "[b][size=18]%s[/size][/b]\n\n%s" % (msg1,
                                                                           msg2)
 
-        self.show_popup(title="Warning!", content=content, size=(300, 200))
+        self.show_popup(title="Warning!", content=content, size=(400, 300))
 
     def dialog_zorro(self):
 
@@ -1932,32 +1954,44 @@ class TriFusionApp(App):
     def load_files(self, files):
         """
         Loads the selected input files into the program using the
-        AlignmentList object.
+        AlignmentList object. If there are invalid alignment objects in the
+        AlignmentList object, they will be returned by this method for
+        handling in the load method
 
         I also sets the alignment and taxa active lists, which should be used
         to perform subsequent operations. For now, the original taxa and
         alignment lists should remain untouched for future implementation of
         undo/redo functionality and as backups
+        :returns: List of invalid/badly formatted alignment objects
         """
 
         aln_list = AlignmentList(files)
 
-        # In case the alignment list object is already populated with
-        # previously loaded files, then add to the object
-        if self.alignment_list:
-            for aln_obj in aln_list:
-                self.alignment_list.add_alignment(aln_obj)
-                self.active_alignment_list.add_alignment(aln_obj)
-            # Update active taxa list
-            self.active_taxa_list = self.active_alignment_list.taxa_names
+        print(aln_list.alignment_object_list)
 
-        # In case the alignment list object is empty, load it as is
-        else:
-            # Populate original alignment list
-            self.alignment_list = aln_list
-            # Updating active alignment list
-            self.active_alignment_list = deepcopy(self.alignment_list)
-            self.active_taxa_list = self.active_alignment_list.taxa_names
+        # When creating an AlignmentList object, some input alignment may be
+        # invalid, in which case they are removed from the
+        # alignment_object_list. This will handle the case where all input files
+        # are invalid
+        if aln_list.alignment_object_list:
+            # In case the alignment list object is already populated with
+            # previously loaded files, then add to the object
+            if self.alignment_list:
+                for aln_obj in aln_list:
+                    self.alignment_list.add_alignment(aln_obj)
+                    self.active_alignment_list.add_alignment(aln_obj)
+                # Update active taxa list
+                self.active_taxa_list = self.active_alignment_list.taxa_names
+
+            # In case the alignment list object is empty, load it as is
+            else:
+                # Populate original alignment list
+                self.alignment_list = aln_list
+                # Updating active alignment list
+                self.active_alignment_list = deepcopy(self.alignment_list)
+                self.active_taxa_list = self.active_alignment_list.taxa_names
+
+        return aln_list.bad_alignments
 
     def get_taxa_information(self, alt_list=None):
         """
@@ -2076,7 +2110,7 @@ class TriFusionApp(App):
         # Iterating over file path since the name of the Alignment
         # objects contain the full path
 
-        if self.file_list:
+        if self.alignment_list:
             for infile in self.file_list:
                 file_name = infile.split("/")[-1]
                 file_inf[file_name] = {}
