@@ -1455,7 +1455,6 @@ class TriFusionApp(App):
             - self.
         """
 
-        # Clear nodes
         def clear_nodes(parent):
             old_nodes = []
             for node in self.operation_tv.iterate_all_nodes(parent):
@@ -1480,7 +1479,12 @@ class TriFusionApp(App):
             main_op = [nm for nm, bl in self.main_operations.items()
                        if bl is True][0]
             add_node("%s" % main_op, self.main_nodes["proc_main"])
-            self.operation_tv.toggle_node(self.main_nodes["proc_main"])
+            # Open Process node
+            if self.main_nodes["proc"].is_open is False:
+                self.operation_tv.toggle_node(self.main_nodes["proc"])
+            # Open main operation node if closed
+            if self.main_nodes["proc_main"].is_open is False:
+                self.operation_tv.toggle_node(self.main_nodes["proc_main"])
         except IndexError:
             self.main_nodes["proc_main"].opacity = .2
 
@@ -1490,7 +1494,9 @@ class TriFusionApp(App):
         if self.output_formats:
             for ft in self.output_formats:
                 add_node("%s" % ft, self.main_nodes["proc_form"])
-            self.operation_tv.toggle_node(self.main_nodes["proc_form"])
+            # Open output format node is closed
+            if self.main_nodes["proc_form"].is_open is False:
+                self.operation_tv.toggle_node(self.main_nodes["proc_form"])
         else:
             self.main_nodes["proc_form"].opacity = .2
 
@@ -1506,7 +1512,8 @@ class TriFusionApp(App):
                              self.main_nodes["proc_sec"])
                 else:
                     add_node("%s" % op, self.main_nodes["proc_sec"])
-            self.operation_tv.toggle_node(self.main_nodes["proc_sec"])
+            if self.main_nodes["proc_sec"].is_open is False:
+                self.operation_tv.toggle_node(self.main_nodes["proc_sec"])
         else:
             self.main_nodes["proc_sec"].opacity = .2
 
@@ -1514,7 +1521,8 @@ class TriFusionApp(App):
         clear_nodes(self.main_nodes["main_file"])
         if self.output_file == "" and self.main_operations["conversion"]:
             add_node("[Dependent on input data]", self.main_nodes["main_file"])
-            self.operation_tv.toggle_node(self.main_nodes["main_file"])
+            if self.main_nodes["main_file"].is_open is False:
+                self.operation_tv.toggle_node(self.main_nodes["main_file"])
         else:
             self.main_nodes["main_file"].opacity = .2
 
