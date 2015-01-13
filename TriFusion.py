@@ -463,7 +463,17 @@ class TriFusionApp(App):
 
         return self.screen
 
-    def carousel_move(self, slide):
+    def go_carousel(self, slide, bt_id):
+        """
+        Method used by other buttons outside the side buttons of the side panel
+        to go to specific slides of the side panel
+        :param slide: int, the index of the target slide
+        :param bt_id: string, the id of the corresponding button
+        :return:
+        """
+
+        self.toggle_groups(self.root.ids[bt_id])
+        self.root.ids[bt_id].state = "down"
 
         panel_car = self.root.ids.carousel
         panel_car.load_slide(panel_car.slides[slide])
@@ -493,6 +503,7 @@ class TriFusionApp(App):
         for i in wgt.parent.children:
             if i.disabled:
                 i.disabled = False
+                i.state = "normal"
 
         wgt.disabled = True
 
