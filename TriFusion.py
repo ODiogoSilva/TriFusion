@@ -1967,8 +1967,6 @@ class TriFusionApp(App):
 
         aln_list = AlignmentList(files)
 
-        print(aln_list.alignment_object_list)
-
         # When creating an AlignmentList object, some input alignment may be
         # invalid, in which case they are removed from the
         # alignment_object_list. This will handle the case where all input files
