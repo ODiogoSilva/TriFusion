@@ -2134,6 +2134,8 @@ class TriFusionApp(App):
 
                 # Get if is alignment
                 file_inf[file_name]["is_aln"] = str(aln.is_alignment)
+                if aln.model:
+                    file_inf[file_name]["is_aln"] += " (Concatenated)"
 
                 # Get length of largest sequence if not aligned, or alignment
                 # length
