@@ -59,6 +59,7 @@ ShowcaseScreen:
             BoxLayout:
                 size_hint_y: None
                 height: 30
+                spacing: 5
 
                 Label:
                     canvas.before:
@@ -70,12 +71,21 @@ ShowcaseScreen:
                     size_hint_x: .15
                     text: "Find:"
                     bold: True
+                ToggleButton:
+                    id: case_bt
+                    text: "Aa"
+                    bold:True
+                    size_hint_x: .1
+                    state: "down"
+
                 TextInput:
                     id: text_filter
                     multiline: False
                     focus: True
                     on_text:
-                        root.ids.icon_view_tab.filters = ["*"+self.text+"*"]
+                        if case_bt.state == "down": root.ids.icon_view_tab.filters = ["*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"]
+                        if case_bt.state == "normal": root.ids.icon_view_tab.filters = ["*"+self.text+"*"]
+
                     on_text_validate:
                         focus = True
 
