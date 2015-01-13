@@ -24,7 +24,7 @@
 #  Last update: 11/02/14
 
 import sys
-
+from process.error_handling import *
 
 class Base ():
 
@@ -34,8 +34,12 @@ class Base ():
         sequence = ""
         file_handle = open(reference_file, 'r')
 
+        try:
+            header = file_handle.readline()
+        except UnicodeDecodeError:
+            return InputError("Invalid input file.")
+
         # Skips first empty lines, if any
-        header = file_handle.readline()
         while header.startswith("\n"):
             header = next(file_handle)
 
@@ -69,6 +73,8 @@ class Base ():
 
         # Check if there is any sequence. If not, the alignment file has no
         # sequence
+        else:
+            return InputError("Unknown input file format.")
         if sequence.replace("-", "") == "":
             print("\nAlignment file %s has no sequence or the first sequence "
                   "is empty. Please check the file." % reference_file)

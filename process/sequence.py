@@ -79,17 +79,23 @@ class Alignment (Base, MissingFilter):
             self.name = input_alignment
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
-            self.input_format, self.sequence_code = self.autofinder(
-                input_alignment)
+            finder_content = self.autofinder(input_alignment)
+            # Handles the case where the input format is invalid and
+            # finder_content is an Exception
+            if isinstance(finder_content, Exception) is False:
+                self.input_format, self.sequence_code = self.autofinder(
+                    input_alignment)
 
-            # In case the input format is specified, overwrite the attribute
-            if input_format is not None:
-                self.input_format = input_format
+                # In case the input format is specified, overwrite the attribute
+                if input_format is not None:
+                    self.input_format = input_format
 
-            # parsing the alignment and getting the basic class attributes
-            # Three attributes will be assigned: alignment, model and locus_
-            # length
-            self.read_alignment(input_alignment, self.input_format)
+                # parsing the alignment and getting the basic class attributes
+                # Three attributes will be assigned: alignment, model and locus_
+                # length
+                self.read_alignment(input_alignment, self.input_format)
+            else:
+                self.alignment = finder_content
 
         # In case the class is initialized with a dictionary object
         elif type(input_alignment) is OrderedDict:
@@ -796,6 +802,8 @@ class AlignmentList (Alignment, Base, MissingFilter):
         self.log_progression = Progression()
 
         self.alignment_object_list = []
+        # Stores badly formatted/invalid input alignments
+        self.bad_alignments =[]
 
         if type(alignment_list[0]) is str:
 
@@ -807,7 +815,10 @@ class AlignmentList (Alignment, Base, MissingFilter):
                         alignment_list.index(alignment) + 1)
 
                 alignment_object = Alignment(alignment)
-                self.alignment_object_list.append(alignment_object)
+                if isinstance(alignment_object.alignment, Exception):
+                    self.bad_alignments.append(alignment_object)
+                else:
+                    self.alignment_object_list.append(alignment_object)
 
         elif type(alignment_list[0]) is OrderedDict:
 
