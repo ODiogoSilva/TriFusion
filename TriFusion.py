@@ -196,6 +196,13 @@ class TriFusionApp(App):
     available_screens = ListProperty()
     loaded_screens = {}
 
+    # Attributes to know current and previous screen
+    current_screen = StringProperty()
+    previous_screen = StringProperty()
+
+    # Attribute to load screens
+    index = NumericProperty(-1)
+
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
 
@@ -211,13 +218,6 @@ class TriFusionApp(App):
 
     # Setting the list of taxa names
     active_taxa_list = ListProperty()
-
-    # Attributes to know current and previous screen
-    current_screen = StringProperty()
-    previous_screen = StringProperty()
-
-    # Attribute to load screens
-    index = NumericProperty(-1)
 
     # Attribute to the home path
     home_path = expanduser("~")
@@ -254,7 +254,7 @@ class TriFusionApp(App):
     process_options = None
     process_height = None
 
-    # Attribute for the widget containint the treeview showing the operations
+    # Attribute for the widget containing the treeview showing the operations
     # queue
     operation_tv = ObjectProperty(None)
     main_nodes = {}
@@ -345,9 +345,11 @@ class TriFusionApp(App):
         # First thing is go to main screen
         self.go_screen(0)
 
+        # Set method for closing side panel when touching outside
         Window.bind(on_touch_up=self.sidepanel_on_touch)
+
+        # Listen to keybindings
         Window.bind(on_key_down=self._on_keyboard_events)
-        #self.sine_panel_routine()
 
         # Creating GridLayout instance for general options of Process
         self.process_grid_wgt = ProcessGeneral()
@@ -358,6 +360,7 @@ class TriFusionApp(App):
         # Initialize operation queue treeview in side panel
         self.operation_queue_init()
 
+        # Set schedule for mouse over events on side panel
         Clock.schedule_interval(self._on_mouseover_tabs, .1)
 
         """
