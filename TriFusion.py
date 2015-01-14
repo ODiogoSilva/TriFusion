@@ -185,9 +185,6 @@ class TriFusionApp(App):
     #
     #######################
 
-    # Attribute for warning dialog
-    warning_wgt = None
-
     # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
 
