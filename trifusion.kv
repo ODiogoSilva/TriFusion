@@ -1029,342 +1029,343 @@
 
 ############################# ROOT SCREEN ######################################
 
-BoxLayout:
-    orientation: "vertical"
-    canvas.before:
-        Color:
-            rgba: (.8,.8,.8,.4)
-        Rectangle:
-            source: "data/backgrounds/master_background.jpg"
-            pos: self.pos
-            size: self.size
-
-    ActionBar:
-        pos_hint: {'top':1}
-
-        ActionView:
-            id: av
-            ActionPrevious:
-                id: ap
-                size_hint_x: 0.4
-                title: "Menu"
-                with_previous: False
-                on_release:
-                    app.toggle_sidepanel()
-                canvas.before:
-                    Color:
-                        rgba: (0.180, 0.180, 0.180, .8)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-
-            MainHeader:
-                id: h_ortho
-                text: "Orthology"
-                background_down: "data/backgrounds/orthology_down.png"
-                background_disabled_down: "data/backgrounds/orthology_down.png"
-                canvas.before:
-                    Color:
-                        rgba: [255, .200, .200, .3]
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                on_release:
-                    idx = app.screen_names.index("Orthology")
-                    app.go_screen(idx)
-                    app.toggle_groups(self)
-
-            MainHeader:
-                id: h_process
-                text: "Process"
-                background_down: "data/backgrounds/process_down.png"
-                background_disabled_down: "data/backgrounds/process_down.png"
-                canvas.before:
-                    Color:
-                        rgba: (0.200, 0.200, 255, .3)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                on_release:
-                    idx = app.screen_names.index("Process")
-                    app.go_screen(idx)
-                    app.toggle_groups(self)
-
-            MainHeader:
-                id: h_stat
-                text: "Statistics"
-                background_down: "data/backgrounds/statistics_down.png"
-                background_disabled_down: "data/backgrounds/statistics_down.png"
-                canvas.before:
-                    Color:
-                        rgba: (0.200, 255, 0.200, .3)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                on_release:
-                    idx = app.screen_names.index("Statistics")
-                    app.go_screen(idx)
-                    app.toggle_groups(self)
-
+FloatLayout:
     BoxLayout:
-        id: bx1
-        orientation: "horizontal"
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: (.8,.8,.8,.4)
+            Rectangle:
+                source: "data/backgrounds/master_background.jpg"
+                pos: self.pos
+                size: self.size
 
-        # This BoxLayout will two ScrollView layouts.
-        # The first will be the side column with several buttons that will
-        # switch the content in the second scrollview layout
-        # The second will be the main panel containing the important content
-        FloatLayout:
-            id: panel_float
-            size_hint_x: None
-            opacity: 1.2
-            BoxLayout:
-                orientation: "horizontal"
-                id: main_box
+        ActionBar:
+            pos_hint: {'top':1}
+
+            ActionView:
+                id: av
+                ActionPrevious:
+                    id: ap
+                    size_hint_x: 0.4
+                    title: "Menu"
+                    with_previous: False
+                    on_release:
+                        app.toggle_sidepanel()
+                    canvas.before:
+                        Color:
+                            rgba: (0.180, 0.180, 0.180, .8)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+
+                MainHeader:
+                    id: h_ortho
+                    text: "Orthology"
+                    background_down: "data/backgrounds/orthology_down.png"
+                    background_disabled_down: "data/backgrounds/orthology_down.png"
+                    canvas.before:
+                        Color:
+                            rgba: [255, .200, .200, .3]
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    on_release:
+                        idx = app.screen_names.index("Orthology")
+                        app.go_screen(idx)
+                        app.toggle_groups(self)
+
+                MainHeader:
+                    id: h_process
+                    text: "Process"
+                    background_down: "data/backgrounds/process_down.png"
+                    background_disabled_down: "data/backgrounds/process_down.png"
+                    canvas.before:
+                        Color:
+                            rgba: (0.200, 0.200, 255, .3)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    on_release:
+                        idx = app.screen_names.index("Process")
+                        app.go_screen(idx)
+                        app.toggle_groups(self)
+
+                MainHeader:
+                    id: h_stat
+                    text: "Statistics"
+                    background_down: "data/backgrounds/statistics_down.png"
+                    background_disabled_down: "data/backgrounds/statistics_down.png"
+                    canvas.before:
+                        Color:
+                            rgba: (0.200, 255, 0.200, .3)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    on_release:
+                        idx = app.screen_names.index("Statistics")
+                        app.go_screen(idx)
+                        app.toggle_groups(self)
+
+        BoxLayout:
+            id: bx1
+            orientation: "horizontal"
+
+            # This BoxLayout will two ScrollView layouts.
+            # The first will be the side column with several buttons that will
+            # switch the content in the second scrollview layout
+            # The second will be the main panel containing the important content
+            FloatLayout:
+                id: panel_float
                 size_hint_x: None
-                width: 0
-                canvas.before:
-                    Color:
-                        rgb: (.2, .2, .2)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-
-                # Both these ScrollView layouts are here because it is the only way
-                # that the children layouts' width will be truly 0. If a
-                # BoxLayout, Floatlayout, etc would be used, the contents would
-                # still appear.
-                ScrollView:
-                    id: sp_bts
+                opacity: 1.2
+                BoxLayout:
+                    orientation: "horizontal"
+                    id: main_box
                     size_hint_x: None
                     width: 0
-                    BoxLayout:
-                        orientation: "vertical"
-                        SideButton:
-                            id: first_sidebt
-                            state: "down"
-                            disabled: True
-                            text: "H"
-                            on_release:
-                                carousel.load_slide(carousel.slides[0])
-                                app.toggle_groups(self)
-                        SideButton:
-                            id: second_sidebt
-                            text: "G"
-                            on_release:
-                                carousel.load_slide(carousel.slides[1])
-                                app.toggle_groups(self)
-                        SideButton:
-                            id: third_sidebt
-                            text: "Q"
-                            on_release:
-                                app.save_operation_queue()
-                                carousel.load_slide(carousel.slides[2])
-                                app.toggle_groups(self)
-                        Widget:
-                            size_hint_y: .8
-                            canvas.before:
-                                Color:
-                                    rgba: (0.180, 0.180, 0.180, .8)
-                                Rectangle:
-                                    pos: self.pos
-                                    size: self.size
-                ScrollView:
-                    id: sv_over
-                    size_hint_x: None
-                    width: 0
-                    BoxLayout:
-                        orientation: "vertical"
-                        Button:
-                            id: first_lb
-                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
-                            size_hint_y: .1
-                            border: (16,16,32,16)
-                            text: "Some stuff"
-                        Button:
-                            id: second_lb
-                            background_normal: "data/backgrounds/side_panel_bt_normal.png"
-                            size_hint_y: .1
-                            text: "Some stuff"
-                        Widget:
-                            size_hint_y: .8
-                            canvas.before:
-                                Color:
-                                    rgba: (0.180, 0.180, 0.180, .8)
-                                Rectangle:
-                                    pos: self.pos
-                                    size: self.size
+                    canvas.before:
+                        Color:
+                            rgb: (.2, .2, .2)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
 
-                ScrollView:
-                    id: sp
-                    size_hint_x: .8
-                    width: 0
-
-                    Carousel:
-                        id: carousel
-                        direction: "bottom"
+                    # Both these ScrollView layouts are here because it is the only way
+                    # that the children layouts' width will be truly 0. If a
+                    # BoxLayout, Floatlayout, etc would be used, the contents would
+                    # still appear.
+                    ScrollView:
+                        id: sp_bts
+                        size_hint_x: None
+                        width: 0
                         BoxLayout:
                             orientation: "vertical"
-                            padding: 10
-                            spacing: 10
-                            id: main_slide
+                            SideButton:
+                                id: first_sidebt
+                                state: "down"
+                                disabled: True
+                                text: "H"
+                                on_release:
+                                    carousel.load_slide(carousel.slides[0])
+                                    app.toggle_groups(self)
+                            SideButton:
+                                id: second_sidebt
+                                text: "G"
+                                on_release:
+                                    carousel.load_slide(carousel.slides[1])
+                                    app.toggle_groups(self)
+                            SideButton:
+                                id: third_sidebt
+                                text: "Q"
+                                on_release:
+                                    app.save_operation_queue()
+                                    carousel.load_slide(carousel.slides[2])
+                                    app.toggle_groups(self)
+                            Widget:
+                                size_hint_y: .8
+                                canvas.before:
+                                    Color:
+                                        rgba: (0.180, 0.180, 0.180, .8)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+                    ScrollView:
+                        id: sv_over
+                        size_hint_x: None
+                        width: 0
+                        BoxLayout:
+                            orientation: "vertical"
+                            Button:
+                                id: first_lb
+                                background_normal: "data/backgrounds/side_panel_bt_normal.png"
+                                size_hint_y: .1
+                                border: (16,16,32,16)
+                                text: "Some stuff"
+                            Button:
+                                id: second_lb
+                                background_normal: "data/backgrounds/side_panel_bt_normal.png"
+                                size_hint_y: .1
+                                text: "Some stuff"
+                            Widget:
+                                size_hint_y: .8
+                                canvas.before:
+                                    Color:
+                                        rgba: (0.180, 0.180, 0.180, .8)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
 
-                            canvas.before:
-                                Color:
-                                    rgba: (0.180, 0.180, 0.180, .8)
-                                Rectangle:
-                                    pos: self.pos
-                                    size: self.size
+                    ScrollView:
+                        id: sp
+                        size_hint_x: .8
+                        width: 0
+
+                        Carousel:
+                            id: carousel
+                            direction: "bottom"
+                            BoxLayout:
+                                orientation: "vertical"
+                                padding: 10
+                                spacing: 10
+                                id: main_slide
+
+                                canvas.before:
+                                    Color:
+                                        rgba: (0.180, 0.180, 0.180, .8)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+
+                                BoxLayout:
+                                    size_hint_y: None
+                                    height: 50
+                                    padding: (15,0,15, 0)
+                                    Button:
+                                        id: sv_but
+                                        background_normal: "data/backgrounds/process_exec.png"
+                                        text: "Open file(s)"
+                                        bold: True
+                                        font_size: 18
+
+                                        on_release:
+                                            idx = app.screen_names.index("fc")
+                                            app.go_screen(idx)
+                                            app.toggle_sidepanel()
+
+                                TabbedPanel:
+                                    id: main_tp
+                                    do_default_tab: False
+                                    background_color: (0,0,0,0)
+                                    tab_pos: "top_mid"
+
+                                    TabbedPanelItem:
+                                        id: file_tp
+                                        text: "Files"
+
+                                        BoxLayout:
+                                            orientation: "vertical"
+                                            spacing: 20
+                                            ScrollView:
+                                                size_hint_y: .9
+                                                height: root.height*.65
+                                                id: sv_file
+                                                GridLayout:
+                                                    cols: 3
+                                                    size_hint_y: None
+                                                    id: file_sl
+                                                    padding: 10
+                                                    spacing: 5
+                                                    height: 30
+                                                    #minimum_height: root.height*.1
+
+                                                    Button:
+                                                        id: file_temp
+                                                        height: 40
+                                                        disabled: True
+                                                        size_hint_y: None
+                                                        #size_hint_x: None
+                                                        text: "No files loaded"
+                                            Label:
+                                                id: file_lab
+                                                size_hint_y: None
+                                                height: 1
+                                                color: (.6, .6, .6, 1)
+                                            SelectionBox:
+                                                id: sb_file
+
+                                    TabbedPanelItem:
+                                        id: taxa_tp
+                                        text: "Taxa"
+                                        BoxLayout:
+                                            orientation: "vertical"
+                                            spacing: 20
+                                            ScrollView:
+                                                size_hint_y: .9
+                                                height: root.height*.65
+                                                id: sv_sp
+                                                GridLayout:
+                                                    cols: 3
+                                                    size_hint_y: None
+                                                    id: taxa_sl
+                                                    padding: 10
+                                                    spacing: 5
+                                                    Button:
+                                                        id: species_temp
+                                                        height: 40
+                                                        disabled: True
+                                                        size_hint_y: None
+                                                        text: "No species loaded"
+                                            Label:
+                                                id: sp_lab
+                                                size_hint_y: None
+                                                height: 1
+                                                color: (.6, .6, .6, 1)
+                                            SelectionBox:
+                                                id: sb_taxa
+                            BoxLayout:
+                                orientation: "vertical"
+                                padding: 10
+                                spacing: 5
+                                Label:
+                                    size_hint_y: .1
+                                    text: "Taxa groups"
+                                    font_size: 18
+                                    halign: "center"
+                                    valign: "middle"
+                                    text_size: self.size
+                                    bold: True
+                                    canvas.before:
+                                        Color:
+                                            rgba: .35, .35, .35, 1
+                                        Rectangle:
+                                            pos: self.pos
+                                            size: self.size
+                                Hseparator
+                                ScrollView:
+                                    size_hint_y: .8
+                                    GridLayout:
+                                        id: group_grid
+                                        size_hint_y: None
+                                        height: 0
+                                        padding: 5
+                                        spacing: 5
+                                        cols: 2
+                                Button:
+                                    size_hint_y: .1
+                                    bold: True
+                                    text: "Set new taxa group"
+                                    id: tx_group_bt
+                                    disabled: True
+                                    on_release:
+                                        app.dialog_taxagroup()
 
                             BoxLayout:
-                                size_hint_y: None
-                                height: 50
-                                padding: (15,0,15, 0)
-                                Button:
-                                    id: sv_but
-                                    background_normal: "data/backgrounds/process_exec.png"
-                                    text: "Open file(s)"
-                                    bold: True
+                                orientation: "vertical"
+                                padding: 10
+                                spacing: 5
+                                Label:
+                                    size_hint_y: .1
+                                    text: "Operations queue"
                                     font_size: 18
-
-                                    on_release:
-                                        idx = app.screen_names.index("fc")
-                                        app.go_screen(idx)
-                                        app.toggle_sidepanel()
-
-                            TabbedPanel:
-                                id: main_tp
-                                do_default_tab: False
-                                background_color: (0,0,0,0)
-                                tab_pos: "top_mid"
-
-                                TabbedPanelItem:
-                                    id: file_tp
-                                    text: "Files"
-
-                                    BoxLayout:
-                                        orientation: "vertical"
-                                        spacing: 20
-                                        ScrollView:
-                                            size_hint_y: .9
-                                            height: root.height*.65
-                                            id: sv_file
-                                            GridLayout:
-                                                cols: 3
-                                                size_hint_y: None
-                                                id: file_sl
-                                                padding: 10
-                                                spacing: 5
-                                                height: 30
-                                                #minimum_height: root.height*.1
-
-                                                Button:
-                                                    id: file_temp
-                                                    height: 40
-                                                    disabled: True
-                                                    size_hint_y: None
-                                                    #size_hint_x: None
-                                                    text: "No files loaded"
-                                        Label:
-                                            id: file_lab
-                                            size_hint_y: None
-                                            height: 1
-                                            color: (.6, .6, .6, 1)
-                                        SelectionBox:
-                                            id: sb_file
-
-                                TabbedPanelItem:
-                                    id: taxa_tp
-                                    text: "Taxa"
-                                    BoxLayout:
-                                        orientation: "vertical"
-                                        spacing: 20
-                                        ScrollView:
-                                            size_hint_y: .9
-                                            height: root.height*.65
-                                            id: sv_sp
-                                            GridLayout:
-                                                cols: 3
-                                                size_hint_y: None
-                                                id: taxa_sl
-                                                padding: 10
-                                                spacing: 5
-                                                Button:
-                                                    id: species_temp
-                                                    height: 40
-                                                    disabled: True
-                                                    size_hint_y: None
-                                                    text: "No species loaded"
-                                        Label:
-                                            id: sp_lab
-                                            size_hint_y: None
-                                            height: 1
-                                            color: (.6, .6, .6, 1)
-                                        SelectionBox:
-                                            id: sb_taxa
-                        BoxLayout:
-                            orientation: "vertical"
-                            padding: 10
-                            spacing: 5
-                            Label:
-                                size_hint_y: .1
-                                text: "Taxa groups"
-                                font_size: 18
-                                halign: "center"
-                                valign: "middle"
-                                text_size: self.size
-                                bold: True
-                                canvas.before:
-                                    Color:
-                                        rgba: .35, .35, .35, 1
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
-                            Hseparator
-                            ScrollView:
-                                size_hint_y: .8
-                                GridLayout:
-                                    id: group_grid
-                                    size_hint_y: None
-                                    height: 0
-                                    padding: 5
-                                    spacing: 5
-                                    cols: 2
-                            Button:
-                                size_hint_y: .1
-                                bold: True
-                                text: "Set new taxa group"
-                                id: tx_group_bt
-                                disabled: True
-                                on_release:
-                                    app.dialog_taxagroup()
-
-                        BoxLayout:
-                            orientation: "vertical"
-                            padding: 10
-                            spacing: 5
-                            Label:
-                                size_hint_y: .1
-                                text: "Operations queue"
-                                font_size: 18
-                                halign: "center"
-                                valign: "middle"
-                                text_size: self.size
-                                bold: True
-                                canvas.before:
-                                    Color:
-                                        rgba: .35, .35, .35, 1
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
-                            Hseparator
-                            ScrollView:
-                                size_hint_y: .8
-                                id: op_sv
-                            Widget:
-                                size_hint_y: .1
+                                    halign: "center"
+                                    valign: "middle"
+                                    text_size: self.size
+                                    bold: True
+                                    canvas.before:
+                                        Color:
+                                            rgba: .35, .35, .35, 1
+                                        Rectangle:
+                                            pos: self.pos
+                                            size: self.size
+                                Hseparator
+                                ScrollView:
+                                    size_hint_y: .8
+                                    id: op_sv
+                                Widget:
+                                    size_hint_y: .1
 
 
-        ScreenManager:
-            id: sm
+            ScreenManager:
+                id: sm
 
