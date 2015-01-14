@@ -154,6 +154,7 @@ class ZorroDialog(BoxLayout):
     """
     cancel = ObjectProperty(None)
 
+
 class TriFusionApp(App):
 
     #######################
@@ -242,6 +243,13 @@ class TriFusionApp(App):
     operation_tv = ObjectProperty(None)
     main_nodes = {}
 
+    # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
+    # mouse_over events
+    file_togglebt = []
+    taxa_togglebt = []
+    mouse_over_text = ""
+    old_label = None
+
     ################################
     #
     # CORE PROGRAM RELATED VARIABLES
@@ -322,6 +330,8 @@ class TriFusionApp(App):
 
         # Initialize operation queue treeview in side panel
         self.operation_queue_init()
+
+        Clock.schedule_interval(self._on_mouseover_tabs, 1)
 
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
@@ -415,6 +425,60 @@ class TriFusionApp(App):
         # Keybinding ctrl+o that opens the Filechooser screen
         if modifier == "ctrl" and key == b'\x0f':
             self.go_screen(self.screen_names.index("fc"))
+
+    def _on_mouseover_tabs(self, dt):
+
+        mp = self.root_window.mouse_pos
+        collision = False
+
+        def determine_collision(wgt):
+
+            window_pos = wgt.to_window(bt.pos[0], bt.pos[1])
+            dummy_wgt = Widget(pos=window_pos, size_hint=(None, None),
+                                 size=wgt.size)
+
+            return dummy_wgt.collide_point(mp[0], mp[1])
+
+        def float_label(text):
+
+            info_bt = Button(text=text, pos=mp, size=(len(text) * 10, 40),
+                        size_hint=(None, None))
+
+            return info_bt
+
+        if self.show_side_panel:
+            if self.root.ids.main_tp.current_tab.text == "Files":
+                for bt in self.file_togglebt:
+                    if determine_collision(bt):
+                        lb = float_label(bt.text)
+                        collision = True
+                        if lb.text != self.mouse_over_text:
+                            if self.old_label:
+                                self.root.remove_widget(self.old_label)
+                            self.root.add_widget(lb)
+                            self.mouse_over_text = lb.text
+                            self.old_label = lb
+                else:
+                    if collision is False and self.old_label:
+                        self.root.remove_widget(self.old_label)
+
+            if self.root.ids.main_tp.current_tab.text == "Taxa":
+                for bt in self.taxa_togglebt:
+                    if determine_collision(bt):
+                        lb = float_label(bt.text)
+                        collision = True
+                        if lb.text != self.mouse_over_text:
+                            if self.old_label:
+                                self.root.remove_widget(self.old_label)
+                            self.root.add_widget(lb)
+                            self.mouse_over_text = lb.text
+                            self.old_label = lb
+                else:
+                    if collision is False and self.old_label:
+                        self.root.remove_widget(self.old_label)
+
+
+
 
     ########################## SCREEN NAVIGATION ###############################
 
@@ -943,6 +1007,8 @@ class TriFusionApp(App):
                 bt = ToggleButton(text=file_name, state="down", id=file_name,
                                   height=30, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
+                # Add button to storage for mouse over events
+                self.file_togglebt.append(bt)
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.3
                 # Binding functionality to toggle button
@@ -999,6 +1065,8 @@ class TriFusionApp(App):
                 bt = ToggleButton(text=tx, state="down", id=tx,
                                   height=30, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
+                # Add button to storage for mouse over events
+                self.taxa_togglebt.append(bt)
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.3
                 # Binding functionality to toggle button
