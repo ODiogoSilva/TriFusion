@@ -78,18 +78,34 @@ class ShowcaseScreen(Screen):
 
 
 class FilePopup(BoxLayout):
+    """
+    Class with a custom BoxLayout controlling the informative popup for the
+     file buttons in the File tab of the side panel
+    """
     cancel = ObjectProperty(None)
 
 
 class TaxaPopup(BoxLayout):
+    """
+    Class with a custom BoxLayout controlling the informative popup for the
+     taxa buttons in the Taxa tab of the side panel
+    """
     pass
 
 
 class CheckDialog(BoxLayout):
+    """
+    Class controlling the layout of a general purpose dialog to check if the
+    user wants of perform a certain action
+    """
     cancel = ObjectProperty(None)
 
 
 class WarningDialog(BoxLayout):
+    """
+    Class controlling the layout of a general purpose dialog to warn the user
+    of certain events
+    """
     cancel = ObjectProperty(None)
 
 
@@ -133,10 +149,16 @@ class PhylipExtra(BoxLayout):
 
 
 class ProcessGeneral(GridLayout):
+    """
+    Class controlling the layout of the general options of the Process screen
+    """
     pass
 
 
 class AdditionalProcessContents(TabbedPanel):
+    """
+    Class controlling the layout of the additional options of the Process screen
+    """
     pass
 
 
@@ -256,7 +278,7 @@ class TriFusionApp(App):
     # scheduled event for a mouse over this attribute is set to False, which
     # prevents further events from being scheduled in the meantime. When the
     # scheduled event is dispatched, the lock is released and it returns to
-    # Ture
+    # True
     mouse_over_ready = True
     # Stores the previous mouse over label button so that it can be removed
     old_mouse_over = None
