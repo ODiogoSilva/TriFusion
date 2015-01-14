@@ -245,10 +245,10 @@ class TriFusionApp(App):
 
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
-    file_togglebt = []
-    taxa_togglebt = []
-    mouse_over_text = ""
-    old_label = None
+    mouse_over_bts = {"Files": [], "Taxa": []}
+    previous_mouse_over = ""
+    mouse_over_ready = True
+    old_mouse_over = None
 
     ################################
     #
@@ -428,57 +428,89 @@ class TriFusionApp(App):
 
     def _on_mouseover_tabs(self, dt):
 
+        # Get mouse position coordinates
         mp = self.root_window.mouse_pos
+        # Set collision attribute
         collision = False
 
-        def determine_collision(wgt):
+        def show_label(wgt, *args):
+            """
+            Use this function with a Clock schedule to delay the introduction
+            of the label widget. Otherwise, it could become cumbersome to have
+            an label appearing right after the mouse colliding with the button
+            :param wgt: FloatLayout widget, containing a descriptive label
+            """
 
+            # Add widget to root layout
+            self.root.add_widget(wgt)
+            # Update old label widget
+            self.old_mouse_over = wgt
+            # Update old label text
+            self.previous_mouse_over = wgt.text
+            # Unlocking mouse over
+            self.mouse_over_ready = True
+
+        def determine_collision(wgt):
+            """
+            Provided a widget, this function determines whether the mouse is
+            colliding with its window coordinates
+            :param wgt: ToggleButton widget inside a relative layout
+            :return: Boolean. True is mouse position collides with wgt
+            """
+
+            # Retrieving window widget coordinates
             window_pos = wgt.to_window(bt.pos[0], bt.pos[1])
+            # Creating dummy widget to determine collision
             dummy_wgt = Widget(pos=window_pos, size_hint=(None, None),
                                  size=wgt.size)
 
             return dummy_wgt.collide_point(mp[0], mp[1])
 
-        def float_label(text):
+        def create_label_wgt(text):
+            """
+            Creates the label to be introduced in the floatlayout.
+            :param text, string, text of a button
+            """
 
             info_bt = Button(text=text, pos=mp, size=(len(text) * 10, 40),
                         size_hint=(None, None))
 
             return info_bt
 
-        if self.show_side_panel:
-            if self.root.ids.main_tp.current_tab.text == "Files":
-                for bt in self.file_togglebt:
-                    if determine_collision(bt):
-                        lb = float_label(bt.text)
-                        collision = True
-                        if lb.text != self.mouse_over_text:
-                            if self.old_label:
-                                self.root.remove_widget(self.old_label)
-                            self.root.add_widget(lb)
-                            self.mouse_over_text = lb.text
-                            self.old_label = lb
-                else:
-                    if collision is False and self.old_label:
-                        self.root.remove_widget(self.old_label)
+        # Only do this routine if the side panel is open
+        if self.show_side_panel and self.mouse_over_ready:
+            # Get active tab in side panel
+            active_tab = self.root.ids.main_tp.current_tab.text
+            # Iterate over buttons of active tab
+            for bt in self.mouse_over_bts[active_tab]:
+                # Determine if there is a collision with mouse position
+                if determine_collision(bt):
+                    # Set collision marker to true
+                    collision = True
 
-            if self.root.ids.main_tp.current_tab.text == "Taxa":
-                for bt in self.taxa_togglebt:
-                    if determine_collision(bt):
-                        lb = float_label(bt.text)
-                        collision = True
-                        if lb.text != self.mouse_over_text:
-                            if self.old_label:
-                                self.root.remove_widget(self.old_label)
-                            self.root.add_widget(lb)
-                            self.mouse_over_text = lb.text
-                            self.old_label = lb
-                else:
-                    if collision is False and self.old_label:
-                        self.root.remove_widget(self.old_label)
+                    # This will determine if a new label button will be added
+                    # to the layout, based on the text of the button. If the
+                    # text is already in the previous mouse over, then do
+                    # nothing. If the text is some new button, then do something
+                    if bt.text != self.previous_mouse_over:
+                        # Check if there is an old label button and remove it
+                        if self.old_mouse_over:
+                            self.root.remove_widget(self.old_mouse_over)
 
+                        # Create label widget
+                        label = create_label_wgt(text=bt.text)
 
+                        # Schedule the introduction of the label widget
+                        Clock.schedule_once(partial(show_label, label), 1.2)
+                        # Locking mouse over so that no additional label widgets
+                        # are added during the waiting time
+                        self.mouse_over_ready = False
 
+            else:
+                # If no collision is detected, remove any remaining label widget
+                if collision is False and \
+                   self.old_mouse_over in self.root.children:
+                    self.root.remove_widget(self.old_mouse_over)
 
     ########################## SCREEN NAVIGATION ###############################
 
@@ -1008,7 +1040,7 @@ class TriFusionApp(App):
                                   height=30, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Add button to storage for mouse over events
-                self.file_togglebt.append(bt)
+                self.mouse_over_bts["Files"].append(bt)
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.3
                 # Binding functionality to toggle button
@@ -1066,7 +1098,7 @@ class TriFusionApp(App):
                                   height=30, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Add button to storage for mouse over events
-                self.taxa_togglebt.append(bt)
+                self.mouse_over_bts["Taxa"].append(bt)
                 # Setting horizontal text size for shortening
                 bt.text_size[0] = bt.size[0] * 1.3
                 # Binding functionality to toggle button
