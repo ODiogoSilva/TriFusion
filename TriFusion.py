@@ -199,9 +199,6 @@ class TriFusionApp(App):
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
 
-    # Setting the list of input files variable
-    # The path ONLY attribute
-    path = StringProperty()
     # Only the original input files. SHOULD NOT BE MODIFIED
     file_list = ListProperty()
     # Dynamic list containing only the activated files
