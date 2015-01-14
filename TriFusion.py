@@ -245,10 +245,20 @@ class TriFusionApp(App):
 
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
+    # Contains the button widgets from the Files and Taxa tabs
     mouse_over_bts = {"Files": [], "Taxa": []}
-    current_mouse_over = ""
+    # The button text of the previous mouse over event. This will allow the
+    # assessment of whether the current mouse collision is for the same button
+    # (in which case the mouse over will not be triggered) or for a different
+    # button (in which case the mouse over is triggered)
     previous_mouse_over = ""
+    # This is a locking mechanism of the mouse over event. When there is a
+    # scheduled event for a mouse over this attribute is set to False, which
+    # prevents further events from being scheduled in the meantime. When the
+    # scheduled event is dispatched, the lock is released and it returns to
+    # Ture
     mouse_over_ready = True
+    # Stores the previous mouse over label button so that it can be removed
     old_mouse_over = None
 
     ################################
@@ -442,6 +452,11 @@ class TriFusionApp(App):
             :param wgt: FloatLayout widget, containing a descriptive label
             """
 
+            # Checking if the current mouse position is the same as the mouse
+            # position when the mouse over was triggered. This ensures that if
+            # the user changes the mouse position while this event is
+            # scheduled, the label will not be added to the root_window but the
+            # lock in self.mouse_over_ready is removed
             if self.root_window.mouse_pos == mouse:
                 # Add widget to root layout
                 self.root_window.add_widget(wgt)
@@ -499,9 +514,6 @@ class TriFusionApp(App):
                         # Check if there is an old label button and remove it
                         if self.old_mouse_over:
                             self.root_window.remove_widget(self.old_mouse_over)
-
-                        # Update current mouse over button text
-                        self.current_mouse_over = bt.text
 
                         # Create label widget
                         label = create_label_wgt(text=bt.text)
