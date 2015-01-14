@@ -246,6 +246,7 @@ class TriFusionApp(App):
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
     mouse_over_bts = {"Files": [], "Taxa": []}
+    current_mouse_over = ""
     previous_mouse_over = ""
     mouse_over_ready = True
     old_mouse_over = None
@@ -331,7 +332,7 @@ class TriFusionApp(App):
         # Initialize operation queue treeview in side panel
         self.operation_queue_init()
 
-        Clock.schedule_interval(self._on_mouseover_tabs, 1)
+        Clock.schedule_interval(self._on_mouseover_tabs, .1)
 
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
@@ -433,7 +434,7 @@ class TriFusionApp(App):
         # Set collision attribute
         collision = False
 
-        def show_label(wgt, *args):
+        def show_label(mouse, wgt, *args):
             """
             Use this function with a Clock schedule to delay the introduction
             of the label widget. Otherwise, it could become cumbersome to have
@@ -441,12 +442,14 @@ class TriFusionApp(App):
             :param wgt: FloatLayout widget, containing a descriptive label
             """
 
-            # Add widget to root layout
-            self.root.add_widget(wgt)
-            # Update old label widget
-            self.old_mouse_over = wgt
-            # Update old label text
-            self.previous_mouse_over = wgt.text
+            if self.root_window.mouse_pos == mouse:
+                # Add widget to root layout
+                self.root_window.add_widget(wgt)
+                # Update old label widget
+                self.old_mouse_over = wgt
+                # Update old label text
+                self.previous_mouse_over = wgt.text
+
             # Unlocking mouse over
             self.mouse_over_ready = True
 
@@ -472,7 +475,7 @@ class TriFusionApp(App):
             :param text, string, text of a button
             """
 
-            info_bt = Button(text=text, pos=mp, size=(len(text) * 10, 40),
+            info_bt = Button(text=text, pos=mp, size=(len(text) * 8, 40),
                         size_hint=(None, None))
 
             return info_bt
@@ -495,13 +498,16 @@ class TriFusionApp(App):
                     if bt.text != self.previous_mouse_over:
                         # Check if there is an old label button and remove it
                         if self.old_mouse_over:
-                            self.root.remove_widget(self.old_mouse_over)
+                            self.root_window.remove_widget(self.old_mouse_over)
+
+                        # Update current mouse over button text
+                        self.current_mouse_over = bt.text
 
                         # Create label widget
                         label = create_label_wgt(text=bt.text)
 
                         # Schedule the introduction of the label widget
-                        Clock.schedule_once(partial(show_label, label), 1.2)
+                        Clock.schedule_once(partial(show_label, mp, label), .8)
                         # Locking mouse over so that no additional label widgets
                         # are added during the waiting time
                         self.mouse_over_ready = False
@@ -509,8 +515,8 @@ class TriFusionApp(App):
             else:
                 # If no collision is detected, remove any remaining label widget
                 if collision is False and \
-                   self.old_mouse_over in self.root.children:
-                    self.root.remove_widget(self.old_mouse_over)
+                   self.old_mouse_over in self.root_window.children:
+                    self.root_window.remove_widget(self.old_mouse_over)
 
     ########################## SCREEN NAVIGATION ###############################
 
