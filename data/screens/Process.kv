@@ -14,7 +14,6 @@ ShowcaseScreen:
 
     BoxLayout:
         orientation: "vertical"
-        spacing: 10
 
         BoxLayout:
             size_hint_y: None
@@ -47,6 +46,30 @@ ShowcaseScreen:
                     on_press:
                         app.toggle_groups(self)
                         app.save_main_operation("concatenation")
+
+        ScrollView:
+            size_hint_y: None
+            id: sub_conc
+            height: 0
+            BoxLayout:
+                padding: 5
+                spacing: 10
+                Widget:
+                    size_hint_x: .5
+                BoxLayout:
+                    spacing: 5
+                    size_hint_x: .5
+                    SubConcBt:
+                        text: "Normal"
+                        group: "sub_conc_option"
+                        state: "down"
+                        on_press:
+                            app.toggle_groups(self)
+                    SubConcBt:
+                        text: "Reverse concatenation"
+                        group: "sub_conc_option"
+                        on_press:
+                            app.toggle_groups(self)
 
         # This will be the main screen with the options and stuff
 

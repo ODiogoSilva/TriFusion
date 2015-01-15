@@ -2105,9 +2105,13 @@ class TriFusionApp(App):
         if op == "conversion":
             self.process_grid_wgt.ids.conv.disabled = True
             self.process_options.ids.zorro.disabled = True
+            Animation(height=0, d=.32, t="in_quad").start(
+                self.screen.ids.sub_conc)
         else:
             self.process_grid_wgt.ids.conv.disabled = False
             self.process_options.ids.zorro.disabled = False
+            Animation(height=40, d=.32, t="in_quad").start(
+                self.screen.ids.sub_conc)
 
     def toggle_process_options(self):
         """
