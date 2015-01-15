@@ -2110,7 +2110,7 @@ class TriFusionApp(App):
         else:
             self.process_grid_wgt.ids.conv.disabled = False
             self.process_options.ids.zorro.disabled = False
-            Animation(height=40, d=.32, t="in_quad").start(
+            Animation(height=160, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
 
     def toggle_process_options(self):

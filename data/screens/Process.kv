@@ -57,19 +57,46 @@ ShowcaseScreen:
                 Widget:
                     size_hint_x: .5
                 BoxLayout:
-                    spacing: 5
+                    spacing: 10
                     size_hint_x: .5
-                    SubConcBt:
-                        text: "Normal"
-                        group: "sub_conc_option"
-                        state: "down"
-                        on_press:
-                            app.toggle_groups(self)
-                    SubConcBt:
-                        text: "Reverse concatenation"
-                        group: "sub_conc_option"
-                        on_press:
-                            app.toggle_groups(self)
+                    orientation: "vertical"
+                    BoxLayout:
+                        SubConcBt:
+                            text: "Normal"
+                            group: "sub_conc_option"
+                            state: "down"
+                            on_press:
+                                app.toggle_groups(self)
+                        SubConcBt:
+                            text: "Reverse concatenation"
+                            group: "sub_conc_option"
+                            on_press:
+                                app.toggle_groups(self)
+                    BoxLayout:
+                        LightBox:
+                            Label:
+                                halign: "left"
+                                valign: "middle"
+                                text_size: self.size
+                                size_hint_x: .8
+                                text: "Reverse Concatenation?"
+                                bold: True
+                            Switch:
+                                size_hint_x: .2
+                    BoxLayout:
+                        LightBox:
+                            Label:
+                                halign: "left"
+                                valign: "middle"
+                                text_size: self.size
+                                size_hint_x: .7
+                                text: "Reverse Concatenation?"
+                                bold: True
+                            ProcessBt:
+                                size_hint_x: .3
+                                background_normal: "data/backgrounds/bt_process_off.png"
+                                text: "OFF"
+                                bold: True
 
         # This will be the main screen with the options and stuff
 
