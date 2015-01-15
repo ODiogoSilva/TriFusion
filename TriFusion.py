@@ -1742,9 +1742,10 @@ class TriFusionApp(App):
         # Clear output formats
         self.output_formats = ["fasta"]
 
-        # Clear filters and haplotype name
+        # Clear filters, haplotype name and zorro suffix
         self.filter_settings = [25, 50]
         self.hap_prefix = "Hap"
+        self.zorro_suffix = ""
 
         # Clear output file
         self.output_file = ""
@@ -1764,8 +1765,14 @@ class TriFusionApp(App):
             self.screen.ids[bt].disabled = False
 
         # Changes in buttons with dynamic text
+        # Output format
         self.process_grid_wgt.ids.conv_formatbt.text = "Fasta"
+        # Output file
         self.process_grid_wgt.ids.conv.text = "Select..."
+        # Zorro settings
+        self.process_options.ids.zorro.background_normal = \
+                "data/backgrounds/bt_process_off.png"
+        self.process_options.ids.zorro.text = "Off"
 
         # Turn switches off
         for switch in self.secondary_operations:
