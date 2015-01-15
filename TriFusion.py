@@ -1711,11 +1711,8 @@ class TriFusionApp(App):
                        if bl is True]
         if secondary_op:
             for op in secondary_op:
-                if self.secondary_options["%s_file" % op]:
-                    add_node("%s (Save as new file)" % op,
-                             self.main_nodes["proc_sec"])
-                else:
-                    add_node("%s" % op, self.main_nodes["proc_sec"])
+                add_node("%s" % op, self.main_nodes["proc_sec"])
+
             if self.main_nodes["proc_sec"].is_open is False:
                 self.operation_tv.toggle_node(self.main_nodes["proc_sec"])
         else:
@@ -1723,8 +1720,32 @@ class TriFusionApp(App):
 
         # Output file
         clear_nodes(self.main_nodes["main_file"])
-        if self.output_file == "" and self.main_operations["conversion"]:
-            add_node("[Dependent on input data]", self.main_nodes["main_file"])
+        ## for conversion
+        if self.main_operations["conversion"]:
+            add_node("[Based on input] (main)", self.main_nodes["main_file"])
+            if self.main_nodes["main_file"].is_open is False:
+                self.operation_tv.toggle_node(self.main_nodes["main_file"])
+            ## Output files from secondary operations
+            if secondary_op:
+                for op in secondary_op:
+                    if self.secondary_options["%s_file" % op]:
+                        add_node("*_%s (%s)" % (op, op),
+                                 self.main_nodes["main_file"])
+        ## for concatenation
+        elif self.main_operations["concatenation"]:
+            if self.output_file == "":
+                add_node("[empty] (main)", self.main_nodes["main_file"])
+            else:
+                add_node("%s (main)" % self.output_file.split(sep)[-1],
+                         self.main_nodes["main_file"])
+            ## Output files from secondary operations
+            if secondary_op:
+                for op in secondary_op:
+                    if self.secondary_options["%s_file" % op]:
+                        add_node("%s_%s (%s)" % (self.output_file.split(sep)[-1]
+                                                 , op,
+                                                 op),
+                                 self.main_nodes["main_file"])
             if self.main_nodes["main_file"].is_open is False:
                 self.operation_tv.toggle_node(self.main_nodes["main_file"])
         else:
