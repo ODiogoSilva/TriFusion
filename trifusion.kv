@@ -126,7 +126,10 @@
     id: check
     text: None
     Label:
-        text: "Are you sure?"
+        valign: "middle"
+        halign: "center"
+        text_size: (self.size[0] - 5, self.size[1])
+        id: check_text
     BoxLayout:
         size_hint_y: None
         height: 30
