@@ -1026,6 +1026,12 @@ class TriFusionApp(App):
         # Check if there are 0 out of 0 files. In this case, disabled the
         # select/unselect all buttons
         if len(self.active_file_list) == 0 and len(self.file_list) == 0:
+            if "species_temp" not in [x.id for x in
+                                      self.root.ids.file_sl.children]:
+                no_bt = Button(id="file_temp", text="No files loaded",
+                               size_hint_y=None, height=40, disabled=True)
+                self.root.ids["file_temp"] = no_bt
+                self.root.ids.file_sl.add_widget(no_bt)
             self.root.ids.sb_file.disabled = True
         else:
             self.root.ids.sb_file.disabled = False
@@ -1033,8 +1039,8 @@ class TriFusionApp(App):
     def update_sp_label(self):
         """
         Sets and updates a label on the Taxa tab of the side panel, informing
-        how many taxa are selected out of the total taxa
-        :return:
+        how many taxa are selected out of the total taxa. If the taxa list
+        is empty, it disables the select/deselect buttons
         """
         self.root.ids.sp_lab.text = "%s of %s taxa selected" % (
                                        len(self.active_taxa_list),
@@ -1045,6 +1051,12 @@ class TriFusionApp(App):
         if len(self.active_taxa_list) == 0 and \
                 len(self.alignment_list.taxa_names) == 0:
             self.root.ids.sb_taxa.disabled = True
+            if "species_temp" not in [x.id for x in
+                                      self.root.ids.taxa_sl.children]:
+                no_bt = Button(id="species_temp", text="No species loaded",
+                               size_hint_y=None, height=40, disabled=True)
+                self.root.ids["species_temp"] = no_bt
+                self.root.ids.taxa_sl.add_widget(no_bt)
         else:
             self.root.ids.sb_taxa.disabled = False
 
