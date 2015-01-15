@@ -50,6 +50,22 @@ ShowcaseScreen:
             padding: 10
             spacing: 10
 
+            Label:
+                size_hint_y: None
+                text: icon_view_tab.path
+                height: 30
+                text_size: (self.size[0] - 20, self.size[1])
+                shorten: True
+                shorten_from: "left"
+                halign: "center"
+                valign: "middle"
+                canvas.before:
+                    Color:
+                        rgba: .35, .35, .35, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
             FileChooserIconView:
                 id: icon_view_tab
                 multiselect: True
