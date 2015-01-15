@@ -2013,6 +2013,8 @@ class TriFusionApp(App):
         """
 
         content = LoadDialog(cancel=self.dismiss_popup)
+        content.ids.rev_concatenation.active = \
+            self.secondary_operations["reverse_concatenation"]
         content.ids.ld_filechooser.path = self.home_path
 
         self.show_popup(title=title, content=content)
