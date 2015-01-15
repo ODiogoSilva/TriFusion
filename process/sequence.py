@@ -799,6 +799,8 @@ class AlignmentList (Alignment, Base, MissingFilter):
     def __init__(self, alignment_list, model_list=None, name_list=None,
                  verbose=True, input_format=None):
 
+        self.reverse_concatenation = None
+
         self.log_progression = Progression()
 
         self.alignment_object_list = []
@@ -1124,6 +1126,23 @@ class AlignmentList (Alignment, Base, MissingFilter):
                 alignment_obj.collapse(write_haplotypes=False,
                                        haplotype_name=haplotype_name)
 
+    def _reverse_concatenate(self, partition_obj):
+        """
+        Internal function to reverse concatenate an alignment according to
+        defined partions in a Partitions object
+
+        This will only work if alignment_object_list has one alignment, as it
+         is intended to be a wrapper of sorts for the Alignment object method
+
+        :param partition_obj: Partitions object, containing the partitions of
+        the input file
+        :return: AlignmentList object with individual alignments
+        """
+
+        if len(self.alignment_object_list) == 1:
+            aln_obj = self.alignment_object_list[0]
+            return aln_obj.reverse_concatenate(partition_obj)
+
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=[], partition_file=True):
         """ This method writes a list of alignment objects or a concatenated
@@ -1131,9 +1150,10 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         for alignment_obj in self.alignment_object_list:
             if alignment_obj.input_format in output_format:
-                try:
-                    self.reverse_concatenation
-                except:
+                if self.reverse_concatenation:
+                    output_file_name = alignment_obj.name.split(".")[0] + \
+                                   output_suffix
+                else:
                     output_file_name = alignment_obj.name.split(".")[0]\
                                        + output_suffix + "_conv"
             else:
