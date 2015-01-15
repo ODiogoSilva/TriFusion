@@ -1555,13 +1555,16 @@ class TriFusionApp(App):
 
         # App changes by adding three buttons for the taxa group
         # Taxa button itself
-        bt = Button(text=name, size_hint=(.8, None), height=40, id=name)
+        bt = Button(text=name, size_hint=(.8, None), height=35, id=name)
         bt.bind(on_release=self.taxagroups_show_taxa)
         # Removal button
         x_bt = Button(text="X", bold=True, size_hint=(.14, None),
-                        height=40, id="%sX" % name,
+                        height=35, id="%sX" % name,
                         background_color=(255, .9, .9, 1))
-        x_bt.bind(on_release=partial(self.check_action, self.remove_taxa_group))
+        x_bt.bind(on_release=partial(self.check_action,
+                                     "Are you sure you want to remove this taxa"
+                                     "group?",
+                                     self.remove_taxa_group))
 
         # Add buttons to gridlayout
         for i in [bt, x_bt]:
