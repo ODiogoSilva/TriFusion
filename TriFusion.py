@@ -109,6 +109,13 @@ class WarningDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class LoadDialog(BoxLayout):
+    """
+    Class controlling a general purpose layout for loading additional files
+    """
+    cancel = ObjectProperty(None)
+
+
 class SaveDialog(FloatLayout):
     """
     Class controlling the layout of the save file dialog in the Process screen
@@ -313,6 +320,9 @@ class TriFusionApp(App):
     # Attribute storing the filter settings. The list should contain gap
     # threshold as first element and missing data threshold as second element
     filter_settings = [25, 50]
+
+    # Partitions file
+    partitions_file = ""
 
     # Attribute for ZORRO settings
     zorro_suffix = ""
@@ -1949,9 +1959,32 @@ class TriFusionApp(App):
         else:
             self.process_options.ids.zorro.background_normal = \
                 "data/backgrounds/bt_process_off.png"
-            self.process_options.ids.zorro.text = "Off"
+            self.process_options.ids.zorro.text = "OFF"
 
         self.dismiss_popup()
+
+    def save_reverseconc_settings(self, path):
+        """
+        Handles the information provided by the LoadDialog with settings for the
+        reverse concatenation
+        """
+
+        self.update_process_switch("reverse_concatenation",
+                            self._popup.content.ids.rev_concatenation.active)
+
+        if self.secondary_operations["reverse_concatenation"]:
+            self.partitions_file = path
+
+            self.screen.ids.rev_conc.background_normal = \
+                "data/backgrounds/bt_process.png"
+            self.screen.ids.rev_conc.text = "Active"
+
+        else:
+            self.screen.ids.rev_conc.background_normal = \
+                "data/backgrounds/bt_process_off.png"
+            self.screen.ids.rev_conc.text = "OFF"
+
+        print(self.secondary_operations, self.partitions_file)
 
     def dialog_format(self):
         """
@@ -1974,6 +2007,17 @@ class TriFusionApp(App):
         # Show popup
         self.show_popup(title="Choose output format", content=content,
                         size=(300, 400))
+
+    def dialog_load_data(self, title="Choose input file"):
+        """
+        Generates a general purpose file chooser to request additional data
+        :param title: string, A custom title for the load data dialog popup
+        """
+
+        content = LoadDialog(cancel=self.dismiss_popup)
+        content.ids.ld_filechooser.path = self.home_path
+
+        self.show_popup(title=title, content=content)
 
     def dialog_filechooser(self, value):
         """
@@ -2110,7 +2154,7 @@ class TriFusionApp(App):
         else:
             self.process_grid_wgt.ids.conv.disabled = False
             self.process_options.ids.zorro.disabled = False
-            Animation(height=160, d=.32, t="in_quad").start(
+            Animation(height=50, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
 
     def toggle_process_options(self):

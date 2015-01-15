@@ -52,8 +52,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.50000001"
-     inkscape:cx="776.79594"
-     inkscape:cy="406.87411"
+     inkscape:cx="404.73335"
+     inkscape:cy="924.67109"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -140,5 +140,17 @@
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300"
        rx="1.3671875" />
+    <rect
+       style="fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.50000000000000000;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3050-2-8-2"
+       width="554.28571"
+       height="200"
+       x="896.85712"
+       y="768.36218"
+       ry="0"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/sub_conc_bt.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"
+       rx="0" />
   </g>
 </svg>

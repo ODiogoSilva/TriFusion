@@ -277,6 +277,57 @@
                 on_release:
                     root.cancel()
 
+<LoadDialog>:
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
+
+    BoxLayout:
+        size_hint_y: .15
+        Widget
+            size_hint_x: .45
+        LightBox:
+            canvas.before:
+                Color:
+                    rgba: (.3, .3, .3, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                size_hint_x: .8
+                text: "Activate reverse concatenation"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Switch:
+                size_hint_x: .2
+                id: rev_concatenation
+                on_active:
+                    if self.active == True: part_bt.disabled = False
+                    if self.active == False: part_bt.disabled = True
+        Widget:
+            size_hint_x: .45
+
+    FileChooserIconView:
+        id: ld_filechooser
+
+    BoxLayout:
+        size_hint_y: None
+        height: 35
+        spacing: 10
+
+        Button:
+            id: part_bt
+            text: "Select"
+            disabled: True
+            on_release: app.save_reverseconc_settings(ld_filechooser.selection)
+
+
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
 <SaveDialog>:
     BoxLayout:
         size: root.size
@@ -789,7 +840,6 @@
                     text_size: self.size
                 ProcessBt:
                     id: zorro
-                    background_normal: "data/backgrounds/bt_process_off.png"
                     size_hint_x: .2
                     text: "OFF"
                     disabled: True
