@@ -649,7 +649,7 @@ class TriFusionApp(App):
 
         wgt.disabled = True
 
-    def check_action(self, func, bt_wgt):
+    def check_action(self, text, func, bt_wgt):
         """
         General purpose method that pops a dialog checking if the user wants to
         perform a certain action. This method should be passed as a function on
@@ -672,10 +672,11 @@ class TriFusionApp(App):
         """
 
         check_content = CheckDialog(cancel=self.dismiss_popup)
+        check_content.ids.check_text.text = text
         check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
 
         self.show_popup(title="Warning!", content=check_content,
-                        size=(200, 150))
+                        size=(250, 200))
 
     ####################### BOOKMARKS OPERATIONS ###############################
 
@@ -741,7 +742,10 @@ class TriFusionApp(App):
                      background_color=(255, .9, .9, 1), bold=True)
         # Bind to function that removes bookmark button as well as the path
         # from self.bm_file
-        xbt.bind(on_release=partial(self.check_action, self.remove_bookmark_bt))
+        xbt.bind(on_release=partial(self.check_action,
+                                    "Are you sure you want to remove"
+                                    " this bookmark?",
+                                    self.remove_bookmark_bt))
         # Update gridlayout height
         self.screen.ids.sv_book.height += self.root.height * 0.07
         # Add widgets
@@ -1096,7 +1100,10 @@ class TriFusionApp(App):
                 x_bt = Button(text="X", size_hint=(.14, None),
                               height=30, id="%sX" % file_name,
                               background_color=(255, .9, .9, 1), bold=True)
-                x_bt.bind(on_release=partial(self.check_action, self.remove_bt))
+                x_bt.bind(on_release=partial(self.check_action,
+                                             "Are you sure you want to remove"
+                                             " this file?",
+                                             self.remove_bt))
                 self.root.ids.file_sl.add_widget(x_bt)
 
                 # Updates the size of the grid layout according to the added
@@ -1155,7 +1162,10 @@ class TriFusionApp(App):
                               height=30, id="%sX" % tx,
                               background_color=(255, .9, .9, 1), bold=True)
                 self.root.ids.taxa_sl.add_widget(x_bt)
-                x_bt.bind(on_release=partial(self.check_action, self.remove_bt))
+                x_bt.bind(on_release=partial(self.check_action,
+                                             "Are you sure you want to remove"
+                                             " this taxon?",
+                                             self.remove_bt))
 
                 # Updates the size of the grid layout according to the added
                 # button
