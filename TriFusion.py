@@ -1763,10 +1763,6 @@ class TriFusionApp(App):
             self.screen.ids[bt].state = "normal"
             self.screen.ids[bt].disabled = False
 
-        # Fade out of additional options
-        if self.process_options.opacity == 1:
-            self.toggle_process_options()
-
         # Changes in buttons with dynamic text
         self.process_grid_wgt.ids.conv_formatbt.text = "Fasta"
         self.process_grid_wgt.ids.conv.text = "Select..."
