@@ -321,7 +321,9 @@
             id: part_bt
             text: "Select"
             disabled: True
-            on_release: app.save_reverseconc_settings(ld_filechooser.selection)
+            on_release:
+                app.save_reverseconc_settings(ld_filechooser.selection)
+                root.cancel()
 
 
         Button:

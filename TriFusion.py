@@ -1973,7 +1973,7 @@ class TriFusionApp(App):
                             self._popup.content.ids.rev_concatenation.active)
 
         if self.secondary_operations["reverse_concatenation"]:
-            self.partitions_file = path
+            self.partitions_file = "".join(path)
 
             self.screen.ids.rev_conc.background_normal = \
                 "data/backgrounds/bt_process.png"
@@ -1983,8 +1983,6 @@ class TriFusionApp(App):
             self.screen.ids.rev_conc.background_normal = \
                 "data/backgrounds/bt_process_off.png"
             self.screen.ids.rev_conc.text = "OFF"
-
-        print(self.secondary_operations, self.partitions_file)
 
     def dialog_format(self):
         """
@@ -2467,6 +2465,11 @@ class TriFusionApp(App):
             if self.secondary_options["zorro"]:
                 zorro_data = data.Zorro(aln_object, self.zorro_suffix)
                 zorro_data.write_to_file(self.output_file)
+
+        # Reverse concatenation
+        if self.secondary_operations["reverse_concatenation"]:
+            partition_obj = data.Partitions(self.partitions_file)
+            aln_object = aln_object.reverse_concatenate(partition_obj)
 
         # Collapsing
         if self.secondary_operations["collapse"]:
