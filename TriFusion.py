@@ -2514,6 +2514,11 @@ class TriFusionApp(App):
         # conducted in the same aln_obj
         write_aln[self.output_file] = aln_object
         if self.main_operations["concatenation"]:
+            if self.output_file == "":
+                return self.dialog_warning("No output file specified",
+                                           "Use the 'Select...' button of "
+                                           "'Output file' general option to "
+                                           "select an output file name")
             for name, obj in write_aln.items():
                 obj.write_to_file(self.output_formats, name,
                                 interleave=self.secondary_options["interleave"],
