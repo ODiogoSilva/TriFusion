@@ -307,8 +307,57 @@
         Widget:
             size_hint_x: .45
 
+    Label:
+        size_hint_y: None
+        text: ld_filechooser.path
+        height: 30
+        text_size: (self.size[0] - 20, self.size[1])
+        shorten: True
+        shorten_from: "left"
+        halign: "center"
+        valign: "middle"
+        canvas.before:
+            Color:
+                rgba: .35, .35, .35, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
     FileChooserIconView:
         id: ld_filechooser
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 5
+
+        Label:
+            canvas.before:
+                Color:
+                    rgba: (.2,.2,.2,1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_x: .15
+            text: "Find:"
+            bold: True
+        ToggleButton:
+            id: case_bt
+            text: "Aa"
+            bold:True
+            size_hint_x: .1
+            state: "down"
+
+        TextInput:
+            id: text_filter
+            multiline: False
+            focus: True
+            on_text:
+                if case_bt.state == "down": ld_filechooser.filters = ["*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"]
+                if case_bt.state == "normal": ld_filechooser.filters = ["*"+self.text+"*"]
+
+            on_text_validate:
+                focus = True
 
     BoxLayout:
         size_hint_y: None
