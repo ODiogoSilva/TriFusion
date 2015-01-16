@@ -1968,8 +1968,6 @@ class TriFusionApp(App):
         reverse concatenation
         """
 
-        self.update_main_operations("reverse_concatenation")
-
         if self.main_operations["reverse_concatenation"]:
             self.partitions_file = "".join(path)
 

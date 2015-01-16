@@ -303,6 +303,9 @@
             Switch:
                 size_hint_x: .2
                 id: rev_concatenation
+                on_active:
+                    if self.active == True: app.update_main_operations("reverse_concatenation")
+                    if self.active == False: app.update_main_operations("concatenation")
 
         Widget:
             size_hint_x: .45
