@@ -2133,6 +2133,7 @@ class TriFusionApp(App):
                 self.screen.ids.sub_conc)
         elif op == "reverse_concatenation":
             self.process_grid_wgt.ids.conv.disabled = True
+            self.process_options.ids.zorro.disabled = True
 
     def save_main_operation(self, op):
         """
