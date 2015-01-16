@@ -25,6 +25,9 @@
 
 ## TODO: Replace the progression prints with calls of the progression class
 
+## TODO: __init__ is uncalled for. Replaced with another method and use it
+## in the children objects. This is used for inheritance
+
 
 class MissingFilter ():
     """ Contains several methods used to trim and filter missing data from
