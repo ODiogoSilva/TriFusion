@@ -1685,8 +1685,6 @@ class TriFusionApp(App):
             if parent.opacity != 1:
                 parent.opacity = 1
 
-        print(self.main_operations)
-
         # PROCESS NODES
         # Main operation
         # Clear old nodes
@@ -2123,6 +2121,21 @@ class TriFusionApp(App):
         self.main_operations = {k: True if k == op else False for k in
                                 self.main_operations}
 
+       # Disables output file button and other conversion/concatenation
+        # specific buttons
+        if op == "conversion":
+            self.process_grid_wgt.ids.conv.disabled = True
+            self.process_options.ids.zorro.disabled = True
+            Animation(height=0, d=.32, t="in_quad").start(
+                self.screen.ids.sub_conc)
+        elif op == "concatenation":
+            self.process_grid_wgt.ids.conv.disabled = False
+            self.process_options.ids.zorro.disabled = False
+            Animation(height=50, d=.32, t="in_quad").start(
+                self.screen.ids.sub_conc)
+        elif op == "reverse_concatenation":
+            self.process_grid_wgt.ids.conv.disabled = True
+
     def save_main_operation(self, op):
         """
         This controls the appearance of the general options after the user
@@ -2150,19 +2163,6 @@ class TriFusionApp(App):
 
         # Store the active main operation
         self.update_main_operations(op)
-
-        # Disables output file button and other conversion/concatenation
-        # specific buttons
-        if op == "conversion":
-            self.process_grid_wgt.ids.conv.disabled = True
-            self.process_options.ids.zorro.disabled = True
-            Animation(height=0, d=.32, t="in_quad").start(
-                self.screen.ids.sub_conc)
-        else:
-            self.process_grid_wgt.ids.conv.disabled = False
-            self.process_options.ids.zorro.disabled = False
-            Animation(height=50, d=.32, t="in_quad").start(
-                self.screen.ids.sub_conc)
 
     def toggle_process_options(self):
         """
