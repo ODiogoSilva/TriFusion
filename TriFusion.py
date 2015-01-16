@@ -240,14 +240,14 @@ class TriFusionApp(App):
     _subpopup = ObjectProperty(None)
 
     # Dictionary containing the values for the main process operations
-    main_operations = {"concatenation": False, "conversion": False}
+    main_operations = {"concatenation": False, "conversion": False,
+                       "reverse_concatenation": False}
 
     # Dictionary containing all values of the switches and checkboxes in the
     # process screen
     secondary_operations = OrderedDict([("collapse", False),
                                     ("filter", False),
-                                    ("gcoder", False),
-                                    ("reverse_concatenation", False)])
+                                    ("gcoder", False)])
 
     secondary_options = OrderedDict([("interleave", False),
                                     ("zorro", False),
@@ -1685,6 +1685,8 @@ class TriFusionApp(App):
             if parent.opacity != 1:
                 parent.opacity = 1
 
+        print(self.main_operations)
+
         # PROCESS NODES
         # Main operation
         # Clear old nodes
@@ -1753,8 +1755,7 @@ class TriFusionApp(App):
                 for op in secondary_op:
                     if self.secondary_options["%s_file" % op]:
                         add_node("%s_%s (%s)" % (self.output_file.split(sep)[-1]
-                                                 , op,
-                                                 op),
+                                                 , op, op),
                                  self.main_nodes["main_file"])
             if self.main_nodes["main_file"].is_open is False:
                 self.operation_tv.toggle_node(self.main_nodes["main_file"])
@@ -1969,10 +1970,9 @@ class TriFusionApp(App):
         reverse concatenation
         """
 
-        self.update_process_switch("reverse_concatenation",
-                            self._popup.content.ids.rev_concatenation.active)
+        self.update_main_operations("reverse_concatenation")
 
-        if self.secondary_operations["reverse_concatenation"]:
+        if self.main_operations["reverse_concatenation"]:
             self.partitions_file = "".join(path)
 
             self.screen.ids.rev_conc.background_normal = \
@@ -2014,7 +2014,7 @@ class TriFusionApp(App):
 
         content = LoadDialog(cancel=self.dismiss_popup)
         content.ids.rev_concatenation.active = \
-            self.secondary_operations["reverse_concatenation"]
+            self.main_operations["reverse_concatenation"]
         content.ids.ld_filechooser.path = self.home_path
 
         self.show_popup(title=title, content=content)
@@ -2091,7 +2091,7 @@ class TriFusionApp(App):
         content.ids.warning_l.text = "[b][size=18]%s[/size][/b]\n\n%s" % (msg1,
                                                                           msg2)
 
-        self.show_popup(title="Warning!", content=content, size=(400, 300))
+        self.show_popup(title="Warning!", content=content, size=(550, 200))
 
     def dialog_zorro(self):
 
@@ -2111,6 +2111,17 @@ class TriFusionApp(App):
         """
 
         self.hap_prefix = text_wgt.text
+
+    def update_main_operations(self, op):
+        """
+        Updates the app attribute containing the main operations of the Process
+        screen, self.main_operations. Only one main operation can be active.
+        :param op: The name of the operation to turn on (all others will be
+        disabled)
+        """
+
+        self.main_operations = {k: True if k == op else False for k in
+                                self.main_operations}
 
     def save_main_operation(self, op):
         """
@@ -2138,11 +2149,7 @@ class TriFusionApp(App):
                self.process_grid_wgt)
 
         # Store the active main operation
-        for k in self.main_operations:
-            if op == k:
-                self.main_operations[op] = True
-            else:
-                self.main_operations[k] = False
+        self.update_main_operations(op)
 
         # Disables output file button and other conversion/concatenation
         # specific buttons
