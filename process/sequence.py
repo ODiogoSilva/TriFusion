@@ -91,7 +91,7 @@ class Alignment (Base):
 
         """
         The length of the alignment object. Even if the current alignment object
-        is partitioned, this will return the lenght of the entire alignment
+        is partitioned, this will return the length of the entire alignment
         """
         self.locus_length = 0
 
@@ -153,25 +153,22 @@ class Alignment (Base):
 
     def _set_format(self, input_format):
         """
-        Use this function to manually set the input format associated
-        with the Alignment object
+        Manually sets the input format associated with the Alignment object
+
+        :param input_format: string. Input format. It can be one out of
+        "fasta", "nexus" and "phylip"
         """
 
         self.input_format = input_format
 
-    # def _set_model(self, model_list):
-    #     """ Use this function to manually set the model associated with the
-    #     Alignment object. Since this object supports concatenated alignments,
-    #      the model specification must be in list format and the list size
-    #      must be of the same size of the alignment partitions """
-    #
-    #     self.model = model_list
-
     def _set_alignment(self, alignment_dict):
         """
-        This function can be used to set a new alignment dictionary to
-        the Alignment object. This may be useful when only the alignment
-        dict of the object has to be modified through other objects/functions
+        Sets a new alignment dictionary to the Alignment object. This may be
+        useful when only the alignment dict of the object has to be modified
+        through other objects/functions
+
+        :param alignment_dict: OrderedDict, containing taxa names as keys
+        and sequences as values
         """
 
         self.alignment = alignment_dict
