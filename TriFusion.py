@@ -2572,7 +2572,7 @@ class TriFusionApp(App):
         write_aln[self.output_file] = aln_object
         if self.main_operations["concatenation"]:
             if self.output_file == "":
-                return self.dialog_warning("No output file specified",
+                return self.dialog_warning("Output file not selected",
                                            "Use the 'Select...' button of "
                                            "'Output file' general option to "
                                            "select an output file name")
@@ -2581,12 +2581,19 @@ class TriFusionApp(App):
                                 interleave=self.secondary_options["interleave"],
                                 partition_file=self.create_partfile)
         else:
-            for name, obj in write_aln.items():
-                name = name.replace(self.output_file, "")
-                obj.write_to_file(self.output_formats, output_suffix=name,
-                                interleave=self.secondary_options["interleave"],
-                                partition_file=self.create_partfile,
-                                output_dir=self.output_dir)
+            if self.output_dir == "":
+                return self.dialog_warning("Output directory not specified",
+                                           "use the 'Select...' button of "
+                                           "'Output directory' general option"
+                                           " to specify a destination directory"
+                                           " for the output file(s)")
+            else:
+                for name, obj in write_aln.items():
+                    name = name.replace(self.output_file, "")
+                    obj.write_to_file(self.output_formats, output_suffix=name,
+                                    interleave=self.secondary_options["interleave"],
+                                    partition_file=self.create_partfile,
+                                    output_dir=self.output_dir)
 
 
 if __name__ == '__main__':
