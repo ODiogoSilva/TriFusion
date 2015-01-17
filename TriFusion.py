@@ -219,7 +219,7 @@ class TriFusionApp(App):
     active_file_list = ListProperty()
     # Dictionary mapping file names to their corresponding full paths. This
     # attribute must exist, because some parts of the code need only the file
-    #  name instead of the full path, but a connection to the full path must
+    # name instead of the full path, but a connection to the full path must
     # be maintained for future reference
     filename_map = {}
 
@@ -2015,7 +2015,8 @@ class TriFusionApp(App):
         content = LoadDialog(cancel=self.dismiss_popup)
         content.ids.rev_concatenation.active = \
             self.main_operations["reverse_concatenation"]
-        content.ids.ld_filechooser.path = self.home_path
+        content.ids.ld_filechooser.path = sep.join(
+            self.file_list[0].split(sep)[:-1])
 
         self.show_popup(title=title, content=content)
 
@@ -2517,8 +2518,15 @@ class TriFusionApp(App):
         if self.main_operations["reverse_concatenation"]:
             partition_obj = data.Partitions()
             partition_obj.read_from_file(self.partitions_file)
-            aln_object.set_partitions(partition_obj)
-            aln_object = aln_object.reverse_concatenate()
+            if len(aln_object.alignment_object_list) > 1:
+                return self.dialog_warning("Too many input files", "Reverse"
+                                           "concatenation can only be applied"
+                                           "on a single file")
+            else:
+                aln_object = aln_object.alignment_object_list[0]
+                aln_object.set_partitions(partition_obj)
+                aln_object.reverse_concatenate()
+                aln_object = AlignmentList([aln_object])
 
         # Collapsing
         if self.secondary_operations["collapse"]:
