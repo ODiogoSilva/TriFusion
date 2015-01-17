@@ -2359,7 +2359,7 @@ class TriFusionApp(App):
 
         if self.alignment_list:
             for infile in self.file_list:
-                file_name = infile.split("/")[-1]
+                file_name = infile.split(sep)[-1]
                 file_inf[file_name] = {}
 
                 # Get alignment object
@@ -2372,10 +2372,10 @@ class TriFusionApp(App):
                 file_inf[file_name]["seq_type"] = aln.sequence_code[0]
 
                 # Get sequence model
-                if aln.model:
-                    file_inf[file_name]["model"] = " ".join(aln.model)
-                else:
-                    file_inf[file_name]["model"] = "NA"
+                # if aln.model:
+                #     file_inf[file_name]["model"] = " ".join(aln.model)
+                # else:
+                #     file_inf[file_name]["model"] = "NA"
 
                 # Get number of species
                 file_inf[file_name]["n_taxa"] = len([x for x in aln.iter_taxa()
@@ -2383,8 +2383,8 @@ class TriFusionApp(App):
 
                 # Get if is alignment
                 file_inf[file_name]["is_aln"] = str(aln.is_alignment)
-                if aln.model:
-                    file_inf[file_name]["is_aln"] += " (Concatenated)"
+                # if aln.model:
+                #     file_inf[file_name]["is_aln"] += " (Concatenated)"
 
                 # Get length of largest sequence if not aligned, or alignment
                 # length
@@ -2475,9 +2475,11 @@ class TriFusionApp(App):
                 zorro_data.write_to_file(self.output_file)
 
         # Reverse concatenation
-        if self.secondary_operations["reverse_concatenation"]:
-            partition_obj = data.Partitions(self.partitions_file)
-            aln_object = aln_object.reverse_concatenate(partition_obj)
+        if self.main_operations["reverse_concatenation"]:
+            partition_obj = data.Partitions()
+            partition_obj.read_from_file(self.partitions_file)
+            aln_object.set_partitions(partition_obj)
+            aln_object = aln_object.reverse_concatenate()
 
         # Collapsing
         if self.secondary_operations["collapse"]:
