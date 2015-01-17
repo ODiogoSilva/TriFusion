@@ -111,4 +111,4 @@ ShowcaseScreen:
             ExecutionBt:
                 text: "Clear Options"
                 on_release:
-                    app.process_clear_options()
+                    app.check_action("Are you sure you want to clear all options?", app.process_clear_options, None)
