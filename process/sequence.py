@@ -183,9 +183,11 @@ class Alignment (Base):
 
     def _init_dicobj(self, dictionary_obj):
         """
-        In case the class is initialized with a dictionary as input, this
-        function will retrieve the same information as the read_alignment
-        function would do
+        Internal method to set the alignment and other attributed when the
+        Alignment object is instantiated with an OrderedDict
+
+        :param dictionary_obj: OrderedDict, containing the taxa names as keys
+        and corresponding sequences as values
         """
 
         self.sequence_code = self.guess_code(list(dictionary_obj.values())[0])
@@ -194,16 +196,18 @@ class Alignment (Base):
 
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
-        """ The read_alignment method is run when the class is initialized to
-        parse an alignment an set all the basic attributes of the class.
+        """
+        The read_alignment method is run when the class is initialized to
+        parse an alignment and set all the basic attributes of the class.
 
-        The 'alignment' variable contains an ordered dictionary with the taxa
-        names as keys and sequences as values. The 'model' is an non
-        essential variable that contains a string with a substitution model
-        of the alignment. This only applies to Nexus input formats, as it is
-        the only supported format that contains such information The
-        'locus_length' variable contains a int value with the length of the
-        current alignment """
+        :param input_alignment: string. File name containing the input alignment
+
+        :param alignment_format: string. Format of the input file. It can be
+        one of three: "fasta", "nexus", "phylip"
+
+        :param size_check: Boolean. If True it will check the size consistency
+        of the sequences in the alignment
+        """
 
         # Storage taxa names and corresponding sequences in an ordered
         # Dictionary
