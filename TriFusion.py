@@ -2525,8 +2525,7 @@ class TriFusionApp(App):
             else:
                 aln_object = aln_object.alignment_object_list[0]
                 aln_object.set_partitions(partition_obj)
-                aln_object.reverse_concatenate()
-                aln_object = AlignmentList([aln_object])
+                aln_object = aln_object.reverse_concatenate()
 
         # Collapsing
         if self.secondary_operations["collapse"]:
@@ -2583,7 +2582,8 @@ class TriFusionApp(App):
                 name = name.replace(self.output_file, "")
                 obj.write_to_file(self.output_formats, output_suffix=name,
                                 interleave=self.secondary_options["interleave"],
-                                partition_file=self.create_partfile)
+                                partition_file=self.create_partfile,
+                                output_dir=self.output_dir)
 
 
 if __name__ == '__main__':
