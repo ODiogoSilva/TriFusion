@@ -46,6 +46,10 @@ from os.path import join
 # classes
 
 
+class AlignmentException(Exception):
+    pass
+
+
 class Alignment (Base):
 
     def __init__(self, input_alignment, input_format=None, alignment_name=None,
@@ -171,7 +175,11 @@ class Alignment (Base):
         and sequences as values
         """
 
-        self.alignment = alignment_dict
+        if isinstance(alignment_dict, OrderedDict):
+            self.alignment = alignment_dict
+        else:
+            raise AlignmentException("Alignments manually added to the "
+                                     "Alignment object must be OrderedDict")
 
     def _init_dicobj(self, dictionary_obj):
         """
