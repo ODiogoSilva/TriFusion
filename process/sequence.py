@@ -23,12 +23,16 @@
 #  Version: 0.1.1
 #  Last update: 11/02/14
 
+# TriFusion imports
 from process.base import *
 from process.missing_filter import MissingFilter
-#from process.error_handling import *
+from process.data import Partitions
 
+# Other imports
 from collections import OrderedDict
 import re
+from os import sep
+from os.path import join
 
 ## TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -42,41 +46,81 @@ import re
 # classes
 
 
-class Alignment (Base, MissingFilter):
+class Alignment (Base):
 
-    def __init__(self, input_alignment, input_format=None, model_list=None,
-                 alignment_name=None, loci_ranges=None):
-        """ The basic Alignment class requires only an alignment file and
-         returns an Alignment object. In case the class is initialized with
-         a dictionary object, the input_format, model_list, alignment_name
-         and loci_ranges arguments can be used to provide complementary
-         information for the class. However, if the class is not initialized
-         with specific values for these arguments, they can be latter set
-         using the _set_format and _set_model functions
+    def __init__(self, input_alignment, input_format=None, alignment_name=None,
+                 partitions=None):
+        """
+        The basic Alignment instance requires only an alignment file or an
+        OrderedDict object. In case the class is initialized with a dictionary
+        object information on the partitions must be provide using the
+        partitions argument.
 
-        The loci_ranges argument is only relevant when an Alignment object
-        is initialized from a concatenated data set in which case it is
-        relevant to incorporate this information in the object"""
+        :param input_alignment: string or OrderedDict. If string, it must be the
+        input file name; if OrderedDict, it must contain the alignment in an
+        ordered dictionary format where keys are taxon names and values are
+        sequence strings
+
+        :param input_format: string. Input format of the Alignment object. If
+        input_alignment is a file name, the input format is automatically
+        detected. If it is an OrderedDict, it must be specified
+
+        :param alignment_name: string. It sets the self.name attribute only when
+        input_alignment is an OrderedDict. Otherwise, the input file name will
+        be used.
+
+        :param partitions: Partitions object. If provided, it will overwrite
+        self.partitions.
+        """
 
         self.log_progression = Progression()
-        # The locus_length and restriction_range variables are only properly
-        # defined elsewhere, but to avoid NoneType
-        # errors, it is defined here
+
+        """
+        Initializing a Partitions instance for the current alignment. By
+        default, the Partitions instance will assume that the whole Alignment
+        object is one single partition. However, if the current alignment is the
+        result of a concatenation, or if a partitions file is provided, the
+        partitions argument can be used. Partitions can be later changed using
+        the set_partitions method. Substitution models objects are associated
+        with each partition and they default to None
+        """
+        if isinstance(partitions, Partitions):
+            self.partitions = partitions
+        else:
+            self.partitions = Partitions()
+
+        """
+        The length of the alignment object. Even if the current alignment object
+        is partitioned, this will return the lenght of the entire alignment
+        """
         self.locus_length = 0
+
+        """
+        This option is only relevant when gaps are coded. This will store a
+        string with the range of the restriction-type data that will encode gaps
+        and will only be used when nexus is in the output format
+        """
         self.restriction_range = None
 
-        # Boolean attribute to know if Alignment object is truly an alignment
-        #  or a sequence set
+        """
+        Attribute informing whether the current object is an actual alignment
+        (defined as a sequence set with sequences of the same length), in which
+        case it is set to True, or a sequence set (with sequences of unequal
+        length), in which case it is set to False. This is automatically set
+        in the read_alignment method
+        """
         self.is_alignment = None
 
-        # Initialize loci_ranges attribute, which will inform if input
-        # alignment is a concatenation or not
-        self.loci_ranges = None
+        # If the object is initialized with a string
+        if isinstance(input_alignment, str):
 
-        # In case the class is initialized with an input file name
-        if type(input_alignment) is str:
+            """
+            Sets the alignment object name based on the input alignment file
+            name. This will remove the extension and a preceding path, if
+            it exists
+            """
+            self.name = input_alignment.split(sep)[-1].split(".")[0]
 
-            self.name = input_alignment
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
             finder_content = self.autofinder(input_alignment)
@@ -87,66 +131,57 @@ class Alignment (Base, MissingFilter):
                     input_alignment)
 
                 # In case the input format is specified, overwrite the attribute
-                if input_format is not None:
+                if input_format:
                     self.input_format = input_format
 
-                # parsing the alignment and getting the basic class attributes
-                # Three attributes will be assigned: alignment, model and locus_
-                # length
+                # parsing the alignment
                 self.read_alignment(input_alignment, self.input_format)
             else:
+                # If the input file is invalid, self.alignment will be an
+                # Exception instance instead of an OrderedDict()
                 self.alignment = finder_content
 
         # In case the class is initialized with a dictionary object
-        elif type(input_alignment) is OrderedDict:
+        elif isinstance(input_alignment, OrderedDict):
 
             # The name of the alignment (str)
             self.name = alignment_name
             # Gets several attributes from the dictionary alignment
-            self.init_dicobj(input_alignment)
+            self._init_dicobj(input_alignment)
             #The input format of the alignment (str)
             self.input_format = input_format
-            # A list containing the alignment model(s) (list)
-            self.model = model_list
-            if loci_ranges is not None:
-                # A list containing the ranges of the alignment, in case it's a
-                # concatenation
-                self.loci_ranges = loci_ranges
-
-    def _set_loci_ranges(self, loci_list):
-        """ Use this function to manually set the list with the loci ranges """
-
-        self.loci_ranges = loci_list
 
     def _set_format(self, input_format):
-        """ Use this function to manually set the input format associated
-        with the Alignment object """
+        """
+        Use this function to manually set the input format associated
+        with the Alignment object
+        """
 
         self.input_format = input_format
 
-    def _set_model(self, model_list):
-        """ Use this function to manually set the model associated with the
-        Alignment object. Since this object supports concatenated alignments,
-         the model specification must be in list format and the list size
-         must be of the same size of the alignment partitions """
-
-        self.model = model_list
+    # def _set_model(self, model_list):
+    #     """ Use this function to manually set the model associated with the
+    #     Alignment object. Since this object supports concatenated alignments,
+    #      the model specification must be in list format and the list size
+    #      must be of the same size of the alignment partitions """
+    #
+    #     self.model = model_list
 
     def _set_alignment(self, alignment_dict):
-        """ This function can be used to set a new alignment dictionary to
-        the Alignment object. This may be usefull when only the alignment
-        dict of the object has to be modified through other
-        objects/functions """
+        """
+        This function can be used to set a new alignment dictionary to
+        the Alignment object. This may be useful when only the alignment
+        dict of the object has to be modified through other objects/functions
+        """
 
         self.alignment = alignment_dict
 
-    # def _set_locus_length(self, locus_length):
-    # 	""" Manually sets the length of the locus in the Alignment locus """
-
-    def init_dicobj(self, dictionary_obj):
-        """ In case the class is initialized with a dictionary as input, this
-         function will retrieve the same information as the read_alignment
-         function would do  """
+    def _init_dicobj(self, dictionary_obj):
+        """
+        In case the class is initialized with a dictionary as input, this
+        function will retrieve the same information as the read_alignment
+        function would do
+        """
 
         self.sequence_code = self.guess_code(list(dictionary_obj.values())[0])
         self.alignment = dictionary_obj
@@ -169,13 +204,11 @@ class Alignment (Base, MissingFilter):
         # Dictionary
         self.alignment = OrderedDict()
 
-        # Only applies for nexus format. It stores any potential substitution
-        #  model at the end of the file
-        self.model = []
-
         file_handle = open(input_alignment)
 
+        #=======================================================================
         # PARSING PHYLIP FORMAT
+        #=======================================================================
         if alignment_format == "phylip":
             # Get the number of taxa and sequence length from the file header
             header = file_handle.readline().split()
@@ -195,7 +228,12 @@ class Alignment (Base, MissingFilter):
 
                     ## TO DO: Read phylip interleave
 
+            # Updating partitions object
+            self.partitions.set_single_partition(self.name, self.locus_length)
+
+        #=======================================================================
         # PARSING FASTA FORMAT
+        #=======================================================================
         elif alignment_format == "fasta":
             for line in file_handle:
                 if line.strip().startswith(">"):
@@ -207,16 +245,22 @@ class Alignment (Base, MissingFilter):
                         replace(" ", "")
             self.locus_length = len(list(self.alignment.values())[0])
 
+            # Updating partitions object
+            self.partitions.set_single_partition(self.name, self.locus_length)
+
+        #=======================================================================
         # PARSING NEXUS FORMAT
+        #=======================================================================
         elif alignment_format == "nexus":
             counter = 0
             for line in file_handle:
                 # Skips the nexus header
                 if line.strip().lower() == "matrix" and counter == 0:
                     counter = 1
-                # Stop parser here
+                # Stop sequence parser here
                 elif line.strip() == ";" and counter == 1:
                     counter = 2
+                    self.locus_length = len(list(self.alignment.values())[0])
                 # Start parsing here
                 elif line.strip() != "" and counter == 1:
                     taxa = line.strip().split()[0].replace(" ", "")
@@ -229,14 +273,16 @@ class Alignment (Base, MissingFilter):
                         self.alignment[taxa] = "".join(
                             line.strip().split()[1:]).lower()
 
-                # This bit of code will extract a potential substitution model
-                #  from the file
-                elif counter == 2 and line.lower().strip().startswith("lset"):
-                    self.model.append(line.strip())
-                elif counter == 2 and line.lower().strip().startswith("prset"):
-                    self.model.append(line.strip())
+                # If partitions are specified using the charset command, this
+                # section will parse the partitions
+                elif line.strip().startswith("charset"):
+                    self.partitions.read_from_nexus_string(line)
 
-            self.locus_length = len(list(self.alignment.values())[0])
+            # If no partitions have been added during the parsing of the nexus
+            # file, set a single partition
+            if self.partitions.partitions == OrderedDict():
+                self.partitions.set_single_partition(self.name,
+                                                     self.locus_length)
 
         # Checks the size consistency of the alignment
         if size_check is True:
@@ -267,12 +313,14 @@ class Alignment (Base, MissingFilter):
         return sequences
 
     def remove_taxa(self, taxa_list_file, mode="remove"):
-        """ Removes specified taxa from the alignment. As taxa_list, this
+        """
+        Removes specified taxa from the alignment. As taxa_list, this
         method supports a python list or an input csv file with a single
         column containing the unwanted species in separate lines. It
         currently supports two modes:
-            remove: removes the specified taxa
-            inverse: removes all but the specified taxa """
+            ..:remove: removes the specified taxa
+            ..:inverse: removes all but the specified taxa
+        """
 
         new_alignment = OrderedDict()
 
@@ -313,6 +361,7 @@ class Alignment (Base, MissingFilter):
         Collapses equal sequences into haplotypes. This method changes
         the alignment variable and only returns a dictionary with the
         correspondence between the haplotypes and the original taxa names
+
         :param write_haplotypes: Boolean, If true, a haplotype list
         mapping the haplotype names file will be created for each individual
         input alignment.
@@ -357,27 +406,45 @@ class Alignment (Base, MissingFilter):
 
         output_handle.close()
 
-    def reverse_concatenate(self, partition_obj):
-        """ This function divides a concatenated file according previously
-        defined partitions and returns an AlignmentList object """
+    def set_partitions(self, partitions):
+        """
+        Updates the Partitions object of the current alignment.
 
-        alignment_list, models, names = [], [], []
+        :param partitions: Partitions object. Use one of the Partition parsers
+        to retrieve partitions information from files or python data structures.
+        See process.data.Partitions documentation
+        """
 
-        for model, name, part_range in partition_obj.partitions:
-            partition_dic = OrderedDict()
+        self.partitions = partitions
+
+    def reverse_concatenate(self):
+        """
+        This function divides a concatenated file according to the
+        partitions set in self.partitions and returns an AlignmentList object
+        """
+
+        concatenated_aln = AlignmentList([])
+
+        for name, part_range in self.partitions:
+
+            current_dic = OrderedDict()
             for taxon, seq in self.alignment.items():
-                sub_seq = seq[int(part_range[0]) - 1:int(part_range[1]) - 1]
+                sub_seq = seq[part_range[0]:part_range[1]]
+
+                # If sub_seq is not empty (only gaps or missing data)
                 if sub_seq.replace(self.sequence_code[1], "") != "":
-                    partition_dic[taxon] = sub_seq
-            alignment_list.append(partition_dic)
-            models.append(model)
-            names.append(name)
+                    current_dic[taxon] = sub_seq
 
-        alignmentlist_obj = AlignmentList(alignment_list, model_list=models,
-                                          name_list=names,
-                                          input_format=self.input_format)
+            current_partition = Partitions()
+            current_partition.set_single_partition(name, part_range[1] -
+                                                   part_range[0])
+            current_aln = Alignment(current_dic, input_format=self.input_format,
+                                    partitions=current_partition,
+                                    alignment_name=name)
 
-        return alignmentlist_obj
+            concatenated_aln.add_alignment(current_aln)
+
+        return concatenated_aln
 
     def code_gaps(self):
         """ This method codes gaps present in the alignment in binary format,
@@ -453,9 +520,9 @@ class Alignment (Base, MissingFilter):
         # operations based on the provided thresholds
         alignment_filter = MissingFilter(self.alignment,
                                          gap_threshold=gap_threshold,
-                                        missing_threshold=missing_threshold,
-                                        gap_symbol="-",
-                                        missing_symbol=self.sequence_code[1])
+                                         missing_threshold=missing_threshold,
+                                         gap_symbol="-",
+                                         missing_symbol=self.sequence_code[1])
 
         # Replace the old alignment by the filtered one
         self.alignment = alignment_filter.alignment
@@ -466,18 +533,19 @@ class Alignment (Base, MissingFilter):
                       cut_space_nex=50, cut_space_phy=50, cut_space_ima2=8,
                       interleave=False, gap="-", model_phylip="LG",
                       outgroup_list=None, ima2_params=None,
-                      partition_file=True):
+                      partition_file=True, output_dir=None):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
-        and concatenated (partitioned files). The choice of this modes is
-        determined by the presence or absence of the loci_range attribute of
-        the object. If its None, there are no partitions and no partitions
-        files will be created. If there are partitions, then the appropriate
-        partitions will be written. The outgroup_list argument is used only
-        for Nexus output format and consists in writing a line defining the
-        outgroup. This may be useful for analyses with MrBayes or other
-        software that may require outgroups
+        and concatenated (partitioned files). The choice between these modes
+        is determined by the Partitions object associated with the Alignment
+        object. If it contains multiple partitions, it will produce a
+        concatenated alignment and the auxiliary partition files where
+        necessary. Otherwise it will treat the alignment as a single partition.
+
+        The outgroup_list argument is used only for Nexus output format and
+        consists in writing a line defining the outgroup. This may be useful for
+        analyses with MrBayes or other software that may require outgroups
 
         The ima2_params argument is used to provide information for the
         ima2 output format. If the argument is used,
@@ -495,6 +563,9 @@ class Alignment (Base, MissingFilter):
             alignment = new_alignment
         else:
             alignment = self.alignment
+
+        if output_dir:
+            output_file = join(output_dir, output_file)
 
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
@@ -622,15 +693,14 @@ class Alignment (Base, MissingFilter):
                                    seq.upper()))
 
             # In case there is a concatenated alignment being written
-            if self.loci_ranges is not None and partition_file:
-                partition_file = open(output_file + "_part.File", "a")
-                for partition, lrange in self.loci_ranges:
+            if self.partitions.is_single() is False and partition_file:
+                partition_file = open(output_file + "_part.File", "w")
+                for name, lrange in self.partitions:
                     partition_file.write("%s, %s = %s\n" % (
                                          model_phylip,
-                                         partition,
-                                         lrange))
-            else:
-                pass
+                                         name,
+                                         "-".join([str(x) for x in lrange])))
+                partition_file.close()
 
             out_file.close()
 
@@ -639,21 +709,17 @@ class Alignment (Base, MissingFilter):
             out_file = open(output_file + ".phy", "w")
             taxa_number = len(self.alignment)
 
-            if self.loci_ranges is not None:
-                for element in self.loci_ranges:
-                    partition_range = [int(x) for x in element[1].split("-")]
+            if self.partitions.is_single() is False:
+                for lrange in self.partitions.partitions.values():
                     out_file.write("%s %s\n" % (
                                    taxa_number,
-                                   (int(partition_range[1]) -
-                                    int(partition_range[0]))))
+                                   (lrange[1] - (lrange[0]))))
 
                     for taxon, seq in self.alignment.items():
                         out_file.write("%s  %s\n" % (
                                        taxon[:cut_space_phy].ljust(
                                          seq_space_phy),
-                                       seq[(int(partition_range[0]) - 1):
-                                           (int(partition_range[1]) -
-                                            1)].upper()))
+                                       seq[lrange[0]:lrange[1]].upper()))
             else:
                 out_file.write("%s %s\n" % (taxa_number, self.locus_length))
                 for taxon, seq in self.alignment.items():
@@ -739,19 +805,15 @@ class Alignment (Base, MissingFilter):
                     out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(seq_space_nex), seq))
                 out_file.write(";\n\tend;")
 
-            try:
-                self.loci_ranges
+            if self.partitions.is_single() is False:
                 out_file.write("\nbegin mrbayes;\n")
-                for partition, lrange in self.loci_ranges:
-                    out_file.write("\tcharset %s = %s;\n" % (partition, lrange))
+                for name, lrange in self.partitions:
+                    out_file.write("\tcharset %s = %s;\n" %
+                                   (name, "-".join([str(x) for x in lrange])))
 
                 out_file.write("\tpartition part = %s: %s;\n\tset partition="
-                               "part;\nend;\n" % (
-                               len(self.loci_ranges),
-                               ", ".join([part[0] for part in
-                                          self.loci_ranges])))
-            except:
-                pass
+            "part;\nend;\n" % (len(self.partitions.partitions),
+            ", ".join([name for name in self.partitions.partitions.keys()])))
 
             # In case outgroup taxa are specified
             if outgroup_list is not None:
@@ -764,21 +826,6 @@ class Alignment (Base, MissingFilter):
                     out_file.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" %
                                    (" ".join(compliant_outgroups)))
 
-            # Concatenates the substitution models of the individual partitions
-            if self.model:
-                loci_number = 1
-                out_file.write("begin mrbayes;\n")
-                for model in self.model:
-                    m1 = model[0].split()
-                    m2 = model[1].split()
-                    m1_final = m1[0] + " applyto=(" + str(loci_number) + \
-                               ") " + " ".join(m1[1:])
-                    m2_final = m2[0] + " applyto=(" + str(loci_number) + \
-                               ") " + " ".join(m2[1:])
-                    out_file.write("\t%s\n\t%s\n" % (m1_final, m2_final))
-                    loci_number += 1
-                out_file.write("end;\n")
-
             out_file.close()
 
         # Writes file in fasta format
@@ -790,14 +837,15 @@ class Alignment (Base, MissingFilter):
             out_file.close()
 
 
-class AlignmentList (Alignment, Base, MissingFilter):
-    """ At the most basic instance, this class contains a list of Alignment
+class AlignmentList (Base):
+    """
+    At the most basic instance, this class contains a list of Alignment
     objects upon which several methods can be applied. It only requires either
-     a list of alignment files or. It inherits methods from Base and
-     Alignment classes for the write_to_file methods """
+    a list of alignment files or. It inherits methods from Base and
+    Alignment classes for the write_to_file methods.
+    """
 
-    def __init__(self, alignment_list, model_list=None, name_list=None,
-                 verbose=True, input_format=None):
+    def __init__(self, alignment_list, verbose=True):
 
         self.reverse_concatenation = None
 
@@ -805,10 +853,10 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         self.alignment_object_list = []
         # Stores badly formatted/invalid input alignments
-        self.bad_alignments =[]
+        self.bad_alignments = []
 
-        if type(alignment_list[0]) is str:
-
+        # if type(alignment_list[0]) is str:
+        if alignment_list:
             self.log_progression.record("Parsing file", len(alignment_list))
             for alignment in alignment_list:
 
@@ -822,22 +870,22 @@ class AlignmentList (Alignment, Base, MissingFilter):
                 else:
                     self.alignment_object_list.append(alignment_object)
 
-        elif type(alignment_list[0]) is OrderedDict:
-
-            # Setting class flag so that the object is aware that is a result
-            #  of reverse concatenation and not an actual list of alignments
-            self.reverse_concatenation = True
-
-            for alignment, model, name in zip(alignment_list, model_list,
-                                              name_list):
-
-                alignment_object = Alignment(alignment, model_list=[model],
-                                             alignment_name=name)
-                # In some cases, like reverse concatenating, the input format
-                #  must be manually set
-                if input_format is not None:
-                    alignment_object._set_format(input_format)
-                self.alignment_object_list.append(alignment_object)
+        # elif type(alignment_list[0]) is OrderedDict:
+        #
+        #     # Setting class flag so that the object is aware that is a result
+        #     #  of reverse concatenation and not an actual list of alignments
+        #     self.reverse_concatenation = True
+        #
+        #     for alignment, model, name in zip(alignment_list, model_list,
+        #                                       name_list):
+        #
+        #         alignment_object = Alignment(alignment, model_list=[model],
+        #                                      alignment_name=name)
+        #         # In some cases, like reverse concatenating, the input format
+        #         #  must be manually set
+        #         if input_format is not None:
+        #             alignment_object._set_format(input_format)
+        #         self.alignment_object_list.append(alignment_object)
 
         #### SETTING GENERAL ATTRIBUTES
 
@@ -895,6 +943,8 @@ class AlignmentList (Alignment, Base, MissingFilter):
         :return: Returns an Alignment object with a given name attribute
         """
 
+        name = name.split(sep)[-1].split(".")[0]
+
         alignment_obj = [x for x in self.alignment_object_list if x.name ==
                          name][0]
 
@@ -937,14 +987,11 @@ class AlignmentList (Alignment, Base, MissingFilter):
 
         taxa_list = self._get_taxa_list()
 
-        # Initializing alignment dict and other variables
-        self.concatenation = OrderedDict([(key, []) for key in taxa_list])
-        # Saves the sequence lengths of the
-        self.loci_lengths = []
-        # Saves the loci names as keys and their range as values
-        self.loci_range = []
-        # Saves the substitution models for each one
-        self.models = []
+        # Initializing alignment dict to store the alignment information
+        concatenation = OrderedDict([(key, []) for key in taxa_list])
+        # Instanciating a Partitions object to store information on the
+        # partitions and substitution models
+        partitions = Partitions()
 
         for alignment_object in self.alignment_object_list:
 
@@ -957,34 +1004,39 @@ class AlignmentList (Alignment, Base, MissingFilter):
             # Setting the missing data symbol
             missing = alignment_object.sequence_code[1]
 
-            # If input format is nexus, save the substitution model, if any
-            if alignment_object.input_format == "nexus" and \
-                            alignment_object.model != []:
-                self.models.append(alignment_object.model)
-
+            # Appending sequence data from current alignment to concatenated
+            # alignment. Appending each sequence data in a list and in the end
+            # converting that list into a string is much much faster than
+            # concatenating strings at this point
             for taxa in taxa_list:
                 try:
                     sequence = alignment_object.alignment[taxa]
-                    self.concatenation[taxa].append(sequence)
-                except:
-                    self.concatenation[taxa].append(missing
+                    concatenation[taxa].append(sequence)
+                except KeyError:
+                    concatenation[taxa].append(missing
                                              * alignment_object.locus_length)
 
-            # Saving the range for the subsequent loci
-            self.loci_range.append((alignment_object.name.split(".")
-                                    [0], "%s-%s" % (sum(self.loci_lengths)
-                                    + 1, sum(self.loci_lengths)
-                                    + alignment_object.locus_length)))
+            # Updating partitions object
+            if alignment_object.partitions.is_single():
+                partitions.add_partition(alignment_object.name,
+                                         length=alignment_object.locus_length)
+            # This is intended to support the concatenation of both individual
+            # and concatenated files. If one of the alignment objects is already
+            # a concatenated alignment, this will add each partition to the
+            # new partitions object
+            else:
+                for k, v in alignment_object.partitions:
+                    partitions.add_partition(k, locus_range=v)
 
-            self.loci_lengths.append(alignment_object.locus_length)
+        # Each taxa is a list of strings for each alignment object, so here
+        # the list is being converted into a string
+        for taxa, seq in concatenation.items():
+            concatenation[taxa] = "".join(seq)
 
-        for taxa, seq in self.concatenation.items():
-            self.concatenation[taxa] = "".join(seq)
-
-        concatenated_alignment = Alignment(self.concatenation,
+        # Create the concatenated file in an Alignment object
+        concatenated_alignment = Alignment(concatenation,
                                            input_format=self._get_format(),
-                                           model_list=self.models,
-                                           loci_ranges=self.loci_range)
+                                           partitions=partitions)
 
         return concatenated_alignment
 
@@ -1144,7 +1196,7 @@ class AlignmentList (Alignment, Base, MissingFilter):
             return aln_obj.reverse_concatenate(partition_obj)
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
-                      outgroup_list=[], partition_file=True):
+                      outgroup_list=[], partition_file=True, output_dir=None):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
 
@@ -1163,7 +1215,8 @@ class AlignmentList (Alignment, Base, MissingFilter):
                                         output_file=output_file_name,
                                         interleave=interleave,
                                         outgroup_list=outgroup_list,
-                                        partition_file=partition_file)
+                                        partition_file=partition_file,
+                                        output_dir=output_dir)
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

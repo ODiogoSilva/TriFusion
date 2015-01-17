@@ -26,6 +26,7 @@
 import sys
 from process.error_handling import *
 
+
 class Base ():
 
     def autofinder(self, reference_file):
@@ -34,6 +35,8 @@ class Base ():
         sequence = ""
         file_handle = open(reference_file, 'r')
 
+        # If input file is not a simple text file, which means it's invalid,
+        # handle this exception
         try:
             header = file_handle.readline()
         except UnicodeDecodeError:

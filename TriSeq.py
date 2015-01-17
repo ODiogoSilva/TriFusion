@@ -176,8 +176,9 @@ def main_parser(alignment_list):
     # The input file at this stage is not necessary
     # If just converting the partition file format do this and exit
     if arg.partition_file is not None:
-        # Initializing Partitions instance
-        partition = data.Partitions(arg.partition_file)
+        # Initializing Partitions instance and reading partitions file
+        partition = data.Partitions()
+        partition.read_from_file(arg.partition_file)
         if partition.partition_format == "nexus":
             partition.write_to_file("raxml", outfile, model_phy)
         else:
@@ -199,8 +200,12 @@ def main_parser(alignment_list):
         # If only to reverse a concatenated alignment into individual loci do
         # this and exit
         if arg.reverse is not None:
-            partition = data.Partitions(arg.reverse)
-            reverse_alignments = alignment.reverse_concatenate(partition)
+            # Initializing and reading partition file
+            partition = data.Partitions()
+            partition.read_from_file(arg.reverse)
+            # Updating alignment partitions
+            alignment.set_partitions(partition)
+            reverse_alignments = alignment.reverse_concatenate()
             reverse_alignments.write_to_file(output_format,
                                              interleave=interleave,
                                              outgroup_list=outgroup_taxa)
