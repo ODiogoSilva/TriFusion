@@ -684,7 +684,10 @@ class TriFusionApp(App):
 
         check_content = CheckDialog(cancel=self.dismiss_popup)
         check_content.ids.check_text.text = text
-        check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
+        if bt_wgt:
+            check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
+        else:
+            check_content.ids.check_ok.bind(on_release=lambda val: func())
 
         self.show_popup(title="Warning!", content=check_content,
                         size=(250, 200))
