@@ -392,6 +392,7 @@
             on_selection: text_input.text = self.selection
 
         BoxLayout:
+            id: txt_box
             orientation: "horizontal"
             size_hint_y: None
             height: 30
@@ -409,7 +410,10 @@
 
             Button:
                 text: "Save"
-                on_release: app.save_file(sd_filechooser.path, text_input.text, sd_filechooser.text)
+                on_release:
+                    if txt_box.height == 30: app.save_file(sd_filechooser.path, file_name = text_input.text)
+                    if txt_box.height == 0: app.save_file(sd_filechooser.path)
+                    root.cancel()
 
             Button:
                 text: "Cancel"
@@ -656,7 +660,6 @@
 
 ############################ PROCESS SCREEN ####################################
 
-
 <Sidebt@ToggleButton>:
     #background_color: [0,0,0,1]
     size_hint_y: None
@@ -806,6 +809,7 @@
         DarkBox:
             id: dark_l
             Label:
+                id: output_label
                 size_hint_x: .8
                 markup: True
                 text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"

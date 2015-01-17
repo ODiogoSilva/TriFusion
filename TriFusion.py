@@ -309,6 +309,7 @@ class TriFusionApp(App):
 
     # Attribute containing the objects for the several possible output files.
     output_file = ""
+    output_dir = ""
 
     # Attribute storing active output formats. Fasta is True by default
     output_formats = ["fasta"]
@@ -1844,7 +1845,7 @@ class TriFusionApp(App):
                                 size_hint=size_hint, auto_dismiss=False)
         self._popup.open()
 
-    def save_file(self, path, filename, idx):
+    def save_file(self, path, file_name=None):
         """
         Adds functionality to the save button in the output file chooser. It
         gathers information on the specified path through filechooser, file
@@ -1858,17 +1859,20 @@ class TriFusionApp(App):
         :param idx: sting. widget id
         """
 
-        # Ensures that empty file names cannot be specified
-        while filename != "":
+        if self.main_operations["concatenation"]:
+            # Ensures that empty file names cannot be specified
+            while file_name != "":
 
-            # Adds output file to storage
-            self.output_file = join(path, filename)
-            # Renames the output file button text
-            self.process_grid_wgt.ids.conv.text = filename
-            # Close popup
-            self.dismiss_popup()
-            # Breaks loop
-            break
+                # Adds output file to storage
+                self.output_file = join(path, file_name)
+                # Renames the output file button text
+                self.process_grid_wgt.ids.conv.text = file_name
+                # Breaks loop
+                break
+
+        else:
+            self.output_dir = path
+            self.process_grid_wgt.ids.conv.text = path.split(sep)[-1]
 
     def save_format(self, value):
         """
@@ -2025,12 +2029,22 @@ class TriFusionApp(App):
         # Sets the home path as starting point
         content.ids.sd_filechooser.path = self.home_path
 
+        # If the main operation is conversion or reverse concatenation, remove
+        # the TextInput asking for the file name
+        if self.main_operations["conversion"] or \
+                self.main_operations["reverse_concatenation"]:
+            content.ids.txt_box.clear_widgets()
+            content.ids.txt_box.height = 0
+            title = "Choose destination directory of output file(s)"
+        else:
+            title = "Choose output file"
+
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
         # know which output file is this
         content.ids.sd_filechooser.text = value
 
-        self.show_popup(title="Choose output file", content=content)
+        self.show_popup(title=title, content=content)
 
     def dialog_filter(self):
         """
@@ -2116,23 +2130,48 @@ class TriFusionApp(App):
         disabled)
         """
 
+        """
+        The text of the Output file/directory field changes depending on whether
+        the main operation is a concatenation or a conversion
+        """
+        file_text = "[size=18][b]Output file[/b][/size]\n[size=13]Save "\
+                          "output file to the selected file.[/size]"
+        dir_text = "[size=18][b]Output directory[/b][/size]\n[size=13]" \
+                          "Save output file(s) to the selected directory." \
+                          "[/size]"
+
         self.main_operations = {k: True if k == op else False for k in
                                 self.main_operations}
 
        # Disables output file button and other conversion/concatenation
         # specific buttons
         if op == "conversion":
-            self.process_grid_wgt.ids.conv.disabled = True
+            if self.output_dir == "":
+                self.process_grid_wgt.ids.conv.text = "Select..."
+            else:
+                self.process_grid_wgt.ids.conv.text = \
+                    self.output_dir.split(sep)[-1]
+            self.process_grid_wgt.ids.output_label.text = dir_text
             self.process_options.ids.zorro.disabled = True
             Animation(height=0, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
         elif op == "concatenation":
-            self.process_grid_wgt.ids.conv.disabled = False
+            if self.output_file == "":
+                self.process_grid_wgt.ids.conv.text = "Select..."
+            else:
+                self.process_grid_wgt.ids.conv.text = \
+                    self.output_file.split(sep)[-1]
+            self.process_grid_wgt.ids.output_label.text = file_text
             self.process_options.ids.zorro.disabled = False
             Animation(height=50, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
         elif op == "reverse_concatenation":
-            self.process_grid_wgt.ids.conv.disabled = True
+            if self.output_dir == "":
+                self.process_grid_wgt.ids.conv.text = "Select..."
+            else:
+                self.process_grid_wgt.ids.conv.text = \
+                    self.output_dir.split(sep)[-1]
+            self.process_grid_wgt.ids.output_label.text = dir_text
             self.process_options.ids.zorro.disabled = True
 
     def save_main_operation(self, op):
