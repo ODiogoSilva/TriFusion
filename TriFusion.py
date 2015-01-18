@@ -77,6 +77,10 @@ class ShowcaseScreen(Screen):
         return super(ShowcaseScreen, self).add_widget(*args)
 
 
+class SideLabel(Label):
+    pass
+
+
 class FilePopup(BoxLayout):
     """
     Class with a custom BoxLayout controlling the informative popup for the
@@ -525,12 +529,25 @@ class TriFusionApp(App):
 
             return info_bt
 
+        def create_sidebt_wgt(text, pos, size):
+            """
+            Creates the label for the sidebt mouseover
+            :param text: string. Text for the label
+            """
+
+            side_bt = SideLabel(text=text, pos=pos, size_hint=(None, None),
+                             size=size, bold=True)
+
+            return side_bt
+
         # Only do this routine if the side panel is open
         if self.show_side_panel and self.mouse_over_ready:
             # Get active tab in side panel
             active_tab = self.root.ids.main_tp.current_tab.text
+
             # Iterate over buttons of active tab
-            for bt in self.mouse_over_bts[active_tab]:
+            for bt in self.mouse_over_bts[active_tab] + \
+                    self.root.ids.side_bt.children:
                 # Determine if there is a collision with mouse position
                 if determine_collision(bt):
                     # Set collision marker to true
@@ -545,14 +562,23 @@ class TriFusionApp(App):
                         if self.old_mouse_over:
                             self.root_window.remove_widget(self.old_mouse_over)
 
-                        # Create label widget
-                        label = create_label_wgt(text=bt.text)
+                        if bt in self.root.ids.side_bt.children:
+                            pos = (bt.center_x + bt.width * .5,
+                                   bt.center_y - bt.height * .5)
+                            size = (150, bt.height)
+                            label = create_sidebt_wgt(bt.att, pos, size)
+                            show_label(mp, label)
 
-                        # Schedule the introduction of the label widget
-                        Clock.schedule_once(partial(show_label, mp, label), .8)
-                        # Locking mouse over so that no additional label widgets
-                        # are added during the waiting time
-                        self.mouse_over_ready = False
+                        else:
+                            # Create label widget
+                            label = create_label_wgt(text=bt.text)
+
+                            # Schedule the introduction of the label widget
+                            Clock.schedule_once(partial(show_label, mp, label),
+                                                .8)
+                            # Locking mouse over so that no additional label
+                            # widgets are added during the waiting time
+                            self.mouse_over_ready = False
 
             else:
                 # If no collision is detected, remove any remaining label widget
@@ -804,35 +830,6 @@ class TriFusionApp(App):
         del self.bookmarks[1][bk_name]
         # Update self.bm_file
         pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
-
-    ########################### SIDE PANEL EXP #################################
-
-    def toggle_midpanel(self, width):
-
-        Animation(width=width, d=.32, t="out_quart").start(
-            self.root.ids.sv_over)
-
-    def sine_panel_routine(self):
-
-        def toggle_mouse_over(dt):
-
-            mp = self.root_window.mouse_pos
-
-            first_bt = self.root.ids.first_sidebt
-            second_bt = self.root.ids.second_sidebt
-
-            if first_bt.collide_point(mp[0], mp[1]):
-                over_width = self.root.width * .325
-
-            elif second_bt.collide_point(mp[0], mp[1]):
-                over_width = self.root.width * .325
-
-            else:
-                over_width = 0
-
-            self.toggle_midpanel(over_width)
-
-        Clock.schedule_interval(toggle_mouse_over, 1)
 
     ######################## SIDE PANEL OPERATIONS #############################
 
