@@ -571,12 +571,32 @@ class Alignment (Base):
         concatenated alignment and the auxiliary partition files where
         necessary. Otherwise it will treat the alignment as a single partition.
 
-        The outgroup_list argument is used only for Nexus output format and
-        consists in writing a line defining the outgroup. This may be useful for
-        analyses with MrBayes or other software that may require outgroups
+        :param output_format: string. Format of the output file. It can be one
+        of five: "fasta", "nexus", "phylip", "mcmctree" and "ima2"
 
-        The ima2_params argument is used to provide information for the
-        ima2 output format. If the argument is used,
+        :param output_file: string. Name of the output file. It will overwrite
+        files with the same name.
+
+        :param new_alignment: OrderedDict. An option to provide an alternative
+        alignment to write. It is set to None by default, in which case it
+        uses self.alignment.
+
+        :param interleave: Boolean. Determines whether the output alignment
+        will be in leave (False) or interleave (True) format. Not all
+        output formats support this option.
+
+        :param gap: string. Symbol for gap data.
+
+        :param model_phylip. string. Substitution model for the auxiliary
+        partition file of phylip format, compliant with RAxML.
+
+        :param outgroup_list. list. The outgroup_list argument is used only for
+        Nexus output format and consists in writing a line defining the
+        outgroup. This may be useful for analyses with MrBayes or other
+        software that may require outgroups
+
+        :param ima2_params: The ima2_params argument is used to provide
+        information for the ima2 output format. If the argument is used,
         it should be in a list format and contain the following information:
           [[str, file_name containing the species and populations],
           [str, the population tree in newick format, e.g. (0,1):2],
