@@ -846,7 +846,8 @@ class Alignment (Base):
                                     gap, self.sequence_code[1]))
 
                 for key, seq in alignment.items():
-                    out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(seq_space_nex), seq))
+                    out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(
+                        seq_space_nex), seq))
                 out_file.write(";\n\tend;")
 
             if self.partitions.is_single() is False:
@@ -890,8 +891,11 @@ class AlignmentList (Base):
     """
 
     def __init__(self, alignment_list, verbose=True):
-
-        self.reverse_concatenation = None
+        """
+        :param alignment_list: List of Alignment objects
+        :param verbose: Boolean. If True, it prints a progression bar to the
+        terminal when loading data
+        """
 
         self.log_progression = Progression()
 
@@ -946,21 +950,25 @@ class AlignmentList (Base):
         return iter(self.alignment_object_list)
 
     def _get_format(self):
-        """ Gets the input format of the first alignment in the list """
+        """
+        Gets the input format of the first alignment in the list
+        """
+        # TODO: To support different input format, provide information on how
+        # many alignment are in a certain input format
 
         return self.alignment_object_list[0].input_format
 
     def _get_taxa_list(self):
-        """ Gets the full taxa list of all alignment objects """
+        """
+        Gets the full taxa list of all alignment objects
+        :return full_taxa. List of taxa names in the AlignmentList
+        """
 
         full_taxa = []
 
         for alignment in self.alignment_object_list:
-
             diff = set(alignment.iter_taxa()) - set(full_taxa)
-
             if diff != set():
-
                 full_taxa.extend(diff)
 
         return full_taxa
@@ -974,6 +982,7 @@ class AlignmentList (Base):
     def add_alignment(self, alignment_obj):
         """
         Adds a new Alignment object
+        :param alignment_obj: Alignment object
         """
 
         self.alignment_object_list.append(alignment_obj)
@@ -998,19 +1007,16 @@ class AlignmentList (Base):
             return None
 
     def iter_alignment_dic(self):
-        """ Returns a list of the dictionary alignments """
+        """
+        :return: List of the dictionary alignments
+        """
 
         return [alignment.alignment for alignment in self.alignment_object_list]
-
-    def iter_alignment_obj(self):
-        """ Returns a list of the alignments objects """
-
-        return [alignment for alignment in self.alignment_object_list]
 
     def write_taxa_to_file(self):
         """
         Compiles the taxa names of all alignments and writes them in a single
-         column .csv file
+        column .csv file
         """
 
         output_handle = open("Taxa_list.csv", "w")
@@ -1021,10 +1027,14 @@ class AlignmentList (Base):
         output_handle.close()
 
     def concatenate(self, progress_stat=True):
-        """ The concatenate method will concatenate the multiple sequence
-        alignments and create several attributes This method sets the first
-        three variables below and the concatenation variable containing the
-         dict object"""
+        """
+        Concatenates multiple sequence alignments creating a single alignment
+        object and the auxiliary Partitions object defining the partitions
+        of the concatenated alignment
+        :param progress_stat: Boolean. If True, it will print a progression bar
+        to the terminal
+        :return concatenated_alignment: Alignment object
+        """
 
         self.log_progression.record("Concatenating file", len(
                                     self.alignment_object_list))
@@ -1086,8 +1096,10 @@ class AlignmentList (Base):
 
     def filter_missing_data(self, gap_threshold, missing_threshold,
                             verbose=True):
-        """ Wrapper of the MissingFilter class that iterates over multiple
-        Alignment objects """
+        """
+        Wrapper of the filter_missing_data method of the Alignment object.
+        See the method's documentation.
+        """
 
         self.log_progression.record("Filtering file",
                                     len(self.alignment_object_list))
@@ -1101,27 +1113,28 @@ class AlignmentList (Base):
                           missing_threshold=missing_threshold)
 
     def remove_taxa(self, taxa_list, verbose=False, mode="remove"):
-        """ Wrapper of the remove_taxa method of the Alignment object for
-         multiple alignments. It current supports two modes:
-            remove: removes specified taxa
-            inverse: removes all but the specified taxa """
+        """
+        Wrapper of the remove_taxa method of the Alignment object for
+        multiple alignments. It current supports two modes:
+
+            ..:remove: removes specified taxa
+            ..:inverse: removes all but the specified taxa
+        """
 
         if verbose is True:
             self.log_progression.write("Removing taxa")
 
         for alignment_obj in self.alignment_object_list:
-
             alignment_obj.remove_taxa(taxa_list, mode=mode)
 
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
 
-    def remove_file(self, filename_list, verbose=False):
+    def remove_file(self, filename_list):
         """
-        Removes alignment objects based on their name
+        Removes alignment objects based on their name attribute
         :param filename_list: list with the names of the alignment objects to
         be removed
-        :param verbose: Boolean. True enables terminal printing
         """
 
         for nm in filename_list:
@@ -1134,19 +1147,28 @@ class AlignmentList (Base):
     def clear_files(self):
         """
         Removes all Alignment objects from the AlignmentList
-        :return:
         """
 
         self.alignment_object_list = []
 
     def select_by_taxa(self, taxa_list, mode="strict", verbose=True):
-        """ This method is used to selected gene alignments according to a list
-         of taxa. The modes of the method include:
-        - strict: The taxa of the alignment must be exactly the same as the
-        specified taxa
-        - inclusive: The taxa of the alignment must contain all specified taxa
-        - relaxed: At least on of the specified taxa must be in the taxa of the
-         alignment """
+        """
+        This method is used to selected gene alignments according to a list
+        of taxa.
+
+        :param taxa_list. List of taxa names
+
+        :param mode. String. Modes can be the following:
+            ..:strict: The taxa of the alignment must be exactly the same as the
+        specified taxa.
+            ..:inclusive: The taxa of the alignment must contain all specified
+        taxa.
+            ..:relaxed: At least on of the specified taxa must be in the taxa of
+        the alignment.
+
+        :param verbose. Boolean. If True, a progression bar will be printed
+        on the terminal
+        """
 
         selected_alignments = []
 
@@ -1160,7 +1182,7 @@ class AlignmentList (Base):
         try:
             file_handle = open("".join(taxa_list))
             taxa_list = self.read_basic_csv(file_handle)
-        except:
+        except FileNotFoundError:
             pass
 
         for alignment_obj in self.alignment_object_list:
@@ -1206,9 +1228,11 @@ class AlignmentList (Base):
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
         individual input file
+
         :param write_haplotypes: Boolean, if True, a haplotype list
         mapping the haplotype names file will be created for each individual
         input alignment.
+
         :param haplotype_name: String, Custom name of the haplotypes
         """
 
@@ -1225,7 +1249,7 @@ class AlignmentList (Base):
     def _reverse_concatenate(self, partition_obj):
         """
         Internal function to reverse concatenate an alignment according to
-        defined partions in a Partitions object
+        defined partitions in a Partitions object
 
         This will only work if alignment_object_list has one alignment, as it
          is intended to be a wrapper of sorts for the Alignment object method
@@ -1240,17 +1264,13 @@ class AlignmentList (Base):
             return aln_obj.reverse_concatenate(partition_obj)
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
-                      outgroup_list=[], partition_file=True, output_dir=None):
+                      outgroup_list=None, partition_file=True, output_dir=None):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
 
         for alignment_obj in self.alignment_object_list:
             if alignment_obj.input_format in output_format:
-                if self.reverse_concatenation:
-                    output_file_name = alignment_obj.name.split(".")[0] + \
-                                   output_suffix
-                else:
-                    output_file_name = alignment_obj.name.split(".")[0]\
+                output_file_name = alignment_obj.name.split(".")[0]\
                                        + output_suffix + "_conv"
             else:
                 output_file_name = alignment_obj.name.split(".")[0] + \
