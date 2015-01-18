@@ -11,6 +11,15 @@
                 id: content
                 cols: 1
 
+<SideLabel>:
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            source: "data/backgrounds/side_label.png"
+            pos: self.pos
+            size: self.size
+
 <PopupLabel@Label>:
     bold: True
     halign: "left"
@@ -1252,9 +1261,10 @@ FloatLayout:
                         size_hint_x: None
                         width: 0
                         BoxLayout:
+                            id: side_bt
                             orientation: "vertical"
                             SideButton:
-                                id: first_sidebt
+                                att: "Home"
                                 state: "down"
                                 disabled: True
                                 text: "H"
@@ -1262,13 +1272,13 @@ FloatLayout:
                                     carousel.load_slide(carousel.slides[0])
                                     app.toggle_groups(self)
                             SideButton:
-                                id: second_sidebt
+                                att: "Taxa Group"
                                 text: "G"
                                 on_release:
                                     carousel.load_slide(carousel.slides[1])
                                     app.toggle_groups(self)
                             SideButton:
-                                id: third_sidebt
+                                att: "Queue"
                                 text: "Q"
                                 on_release:
                                     app.save_operation_queue()
