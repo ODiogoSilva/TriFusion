@@ -477,6 +477,9 @@ class TriFusionApp(App):
         mp = self.root_window.mouse_pos
         # Set collision attribute
         collision = False
+        # Set side button list
+        sidebt_list = [x for x in self.root.ids.side_bt.children if
+                       isinstance(x, ToggleButton)]
 
         def show_label(mouse, wgt, *args):
             """
@@ -546,8 +549,7 @@ class TriFusionApp(App):
             active_tab = self.root.ids.main_tp.current_tab.text
 
             # Iterate over buttons of active tab
-            for bt in self.mouse_over_bts[active_tab] + \
-                    self.root.ids.side_bt.children:
+            for bt in self.mouse_over_bts[active_tab] + sidebt_list:
                 # Determine if there is a collision with mouse position
                 if determine_collision(bt):
                     # Set collision marker to true
