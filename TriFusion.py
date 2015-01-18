@@ -2018,8 +2018,14 @@ class TriFusionApp(App):
         content = LoadDialog(cancel=self.dismiss_popup)
         content.ids.rev_concatenation.active = \
             self.main_operations["reverse_concatenation"]
-        content.ids.ld_filechooser.path = sep.join(
-            self.file_list[0].split(sep)[:-1])
+        # If input files have already been provided, use their directory as a
+        # starting point for the partition file chooser. Otherwise, use the
+        # home path
+        if self.file_list:
+            content.ids.ld_filechooser.path = sep.join(
+                self.file_list[0].split(sep)[:-1])
+        else:
+            content.ids.ld_filechooser.path = self.home_path
 
         self.show_popup(title=title, content=content)
 
