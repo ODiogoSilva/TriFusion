@@ -539,7 +539,7 @@ class TriFusionApp(App):
             """
 
             side_bt = SideLabel(text=text, pos=pos, size_hint=(None, None),
-                             size=size, bold=True)
+                             size=size, bold=True, border=(0, 0, 0, 0))
 
             return side_bt
 
@@ -564,10 +564,10 @@ class TriFusionApp(App):
                         if self.old_mouse_over:
                             self.root_window.remove_widget(self.old_mouse_over)
 
-                        if bt in self.root.ids.side_bt.children:
+                        if bt in sidebt_list:
                             pos = (bt.center_x + bt.width * .5,
                                    bt.center_y - bt.height * .5)
-                            size = (150, bt.height)
+                            size = (200, bt.height)
                             label = create_sidebt_wgt(bt.att, pos, size)
                             show_label(mp, label)
 

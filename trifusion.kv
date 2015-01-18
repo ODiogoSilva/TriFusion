@@ -652,10 +652,8 @@
     size_hint_y: .1
     font_size: 30
     bold: True
-    background_down: "data/backgrounds/side_panel_bt_down.png"
-    background_normal: "data/backgrounds/side_panel_bt_normal.png"
-    background_disabled_down: "data/backgrounds/side_panel_bt_down.png"
     disabled_color: (1,1,1,1)
+    border: (0,0,0,0)
 
 <ModuleLabel@Label>:
     size_hint_y: None
@@ -1264,22 +1262,32 @@ FloatLayout:
                             id: side_bt
                             orientation: "vertical"
                             SideButton:
-                                att: "Home"
+                                text: " "
+                                background_down: "data/backgrounds/side_bt_home_down.png"
+                                background_normal: "data/backgrounds/side_bt_home.png"
+                                background_disabled_down: "data/backgrounds/side_bt_home_down.png"
+                                att: "Open/View Data"
                                 state: "down"
                                 disabled: True
-                                text: "H"
                                 on_release:
                                     carousel.load_slide(carousel.slides[0])
                                     app.toggle_groups(self)
                             SideButton:
+                                text: " "
+                                background_down: "data/backgrounds/side_bt_group_down.png"
+                                background_normal: "data/backgrounds/side_bt_group.png"
+                                background_disabled_down: "data/backgrounds/side_bt_group_down.png"
                                 att: "Taxa Group"
-                                text: "G"
                                 on_release:
                                     carousel.load_slide(carousel.slides[1])
                                     app.toggle_groups(self)
                             SideButton:
+                                text: " "
+                                background_down: "data/backgrounds/side_bt_queue_down.png"
+                                background_normal: "data/backgrounds/side_bt_queue.png"
+                                background_disabled_down: "data/backgrounds/side_bt_queue_down.png"
+                                id: queue
                                 att: "Queue"
-                                text: "Q"
                                 on_release:
                                     app.save_operation_queue()
                                     carousel.load_slide(carousel.slides[2])
