@@ -308,14 +308,18 @@ class Alignment (Base):
             raise SystemExit
 
     def iter_taxa(self):
-        """ Returns a list with the taxa contained in the alignment """
+        """
+        Returns a list with the taxa contained in the alignment
+        """
 
         taxa = [sp for sp in self.alignment]
 
         return taxa
 
     def iter_sequences(self):
-        """ Returns a list with the sequences contained in the alignment """
+        """
+        Returns a list with the sequences contained in the alignment
+        """
 
         sequences = [seq for seq in self.alignment]
 
@@ -329,24 +333,26 @@ class Alignment (Base):
         currently supports two modes:
             ..:remove: removes the specified taxa
             ..:inverse: removes all but the specified taxa
+
+        :param taxa_list_file: list/string. A list of taxa names or a csv file
+        with taxa names in each line
+
+        :param mode: string. Mode of execution. It can be either "remove" or
+        "inverse
         """
 
         new_alignment = OrderedDict()
 
         def remove(list_taxa):
-
             for taxa, seq in self.alignment.items():
                 if taxa not in list_taxa:
                     new_alignment[taxa] = seq
-
             self.alignment = new_alignment
 
         def inverse(list_taxa):
-
             for taxa, seq in self.alignment.items():
                 if taxa in list_taxa:
                     new_alignment[taxa] = seq
-
             self.alignment = new_alignment
 
         # Checking if taxa_list is an input csv file:
@@ -404,9 +410,11 @@ class Alignment (Base):
 
     @staticmethod
     def write_loci_correspondence(dic_obj, output_file):
-        """ This function supports the collapse method by writing the
+        """
+        This function supports the collapse method by writing the
         correspondence between the unique haplotypes and the loci into a
-        new file """
+        new file
+        """
 
         output_handle = open(output_file + ".haplotypes", "w")
 
@@ -456,10 +464,12 @@ class Alignment (Base):
         return concatenated_aln
 
     def code_gaps(self):
-        """ This method codes gaps present in the alignment in binary format,
-         according to the method of Simmons and Ochoterena (2000), to be read
-         by phylogenetic programs such as MrBayes. The resultant alignment,
-          however, can only be output in the Nexus format """
+        """
+        This method codes gaps present in the alignment in binary format,
+        according to the method of Simmons and Ochoterena (2000), to be read
+        by phylogenetic programs such as MrBayes. The resultant alignment,
+        however, can only be output in the Nexus format
+        """
 
         def gap_listing(sequence, gap_symbol="-"):
             """ Function that parses a sequence string and returns the
@@ -523,7 +533,16 @@ class Alignment (Base):
                                             int(self.locus_length) - 1)
 
     def filter_missing_data(self, gap_threshold, missing_threshold):
-        """ Wraps the MissingFilter class """
+        """
+        Filters gaps and true missing data from the alignment using tolerance
+        thresholds for each type of missing data. Both thresholds are maximum
+        percentages of sites in an alignment column containing the type of
+        missing data. If gap_threshold=50, for example, alignment columns with
+        more than 50% of sites with gaps are removed.
+
+        :param gap_threshold: int ranging from 0 to 100.
+        :param missing_threshold: int ranging from 0 to 100.
+        """
 
         # When the class is initialized, it performs the basic filtering
         # operations based on the provided thresholds
@@ -613,25 +632,22 @@ class Alignment (Base):
                         "%s\n"  # Line with number of loci
                         "%s\n"  # Line with name of populations
                         "%s\n"  # Line with population string
-                        % (len(self.loci_ranges), len(population_storage),
+                        % (len(self.partitions.partitions),
+                           len(population_storage),
                            " ".join(population_storage.keys()),
                            population_tree))
 
-            if self.loci_ranges is not None:
+            if self.partitions.is_single() is False:
                 # Write each locus
-                for partition, lrange in self.loci_ranges:
-
-                    # Defining a list variable with the range of the current
-                    #  loci
-                    partition_range = lrange.split("-")
+                for partition, lrange in self.partitions:
 
                     # Retrieving taxon names and sequence data. This step is
                     # the first because it will enable the removal of species
-                    #  containing only missing data.
+                    # containing only missing data.
                     new_alignment = []
 
                     # This temporary ordered dictionary is created so that
-                    #  the number of taxa per populations is corrected in
+                    # the number of taxa per populations is corrected in
                     # each locus
                     current_locus_populations = OrderedDict(
                         (x, []) for x in population_storage)
@@ -643,8 +659,7 @@ class Alignment (Base):
                             # does not exist in the alignment
                             try:
                                 seq = self.alignment[taxon][
-                                      (int(partition_range[0]) - 1):
-                                      (int(partition_range[1]) - 1)].upper()
+                                      lrange[0]:lrange[1]].upper()
                             except KeyError:
                                 print("Taxon %s provided in auxiliary "
                                       "population mapping file is not found "
@@ -664,7 +679,7 @@ class Alignment (Base):
                         partition,
                         " ".join([str(len(x)) for x in
                                   list(current_locus_populations.values())]),
-                        (int(partition_range[1]) - int(partition_range[0])),
+                        (lrange[1]) - lrange[0],
                         mutational_model,
                         inheritance_scalar))
 
@@ -673,7 +688,7 @@ class Alignment (Base):
                     for taxon, seq in new_alignment:
                         out_file.write("%s%s\n" % (taxon, seq))
 
-            if self.loci_ranges is None:
+            if self.partitions.is_single():
                 #Write the header for the single
                 out_file.write("%s %s %s %s %s\n" % (
                                partition,
