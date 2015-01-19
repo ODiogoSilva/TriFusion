@@ -1471,6 +1471,12 @@ FloatLayout:
                                 orientation: "vertical"
                                 padding: 10
                                 spacing: 5
+                                canvas.before:
+                                    Color:
+                                        rgba: (0.180, 0.180, 0.180, .8)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
                                 Label:
                                     size_hint_y: .1
                                     text: "Taxa groups"
@@ -1508,6 +1514,12 @@ FloatLayout:
                                 orientation: "vertical"
                                 padding: 10
                                 spacing: 5
+                                canvas.before:
+                                    Color:
+                                        rgba: (0.180, 0.180, 0.180, .8)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
                                 Label:
                                     size_hint_y: .1
                                     text: "Operations queue"
