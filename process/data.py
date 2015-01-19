@@ -23,6 +23,7 @@
 #  Version: 0.1
 #  Last update: 11/02/14
 
+import re
 from collections import OrderedDict
 
 
@@ -56,6 +57,15 @@ class Partitions():
         Defines the partition GeneA whose sequence spans from 0 to the 953rd
         character
         """
+
+        """
+        The length of the locus may be necessary when partitions are defined
+        in the input files using the "." notation, meaning the entire locus.
+        Therefore, to convert this notation into workable integers, the size
+        of the locus must be provided using the set_length method.
+        """
+        self.locus_length = None
+
         self.partitions = OrderedDict()
 
         """
@@ -66,6 +76,12 @@ class Partitions():
         of 1.
         """
         self.partitions_nice = OrderedDict()
+
+        """
+        Storage of codon partitions, usually distinguished from gene partitions
+        by having a "/3" at the end of the range, e.g. 1-./3.
+        """
+        self.codon_partitions = OrderedDict()
 
         """
         The private self._models attribute will contain the same key list as
@@ -89,6 +105,16 @@ class Partitions():
         """
 
         return iter(self.partitions.items())
+
+    def set_length(self, length):
+        """
+        Sets the length of the locus. This may be important to convert certain
+        partition defining nomenclature, such as using the "." to indicate
+        whole length of the alignment
+        :param length: int. Length of the alignments
+        """
+
+        self.locus_length = length
 
     #===========================================================================
     # Parsers
@@ -159,15 +185,31 @@ class Partitions():
         fields = string.split("=")
         partition_name = fields[0].split()[1].strip()
 
-        # In case the charset command is setting a codon specific partition,
-        # such as 'charset EF1a_2nd = 1245-1611\3;' no partition will be added
-        try:
-            partition_range = [int(x) for x in
-                               fields[1].replace(";", "").strip().split("-")]
-        except ValueError:
-            return 0
+        partition_full = re.split(r"[-\\]", fields[1])
 
-        self.add_partition(partition_name, locus_range=partition_range)
+        # If partition is defined using "." notation to mean full length
+        if partition_full[1] == ".":
+            if self.locus_length:
+                partition_range = [int(partition_full[0]) - 1,
+                                   self.locus_length]
+            else:
+                raise PartitionException("The length of the locus must be "
+                                         "provided when partitions are defined"
+                                         " using '.' notation to mean full"
+                                         " length")
+        else:
+            partition_range = [int(partition_full[0]) - 1, partition_full[1]]
+
+        # Determine whether the charset is defining a gene or a codon partition
+        # based on the presence of the final substring '/3'
+        # Gene partition
+        if len(partition_full) == 2:
+            self.add_partition(partition_name, locus_range=partition_range)
+
+        # Codon partition
+        elif len(partition_full) == 3:
+            self.add_codon_partition(partition_name,
+                                     locus_range=partition_range)
 
     def read_from_dict(self, dict_obj):
         """
@@ -196,10 +238,31 @@ class Partitions():
         defined, and False if there are multiple partitions
         """
 
+        if len(self.partitions) == 1 and len(self.codon_partitions) < 1:
+            return True
+        else:
+            return False
+
+    def is_single_gene(self):
+        """
+        :return: Boolean. Returns True if there is only one single main
+        partition (i.e. from self.partitions)
+        """
+
         if len(self.partitions) == 1:
             return True
         else:
             return False
+
+    def is_single_codon(self):
+        """
+        :return: Boolean. Returns True if there are none codon positions
+        """
+
+        if self.codon_partitions:
+            return False
+        else:
+            return True
 
     def set_single_partition(self, name, length):
         """
@@ -222,20 +285,41 @@ class Partitions():
         #Update counter
         self.counter += length
 
+    def add_codon_partition(self, name, locus_range=None, use_counter=False):
+        """
+        Adds a new codon partition, with a similar usage to add_partition, with
+        the exception that a locus range has to be specified
+        :param name: string. Name of the alignment
+        :param locus_range: list/tuple. Range of the partition
+        :param use_counter: Boolean. If true, the value of self.counter will be
+        added to the range numbers provided by locus_range. Otherwise,
+        it will start at locus_range[0]. This options is used when
+        concatenating alignment.
+        """
+
+        if name in self.codon_partitions or name in self.partitions:
+            raise PartitionException("Partition name %s is already in the "
+                                     "partition table" % name)
+
+        if use_counter:
+            self.codon_partitions[name] = (locus_range[0] + self.counter,
+                                           locus_range[1] + self.counter)
+        else:
+            self.codon_partitions[name] = (locus_range[0], locus_range[1])
+
     def add_partition(self, name, length=None, locus_range=None, model=None):
         """
         Adds a new partition providing the length or the range of current
         alignment. If both are provided, the length takes precedence.
         :param name: string. Name of the alignment
         :param length: int. Length of the alignment
-        :param locus_range: list/tuple. Range of the alignment
+        :param locus_range: list/tuple. Range of the partition
         :param model: string. [optional] Name of the substitution model
         """
 
-        if name in self.partitions:
+        if name in self.partitions or name in self.codon_partitions:
             raise PartitionException("Partition name %s is already in partition"
                                      "table" % name)
-
         if length:
             self.partitions[name] = (self.counter, self.counter + length)
             self.partitions_nice[name] = (self.counter + 1, self.counter +
@@ -243,7 +327,7 @@ class Partitions():
             self.counter += length
         elif locus_range:
             self.partitions[name] = (locus_range[0], locus_range[1])
-            self.partitions_nice[name] = (locus_range[0] + 1, locus_range[1])
+            self.partitions_nice[name] = (locus_range[0], locus_range[1])
             self.counter = locus_range[1]
 
         self._models[name] = SubstitutionModels()
