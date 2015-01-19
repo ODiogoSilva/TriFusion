@@ -386,6 +386,7 @@ class TriFusionApp(App):
         # Set schedule for mouse over events on side panel
         Clock.schedule_interval(self._on_mouseover_tabs, .1)
 
+
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
 
@@ -605,6 +606,8 @@ class TriFusionApp(App):
         txt = PathText()
 
         fc_wgt = self.screen.ids.icon_view_tab
+        fc_wgt.bind(path=txt.setter("text"))
+        fc_wgt.bind(path=label.setter("text"))
 
         self.screen.ids.path_bx.clear_widgets()
 
@@ -670,6 +673,7 @@ class TriFusionApp(App):
                 self.screen.ids.icon_view_tab.path = self.home_path
                 # Initialize bookmarks
                 self.bookmark_init()
+                self.switch_path_wgt("label")
 
         return self.screen
 
