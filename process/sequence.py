@@ -1167,6 +1167,7 @@ class AlignmentList (Base):
         """
 
         for nm in filename_list:
+            nm = nm.split(sep)[-1].split(".")[0]
             self.alignment_object_list = [x for x in self.alignment_object_list
                                           if nm != x.name]
 
