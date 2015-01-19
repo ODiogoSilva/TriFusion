@@ -77,6 +77,14 @@ class ShowcaseScreen(Screen):
         return super(ShowcaseScreen, self).add_widget(*args)
 
 
+class RevConcDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
+class InputList(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class SideLabel(Label):
     pass
 
@@ -336,6 +344,8 @@ class TriFusionApp(App):
 
     # Partitions file
     partitions_file = ""
+    # Input file for reverse concatenation
+    rev_infile = ""
 
     # Attribute for ZORRO settings
     zorro_suffix = ""
@@ -385,7 +395,6 @@ class TriFusionApp(App):
 
         # Set schedule for mouse over events on side panel
         Clock.schedule_interval(self._on_mouseover_tabs, .1)
-
 
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
@@ -618,7 +627,6 @@ class TriFusionApp(App):
             txt.text = fc_wgt.path
             txt.bind(on_text_validate=path_updater)
             self.screen.ids.path_bx.add_widget(txt)
-
 
     ########################## SCREEN NAVIGATION ###############################
 
@@ -2016,15 +2024,13 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-    def save_reverseconc_settings(self, path):
+    def save_reverseconc_settings(self):
         """
         Handles the information provided by the LoadDialog with settings for the
         reverse concatenation
         """
 
         if self.main_operations["reverse_concatenation"]:
-            self.partitions_file = "".join(path)
-
             self.screen.ids.rev_conc.background_normal = \
                 "data/backgrounds/bt_process.png"
             self.screen.ids.rev_conc.text = "Active"
@@ -2056,15 +2062,46 @@ class TriFusionApp(App):
         self.show_popup(title="Choose output format", content=content,
                         size=(300, 400))
 
-    def dialog_load_data(self, title="Choose input file"):
+    def dialog_reverse_inlist(self):
+
+        content = InputList(cancel=self.dismiss_subpopup)
+
+        def set_infile(txt, wgt):
+
+            self.rev_infile = txt
+            self.dismiss_subpopup()
+
+        if self.file_list:
+            for infile in self.file_list:
+                bt = Button(text=infile.split(sep)[-1], size_hint_y=None,
+                            height=30, bold=True, shorten=True,
+                            shorten_from="right", halign="center",
+                            valign="middle")
+                bt.text_size[0] = bt.size[0] * 3.5
+                bt.bind(on_release=partial(set_infile, infile))
+                content.ids.rev_inlist.add_widget(bt)
+
+        self._subpopup = Popup(title="Choose input file", content=content,
+                               size_hint=(.5, .8))
+
+        self._subpopup.open()
+
+    def dialog_reverse_concatenation(self, title="Choose input file"):
         """
         Generates a general purpose file chooser to request additional data
         :param title: string, A custom title for the load data dialog popup
         """
 
-        content = LoadDialog(cancel=self.dismiss_popup)
-        content.ids.rev_concatenation.active = \
+        content = RevConcDialog(cancel=self.dismiss_popup)
+        content.ids.rev_conc.active = \
             self.main_operations["reverse_concatenation"]
+
+        self.show_popup(title=title, content=content, size=(550, 325))
+
+    def dialog_load_partfile(self):
+
+        content = LoadDialog(cancel=self.dismiss_subpopup)
+
         # If input files have already been provided, use their directory as a
         # starting point for the partition file chooser. Otherwise, use the
         # home path
@@ -2074,7 +2111,10 @@ class TriFusionApp(App):
         else:
             content.ids.ld_filechooser.path = self.home_path
 
-        self.show_popup(title=title, content=content)
+        self._subpopup = Popup(title="Choose partition file", content=content,
+                               size_hint=(.9, .9))
+
+        self._subpopup.open()
 
     def dialog_filechooser(self, value):
         """
@@ -2574,14 +2614,9 @@ class TriFusionApp(App):
         if self.main_operations["reverse_concatenation"]:
             partition_obj = data.Partitions()
             partition_obj.read_from_file(self.partitions_file)
-            if len(aln_object.alignment_object_list) > 1:
-                return self.dialog_warning("Too many input files", "Reverse"
-                                           "concatenation can only be applied"
-                                           "on a single file")
-            else:
-                aln_object = aln_object.alignment_object_list[0]
-                aln_object.set_partitions(partition_obj)
-                aln_object = aln_object.reverse_concatenate()
+            aln_object = aln_object.retrieve_alignment(self.rev_infile)
+            aln_object.set_partitions(partition_obj)
+            aln_object = aln_object.reverse_concatenate()
 
         # Collapsing
         if self.secondary_operations["collapse"]:

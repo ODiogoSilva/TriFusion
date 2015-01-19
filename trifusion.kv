@@ -1,4 +1,5 @@
 #:kivy 1.8.0
+#:import sep os.sep
 
 <ShowcaseScreen>:
     ScrollView:
@@ -311,39 +312,22 @@
                 on_release:
                     root.cancel()
 
-<LoadDialog>:
+<InputList@BoxLayout>:
     orientation: "vertical"
     spacing: 10
     padding: 10
+    ScrollView:
+        GridLayout:
+            spacing: 5
+            cols: 1
+            id: rev_inlist
+            size_hint_y: None
+            height: 0
 
-    BoxLayout:
-        size_hint_y: .15
-        Widget
-            size_hint_x: .45
-        LightBox:
-            canvas.before:
-                Color:
-                    rgba: (.3, .3, .3, .8)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            Label:
-                size_hint_x: .8
-                text: "Activate reverse concatenation"
-                bold: True
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
-            Switch:
-                size_hint_x: .2
-                id: rev_concatenation
-                on_active:
-                    if self.active == True: app.update_main_operations("reverse_concatenation")
-                    if self.active == False: app.update_main_operations("concatenation")
-
-        Widget:
-            size_hint_x: .45
-
+<LoadDialog>
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
     Label:
         size_hint_y: None
         text: ld_filechooser.path
@@ -407,9 +391,106 @@
             id: part_bt
             text: "OK"
             on_release:
-                app.save_reverseconc_settings(ld_filechooser.selection)
+                app.partitions_file = ld_filechooser.selection[0]
                 root.cancel()
 
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
+<RevConcDialog>:
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
+
+    BoxLayout:
+        size_hint_y: .8
+        #height: 50
+        spacing: 10
+        orientation: "vertical"
+
+        DarkBox:
+            height: 60
+            canvas.before:
+                Color:
+                    rgba: (.3, .3, .3, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                size_hint_x: .7
+                text: "Activate reverse concatenation"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+
+            Switch:
+                size_hint_x: .2
+                id: rev_conc
+                on_active:
+                    if self.active == True: app.update_main_operations("reverse_concatenation"); rev_infile.disabled = False; part_file.disabled = False
+                    if self.active == False: app.update_main_operations("concatenation"); rev_infile.disabled = True; part_file.disabled = True
+
+        DarkBox:
+            height: 60
+            canvas.before:
+                Color:
+                    rgba: (.3, .3, .3, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                size_hint_x: .7
+                text: "Select partition file"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+
+            ProcessBt:
+                id: part_file
+                size_hint_x: .3
+                text: "Select..."
+                disabled: True
+                on_release:
+                    app.dialog_load_partfile()
+
+        DarkBox:
+            height: 60
+            canvas.before:
+                Color:
+                    rgba: (.3, .3, .3, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                size_hint_x: .7
+                text: "Select input file to reverse concatenate"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+
+            ProcessBt:
+                id: rev_infile
+                size_hint_x: .3
+                text: "Select..."
+                disabled: True
+                on_release:
+                    app.dialog_reverse_inlist()
+
+    BoxLayout:
+        size_hint_y: None
+        height: 35
+        spacing: 10
+
+        Button:
+            id: part_bt
+            text: "OK"
+            on_release:
+                app.save_reverseconc_settings()
+                root.cancel()
 
         Button:
             text: "Cancel"
