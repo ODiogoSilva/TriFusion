@@ -808,9 +808,10 @@ class TriFusionApp(App):
         # Bind to function that loads bookmark path into filechooser
         bt.bind(on_release=self.bookmark_load)
         # Define bookmark removal button
-        xbt = Button(text="X", size_hint=(.14, None),
-                     height=30, id="%sX" % bk,
-                     background_color=(255, .9, .9, 1), bold=True)
+        xbt = Button(size_hint=(None, None), width=30,
+                     height=30, id="%sX" % bk, border=(0, 0, 0, 0),
+                     background_normal=join("data", "backgrounds",
+                                            "remove_bt.png"))
         # Bind to function that removes bookmark button as well as the path
         # from self.bm_file
         xbt.bind(on_release=partial(self.check_action,
@@ -1145,15 +1146,22 @@ class TriFusionApp(App):
                 self.root.ids.file_sl.add_widget(bt)
 
                 # Set Information button and add the widget
-                inf_bt = Button(text="?", size_hint=(.14, None),
-                                height=30, id="%s?" % file_name, bold=True)
+                inf_bt = Button(size_hint=(None, None), width=30,
+                                height=30, id="%s?" % file_name,
+                                border=(0, 0, 0, 0),
+                                background_normal=join("data",
+                                                     "backgrounds",
+                                                     "info_bt.png"))
                 self.root.ids.file_sl.add_widget(inf_bt)
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
-                x_bt = Button(text="X", size_hint=(.14, None),
+                x_bt = Button(size_hint=(None, None), width=30,
                               height=30, id="%sX" % file_name,
-                              background_color=(255, .9, .9, 1), bold=True)
+                              borders=(0, 0, 0, 0),
+                              background_normal=join("data",
+                                                     "backgrounds",
+                                                     "remove_bt.png"))
                 x_bt.bind(on_release=partial(self.check_action,
                                              "Are you sure you want to remove"
                                              " this file?",
@@ -1206,15 +1214,21 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.add_widget(bt)
 
                 # Set Information button and add the widget
-                inf_bt = Button(text="?", size_hint=(.14, None),
-                                height=30, id="%s?" % tx, bold=True)
+                inf_bt = Button(size_hint=(None, None), width=30,
+                                height=30, id="%s?" % tx, border=(0, 0, 0, 0),
+                                background_normal=join("data",
+                                                     "backgrounds",
+                                                     "info_bt.png"))
                 self.root.ids.taxa_sl.add_widget(inf_bt)
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
-                x_bt = Button(text="X", size_hint=(.14, None),
+                x_bt = Button(size_hint=(None, None), width=30,
                               height=30, id="%sX" % tx,
-                              background_color=(255, .9, .9, 1), bold=True)
+                              borders=(0, 0, 0, 0),
+                              background_normal=join("data",
+                                                     "backgrounds",
+                                                     "remove_bt.png"))
                 self.root.ids.taxa_sl.add_widget(x_bt)
                 x_bt.bind(on_release=partial(self.check_action,
                                              "Are you sure you want to remove"
@@ -1612,9 +1626,10 @@ class TriFusionApp(App):
         bt = Button(text=name, size_hint=(.8, None), height=35, id=name)
         bt.bind(on_release=self.taxagroups_show_taxa)
         # Removal button
-        x_bt = Button(text="X", bold=True, size_hint=(.14, None),
+        x_bt = Button(size_hint=(None, None), width=35, border=(0, 0, 0, 0),
                         height=35, id="%sX" % name,
-                        background_color=(255, .9, .9, 1))
+                        background_normal=join("data", "backgrounds",
+                                               "remove_bt.png"))
         x_bt.bind(on_release=partial(self.check_action,
                                      "Are you sure you want to remove this taxa"
                                      "group?",
