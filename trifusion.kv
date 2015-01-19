@@ -814,7 +814,7 @@
             size: self.size
 
 <DarkBox@BoxLayout>:
-    height: 70
+    height: 60
     orientation: "horizontal"
     size_hint_y: None
     padding: 5
@@ -1100,6 +1100,7 @@
                         app.update_process_switch("collapse", self.active)
 
             DarkBox:
+                height: 70
                 Label:
                     size_hint_x: .8
                     markup: True
@@ -1162,6 +1163,7 @@
                         app.update_process_switch("filter", self.active)
 
             DarkBox:
+                height: 70
                 Label:
                     size_hint_x: .8
                     markup: True
@@ -1223,6 +1225,7 @@
                         app.update_process_switch("gcoder", self.active)
 
             DarkBox:
+                height: 70
                 Label:
                     size_hint_x: .8
                     markup: True

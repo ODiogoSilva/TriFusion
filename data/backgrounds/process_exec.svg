@@ -111,9 +111,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="1053.6446"
-     inkscape:cy="-253.6556"
+     inkscape:zoom="0.5"
+     inkscape:cx="437.27716"
+     inkscape:cy="35.887548"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -293,7 +293,7 @@
        id="path5280"
        d="m 154.97811,812.04375 15.98798,-42.63462 H 101.68484 L 85.69686,812.04375 z M 96.35551,764.07981 85.69686,812.04375 V 742.7625 h 23.98198 l 10.65865,10.65865 h 34.64062 v 10.65866 z"
        inkscape:connector-curvature="0"
-       style="fill:#b3b3b3"
+       style="fill:#ffffff"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_home_down.png"
        inkscape:export-xdpi="34.178738"
        inkscape:export-ydpi="34.178738" />
@@ -311,7 +311,7 @@
        id="path5280-7"
        d="m 382.81111,809.35787 15.98798,-42.63462 h -69.28125 l -15.98798,42.63462 z m -58.6226,-47.96394 -10.65865,47.96394 v -69.28125 h 23.98198 l 10.65865,10.65865 h 34.64062 v 10.65866 z"
        inkscape:connector-curvature="0"
-       style="fill:#b3b3b3"
+       style="fill:#ffffff"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_home.png"
        inkscape:export-xdpi="34.178741"
        inkscape:export-ydpi="34.178741" />
@@ -323,22 +323,6 @@
        x="858"
        y="634.36218"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/path_off.png"
-       inkscape:export-xdpi="31.39535"
-       inkscape:export-ydpi="31.39535" />
-    <path
-       id="path5058"
-       d="m 926.12405,994.09318 17.11384,-6.65165 59.89841,-46.56155 -8.55689,-6.65165 -59.89844,46.56155 -8.55692,13.3033 z m -12.6621,23.60342 c -4.22926,-6.9344 -8.77941,-10.4731 -17.70214,-13.7606 l 13.24825,-28.35103 17.11384,-8.09672 51.34154,-39.90991 h -25.67078 l -51.34152,39.90991 -25.67076,66.51655 85.5692,-19.955 51.34152,-39.9099 v -19.95496 l -51.34152,39.90991 -10.41804,13.30335 z"
-       inkscape:connector-curvature="0"
-       style="fill:#cccccc"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/path_off.png"
-       inkscape:export-xdpi="31.39535"
-       inkscape:export-ydpi="31.39535" />
-    <path
-       id="path5058-4"
-       d="m 1142.1241,992.09318 17.1138,-6.65165 59.8984,-46.56155 -8.5569,-6.65165 -59.8984,46.56155 -8.5569,13.3033 z m -12.6621,23.60342 c -4.2293,-6.9344 -8.7795,-10.4731 -17.7022,-13.7606 l 13.2483,-28.35103 17.1138,-8.09672 51.3415,-39.90991 h -25.6707 l -51.3416,39.90991 -25.6707,66.51655 85.5692,-19.955 51.3415,-39.9099 v -19.95496 l -51.3415,39.90991 -10.4181,13.30335 z"
-       inkscape:connector-curvature="0"
-       style="fill:#333333"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/path_on.png"
        inkscape:export-xdpi="31.39535"
        inkscape:export-ydpi="31.39535" />
     <path
@@ -450,7 +434,7 @@
     <g
        id="g3106"
        transform="matrix(1.328125,0,0,1.328125,86,931.36218)"
-       style="fill:#b3b3b3"
+       style="fill:#ffffff"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_group_down.png"
        inkscape:export-xdpi="34"
        inkscape:export-ydpi="34">
@@ -458,27 +442,27 @@
          id="path3090"
          d="M 20,8 H 12 C 9.8,8 8,9.8 8,12 v 8 c 0,2.2 1.8,4 4,4 h 8 c 2.2,0 4,-1.8 4,-4 V 12 C 24,9.8 22.2,8 20,8 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3092"
          d="m 44,24 h 8 c 2.2,0 4,-1.8 4,-4 V 12 C 56,9.8 54.2,8 52,8 h -8 c -2.2,0 -4,1.8 -4,4 v 8 c 0,2.2 1.8,4 4,4 z m 0,-12 h 8 v 8 h -8 v -8 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3094"
          d="m 20,40 h -8 c -2.2,0 -4,1.8 -4,4 v 8 c 0,2.2 1.8,4 4,4 h 8 c 2.2,0 4,-1.8 4,-4 v -8 c 0,-2.2 -1.8,-4 -4,-4 z m 0,12 h -8 v -8 h 8 v 8 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3096"
          d="m 52,40 h -8 c -2.2,0 -4,1.8 -4,4 v 8 c 0,2.2 1.8,4 4,4 h 8 c 2.2,0 4,-1.8 4,-4 v -8 c 0,-2.2 -1.8,-4 -4,-4 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3098"
          d="M 56,32 H 52 C 46.658,32 41.635,29.92 37.858,26.142 34.081,22.364 32,17.342 32,12 V 8 C 32,3.6 28.4,0 24,0 H 8 C 3.6,0 0,3.6 0,8 v 16 c 0,4.4 3.6,8 8,8 h 4 c 5.342,0 10.365,2.08 14.142,5.858 C 29.919,41.636 32,46.658 32,52 v 4 c 0,4.4 3.6,8 8,8 h 16 c 4.4,0 8,-3.6 8,-8 V 40 c 0,-4.4 -3.6,-8 -8,-8 z m 4,24 c 0,1.06 -0.419,2.062 -1.178,2.822 C 58.063,59.582 57.06,60 56,60 H 40 C 38.94,60 37.938,59.581 37.178,58.822 36.418,58.063 36,57.06 36,56 V 52 C 36,38.745 25.255,28 12,28 H 8 C 6.94,28 5.938,27.581 5.178,26.822 4.418,26.063 4,25.06 4,24 V 8 C 4,6.94 4.418,5.938 5.178,5.178 5.938,4.418 6.94,4 8,4 h 16 c 1.06,0 2.062,0.418 2.822,1.178 C 27.582,5.938 28,6.94 28,8 v 4 c 0,13.255 10.745,24 24,24 h 4 c 1.06,0 2.062,0.419 2.822,1.178 C 59.582,37.937 60,38.94 60,40 v 16 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
     </g>
     <rect
        style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -493,7 +477,7 @@
     <g
        id="g3106-2"
        transform="matrix(1.328125,0,0,1.328125,322,931.3622)"
-       style="fill:#b3b3b3"
+       style="fill:#ffffff"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_group.png"
        inkscape:export-xdpi="34"
        inkscape:export-ydpi="34">
@@ -501,27 +485,27 @@
          id="path3090-7"
          d="M 20,8 H 12 C 9.8,8 8,9.8 8,12 v 8 c 0,2.2 1.8,4 4,4 h 8 c 2.2,0 4,-1.8 4,-4 V 12 C 24,9.8 22.2,8 20,8 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3092-0"
          d="m 44,24 h 8 c 2.2,0 4,-1.8 4,-4 V 12 C 56,9.8 54.2,8 52,8 h -8 c -2.2,0 -4,1.8 -4,4 v 8 c 0,2.2 1.8,4 4,4 z m 0,-12 h 8 v 8 h -8 v -8 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3094-7"
          d="m 20,40 h -8 c -2.2,0 -4,1.8 -4,4 v 8 c 0,2.2 1.8,4 4,4 h 8 c 2.2,0 4,-1.8 4,-4 v -8 c 0,-2.2 -1.8,-4 -4,-4 z m 0,12 h -8 v -8 h 8 v 8 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3096-7"
          d="m 52,40 h -8 c -2.2,0 -4,1.8 -4,4 v 8 c 0,2.2 1.8,4 4,4 h 8 c 2.2,0 4,-1.8 4,-4 v -8 c 0,-2.2 -1.8,-4 -4,-4 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3098-2"
          d="M 56,32 H 52 C 46.658,32 41.635,29.92 37.858,26.142 34.081,22.364 32,17.342 32,12 V 8 C 32,3.6 28.4,0 24,0 H 8 C 3.6,0 0,3.6 0,8 v 16 c 0,4.4 3.6,8 8,8 h 4 c 5.342,0 10.365,2.08 14.142,5.858 C 29.919,41.636 32,46.658 32,52 v 4 c 0,4.4 3.6,8 8,8 h 16 c 4.4,0 8,-3.6 8,-8 V 40 c 0,-4.4 -3.6,-8 -8,-8 z m 4,24 c 0,1.06 -0.419,2.062 -1.178,2.822 C 58.063,59.582 57.06,60 56,60 H 40 C 38.94,60 37.938,59.581 37.178,58.822 36.418,58.063 36,57.06 36,56 V 52 C 36,38.745 25.255,28 12,28 H 8 C 6.94,28 5.938,27.581 5.178,26.822 4.418,26.063 4,25.06 4,24 V 8 C 4,6.94 4.418,5.938 5.178,5.178 5.938,4.418 6.94,4 8,4 h 16 c 1.06,0 2.062,0.418 2.822,1.178 C 27.582,5.938 28,6.94 28,8 v 4 c 0,13.255 10.745,24 24,24 h 4 c 1.06,0 2.062,0.419 2.822,1.178 C 59.582,37.937 60,38.94 60,40 v 16 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
     </g>
     <rect
        style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -545,7 +529,7 @@
     <g
        id="g3244"
        transform="matrix(1.5178571,0,0,1.5178571,77.928571,1117.2193)"
-       style="fill:#b3b3b3"
+       style="fill:#ffffff"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_queue_down.png"
        inkscape:export-xdpi="34"
        inkscape:export-ydpi="34">
@@ -553,12 +537,12 @@
          id="path3234"
          d="M 58,8 H 40 C 40,3.582 36.418,0 32,0 27.582,0 24,3.582 24,8 H 6 C 4.896,8 4,8.896 4,10 v 52 c 0,1.105 0.896,2 2,2 h 52 c 1.105,0 2,-0.895 2,-2 V 10 C 60,8.896 59.105,8 58,8 z M 32,4 c 2.209,0 4,1.791 4,4 0,2.209 -1.791,4 -4,4 -2.209,0 -4,-1.791 -4,-4 0,-2.209 1.791,-4 4,-4 z M 56,60 H 8 V 12 h 8 v 6 c 0,1.105 0.895,2 2,2 h 28 c 1.105,0 2,-0.895 2,-2 v -6 h 8 v 48 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3236"
          d="m 28,53.657 -12.828,-14.828 3.657,-3.657 9.172,7.172 17.171,-15.172 3.657,3.657 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
     </g>
     <rect
        style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -570,19 +554,10 @@
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_queue.png"
        inkscape:export-xdpi="34.178738"
        inkscape:export-ydpi="34.178738" />
-    <path
-       style="fill:#000000;fill-opacity:1;stroke:#5599ff;stroke-width:13.85222816;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 289.54062,1093.3696 0,79.4003 0,78.5848"
-       id="path5046-3-9-9"
-       inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_group_down.png"
-       inkscape:export-xdpi="34.178738"
-       inkscape:export-ydpi="34.178738"
-       sodipodi:nodetypes="ccc" />
     <g
        id="g3244-0"
        transform="matrix(1.5178571,0,0,1.5178571,317.92857,1123.2193)"
-       style="fill:#b3b3b3"
+       style="fill:#ffffff"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_queue.png"
        inkscape:export-xdpi="34"
        inkscape:export-ydpi="34">
@@ -590,12 +565,12 @@
          id="path3234-3"
          d="M 58,8 H 40 C 40,3.582 36.418,0 32,0 27.582,0 24,3.582 24,8 H 6 C 4.896,8 4,8.896 4,10 v 52 c 0,1.105 0.896,2 2,2 h 52 c 1.105,0 2,-0.895 2,-2 V 10 C 60,8.896 59.105,8 58,8 z M 32,4 c 2.209,0 4,1.791 4,4 0,2.209 -1.791,4 -4,4 -2.209,0 -4,-1.791 -4,-4 0,-2.209 1.791,-4 4,-4 z M 56,60 H 8 V 12 h 8 v 6 c 0,1.105 0.895,2 2,2 h 28 c 1.105,0 2,-0.895 2,-2 v -6 h 8 v 48 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
       <path
          id="path3236-3"
          d="m 28,53.657 -12.828,-14.828 3.657,-3.657 9.172,7.172 17.171,-15.172 3.657,3.657 z"
          inkscape:connector-curvature="0"
-         style="fill:#b3b3b3" />
+         style="fill:#ffffff" />
     </g>
     <rect
        y="393.6828"
@@ -628,57 +603,114 @@
     <rect
        style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
        id="rect5044-1-0-9"
-       width="381.99295"
-       height="221.99297"
+       width="1000"
+       height="480"
        x="981.00354"
-       y="1253.3657"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_group.png"
-       inkscape:export-xdpi="34.178738"
-       inkscape:export-ydpi="34.178738" />
+       y="1202.1526"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <text
+       xml:space="preserve"
+       style="font-size:157.79272461px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Jungle Fever NF;-inkscape-font-specification:Jungle Fever NF"
+       x="1364.2145"
+       y="1488.7622"
+       id="text17211"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9"><tspan
+         sodipodi:role="line"
+         id="tspan17213"
+         x="1364.2145"
+         y="1488.7622"
+         style="font-weight:bold;fill:#ffffff">Menu</tspan></text>
+    <rect
+       style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none;opacity:0"
+       id="rect5044-1-0-9-7"
+       width="1000"
+       height="480"
+       x="987.75262"
+       y="1768.3706"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/app_icon.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
     <path
-       id="path12096"
-       d="m 1142.9944,1425.943 -37.7412,-62.8875 v -25.4708 h 3.8184 c 2.1,0 3.8184,-1.7183 3.8184,-3.8184 0,-2.1001 -1.7184,-3.8185 -3.8184,-3.8185 h -38.1842 c -2.1002,0 -3.8184,1.7184 -3.8184,3.8185 0,2.1001 1.7182,3.8184 3.8184,3.8184 h 3.8184 v 25.4708 l -37.7413,62.8875 c -8.6449,14.4069 -1.9703,26.1943 14.8308,26.1943 h 76.3684 c 16.8011,0 23.4756,-11.7874 14.8307,-26.1943 z m -85.3474,-19.6268 24.6956,-41.1607 v -27.5708 h 15.2738 v 27.5708 l 24.6955,41.1607 h -64.6649 z"
+       id="path19484"
+       d="m 1048.066,1338.9526 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
        inkscape:connector-curvature="0"
-       style="fill:#b3b3b3" />
+       style="fill:#ffffff"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <rect
+       style="fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-9-70"
+       width="1000"
+       height="480"
+       x="2104"
+       y="1196.3622"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <text
+       xml:space="preserve"
+       style="font-size:157.79272460999999339px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Jungle Fever NF;-inkscape-font-specification:Jungle Fever NF"
+       x="2487.2109"
+       y="1482.9718"
+       id="text17211-3"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9"><tspan
+         sodipodi:role="line"
+         id="tspan17213-8"
+         x="2487.2109"
+         y="1482.9718"
+         style="font-weight:bold;fill:#333333">Menu</tspan></text>
     <path
-       sodipodi:type="arc"
-       style="fill:#b3b3b3;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       id="path12123"
-       sodipodi:cx="796"
-       sodipodi:cy="1424.3622"
-       sodipodi:rx="8"
-       sodipodi:ry="8"
-       d="m 804,1424.3622 a 8,8 0 1 1 -16,0 8,8 0 1 1 16,0 z"
-       transform="translate(264.10439,-108.89444)" />
+       id="path19484-0"
+       d="m 2171.0625,1333.1622 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
+       inkscape:connector-curvature="0"
+       style="fill:#333333"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <rect
+       style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-9-0"
+       width="600"
+       height="480"
+       x="984"
+       y="1776.3622"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt2.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
     <path
-       sodipodi:type="arc"
-       style="fill:#b3b3b3;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       id="path12123-0"
-       sodipodi:cx="796"
-       sodipodi:cy="1424.3622"
-       sodipodi:rx="8"
-       sodipodi:ry="8"
-       d="m 804,1424.3622 a 8,8 0 1 1 -16,0 8,8 0 1 1 16,0 z"
-       transform="translate(278.0952,-140.77609)" />
+       id="path19484-02"
+       d="m 1168.7538,1913.1622 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt2.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <rect
+       style="fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-9-0-3"
+       width="600"
+       height="480"
+       x="2120.2219"
+       y="1790.998"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down2.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
     <path
-       sodipodi:type="arc"
-       style="fill:#b3b3b3;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       id="path12123-07"
-       sodipodi:cx="796"
-       sodipodi:cy="1424.3622"
-       sodipodi:rx="8"
-       sodipodi:ry="8"
-       d="m 804,1424.3622 a 8,8 0 1 1 -16,0 8,8 0 1 1 16,0 z"
-       transform="translate(302.84394,-125.92684)" />
-    <path
-       sodipodi:type="arc"
-       style="fill:#b3b3b3;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       id="path12123-4"
-       sodipodi:cx="796"
-       sodipodi:cy="1424.3622"
-       sodipodi:rx="8"
-       sodipodi:ry="8"
-       d="m 804,1424.3622 a 8,8 0 1 1 -16,0 8,8 0 1 1 16,0 z"
-       transform="translate(332.83532,-120.44155)" />
+       id="path19484-02-8"
+       d="m 2304.9757,1927.798 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
+       inkscape:connector-curvature="0"
+       style="fill:#333333"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down2.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
   </g>
 </svg>
