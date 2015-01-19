@@ -51,6 +51,7 @@ from kivy.config import Config
 from kivy.clock import Clock
 from kivy.core.text.markup import MarkupLabel
 from kivy.uix.treeview import TreeView, TreeViewLabel
+from kivy.graphics import Color, Rectangle
 
 # Main program imports
 from process.sequence import AlignmentList
@@ -84,6 +85,9 @@ class RevConcDialog(BoxLayout):
 class InputList(BoxLayout):
     cancel = ObjectProperty(None)
 
+
+class BookmarkLabel(Label):
+    pass
 
 class SideLabel(Label):
     pass
@@ -255,6 +259,8 @@ class TriFusionApp(App):
     # name as the second element
     bookmarks = [[], {}]
     bm_file = join(cur_dir, "data", "resources", "bookmarks")
+    # For mouse over purposes
+    bookmarks_bt = []
 
     _popup = ObjectProperty(None)
     _subpopup = ObjectProperty(None)
@@ -550,6 +556,26 @@ class TriFusionApp(App):
 
             return info_bt
 
+        def create_bk_label(text):
+            """
+            Creates the label for the bookmarks.
+            :param text:
+            :return:
+            """
+
+            label_width = len(text) * 8
+
+            if label_width > self.root.width * .7:
+                info_bt = BookmarkLabel(text=text, pos=mp,
+                                size=(self.root.width * .6, 40),
+                                size_hint=(None, None))
+            else:
+                info_bt = BookmarkLabel(text=text, pos=mp,
+                                        size=(label_width, 40),
+                            size_hint=(None, None))
+
+            return info_bt
+
         def create_sidebt_wgt(text, pos, size):
             """
             Creates the label for the sidebt mouseover
@@ -560,6 +586,26 @@ class TriFusionApp(App):
                              size=size, bold=True, border=(0, 0, 0, 0))
 
             return side_bt
+
+        # Only do this routine when the filechooser screen is on
+        if self.screen.name == "fc" and self.mouse_over_ready and \
+                self.show_side_panel is False:
+            for bt in self.bookmarks_bt:
+                if determine_collision(bt):
+                    collision = True
+                    if bt.id != self.previous_mouse_over:
+                        if self.old_mouse_over:
+                            self.root_window.remove_widget(self.old_mouse_over)
+
+                        label = create_bk_label(text=bt.id)
+                        Clock.schedule_once(partial(show_label, mp, label),
+                                            .8)
+                        self.mouse_over_ready = False
+            else:
+                # If no collision is detected, remove any remaining label widget
+                if collision is False and \
+                   self.old_mouse_over in self.root_window.children:
+                    self.root_window.remove_widget(self.old_mouse_over)
 
         # Only do this routine if the side panel is open
         if self.show_side_panel and self.mouse_over_ready:
@@ -589,7 +635,7 @@ class TriFusionApp(App):
                             label = create_sidebt_wgt(bt.att, pos, size)
                             show_label(mp, label)
 
-                        else:
+                        elif bt in self.mouse_over_bts[active_tab]:
                             # Create label widget
                             label = create_label_wgt(text=bt.text)
 
@@ -797,7 +843,7 @@ class TriFusionApp(App):
             # Add bookmarks to the full path list
             self.bookmarks[0].append(path)
             # Add mapping of the full path to the bookmark name
-            new_map = {path.split("/")[-1]: path}
+            new_map = {path.split(sep)[-1]: path}
             self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
                                      list(new_map.items()))
             self.add_bookmark_bt(path)
@@ -819,6 +865,8 @@ class TriFusionApp(App):
                     height=30, size_hint=(.8, None))
         # Bind to function that loads bookmark path into filechooser
         bt.bind(on_release=self.bookmark_load)
+        # Add to list for mouse over purposes
+        self.bookmarks_bt.append(bt)
         # Define bookmark removal button
         xbt = Button(size_hint=(None, None), width=30,
                      height=30, id="%sX" % bk, border=(0, 0, 0, 0),
