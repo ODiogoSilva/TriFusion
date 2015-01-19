@@ -1287,6 +1287,9 @@ FloatLayout:
                             id: side_bt
                             orientation: "vertical"
                             SideButton:
+                                size_hint: (None, None)
+                                height: 60
+                                width: 60
                                 text: " "
                                 background_down: "data/backgrounds/side_bt_home_down.png"
                                 background_normal: "data/backgrounds/side_bt_home.png"
@@ -1298,6 +1301,9 @@ FloatLayout:
                                     carousel.load_slide(carousel.slides[0])
                                     app.toggle_groups(self)
                             SideButton:
+                                size_hint: (None, None)
+                                height: 60
+                                width: 60
                                 text: " "
                                 background_down: "data/backgrounds/side_bt_group_down.png"
                                 background_normal: "data/backgrounds/side_bt_group.png"
@@ -1307,6 +1313,9 @@ FloatLayout:
                                     carousel.load_slide(carousel.slides[1])
                                     app.toggle_groups(self)
                             SideButton:
+                                size_hint: (None, None)
+                                height: 60
+                                width: 60
                                 text: " "
                                 background_down: "data/backgrounds/side_bt_queue_down.png"
                                 background_normal: "data/backgrounds/side_bt_queue.png"
