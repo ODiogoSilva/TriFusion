@@ -50,21 +50,23 @@ ShowcaseScreen:
             padding: 10
             spacing: 10
 
-            Label:
+            BoxLayout:
+                spacing: 2
                 size_hint_y: None
-                text: icon_view_tab.path
                 height: 30
-                text_size: (self.size[0] - 20, self.size[1])
-                shorten: True
-                shorten_from: "left"
-                halign: "center"
-                valign: "middle"
-                canvas.before:
-                    Color:
-                        rgba: .35, .35, .35, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
+                spacing: 5
+                ToggleButton:
+                    border: (0,0,0,0)
+                    background_normal: "data/backgrounds/path_off.png"
+                    background_down: "data/backgrounds/path_on.png"
+                    size_hint_x: None
+                    width: 30
+                    on_release:
+                        if self.state == "down": app.switch_path_wgt("text")
+                        if self.state == "normal": app.switch_path_wgt("label")
+                BoxLayout:
+                    id: path_bx
+                    PathLabel
 
             FileChooserIconView:
                 id: icon_view_tab

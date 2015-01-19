@@ -81,6 +81,14 @@ class SideLabel(Label):
     pass
 
 
+class PathLabel(Label):
+    pass
+
+
+class PathText(TextInput):
+    pass
+
+
 class FilePopup(BoxLayout):
     """
     Class with a custom BoxLayout controlling the informative popup for the
@@ -587,6 +595,27 @@ class TriFusionApp(App):
                 if collision is False and \
                    self.old_mouse_over in self.root_window.children:
                     self.root_window.remove_widget(self.old_mouse_over)
+
+    def switch_path_wgt(self, wgt_id):
+
+        def path_updater(*args):
+            self.screen.ids.icon_view_tab.path = txt.text
+
+        label = PathLabel()
+        txt = PathText()
+
+        fc_wgt = self.screen.ids.icon_view_tab
+
+        self.screen.ids.path_bx.clear_widgets()
+
+        if wgt_id == "label":
+            label.text = fc_wgt.path
+            self.screen.ids.path_bx.add_widget(label)
+        else:
+            txt.text = fc_wgt.path
+            txt.bind(on_text_validate=path_updater)
+            self.screen.ids.path_bx.add_widget(txt)
+
 
     ########################## SCREEN NAVIGATION ###############################
 
