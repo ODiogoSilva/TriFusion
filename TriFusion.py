@@ -89,6 +89,7 @@ class NoWrapPopup(Popup):
         label = self.children[0].children[-1]
         label.shorten = True
         label.shorten_from = "right"
+        label.markup = True
 
 
 class MouseOverLabel(Button):
@@ -823,7 +824,8 @@ class TriFusionApp(App):
             check_content.ids.check_ok.bind(on_release=lambda val: func())
 
         self.show_popup(title="Warning!", content=check_content,
-                        size=(250, 200))
+                        size=(250, 200),
+                        separator_color=[255 / 255., 85 / 255., 85 / 255., 1.])
 
     ####################### BOOKMARKS OPERATIONS ###############################
 
@@ -1960,7 +1962,8 @@ class TriFusionApp(App):
         """
         self._subpopup.dismiss()
 
-    def show_popup(self, title, content, size_hint=(.9, .9), size=None):
+    def show_popup(self, title, content, size_hint=(.9, .9), size=None,
+                   separator_color=[47 / 255., 167 / 255., 212 / 255., 1.]):
         """
         General purpose method to create a popup widget
         :param title: string. Title of the popup
@@ -1972,11 +1975,17 @@ class TriFusionApp(App):
 
         # Ignore size_hint is absolute size is provided
         if size:
-            self._popup = NoWrapPopup(title=title, content=content, size=size,
-                                size_hint=(None, None), auto_dismiss=False)
+            self._popup = NoWrapPopup(title="[b]%s[/b]" % title,
+                                content=content, size=size,
+                                size_hint=(None, None), auto_dismiss=False,
+                                separator_color=separator_color,
+                                title_color=separator_color)
         else:
-            self._popup = NoWrapPopup(title=title, content=content,
-                                size_hint=size_hint, auto_dismiss=False)
+            self._popup = NoWrapPopup(title="[b]%s[/b]" % title,
+                                content=content, size_hint=size_hint,
+                                auto_dismiss=False,
+                                separator_color=separator_color,
+                                title_color=separator_color)
         self._popup.open()
 
     def save_file(self, path, file_name=None):
@@ -2271,10 +2280,11 @@ class TriFusionApp(App):
     def dialog_warning(self, msg1, msg2):
 
         content = WarningDialog(cancel=self.dismiss_popup)
-        content.ids.warning_l.text = "[b][size=18]%s[/size][/b]\n\n%s" % (msg1,
-                                                                          msg2)
+        content.ids.warning_l.text = "[b][color=#ff5555ff][size=18]%s[/size]" \
+                                     "[/color][/b]\n\n%s" % (msg1, msg2)
 
-        self.show_popup(title="Warning!", content=content, size=(550, 200))
+        self.show_popup(title="Error!", content=content, size=(550, 300),
+                        separator_color=[255 / 255., 85 / 255., 85 / 255., 1.])
 
     def dialog_zorro(self):
 
