@@ -78,6 +78,19 @@ class ShowcaseScreen(Screen):
         return super(ShowcaseScreen, self).add_widget(*args)
 
 
+class NoWrapPopup(Popup):
+    """
+    Modification of Popup class so that the title does not wrap, but instead
+    is shortened
+    """
+
+    def __init__(self, **kwargs):
+        super(Popup, self).__init__(**kwargs)
+        label = self.children[0].children[-1]
+        label.shorten = True
+        label.shorten_from = "right"
+
+
 class RevConcDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -88,6 +101,7 @@ class InputList(BoxLayout):
 
 class BookmarkLabel(Label):
     pass
+
 
 class SideLabel(Label):
     pass
@@ -1395,7 +1409,7 @@ class TriFusionApp(App):
                                 self.active_file_inf[file_name]["n_taxa"]
 
                 self.show_popup(title="File: %s" % value.id[:-1],
-                                content=content, size=(350, 310))
+                                content=content, size=(400, 320))
 
     def toggle_selection(self, value):
         """
@@ -1944,10 +1958,10 @@ class TriFusionApp(App):
 
         # Ignore size_hint is absolute size is provided
         if size:
-            self._popup = Popup(title=title, content=content, size=size,
+            self._popup = NoWrapPopup(title=title, content=content, size=size,
                                 size_hint=(None, None), auto_dismiss=False)
         else:
-            self._popup = Popup(title=title, content=content,
+            self._popup = NoWrapPopup(title=title, content=content,
                                 size_hint=size_hint, auto_dismiss=False)
         self._popup.open()
 
