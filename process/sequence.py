@@ -612,6 +612,12 @@ class Alignment (Base):
 
         :param use_charset: Boolean. If true, partitions from the Partitions
         object will be written in the nexus output format
+
+        :param partition_file: Boolean. If true, the auxiliary partitions file
+        will be writen.
+
+        :param output_dir: String. If provided, the output file will be written
+        on the specified path
         """
 
         # If this function is called in the AlignmentList class, there may
@@ -622,6 +628,8 @@ class Alignment (Base):
         else:
             alignment = self.alignment
 
+        # If a specific output directory is provided, the output file will be
+        # written there
         if output_dir:
             output_file = join(output_dir, output_file)
 
