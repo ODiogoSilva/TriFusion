@@ -191,6 +191,10 @@ class TextDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class NexusExtra(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class PhylipExtra(BoxLayout):
     """
     Class controlling the dialog with extra options for phylip output format
@@ -373,6 +377,9 @@ class TriFusionApp(App):
     # Attributes for extra options of output formats
     # Determines whether the part.File associated with phylip format is created
     create_partfile = True
+    # Determines whether the charset partitions in Nexus input files are to
+    # be used in the output file
+    use_nexus_partitions = True
 
     # Attribute storing the filter settings. The list should contain gap
     # threshold as first element and missing data threshold as second element
@@ -2073,7 +2080,18 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-    def save_phylip_extra(self):
+    def dialog_nexus_extra(self):
+
+        content = NexusExtra(cancel=self.dismiss_subpopup)
+
+        content.ids.nexus_check.active = self.use_nexus_partitions
+
+        self._subpopup = Popup(title="Nexus extra options", content=content,
+                           size=(500, 200), size_hint=(None, None))
+
+        self._subpopup.open()
+
+    def dialog_phylip_extra(self):
 
         content = PhylipExtra(cancel=self.dismiss_subpopup)
 
@@ -2400,7 +2418,7 @@ class TriFusionApp(App):
             Animation(opacity=1, d=.5, t="in_quad").start(self.process_options)
 
             # Update the height of the GridLayout to allow scrolling
-            self.process_grid_wgt.height = self.process_height + (60 * len(
+            self.process_grid_wgt.height = self.process_height + (55 * len(
                 self.process_options.ids.main_grid.children))
 
             # Change text in the toggle button
@@ -2760,7 +2778,8 @@ class TriFusionApp(App):
             for name, obj in write_aln.items():
                 obj.write_to_file(self.output_formats, name,
                                 interleave=self.secondary_options["interleave"],
-                                partition_file=self.create_partfile)
+                                partition_file=self.create_partfile,
+                                use_charset=self.use_nexus_partitions)
         else:
             if self.output_dir == "":
                 return self.dialog_warning("Output directory not specified",
@@ -2772,9 +2791,10 @@ class TriFusionApp(App):
                 for name, obj in write_aln.items():
                     name = name.replace(self.output_file, "")
                     obj.write_to_file(self.output_formats, output_suffix=name,
-                                    interleave=self.secondary_options["interleave"],
-                                    partition_file=self.create_partfile,
-                                    output_dir=self.output_dir)
+                                interleave=self.secondary_options["interleave"],
+                                partition_file=self.create_partfile,
+                                output_dir=self.output_dir,
+                                use_charset=self.use_nexus_partitions)
 
 
 if __name__ == '__main__':
