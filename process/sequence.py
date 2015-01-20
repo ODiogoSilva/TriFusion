@@ -769,7 +769,7 @@ class Alignment (Base):
 
         if "mcmctree" in output_format:
 
-            out_file = open(output_file + ".phy", "w")
+            out_file = open(output_file + "_mcmctree.phy", "w")
             taxa_number = len(self.alignment)
 
             if self.partitions.is_single() is False:
