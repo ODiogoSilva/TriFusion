@@ -91,6 +91,10 @@ class NoWrapPopup(Popup):
         label.shorten_from = "right"
 
 
+class MouseOverLabel(Button):
+    pass
+
+
 class RevConcDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -570,32 +574,21 @@ class TriFusionApp(App):
 
             return dummy_wgt.collide_point(mp[0], mp[1])
 
-        def create_label_wgt(text):
+        def create_label(text):
             """
-            Creates the label to be introduced in the floatlayout.
-            :param text, string, text of a button
-            """
-
-            info_bt = Button(text=text, pos=mp, size=(len(text) * 8, 40),
-                        size_hint=(None, None))
-
-            return info_bt
-
-        def create_bk_label(text):
-            """
-            Creates the label for the bookmarks.
-            :param text:
-            :return:
+            Creates a general use label
+            :param text: Text to appear on the button
+            :return: Button object
             """
 
-            label_width = len(text) * 8
+            label_width = (len(text) + 7) * 7
 
             if label_width > self.root.width * .7:
-                info_bt = BookmarkLabel(text=text, pos=mp,
+                info_bt = MouseOverLabel(text=text, pos=mp,
                                 size=(self.root.width * .6, 40),
                                 size_hint=(None, None))
             else:
-                info_bt = BookmarkLabel(text=text, pos=mp,
+                info_bt = MouseOverLabel(text=text, pos=mp,
                                         size=(label_width, 40),
                             size_hint=(None, None))
 
@@ -622,7 +615,7 @@ class TriFusionApp(App):
                         if self.old_mouse_over:
                             self.root_window.remove_widget(self.old_mouse_over)
 
-                        label = create_bk_label(text=bt.id)
+                        label = create_label(text=bt.id)
                         Clock.schedule_once(partial(show_label, mp, label),
                                             .8)
                         self.mouse_over_ready = False
@@ -662,7 +655,7 @@ class TriFusionApp(App):
 
                         elif bt in self.mouse_over_bts[active_tab]:
                             # Create label widget
-                            label = create_label_wgt(text=bt.text)
+                            label = create_label(text=bt.text)
 
                             # Schedule the introduction of the label widget
                             Clock.schedule_once(partial(show_label, mp, label),
