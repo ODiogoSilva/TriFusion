@@ -564,6 +564,14 @@ class TriFusionApp(App):
         if modifier == "ctrl" and key == b'\x0f':
             self.go_screen(self.screen_names.index("fc"))
 
+        # Changing main screens between Orthology, Process and Statistics
+        if modifier == "ctrl" and key_code == (49, 10):
+            self.root.ids.h_ortho.dispatch("on_release")
+        if modifier == "ctrl" and key_code == (50, 11):
+            self.root.ids.h_process.dispatch("on_release")
+        if modifier == "ctrl" and key_code == (51, 12):
+            self.root.ids.h_stat.dispatch("on_release")
+
     def _on_mouseover_tabs(self, dt):
 
         # Get mouse position coordinates
