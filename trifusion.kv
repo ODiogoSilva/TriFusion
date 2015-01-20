@@ -162,25 +162,50 @@
             #size_hint_x: .65
             id: file_cov
 
+<CheckBt@Button>:
+    background_normal: "data/backgrounds/bt_process.png"
+    bold: True
+    shorten: True
+    shorten_from: "right"
+    text_size: self.size
+    halign: "center"
+    valign: "middle"
+
+
 <CheckDialog@BoxLayout>:
     orientation: "vertical"
     id: check
     text: None
-    Label:
-        valign: "middle"
-        halign: "center"
-        text_size: (self.size[0] - 5, self.size[1])
-        id: check_text
+    BoxLayout:
+        padding: 10
+        Label:
+            canvas.before:
+                Color:
+                    rgba: (.2, .2, .2, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            valign: "middle"
+            halign: "center"
+            text_size: (self.size[0] - 5, self.size[1])
+            id: check_text
     BoxLayout:
         size_hint_y: None
-        height: 30
-        spacing: 5
-        Button:
+        height: 50
+        spacing: 10
+        padding: 10
+        CheckBt:
+            background_normal: "data/backgrounds/check_ok.png"
+            background_down: "data/backgrounds/check_cancel.png"
+            size_hint_x: 1
             text: "Yes"
             id: check_ok
             on_release:
                 root.cancel()
         Button:
+            background_normal: "data/backgrounds/check_cancel.png"
+            background_down: "data/backgrounds/check_ok.png"
+            bold: True
             text: "No"
             on_release:
                 root.cancel()
@@ -188,18 +213,34 @@
 <WarningDialog@BoxLayout>:
     padding: 10
     orientation: "vertical"
-    Label:
-        id: warning_l
-        halign: "center"
-        valign: "middle"
-        text_size: self.size
-        markup: True
-    Button:
+    BoxLayout:
+        padding: 10
+        Label:
+            id: warning_l
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+            markup: True
+            canvas.before:
+                Color:
+                    rgba: (.2, .2, .2, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+    BoxLayout:
         size_hint_y: None
-        height: 30
-        text: "Close"
-        on_release:
-            root.cancel()
+        height: 60
+        padding: 10
+        Widget:
+            size_hint_x: .7
+        Button:
+            background_normal: "data/backgrounds/check_cancel.png"
+            background_down: "data/backgrounds/check_ok.png"
+            text: "Close"
+            on_release:
+                root.cancel()
+        Widget:
+            size_hint_x: .7
 
 <TaxaGroupDialog@BoxLayout>:
     orientation: "vertical"
