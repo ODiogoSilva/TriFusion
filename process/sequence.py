@@ -144,6 +144,9 @@ class Alignment (Base):
                 # If the input file is invalid, self.alignment will be an
                 # Exception instance instead of an OrderedDict()
                 self.alignment = finder_content
+                # Setting the sequence code attribute for seq type checking
+                # in AlignmentList
+                self.sequence_code = None
 
         # In case the class is initialized with a dictionary object
         elif isinstance(input_alignment, OrderedDict):
@@ -962,6 +965,14 @@ class AlignmentList (Base):
         Iterate over Alignment objects
         """
         return iter(self.alignment_object_list)
+
+    def format_list(self):
+        """
+        :return: List with the unique sequence types of the Alignment objects
+        """
+
+        return list(set([x.sequence_code[0] for x in
+                         self.alignment_object_list if x]))
 
     def _get_format(self):
         """
