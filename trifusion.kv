@@ -612,12 +612,15 @@
         SettingsBt:
             disabled: False
             on_release:
-                app.save_phylip_extra()
+                app.dialog_phylip_extra()
     BoxLayout:
         ToggleButton:
             id: nexus
             text: "Nexus"
-        SettingsBt
+        SettingsBt:
+            disabled: False
+            on_release:
+                app.dialog_nexus_extra()
     BoxLayout:
         ToggleButton:
             id: mcmctree
@@ -635,6 +638,31 @@
         Button:
             text: "Done"
             on_release: app.save_format(format_dlg)
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
+<NexusExtra@BoxLayout>:
+    padding: 10
+    spacing: 10
+    orientation: "vertical"
+    BoxLayout:
+        Label:
+            text: "Write the partitions block, if any."
+        CheckBox:
+            id: nexus_check
+            size_hint_x: .2
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 20
+        Button:
+            text: "Done"
+            on_release:
+                app.use_nexus_partitions = root.ids.nexus_check.active
+                app.dismiss_subpopup()
         Button:
             text: "Cancel"
             on_release: root.cancel()
@@ -862,7 +890,7 @@
             size: self.size
 
 <DarkBox@BoxLayout>:
-    height: 60
+    height: 55
     orientation: "horizontal"
     size_hint_y: None
     padding: 5

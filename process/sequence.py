@@ -567,7 +567,7 @@ class Alignment (Base):
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
                       cut_space_nex=50, cut_space_phy=50, cut_space_ima2=8,
                       interleave=False, gap="-", model_phylip="LG",
-                      outgroup_list=None, ima2_params=None,
+                      outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
@@ -609,6 +609,9 @@ class Alignment (Base):
           [str, the population tree in newick format, e.g. (0,1):2],
           [mut_model:[str, mutational model for all alignments],
           [str, inheritance scalar]]
+
+        :param use_charset: Boolean. If true, partitions from the Partitions
+        object will be written in the nexus output format
         """
 
         # If this function is called in the AlignmentList class, there may
@@ -858,24 +861,25 @@ class Alignment (Base):
                         seq_space_nex), seq))
                 out_file.write(";\n\tend;")
 
-            # Writing partitions, if any
-            if self.partitions.is_single() is False:
-                out_file.write("\nbegin mrbayes;\n")
-                # Full gene partitions
-                for name, lrange in self.partitions:
-                    out_file.write("\tcharset %s = %s-%s;\n" %
-                               (name, lrange[0] + 1, lrange[1]))
-                # Codon partitions
-                for name, lrange in self.partitions.codon_partitions.items():
-                    out_file.write("\tcharset %s = %s-%s\\3;\n" %
+            if use_charset:
+                # Writing partitions, if any
+                if self.partitions.is_single() is False:
+                    out_file.write("\nbegin mrbayes;\n")
+                    # Full gene partitions
+                    for name, lrange in self.partitions:
+                        out_file.write("\tcharset %s = %s-%s;\n" %
                                    (name, lrange[0] + 1, lrange[1]))
+                    # Codon partitions
+                    for name, lrange in self.partitions.codon_partitions.items():
+                        out_file.write("\tcharset %s = %s-%s\\3;\n" %
+                                       (name, lrange[0] + 1, lrange[1]))
 
-                out_file.write("\tpartition part = %s: %s;\n\tset partition="
-                               "part;\nend;\n" %
-                               (len(self.partitions.partitions) +
-                                len(self.partitions.codon_partitions),
-                                ", ".join([name for name in
-                                self.partitions.partitions.keys()])))
+                    out_file.write("\tpartition part = %s: %s;\n\tset partition="
+                                   "part;\nend;\n" %
+                                   (len(self.partitions.partitions) +
+                                    len(self.partitions.codon_partitions),
+                                    ", ".join([name for name in
+                                    self.partitions.partitions.keys()])))
 
             # In case outgroup taxa are specified
             if outgroup_list is not None:
