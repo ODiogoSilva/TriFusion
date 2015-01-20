@@ -36,16 +36,11 @@
     multiline: False
     text: app.home_path
 
-<BookmarkLabel>:
+<MouseOverLabel@Button>:
     text_size: self.size
     halign: "center"
     valign: "middle"
-    canvas.before:
-        Color:
-            rgba: (.1,.1,.1,1)
-        Rectangle:
-            pos: self.pos
-            size: self.size
+    background_down: "atlas://data/images/defaulttheme/button"
 
 <SideLabel>:
     canvas.before:
