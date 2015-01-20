@@ -522,6 +522,38 @@ class TriFusionApp(App):
         modifier = "".join(vals[-1])
         # Get key
         key = vals[-2].encode("utf-8")
+        key_code = vals[1:3]
+
+        #=======================================================================
+        # Popup keybindings
+        #=======================================================================
+
+        # Check only when a popup is active
+        if self._popup in self.root_window.children:
+            bn = join("data", "backgrounds", "check_ok.png")
+            bd = join("data", "backgrounds", "check_cancel.png")
+            # Check this only for Check popups that contain Ok and cancel bt ids
+            if "check_ok" in self._popup.content.ids:
+                ok_bt = self._popup.content.ids["check_ok"]
+                cancel_bt = self._popup.content.ids["check_cancel"]
+                # if left arrow key
+                if key_code == (276, 113):
+                    ok_bt.background_normal = bn
+                    cancel_bt.background_normal = bd
+                # if right arrow key
+                if key_code == (275, 114):
+                    ok_bt.background_normal = bd
+                    cancel_bt.background_normal = bn
+                # if enter key. Dispatch the events of the focused button
+                if key_code == (13, 36):
+                    if ok_bt.background_normal == bn:
+                        ok_bt.dispatch("on_release")
+                    else:
+                        cancel_bt.dispatch("on_release")
+
+        #=======================================================================
+        # General keybindings
+        #=======================================================================
 
         # Keybinding ctrl+f that brings focus to the "Find" field in the
         # Filechooser screen
