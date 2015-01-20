@@ -252,14 +252,17 @@
             spacing: 10
             Label:
                 text: "Set group name:"
-                size_hint_x: .5
+                bold: True
+                size_hint_x: .2
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
             TextInput:
+                size_hint_x: .8
                 id: group_name
                 text: "untitled_1"
                 multiline: False
-        Widget:
-            size_hint_x: .15
-        Widget
+
     BoxLayout:
         BoxLayout:
             orientation: "vertical"
@@ -291,8 +294,11 @@
                 size_hint_y: None
                 height: 15
             Button:
+                background_normal: "data/backgrounds/bt_process.png"
                 size_hint_y: .15
+                font_size: 18
                 text: "Save"
+                bold: True
                 on_release:
                     if root.ids.group_name.text not in app.taxa_groups: app.save_taxa_group(root.ids.select_grid, root.ids.group_name.text); root.cancel()
         BoxLayout:
@@ -304,23 +310,32 @@
                 spacing: 20
                 orientation: "vertical"
                 Button:
-                    text: "<<"
-                    bold: True
+                    background_down: "data/backgrounds/tg_addall.png"
+                    background_normal: "data/backgrounds/tg_addall_down.png"
+                    size_hint: (None, None)
+                    size: (47,50)
+                    border: (0,0,0,0)
                     on_release:
                         app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, True)
                 Button:
-                    text: "<"
-                    bold: True
+                    background_down: "data/backgrounds/tg_add.png"
+                    background_normal: "data/backgrounds/tg_add_down.png"
+                    size_hint: (None, None)
+                    size: (47,50)
                     on_release:
                         app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, False)
                 Button:
-                    text: ">"
-                    bold: True
+                    background_down: "data/backgrounds/tg_remove.png"
+                    background_normal: "data/backgrounds/tg_remove_down.png"
+                    size_hint: (None, None)
+                    size: (47,50)
                     on_release:
                         app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, False)
                 Button:
-                    text: ">>"
-                    bold: True
+                    background_down: "data/backgrounds/tg_removeall.png"
+                    background_normal: "data/backgrounds/tg_removeall_down.png"
+                    size_hint: (None, None)
+                    size: (47,50)
                     on_release:
                         app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, True)
             Widget:
@@ -355,8 +370,11 @@
                 size_hint_y: None
                 height: 15
             Button:
+                background_normal: "data/backgrounds/bt_process_off.png"
                 size_hint_y: .15
+                font_size: 18
                 text: "Cancel"
+                bold: True
                 on_release:
                     root.cancel()
 

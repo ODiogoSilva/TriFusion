@@ -16,7 +16,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="process_exec.svg">
+   sodipodi:docname="process_exec.svg"
+   inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/error_ok.png"
+   inkscape:export-xdpi="1.2328829"
+   inkscape:export-ydpi="1.2328829">
   <defs
      id="defs4">
     <linearGradient
@@ -111,9 +114,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.5"
-     inkscape:cx="437.27716"
-     inkscape:cy="35.887548"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="-381.83323"
+     inkscape:cy="146.93587"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -573,8 +576,8 @@
          style="fill:#ffffff" />
     </g>
     <rect
-       y="393.6828"
-       x="-2402.7205"
+       y="467.22189"
+       x="-2293.8259"
        height="1036.8809"
        width="1895.0463"
        id="rect2847-3-5-3"
@@ -586,13 +589,6 @@
        width="4155.2827"
        id="rect2851"
        style="fill:none;stroke:none" />
-    <rect
-       y="-1378.984"
-       x="-5241.29"
-       height="1846.5588"
-       width="4606.2959"
-       id="rect2847"
-       style="fill:#ffffff;fill-opacity:1;stroke:none" />
     <rect
        y="453.51398"
        x="-5742.3257"
@@ -712,5 +708,155 @@
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down2.png"
        inkscape:export-xdpi="9"
        inkscape:export-ydpi="9" />
+    <rect
+       style="fill:#ff5555;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect3050-2-5"
+       width="554.28571"
+       height="200"
+       x="-407.25049"
+       y="-126.68276"
+       ry="1.3671875"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_ok.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"
+       rx="1.3671875" />
+    <rect
+       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:#ff5555;stroke-width:0.50000000000000000;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3050-2-7-3"
+       width="554.28571"
+       height="200"
+       x="-405.14285"
+       y="-343.63782"
+       ry="1.3671875"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"
+       rx="1.3671875" />
+    <rect
+       style="fill:#2f2f33;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-1"
+       width="47"
+       height="50"
+       x="-367.84958"
+       y="885.13647"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_addall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:connector-curvature="0"
+       d="m -343.6539,924.55605 c 8.88626,0 16.0901,-7.20384 16.0901,-16.0901 0,-8.88626 -7.20384,-16.0901 -16.0901,-16.0901 -8.88626,0 -16.0901,7.20384 -16.0901,16.0901 0,8.88626 7.20384,16.0901 16.0901,16.0901 z m 0,-29.16331 c 7.21993,0 13.0732,5.85328 13.0732,13.07321 0,7.21993 -5.85327,13.07321 -13.0732,13.07321 -7.21993,0 -13.07321,-5.85328 -13.07321,-13.07321 0,-7.21993 5.85328,-13.07321 13.07321,-13.07321 z"
+       id="path3977"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_addall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:connector-curvature="0"
+       d="m -343.70133,902.25105 -2.84442,-2.84443 -8.9642,8.9642 8.9642,8.96419 2.84442,-2.84443 -6.12026,-6.12026 z"
+       id="path3979"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_addall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:connector-curvature="0"
+       d="m -333.92175,902.25156 -2.84443,-2.84443 -8.96419,8.96419 8.96419,8.9642 2.84443,-2.84442 -6.12026,-6.12028 z"
+       id="path3979-7"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_addall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-1-7"
+       width="47"
+       height="50"
+       x="-367"
+       y="941.86218"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_add.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <g
+       id="g4082"
+       transform="matrix(0.50390625,0,0,0.50390625,-359.25,951.11218)"
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_add.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         id="path4072"
+         d="M 32,64 C 49.673,64 64,49.673 64,32 64,14.327 49.673,0 32,0 14.327,0 0,14.327 0,32 0,49.673 14.327,64 32,64 z M 32,6 C 46.359,6 58,17.641 58,32 58,46.359 46.359,58 32,58 17.641,58 6,46.359 6,32 6,17.641 17.641,6 32,6 z"
+         inkscape:connector-curvature="0"
+         style="fill:#5599ff;fill-opacity:1" />
+      <path
+         id="path4074"
+         d="M 41.828,19.828 36.171,14.171 18.343,31.999 36.171,49.827 41.828,44.17 29.656,31.998 z"
+         inkscape:connector-curvature="0"
+         style="fill:#5599ff;fill-opacity:1" />
+    </g>
+    <rect
+       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-1-3"
+       width="47"
+       height="50"
+       x="377.5"
+       y="-934.86218"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_removeall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(-1,-1)" />
+    <path
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:connector-curvature="0"
+       d="m -401.94568,892.44261 c -8.88626,0 -16.0901,7.20384 -16.0901,16.0901 0,8.88626 7.20384,16.0901 16.0901,16.0901 8.88626,0 16.0901,-7.20384 16.0901,-16.0901 0,-8.88626 -7.20384,-16.0901 -16.0901,-16.0901 z m 0,29.16331 c -7.21993,0 -13.0732,-5.85328 -13.0732,-13.07321 0,-7.21993 5.85327,-13.07321 13.0732,-13.07321 7.21993,0 13.07321,5.85328 13.07321,13.07321 0,7.21993 -5.85328,13.07321 -13.07321,13.07321 z"
+       id="path3977-7"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_removeall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:connector-curvature="0"
+       d="m -401.89825,914.74761 2.84442,2.84443 8.9642,-8.9642 -8.9642,-8.96419 -2.84442,2.84443 6.12026,6.12026 z"
+       id="path3979-73"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_removeall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:connector-curvature="0"
+       d="m -411.67783,914.7471 2.84443,2.84443 8.96419,-8.96419 -8.96419,-8.9642 -2.84443,2.84442 6.12026,6.12028 z"
+       id="path3979-7-7"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_removeall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-1-7-1"
+       width="47"
+       height="50"
+       x="379.25"
+       y="-992.11218"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_remove.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(-1,-1)" />
+    <g
+       id="g4082-4"
+       transform="matrix(-0.50390625,0,0,-0.50390625,-387,982.86219)"
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/tg_remove.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         id="path4072-9"
+         d="M 32,64 C 49.673,64 64,49.673 64,32 64,14.327 49.673,0 32,0 14.327,0 0,14.327 0,32 0,49.673 14.327,64 32,64 z M 32,6 C 46.359,6 58,17.641 58,32 58,46.359 46.359,58 32,58 17.641,58 6,46.359 6,32 6,17.641 17.641,6 32,6 z"
+         inkscape:connector-curvature="0"
+         style="fill:#5599ff;fill-opacity:1" />
+      <path
+         id="path4074-3"
+         d="M 41.828,19.828 36.171,14.171 18.343,31.999 36.171,49.827 41.828,44.17 29.656,31.998 z"
+         inkscape:connector-curvature="0"
+         style="fill:#5599ff;fill-opacity:1" />
+    </g>
   </g>
 </svg>
