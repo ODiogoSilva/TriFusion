@@ -221,6 +221,14 @@ class ZorroDialog(BoxLayout):
     """
     cancel = ObjectProperty(None)
 
+#===============================================================================
+#                                  EXCEPTIONS
+#===============================================================================
+
+
+class InputTypeError(Exception):
+    pass
+
 
 class TriFusionApp(App):
 
@@ -343,6 +351,9 @@ class TriFusionApp(App):
     # Same as before but for file information
     original_file_inf = None
     active_file_inf = None
+
+    # Attribute storing the sequence types currently loaded
+    sequence_types = []
 
     # Attribute for taxa groups
     taxa_groups = {}
@@ -1053,54 +1064,64 @@ class TriFusionApp(App):
         # Parses the files into the program
         bad_aln = self.load_files(selection)
 
-        # Checking if there are invalid input alignments
-        if bad_aln:
-            if len(bad_aln) == 1:
-                self.dialog_warning("Invalid input file detected",
-                                    "The following input file is invalid:\n\n"
-                                    "[b]%s[/b]" %
-                                    bad_aln[0].name.split(sep)[-1])
-            else:
-                self.dialog_warning("Invalid input files detected",
-                                    "The following input files are invalid:\n\n"
-                                    "[b]%s[/b]" %
-                                    "\n".join(x.name.split(sep)[-1] for x
-                                              in bad_aln))
+        # Checking for input sequence type inconsistencies. If there are
+        # alignments with different sequence types, then issue and error popup
+        # and do not load the files
+        if isinstance(bad_aln, Exception):
+            self.dialog_warning("Multiple sequence types detected", "The "
+                                "selected input alignments contain more than "
+                                "one sequence type (DNA, RNA, Protein). Please"
+                                " select input files of the same sequence type")
+            return 0
+        else:
+            # Checking if there are invalid input alignments
+            if bad_aln:
+                if len(bad_aln) == 1:
+                    self.dialog_warning("Invalid input file detected",
+                                        "The following input file is invalid:"
+                                        "\n\n[b]%s[/b]" %
+                                        bad_aln[0].name.split(sep)[-1])
+                else:
+                    self.dialog_warning("Invalid input files detected",
+                                        "The following input files are invalid:"
+                                        "\n\n[b]%s[/b]" %
+                                        "\n".join(x.name.split(sep)[-1] for x
+                                                  in bad_aln))
 
-        # removes bad alignment files from selection list
-        selection = [path for path in selection if path not in
-                    [x.name for x in bad_aln]]
+            # removes bad alignment files from selection list
+            selection = [path for path in selection if path not in
+                        [x.name for x in bad_aln]]
 
-        if self.file_list:
-            # Updating complete and active file lists
-            self.file_list.extend(selection)
-            self.active_file_list.extend(selection)
-            # Update the filename - path mapping attribute
-            self.filename_map = dict(list(self.filename_map.items()) +
+            if self.file_list:
+                # Updating complete and active file lists
+                self.file_list.extend(selection)
+                self.active_file_list.extend(selection)
+                # Update the filename - path mapping attribute
+                self.filename_map = dict(list(self.filename_map.items()) +
                                      list((x, y) for x, y in
                                      zip([x.split("/")[-1] for x in selection],
                                          selection)))
 
-        else:
-            # Set an attribute with the input file list
-            self.file_list = selection
-            # Setting active file list and path list
-            self.active_file_list = deepcopy(self.file_list)
-            # Sett the filename - path mapping attribute
-            self.filename_map = dict((x, y) for x, y in zip(
-                [x.split("/")[-1] for x in selection], selection))
+            else:
+                # Set an attribute with the input file list
+                self.file_list = selection
+                # Setting active file list and path list
+                self.active_file_list = deepcopy(self.file_list)
+                # Sett the filename - path mapping attribute
+                self.filename_map = dict((x, y) for x, y in zip(
+                    [x.split("/")[-1] for x in selection], selection))
 
-        if self.active_alignment_list:
-            # Update active taxa list
-            self.update_taxa()
-            # Populates files and taxa contents
-            self.update_tabs()
-            # Gathers taxa  and file information
-            self.original_tx_inf = self.get_taxa_information()
-            self.original_file_inf = self.get_file_information()
+            if self.active_alignment_list:
+                # Update active taxa list
+                self.update_taxa()
+                # Populates files and taxa contents
+                self.update_tabs()
+                # Gathers taxa  and file information
+                self.original_tx_inf = self.get_taxa_information()
+                self.original_file_inf = self.get_file_information()
 
-            # Unlocks options dependent on the availability of input data
-            self.root.ids.tx_group_bt.disabled = False
+                # Unlocks options dependent on the availability of input data
+                self.root.ids.tx_group_bt.disabled = False
 
     def update_tabs(self):
         """
@@ -2413,6 +2434,13 @@ class TriFusionApp(App):
         """
 
         aln_list = AlignmentList(files)
+
+        # Check for consistency in sequence type across alignments
+        current_seq_type = set(self.sequence_types + aln_list.format_list())
+        if len(current_seq_type) > 1:
+            return InputTypeError("Multiple sequence types detected")
+        else:
+            self.sequence_types.extend(list(current_seq_type))
 
         # When creating an AlignmentList object, some input alignment may be
         # invalid, in which case they are removed from the
