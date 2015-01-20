@@ -2362,7 +2362,7 @@ class TriFusionApp(App):
             Animation(opacity=1, d=.5, t="in_quad").start(self.process_options)
 
             # Update the height of the GridLayout to allow scrolling
-            self.process_grid_wgt.height = self.process_height + (55 * len(
+            self.process_grid_wgt.height = self.process_height + (60 * len(
                 self.process_options.ids.main_grid.children))
 
             # Change text in the toggle button
