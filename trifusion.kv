@@ -1357,6 +1357,7 @@
 ############################# ROOT SCREEN ######################################
 
 FloatLayout:
+    __safe_id: [file_dd.__self__, taxa_dd.__self__]
     BoxLayout:
         orientation: "vertical"
         canvas.before:
@@ -1623,9 +1624,42 @@ FloatLayout:
                                                 size_hint_y: None
                                                 height: 1
                                                 color: (.6, .6, .6, 1)
-                                            SelectionBox:
-                                                id: sb_file
-
+                                            BoxLayout:
+                                                spacing: 5
+                                                size_hint_y: None
+                                                height: 35
+                                                BoxLayout:
+                                                    id: sb_file
+                                                    spacing: 5
+                                                    Button:
+                                                        text: "Select All"
+                                                        disabled: True
+                                                    Button:
+                                                        text: "Deselect All"
+                                                        disabled: True
+                                                Button:
+                                                    id: file_opt
+                                                    text: "+"
+                                                    bold: True
+                                                    size_hint_x: .15
+                                                    disabled: True
+                                                    on_release:
+                                                        file_dd.open(self)
+                                                DropDown:
+                                                    id: file_dd
+                                                    auto_width: False
+                                                    size_hint_x: None
+                                                    width: 150
+                                                    Button:
+                                                        size_hint: (None, None)
+                                                        width: 150
+                                                        height: 30
+                                                        text: "Export All Files"
+                                                    Button:
+                                                        size_hint: (None, None)
+                                                        width: 150
+                                                        height: 30
+                                                        text: "Export Selected Files"
                                     TabbedPanelItem:
                                         id: taxa_tp
                                         text: "Taxa"
@@ -1653,8 +1687,43 @@ FloatLayout:
                                                 size_hint_y: None
                                                 height: 1
                                                 color: (.6, .6, .6, 1)
-                                            SelectionBox:
-                                                id: sb_taxa
+                                            BoxLayout:
+                                                spacing: 5
+                                                size_hint_y: None
+                                                height: 35
+                                                BoxLayout:
+                                                    id: sb_taxa
+                                                    spacing: 5
+                                                    Button:
+                                                        text: "Select All"
+                                                        disabled: True
+                                                    Button:
+                                                        text: "Deselect All"
+                                                        disabled: True
+                                                Button:
+                                                    id: taxa_opt
+                                                    text: "+"
+                                                    bold: True
+                                                    size_hint_x: .15
+                                                    disabled: True
+                                                    on_release:
+                                                        taxa_dd.open(self)
+
+                                                DropDown:
+                                                    id: taxa_dd
+                                                    auto_width: False
+                                                    size_hint_x: None
+                                                    width: 150
+                                                    Button:
+                                                        size_hint: (None, None)
+                                                        width: 150
+                                                        height: 30
+                                                        text: "Export All Taxa"
+                                                    Button:
+                                                        size_hint: (None, None)
+                                                        width: 150
+                                                        height: 30
+                                                        text: "Export Selected Taxa"
                             BoxLayout:
                                 orientation: "vertical"
                                 padding: 10

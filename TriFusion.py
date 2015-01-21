@@ -439,6 +439,10 @@ class TriFusionApp(App):
         # Set schedule for mouse over events on side panel
         Clock.schedule_interval(self._on_mouseover_tabs, .1)
 
+        # This corrects a weird bug where the buttons in the dropdown of the
+        # taxa tab in the side panel are open by default.
+        self.root.ids.taxa_dd.dismiss()
+
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
 
@@ -1213,8 +1217,10 @@ class TriFusionApp(App):
                 self.root.ids["file_temp"] = no_bt
                 self.root.ids.file_sl.add_widget(no_bt)
             self.root.ids.sb_file.disabled = True
+            self.root.ids.file_opt.disabled = True
         else:
             self.root.ids.sb_file.disabled = False
+            self.root.ids.file_opt.disabled = False
 
     def update_sp_label(self):
         """
@@ -1231,6 +1237,7 @@ class TriFusionApp(App):
         if len(self.active_taxa_list) == 0 and \
                 len(self.alignment_list.taxa_names) == 0:
             self.root.ids.sb_taxa.disabled = True
+            self.root.ids.taxa_opt.disabled = True
             if "species_temp" not in [x.id for x in
                                       self.root.ids.taxa_sl.children]:
                 no_bt = Button(id="species_temp", text="No species loaded",
@@ -1239,6 +1246,7 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.add_widget(no_bt)
         else:
             self.root.ids.sb_taxa.disabled = False
+            self.root.ids.taxa_opt.disabled = False
 
     def populate_input_files(self):
         """
@@ -1253,11 +1261,12 @@ class TriFusionApp(App):
             del self.root.ids["file_temp"]
             self.root.ids.file_sl.height = 5
 
-        # Enable selection buttons if file list is not empty
+        # Enable selection  and more options buttons if file list is not empty
         if self.file_list:
             for i in self.root.ids.sb_file.children:
                 i.disabled = False
                 i.bind(on_release=self.select_bt)
+            self.root.ids.file_opt.disabled = False
 
         # Add a label at the end of the file list informing how many files are
         # currently selected out of the total files
@@ -1322,11 +1331,12 @@ class TriFusionApp(App):
             del self.root.ids["species_temp"]
             self.root.ids.taxa_sl.height = 5
 
-        # Enable selection buttons if taxa list is not empty
+        # Enable selection and more options buttons if taxa list is not empty
         if self.active_taxa_list:
             for i in self.root.ids.sb_taxa.children:
                 i.disabled = False
                 i.bind(on_release=self.select_bt)
+            self.root.ids.taxa_opt.disabled = False
 
         # Add a label at the end of the taxa list informing how many taxa are
         # currently selected out of the total taxa
@@ -1583,8 +1593,8 @@ class TriFusionApp(App):
         use for buttons in the files and taxa tabs
         """
 
-        sv_parent = [x for x in value.parent.parent.children if "scrollview" in
-                     str(x.__class__)][0]
+        sv_parent = [x for x in value.parent.parent.parent.children if
+                     "scrollview" in str(x.__class__)][0]
 
         # This will iterate over the first child of the parent scrollview.
         # Since scroll view only supports one child, this should be fine
