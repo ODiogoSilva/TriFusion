@@ -442,6 +442,7 @@ class TriFusionApp(App):
         # This corrects a weird bug where the buttons in the dropdown of the
         # taxa tab in the side panel are open by default.
         self.root.ids.taxa_dd.dismiss()
+        self.root.ids.file_dd.dismiss()
 
         """
         ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
@@ -575,6 +576,10 @@ class TriFusionApp(App):
             self.root.ids.h_process.dispatch("on_release")
         if modifier == "ctrl" and key_code == (51, 12):
             self.root.ids.h_stat.dispatch("on_release")
+
+        # Toggle side panel (Tab)
+        if key_code == (9, 23):
+            self.root.ids.ap.dispatch("on_release")
 
     def _on_mouseover_tabs(self, dt):
 
