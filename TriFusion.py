@@ -361,6 +361,9 @@ class TriFusionApp(App):
     original_file_inf = None
     active_file_inf = None
 
+    # Name of the exportation file
+    export_file = None
+
     # Attribute storing the sequence types currently loaded
     sequence_types = []
 
@@ -2050,7 +2053,7 @@ class TriFusionApp(App):
                                 title_color=separator_color)
         self._popup.open()
 
-    def save_file(self, path, file_name=None):
+    def save_file(self, path, file_name=None, idx=None):
         """
         Adds functionality to the save button in the output file chooser. It
         gathers information on the specified path through filechooser, file
@@ -2060,24 +2063,29 @@ class TriFusionApp(App):
         is stored in a string attribute.
 
         :param path: string. complete path
-        :param filename: string. file name only
-        :param idx: sting. widget id
+        :param file_name: string. file name only
+        :param idx: string. An id of where the filechooser is calling. This
+        allows the addition of custom behaviours for different dialogs
         """
 
-        if self.main_operations["concatenation"]:
-            # Ensures that empty file names cannot be specified
-            while file_name != "":
+        if idx == "concatenation":
+            if self.main_operations["concatenation"]:
+                # Ensures that empty file names cannot be specified
+                while file_name != "":
 
-                # Adds output file to storage
-                self.output_file = join(path, file_name)
-                # Renames the output file button text
-                self.process_grid_wgt.ids.conv.text = file_name
-                # Breaks loop
-                break
+                    # Adds output file to storage
+                    self.output_file = join(path, file_name)
+                    # Renames the output file button text
+                    self.process_grid_wgt.ids.conv.text = file_name
+                    # Breaks loop
+                    break
 
-        else:
-            self.output_dir = path
-            self.process_grid_wgt.ids.conv.text = path.split(sep)[-1]
+            else:
+                self.output_dir = path
+                self.process_grid_wgt.ids.conv.text = path.split(sep)[-1]
+
+        if idx == "export":
+            self.export_file = path
 
     def save_format(self, value):
         """
@@ -2274,9 +2282,12 @@ class TriFusionApp(App):
 
         self._subpopup.open()
 
-    def dialog_filechooser(self, value):
+    def dialog_filechooser(self, value, idx=None):
         """
         Generates a file chooser popup for the user to select an output file
+
+        :param idx: string. An id of where the filechooser is calling. This
+        allows the addition of custom behaviours for different dialogs
         """
 
         # Inherits the layout defined in the .kv file under <SaveDialog>
@@ -2284,15 +2295,17 @@ class TriFusionApp(App):
         # Sets the home path as starting point
         content.ids.sd_filechooser.path = self.home_path
 
-        # If the main operation is conversion or reverse concatenation, remove
-        # the TextInput asking for the file name
-        if self.main_operations["conversion"] or \
-                self.main_operations["reverse_concatenation"]:
-            content.ids.txt_box.clear_widgets()
-            content.ids.txt_box.height = 0
-            title = "Choose destination directory of output file(s)"
-        else:
-            title = "Choose output file"
+        # Custom behaviour for main output file chooser dialog
+        if idx == "main_output":
+            # If the main operation is conversion or reverse concatenation,
+            # remove the TextInput asking for the file name
+            if self.main_operations["conversion"] or \
+                    self.main_operations["reverse_concatenation"]:
+                content.ids.txt_box.clear_widgets()
+                content.ids.txt_box.height = 0
+                title = "Choose destination directory of output file(s)"
+            else:
+                title = "Choose output file"
 
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to

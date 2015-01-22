@@ -599,8 +599,8 @@
             Button:
                 text: "Save"
                 on_release:
-                    if txt_box.height == 30: app.save_file(sd_filechooser.path, file_name = text_input.text)
-                    if txt_box.height == 0: app.save_file(sd_filechooser.path)
+                    if txt_box.height == 30: app.save_file(sd_filechooser.path, file_name = text_input.text, idx = "concatenation")
+                    if txt_box.height == 0: app.save_file(sd_filechooser.path, idx = "concatenation")
                     root.cancel()
 
             Button:
@@ -1033,7 +1033,7 @@
             ProcessBt:
                 id: conv
                 text: "Select..."
-                on_release: app.dialog_filechooser("conversion")
+                on_release: app.dialog_filechooser("conversion", "main_output")
 
         BoxLayout:
             padding: [100,10,100,10]
