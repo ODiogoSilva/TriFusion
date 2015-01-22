@@ -361,8 +361,9 @@ class TriFusionApp(App):
     original_file_inf = None
     active_file_inf = None
 
-    # Name of the exportation file
-    export_file = None
+    # Export mode. Tuple with first element "taxa" or "file" and second element
+    # as "all" or "selected"
+    export_mode = None
 
     # Attribute storing the sequence types currently loaded
     sequence_types = []
@@ -1492,6 +1493,45 @@ class TriFusionApp(App):
                 self.show_popup(title="File: %s" % value.id[:-1],
                                 content=content, size=(400, 320))
 
+    def export_names(self, path, file_name):
+        """
+        Export the names of buttons in the corresponding tab in the side panel
+        It listens to the self.export_mode attribute, which is a tuple object
+        with the first element being either "file" or "taxa" and the second
+        element as "all" or "selected".
+
+        :param path: string. Path to the output file.
+        :param file_name. Name of the output file.
+        """
+
+        # Create file object
+        export_file = open(join(path, file_name) + ".txt", "w")
+
+        if self.export_mode[0] == "file":
+            # Export all files
+            if self.export_mode[1] == "all":
+                for x in self.file_list:
+                    short_name = x.split(sep)[-1]
+                    export_file.write(short_name + "\n")
+            # Export selected files
+            elif self.export_mode[1] == "selected":
+                for x in self.active_file_list:
+                    short_name = x.split(sep)[-1]
+                    export_file.write(short_name + "\n")
+
+        elif self.export_mode[0] == "taxa":
+            # Export all taxa
+            if self.export_mode[1] == "all":
+                for x in self.alignment_list.taxa_names:
+                    export_file.write(x + "\n")
+            # Export selected taxa
+            elif self.export_mode[1] == "selected":
+                for x in self.active_taxa_list:
+                    export_file.write(x + "\n")
+
+        # Close file handle
+        export_file.close()
+
     def toggle_selection(self, value):
         """
         Adds functionality for the file and taxa toggle buttons in the side
@@ -2068,7 +2108,7 @@ class TriFusionApp(App):
         allows the addition of custom behaviours for different dialogs
         """
 
-        if idx == "concatenation":
+        if idx == "main_output":
             if self.main_operations["concatenation"]:
                 # Ensures that empty file names cannot be specified
                 while file_name != "":
@@ -2083,9 +2123,6 @@ class TriFusionApp(App):
             else:
                 self.output_dir = path
                 self.process_grid_wgt.ids.conv.text = path.split(sep)[-1]
-
-        if idx == "export":
-            self.export_file = path
 
     def save_format(self, value):
         """
@@ -2282,7 +2319,7 @@ class TriFusionApp(App):
 
         self._subpopup.open()
 
-    def dialog_filechooser(self, value, idx=None):
+    def dialog_filechooser(self, idx=None):
         """
         Generates a file chooser popup for the user to select an output file
 
@@ -2307,10 +2344,13 @@ class TriFusionApp(App):
             else:
                 title = "Choose output file"
 
+        if idx == "export":
+            title = "Choose file for exportation"
+
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
         # know which output file is this
-        content.ids.sd_filechooser.text = value
+        content.ids.sd_filechooser.text = idx
 
         self.show_popup(title=title, content=content)
 
