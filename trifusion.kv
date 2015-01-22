@@ -1145,25 +1145,7 @@
                     size_hint_x: .8
                     markup: True
                     id: test2
-                    text: "[size=18][b]Reverse concatenation[/b][/size]\n[size=13]In case the active input file is concatenated, revert to individual files (In development) [/size]"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Switch:
-                    id: reverse_concatenation
-                    size_hint_x: .2
-                    disabled: True
-                    on_active:
-                        app.update_process_switch("rev_concatenation", self.active)
-
-            Hseparator
-
-            DarkBox:
-                Label:
-                    size_hint_x: .8
-                    markup: True
-                    id: test2
-                    text: "[size=18][b]Partition file[/b][/size]\n[size=13]Provide the partitioning file either in nexus or RAxML like format [/size]"
+                    text: "[size=18][b]Change/View partitions[/b][/size]\n[size=13] General options for viewing, adding or removing partitions [/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
@@ -1641,6 +1623,7 @@ FloatLayout:
                                                 Button:
                                                     id: file_opt
                                                     text: "+"
+                                                    font_size: 30
                                                     bold: True
                                                     size_hint_x: .15
                                                     disabled: True
@@ -1718,6 +1701,7 @@ FloatLayout:
                                                 Button:
                                                     id: taxa_opt
                                                     text: "+"
+                                                    font_size: 30
                                                     bold: True
                                                     size_hint_x: .15
                                                     disabled: True
