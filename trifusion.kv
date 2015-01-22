@@ -1649,17 +1649,23 @@ FloatLayout:
                                                     id: file_dd
                                                     auto_width: False
                                                     size_hint_x: None
-                                                    width: 150
+                                                    width: 250
                                                     Button:
+                                                        text_size: self.size
+                                                        halign: "left"
+                                                        valign: "middle"
                                                         size_hint: (None, None)
-                                                        width: 150
+                                                        width: 250
                                                         height: 30
-                                                        text: "Export All Files"
+                                                        text: "  Export all file names as text"
                                                     Button:
+                                                        text_size: self.size
+                                                        halign: "left"
+                                                        valign: "middle"
                                                         size_hint: (None, None)
-                                                        width: 150
+                                                        width: 250
                                                         height: 30
-                                                        text: "Export Selected Files"
+                                                        text: "  Export selected file names as text"
                                     TabbedPanelItem:
                                         id: taxa_tp
                                         text: "Taxa"
@@ -1713,17 +1719,23 @@ FloatLayout:
                                                     id: taxa_dd
                                                     auto_width: False
                                                     size_hint_x: None
-                                                    width: 150
+                                                    width: 250
                                                     Button:
+                                                        text_size: self.size
+                                                        halign: "left"
+                                                        valign: "middle"
                                                         size_hint: (None, None)
-                                                        width: 150
+                                                        width: 250
                                                         height: 30
-                                                        text: "Export All Taxa"
+                                                        text: " Export all taxa names as text"
                                                     Button:
+                                                        text_size: self.size
+                                                        halign: "left"
+                                                        valign: "middle"
                                                         size_hint: (None, None)
-                                                        width: 150
+                                                        width: 250
                                                         height: 30
-                                                        text: "Export Selected Taxa"
+                                                        text: " Export selected taxa names as text"
                             BoxLayout:
                                 orientation: "vertical"
                                 padding: 10
