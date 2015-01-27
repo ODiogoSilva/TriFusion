@@ -518,7 +518,7 @@
     height: 30
     bold: True
     halign: "center"
-    valign: "middle"
+    valign: "top"
     text_size: self.size
 
 <PartitionScreen@BoxLayout>:
@@ -528,15 +528,17 @@
         height: 30
 
     BoxLayout:
-        padding: 15
+        padding: 10
         orientation: "vertical"
         spacing: 10
         canvas.before:
             Color:
-                rgba: (.1,.1,.1,1)
+                rgba: (1,1,1,1)
             Rectangle:
+                source: "data/backgrounds/partition_content.png"
                 pos: self.pos
                 size: self.size
+
         BoxLayout:
             size_hint_y: .5
             orientation: "vertical"
@@ -545,8 +547,9 @@
             ScrollView:
                 canvas.before:
                     Color:
-                        rgba: .2,.2,.2,1
+                        rgba: (1,1,1,1)
                     Rectangle:
+                        source: "data/backgrounds/partition_file_background.png"
                         pos: self.pos
                         size: self.size
                 GridLayout:
@@ -562,13 +565,23 @@
                 orientation: "vertical"
                 FieldLabel:
                     text: "Partition Details"
-                DetailLabel:
-                    id: size_d
-                    text: "Size"
-                DetailLabel:
-                    id: files_d
-                    text: "Files"
-                Widget
+                BoxLayout:
+                    padding: 10
+                    orientation: "vertical"
+                    canvas.before:
+                        Color:
+                            rgba: (1,1,1,1)
+                        Rectangle:
+                            source: "data/backgrounds/partition_file_background.png"
+                            pos: self.pos
+                            size: self.size
+                    DetailLabel:
+                        id: size_d
+                        text: "Size"
+                    DetailLabel:
+                        id: files_d
+                        text: "Files"
+                    Widget
             BoxLayout:
                 orientation: "vertical"
                 spacing: 10
@@ -587,7 +600,7 @@
                     BoxLayout:
                         size_hint_y: .6
                         padding: 5
-                        #spacing: 5
+                        spacing: 5
                         ToggleButton:
                             id: codon_0
                             text: "1st"
@@ -623,11 +636,13 @@
                 Label:
                     size_hint_x: .9
                     text: "Partitions"
+                    bold: True
 
             Hseparator
 
             ScrollView:
                 size_hint_y: .9
+                bar_inactive_color: (0,0,0,0)
                 GridLayout:
                     size_hint_y: None
                     height: 0
