@@ -64,8 +64,25 @@ class Partitions():
         Therefore, to convert this notation into workable integers, the size
         of the locus must be provided using the set_length method.
         """
-        self.locus_length = None
+        self.locus_length = 0
 
+        """
+        partitions will contain the name and range of the partitions for a given
+        alignment object. Both gene and codon partitions will be stored in this
+        attribute, but gene partitions are the main entries. An example of
+        different stored partitions is:
+
+        partitions = {"partitionA": ((0, 856,) False),
+                      "partitionB": ((857, 1450), [857,858,859] }
+
+        "partitionA" is a simple gene partition ranging from 0 to 856, while
+        "partitionB" is an assembly of codon partitions. The third element of
+        the tuple is destined to codon partitions. If there are none, it should
+        be False. If there are codon partitions, a list should be provided with
+        the desired initial codons. In the example above, "partitionB" has
+        actually 3 partitions starting at the first, second and third sequence
+        nucleotide of the main partition.
+        """
         self.partitions = OrderedDict()
 
         """
@@ -76,12 +93,6 @@ class Partitions():
         of 1.
         """
         self.partitions_nice = OrderedDict()
-
-        """
-        Storage of codon partitions, usually distinguished from gene partitions
-        by having a "/3" at the end of the range, e.g. 1-./3.
-        """
-        self.codon_partitions = OrderedDict()
 
         """
         The private self._models attribute will contain the same key list as
@@ -156,6 +167,7 @@ class Partitions():
 
         part_file = open(partitions_file)
 
+        # TODO: Add suport for codon partitions in raxml format
         if partition_format == "raxml":
             for line in part_file:
                 fields = line.split(",")
@@ -165,7 +177,7 @@ class Partitions():
                 partition_name = fields[1].split("=")[0].strip()
                 # Get partition range as list of int
                 partition_range_temp = fields[1].split("=")[1]
-                partition_range = [int(x) for x in
+                partition_range = [int(x) - 1 for x in
                                    partition_range_temp.strip().split("-")]
                 # Add information to partitions storage
                 self.add_partition(partition_name, locus_range=partition_range,
@@ -185,31 +197,43 @@ class Partitions():
         fields = string.split("=")
         partition_name = fields[0].split()[1].strip()
 
-        partition_full = re.split(r"[-\\]", fields[1])
+        # If this list has 2 elements, it should be a simple gene partition
+        # If it has 3 elements, it should be a codon partition
+        partition_full = re.split(r"[-\\]", fields[1].strip().replace(";", ""))
 
         # If partition is defined using "." notation to mean full length
         if partition_full[1] == ".":
             if self.locus_length:
                 partition_range = [int(partition_full[0]) - 1,
-                                   self.locus_length]
+                                   self.locus_length - 1]
             else:
                 raise PartitionException("The length of the locus must be "
                                          "provided when partitions are defined"
                                          " using '.' notation to mean full"
                                          " length")
         else:
-            partition_range = [int(partition_full[0]) - 1, partition_full[1]]
+            partition_range = [int(partition_full[0]) - 1,
+                               int(partition_full[1]) - 1]
 
-        # Determine whether the charset is defining a gene or a codon partition
-        # based on the presence of the final substring '/3'
-        # Gene partition
-        if len(partition_full) == 2:
-            self.add_partition(partition_name, locus_range=partition_range)
+        self.add_partition(partition_name, locus_range=partition_range)
 
-        # Codon partition
-        elif len(partition_full) == 3:
-            self.add_codon_partition(partition_name,
-                                     locus_range=partition_range)
+    def get_partition_names(self):
+        """
+        :return: list containing the names of the partitions. When a parent
+        partition has multiple codon partitions, it returns a partition name
+        for every codon starting position present in the second element
+        of the value
+        """
+
+        names = []
+
+        for part, vals in self.partitions.items():
+            if vals[1]:
+                names.extend([part + "_%s" % (x + 1) for x in vals[1]])
+            else:
+                names.append(part)
+
+        return names
 
     def read_from_dict(self, dict_obj):
         """
@@ -238,97 +262,82 @@ class Partitions():
         defined, and False if there are multiple partitions
         """
 
-        if len(self.partitions) == 1 and len(self.codon_partitions) < 1:
-            return True
-        else:
-            return False
-
-    def is_single_gene(self):
-        """
-        :return: Boolean. Returns True if there is only one single main
-        partition (i.e. from self.partitions)
-        """
-
         if len(self.partitions) == 1:
-            return True
+            if not [x for x in self.partitions.values()][0][1]:
+                return True
+            else:
+                return False
         else:
             return False
 
-    def is_single_codon(self):
+    def _find_parent(self, max_range):
         """
-        :return: Boolean. Returns True if there are none codon positions
-        """
-
-        if self.codon_partitions:
-            return False
-        else:
-            return True
-
-    def set_single_partition(self, name, length):
-        """
-        Sets the self.partitions attribute consisting of a single partition.
-        Usually used by single alignments.
-
-        Adding or setting partitions always associates them with a substitution
-        model object
-
-        :param length: int. Lenght of the alignment
-        :param name: string. Name of the alignment
+        Internal method that finds a parent partition of a codon partition
+        :param max_range: The maximum range of the codon partition
+        :return: The name of the parent partition, from self.partitions
         """
 
-        # Add partition
-        self.partitions[name] = (0, length)
-        self.partitions_nice[name] = (1, length)
-        # Associate substitution model
-        self._models[name] = SubstitutionModels()
+        for part, vals in self.partitions.items():
+            lrange = vals[0]
+            if lrange[1] == max_range:
+                return part
 
-        #Update counter
-        self.counter += length
-
-    def add_codon_partition(self, name, locus_range=None, use_counter=False):
-        """
-        Adds a new codon partition, with a similar usage to add_partition, with
-        the exception that a locus range has to be specified
-        :param name: string. Name of the alignment
-        :param locus_range: list/tuple. Range of the partition
-        :param use_counter: Boolean. If true, the value of self.counter will be
-        added to the range numbers provided by locus_range. Otherwise,
-        it will start at locus_range[0]. This options is used when
-        concatenating alignment.
-        """
-
-        if name in self.codon_partitions or name in self.partitions:
-            raise PartitionException("Partition name %s is already in the "
-                                     "partition table" % name)
-
-        if use_counter:
-            self.codon_partitions[name] = (locus_range[0] + self.counter,
-                                           locus_range[1] + self.counter)
-        else:
-            self.codon_partitions[name] = (locus_range[0], locus_range[1])
-
-    def add_partition(self, name, length=None, locus_range=None, model=None):
+    def add_partition(self, name, length=None, locus_range=None, codon=False,
+                      use_counter=False, model=None):
         """
         Adds a new partition providing the length or the range of current
-        alignment. If both are provided, the length takes precedence.
+        alignment. If both are provided, the length takes precedence.The range
+        of the partition should be in python index, that is, the first position
+        should be 0 and not 1.
         :param name: string. Name of the alignment
         :param length: int. Length of the alignment
         :param locus_range: list/tuple. Range of the partition
+        :param codon: If the codon partitions are already defined, provide the
+        starting points in list format, e.g: [1,2,3]
         :param model: string. [optional] Name of the substitution model
         """
 
-        if name in self.partitions or name in self.codon_partitions:
+        if name in self.partitions:
             raise PartitionException("Partition name %s is already in partition"
                                      "table" % name)
+
+        # When length is provided
         if length:
-            self.partitions[name] = (self.counter, self.counter + length)
-            self.partitions_nice[name] = (self.counter + 1, self.counter +
-                                          length)
+            self.partitions[name] = [(self.counter,
+                                      self.counter + (length - 1)), codon]
             self.counter += length
+
+        # When a list/tuple range is provided
         elif locus_range:
-            self.partitions[name] = (locus_range[0], locus_range[1])
-            self.partitions_nice[name] = (locus_range[0], locus_range[1])
-            self.counter = locus_range[1]
+
+            # If the maximum range of the current partition is already included
+            # in some other partition, and no codon partitions were provided
+            # using the "codon" argument, then it should be an undefined codon
+            # partition and should be added to an existing partition
+            if locus_range[1] <= self.counter and not codon:
+
+                # Find the parent partition
+                parent_partition = self._find_parent(locus_range[1])
+                # If no codon partition is present in the parent partition,
+                # create one
+                if not self.partitions[parent_partition][1]:
+                    parent_start = self.partitions[parent_partition][0][0]
+                    self.partitions[parent_partition][1] = [parent_start,
+                                                            locus_range[0]]
+                else:
+                    self.partitions[parent_partition][1].append(locus_range[0])
+
+            # Else, create the new partition
+            else:
+                if use_counter:
+                    self.partitions[name] = [(self.counter + locus_range[0],
+                                             self.counter + locus_range[1]),
+                                             [self.counter + x for x in codon]]
+                else:
+                    self.partitions[name] = [(locus_range[0], locus_range[1]),
+                                             codon]
+
+                self.counter = locus_range[1] + 1
 
         self._models[name] = SubstitutionModels()
 
