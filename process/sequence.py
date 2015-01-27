@@ -242,7 +242,7 @@ class Alignment (Base):
                     ## TO DO: Read phylip interleave
 
             # Updating partitions object
-            self.partitions.set_single_partition(self.name, self.locus_length)
+            self.partitions.add_partition(self.name, self.locus_length)
 
         #=======================================================================
         # PARSING FASTA FORMAT
@@ -260,7 +260,7 @@ class Alignment (Base):
             self.partitions.set_length(self.locus_length)
 
             # Updating partitions object
-            self.partitions.set_single_partition(self.name, self.locus_length)
+            self.partitions.add_partition(self.name, self.locus_length)
 
         #=======================================================================
         # PARSING NEXUS FORMAT
@@ -297,7 +297,7 @@ class Alignment (Base):
             # If no partitions have been added during the parsing of the nexus
             # file, set a single partition
             if self.partitions.partitions == OrderedDict():
-                self.partitions.set_single_partition(self.name,
+                self.partitions.add_partition(self.name,
                                                      self.locus_length)
 
         # Checks the size consistency of the alignment
@@ -460,7 +460,7 @@ class Alignment (Base):
                     current_dic[taxon] = sub_seq
 
             current_partition = Partitions()
-            current_partition.set_single_partition(name, part_range[1] -
+            current_partition.add_partition(name, part_range[1] -
                                                    part_range[0])
             current_aln = Alignment(current_dic, input_format=self.input_format,
                                     partitions=current_partition,
@@ -762,7 +762,7 @@ class Alignment (Base):
                                          model_phylip,
                                          name,
                                          "-".join([str(x + 1) for x in
-                                                   lrange])))
+                                                   lrange[0]])))
                 partition_file.close()
 
             out_file.close()
@@ -774,9 +774,9 @@ class Alignment (Base):
 
             if self.partitions.is_single() is False:
                 for lrange in self.partitions.partitions.values():
-                    out_file.write("%s %s\n" % (
-                                   taxa_number,
-                                   (lrange[1] - (lrange[0]))))
+                    lrange = lrange[0]
+                    out_file.write("%s %s\n" % (taxa_number,
+                                                (lrange[1] - (lrange[0]))))
 
                     for taxon, seq in self.alignment.items():
                         out_file.write("%s  %s\n" % (
@@ -875,19 +875,22 @@ class Alignment (Base):
                     out_file.write("\nbegin mrbayes;\n")
                     # Full gene partitions
                     for name, lrange in self.partitions:
-                        out_file.write("\tcharset %s = %s-%s;\n" %
-                                   (name, lrange[0] + 1, lrange[1]))
-                    # Codon partitions
-                    for name, lrange in self.partitions.codon_partitions.items():
-                        out_file.write("\tcharset %s = %s-%s\\3;\n" %
-                                       (name, lrange[0] + 1, lrange[1]))
+                        # If there are codon partitions, write those
+                        if lrange[1]:
+                            print(lrange[1])
+                            for i in lrange[1]:
+                                out_file.write("\tcharset %s_%s = %s-%s\\3;\n" %
+                                       (name, i + 1, i + 1, lrange[0][1] + 1))
+                        else:
+                            out_file.write("\tcharset %s = %s-%s;\n" %
+                                       (name, lrange[0][0] + 1,
+                                        lrange[0][1] + 1))
 
                     out_file.write("\tpartition part = %s: %s;\n\tset partition="
                                    "part;\nend;\n" %
-                                   (len(self.partitions.partitions) +
-                                    len(self.partitions.codon_partitions),
+                                   (len(self.partitions.partitions),
                                     ", ".join([name for name in
-                                    self.partitions.partitions.keys()])))
+                                    self.partitions.get_partition_names()])))
 
             # In case outgroup taxa are specified
             if outgroup_list is not None:
@@ -1112,27 +1115,17 @@ class AlignmentList (Base):
             # and concatenated files. If one of the alignment objects is already
             # a concatenated alignment, this will add each partition to the
             # new partitions object
-            # IMPORTANT NOTE: It is important that codon partitions are added
-            # first, because they use the counter attribute of Partitions to
-            # correct their range. When codon partitions are parsed in the
-            # input file, their ranges are valid only for that file, that is,
-            # they need to be updated if other partitions have been previously
-            # added
-            if alignment_object.partitions.is_single_codon() is False:
+            print(alignment_object.partitions.partitions)
+            if not alignment_object.partitions.is_single():
                 for k, v in \
-                        alignment_object.partitions.codon_partitions.items():
-                    partitions.add_codon_partition(k, v, use_counter=True)
-
-            if alignment_object.partitions.is_single_gene():
-                partitions.add_partition(alignment_object.name,
-                                         length=alignment_object.locus_length)
-
+                        alignment_object.partitions.partitions.items():
+                            partitions.add_partition(k, locus_range=v[0],
+                                                     codon=v[1],
+                                                     use_counter=True)
             else:
-                for k, v in alignment_object.partitions:
-                    print(k, v)
-                    partitions.add_partition(k, locus_range=v)
-
-
+                partitions.add_partition(alignment_object.name,
+                                         length=alignment_object.locus_length,
+                                         use_counter=True)
 
         # Each taxa is a list of strings for each alignment object, so here
         # the list is being converted into a string
@@ -1317,7 +1310,8 @@ class AlignmentList (Base):
             return aln_obj.reverse_concatenate(partition_obj)
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
-                      outgroup_list=None, partition_file=True, output_dir=None):
+                      outgroup_list=None, partition_file=True, output_dir=None,
+                      use_charset=True):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
 
@@ -1333,7 +1327,8 @@ class AlignmentList (Base):
                                         interleave=interleave,
                                         outgroup_list=outgroup_list,
                                         partition_file=partition_file,
-                                        output_dir=output_dir)
+                                        output_dir=output_dir,
+                                        use_charset=use_charset)
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

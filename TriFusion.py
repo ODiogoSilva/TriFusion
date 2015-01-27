@@ -43,9 +43,10 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.factory import Factory
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
-    ListProperty, ObjectProperty
+    ListProperty, ObjectProperty, DictProperty
 from kivy.uix.screenmanager import Screen
 from kivy.config import Config
 from kivy.clock import Clock
@@ -117,6 +118,18 @@ class PathLabel(Label):
 
 
 class PathText(TextInput):
+    pass
+
+
+class PartitionsDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
+class PartitionBt(ToggleButton):
+    pass
+
+
+class PartitionScreen(BoxLayout):
     pass
 
 
@@ -2391,6 +2404,85 @@ class TriFusionApp(App):
             return True, corrected_val
         except ValueError:
             return False
+
+    def dialog_partitions(self):
+        """
+        Generates the dialog for viewing/changing partitions. When initialized,
+        it will display partitions already defined in the input data. The
+        basic idea of this dialog is that the partitions are shown as toggle
+        buttons present in a gridlayout, which will be associated with a slide
+        containing information specific to the current partition in a
+        carousel. Clicking the partition buttons will transition the carousel
+        to the corresponding slides. For now, the carousel transition is
+        instantaneous, but that can be modified in the PartitionsDialog class
+        in the .kv file.
+        """
+
+        def toggle_codons(lst):
+            """
+            Toggles the codon partition buttons according to the provided list
+            [0, 1, 2] will toggle all, [1] will toggle second position, and so
+            on
+            """
+            for j in lst:
+                part_contents.ids["codon_%s" % j].state = "down"
+
+        def slide_transition(wgt):
+            content.ids.partitions_car.load_slide(carousel_screens[wgt.text])
+
+        # Initialize partitions dialog
+        content = PartitionsDialog(cancel=self.dismiss_popup)
+
+        # Settings storage variables for carousel slides and partitions buttons.
+        # Defining these variables early on, allows the program to keep a
+        # reference between the partition buttons and their corresponding slides
+        # for display
+        carousel_screens = {}
+        partition_bts = {}
+
+        # Populate partitions with available files and partitions information
+        for aln in self.alignment_list:
+            for partition, vals in aln.partitions:
+                # Create and store partition button
+                part_bt = PartitionBt(text=partition, group="part_group")
+                part_check = CheckBox(size_hint=(.1, None), height=50)
+                partition_bts[partition] = part_bt
+
+                # Create slide for current partition
+                part_contents = PartitionScreen()
+
+                # Populate contents of the slide for the current partition
+                # File(s) containing the partition
+                file_bt = Button(text=aln.name, size_hint_y=None, height=30)
+                part_contents.ids.file_content.add_widget(file_bt)
+                # Checking codon partitions
+                if vals[1]:
+                    if len(vals) == 3:
+                        toggle_codons([0, 1, 2])
+                    else:
+                        full_codons = sorted(set(range(min(vals[1]),
+                                                       max(vals[1]) + 1)))
+                        counter = 0
+                        for i in sorted(vals[1]):
+                            if i in full_codons:
+                                toggle_codons([counter])
+                            counter += 1
+
+                # Store slide for current partition
+                carousel_screens[partition] = part_contents
+
+                # Add button and slides to the dialog
+                content.ids.partitions_car.add_widget(carousel_screens[partition])
+                content.ids.gl_content.add_widget(part_check)
+                content.ids.gl_content.add_widget(partition_bts[partition])
+
+        # Bind slide transitions to the partitions buttons
+        for bt, wgt in partition_bts.items():
+            wgt.bind(on_release=slide_transition)
+
+        # Finally, show the dialog
+        self.show_popup(title="Partitions options", content=content,
+                        size_hint=(.9, .9))
 
     def dialog_text(self, title=""):
         """
