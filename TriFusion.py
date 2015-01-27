@@ -43,6 +43,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.factory import Factory
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
@@ -86,7 +87,7 @@ class NoWrapPopup(Popup):
     """
 
     def __init__(self, **kwargs):
-        super(Popup, self).__init__(**kwargs)
+        super(NoWrapPopup, self).__init__(**kwargs)
         label = self.children[0].children[-1]
         label.shorten = True
         label.shorten_from = "right"
