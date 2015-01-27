@@ -2449,7 +2449,7 @@ class TriFusionApp(App):
             for partition, vals in aln.partitions:
                 # Create and store partition button
                 part_bt = PartitionBt(text=partition, group="part_group")
-                part_check = CheckBox(size_hint=(.1, None), height=50)
+                part_check = CheckBox(size_hint=(.1, None), height=60)
                 partition_bts[partition] = part_bt
                 # Activate the first partition button
                 if bt_flag:
@@ -2476,6 +2476,10 @@ class TriFusionApp(App):
                             if i in full_codons:
                                 toggle_codons([counter])
                             counter += 1
+                # Providing details on partition size and included files
+                part_contents.ids.size_d.text = "Size: %s" % (vals[0][1] -
+                                                              vals[0][0] + 1)
+                part_contents.ids.files_d.text = "Files: 1"
 
                 # Store slide for current partition
                 carousel_screens[partition] = part_contents

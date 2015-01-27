@@ -275,7 +275,6 @@ class Alignment (Base):
                 elif line.strip() == ";" and counter == 1:
                     counter = 2
                     self.locus_length = len(list(self.alignment.values())[0])
-                    print(self.locus_length)
                     self.partitions.set_length(self.locus_length)
                 # Start parsing here
                 elif line.strip() != "" and counter == 1:
@@ -877,7 +876,6 @@ class Alignment (Base):
                     for name, lrange in self.partitions:
                         # If there are codon partitions, write those
                         if lrange[1]:
-                            print(lrange[1])
                             for i in lrange[1]:
                                 out_file.write("\tcharset %s_%s = %s-%s\\3;\n" %
                                        (name, i + 1, i + 1, lrange[0][1] + 1))
@@ -1115,7 +1113,6 @@ class AlignmentList (Base):
             # and concatenated files. If one of the alignment objects is already
             # a concatenated alignment, this will add each partition to the
             # new partitions object
-            print(alignment_object.partitions.partitions)
             if not alignment_object.partitions.is_single():
                 for k, v in \
                         alignment_object.partitions.partitions.items():
