@@ -2451,6 +2451,7 @@ class TriFusionApp(App):
                 part_bt = PartitionBt(text=partition, group="part_group")
                 part_check = CheckBox(size_hint=(.1, None), height=60)
                 partition_bts[partition] = part_bt
+                content.ids.gl_content.height += 60
                 # Activate the first partition button
                 if bt_flag:
                     part_bt.state = "down"
