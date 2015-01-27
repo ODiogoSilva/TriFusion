@@ -493,13 +493,33 @@
 
 <PartitionBt@ToggleButton>:
     size_hint_y: None
-    height: 50
+    height: 60
     size_hint_x: .9
     background_normal: "data/backgrounds/partitions_normal.png"
     background_disabled_normal: "data/backgrounds/partitions_normal.png"
     background_down: "data/backgrounds/partitions_down.png"
     background_disabled_down: "data/backgrounds/partitions_down.png"
+    text_size: [self.size[0]*.9, self.size[1]]
     disabled_color: (1,1,1,1)
+    shorten: True
+    shorten_from: "right"
+    haligh: "left"
+    valign: "middle"
+
+<DetailLabel@Label>:
+    size_hint_y: None
+    height: 30
+    halign: "left"
+    valign: "middle"
+    text_size: self.size
+
+<FieldLabel@Label>:
+    size_hint_y: None
+    height: 30
+    bold: True
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
 
 <PartitionScreen@BoxLayout>:
     orientation: "vertical"
@@ -520,10 +540,8 @@
         BoxLayout:
             size_hint_y: .5
             orientation: "vertical"
-            Label:
+            FieldLabel:
                 text: "Files"
-                size_hint_y: None
-                height: 20
             ScrollView:
                 canvas.before:
                     Color:
@@ -540,21 +558,30 @@
         BoxLayout:
             spacing: 10
             size_hint_y: .5
-            Button:
-                text: "Informative stuff"
+            BoxLayout:
+                orientation: "vertical"
+                FieldLabel:
+                    text: "Partition Details"
+                DetailLabel:
+                    id: size_d
+                    text: "Size"
+                DetailLabel:
+                    id: files_d
+                    text: "Files"
+                Widget
             BoxLayout:
                 orientation: "vertical"
                 spacing: 10
                 BoxLayout:
                     orientation: "vertical"
-                    Label:
+                    FieldLabel:
                         text: "Substitution model"
                     Spinner:
                         text: "None"
                         disabled: True
                 BoxLayout:
                     orientation: "vertical"
-                    Label:
+                    FieldLabel:
                         text: "Codon partitions"
                         size_hint_y: .4
                     BoxLayout:
