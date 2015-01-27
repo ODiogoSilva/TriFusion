@@ -2427,8 +2427,8 @@ class TriFusionApp(App):
             for j in lst:
                 part_contents.ids["codon_%s" % j].state = "down"
 
-        def slide_transition(wgt):
-            content.ids.partitions_car.load_slide(carousel_screens[wgt.text])
+        def slide_transition(btx):
+            content.ids.partitions_car.load_slide(carousel_screens[btx.text])
 
         # Initialize partitions dialog
         content = PartitionsDialog(cancel=self.dismiss_popup)
@@ -2440,6 +2440,10 @@ class TriFusionApp(App):
         carousel_screens = {}
         partition_bts = {}
 
+        # This will allow the first partition button state will be change to
+        # down and from then on, it will change to False
+        bt_flag = True
+
         # Populate partitions with available files and partitions information
         for aln in self.alignment_list:
             for partition, vals in aln.partitions:
@@ -2447,6 +2451,11 @@ class TriFusionApp(App):
                 part_bt = PartitionBt(text=partition, group="part_group")
                 part_check = CheckBox(size_hint=(.1, None), height=50)
                 partition_bts[partition] = part_bt
+                # Activate the first partition button
+                if bt_flag:
+                    part_bt.state = "down"
+                    part_bt.disabled = True
+                    bt_flag = False
 
                 # Create slide for current partition
                 part_contents = PartitionScreen()
@@ -2479,6 +2488,7 @@ class TriFusionApp(App):
         # Bind slide transitions to the partitions buttons
         for bt, wgt in partition_bts.items():
             wgt.bind(on_release=slide_transition)
+            wgt.bind(on_release=self.toggle_groups)
 
         # Finally, show the dialog
         self.show_popup(title="Partitions options", content=content,
