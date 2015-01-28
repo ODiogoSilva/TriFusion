@@ -2449,47 +2449,49 @@ class TriFusionApp(App):
         for aln in self.alignment_list:
             for partition, vals in aln.partitions:
                 # Create and store partition button
-                part_bt = PartitionBt(text=partition, group="part_group")
-                part_check = CheckBox(size_hint=(.1, None), height=60)
-                partition_bts[partition] = part_bt
-                content.ids.gl_content.height += 60
+                if partition not in partition_bts:
+                    part_bt = PartitionBt(text=partition, group="part_group")
+                    part_check = CheckBox(size_hint=(.1, None), height=60)
+                    partition_bts[partition] = part_bt
+                    content.ids.gl_content.height += 60
+
+                  # Create slide for current partition
+                    part_contents = PartitionScreen()
+
+                    # Populate contents of the slide for the current partition
+                    # File(s) containing the partition
+                    file_bt = Button(text=aln.name, size_hint_y=None, height=30)
+                    part_contents.ids.file_content.add_widget(file_bt)
+                    # Checking codon partitions
+                    if vals[1]:
+                        if len(vals) == 3:
+                            toggle_codons([0, 1, 2])
+                        else:
+                            full_codons = sorted(set(range(min(vals[1]),
+                                                           max(vals[1]) + 1)))
+                            counter = 0
+                            for i in sorted(vals[1]):
+                                if i in full_codons:
+                                    toggle_codons([counter])
+                                counter += 1
+                    # Providing details on partition size and included files
+                    part_contents.ids.size_d.text = "Size: %s" % (vals[0][1] -
+                                                                  vals[0][0] + 1)
+                    part_contents.ids.files_d.text = "Files: 1"
+
+                    # Store slide for current partition
+                    carousel_screens[partition] = part_contents
+
+                    # Add button and slides to the dialog
+                    content.ids.partitions_car.add_widget(carousel_screens[partition])
+                    content.ids.gl_content.add_widget(part_check)
+                    content.ids.gl_content.add_widget(partition_bts[partition])
+
                 # Activate the first partition button
                 if bt_flag:
                     part_bt.state = "down"
                     part_bt.disabled = True
                     bt_flag = False
-
-                # Create slide for current partition
-                part_contents = PartitionScreen()
-
-                # Populate contents of the slide for the current partition
-                # File(s) containing the partition
-                file_bt = Button(text=aln.name, size_hint_y=None, height=30)
-                part_contents.ids.file_content.add_widget(file_bt)
-                # Checking codon partitions
-                if vals[1]:
-                    if len(vals) == 3:
-                        toggle_codons([0, 1, 2])
-                    else:
-                        full_codons = sorted(set(range(min(vals[1]),
-                                                       max(vals[1]) + 1)))
-                        counter = 0
-                        for i in sorted(vals[1]):
-                            if i in full_codons:
-                                toggle_codons([counter])
-                            counter += 1
-                # Providing details on partition size and included files
-                part_contents.ids.size_d.text = "Size: %s" % (vals[0][1] -
-                                                              vals[0][0] + 1)
-                part_contents.ids.files_d.text = "Files: 1"
-
-                # Store slide for current partition
-                carousel_screens[partition] = part_contents
-
-                # Add button and slides to the dialog
-                content.ids.partitions_car.add_widget(carousel_screens[partition])
-                content.ids.gl_content.add_widget(part_check)
-                content.ids.gl_content.add_widget(partition_bts[partition])
 
         # Bind slide transitions to the partitions buttons
         for bt, wgt in partition_bts.items():
