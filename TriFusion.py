@@ -1224,6 +1224,7 @@ class TriFusionApp(App):
 
                 # Unlocks options dependent on the availability of input data
                 self.root.ids.tx_group_bt.disabled = False
+                self.process_options.ids.part_dialog.disabled = False
 
     def update_tabs(self):
         """
@@ -1626,6 +1627,16 @@ class TriFusionApp(App):
         and taxa tabs
         """
 
+        def update_bt_states():
+            """
+            This will update several button states that are dependent on the
+            availability of input files. This is used when all alignment/files
+            have been removed.
+            """
+
+            self.root.ids.tx_group_bt.disabled = True
+            self.process_options.ids.part_dialog.disabled = True
+
         ####### APP CHANGES
         # Get the parent layout object from where the widget will be removed
         parent_obj = value.parent
@@ -1659,6 +1670,10 @@ class TriFusionApp(App):
             # Update alignment object list
             self.alignment_list.remove_file([self.filename_map[bt_idx]])
             self.active_alignment_list.remove_file([self.filename_map[bt_idx]])
+
+            # Update button states when alignment list is empty
+            if not self.alignment_list.alignment_object_list:
+                update_bt_states()
 
             # Update active taxa list. This must be executed before calling
             # self.get_taxa_information since this method relies on an
