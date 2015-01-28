@@ -110,18 +110,39 @@ class FileChooserM(FileChooserIconView):
                 self.selection = []
 
 
-class NoWrapPopup(Popup):
+class CustomPopup(Popup):
     """
-    Modification of Popup class so that the title does not wrap, but instead
-    is shortened
+    Modification of Popup class with a few additional feature.
+
+    .: The title does not wrap, but instead is shortened
+    .: A custom background may be provided using the custom_background attribute
+
     """
 
     def __init__(self, **kwargs):
-        super(NoWrapPopup, self).__init__(**kwargs)
+        super(CustomPopup, self).__init__(**kwargs)
         label = self.children[0].children[-1]
         label.shorten = True
         label.shorten_from = "right"
         label.markup = True
+
+        # New attributes
+        self.custom_background = kwargs["custom_background"]
+
+        if self.custom_background:
+            gl = self.children[0]
+            with gl.canvas.before:
+                Color(.7, .7, .7, 1)
+                self.rect = Rectangle(
+                    source=self.custom_background,
+                    pos=self.pos,
+                    size=self.size)
+
+                self.bind(size=self._update_rect, pos=self._update_rect)
+
+    def _update_rect(self, instance, value):
+        self.rect.pos = instance.pos
+        self.rect.size = instance.size
 
 
 class MouseOverLabel(Button):
@@ -2130,7 +2151,8 @@ class TriFusionApp(App):
         self._subpopup.dismiss()
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
-                   separator_color=[47 / 255., 167 / 255., 212 / 255., 1.]):
+                   separator_color=[47 / 255., 167 / 255., 212 / 255., 1.],
+                   custom_background=None):
         """
         General purpose method to create a popup widget
         :param title: string. Title of the popup
@@ -2138,21 +2160,25 @@ class TriFusionApp(App):
         :param size_hint: tuple. Size hint for the widget
         :param size: tuple. The absolute size for the popup. If this argument is
         used, the size_hint will be ignored
+        :param custom_background: string. Provide the path to a custom
+        background image for the popup.
         """
 
         # Ignore size_hint is absolute size is provided
         if size:
-            self._popup = NoWrapPopup(title="[b]%s[/b]" % title,
+            self._popup = CustomPopup(title="[b]%s[/b]" % title,
                                 content=content, size=size,
                                 size_hint=(None, None), auto_dismiss=False,
                                 separator_color=separator_color,
-                                title_color=separator_color)
+                                title_color=separator_color,
+                                custom_background=custom_background)
         else:
-            self._popup = NoWrapPopup(title="[b]%s[/b]" % title,
+            self._popup = CustomPopup(title="[b]%s[/b]" % title,
                                 content=content, size_hint=size_hint,
                                 auto_dismiss=False,
                                 separator_color=separator_color,
-                                title_color=separator_color)
+                                title_color=separator_color,
+                                custom_background=custom_background)
         self._popup.open()
 
     def save_file(self, path, file_name=None, idx=None):
@@ -2550,7 +2576,8 @@ class TriFusionApp(App):
 
         # Finally, show the dialog
         self.show_popup(title="Partitions options", content=content,
-                        size_hint=(.9, .9))
+                   size_hint=(.9, .9),
+                   custom_background="data/backgrounds/master_background.jpg")
 
     def dialog_text(self, title=""):
         """
