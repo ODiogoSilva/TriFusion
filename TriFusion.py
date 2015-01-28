@@ -620,10 +620,13 @@ class TriFusionApp(App):
         # Changing main screens between Orthology, Process and Statistics
         if modifier == "ctrl" and key_code == (49, 10):
             self.root.ids.h_ortho.dispatch("on_release")
+            self.root.ids.h_ortho.state = "down"
         if modifier == "ctrl" and key_code == (50, 11):
             self.root.ids.h_process.dispatch("on_release")
+            self.root.ids.h_process.state = "down"
         if modifier == "ctrl" and key_code == (51, 12):
             self.root.ids.h_stat.dispatch("on_release")
+            self.root.ids.h_stat.state = "down"
 
         # Toggle side panel (Tab)
         if key_code == (9, 23):
