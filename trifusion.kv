@@ -558,6 +558,8 @@
                     spacing: (5,5)
                     id: file_content
 
+        Hseparator
+
         BoxLayout:
             spacing: 10
             size_hint_y: .5
@@ -582,6 +584,9 @@
                         id: files_d
                         text: "Files"
                     Widget
+
+            Vseparator
+
             BoxLayout:
                 orientation: "vertical"
                 spacing: 10
@@ -1122,13 +1127,15 @@
 # Vertical light grey separator
 <Vseparator@Widget>:
     size_hint_x: None
-    width: 3
+    width: self.thickness + 2 * self.margin
+    thickness: 1
+    margin: 1
     canvas:
         Color:
             rgb: .5, .5, .5
         Rectangle:
-            pos: self.center_x, -5
-            size: .3, self.height
+            pos: self.x + self.margin + 1, self.y + self.margin
+            size: self.thickness, self.height - 2 * self.margin + 5
 
 <LightBox@BoxLayout>:
     height: 40
