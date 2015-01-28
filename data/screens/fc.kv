@@ -68,10 +68,11 @@ ShowcaseScreen:
                     id: path_bx
                     PathLabel
 
-            FileChooserIconView:
+            FileChooserM:
                 id: icon_view_tab
                 multiselect: True
-                filters: ["/*"]
+                f: "/*"
+                filters: [self.path+self.f]
                 filter_dirs: True
 
             BoxLayout:
@@ -101,8 +102,8 @@ ShowcaseScreen:
                     multiline: False
                     focus: True
                     on_text:
-                        if case_bt.state == "down": root.ids.icon_view_tab.filters = [icon_view_tab.path+"*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"]
-                        if case_bt.state == "normal": root.ids.icon_view_tab.filters = [icon_view_tab.path+"*"+self.text+"*"]
+                        if case_bt.state == "down": root.ids.icon_view_tab.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
+                        if case_bt.state == "normal": root.ids.icon_view_tab.f = icon_view_tab.path+"*"+self.text+"*"
 
                     on_text_validate:
                         focus = True
