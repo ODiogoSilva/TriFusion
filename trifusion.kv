@@ -512,6 +512,7 @@
     halign: "left"
     valign: "middle"
     text_size: self.size
+    markup: True
 
 <FieldLabel@Label>:
     size_hint_y: None
@@ -580,10 +581,10 @@
                             size: self.size
                     DetailLabel:
                         id: size_d
-                        text: "Size"
+                    DetailLabel:
+                        id: seq_typ
                     DetailLabel:
                         id: files_d
-                        text: "Files"
                     Widget
 
             Vseparator
@@ -633,6 +634,7 @@
             orientation: "vertical"
             size_hint_x: None
             width: 300
+            spacing: 5
             BoxLayout:
                 spacing: 5
                 size_hint_y: None
@@ -645,7 +647,7 @@
                     bold: True
 
             Hseparator:
-                thickness: 1.5
+                thickness: 1.1
 
             ScrollView:
                 size_hint_y: .9

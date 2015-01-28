@@ -2475,9 +2475,11 @@ class TriFusionApp(App):
                                     toggle_codons([counter])
                                 counter += 1
                     # Providing details on partition size and included files
-                    part_contents.ids.size_d.text = "Size: %s" % (vals[0][1] -
-                                                                  vals[0][0] + 1)
-                    part_contents.ids.files_d.text = "Files: 1"
+                    part_contents.ids.size_d.text = "[b]Size:[/b] %s" % (
+                        vals[0][1] - vals[0][0] + 1)
+                    part_contents.ids.seq_typ.text = "[b]Type:[/b] %s" % (
+                        aln.sequence_code[0])
+                    part_contents.ids.files_d.text = "[b]Files:[/b] 1"
 
                     # Store slide for current partition
                     carousel_screens[partition] = part_contents
