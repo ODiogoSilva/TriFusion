@@ -889,9 +889,10 @@
                 pos: self.pos
                 size: self.size
 
-    FileChooserIconView:
+    FileChooserM:
         id: ld_filechooser
-        filters: ["/*"]
+        f: "/*"
+        filters: [self.path+self.f]
         filter_dirs: True
 
     BoxLayout:
@@ -921,8 +922,8 @@
             multiline: False
             focus: True
             on_text:
-                if case_bt.state == "down": ld_filechooser.filters = [ld_filechooser.path+"*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"]
-                if case_bt.state == "normal": ld_filechooser.filters = [ld_filechooser.path+"*"+self.text+"*"]
+                if case_bt.state == "down": ld_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
+                if case_bt.state == "normal": ld_filechooser.f = "*"+self.text+"*"
 
             on_text_validate:
                 focus = True
