@@ -43,6 +43,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.factory import Factory
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
@@ -60,7 +61,7 @@ from process.sequence import AlignmentList
 from process import data
 
 # Other imports
-from os.path import dirname, join, exists
+from os.path import dirname, join, exists, abspath, pardir
 from os import sep
 from collections import OrderedDict
 from os.path import expanduser
@@ -78,6 +79,35 @@ class ShowcaseScreen(Screen):
         if 'content' in self.ids:
             return self.ids.content.add_widget(*args)
         return super(ShowcaseScreen, self).add_widget(*args)
+
+
+class FileChooserM(FileChooserIconView):
+
+    def __init__(self, **kwargs):
+        super(FileChooserM, self).__init__(**kwargs)
+
+    def open_entry(self, entry):
+        """
+        Modification of the open entry method so that when the entry.path is
+        "../", the path is updated to the parent directory, instead of
+        appending the entry.path
+        """
+        try:
+            # Just check if we can list the directory. This is also what
+            # _add_file does, so if it fails here, it would also fail later
+            # on. Do the check here to prevent setting path to an invalid
+            # directory that we cannot list.
+            self.file_system.listdir(entry.path)
+        except OSError:
+            entry.locked = True
+        else:
+            # If entry.path is to jump to previous directory, update path with
+            # parent directory
+            if entry.path == "../":
+                self.path = abspath(join(self.path, pardir))
+            else:
+                self.path = join(self.path, entry.path)
+                self.selection = []
 
 
 class NoWrapPopup(Popup):
