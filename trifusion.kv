@@ -597,8 +597,9 @@
                     FieldLabel:
                         text: "Substitution model"
                     Spinner:
+                        canvas.before:
                         text: "None"
-                        disabled: True
+                        values: ("GTR", "SYM", "HKY", "K2P", "F81", "JC")
                 BoxLayout:
                     orientation: "vertical"
                     FieldLabel:
