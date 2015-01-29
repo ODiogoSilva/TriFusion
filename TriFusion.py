@@ -2576,8 +2576,7 @@ class TriFusionApp(App):
 
         # Finally, show the dialog
         self.show_popup(title="Partitions options", content=content,
-                   size_hint=(.9, .9),
-                   custom_background="data/backgrounds/master_background.jpg")
+                   size=(750, 550))
 
     def dialog_text(self, title=""):
         """
