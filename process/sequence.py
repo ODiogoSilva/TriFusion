@@ -293,6 +293,12 @@ class Alignment (Base):
                 elif line.strip().startswith("charset"):
                     self.partitions.read_from_nexus_string(line)
 
+                # If substitution models are specified using the lset or prset
+                # commands, this will parse the model parameters
+                if line.lower().strip().startswith("lset") or \
+                    line.lower().strip().startswith("prset"):
+                    self.partitions.parse_nexus_model(line)
+
             # If no partitions have been added during the parsing of the nexus
             # file, set a single partition
             if self.partitions.partitions == OrderedDict():
@@ -303,6 +309,8 @@ class Alignment (Base):
         if size_check is True:
             self.is_alignment = self.check_sizes(self.alignment,
                                                  input_alignment)
+
+        print(self.partitions.models)
 
         # Checks for duplicate taxa
         if len(list(self.alignment)) != len(set(list(self.alignment))):

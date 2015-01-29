@@ -45,6 +45,37 @@ class Partitions():
     default there will be no substitution model selected.
     """
 
+    _models = {"mrbayes": {}}
+
+    #===========================================================================
+    #   MrBayes models
+    #===========================================================================
+    """
+    MrBayes substitution models are stored in the dictionary _models["mrbayes"].
+    The keys of the dictionary are the name of the substitution models (usually
+    in capital letters) and the values will contain the instructions to
+    specific such model in a list. Each element of the list corresponds to one
+    line
+    """
+
+    # GTR
+    _models["GTR"] = ["nst=6"]
+
+    # SYM
+    _models["SYM"] = ["nst=6", "statefreqpr=fixed(equal)"]
+
+    # HKY
+    _models["HKY"] = ["nst=2"]
+
+    # K2P
+    _models["K2P"] = ["nst=2", "statefreqpr=fixed(equal)"]
+
+    # F81
+    _models["F81"] = ["nst=1"]
+
+    # JC
+    _models["JC"] = ["nst=1", "statefreqpr=fixed(equal)"]
+
     def __init__(self):
         """
         Setting the self._partitions private attribute. This will contain an
@@ -86,20 +117,21 @@ class Partitions():
         self.partitions = OrderedDict()
 
         """
-        partitions_nice is similar to partitions but the locus ranges are
-        already in an appropriate format to be used in output files. This is
-        necessary because the sequence index for python has an offset of 0,
-        while all subsequent programs that use partition ranges use an index
-        of 1.
+        partitions_index will remember the index of all added partitions. This
+        attribute was created because codon models are added to the same parent
+        partitions, thus losing their actual index. This is important for
+        Nexus files, where models are applied to the index of the partition.
+        This will simply store the partition names, which can be accessed using
+        their index, or searched to return their index.
         """
-        self.partitions_nice = OrderedDict()
+        self.partitions_index = []
 
         """
-        The private self._models attribute will contain the same key list as
+        The private self.models attribute will contain the same key list as
         self._partitions and will associate the substitution models to each
         partitions
         """
-        self._models = OrderedDict()
+        self.models = OrderedDict()
 
         """
         The counter attribute will be used as an indication of where the last
@@ -297,6 +329,12 @@ class Partitions():
         :param model: string. [optional] Name of the substitution model
         """
 
+        # Add partition to index list
+        self.partitions_index.append(name)
+
+        # Create empty model attribute
+        self.models[name] = []
+
         if name in self.partitions:
             raise PartitionException("Partition name %s is already in partition"
                                      "table" % name)
@@ -339,7 +377,41 @@ class Partitions():
 
                 self.counter = locus_range[1] + 1
 
-        self._models[name] = SubstitutionModels()
+    #===========================================================================
+    # Model handling
+    #===========================================================================
+
+    def parse_nexus_model(self, string):
+        """
+        Parses a substitution model defined in a prset and/or lset command
+        :param string: string with the prset or lset command
+        """
+
+        string = string.lower()
+
+        # Find out which partitions the current parameters apply to. If
+        # detected, it should be something like "applyto=(1,2)"
+        applyto = re.findall(r"applyto=\(.*\)", string)
+        # Find parameters
+        nst = re.findall(r"nst=[0-9]", string)
+        statefreqpr = re.findall(r"statefreqpr=.*\)", string)
+
+        # Collect params
+        params = [x[0] for x in [nst, statefreqpr] if x]
+
+        if applyto:
+            if applyto == ["applyto=(all)"]:
+                for partition in self.partitions:
+                    self.models[partition] += params
+            else:
+                # Get target partitions
+                part_index = [int(x) for x in
+                              re.split("[()]", applyto[0])[1].split(",")]
+                for i in part_index:
+                    # Get partition name
+                    part = self.partitions_index[i - 1]
+                    self.models[part] += params
+
 
     # def write_to_file(self, output_format, output_file, model="LG"):
     #     """ Writes the Partitions object into an output file according to the
@@ -399,44 +471,6 @@ class Zorro ():
         for weigth in self.weigth_values:
             outfile_handle.write("%s\n" % weigth)
         outfile_handle.close()
-
-
-class SubstitutionModels():
-    """
-    This class handles the storage, parsing and retrieval of substitution models
-    in several formats.
-    """
-
-    _models = {"mrbayes": {}}
-
-    #===========================================================================
-    #   MrBayes models
-    #===========================================================================
-    """
-    MrBayes substitution models are stored in the dictionary _models["mrbayes"].
-    The keys of the dictionary are the name of the substitution models (usually
-    in capital letters) and the values will contain the instructions to
-    specific such model in a list. Each element of the list corresponds to one
-    line
-    """
-
-    # GTR
-    _models["GTR"] = ["lset nst=6"]
-
-    # SYM
-    _models["SYM"] = ["lset nst=6", "prset statefreqpr=fixed(equal)"]
-
-    # HKY
-    _models["HKY"] = ["lset nst=2"]
-
-    # K2P
-    _models["K2P"] = ["lset nst=2", "prset statefreqpr=fixed(equal)"]
-
-    # F81
-    _models["F81"] = ["lset nst=1"]
-
-    # JC
-    _models["JC"] = ["lset nst=1", "prset statefreqpr=fixed(equal)"]
 
 
 __author__ = "Diogo N. Silva"
