@@ -122,14 +122,29 @@ class Partitions():
         partitions, thus losing their actual index. This is important for
         Nexus files, where models are applied to the index of the partition.
         This will simply store the partition names, which can be accessed using
-        their index, or searched to return their index.
+        their index, or searched to return their index. To better support codon
+        partitions, each entry in the partitions_index will consist in a list,
+        in which the first element is the partition name, and the second element
+        is the index of the subpartition. An example would be:
+
+        self.partitions_index = [["partA", 0], ["partA", 1], ["partA", 2],
+                                 ["partB", 0]]
+
+        in which, partA has 3 codon partitions, and partB has only one partition
+
         """
         self.partitions_index = []
 
         """
         The private self.models attribute will contain the same key list as
         self._partitions and will associate the substitution models to each
-        partitions
+        partitions. For each partition, the format should be as follows:
+
+        self.models["partA"] = [[[..model_params..]],[..model_names..]]
+
+        The first element is a list that may contain the substitution model
+        parameters for up to three subpartitions, and the second element is also
+        a list with the corresponding names of the substitution models
         """
         self.models = OrderedDict()
 
@@ -327,13 +342,18 @@ class Partitions():
         :param codon: If the codon partitions are already defined, provide the
         starting points in list format, e.g: [1,2,3]
         :param model: string. [optional] Name of the substitution model
+
+        IMPORTANT NOTE on self.model: The self.model attribute was designed
+        in a way that allows the storage of different substitution models
+        inside the same partition name. This is useful for codon partitions that
+        share the same parent partition name. So, for example, a parent
+        partition named "PartA" with 3 codon partitions can have a different
+        model for each one like this:
+
+        self.models["PartA"] = [[[..model1_params..], [..model2_params..],
+            [..model3_params..]], [GTR, GTR, GTR]]
+
         """
-
-        # Add partition to index list
-        self.partitions_index.append(name)
-
-        # Create empty model attribute
-        self.models[name] = []
 
         if name in self.partitions:
             raise PartitionException("Partition name %s is already in partition"
@@ -341,6 +361,11 @@ class Partitions():
 
         # When length is provided
         if length:
+             # Add partition to index list
+            self.partitions_index.append([name, 0])
+            # Create empty model attribute for a single partition
+            self.models[name] = [[[]], [None]]
+
             self.partitions[name] = [(self.counter,
                                       self.counter + (length - 1)), codon]
             self.counter += length
@@ -356,17 +381,34 @@ class Partitions():
 
                 # Find the parent partition
                 parent_partition = self._find_parent(locus_range[1])
+
                 # If no codon partition is present in the parent partition,
                 # create one
                 if not self.partitions[parent_partition][1]:
+                    # Add partition to index list
+                    self.partitions_index.append([parent_partition, 1])
+                    # Create empty model attribute for two partitions
+                    self.models[parent_partition] = [[[], []], [None, None]]
+
                     parent_start = self.partitions[parent_partition][0][0]
                     self.partitions[parent_partition][1] = [parent_start,
                                                             locus_range[0]]
                 else:
+                    # Create empty model attribute for additional partitions
+                    self.models[parent_partition][0].append([])
+                    self.models[parent_partition][1].append(None)
+
+                    # Add partition to index list
+                    self.partitions_index.append([parent_partition, 2])
+
                     self.partitions[parent_partition][1].append(locus_range[0])
 
             # Else, create the new partition
             else:
+                # Create empty model attribute for a single partition
+                self.models[name] = [[[]], [None]]
+                 # Add partition to index list
+                self.partitions_index.append([name, 0])
                 if use_counter:
                     self.partitions[name] = [(self.counter + locus_range[0],
                                              self.counter + locus_range[1]),
@@ -402,15 +444,26 @@ class Partitions():
         if applyto:
             if applyto == ["applyto=(all)"]:
                 for partition in self.partitions:
-                    self.models[partition] += params
+                    self.models[partition][0] += params
             else:
                 # Get target partitions
                 part_index = [int(x) for x in
                               re.split("[()]", applyto[0])[1].split(",")]
                 for i in part_index:
-                    # Get partition name
                     part = self.partitions_index[i - 1]
-                    self.models[part] += params
+                    # Get partition name
+                    part_name = part[0]
+                    # Get subpartition index. 0 if single partition, other if
+                    # multiple subpartition
+                    part_subpart = part[1]
+                    self.models[part_name][0][part_subpart] += params
+
+    # def set_model_name(self):
+    #     """
+    #     This method should be used once all partitions have been defined. It
+    #     takes the substitution model parameters of each partition and
+    #     :return:
+    #     """
 
 
     # def write_to_file(self, output_format, output_file, model="LG"):
