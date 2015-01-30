@@ -310,8 +310,6 @@ class Alignment (Base):
             self.is_alignment = self.check_sizes(self.alignment,
                                                  input_alignment)
 
-        print(self.partitions.models)
-
         # Checks for duplicate taxa
         if len(list(self.alignment)) != len(set(list(self.alignment))):
             taxa = self.duplicate_taxa(self.alignment.keys())

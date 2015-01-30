@@ -2548,6 +2548,9 @@ class TriFusionApp(App):
                                 if i in full_codons:
                                     toggle_codons([counter])
                                 counter += 1
+                    # Checking substitution model
+                    #if aln.partitions.models[partition]:
+
                     # Providing details on partition size and included files
                     part_contents.ids.size_d.text = "[b]Size:[/b] %s" % (
                         vals[0][1] - vals[0][0] + 1)
