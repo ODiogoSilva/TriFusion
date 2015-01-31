@@ -518,9 +518,10 @@
     size_hint_y: None
     height: 30
     bold: True
-    halign: "center"
+    halign: "left"
     valign: "top"
     text_size: self.size
+    color: (0.216, 0.67, 0.784, 1)
 
 <PartitionScreen@BoxLayout>:
     orientation: "vertical"
@@ -541,21 +542,21 @@
                 size: self.size
 
         BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: (1,1,1,1)
+                Rectangle:
+                    source: "data/backgrounds/partition_file_background.png"
+                    pos: self.pos
+                    size: self.size
             size_hint_y: .5
             orientation: "vertical"
+            padding: 10
             FieldLabel:
                 text: "Files"
             ScrollView:
-                canvas.before:
-                    Color:
-                        rgba: (1,1,1,1)
-                    Rectangle:
-                        source: "data/backgrounds/partition_file_background.png"
-                        pos: self.pos
-                        size: self.size
                 GridLayout:
                     cols: 1
-                    padding: 10
                     spacing: (5,5)
                     id: file_content
 
@@ -566,19 +567,19 @@
             spacing: 10
             size_hint_y: .5
             BoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: (1,1,1,1)
+                    Rectangle:
+                        source: "data/backgrounds/partition_file_background.png"
+                        pos: self.pos
+                        size: self.size
                 orientation: "vertical"
+                padding: 10
                 FieldLabel:
                     text: "Partition Details"
                 BoxLayout:
-                    padding: 10
                     orientation: "vertical"
-                    canvas.before:
-                        Color:
-                            rgba: (1,1,1,1)
-                        Rectangle:
-                            source: "data/backgrounds/partition_file_background.png"
-                            pos: self.pos
-                            size: self.size
                     DetailLabel:
                         id: size_d
                     DetailLabel:
@@ -591,33 +592,54 @@
 
             BoxLayout:
                 orientation: "vertical"
-                spacing: 10
+                canvas.before:
+                    Color:
+                        rgba: (1,1,1,1)
+                    Rectangle:
+                        source: "data/backgrounds/partition_file_background.png"
+                        pos: self.pos
+                        size: self.size
+                FieldLabel:
+                    text: "Substitution model"
+                    size_hint_y: None
+                    halign: "center"
+                    valign: "middle"
+                    height: 30
                 BoxLayout:
                     orientation: "vertical"
-                    FieldLabel:
-                        text: "Substitution model"
+                    size_hint_y: .3
                     Spinner:
                         canvas.before:
                         text: "None"
+                        bold: True
                         values: ("GTR", "SYM", "HKY", "K2P", "F81", "JC")
                 BoxLayout:
+                    size_hint_y: .3
+                    Label:
+                        text: "Unlink"
+                    CheckBox
+                BoxLayout:
                     orientation: "vertical"
-                    FieldLabel:
-                        text: "Codon partitions"
-                        size_hint_y: .4
+                    size_hint_y: .7
                     BoxLayout:
-                        size_hint_y: .6
-                        padding: 5
-                        spacing: 5
                         ToggleButton:
                             id: codon_0
                             text: "1st"
+                        Button:
+                            size_hint_x: .2
+                    BoxLayout:
                         ToggleButton:
                             id: codon_1
                             text: "2nd"
+                        Button:
+                            size_hint_x: .2
+                    BoxLayout:
                         ToggleButton:
                             id: codon_2
                             text: "3rd"
+                        Button:
+                            size_hint_x: .2
+
 
 <PartitionsDialog>:
     padding: 10
