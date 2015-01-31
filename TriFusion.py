@@ -43,6 +43,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.factory import Factory
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.textinput import TextInput
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
@@ -61,6 +62,7 @@ from process.sequence import AlignmentList
 from process import data
 
 # Other imports
+import os
 from os.path import dirname, join, exists, abspath, pardir
 from os import sep
 from collections import OrderedDict
@@ -145,6 +147,22 @@ class CustomPopup(Popup):
         self.rect.size = instance.size
 
 
+class AutoCompTextInput(TextInput):
+    """
+    Modified widget of text input in which the tab key does not introduce a
+    tabular space. This is meant to use with _auto_completion, in which the
+    tab key serves as a keybinding
+    """
+
+    def insert_text(self, substring, from_undo=False):
+        if substring == "\t":
+            s = ""
+        else:
+            s = substring
+        return super(AutoCompTextInput, self).insert_text(s,
+                                                          from_undo=from_undo)
+
+
 class MouseOverLabel(Button):
     pass
 
@@ -169,7 +187,7 @@ class PathLabel(Label):
     pass
 
 
-class PathText(TextInput):
+class PathText(AutoCompTextInput):
     pass
 
 
@@ -649,9 +667,51 @@ class TriFusionApp(App):
             self.root.ids.h_stat.dispatch("on_release")
             self.root.ids.h_stat.state = "down"
 
-        # Toggle side panel (Tab)
+        # Toggle side panel (slash)
         if key_code == (92, 49):
             self.root.ids.ap.dispatch("on_release")
+
+        #=======================================================================
+        # Text input autocompletion
+        #=======================================================================
+
+        # Use tab for auto completion when textinput is focused
+        if key_code == (9, 23):
+            if "path_bx" in self.screen.ids:
+                if isinstance(self.screen.ids.path_bx.children[0], TextInput):
+                    path = self.screen.ids.path_bx.children[0].text
+                    s = self._auto_completion(path)
+                    self.screen.ids.path_bx.children[0].text = s
+
+    @staticmethod
+    def _auto_completion(path):
+        """
+        Method used for providing auto completion for text input widgets
+        navigating the os file system
+        """
+
+        # Check if current path exists. If it does, there is no path to auto
+        # complete and no action is required.
+        if os.path.exists(path):
+            return path
+        # If the path does not exist, get the nearest parent directory and
+        # use the final string of the path to text for auto completion
+        else:
+            s = path.split(sep)[-1]
+            path = sep.join(path.split(sep)[:-1])
+
+        # Get list of contents that may
+        dirlist = [x for x in os.listdir(path) if x.startswith(s) and
+                   os.path.isdir(join(path, x))]
+
+        # If there is only one match in dirlist, return that match
+        if len(dirlist) == 1:
+            return join(path, dirlist[0])
+
+        # If there are multiple matches in dirlist, return the longest common
+        # substring
+        elif len(dirlist) > 1:
+            return join(path, os.path.commonprefix(dirlist))
 
     def _on_mouseover_tabs(self, dt):
 
