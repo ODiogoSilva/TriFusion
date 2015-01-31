@@ -650,7 +650,7 @@ class TriFusionApp(App):
             self.root.ids.h_stat.state = "down"
 
         # Toggle side panel (Tab)
-        if key_code == (9, 23):
+        if key_code == (92, 49):
             self.root.ids.ap.dispatch("on_release")
 
     def _on_mouseover_tabs(self, dt):
