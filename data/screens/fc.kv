@@ -37,13 +37,20 @@ ShowcaseScreen:
                     orientation: "vertical"
                     spacing: [5, 10]
 
-            Button:
-                size_hint_y: None
-                bold: True
-                height: 40
-                text: "Add Bookmark"
-                background_normal: "data/backgrounds/bt_process.png"
-                on_release: app.save_bookmark(icon_view_tab.path)
+            BoxLayout:
+                Widget:
+                    size_hint_x: .2
+
+                Button:
+                    size_hint_y: None
+                    bold: True
+                    height: 30
+                    text: "Add Bookmark"
+                    background_normal: "data/backgrounds/bt_process.png"
+                    on_release: app.save_bookmark(icon_view_tab.path)
+
+                Widget:
+                    size_hint_x: .2
 
         Vseparator:
             thickness: 1.5
