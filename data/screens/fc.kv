@@ -139,7 +139,7 @@ ShowcaseScreen:
                     focus: True
                     on_text:
                         if case_bt.state == "down": root.ids.icon_view_tab.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
-                        if case_bt.state == "normal": root.ids.icon_view_tab.f = icon_view_tab.path+"*"+self.text+"*"
+                        if case_bt.state == "normal": root.ids.icon_view_tab.f = "*"+self.text+"*"
 
                     on_text_validate:
                         focus = True
