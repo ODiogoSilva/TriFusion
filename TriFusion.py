@@ -1087,7 +1087,7 @@ class TriFusionApp(App):
                                     " this bookmark?",
                                     self.remove_bookmark_bt))
         # Update gridlayout height
-        self.screen.ids.sv_book.height += self.root.height * 0.07
+        self.screen.ids.sv_book.height += 40
         # Add widgets
         self.screen.ids.sv_book.add_widget(bt)
         self.screen.ids.sv_book.add_widget(xbt)
