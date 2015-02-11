@@ -1211,12 +1211,20 @@
 
         DarkBox:
             Label:
-                size_hint_x: .8
+                size_hint_x: .74
                 markup: True
                 text: "[size=18][b]Data set[/b][/size]\n[size=13]Select the active taxa data set to perform operations[/size]"
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
+            BoxLayout:
+                padding: 12
+                size_hint_x: .06
+                Button:
+                    border: 0,0,0,0
+                    background_normal: "data/backgrounds/more_info.png"
+                    background_down: "data/backgrounds/more_info_down.png"
+
             ProcessBt:
                 id: active_taxa_set
                 text: "All taxa"
@@ -1325,12 +1333,19 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
+                    size_hint_x: .74
                     markup: True
                     text: "[size=18][b]Interleave[/b][/size]\n[size=13]If sequences should be in interleave format or leave"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
+                BoxLayout:
+                    padding: 12
+                    size_hint_x: .06
+                    Button:
+                        border: 0,0,0,0
+                        background_normal: "data/backgrounds/more_info.png"
+                        background_down: "data/backgrounds/more_info_down.png"
                 Switch:
                     id: interleave
                     size_hint_x: .2
@@ -1341,12 +1356,19 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
+                    size_hint_x: .74
                     markup: True
                     text: "[size=18][b]ZORRO weights support[/b][/size]\n[size=13]Concatenation only. Concatenates auxiliary Zorro weight files into a single *_zorro.out file."
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
+                BoxLayout:
+                    padding: 12
+                    size_hint_x: .06
+                    Button:
+                        border: 0,0,0,0
+                        background_normal: "data/backgrounds/more_info.png"
+                        background_down: "data/backgrounds/more_info_down.png"
                 ProcessBt:
                     id: zorro
                     background_normal: "data/backgrounds/bt_process_off.png"
@@ -1355,20 +1377,6 @@
                     disabled: True
                     on_release:
                         app.dialog_zorro()
-
-            Hseparator
-
-            DarkBox:
-                Label:
-                    size_hint_x: .8
-                    markup: True
-                    text: "[size=18][b]Substitution model[/b][/size]\n[size=13] Specify the substitution model. Only supported for Nexus and Phylip formats"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                ProcessBt:
-                    text: "Select..."
-                    disabled: True
 
     TabbedPanelItem:
         id: partition_tab
@@ -1420,16 +1428,22 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .8
+                    size_hint_x: .77
                     markup: True
                     text: "[size=15][b]Sequence collapsing options[/b][/size]"
                     halign: "left"
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
+                BoxLayout:
+                    size_hint_x: .03
+                    Button:
+                        border: 0,0,0,0
+                        background_normal: "data/backgrounds/more_info.png"
+                        background_down: "data/backgrounds/more_info_down.png"
                 Switch:
-                    id: collapse
                     size_hint_x: .2
+                    id: collapse
                     on_active:
                         if self.active == True: root.ids.hapbt.disabled = False; root.ids.collapse_file.disabled = False
                         if self.active == False: root.ids.hapbt.disabled = True; root.ids.collapse_file.disabled = True
@@ -1456,14 +1470,22 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
+                    size_hint_x: .74
                     markup: True
                     id: test2
                     text: "[size=18][b]Haplotype prefix[/b][/size]\n[size=13] Select the prefix name for the haplotypes [/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
+                BoxLayout:
+                    padding: 12
+                    size_hint_x: .06
+                    Button:
+                        border: 0,0,0,0
+                        background_normal: "data/backgrounds/more_info.png"
+                        background_down: "data/backgrounds/more_info_down.png"
                 ProcessBt:
+                    size_hint_x: .2
                     id: hapbt
                     disabled: True
                     text: "Select..."
@@ -1483,13 +1505,19 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .8
+                    size_hint_x: .77
                     markup: True
                     text: "[size=15][b]Sequence filter options[/b][/size]"
                     halign: "left"
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
+                BoxLayout:
+                    size_hint_x: .03
+                    Button:
+                        border: 0,0,0,0
+                        background_normal: "data/backgrounds/more_info.png"
+                        background_down: "data/backgrounds/more_info_down.png"
                 Switch:
                     id: filter
                     size_hint_x: .2
@@ -1544,13 +1572,19 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .8
+                    size_hint_x: .77
                     markup: True
                     text: "[size=15][b]Gap coding options[/b][/size]"
                     halign: "left"
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
+                BoxLayout:
+                    size_hint_x: .03
+                    Button:
+                        border: 0,0,0,0
+                        background_normal: "data/backgrounds/more_info.png"
+                        background_down: "data/backgrounds/more_info_down.png"
                 Switch:
                     id: gcoder
                     size_hint_x: .2
