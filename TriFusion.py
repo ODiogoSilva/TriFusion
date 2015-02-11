@@ -1582,14 +1582,20 @@ class TriFusionApp(App):
                     self.active_tx_inf[tx]["fl_coverage"],
                     self.active_tx_inf[tx]["fl_coverage_per"]))
 
-                close_bt = Button(text="Close", size_hint_y=None, height=40)
+                close_bl = BoxLayout(size_hint_y=None, height=30)
+                close_bt = Button(text="Close", bold=True,
+                        background_normal="data/backgrounds/bt_process.png",
+                        background_down="data/backgrounds/bt_process_off.png")
                 close_bt.bind(on_release=self.dismiss_popup)
+                close_bl.add_widget(Widget(size_hint_x=.5))
+                close_bl.add_widget(close_bt)
+                close_bl.add_widget(Widget(size_hint_x=.5))
 
                 all_ds.add_widget(total_ds)
                 all_ds.add_widget(active_ds)
                 sv.add_widget(all_ds)
                 content.add_widget(sv)
-                content.add_widget(close_bt)
+                content.add_widget(close_bl)
 
                 self.show_popup(title="Taxon: %s" % value.id[:-1],
                                 content=content, size=(450, 400))
