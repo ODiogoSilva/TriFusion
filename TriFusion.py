@@ -60,6 +60,7 @@ from kivy.graphics import Color, Rectangle
 # Main program imports
 from process.sequence import AlignmentList
 from process import data
+from data.resources.info_data import informative_storage
 
 # Other imports
 import os
@@ -161,6 +162,10 @@ class AutoCompTextInput(TextInput):
             s = substring
         return super(AutoCompTextInput, self).insert_text(s,
                                                           from_undo=from_undo)
+
+
+class InfoPopup(BoxLayout):
+    cancel = ObjectProperty(None)
 
 
 class MouseOverLabel(Button):
@@ -2002,6 +2007,26 @@ class TriFusionApp(App):
 
         # Update gridlayout height
         self.root.ids.group_grid.height += 40
+
+    def dialog_general_info(self, idx):
+        """
+        Generates the popup with information for several components of the
+        application
+        :param idx: string. Identifier of the informative content to be shown.
+        It must be present in the dictionary keys of the informative_storage
+        variable in data/resources/info_data.py
+        """
+
+        content = InfoPopup(cancel=self.dismiss_popup)
+
+        # Retrieve title and body text
+        title_str, body_str = informative_storage[idx]
+
+        # Add text body
+        content.ids.content.text = body_str
+
+        self.show_popup(title=title_str, content=content, size=(400, 300))
+
 
     def operation_queue_init(self):
         """

@@ -62,6 +62,51 @@
             size: self.size
 
 #===============================================================================
+# GENERAL INFORMATIVE POPUP
+#===============================================================================
+
+<InfoPopup@BoxLayout>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    ScrollView:
+        GridLayout:
+            cols: 1
+            padding: 10
+            size_hint_y: None
+            height: content.texture_size[1] * 1.1
+
+            Label:
+                id: content
+                size_hint: (1, None)
+                text_size: self.width, None
+                size: self.parent.width, self.texture_size[1]
+                markup: True
+                font_size: 15
+                line_height: 1
+                halign: "justify"
+
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        Widget:
+            size_hint_x: .4
+        Button:
+            text: "Close"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                root.cancel()
+        Widget:
+            size_hint_x: .4
+
+
+<InfoBt@Button>:
+    border: 0,0,0,0
+    background_normal: "data/backgrounds/more_info.png"
+    background_down: "data/backgrounds/more_info_down.png"
+
+#===============================================================================
 # TAXA/FILE INFORMATIVE POPUPS
 #===============================================================================
 
@@ -1220,10 +1265,9 @@
             BoxLayout:
                 padding: 12
                 size_hint_x: .06
-                Button:
-                    border: 0,0,0,0
-                    background_normal: "data/backgrounds/more_info.png"
-                    background_down: "data/backgrounds/more_info_down.png"
+                InfoBt:
+                    on_release:
+                        app.dialog_general_info("process_dataset")
 
             ProcessBt:
                 id: active_taxa_set
@@ -1333,19 +1377,12 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .74
+                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Interleave[/b][/size]\n[size=13]If sequences should be in interleave format or leave"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                BoxLayout:
-                    padding: 12
-                    size_hint_x: .06
-                    Button:
-                        border: 0,0,0,0
-                        background_normal: "data/backgrounds/more_info.png"
-                        background_down: "data/backgrounds/more_info_down.png"
                 Switch:
                     id: interleave
                     size_hint_x: .2
@@ -1365,10 +1402,9 @@
                 BoxLayout:
                     padding: 12
                     size_hint_x: .06
-                    Button:
-                        border: 0,0,0,0
-                        background_normal: "data/backgrounds/more_info.png"
-                        background_down: "data/backgrounds/more_info_down.png"
+                    InfoBt:
+                        on_release:
+                            app.dialog_general_info("zorro")
                 ProcessBt:
                     id: zorro
                     background_normal: "data/backgrounds/bt_process_off.png"
@@ -1437,10 +1473,9 @@
                     text_size: self.size
                 BoxLayout:
                     size_hint_x: .03
-                    Button:
-                        border: 0,0,0,0
-                        background_normal: "data/backgrounds/more_info.png"
-                        background_down: "data/backgrounds/more_info_down.png"
+                    InfoBt:
+                        on_release:
+                            app.dialog_general_info("collapse")
                 Switch:
                     size_hint_x: .2
                     id: collapse
@@ -1470,20 +1505,13 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .74
+                    size_hint_x: .8
                     markup: True
                     id: test2
                     text: "[size=18][b]Haplotype prefix[/b][/size]\n[size=13] Select the prefix name for the haplotypes [/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                BoxLayout:
-                    padding: 12
-                    size_hint_x: .06
-                    Button:
-                        border: 0,0,0,0
-                        background_normal: "data/backgrounds/more_info.png"
-                        background_down: "data/backgrounds/more_info_down.png"
                 ProcessBt:
                     size_hint_x: .2
                     id: hapbt
@@ -1514,10 +1542,9 @@
                     text_size: self.size
                 BoxLayout:
                     size_hint_x: .03
-                    Button:
-                        border: 0,0,0,0
-                        background_normal: "data/backgrounds/more_info.png"
-                        background_down: "data/backgrounds/more_info_down.png"
+                    InfoBt:
+                        on_release:
+                            app.dialog_general_info("filter")
                 Switch:
                     id: filter
                     size_hint_x: .2
@@ -1572,19 +1599,13 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .77
+                    size_hint_x: .8
                     markup: True
                     text: "[size=15][b]Gap coding options[/b][/size]"
                     halign: "left"
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
-                BoxLayout:
-                    size_hint_x: .03
-                    Button:
-                        border: 0,0,0,0
-                        background_normal: "data/backgrounds/more_info.png"
-                        background_down: "data/backgrounds/more_info_down.png"
                 Switch:
                     id: gcoder
                     size_hint_x: .2
