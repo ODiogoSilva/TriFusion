@@ -115,12 +115,20 @@
             PopupText:
                 id: n_taxa
         Widget
-    Button:
+    BoxLayout:
         size_hint_y: None
         height: 30
-        text: "Cancel"
-        on_release:
-            root.cancel()
+        Widget:
+            size_hint_x: .5
+        Button:
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            bold: True
+            text: "Close"
+            on_release:
+                root.cancel()
+        Widget:
+            size_hint_x: .5
 
 <TaxaPopup>
     orientation: "vertical"
