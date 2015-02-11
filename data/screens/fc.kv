@@ -37,18 +37,47 @@ ShowcaseScreen:
                     orientation: "vertical"
                     spacing: [5, 10]
 
-
             Button:
                 size_hint_y: None
+                bold: True
                 height: 40
                 text: "Add Bookmark"
+                background_normal: "data/backgrounds/bt_process.png"
                 on_release: app.save_bookmark(icon_view_tab.path)
+
+        Vseparator:
+            thickness: 1.5
 
         BoxLayout:
             size_hint_x: .75
             orientation: "vertical"
             padding: 10
             spacing: 10
+
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: 65
+                Label:
+                    bold: True
+                    text: "Input data type"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                    color: (0.216, 0.67, 0.784, 1)
+
+                BoxLayout:
+                    spacing: 10
+                    FileTypeBt:
+                        id: aln_type
+                        text: "Alignment/Sequence set"
+                        state: "down"
+                    FileTypeBt:
+                        id: prot_type
+                        text: "Proteome"
+
+            Hseparator:
+                thickness: 1.5
 
             BoxLayout:
                 spacing: 2
@@ -116,9 +145,13 @@ ShowcaseScreen:
 
                 Button:
                     text: "Open"
+                    background_normal: "data/backgrounds/bt_process.png"
+                    bold: True
                     on_release:
                         if icon_view_tab.selection: app.load(icon_view_tab.selection); app.go_previous_screen()
 
                 Button:
                     text: "Cancel"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    bold: True
                     on_release: app.go_previous_screen()

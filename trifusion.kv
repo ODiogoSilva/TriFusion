@@ -36,6 +36,12 @@
     multiline: False
     text: app.home_path
 
+<FileTypeBt@ToggleButton>:
+    bold: True
+    background_normal: "data/backgrounds/main_op_bt.png"
+    background_down: "data/backgrounds/bt_sideprocess.png"
+    group: "file_type"
+
 #===============================================================================
 # MOUSE OVER
 #===============================================================================
@@ -1126,8 +1132,8 @@
         Color:
             rgb: .5, .5, .5
         Rectangle:
-            pos: self.x + self.margin + 1, self.y + self.margin
-            size: self.thickness, self.height - 2 * self.margin + 5
+            pos: self.x + self.margin + 1, self.y + self.margin + 10
+            size: self.thickness, self.height - 2 * self.margin - 20
 
 <LightBox@BoxLayout>:
     height: 40
@@ -1781,7 +1787,6 @@ FloatLayout:
                                         bold: True
                                         border: 0,0,0,0
                                         font_size: 18
-
                                         on_release:
                                             idx = app.screen_names.index("fc")
                                             app.go_screen(idx)
