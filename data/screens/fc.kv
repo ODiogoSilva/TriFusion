@@ -155,7 +155,8 @@ ShowcaseScreen:
                     background_normal: "data/backgrounds/bt_process.png"
                     bold: True
                     on_release:
-                        if icon_view_tab.selection: app.load(icon_view_tab.selection); app.go_previous_screen()
+                        if icon_view_tab.selection and aln_type.state == "down": app.load(icon_view_tab.selection); app.go_previous_screen()
+                        if icon_view_tab.selection and prot_type.state == "down": pass
 
                 Button:
                     text: "Cancel"
