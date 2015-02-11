@@ -2597,26 +2597,26 @@ class TriFusionApp(App):
                     file_bt = Button(text=aln.name, size_hint_y=None, height=30)
                     part_contents.ids.file_content.add_widget(file_bt)
                     # Checking codon partitions
-                    if vals[1]:
-                        if len(vals) == 3:
-                            toggle_codons([0, 1, 2])
-                        else:
-                            full_codons = sorted(set(range(min(vals[1]),
-                                                           max(vals[1]) + 1)))
-                            counter = 0
-                            for i in sorted(vals[1]):
-                                if i in full_codons:
-                                    toggle_codons([counter])
-                                counter += 1
+                    # if vals[1]:
+                    #     if len(vals) == 3:
+                    #         toggle_codons([0, 1, 2])
+                    #     else:
+                    #         full_codons = sorted(set(range(min(vals[1]),
+                    #                                        max(vals[1]) + 1)))
+                    #         counter = 0
+                    #         for i in sorted(vals[1]):
+                    #             if i in full_codons:
+                    #                 toggle_codons([counter])
+                    #             counter += 1
                     # Checking substitution model
                     #if aln.partitions.models[partition]:
 
                     # Providing details on partition size and included files
-                    part_contents.ids.size_d.text = "[b]Size:[/b] %s" % (
-                        vals[0][1] - vals[0][0] + 1)
-                    part_contents.ids.seq_typ.text = "[b]Type:[/b] %s" % (
-                        aln.sequence_code[0])
-                    part_contents.ids.files_d.text = "[b]Files:[/b] 1"
+                    # part_contents.ids.size_d.text = "[b]Size:[/b] %s" % (
+                    #     vals[0][1] - vals[0][0] + 1)
+                    # part_contents.ids.seq_typ.text = "[b]Type:[/b] %s" % (
+                    #     aln.sequence_code[0])
+                    # part_contents.ids.files_d.text = "[b]Files:[/b] 1"
 
                     # Store slide for current partition
                     carousel_screens[partition] = part_contents
