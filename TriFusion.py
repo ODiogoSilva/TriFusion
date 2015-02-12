@@ -2027,7 +2027,6 @@ class TriFusionApp(App):
 
         self.show_popup(title=title_str, content=content, size=(400, 300))
 
-
     def operation_queue_init(self):
         """
         This will create the skeleton for the tree view of the operations

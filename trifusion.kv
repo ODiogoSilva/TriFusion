@@ -735,61 +735,81 @@
 #===============================================================================
 
 <SettingsBt@Button>:
-    size_hint_x: .2
+    size_hint_x: None
+    width: 40
     disabled: True
     Image:
         source: "data/backgrounds/settings.png"
-        pos: self.parent.x + 8, self.parent.y + 8
+        pos: self.parent.x, self.parent.y
         #x: self.parent.x
-        size: 18, 18
+        size: 40, 40
         allow_stretch: True
 
 <FormatDialog>:
     padding: [30, 20, 30, 20]
-    spacing: 10
+    spacing: 25
     orientation: "vertical"
     id: format_dlg
     BoxLayout:
-        ToggleButton:
-            id: fasta
-            state: "down"
-            text: "Fasta"
-        SettingsBt
-    BoxLayout:
-        ToggleButton:
-            id: phylip
-            text: "Phylip"
-        SettingsBt:
-            disabled: False
-            on_release:
-                app.dialog_phylip_extra()
-    BoxLayout:
-        ToggleButton:
-            id: nexus
-            text: "Nexus"
-        SettingsBt:
-            disabled: False
-            on_release:
-                app.dialog_nexus_extra()
-    BoxLayout:
-        ToggleButton:
-            id: mcmctree
-            text: "MCMCTree"
-        SettingsBt
-    BoxLayout:
-        ToggleButton:
-            id: ima2
-            text: "IMa2"
-            disabled: True
-        SettingsBt
-    Widget
+        orientation: "vertical"
+        spacing: 10
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            ToggleButton:
+                id: fasta
+                state: "down"
+                text: "Fasta"
+            SettingsBt
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            ToggleButton:
+                id: phylip
+                text: "Phylip"
+            SettingsBt:
+                disabled: False
+                on_release:
+                    app.dialog_phylip_extra()
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            ToggleButton:
+                id: nexus
+                text: "Nexus"
+            SettingsBt:
+                disabled: False
+                on_release:
+                    app.dialog_nexus_extra()
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            ToggleButton:
+                id: mcmctree
+                text: "MCMCTree"
+            SettingsBt
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            ToggleButton:
+                id: ima2
+                text: "IMa2"
+                disabled: True
+            SettingsBt
     BoxLayout:
         orientation: "horizontal"
+        size_hint_y: None
+        height: 40
+        spacing: 10
         Button:
             text: "Done"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
             on_release: app.save_format(format_dlg)
         Button:
             text: "Cancel"
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
             on_release: root.cancel()
 
 <NexusExtra@BoxLayout>:
