@@ -63,7 +63,7 @@ inflation = ["1.5", "2", "3", "4", "5"]
 # For mcl_groups
 prefix = "Basidiomycota"  # Arbitrary string for the name of the groups
 start_ID = "1000"  # Starting number for the groups
-groups_file = "groups.txt"
+groups_file = "groups"
 
 
 def loading(current_state, size, prefix_txt, width, proteome):
@@ -260,7 +260,8 @@ def mcl_groups(mcl_prefix, start_id, group_file):
     for val in inflation:
         subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " +
                           start_id + " < mclOutput_" + val.replace(".", "")
-                          + " > " + group_file], shell=True).wait()
+                          + " > " + group_file + "_" + val + ".txt"],
+                         shell=True).wait()
 
 
 if arg.adjust:
