@@ -987,7 +987,7 @@ class TriFusionApp(App):
 
         wgt.disabled = True
 
-    def check_action(self, text, func, bt_wgt):
+    def check_action(self, text, func, bt_wgt=None):
         """
         General purpose method that pops a dialog checking if the user wants to
         perform a certain action. This method should be passed as a function on
@@ -1006,7 +1006,6 @@ class TriFusionApp(App):
         the function that will actually remove the bookmak button. This function
         is then binder to the "OK" button of the check dialog. By default, the
         last argument is the bt_wgt.
-
         """
 
         check_content = CheckDialog(cancel=self.dismiss_popup)
@@ -1361,9 +1360,11 @@ class TriFusionApp(App):
                 self.root.ids.file_sl.add_widget(no_bt)
             self.root.ids.sb_file.disabled = True
             self.root.ids.file_opt.disabled = True
+            self.root.ids.rm_all_file.disabled = True
         else:
             self.root.ids.sb_file.disabled = False
             self.root.ids.file_opt.disabled = False
+            self.root.ids.rm_all_file.disabled = False
 
     def update_sp_label(self):
         """
@@ -1381,6 +1382,7 @@ class TriFusionApp(App):
                 len(self.alignment_list.taxa_names) == 0:
             self.root.ids.sb_taxa.disabled = True
             self.root.ids.taxa_opt.disabled = True
+            self.root.ids.rm_all_taxa.disabled = True
             if "species_temp" not in [x.id for x in
                                       self.root.ids.taxa_sl.children]:
                 no_bt = Button(id="species_temp", text="No species loaded",
@@ -1390,6 +1392,7 @@ class TriFusionApp(App):
         else:
             self.root.ids.sb_taxa.disabled = False
             self.root.ids.taxa_opt.disabled = False
+            self.root.ids.rm_all_taxa.disabled = False
 
     def populate_input_files(self):
         """
@@ -1519,11 +1522,11 @@ class TriFusionApp(App):
                               background_normal=join("data",
                                                      "backgrounds",
                                                      "remove_bt.png"))
-                self.root.ids.taxa_sl.add_widget(x_bt)
                 x_bt.bind(on_release=partial(self.check_action,
                                              "Are you sure you want to remove"
                                              " this taxon?",
                                              self.remove_bt))
+                self.root.ids.taxa_sl.add_widget(x_bt)
 
                 # Updates the size of the grid layout according to the added
                 # button
@@ -1711,6 +1714,20 @@ class TriFusionApp(App):
 
             # Update label
             self.update_sp_label()
+
+    def remove_all(self):
+        """
+        Functionality for the remove all button for taxa and file buttons in the
+        side panel. This method will remove all files and taxa from the program
+        """
+
+        # Get file remove button list
+        file_bts = [x for x in self.root.ids.file_sl.children if
+                    x.background_normal == join("data", "backgrounds",
+                                                "remove_bt.png")]
+
+        for i in file_bts:
+            self.remove_bt(i)
 
     def remove_bt(self, value):
         """
