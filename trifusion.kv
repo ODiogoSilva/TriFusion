@@ -1914,6 +1914,7 @@ FloatLayout:
                                                 height: 1
                                                 color: (.6, .6, .6, 1)
                                             BoxLayout:
+                                                id: bt_bar_file
                                                 spacing: 5
                                                 size_hint_y: None
                                                 height: 35
@@ -1935,12 +1936,21 @@ FloatLayout:
                                                     text: "+"
                                                     font_size: 30
                                                     bold: True
-                                                    size_hint_x: .15
+                                                    size_hint_x: .18
                                                     disabled: True
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     on_release:
                                                         file_dd.open(self)
+                                                Button:
+                                                    id: rm_all_file
+                                                    size_hint_x: None
+                                                    width: 35
+                                                    disabled: True
+                                                    background_normal: "data/backgrounds/remove_all.png"
+                                                    background_down: "data/backgrounds/remove_all_down.png"
+                                                    on_release:
+                                                        app.check_action(text="Are you sure you want to remove all files and taxa?", func=app.remove_all)
                                                 DropDown:
                                                     id: file_dd
                                                     auto_width: False
@@ -2019,13 +2029,21 @@ FloatLayout:
                                                     text: "+"
                                                     font_size: 30
                                                     bold: True
-                                                    size_hint_x: .15
+                                                    size_hint_x: .18
                                                     disabled: True
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     on_release:
                                                         taxa_dd.open(self)
-
+                                                Button:
+                                                    id: rm_all_taxa
+                                                    size_hint_x: None
+                                                    width: 35
+                                                    disabled: True
+                                                    background_normal: "data/backgrounds/remove_all.png"
+                                                    background_down: "data/backgrounds/remove_all_down.png"
+                                                    on_release:
+                                                        app.check_action("Are you sure you want to remove all files and taxa?", app.remove_all)
                                                 DropDown:
                                                     id: taxa_dd
                                                     auto_width: False
