@@ -1083,9 +1083,9 @@ class TriFusionApp(App):
         bt = Button(text=bookmark_name, id=bk,
                     height=30, size_hint=(.8, None),
                      background_normal=join("data", "backgrounds",
-                                            "bt_process_off.png"),
+                                            "bt_process.png"),
                      background_down=join("data", "backgrounds",
-                                            "bt_process.png"))
+                                            "bt_process_off.png"))
         # Bind to function that loads bookmark path into filechooser
         bt.bind(on_release=self.bookmark_load)
         # Add to list for mouse over purposes
@@ -1436,8 +1436,9 @@ class TriFusionApp(App):
             if file_name not in [x.id for x in self.root.ids.file_sl.children]:
 
                 bt = ToggleButton(text=file_name, state="down", id=file_name,
-                                  height=35, size_hint=(.8, None), shorten=True,
-                                  shorten_from="right", halign="center")
+                                  height=30, size_hint=(.8, None), shorten=True,
+                                  shorten_from="right", halign="center",
+                                  bold=True)
                 # Add button to storage for mouse over events
                 self.mouse_over_bts["Files"].append(bt)
                 # Setting horizontal text size for shortening
@@ -1449,8 +1450,8 @@ class TriFusionApp(App):
                 self.root.ids.file_sl.add_widget(bt)
 
                 # Set Information button and add the widget
-                inf_bt = Button(size_hint=(None, None), width=35,
-                                height=35, id="%s?" % file_name,
+                inf_bt = Button(size_hint=(None, None), width=30,
+                                height=30, id="%s?" % file_name,
                                 background_normal=join("data",
                                                      "backgrounds",
                                                      "info_bt.png"))
@@ -1458,12 +1459,12 @@ class TriFusionApp(App):
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
-                x_bt = Button(size_hint=(None, None), width=35,
-                              height=35, id="%sX" % file_name,
+                x_bt = Button(size_hint=(None, None), width=30,
+                              height=30, id="%sX" % file_name,
                               border=(0, 0, 0, 0),
                               background_normal=join("data",
                                                      "backgrounds",
-                                                     "remove_all.png"))
+                                                     "remove_bt.png"))
                 x_bt.bind(on_release=partial(self.check_action,
                                              "Are you sure you want to remove"
                                              " this file?",
@@ -1504,8 +1505,13 @@ class TriFusionApp(App):
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
 
                 bt = ToggleButton(text=tx, state="down", id=tx,
-                                  height=35, size_hint=(.8, None), shorten=True,
-                                  shorten_from="right", halign="center")
+                                  height=30, size_hint=(.8, None), shorten=True,
+                                  shorten_from="right", halign="center",
+                                  bold=True,
+                                  background_down=join("data", "backgrounds",
+                                                         "bt_process.png"),
+                                  background_normal=join("data", "backgrounds",
+                                                         "bt_process_off.png"))
                 # Add button to storage for mouse over events
                 self.mouse_over_bts["Taxa"].append(bt)
                 # Setting horizontal text size for shortening
@@ -1517,8 +1523,8 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.add_widget(bt)
 
                 # Set Information button and add the widget
-                inf_bt = Button(size_hint=(None, None), width=35,
-                                height=35, id="%s?" % tx, border=(0, 0, 0, 0),
+                inf_bt = Button(size_hint=(None, None), width=30,
+                                height=30, id="%s?" % tx, border=(0, 0, 0, 0),
                                 background_normal=join("data",
                                                      "backgrounds",
                                                      "info_bt.png"))
@@ -1526,12 +1532,12 @@ class TriFusionApp(App):
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
-                x_bt = Button(size_hint=(None, None), width=35,
-                              height=35, id="%sX" % tx,
+                x_bt = Button(size_hint=(None, None), width=30,
+                              height=30, id="%sX" % tx,
                               borders=(0, 0, 0, 0),
                               background_normal=join("data",
                                                      "backgrounds",
-                                                     "remove_all.png"))
+                                                     "remove_bt.png"))
                 x_bt.bind(on_release=partial(self.check_action,
                                              "Are you sure you want to remove"
                                              " this taxon?",
