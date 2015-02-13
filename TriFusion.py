@@ -1432,7 +1432,7 @@ class TriFusionApp(App):
             if file_name not in [x.id for x in self.root.ids.file_sl.children]:
 
                 bt = ToggleButton(text=file_name, state="down", id=file_name,
-                                  height=30, size_hint=(.8, None), shorten=True,
+                                  height=35, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Add button to storage for mouse over events
                 self.mouse_over_bts["Files"].append(bt)
@@ -1445,9 +1445,8 @@ class TriFusionApp(App):
                 self.root.ids.file_sl.add_widget(bt)
 
                 # Set Information button and add the widget
-                inf_bt = Button(size_hint=(None, None), width=30,
-                                height=30, id="%s?" % file_name,
-                                border=(0, 0, 0, 0),
+                inf_bt = Button(size_hint=(None, None), width=35,
+                                height=35, id="%s?" % file_name,
                                 background_normal=join("data",
                                                      "backgrounds",
                                                      "info_bt.png"))
@@ -1455,12 +1454,12 @@ class TriFusionApp(App):
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
-                x_bt = Button(size_hint=(None, None), width=30,
-                              height=30, id="%sX" % file_name,
-                              borders=(0, 0, 0, 0),
+                x_bt = Button(size_hint=(None, None), width=35,
+                              height=35, id="%sX" % file_name,
+                              border=(0, 0, 0, 0),
                               background_normal=join("data",
                                                      "backgrounds",
-                                                     "remove_bt.png"))
+                                                     "remove_all.png"))
                 x_bt.bind(on_release=partial(self.check_action,
                                              "Are you sure you want to remove"
                                              " this file?",
@@ -1469,7 +1468,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # buttons
-                self.root.ids.file_sl.height += 35
+                self.root.ids.file_sl.height += 40
 
     def populate_species(self):
         """
@@ -1501,7 +1500,7 @@ class TriFusionApp(App):
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
 
                 bt = ToggleButton(text=tx, state="down", id=tx,
-                                  height=30, size_hint=(.8, None), shorten=True,
+                                  height=35, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center")
                 # Add button to storage for mouse over events
                 self.mouse_over_bts["Taxa"].append(bt)
@@ -1514,8 +1513,8 @@ class TriFusionApp(App):
                 self.root.ids.taxa_sl.add_widget(bt)
 
                 # Set Information button and add the widget
-                inf_bt = Button(size_hint=(None, None), width=30,
-                                height=30, id="%s?" % tx, border=(0, 0, 0, 0),
+                inf_bt = Button(size_hint=(None, None), width=35,
+                                height=35, id="%s?" % tx, border=(0, 0, 0, 0),
                                 background_normal=join("data",
                                                      "backgrounds",
                                                      "info_bt.png"))
@@ -1523,12 +1522,12 @@ class TriFusionApp(App):
                 inf_bt.bind(on_release=self.popup_info)
 
                 # Set remove button with event binded and add the widget
-                x_bt = Button(size_hint=(None, None), width=30,
-                              height=30, id="%sX" % tx,
+                x_bt = Button(size_hint=(None, None), width=35,
+                              height=35, id="%sX" % tx,
                               borders=(0, 0, 0, 0),
                               background_normal=join("data",
                                                      "backgrounds",
-                                                     "remove_bt.png"))
+                                                     "remove_all.png"))
                 x_bt.bind(on_release=partial(self.check_action,
                                              "Are you sure you want to remove"
                                              " this taxon?",
@@ -1537,7 +1536,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # button
-                self.root.ids.taxa_sl.height += 35
+                self.root.ids.taxa_sl.height += 40
 
     def popup_info(self, value):
         """
