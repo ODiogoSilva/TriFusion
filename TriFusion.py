@@ -1081,7 +1081,11 @@ class TriFusionApp(App):
         bookmark_name = bk.split("/")[-1]
         # Define bookmark button
         bt = Button(text=bookmark_name, id=bk,
-                    height=30, size_hint=(.8, None))
+                    height=30, size_hint=(.8, None),
+                     background_normal=join("data", "backgrounds",
+                                            "bt_process_off.png"),
+                     background_down=join("data", "backgrounds",
+                                            "bt_process.png"))
         # Bind to function that loads bookmark path into filechooser
         bt.bind(on_release=self.bookmark_load)
         # Add to list for mouse over purposes
