@@ -2115,14 +2115,19 @@ FloatLayout:
                                         padding: 5
                                         spacing: 5
                                         cols: 2
-                                Button:
-                                    size_hint_y: .1
-                                    bold: True
-                                    text: "Set new taxa group"
-                                    id: tx_group_bt
-                                    disabled: True
-                                    on_release:
-                                        app.dialog_taxagroup()
+                                BoxLayout:
+                                    size_hint_y: None
+                                    height: 40
+                                    padding: (50, 0, 50, 0)
+                                    Button:
+                                        bold: True
+                                        text: "Set new taxa group"
+                                        id: tx_group_bt
+                                        disabled: True
+                                        background_normal: "data/backgrounds/bt_process.png"
+                                        background_down: "data/backgrounds/bt_process_off.png"
+                                        on_release:
+                                            app.dialog_taxagroup()
 
                             BoxLayout:
                                 orientation: "vertical"
