@@ -761,7 +761,7 @@ class TriFusionApp(App):
             """
 
             # Retrieving window widget coordinates
-            window_pos = wgt.to_window(bt.pos[0], bt.pos[1])
+            window_pos = wgt.to_window(wgt.pos[0], wgt.pos[1])
             # Creating dummy widget to determine collision
             dummy_wgt = Widget(pos=window_pos, size_hint=(None, None),
                                  size=wgt.size)
@@ -828,8 +828,15 @@ class TriFusionApp(App):
             for bt in self.mouse_over_bts[active_tab] + sidebt_list:
                 # Determine if there is a collision with mouse position
                 if determine_collision(bt):
-                    # Set collision marker to true
-                    collision = True
+                    if bt in self.mouse_over_bts[active_tab]:
+                        if determine_collision(self.root.ids.file_sl) or \
+                                determine_collision(self.root.ids.sv_sp):
+                            collision = True
+                        else:
+                            continue
+                    else:
+                        # Set collision marker to true
+                        collision = True
 
                     # This will determine if a new label button will be added
                     # to the layout, based on the text of the button. If the
