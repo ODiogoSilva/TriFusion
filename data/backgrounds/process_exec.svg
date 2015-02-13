@@ -824,15 +824,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.5"
-     inkscape:cx="-610.51375"
-     inkscape:cy="181.61024"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="-632.83163"
+     inkscape:cy="-247.25263"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1362"
-     inkscape:window-height="729"
-     inkscape:window-x="1920"
+     inkscape:window-width="1916"
+     inkscape:window-height="1041"
+     inkscape:window-x="0"
      inkscape:window-y="37"
      inkscape:window-maximized="0"
      showguides="true"
@@ -2026,5 +2026,81 @@
        style="fill:#5599ff;fill-opacity:1"
        inkscape:export-xdpi="14.0625"
        inkscape:export-ydpi="14.0625" />
+    <rect
+       style="opacity:0;fill:#cccccc;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect5329"
+       width="40"
+       height="40"
+       x="-445.76776"
+       y="1215.5996"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       id="path6172"
+       d="m -429.37846,1240.8556 0.98172,-1.3746 -1.07567,-1.0757 -1.37463,0.9817 c -0.25484,-0.1426 -0.52795,-0.256 -0.81473,-0.3374 l -0.27767,-1.666 -1.52145,0 -0.27767,1.666 c -0.28679,0.081 -0.55989,0.1948 -0.81473,0.3374 l -1.37463,-0.9817 -1.07606,1.0757 0.98173,1.3746 c -0.14264,0.2548 -0.25599,0.528 -0.33739,0.8147 l -1.66599,0.2777 0,1.5214 1.66599,0.2777 c 0.0814,0.2868 0.19475,0.5595 0.33739,0.8148 l -0.98173,1.3746 1.07567,1.0756 1.37463,-0.9817 c 0.25485,0.1427 0.52795,0.256 0.81474,0.3374 l 0.27767,1.666 1.52145,0 0.27767,-1.666 c 0.28679,-0.081 0.55951,-0.1947 0.81473,-0.3374 l 1.37463,0.9817 1.07567,-1.0756 -0.98172,-1.3746 c 0.14264,-0.2549 0.25599,-0.528 0.33739,-0.8148 l 1.66637,-0.2777 0,-1.5214 -1.666,-0.2777 c -0.0814,-0.2867 -0.19474,-0.5595 -0.33738,-0.8147 z m -3.32171,3.3746 c -0.84022,0 -1.52145,-0.6812 -1.52145,-1.5215 0,-0.8402 0.68123,-1.5214 1.52145,-1.5214 0.84023,0 1.52146,0.6812 1.52146,1.5214 0,0.8403 -0.68123,1.5215 -1.52146,1.5215 z m 19.01816,-11.4109 0,-1.5215 -1.60172,-0.2914 c -0.0297,-0.1912 -0.0673,-0.3799 -0.1122,-0.5655 l 1.36816,-0.8821 -0.58233,-1.4058 -1.59144,0.3438 c -0.10003,-0.1643 -0.2073,-0.3237 -0.32065,-0.4785 l 0.92732,-1.3392 -1.07566,-1.0757 -1.33926,0.9274 c -0.1548,-0.1134 -0.31418,-0.2207 -0.4785,-0.3207 l 0.34385,-1.5914 -1.40582,-0.5824 -0.88206,1.3682 c -0.18562,-0.045 -0.37428,-0.083 -0.5656,-0.1122 l -0.29135,-1.6017 -1.52146,0 -0.29135,1.6017 c -0.19133,0.03 -0.37961,0.067 -0.56561,0.1122 l -0.88206,-1.3682 -1.40544,0.5824 0.34385,1.5914 c -0.16432,0.1 -0.32369,0.2073 -0.4785,0.3207 l -1.33925,-0.9274 -1.07567,1.0757 0.92732,1.3392 c -0.11334,0.1548 -0.22061,0.3142 -0.32064,0.4785 l -1.59144,-0.3438 -0.58234,1.4058 1.36816,0.8821 c -0.0449,0.1856 -0.0829,0.3743 -0.1122,0.5655 l -1.60209,0.2914 0,1.5215 1.60171,0.2914 c 0.0297,0.1912 0.0674,0.3799 0.11221,0.5655 l -1.36817,0.8821 0.58234,1.4058 1.59144,-0.3438 c 0.10041,0.1643 0.20768,0.3237 0.32064,0.4785 l -0.92733,1.3392 1.07568,1.0757 1.33925,-0.9274 c 0.15481,0.1134 0.31418,0.2207 0.4785,0.3207 l -0.34385,1.5915 1.40544,0.5823 0.88207,-1.3682 c 0.18561,0.045 0.37427,0.083 0.5656,0.1122 l 0.29135,1.6021 1.52145,0 0.29136,-1.6017 c 0.19132,-0.03 0.3796,-0.067 0.5656,-0.1122 l 0.88206,1.3682 1.40582,-0.5824 -0.34385,-1.5914 c 0.16432,-0.1004 0.32369,-0.2073 0.4785,-0.3207 l 1.33926,0.9274 1.07567,-1.0757 -0.92733,-1.3393 c 0.11335,-0.1547 0.22062,-0.3142 0.32065,-0.4785 l 1.59144,0.3439 0.58234,-1.4058 -1.36817,-0.8821 c 0.0449,-0.1856 0.0829,-0.3743 0.1122,-0.5656 l 1.60171,-0.2913 z m -8.36799,2.5484 c -1.82765,0 -3.30916,-1.4815 -3.30916,-3.3091 0,-1.8277 1.48151,-3.3092 3.30916,-3.3092 1.82764,0 3.30915,1.4815 3.30915,3.3092 0,1.8276 -1.48151,3.3091 -3.30915,3.3091 z"
+       inkscape:connector-curvature="0"
+       style="fill:#5599ff;fill-opacity:1"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:0;fill-rule:nonzero;stroke:#ff5555;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3050-2-7-3-0"
+       width="134.67111"
+       height="134.67111"
+       x="-205.41029"
+       y="1295.5272"
+       ry="4.8671875"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="86.343529"
+       inkscape:export-ydpi="86.343529"
+       rx="4.8671875" />
+    <g
+       id="g5606-8"
+       transform="matrix(1.1038702,0,0,1.1038702,-172.17223,1328.93)"
+       style="fill:#ff5555;fill-opacity:1"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/remove_bt.png"
+       inkscape:export-xdpi="86.343529"
+       inkscape:export-ydpi="86.343529">
+      <path
+         id="path5596-7"
+         d="m 8,20 0,40 c 0,2.2 1.8,4 4,4 l 36,0 c 2.2,0 4,-1.8 4,-4 L 52,20 8,20 Z m 12,36 -4,0 0,-28 4,0 0,28 z m 8,0 -4,0 0,-28 4,0 0,28 z m 8,0 -4,0 0,-28 4,0 0,28 z m 8,0 -4,0 0,-28 4,0 0,28 z"
+         inkscape:connector-curvature="0"
+         style="fill:#ff5555;fill-opacity:1" />
+      <path
+         id="path5598-6"
+         d="M 53,8 40,8 40,3 C 40,1.35 38.65,0 37,0 L 23,0 C 21.35,0 20,1.35 20,3 L 20,8 7,8 C 5.35,8 4,9.35 4,11 l 0,5 52,0 0,-5 C 56,9.35 54.65,8 53,8 Z M 36,8 24,8 24,4.05 36,4.05 36,8 Z"
+         inkscape:connector-curvature="0"
+         style="fill:#ff5555;fill-opacity:1" />
+    </g>
+    <rect
+       style="opacity:1;fill:#ff5555;fill-opacity:1;fill-rule:nonzero;stroke:#ff5555;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3050-2-7-3-0-8"
+       width="134.67111"
+       height="134.67111"
+       x="-205.33556"
+       y="1469.0266"
+       ry="4.8671875"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="22.108028"
+       inkscape:export-ydpi="22.108028"
+       rx="4.8671875" />
+    <g
+       id="g5606-8-5"
+       transform="matrix(1.1038702,0,0,1.1038702,-172.09749,1502.4294)"
+       style="fill:#1a1a1a;fill-opacity:1"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/remove_bt.png"
+       inkscape:export-xdpi="22.108028"
+       inkscape:export-ydpi="22.108028">
+      <path
+         id="path5596-7-7"
+         d="m 8,20 0,40 c 0,2.2 1.8,4 4,4 l 36,0 c 2.2,0 4,-1.8 4,-4 L 52,20 8,20 Z m 12,36 -4,0 0,-28 4,0 0,28 z m 8,0 -4,0 0,-28 4,0 0,28 z m 8,0 -4,0 0,-28 4,0 0,28 z m 8,0 -4,0 0,-28 4,0 0,28 z"
+         inkscape:connector-curvature="0"
+         style="fill:#1a1a1a;fill-opacity:1" />
+      <path
+         id="path5598-6-8"
+         d="M 53,8 40,8 40,3 C 40,1.35 38.65,0 37,0 L 23,0 C 21.35,0 20,1.35 20,3 L 20,8 7,8 C 5.35,8 4,9.35 4,11 l 0,5 52,0 0,-5 C 56,9.35 54.65,8 53,8 Z M 36,8 24,8 24,4.05 36,4.05 36,8 Z"
+         inkscape:connector-curvature="0"
+         style="fill:#1a1a1a;fill-opacity:1" />
+    </g>
   </g>
 </svg>

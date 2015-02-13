@@ -1926,11 +1926,13 @@ FloatLayout:
                                                         disabled: True
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     Button:
                                                         text: "Deselect All"
                                                         disabled: True
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                 Button:
                                                     id: file_opt
                                                     text: "+"
@@ -1940,6 +1942,7 @@ FloatLayout:
                                                     disabled: True
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
+                                                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     on_release:
                                                         file_dd.open(self)
                                                 Button:
@@ -1949,6 +1952,7 @@ FloatLayout:
                                                     disabled: True
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
+                                                    background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
                                                     on_release:
                                                         app.check_action(text="Are you sure you want to remove all files and taxa?", func=app.remove_all)
                                                 DropDown:
@@ -2019,11 +2023,13 @@ FloatLayout:
                                                         disabled: True
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     Button:
                                                         text: "Deselect All"
                                                         disabled: True
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                 Button:
                                                     id: taxa_opt
                                                     text: "+"
@@ -2033,6 +2039,7 @@ FloatLayout:
                                                     disabled: True
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
+                                                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     on_release:
                                                         taxa_dd.open(self)
                                                 Button:
@@ -2042,6 +2049,7 @@ FloatLayout:
                                                     disabled: True
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
+                                                    background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
                                                     on_release:
                                                         app.check_action("Are you sure you want to remove all files and taxa?", app.remove_all)
                                                 DropDown:
