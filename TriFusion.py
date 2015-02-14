@@ -192,6 +192,9 @@ class PathLabel(Label):
     pass
 
 
+class DoneDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
 class PathText(AutoCompTextInput):
     pass
 
@@ -206,6 +209,10 @@ class PartitionBt(ToggleButton):
 
 class PartitionScreen(BoxLayout):
     pass
+
+
+class ExecutionDialog(BoxLayout):
+    cancel = ObjectProperty(None)
 
 
 class FilePopup(BoxLayout):
@@ -1473,7 +1480,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # buttons
-                self.root.ids.file_sl.height += 40
+                self.root.ids.file_sl.height += 35
 
     def populate_species(self):
         """
@@ -1546,7 +1553,7 @@ class TriFusionApp(App):
 
                 # Updates the size of the grid layout according to the added
                 # button
-                self.root.ids.taxa_sl.height += 40
+                self.root.ids.taxa_sl.height += 35
 
     def popup_info(self, value):
         """
@@ -2603,6 +2610,59 @@ class TriFusionApp(App):
         except ValueError:
             return False
 
+    def dialog_execution(self):
+        """
+        Generates the dialog for Process execution
+        """
+
+        content = ExecutionDialog(cancel=self.dismiss_popup)
+
+        # Get main operation
+        main_op = [nm for nm, bl in self.main_operations.items()
+                       if bl is True][0]
+        content.ids.main_op.text = "[b][size=18][color=37abc8ff]Main " \
+                                   "operation:[/color][/size][/b] %s" % main_op
+
+        # Get secondary operations
+        secondary_op = [nm for nm, bl in self.secondary_operations.items()
+                       if bl is True]
+        if secondary_op:
+            content.ids.sec_op.text = "[b][size=18][color=37abc8ff]Secondary " \
+                                   "operation(s):[/color][/size][/b] %s" %\
+                                  ", ".join(secondary_op)
+        else:
+            content.ids.sec_op.text = "[b][size=18][color=37abc8ff]Secondary " \
+                                      "operation(s):[/color][/size][/b] None"
+
+        # Get output formats
+        content.ids.out_form.text = "[b][size=18][color=37abc8ff]Output " \
+                                   "format(s):[/color][/size][/b] %s" %\
+                                  ", ".join(self.output_formats)
+
+        # Get output files
+        # In case concatenation
+        if main_op == "concatenation":
+            out_file = self.output_file.split(sep)[-1]
+            add_files = [out_file + "_" + nm for nm, bl in
+                         self.secondary_operations.items() if bl]
+            content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
+                                       "file(s):[/color][/size][/b] (%s) %s"\
+                                       ", %s" % (len(add_files) + 1, out_file,
+                                       ", ".join(add_files))
+        # In case conversion
+        if main_op == "conversion":
+            add_files = [nm for nm, bl in
+                         self.secondary_operations.items() if bl]
+            content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
+                        "file(s):[/color][/size][/b] %s converted files" % \
+        (len(self.active_alignment_list.alignment_object_list) +
+        len(self.active_alignment_list.alignment_object_list) * len(add_files))
+
+
+        self.show_popup(title="Process execution summary - Processing %s file("
+                "s)" % len(self.active_alignment_list.alignment_object_list),
+                content=content, size=(550, 350))
+
     def dialog_partitions(self):
         """
         Generates the dialog for viewing/changing partitions. When initialized,
@@ -2717,12 +2777,15 @@ class TriFusionApp(App):
 
     def dialog_warning(self, msg1, msg2):
 
-        content = WarningDialog(cancel=self.dismiss_popup)
+        content = WarningDialog(cancel=self.dismiss_subpopup)
         content.ids.warning_l.text = "[b][color=#ff5555ff][size=18]%s[/size]" \
                                      "[/color][/b]\n\n%s" % (msg1, msg2)
 
-        self.show_popup(title="Error!", content=content, size=(550, 300),
-                        separator_color=[255 / 255., 85 / 255., 85 / 255., 1.])
+        self._subpopup = Popup(title="Error!", content=content, size=(550, 300),
+                        separator_color=[255 / 255., 85 / 255., 85 / 255., 1.],
+                        size_hint=(None, None))
+
+        self._subpopup.open()
 
     def dialog_zorro(self):
 
@@ -3216,6 +3279,12 @@ class TriFusionApp(App):
                                 output_dir=self.output_dir,
                                 use_charset=self.use_nexus_partitions)
 
+        content = DoneDialog(cancel=self.dismiss_subpopup)
+
+        self._subpopup = Popup(title="Success!", content=content,
+                               size=(200, 180), size_hint=(None, None))
+
+        self._subpopup.open()
 
 if __name__ == '__main__':
     TriFusionApp().run()
