@@ -88,18 +88,15 @@
 
     BoxLayout:
         size_hint_y: None
-        height: 40
-        Widget:
-            size_hint_x: .4
+        height: 30
+        padding: (100, 0, 100, 0)
         Button:
+            id: close_bt
             text: "Close"
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
                 root.cancel()
-        Widget:
-            size_hint_x: .4
-
 
 <InfoBt@Button>:
     border: 0,0,0,0
@@ -163,17 +160,15 @@
     BoxLayout:
         size_hint_y: None
         height: 30
-        Widget:
-            size_hint_x: .5
+        padding: (100, 0, 100, 0)
         Button:
+            id: close_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             bold: True
             text: "Close"
             on_release:
                 root.cancel()
-        Widget:
-            size_hint_x: .5
 
 <TaxaPopup>
     orientation: "vertical"
@@ -228,6 +223,19 @@
         PopupText:
             #size_hint_x: .65
             id: file_cov
+
+<CloseBox@BoxLayout>:
+    size_hint_y: None
+    height: 30
+    padding: (100, 0, 100, 0)
+    Button:
+        id: close_bt
+        background_normal: "data/backgrounds/bt_process.png"
+        background_down: "data/backgrounds/bt_process_off.png"
+        bold: True
+        text: "Close"
+        on_release:
+            root.cancel()
 
 #===============================================================================
 # CHECK ACTIONS
@@ -305,18 +313,15 @@
                     size: self.size
     BoxLayout:
         size_hint_y: None
-        height: 60
-        padding: 10
-        Widget:
-            size_hint_x: .7
+        height: 30
+        padding: (150, 0, 150, 0)
         Button:
             background_normal: "data/backgrounds/check_ok.png"
             background_down: "data/backgrounds/check_cancel.png"
             text: "Close"
+            id: close_bt
             on_release:
                 root.cancel()
-        Widget:
-            size_hint_x: .7
 
 #===============================================================================
 # PROCESS EXECUTION SUMMARY
@@ -351,17 +356,19 @@
         markup: True
     BoxLayout:
         size_hint_y: None
-        height: 60
-        padding: 10
+        height: 40
+        padding: (50, 0, 50, 0)
         spacing: 20
         Button:
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Execute"
+            #id: ok_bt
             on_release:
                 app.process_exec()
                 root.cancel()
         Button:
+            #id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
             background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
@@ -387,10 +394,10 @@
             text: "All done!"
     BoxLayout:
         size_hint_y: None
-        height: 50
-        spacing: 10
-        padding: 10
+        height: 30
+        padding: (30, 0, 30, 0)
         Button:
+            id: close_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Close"
@@ -456,6 +463,8 @@
                 height: 15
             Button:
                 background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                id: ok_bt
                 size_hint_y: .15
                 font_size: 18
                 text: "Save"
@@ -534,6 +543,8 @@
                 height: 15
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                id: cancel_bt
                 size_hint_y: .15
                 font_size: 18
                 text: "Cancel"
@@ -551,6 +562,7 @@
         pos: root.pos
         orientation: "vertical"
         spacing: 10
+        padding: 10
 
         FileChooserListView:
             id: sd_filechooser
@@ -573,9 +585,14 @@
         BoxLayout:
             size_hint_y: None
             height: 30
+            spacing: 20
+            padding: (150, 0, 150, 0)
 
             Button:
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
                 text: "Save"
+                id: ok_bt
                 on_release:
                     if sd_filechooser.text == "main_output" and txt_box.height == 30: app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
                     if sd_filechooser.text == "main_output" and txt_box.height == 0: app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
@@ -583,6 +600,9 @@
                     root.cancel()
 
             Button:
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
+                id: cancel_bt
                 text: "Cancel"
                 on_release: root.cancel()
 
@@ -794,18 +814,20 @@
     BoxLayout:
         size_hint_y: None
         height: 30
-        Widget:
-            size_hint_x: .3
-        BoxLayout:
-            spacing: 10
-            Button:
-                text: "OK"
-            Button:
-                text: "Close"
-                on_release:
-                    root.cancel()
-        Widget:
-            size_hint_x: .3
+        padding: (150, 0, 150, 0)
+        spacing: 20
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "OK"
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Close"
+            on_release:
+                root.cancel()
 
 
 
@@ -878,14 +900,17 @@
     BoxLayout:
         orientation: "horizontal"
         size_hint_y: None
-        height: 40
+        height: 30
         spacing: 10
+        padding: (10, 0, 10, 0)
         Button:
-            text: "Done"
+            id: ok_bt
+            text: "Ok"
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release: app.save_format(format_dlg)
         Button:
+            id: cancel_bt
             text: "Cancel"
             background_normal: "data/backgrounds/bt_process_off.png"
             background_down: "data/backgrounds/bt_process.png"
@@ -988,13 +1013,22 @@
     TextInput:
         id: txt_dlg
     BoxLayout:
+        size_hint_y: None
+        height: 30
         orientation: "horizontal"
+        spacing: 10
         Button:
-            text: "Done"
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
             on_release:
                 app.save_hap_prefix(txt_dlg)
                 root.cancel()
         Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
             on_release: root.cancel()
 
@@ -1079,13 +1113,17 @@
         spacing: 10
 
         Button:
-            id: part_bt
+            id: ok_bt
             text: "OK"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
             on_release:
                 app.partitions_file = ld_filechooser.selection[0]
                 root.cancel()
-
         Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
             on_release: root.cancel()
 
@@ -1252,10 +1290,17 @@
         orientation: "horizontal"
         size_hint_y: None
         height: 30
+        spacing: 10
         Button:
-            text: "Done"
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
             on_release: app.save_filter(gap_sli.value, mis_sli.value)
         Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
             on_release: root.cancel()
 
