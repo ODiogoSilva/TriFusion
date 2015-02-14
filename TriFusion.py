@@ -130,7 +130,10 @@ class CustomPopup(Popup):
         label.markup = True
 
         # New attributes
-        self.custom_background = kwargs["custom_background"]
+        try:
+            self.custom_background = kwargs["custom_background"]
+        except KeyError:
+            self.custom_background = None
 
         if self.custom_background:
             gl = self.children[0]
@@ -162,6 +165,10 @@ class AutoCompTextInput(TextInput):
             s = substring
         return super(AutoCompTextInput, self).insert_text(s,
                                                           from_undo=from_undo)
+
+
+class CloseBox(BoxLayout):
+    pass
 
 
 class InfoPopup(BoxLayout):
@@ -633,11 +640,13 @@ class TriFusionApp(App):
         #=======================================================================
 
         # Check only when a popup is active
-        if self._popup in self.root_window.children:
-            bn = join("data", "backgrounds", "check_ok.png")
-            bd = join("data", "backgrounds", "check_cancel.png")
+        if self._popup in self.root_window.children or self._subpopup in \
+                self.root_window.children:
+
             # Check this only for Check popups that contain Ok and cancel bt ids
             if "check_ok" in self._popup.content.ids:
+                bn = join("data", "backgrounds", "check_ok.png")
+                bd = join("data", "backgrounds", "check_cancel.png")
                 ok_bt = self._popup.content.ids["check_ok"]
                 cancel_bt = self._popup.content.ids["check_cancel"]
                 # if left arrow key
@@ -654,6 +663,31 @@ class TriFusionApp(App):
                         ok_bt.dispatch("on_release")
                     else:
                         cancel_bt.dispatch("on_release")
+
+            if "ok_bt" in self._popup.content.ids:
+                bn = join("data", "backgrounds", "bt_process.png")
+                bd = join("data", "backgrounds", "bt_process_off.png")
+                ok_bt = self._popup.content.ids["ok_bt"]
+                cancel_bt = self._popup.content.ids["cancel_bt"]
+
+                # if left arrow key
+                if key_code == (276, 113):
+                    ok_bt.background_normal = bn
+                    cancel_bt.background_normal = bd
+                # if right arrow key
+                if key_code == (275, 114):
+                    ok_bt.background_normal = bd
+                    cancel_bt.background_normal = bn
+                # if enter key. Dispatch the events of the focused button
+                if key_code == (13, 36):
+                    if ok_bt.background_normal == bn:
+                        ok_bt.dispatch("on_release")
+                    else:
+                        cancel_bt.dispatch("on_release")
+
+            if "close_bt" in self._popup.content.ids:
+                if key_code == (13, 36):
+                    self._popup.content.ids.close_bt.dispatch("on_release")
 
         #=======================================================================
         # General keybindings
@@ -1445,7 +1479,11 @@ class TriFusionApp(App):
                 bt = ToggleButton(text=file_name, state="down", id=file_name,
                                   height=30, size_hint=(.8, None), shorten=True,
                                   shorten_from="right", halign="center",
-                                  bold=True)
+                                  bold=True,
+                                  background_down=join("data", "backgrounds",
+                                                         "bt_process.png"),
+                                  background_normal=join("data", "backgrounds",
+                                                         "bt_process_off.png"))
                 # Add button to storage for mouse over events
                 self.mouse_over_bts["Files"].append(bt)
                 # Setting horizontal text size for shortening
@@ -1613,14 +1651,7 @@ class TriFusionApp(App):
                     self.active_tx_inf[tx]["fl_coverage"],
                     self.active_tx_inf[tx]["fl_coverage_per"]))
 
-                close_bl = BoxLayout(size_hint_y=None, height=30)
-                close_bt = Button(text="Close", bold=True,
-                        background_normal="data/backgrounds/bt_process.png",
-                        background_down="data/backgrounds/bt_process_off.png")
-                close_bt.bind(on_release=self.dismiss_popup)
-                close_bl.add_widget(Widget(size_hint_x=.5))
-                close_bl.add_widget(close_bt)
-                close_bl.add_widget(Widget(size_hint_x=.5))
+                close_bl = CloseBox()
 
                 all_ds.add_widget(total_ds)
                 all_ds.add_widget(active_ds)
@@ -2781,9 +2812,9 @@ class TriFusionApp(App):
         content.ids.warning_l.text = "[b][color=#ff5555ff][size=18]%s[/size]" \
                                      "[/color][/b]\n\n%s" % (msg1, msg2)
 
-        self._subpopup = Popup(title="Error!", content=content, size=(550, 300),
+        self._subpopup = CustomPopup(title="Error!", content=content,
                         separator_color=[255 / 255., 85 / 255., 85 / 255., 1.],
-                        size_hint=(None, None))
+                        size_hint=(None, None), size=(550, 300))
 
         self._subpopup.open()
 
