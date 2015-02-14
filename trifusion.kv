@@ -319,6 +319,85 @@
             size_hint_x: .7
 
 #===============================================================================
+# PROCESS EXECUTION SUMMARY
+#===============================================================================
+
+<ExecLabel@Label>:
+    halign: "left"
+    valign: "middle"
+    text_size: self.size
+    markup: True
+    font_size: 16
+
+<ExecutionDialog@BoxLayout>:
+    padding: 10
+    orientation: "vertical"
+    BoxLayout:
+        padding: 10
+        orientation: "vertical"
+        ExecLabel:
+            id: main_op
+        ExecLabel:
+            id: sec_op
+        ExecLabel:
+            id: out_form
+        ExecLabel:
+            id: out_files
+    Label:
+        size_hint_y:None
+        height: 30
+        bold: True
+        text: "[color=37abc8ff]Do you want to proceed?[/color]"
+        markup: True
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        padding: 10
+        spacing: 20
+        Button:
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Execute"
+            on_release:
+                app.process_exec()
+                root.cancel()
+        Button:
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            on_release:
+                root.cancel()
+
+<DoneDialog@BoxLayout>:
+    orientation: "vertical"
+    id: check
+    text: None
+    BoxLayout:
+        padding: 10
+        Label:
+            canvas.before:
+                Color:
+                    rgba: (.2, .2, .2, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            valign: "middle"
+            halign: "center"
+            text_size: (self.size[0] - 5, self.size[1])
+            text: "All done!"
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        spacing: 10
+        padding: 10
+        Button:
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Close"
+            on_release:
+                root.cancel()
+
+#===============================================================================
 # TAXA GROUP CREATION
 #===============================================================================
 
