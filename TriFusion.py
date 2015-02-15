@@ -2476,6 +2476,18 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
+    def save_reverseconc_partfile(self, partfile):
+        """
+        Save partition file for reverse concatenation an update button in
+        reverse concatenation dialog
+        """
+
+        self.partitions_file = partfile
+
+        self._popup.content.ids.part_file.text = partfile.split(sep)[-1]
+        self._popup.content.ids.part_file.background_normal = \
+            "data/backgrounds/bt_process.png"
+
     def save_reverseconc_settings(self):
         """
         Handles the information provided by the LoadDialog with settings for the
@@ -2521,6 +2533,9 @@ class TriFusionApp(App):
         def set_infile(txt, wgt):
 
             self.rev_infile = txt
+            self._popup.content.ids.rev_infile.background_normal = \
+                "data/backgrounds/bt_process.png"
+            self._popup.content.ids.rev_infile.text = txt.split(sep)[-1]
             self.dismiss_subpopup()
 
         if self.file_list:
@@ -2548,7 +2563,23 @@ class TriFusionApp(App):
         content.ids.rev_conc.active = \
             self.main_operations["reverse_concatenation"]
 
-        self.show_popup(title=title, content=content, size=(550, 325))
+        # Check if partitions file was already selected. If so, update the
+        # corresponding button
+        if self.partitions_file:
+            content.ids.part_file.background_normal = \
+                "data/backgrounds/bt_process.png"
+            content.ids.part_file.text = \
+                self.partitions_file.split(sep)[-1]
+
+        # Check if input file to reverse concatenate was already selected. If
+        # so, update the corresponding button
+        if self.rev_infile:
+            content.ids.rev_infile.background_normal = \
+                "data/backgrounds/bt_process.png"
+            content.ids.rev_infile.text = \
+                self.rev_infile.split(sep)[-1]
+
+        self.show_popup(title=title, content=content, size=(300, 350))
 
     def dialog_load_partfile(self):
 
