@@ -2016,7 +2016,9 @@ class TriFusionApp(App):
         # Create scroll view in which the gridlayout will be inserted
         sv = ScrollView()
         # Create close button for the popup
-        close_bt = Button(text="Close", size_hint_y=.2)
+        close_bt = Button(text="Close", size_hint_y=None, height=30,
+                          background_normal="data/backgrounds/bt_process.png",
+                          bakcground_down="data/backgrounds/bt_process_off.png")
         # Add functionality to the close button
         close_bt.bind(on_release=self.dismiss_popup)
         # Create gridlayout that will store the buttons with taxa names
@@ -2074,7 +2076,9 @@ class TriFusionApp(App):
 
         # App changes by adding three buttons for the taxa group
         # Taxa button itself
-        bt = Button(text=name, size_hint=(.8, None), height=35, id=name)
+        bt = Button(text=name, size_hint=(.8, None), height=35, id=name,
+                    background_normal="data/backgrounds/bt_process.png",
+                    background_down="data/backgrounds/bt_process_off.png")
         bt.bind(on_release=self.taxagroups_show_taxa)
         # Removal button
         x_bt = Button(size_hint=(None, None), width=35, border=(0, 0, 0, 0),
@@ -2090,19 +2094,12 @@ class TriFusionApp(App):
         for i in [bt, x_bt]:
             self.root.ids.group_grid.add_widget(i)
 
-        # Add this options to the dropdown menu in the general options of the
-        # Process screen
-        if "empty_taxaset" in self.process_grid_wgt.ids.keys():
-            self.process_grid_wgt.ids.dropdown_gl.remove_widget(
-                self.process_grid_wgt.ids.empty_taxaset)
-            del self.process_grid_wgt.ids["empty_taxaset"]
-
         # Create separator between dropdown items
         separator = Widget(size_hint_y=None, height=3)
         dd_bt = Button(text=name, size_hint_y=None, height=40,
                        background_normal="data/backgrounds/bt_process.png",
-                       background_color=(1, 1, 1, .3))
-        dd_bt.bind(on_release=lambda dd_bt:
+                       background_color=(1, 1, 1, .3), bold=True)
+        dd_bt.bind(on_release=lambda x:
                    self.process_grid_wgt.ids.dataset_dropdown.select(name))
         self.process_grid_wgt.ids.dataset_dropdown.add_widget(separator)
         self.process_grid_wgt.ids.dataset_dropdown.add_widget(dd_bt)
