@@ -1924,7 +1924,7 @@ class TriFusionApp(App):
         content = TaxaGroupDialog(cancel=self.dismiss_popup)
 
         # Populate the gridlayout for all taxa
-        for i in self.alignment_list.taxa_names:
+        for i in sorted(self.alignment_list.taxa_names, reverse=True):
             # Create togglebutton for each taxa
             bt = ToggleButton(text=i, size_hint_y=None, height=30)
             self.add_taxa_bt(bt, content.ids.all_grid)
@@ -1933,8 +1933,7 @@ class TriFusionApp(App):
         self.show_popup(title="Create taxa groups", content=content,
                         size=(700, 500))
 
-    @staticmethod
-    def add_taxa_bt(bt, wgt):
+    def add_taxa_bt(self, bt, wgt):
         """
         Method for addition of a button to a widget. This method was created
         for the automatic upated of the widgets height when moving buttons in
@@ -1943,7 +1942,9 @@ class TriFusionApp(App):
         :param wgt: The sink widget
         """
 
-        wgt.add_widget(bt)
+        wgt.add_widget(bt,
+                       sorted(self.alignment_list.taxa_names,
+                              reverse=True).index(bt.text))
         wgt.height += 30
 
     @staticmethod
@@ -1972,16 +1973,37 @@ class TriFusionApp(App):
         # In case all taxa are to be moved
         if all_taxa:
             # Ensures that only toggle buttons are moved
-            for bt in source_wgt.children[::-1]:
-                self.remove_taxa_bt(bt, source_wgt)
-                bt.state = "normal"
-                self.add_taxa_bt(bt, sink_wgt)
-        else:
-            for bt in source_wgt.children[::-1]:
-                if bt.state == "down":
+            for tx in sorted(self.alignment_list.taxa_names, reverse=True):
+                try:
+                    bt = [x for x in source_wgt.children if tx == x.text][0]
                     self.remove_taxa_bt(bt, source_wgt)
                     bt.state = "normal"
                     self.add_taxa_bt(bt, sink_wgt)
+                except IndexError:
+                    pass
+        else:
+            # This workaround is used to add some buttons from the source to the
+            # sink widgets while maintaining their original order. The z-index
+            # of widgets is not working quite as I expected, so for now this
+            # will produce the desired behaviour
+            sink_bts = []
+            # Remove buttons from the sink widget and store their names into
+            # a storage list
+            for bt in sink_wgt.children[::-1]:
+                self.remove_taxa_bt(bt, sink_wgt)
+                sink_bts.append(bt.text)
+
+            # Gather the buttons from the source widget to be transferred
+            # while removing them from the sink
+            for bt in source_wgt.children[::-1]:
+                if bt.state == "down":
+                    self.remove_taxa_bt(bt, source_wgt)
+                    sink_bts.append(bt.text)
+
+            # Add buttons to the sink widget in the desired order
+            for tx in sorted(sink_bts, reverse=True):
+                bt = ToggleButton(text=tx, size_hint_y=None, height=30)
+                self.add_taxa_bt(bt, sink_wgt)
 
     def taxagroups_show_taxa(self, name_wgt):
         """
