@@ -2803,16 +2803,16 @@ class TriFusionApp(App):
                                        ", ".join(add_files))
         # In case conversion
         if main_op == "conversion":
+            aln_obj = self.update_active_fileset(self.alignment_list)
             add_files = [nm for nm, bl in
                          self.secondary_operations.items() if bl]
             content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
-                        "file(s):[/color][/size][/b] %s converted files" % \
-        (len(self.active_alignment_list.alignment_object_list) +
-        len(self.active_alignment_list.alignment_object_list) * len(add_files))
-
+                        "file(s):[/color][/size][/b] %s converted file(s)" % \
+        (len(aln_obj.alignment_object_list) +
+        len(aln_obj.alignment_object_list) * len(add_files))
 
         self.show_popup(title="Process execution summary - Processing %s file("
-                "s)" % len(self.active_alignment_list.alignment_object_list),
+                "s)" % len(aln_obj.alignment_object_list),
                 content=content, size=(550, 350))
 
     def dialog_partitions(self):
