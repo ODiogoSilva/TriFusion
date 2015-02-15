@@ -2578,10 +2578,11 @@ class TriFusionApp(App):
         self._popup.content.ids.part_file.background_normal = \
             "data/backgrounds/bt_process.png"
 
-    def save_reverseconc_settings(self):
+    def check_partitions_file(self):
         """
-        Handles the information provided by the LoadDialog with settings for the
-        reverse concatenation
+        This will make some checks on the partitions file provided by the user.
+        It will check for errors in the format of the file itself, and whether
+        the partitions are correctly defined
         """
 
         # Check for the validity of the partitions file
@@ -2591,6 +2592,15 @@ class TriFusionApp(App):
             return self.dialog_warning("Invalid partitions file",
                        "The provided partitions file is invalid. Please check"
                        " the file or replace with an appropriate one.")
+
+    def save_reverseconc_settings(self):
+        """
+        Handles the information provided by the LoadDialog with settings for the
+        reverse concatenation
+        """
+
+        # Check for the validity of the partitions file
+        self.check_partitions_file()
 
         if self.main_operations["reverse_concatenation"]:
             self.screen.ids.rev_conc.background_normal = \
