@@ -950,11 +950,17 @@
         orientation: "horizontal"
         spacing: 20
         Button:
-            text: "Done"
+            id: ok_bt
+            text: "Ok"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
             on_release:
                 app.use_nexus_partitions = root.ids.nexus_check.active
                 app.dismiss_subpopup()
         Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
             on_release: root.cancel()
 
@@ -975,12 +981,18 @@
         orientation: "horizontal"
         spacing: 20
         Button:
-            text: "Done"
+            id: ok_bt
+            text: "Ok"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
             on_release:
                 app.create_partfile = root.ids.part_check.active
                 app.dismiss_subpopup()
         Button:
+            id: cancel_bt
             text: "Cancel"
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
             on_release: root.cancel()
 
 #===============================================================================
