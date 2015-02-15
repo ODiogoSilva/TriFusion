@@ -839,12 +839,15 @@
     size_hint_x: None
     width: 40
     disabled: True
-    Image:
-        source: "data/backgrounds/settings.png"
-        pos: self.parent.x, self.parent.y
-        #x: self.parent.x
-        size: 40, 40
-        allow_stretch: True
+    background_normal: "data/backgrounds/settings.png"
+    background_down: "data/backgrounds/settings_down.png"
+    background_disabled_normal: "data/backgrounds/settings_disabled.png"
+    #Image:
+    #    source: "data/backgrounds/settings.png"
+    #    pos: self.parent.x, self.parent.y
+    #    #x: self.parent.x
+    #    size: 40, 40
+    #    allow_stretch: True
 
 <FormatDialog>:
     padding: [30, 20, 30, 20]
@@ -857,7 +860,10 @@
         BoxLayout:
             size_hint_y: None
             height: 40
+            spacing: 10
             ToggleButton:
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
                 id: fasta
                 state: "down"
                 text: "Fasta"
@@ -865,7 +871,10 @@
         BoxLayout:
             size_hint_y: None
             height: 40
+            spacing: 10
             ToggleButton:
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
                 id: phylip
                 text: "Phylip"
             SettingsBt:
@@ -875,7 +884,10 @@
         BoxLayout:
             size_hint_y: None
             height: 40
+            spacing: 10
             ToggleButton:
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
                 id: nexus
                 text: "Nexus"
             SettingsBt:
@@ -885,14 +897,19 @@
         BoxLayout:
             size_hint_y: None
             height: 40
+            spacing: 10
             ToggleButton:
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
                 id: mcmctree
                 text: "MCMCTree"
             SettingsBt
         BoxLayout:
             size_hint_y: None
             height: 40
+            spacing: 10
             ToggleButton:
+                background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                 id: ima2
                 text: "IMa2"
                 disabled: True
