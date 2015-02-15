@@ -168,7 +168,7 @@ class AutoCompTextInput(TextInput):
 
 
 class CloseBox(BoxLayout):
-    pass
+    cancel = ObjectProperty(None)
 
 
 class InfoPopup(BoxLayout):
@@ -639,51 +639,55 @@ class TriFusionApp(App):
         # Popup keybindings
         #=======================================================================
 
-        # Check only when a popup is active
-        if self._popup in self.root_window.children or self._subpopup in \
-                self.root_window.children:
+        def popup_keys(popup, backn, backd, bt1, bt2):
+            """
+            Wrapper function that provides functionality to arrow keys for
+            navigating through selection buttons in popups
+            :param popup: Popup widget object. It may be either a _popup or
+            _subpopup
+            :param backn: string for background normal
+            :param backd: string for background down
+            :param bt1: Button widget one (usually for Ok buttons)
+            :param bt2: Button widget two (usually for Cancel buttons)
+            """
 
-            # Check this only for Check popups that contain Ok and cancel bt ids
+            # if left arrow key
+            if key_code == (276, 113):
+                bt1.background_normal = backn
+                bt2.background_normal = backd
+            # if right arrow key
+            if key_code == (275, 114):
+                bt1.background_normal = backd
+                bt2.background_normal = backn
+            # if enter key. Dispatch the events of the focused button
+            if key_code == (13, 36):
+                if bt1.background_normal == backn:
+                    bt1.dispatch("on_release")
+                else:
+                    bt2.dispatch("on_release")
+
+        # Check only when a popup is active
+        if self._subpopup in self.root_window.children:
+            if "ok_bt" in self._subpopup.content.ids:
+                bn = join("data", "backgrounds", "bt_process.png")
+                bd = join("data", "backgrounds", "bt_process_off.png")
+                ok_bt = self._subpopup.content.ids["ok_bt"]
+                cancel_bt = self._subpopup.content.ids["cancel_bt"]
+                popup_keys(self._subpopup, bn, bd, ok_bt, cancel_bt)
+
+        elif self._popup in self.root_window.children:
             if "check_ok" in self._popup.content.ids:
                 bn = join("data", "backgrounds", "check_ok.png")
                 bd = join("data", "backgrounds", "check_cancel.png")
                 ok_bt = self._popup.content.ids["check_ok"]
                 cancel_bt = self._popup.content.ids["check_cancel"]
-                # if left arrow key
-                if key_code == (276, 113):
-                    ok_bt.background_normal = bn
-                    cancel_bt.background_normal = bd
-                # if right arrow key
-                if key_code == (275, 114):
-                    ok_bt.background_normal = bd
-                    cancel_bt.background_normal = bn
-                # if enter key. Dispatch the events of the focused button
-                if key_code == (13, 36):
-                    if ok_bt.background_normal == bn:
-                        ok_bt.dispatch("on_release")
-                    else:
-                        cancel_bt.dispatch("on_release")
-
-            if "ok_bt" in self._popup.content.ids:
+                popup_keys(self._popup, bn, bd, ok_bt, cancel_bt)
+            elif "ok_bt" in self._popup.content.ids:
                 bn = join("data", "backgrounds", "bt_process.png")
                 bd = join("data", "backgrounds", "bt_process_off.png")
                 ok_bt = self._popup.content.ids["ok_bt"]
                 cancel_bt = self._popup.content.ids["cancel_bt"]
-
-                # if left arrow key
-                if key_code == (276, 113):
-                    ok_bt.background_normal = bn
-                    cancel_bt.background_normal = bd
-                # if right arrow key
-                if key_code == (275, 114):
-                    ok_bt.background_normal = bd
-                    cancel_bt.background_normal = bn
-                # if enter key. Dispatch the events of the focused button
-                if key_code == (13, 36):
-                    if ok_bt.background_normal == bn:
-                        ok_bt.dispatch("on_release")
-                    else:
-                        cancel_bt.dispatch("on_release")
+                popup_keys(self._popup, bn, bd, ok_bt, cancel_bt)
 
             if "close_bt" in self._popup.content.ids:
                 if key_code == (13, 36):
@@ -1651,7 +1655,7 @@ class TriFusionApp(App):
                     self.active_tx_inf[tx]["fl_coverage"],
                     self.active_tx_inf[tx]["fl_coverage_per"]))
 
-                close_bl = CloseBox()
+                close_bl = CloseBox(cancel=self.dismiss_popup)
 
                 all_ds.add_widget(total_ds)
                 all_ds.add_widget(active_ds)
