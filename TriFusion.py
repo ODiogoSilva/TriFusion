@@ -671,7 +671,7 @@ class TriFusionApp(App):
                 bd = join("data", "backgrounds", "bt_process_off.png")
                 ok_bt = self._subpopup.content.ids["ok_bt"]
                 cancel_bt = self._subpopup.content.ids["cancel_bt"]
-                popup_keys(self._subpopup, bn, bd, ok_bt, cancel_bt)
+                popup_keys(bn, bd, ok_bt, cancel_bt)
 
         elif self._popup in self.root_window.children:
             if "check_ok" in self._popup.content.ids:
@@ -679,13 +679,13 @@ class TriFusionApp(App):
                 bd = join("data", "backgrounds", "check_cancel.png")
                 ok_bt = self._popup.content.ids["check_ok"]
                 cancel_bt = self._popup.content.ids["check_cancel"]
-                popup_keys(self._popup, bn, bd, ok_bt, cancel_bt)
+                popup_keys(bn, bd, ok_bt, cancel_bt)
             elif "ok_bt" in self._popup.content.ids:
                 bn = join("data", "backgrounds", "bt_process.png")
                 bd = join("data", "backgrounds", "bt_process_off.png")
                 ok_bt = self._popup.content.ids["ok_bt"]
                 cancel_bt = self._popup.content.ids["cancel_bt"]
-                popup_keys(self._popup, bn, bd, ok_bt, cancel_bt)
+                popup_keys(bn, bd, ok_bt, cancel_bt)
 
             if "close_bt" in self._popup.content.ids:
                 if key_code == (13, 36):
