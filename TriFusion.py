@@ -2584,6 +2584,14 @@ class TriFusionApp(App):
         reverse concatenation
         """
 
+        # Check for the validity of the partitions file
+        part_obj = data.Partitions()
+        er = part_obj.read_from_file(self.partitions_file)
+        if isinstance(er, Exception):
+            return self.dialog_warning("Invalid partitions file",
+                       "The provided partitions file is invalid. Please check"
+                       " the file or replace with an appropriate one.")
+
         if self.main_operations["reverse_concatenation"]:
             self.screen.ids.rev_conc.background_normal = \
                 "data/backgrounds/bt_process.png"
@@ -2808,8 +2816,8 @@ class TriFusionApp(App):
                          self.secondary_operations.items() if bl]
             content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
                         "file(s):[/color][/size][/b] %s converted file(s)" % \
-        (len(aln_obj.alignment_object_list) +
-        len(aln_obj.alignment_object_list) * len(add_files))
+                (len(aln_obj.alignment_object_list) +
+                len(aln_obj.alignment_object_list) * len(add_files))
 
         self.show_popup(title="Process execution summary - Processing %s file("
                 "s)" % len(aln_obj.alignment_object_list),
@@ -3386,7 +3394,9 @@ class TriFusionApp(App):
         # Reverse concatenation
         if self.main_operations["reverse_concatenation"]:
             partition_obj = data.Partitions()
-            partition_obj.read_from_file(self.partitions_file)
+            # In case the partitions file is badly formatted or invalid, the
+            # exception will be returned by the read_from_file method.
+            er = partition_obj.read_from_file(self.partitions_file)
             aln_object = aln_object.retrieve_alignment(self.rev_infile)
             aln_object.set_partitions(partition_obj)
             aln_object = aln_object.reverse_concatenate()
