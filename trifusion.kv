@@ -413,6 +413,7 @@
     orientation: "vertical"
     padding: 10
     spacing: 10
+    ds_type: ""
     BoxLayout:
         size_hint_y: .1
         BoxLayout:
@@ -471,7 +472,7 @@
                 text: "Save"
                 bold: True
                 on_release:
-                    if root.ids.group_name.text not in app.taxa_groups: app.save_taxa_group(root.ids.select_grid, root.ids.group_name.text); root.cancel()
+                    if root.ids.group_name.text not in app.taxa_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
         BoxLayout:
             orientation: "vertical"
             size_hint_x: .30
@@ -487,28 +488,28 @@
                     size: (47,50)
                     border: (0,0,0,0)
                     on_release:
-                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, True)
+                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, True, root.ds_type)
                 Button:
                     background_down: "data/backgrounds/tg_add.png"
                     background_normal: "data/backgrounds/tg_add_down.png"
                     size_hint: (None, None)
                     size: (47,50)
                     on_release:
-                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, False)
+                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, False, root.ds_type)
                 Button:
                     background_down: "data/backgrounds/tg_remove.png"
                     background_normal: "data/backgrounds/tg_remove_down.png"
                     size_hint: (None, None)
                     size: (47,50)
                     on_release:
-                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, False)
+                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, False, root.ds_type)
                 Button:
                     background_down: "data/backgrounds/tg_removeall.png"
                     background_normal: "data/backgrounds/tg_removeall_down.png"
                     size_hint: (None, None)
                     size: (47,50)
                     on_release:
-                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, True)
+                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, True, root.ds_type)
             Widget:
                 size_hint_y: .15
         BoxLayout:
@@ -1392,7 +1393,7 @@
     height: (45 * len(self.children[0].children))
     cols: 1
     opacity: 0
-    __safe_id: [dataset_dropdown.__self__]
+    __safe_id: [taxa_dropdown.__self__, file_dropdown.__self__]
     GridLayout:
         cols: 1
         padding: 5
@@ -1423,39 +1424,81 @@
                 on_release:
                     app.dialog_general_info("process_dataset")
 
-            ProcessBt:
-                id: active_taxa_set
-                text: "All taxa"
-                on_release: dataset_dropdown.open(self)
+            BoxLayout:
+                spacing: 5
+                size_hint_x: .2
 
-            DropDown:
-                id: dataset_dropdown
-                on_select: active_taxa_set.text = args[1]
-                canvas.before:
-                    Color:
-                        rgba: (0,0,0,1)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                Widget:
-                    size_hint_y: None
-                    height: 3
                 ProcessBt:
-                    background_color: (1,1,1,.3)
-                    text: 'All taxa'
-                    size_hint_y: None
-                    height: 40
-                    on_release: dataset_dropdown.select(self.text)
-                Widget:
-                    size_hint_y: None
-                    height: 3
-                ProcessBt:
-                    background_color: (1,1,1,.3)
-                    text: 'Active taxa'
-                    size_hint_y: None
-                    height: 40
-                    on_release: dataset_dropdown.select(self.text)
+                    id: active_file_set
+                    text: "All files"
+                    on_release: file_dropdown.open(self)
 
+                ProcessBt:
+                    id: active_taxa_set
+                    text: "All taxa"
+                    on_release: taxa_dropdown.open(self)
+
+                DropDown:
+                    id: taxa_dropdown
+                    auto_width: False
+                    size_hint_x: None
+                    width: 170
+                    on_select: active_taxa_set.text = args[1]
+                    canvas.before:
+                        Color:
+                            rgba: (0,0,0,1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    Widget:
+                        size_hint_y: None
+                        height: 3
+                    ProcessBt:
+                        background_color: (1,1,1,.3)
+                        text: 'All taxa'
+                        size_hint_y: None
+                        height: 40
+                        on_release: taxa_dropdown.select(self.text)
+                    Widget:
+                        size_hint_y: None
+                        height: 3
+                    ProcessBt:
+                        background_color: (1,1,1,.3)
+                        text: 'Active taxa'
+                        size_hint_y: None
+                        height: 40
+                        on_release: taxa_dropdown.select(self.text)
+
+                DropDown:
+                    id: file_dropdown
+                    auto_width: False
+                    size_hint_x: None
+                    width: 170
+                    on_select: active_file_set.text = args[1]
+                    canvas.before:
+                        Color:
+                            rgba: (0,0,0,1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    Widget:
+                        size_hint_y: None
+                        height: 3
+                    ProcessBt:
+                        background_color: (1,1,1,.3)
+                        text: 'All files'
+                        size_hint_y: None
+                        height: 40
+                        on_release: file_dropdown.select(self.text)
+                    Widget:
+                        size_hint_y: None
+                        height: 3
+                    ProcessBt:
+                        background_color: (1,1,1,.3)
+                        text: 'Active files'
+                        size_hint_y: None
+                        height: 40
+                        on_release: file_dropdown.select(self.text)
 
         Hseparator
 
@@ -2273,11 +2316,13 @@ FloatLayout:
                                                 padding: (50, 0, 50, 0)
                                                 Button:
                                                     bold: True
-                                                    text: "Set new taxa group"
-                                                    id: tx_group_bt
+                                                    text: "Set new file group"
+                                                    id: file_group_bt
                                                     disabled: True
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
+                                                    on_release:
+                                                        app.dialog_taxagroup("files")
 
                                     TabbedPanelItem:
                                         id: taxa_ds_tp
@@ -2289,7 +2334,7 @@ FloatLayout:
                                             ScrollView:
                                                 size_hint_y: .8
                                                 GridLayout:
-                                                    id: group_grid
+                                                    id: taxa_group_grid
                                                     size_hint_y: None
                                                     height: 0
                                                     padding: 5
@@ -2308,7 +2353,7 @@ FloatLayout:
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
-                                                        app.dialog_taxagroup()
+                                                        app.dialog_taxagroup("taxa")
 
                             BoxLayout:
                                 orientation: "vertical"

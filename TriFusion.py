@@ -202,6 +202,7 @@ class PathLabel(Label):
 class DoneDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
+
 class PathText(AutoCompTextInput):
     pass
 
@@ -470,8 +471,9 @@ class TriFusionApp(App):
     # Attribute storing the sequence types currently loaded
     sequence_types = []
 
-    # Attribute for taxa groups
+    # Attribute for taxa and file groups
     taxa_groups = {}
+    file_groups = {}
 
     # Attribute containing the objects for the several possible output files.
     output_file = ""
@@ -1374,6 +1376,7 @@ class TriFusionApp(App):
 
                 # Unlocks options dependent on the availability of input data
                 self.root.ids.tx_group_bt.disabled = False
+                self.root.ids.file_group_bt.disabled = False
                 self.process_options.ids.part_dialog.disabled = False
 
     def update_tabs(self):
@@ -1811,6 +1814,7 @@ class TriFusionApp(App):
             """
 
             self.root.ids.tx_group_bt.disabled = True
+            self.root.ids.file_group_bt.disabled = True
             self.process_options.ids.part_dialog.disabled = True
 
         ####### APP CHANGES
@@ -1919,36 +1923,54 @@ class TriFusionApp(App):
         self.update_sp_label()
         self.update_file_label()
 
-    def dialog_taxagroup(self):
+    def dialog_taxagroup(self, ds_type):
         """
         Creates the layout for the taxa group creation popup.
+        :param ds_type: string. Data set type. It may be either "taxa" or
+        "files"
         """
 
         # Initializing instance for taxa group dialog
         content = TaxaGroupDialog(cancel=self.dismiss_popup)
 
-        # Populate the gridlayout for all taxa
-        for i in sorted(self.alignment_list.taxa_names, reverse=True):
-            # Create togglebutton for each taxa
+        if ds_type == "taxa":
+            bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
+            title = "Create taxa groups"
+        elif ds_type == "files":
+            bt_list = sorted([x.split(sep)[-1] for x in self.file_list],
+                             reverse=True)
+            title = "Create file groups"
+
+        # Populate the gridlayout for all entries
+        for i in bt_list:
+            # Create togglebutton for each entry
             bt = ToggleButton(text=i, size_hint_y=None, height=30)
-            self.add_taxa_bt(bt, content.ids.all_grid)
+            self.add_dataset_bt(bt, content.ids.all_grid, ds_type)
+
+        content.ds_type = ds_type
 
         # Show dialog
-        self.show_popup(title="Create taxa groups", content=content,
+        self.show_popup(title=title, content=content,
                         size=(700, 500))
 
-    def add_taxa_bt(self, bt, wgt):
+    def add_dataset_bt(self, bt, wgt, ds_type):
         """
         Method for addition of a button to a widget. This method was created
         for the automatic upated of the widgets height when moving buttons in
         the taxa group creation dialog
         :param bt: The button widget
         :param wgt: The sink widget
+        :param ds_type: string. Data set type. It may be either "taxa" or
+        "files"
         """
 
-        wgt.add_widget(bt,
-                       sorted(self.alignment_list.taxa_names,
-                              reverse=True).index(bt.text))
+        if ds_type == "taxa":
+            bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
+        elif ds_type == "files":
+            bt_list = sorted([x.split(sep)[-1] for x in self.file_list],
+                             reverse=True)
+
+        wgt.add_widget(bt, bt_list.index(bt.text))
         wgt.height += 30
 
     @staticmethod
@@ -1963,7 +1985,7 @@ class TriFusionApp(App):
         wgt.remove_widget(bt)
         wgt.height -= 30
 
-    def taxagroup_move_taxa(self, source_wgt, sink_wgt, all_taxa):
+    def taxagroup_move_taxa(self, source_wgt, sink_wgt, all_taxa, ds_type):
         """
         Method that adds functionality to the addition/removal buttons (<<, <,
         >>, >) in the taxa group dialog.
@@ -1972,17 +1994,25 @@ class TriFusionApp(App):
         :param sink_wgt: widget, the gridlayout to where buttons will be moved
         :param all_taxa: Boolean, if True its as if alsa taxa were selected to
         be moved
+        :param ds_type: string. Data set type. It may be either "taxa" or
+        "files"
         """
+
+        if ds_type == "taxa":
+            bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
+        elif ds_type == "files":
+            bt_list = sorted([x.split(sep)[-1] for x in self.file_list],
+                             reverse=True)
 
         # In case all taxa are to be moved
         if all_taxa:
             # Ensures that only toggle buttons are moved
-            for tx in sorted(self.alignment_list.taxa_names, reverse=True):
+            for tx in bt_list:
                 try:
                     bt = [x for x in source_wgt.children if tx == x.text][0]
                     self.remove_taxa_bt(bt, source_wgt)
                     bt.state = "normal"
-                    self.add_taxa_bt(bt, sink_wgt)
+                    self.add_dataset_bt(bt, sink_wgt, ds_type)
                 except IndexError:
                     pass
         else:
@@ -2007,7 +2037,7 @@ class TriFusionApp(App):
             # Add buttons to the sink widget in the desired order
             for tx in sorted(sink_bts, reverse=True):
                 bt = ToggleButton(text=tx, size_hint_y=None, height=30)
-                self.add_taxa_bt(bt, sink_wgt)
+                self.add_dataset_bt(bt, sink_wgt, ds_type)
 
     def taxagroups_show_taxa(self, name_wgt):
         """
@@ -2028,9 +2058,17 @@ class TriFusionApp(App):
         # Create gridlayout that will store the buttons with taxa names
         gl = GridLayout(cols=1, size_hint_y=None, height=0, spacing=5)
 
-        # Add buttons with taxa names to the gridlayout and update the height
-        # of the gridlayout
-        for tx in self.taxa_groups[name_wgt.text]:
+        # Get ds_type
+        parent_wgt = name_wgt.parent
+
+        # If its taxa data set
+        if parent_wgt == self.root.ids.taxa_group_grid:
+            bt_list = self.taxa_groups[name_wgt.text]
+        if parent_wgt == self.root.ids.file_group_grid:
+            bt_list = self.file_groups[name_wgt.text]
+
+        # Create buttons
+        for tx in bt_list:
             bt = Button(text=tx, size_hint_y=None, height=30)
             gl.add_widget(bt)
             gl.height += 35
@@ -2046,8 +2084,8 @@ class TriFusionApp(App):
 
     def remove_taxa_group(self, rm_wgt):
         """
-        Removes the taxa group button from the app list and taxa_groups
-        attribute
+        Removes the data set group button from the app list and corresponding
+        data set group attribute
         :param rm_wgt: widget, widget of the removal button
         :return:
         """
@@ -2062,23 +2100,42 @@ class TriFusionApp(App):
         parent_wgt.remove_widget(rm_wgt)
 
         # Remove from program attribute
-        del self.taxa_groups[bt_idx]
+        if parent_wgt == self.root.ids.taxa_group_grid:
+            del self.taxa_groups[bt_idx]
+        if parent_wgt == self.root.ids.file_group_grid:
+            del self.file_groups[bt_idx]
 
-    def save_taxa_group(self, source_wgt, name):
+    def save_dataset_group(self, source_wgt, name, ds_type):
         """
         Adds a taxa group declared using the taxa group creator popup to the
         list of taxa groups in the side panel
-        :param source_wgt, gridlayout of the selected taxa
+        :param source_wgt, gridlayout of the selected items
         :param name: string, name of the group
+        :param ds_type: string. Data set type. It may be either "taxa" or
+        "files"
         """
 
-        # Make core changes by populating self.taxa_groups dictionary
-        self.taxa_groups[name] = []
+        if ds_type == "taxa":
+            # Make core changes by populating self.taxa_groups dictionary
+            self.taxa_groups[name] = []
+            group_list = self.taxa_groups[name]
+            # Set the grid layout where the group button is to be added
+            grid_layout = self.root.ids.taxa_group_grid
+            # Set dropdown widget
+            dd_wgt = self.process_grid_wgt.ids.taxa_dropdown
+        elif ds_type == "files":
+            # Make core changes by populating self.file_groups dictionary
+            self.file_groups[name] = []
+            group_list = self.file_groups[name]
+            # Set the grid layout where the group button is to be added
+            grid_layout = self.root.ids.file_group_grid
+            # Set dropdown widget
+            dd_wgt = self.process_grid_wgt.ids.file_dropdown
 
         for bt in source_wgt.children:
-            self.taxa_groups[name].append(bt.text)
+            group_list.append(bt.text)
 
-        # App changes by adding three buttons for the taxa group
+        # App changes by adding two buttons for the taxa group
         # Taxa button itself
         bt = Button(text=name, size_hint=(.8, None), height=30, id=name,
                     background_normal="data/backgrounds/bt_process.png",
@@ -2091,13 +2148,13 @@ class TriFusionApp(App):
                         background_normal=join("data", "backgrounds",
                                                "remove_bt.png"))
         x_bt.bind(on_release=partial(self.check_action,
-                                     "Are you sure you want to remove this taxa"
+                                     "Are you sure you want to remove this"
                                      " group?",
                                      self.remove_taxa_group))
 
         # Add buttons to gridlayout
         for i in [bt, x_bt]:
-            self.root.ids.group_grid.add_widget(i)
+            grid_layout.add_widget(i)
 
         # Create separator between dropdown items
         separator = Widget(size_hint_y=None, height=3)
@@ -2105,12 +2162,12 @@ class TriFusionApp(App):
                        background_normal="data/backgrounds/bt_process.png",
                        background_color=(1, 1, 1, .3), bold=True)
         dd_bt.bind(on_release=lambda x:
-                   self.process_grid_wgt.ids.dataset_dropdown.select(name))
-        self.process_grid_wgt.ids.dataset_dropdown.add_widget(separator)
-        self.process_grid_wgt.ids.dataset_dropdown.add_widget(dd_bt)
+                   dd_wgt.select(name))
+        dd_wgt.add_widget(separator)
+        dd_wgt.add_widget(dd_bt)
 
         # Update gridlayout height
-        self.root.ids.group_grid.height += 40
+        grid_layout.height += 40
 
     def dialog_general_info(self, idx):
         """
@@ -3231,6 +3288,31 @@ class TriFusionApp(App):
         else:
             self.secondary_options[switch_id] = state
 
+    def update_active_fileset(self, aln_obj):
+        """
+        This method is similar in purpose and functionality to the
+        update_active_taxaset, but it updates the set of files. It should be
+        used before the said method.
+        :param aln_obj: The alignment object being used during execution of
+        Process operatios
+        """
+
+        # Determine the selected active taxa set from the dropdown menu
+        file_set_name = self.process_grid_wgt.ids.active_file_set.text
+
+        if file_set_name == "All taxa":
+            return aln_obj
+
+        if file_set_name == "Active taxa":
+            return self.active_alignment_list
+
+        else:
+            file_set = [self.filename_map[x] for x in
+                        self.file_groups[file_set_name]]
+            file_set = set(self.file_list) - set(file_set)
+            aln_obj.remove_file(file_set)
+            return aln_obj
+
     def update_active_taxaset(self, aln_obj):
         """
         Do not use this method on the original self.alignment_list or
@@ -3287,6 +3369,8 @@ class TriFusionApp(App):
         # object
         aln_object = deepcopy(self.active_alignment_list)
 
+        # Update active file set of the alignment object
+        aln_object = self.update_active_fileset(aln_object)
         # Update active taxa set of the alignment object
         aln_object = self.update_active_taxaset(aln_object)
 
