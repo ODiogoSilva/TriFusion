@@ -99,6 +99,7 @@
                 root.cancel()
 
 <InfoBt@Button>:
+    size_hint: (None, None)
     border: 0,0,0,0
     background_normal: "data/backgrounds/more_info.png"
     background_down: "data/backgrounds/more_info_down.png"
@@ -1415,12 +1416,12 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            BoxLayout:
-                padding: 12
-                size_hint_x: .06
-                InfoBt:
-                    on_release:
-                        app.dialog_general_info("process_dataset")
+            InfoBt:
+                width: 50
+                height: 50
+                height:
+                on_release:
+                    app.dialog_general_info("process_dataset")
 
             ProcessBt:
                 id: active_taxa_set
@@ -1552,12 +1553,11 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-                BoxLayout:
-                    padding: 12
-                    size_hint_x: .06
-                    InfoBt:
-                        on_release:
-                            app.dialog_general_info("zorro")
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("zorro")
                 ProcessBt:
                     id: zorro
                     background_normal: "data/backgrounds/bt_process_off.png"
@@ -1624,11 +1624,11 @@
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
-                BoxLayout:
-                    size_hint_x: .03
-                    InfoBt:
-                        on_release:
-                            app.dialog_general_info("collapse")
+                InfoBt:
+                    width: 30
+                    height: 30
+                    on_release:
+                        app.dialog_general_info("collapse")
                 Switch:
                     size_hint_x: .2
                     id: collapse
@@ -1693,11 +1693,11 @@
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
-                BoxLayout:
-                    size_hint_x: .03
-                    InfoBt:
-                        on_release:
-                            app.dialog_general_info("filter")
+                InfoBt:
+                    width: 30
+                    height: 30
+                    on_release:
+                        app.dialog_general_info("filter")
                 Switch:
                     id: filter
                     size_hint_x: .2
