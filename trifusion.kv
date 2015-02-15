@@ -2242,29 +2242,73 @@ FloatLayout:
                                         Rectangle:
                                             pos: self.pos
                                             size: self.size
+
                                 Hseparator
-                                ScrollView:
-                                    size_hint_y: .8
-                                    GridLayout:
-                                        id: group_grid
-                                        size_hint_y: None
-                                        height: 0
-                                        padding: 5
-                                        spacing: 5
-                                        cols: 2
-                                BoxLayout:
-                                    size_hint_y: None
-                                    height: 40
-                                    padding: (50, 0, 50, 0)
-                                    Button:
-                                        bold: True
-                                        text: "Set new taxa group"
-                                        id: tx_group_bt
-                                        disabled: True
-                                        background_normal: "data/backgrounds/bt_process.png"
-                                        background_down: "data/backgrounds/bt_process_off.png"
-                                        on_release:
-                                            app.dialog_taxagroup()
+
+                                TabbedPanel:
+                                    id: dataset_tp
+                                    do_default_tab: False
+                                    background_color: (0,0,0,0)
+                                    tab_pos: "top_mid"
+
+                                    TabbedPanelItem:
+                                        id: file_ds_tp
+                                        text: "Files"
+                                        BoxLayout:
+                                            orientation: "vertical"
+                                            spacing: 20
+                                            ScrollView:
+                                                size_hint_y: .8
+                                                GridLayout:
+                                                    id: file_group_grid
+                                                    size_hint_y: None
+                                                    height: 0
+                                                    padding: 5
+                                                    spacing: 5
+                                                    cols: 2
+
+                                            BoxLayout:
+                                                size_hint_y: None
+                                                height: 40
+                                                padding: (50, 0, 50, 0)
+                                                Button:
+                                                    bold: True
+                                                    text: "Set new taxa group"
+                                                    id: tx_group_bt
+                                                    disabled: True
+                                                    background_normal: "data/backgrounds/bt_process.png"
+                                                    background_down: "data/backgrounds/bt_process_off.png"
+
+                                    TabbedPanelItem:
+                                        id: taxa_ds_tp
+                                        text: "Taxa"
+
+                                        BoxLayout:
+                                            orientation: "vertical"
+                                            spacing: 20
+                                            ScrollView:
+                                                size_hint_y: .8
+                                                GridLayout:
+                                                    id: group_grid
+                                                    size_hint_y: None
+                                                    height: 0
+                                                    padding: 5
+                                                    spacing: 5
+                                                    cols: 2
+
+                                            BoxLayout:
+                                                size_hint_y: None
+                                                height: 40
+                                                padding: (50, 0, 50, 0)
+                                                Button:
+                                                    bold: True
+                                                    text: "Set new taxa group"
+                                                    id: tx_group_bt
+                                                    disabled: True
+                                                    background_normal: "data/backgrounds/bt_process.png"
+                                                    background_down: "data/backgrounds/bt_process_off.png"
+                                                    on_release:
+                                                        app.dialog_taxagroup()
 
                             BoxLayout:
                                 orientation: "vertical"
