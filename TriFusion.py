@@ -643,8 +643,6 @@ class TriFusionApp(App):
             """
             Wrapper function that provides functionality to arrow keys for
             navigating through selection buttons in popups
-            :param popup: Popup widget object. It may be either a _popup or
-            _subpopup
             :param backn: string for background normal
             :param backd: string for background down
             :param bt1: Button widget one (usually for Ok buttons)
