@@ -639,7 +639,7 @@ class TriFusionApp(App):
         # Popup keybindings
         #=======================================================================
 
-        def popup_keys(popup, backn, backd, bt1, bt2):
+        def popup_keys(backn, backd, bt1, bt2):
             """
             Wrapper function that provides functionality to arrow keys for
             navigating through selection buttons in popups
