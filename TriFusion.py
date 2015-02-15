@@ -747,11 +747,12 @@ class TriFusionApp(App):
 
         # Check if current path exists. If it does, there is no path to auto
         # complete and no action is required.
-        if os.path.exists(path):
+        if os.path.exists(path) or path == "":
             return path
         # If the path does not exist, get the nearest parent directory and
         # use the final string of the path to text for auto completion
         else:
+            original_path = path
             s = path.split(sep)[-1]
             path = sep.join(path.split(sep)[:-1])
 
@@ -767,6 +768,9 @@ class TriFusionApp(App):
         # substring
         elif len(dirlist) > 1:
             return join(path, os.path.commonprefix(dirlist))
+
+        else:
+            return original_path
 
     def _on_mouseover_tabs(self, dt):
 
