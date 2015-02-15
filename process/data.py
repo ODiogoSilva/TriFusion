@@ -217,18 +217,24 @@ class Partitions():
         # TODO: Add suport for codon partitions in raxml format
         if partition_format == "raxml":
             for line in part_file:
-                fields = line.split(",")
-                # Get model name as string
-                model_name = fields[0]
-                # Get partition name as string
-                partition_name = fields[1].split("=")[0].strip()
-                # Get partition range as list of int
-                partition_range_temp = fields[1].split("=")[1]
-                partition_range = [int(x) - 1 for x in
-                                   partition_range_temp.strip().split("-")]
-                # Add information to partitions storage
-                self.add_partition(partition_name, locus_range=partition_range,
-                                   model=model_name)
+                # A wrongly formated raxml partition file may be provided, in
+                # which case an IndexError exception will be raised. This will
+                # handle that exception
+                try:
+                    fields = line.split(",")
+                    # Get model name as string
+                    model_name = fields[0]
+                    # Get partition name as string
+                    partition_name = fields[1].split("=")[0].strip()
+                    # Get partition range as list of int
+                    partition_range_temp = fields[1].split("=")[1]
+                    partition_range = [int(x) - 1 for x in
+                                       partition_range_temp.strip().split("-")]
+                    # Add information to partitions storage
+                    self.add_partition(partition_name, locus_range=partition_range,
+                                       model=model_name)
+                except IndexError:
+                    return PartitionException("Badly formatted partitions file")
 
         elif partition_format == "nexus":
             for line in part_file:
