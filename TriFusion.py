@@ -617,8 +617,6 @@ class TriFusionApp(App):
 
         When the method performs a unique operations, the specific_task should
         prefix the name of the method.
-
-
         """
 
     def _on_keyboard_events(self, *vals):
@@ -692,13 +690,22 @@ class TriFusionApp(App):
                     self._popup.content.ids.close_bt.dispatch("on_release")
 
         #=======================================================================
-        # General keybindings
+        # Filechooser keybindings
         #=======================================================================
 
         # Keybinding ctrl+f that brings focus to the "Find" field in the
         # Filechooser screen
         if modifier == "ctrl" and key == b'\x06' and self.screen.name == "fc":
             self.screen.ids.text_filter.focus = True
+
+        # Add bookmarks with ctrl+d
+        if modifier == "ctrl" and key_code == (100, 40) and \
+                self.screen.name == "fc":
+            self.screen.ids.add_bk_bt.dispatch("on_release")
+
+        #=======================================================================
+        # General keybindings
+        #=======================================================================
 
         # Keybinding ctrl+o that opens the Filechooser screen
         if modifier == "ctrl" and key == b'\x0f':
