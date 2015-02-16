@@ -705,6 +705,14 @@ class TriFusionApp(App):
                 self.screen.name == "fc":
             self.screen.ids.add_bk_bt.dispatch("on_release")
 
+        if modifier == "ctrl" and key_code == (108, 46):
+            if self.screen.ids.path_toggle.state == "down":
+                self.screen.ids.path_toggle.state = "normal"
+            else:
+                self.screen.ids.path_toggle.state = "down"
+            self.screen.ids.path_toggle.dispatch("on_release")
+
+
         #=======================================================================
         # General keybindings
         #=======================================================================
