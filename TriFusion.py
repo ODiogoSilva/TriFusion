@@ -695,23 +695,31 @@ class TriFusionApp(App):
         # Filechooser keybindings
         #=======================================================================
 
-        # Keybinding ctrl+f that brings focus to the "Find" field in the
-        # Filechooser screen
-        if modifier == "ctrl" and key == b'\x06' and self.screen.name == "fc":
-            self.screen.ids.text_filter.focus = True
+        if self.screen.name == "fc":
+            # Keybinding ctrl+f that brings focus to the "Find" field in the
+            # Filechooser screen
+            if modifier == "ctrl" and key == b'\x06':
+                self.screen.ids.text_filter.focus = True
 
-        # Add bookmarks with ctrl+d
-        if modifier == "ctrl" and key_code == (100, 40) and \
-                self.screen.name == "fc":
-            self.screen.ids.add_bk_bt.dispatch("on_release")
+            # Add bookmarks with ctrl+d
+            if modifier == "ctrl" and key_code == (100, 40):
+                self.screen.ids.add_bk_bt.dispatch("on_release")
 
-        if modifier == "ctrl" and key_code == (108, 46):
-            if self.screen.ids.path_toggle.state == "down":
-                self.screen.ids.path_toggle.state = "normal"
-            else:
-                self.screen.ids.path_toggle.state = "down"
-            self.screen.ids.path_toggle.dispatch("on_release")
+            # Toggle manual path writing with ctrl+l
+            if modifier == "ctrl" and key_code == (108, 46):
+                if self.screen.ids.path_toggle.state == "down":
+                    self.screen.ids.path_toggle.state = "normal"
+                else:
+                    self.screen.ids.path_toggle.state = "down"
+                self.screen.ids.path_toggle.dispatch("on_release")
 
+            # Use arrow keys and enter to navitage through open/cancel buttons
+            # and selecting them
+            bn = join("data", "backgrounds", "bt_process.png")
+            bd = join("data", "backgrounds", "bt_process_off.png")
+            open_bt = self.screen.ids.open_bt
+            cancel_bt = self.screen.ids.cancel_bt
+            popup_keys(bn, bd, open_bt, cancel_bt)
 
         #=======================================================================
         # General keybindings
