@@ -596,10 +596,10 @@
                 text: "Save"
                 id: ok_bt
                 on_release:
-                    if sd_filechooser.text == "main_output" and txt_box.height == 30: app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
-                    if sd_filechooser.text == "main_output" and txt_box.height == 0: app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
-                    if sd_filechooser.text == "export": app.export_names(sd_filechooser.path, file_name = text_input.text)
-                    root.cancel()
+                    if text_input.text != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
+                    if text_input.text != "" and sd_filechooser.text == "main_output" and txt_box.height == 0: app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
+                    if text_input.text != "" and sd_filechooser.text == "export": app.export_names(sd_filechooser.path, file_name = text_input.text)
+                    if text_input.text != "": root.cancel()
 
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
