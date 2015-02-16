@@ -910,9 +910,11 @@ class TriFusionApp(App):
         if self.show_side_panel and self.mouse_over_ready:
             # Get active tab in side panel
             active_tab = self.root.ids.main_tp.current_tab.text
+            # Get remove all button
+            rm_bt = [self.root.ids.rm_all_file, self.root.ids.rm_all_taxa]
 
             # Iterate over buttons of active tab
-            for bt in self.mouse_over_bts[active_tab] + sidebt_list:
+            for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt:
                 # Determine if there is a collision with mouse position
                 if determine_collision(bt):
                     if bt in self.mouse_over_bts[active_tab]:
@@ -924,30 +926,43 @@ class TriFusionApp(App):
                     else:
                         # Set collision marker to true
                         collision = True
-
                     # This will determine if a new label button will be added
                     # to the layout, based on the text of the button. If the
                     # text is already in the previous mouse over, then do
                     # nothing. If the text is some new button, then do something
-                    if bt.text != self.previous_mouse_over:
-                        # Check if there is an old label button and remove it
-                        if self.old_mouse_over:
-                            self.root_window.remove_widget(self.old_mouse_over)
+                    if bt in self.mouse_over_bts[active_tab] + sidebt_list:
+                        if bt.text != self.previous_mouse_over:
+                            # Check if there is an old label button and remove
+                            # it
+                            if self.old_mouse_over:
+                                self.root_window.remove_widget(
+                                    self.old_mouse_over)
 
-                        if bt in sidebt_list:
-                            pos = (bt.center_x + bt.width * .5,
-                                   bt.center_y - bt.height * .5)
-                            size = (200, bt.height)
-                            label = create_sidebt_wgt(bt.att, pos, size)
-                            show_label(mp, label)
+                            if bt in sidebt_list:
+                                pos = (bt.center_x + bt.width * .5,
+                                       bt.center_y - bt.height * .5)
+                                size = (200, bt.height)
+                                label = create_sidebt_wgt(bt.att, pos, size)
+                                show_label(mp, label)
 
-                        elif bt in self.mouse_over_bts[active_tab]:
-                            # Create label widget
-                            label = create_label(text=bt.text)
+                            elif bt in self.mouse_over_bts[active_tab]:
+                                # Create label widget
+                                label = create_label(text=bt.text)
 
-                            # Schedule the introduction of the label widget
-                            Clock.schedule_once(partial(show_label, mp, label),
-                                                .8)
+                                # Schedule the introduction of the label widget
+                                Clock.schedule_once(partial(show_label, mp,
+                                                            label), .8)
+                                # Locking mouse over so that no additional label
+                                # widgets are added during the waiting time
+                                self.mouse_over_ready = False
+
+                    elif bt in rm_bt:
+                        if "Removes all files and taxa" \
+                                not in self.previous_mouse_over:
+
+                            label = create_label("Removes all files and taxa")
+                            Clock.schedule_once(partial(show_label, mp,
+                                                            label), .3)
                             # Locking mouse over so that no additional label
                             # widgets are added during the waiting time
                             self.mouse_over_ready = False
