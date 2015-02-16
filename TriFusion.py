@@ -2806,6 +2806,7 @@ class TriFusionApp(App):
         """
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
+        aln_obj = self.update_active_fileset(self.alignment_list)
 
         # Get main operation
         main_op = [nm for nm, bl in self.main_operations.items()
@@ -2841,7 +2842,6 @@ class TriFusionApp(App):
                                        ", ".join(add_files))
         # In case conversion
         if main_op == "conversion":
-            aln_obj = self.update_active_fileset(self.alignment_list)
             add_files = [nm for nm, bl in
                          self.secondary_operations.items() if bl]
             content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
@@ -3338,10 +3338,10 @@ class TriFusionApp(App):
         # Determine the selected active taxa set from the dropdown menu
         file_set_name = self.process_grid_wgt.ids.active_file_set.text
 
-        if file_set_name == "All taxa":
+        if file_set_name == "All files":
             return aln_obj
 
-        if file_set_name == "Active taxa":
+        if file_set_name == "Active files":
             return self.active_alignment_list
 
         else:
