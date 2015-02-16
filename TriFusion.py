@@ -639,7 +639,7 @@ class TriFusionApp(App):
         # Popup keybindings
         #=======================================================================
 
-        def popup_keys(backn, backd, bt1, bt2):
+        def popup_keys(backn, backd, bt1, bt2, bt3=None):
             """
             Wrapper function that provides functionality to arrow keys for
             navigating through selection buttons in popups
@@ -649,20 +649,41 @@ class TriFusionApp(App):
             :param bt2: Button widget two (usually for Cancel buttons)
             """
 
-            # if left arrow key
-            if key_code == (276, 113):
-                bt1.background_normal = backn
-                bt2.background_normal = backd
-            # if right arrow key
-            if key_code == (275, 114):
-                bt1.background_normal = backd
-                bt2.background_normal = backn
-            # if enter key. Dispatch the events of the focused button
-            if key_code == (13, 36):
-                if bt1.background_normal == backn:
-                    bt1.dispatch("on_release")
-                else:
-                    bt2.dispatch("on_release")
+            # This will deal with cases with only two buttons to cicle
+            if not bt3:
+                # if left arrow key
+                if key_code == (276, 113):
+                    bt1.background_normal = backn
+                    bt2.background_normal = backd
+                # if right arrow key
+                if key_code == (275, 114):
+                    bt1.background_normal = backd
+                    bt2.background_normal = backn
+                # if enter key. Dispatch the events of the focused button
+                if key_code == (13, 36):
+                    if bt1.background_normal == backn:
+                        bt1.dispatch("on_release")
+                    else:
+                        bt2.dispatch("on_release")
+            # This will cycle through three buttons
+            else:
+                bt_list = [bt1, bt2, bt3]
+                idx = [x.background_normal for x in bt_list].index(backn)
+                if key_code == (276, 113) and idx > 0:
+                    idx -= 1
+                if key_code == (275, 114) and idx < 2:
+                    idx += 1
+
+                for bt in bt_list:
+                    if bt_list.index(bt) == idx:
+                        bt_list[idx].background_normal = backn
+                    else:
+                        bt.background_normal = backd
+
+                if key_code == (13, 36):
+                    bt_on = [x for x in bt_list if
+                             x.background_normal == backn][0]
+                    bt_on.dispatch("on_release")
 
         # Check only when a popup is active
         if self._subpopup in self.root_window.children:
@@ -680,6 +701,15 @@ class TriFusionApp(App):
                 ok_bt = self._popup.content.ids["check_ok"]
                 cancel_bt = self._popup.content.ids["check_cancel"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
+            # In this case there are three buttons to cicle
+            elif "apply_bt" in self._popup.content.ids:
+                bn = join("data", "backgrounds", "bt_process.png")
+                bd = join("data", "backgrounds", "bt_process_off.png")
+                ok_bt = self._popup.content.ids["ok_bt"]
+                cancel_bt = self._popup.content.ids["cancel_bt"]
+                apply_bt = self._popup.content.ids["apply_bt"]
+                popup_keys(bn, bd, ok_bt, apply_bt, cancel_bt)
+            # Only two buttons to cicle
             elif "ok_bt" in self._popup.content.ids:
                 bn = join("data", "backgrounds", "bt_process.png")
                 bd = join("data", "backgrounds", "bt_process_off.png")
@@ -713,7 +743,7 @@ class TriFusionApp(App):
                     self.screen.ids.path_toggle.state = "down"
                 self.screen.ids.path_toggle.dispatch("on_release")
 
-            # Use arrow keys and enter to navitage through open/cancel buttons
+            # Use arrow keys and enter to navigate through open/cancel buttons
             # and selecting them
             bn = join("data", "backgrounds", "bt_process.png")
             bd = join("data", "backgrounds", "bt_process_off.png")
