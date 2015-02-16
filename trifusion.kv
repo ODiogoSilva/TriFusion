@@ -415,140 +415,164 @@
     spacing: 10
     ds_type: ""
     BoxLayout:
-        size_hint_y: .1
+        orientation: "vertical"
+        spacing: 10
         BoxLayout:
-            spacing: 10
-            Label:
-                text: "Set group name:"
-                bold: True
-                size_hint_x: .2
-                text_size: self.size
-                halign: "left"
-                valign: "middle"
-            TextInput:
-                size_hint_x: .8
-                id: group_name
-                text: "untitled_1"
-                multiline: False
+            size_hint_y: .1
+            BoxLayout:
+                spacing: 10
+                Label:
+                    text: "Set group name:"
+                    bold: True
+                    size_hint_x: .2
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                TextInput:
+                    size_hint_x: .8
+                    id: group_name
+                    text: "untitled_1"
+                    multiline: False
 
-    BoxLayout:
         BoxLayout:
-            orientation: "vertical"
-            Label:
-                canvas.before:
-                    Color:
-                        rgba: .2, .2, .2, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                text: "Selected taxa"
-                size_hint_y: None
-                height: 40
-                bold: True
-            Hseparator
-            ScrollView:
-                bar_width: 10
-                scroll_type: ["bars", "content"]
-                canvas.before:
-                    Color:
-                        rgba: .3, .3, .3, .5
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                GridLayout:
-                    id: select_grid
-                    cols:1
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    canvas.before:
+                        Color:
+                            rgba: .2, .2, .2, 1
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    text: "Selected taxa" if root.ds_type == "taxa" else "Selected files"
                     size_hint_y: None
-                    height: 0
-            Widget:
-                size_hint_y: None
-                height: 15
+                    height: 40
+                    bold: True
+                Hseparator
+                ScrollView:
+                    bar_width: 10
+                    scroll_type: ["bars", "content"]
+                    canvas.before:
+                        Color:
+                            rgba: .3, .3, .3, .5
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    GridLayout:
+                        id: select_grid
+                        cols:1
+                        size_hint_y: None
+                        height: 0
+                Widget:
+                    size_hint_y: None
+                    height: 15
+
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_x: .30
+                spacing: 10
+                BoxLayout:
+                    padding: 20
+                    spacing: 20
+                    orientation: "vertical"
+                    Button:
+                        background_down: "data/backgrounds/tg_addall.png"
+                        background_normal: "data/backgrounds/tg_addall_down.png"
+                        size_hint: (None, None)
+                        size: (47,50)
+                        border: (0,0,0,0)
+                        on_release:
+                            app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, True, root.ds_type)
+                    Button:
+                        background_down: "data/backgrounds/tg_add.png"
+                        background_normal: "data/backgrounds/tg_add_down.png"
+                        size_hint: (None, None)
+                        size: (47,50)
+                        on_release:
+                            app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, False, root.ds_type)
+                    Button:
+                        background_down: "data/backgrounds/tg_remove.png"
+                        background_normal: "data/backgrounds/tg_remove_down.png"
+                        size_hint: (None, None)
+                        size: (47,50)
+                        on_release:
+                            app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, False, root.ds_type)
+                    Button:
+                        background_down: "data/backgrounds/tg_removeall.png"
+                        background_normal: "data/backgrounds/tg_removeall_down.png"
+                        size_hint: (None, None)
+                        size: (47,50)
+                        on_release:
+                            app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, True, root.ds_type)
+                Widget:
+                    size_hint_y: .05
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    canvas.before:
+                        Color:
+                            rgba: .2, .2, .2, 1
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    text: "All taxa" if root.ds_type == "taxa" else "All files"
+                    size_hint_y: None
+                    height: 40
+                    bold: True
+                Hseparator
+                ScrollView:
+                    bar_width: 10
+                    scroll_type: ["bars", "content"]
+                    canvas.before:
+                        Color:
+                            rgba: .3, .3, .3, .5
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    GridLayout:
+                        id: all_grid
+                        cols:1
+                        size_hint_y: None
+                        height: 0
+                Widget:
+                    size_hint_y: None
+                    height: 15
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 20
             Button:
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 id: ok_bt
-                size_hint_y: .15
-                font_size: 18
-                text: "Save"
+                font_size: 16
+                text: "Ok"
                 bold: True
                 on_release:
-                    if root.ids.group_name.text not in app.taxa_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_x: .30
-            spacing: 10
-            BoxLayout:
-                padding: 20
-                spacing: 20
-                orientation: "vertical"
-                Button:
-                    background_down: "data/backgrounds/tg_addall.png"
-                    background_normal: "data/backgrounds/tg_addall_down.png"
-                    size_hint: (None, None)
-                    size: (47,50)
-                    border: (0,0,0,0)
-                    on_release:
-                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, True, root.ds_type)
-                Button:
-                    background_down: "data/backgrounds/tg_add.png"
-                    background_normal: "data/backgrounds/tg_add_down.png"
-                    size_hint: (None, None)
-                    size: (47,50)
-                    on_release:
-                        app.taxagroup_move_taxa(root.ids.all_grid, root.ids.select_grid, False, root.ds_type)
-                Button:
-                    background_down: "data/backgrounds/tg_remove.png"
-                    background_normal: "data/backgrounds/tg_remove_down.png"
-                    size_hint: (None, None)
-                    size: (47,50)
-                    on_release:
-                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, False, root.ds_type)
-                Button:
-                    background_down: "data/backgrounds/tg_removeall.png"
-                    background_normal: "data/backgrounds/tg_removeall_down.png"
-                    size_hint: (None, None)
-                    size: (47,50)
-                    on_release:
-                        app.taxagroup_move_taxa(root.ids.select_grid, root.ids.all_grid, True, root.ds_type)
-            Widget:
-                size_hint_y: .15
-        BoxLayout:
-            orientation: "vertical"
-            Label:
-                canvas.before:
-                    Color:
-                        rgba: .2, .2, .2, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                text: "All taxa"
-                size_hint_y: None
-                height: 40
+                    if not select_grid.children: app.dialog_warning("No selected items", "Cannot create an empty data set group")
+                    if root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
+                    if root.ds_type == "files" and root.ids.group_name.text in app.file_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
+                    if root.ds_type == "taxa" and select_grid.children and root.ids.group_name.text not in app.taxa_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
+                    if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
+
+            Button:
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
+                id: apply_bt
+                font_size: 16
+                text: "Apply"
                 bold: True
-            Hseparator
-            ScrollView:
-                bar_width: 10
-                scroll_type: ["bars", "content"]
-                canvas.before:
-                    Color:
-                        rgba: .3, .3, .3, .5
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                GridLayout:
-                    id: all_grid
-                    cols:1
-                    size_hint_y: None
-                    height: 0
-            Widget:
-                size_hint_y: None
-                height: 15
+                on_release:
+                    if not select_grid.children: app.dialog_warning("No selected items", "Cannot create an empty data set group")
+                    if root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
+                    if root.ds_type == "files" and root.ids.group_name.text in app.file_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
+                    if root.ds_type == "taxa" and select_grid.children and root.ids.group_name.text not in app.taxa_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
+                    if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 id: cancel_bt
-                size_hint_y: .15
-                font_size: 18
+                font_size: 16
                 text: "Cancel"
                 bold: True
                 on_release:
