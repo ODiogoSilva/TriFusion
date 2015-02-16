@@ -1028,6 +1028,8 @@ class TriFusionApp(App):
 
         if self.loaded_screens[self.available_screens[idx]]:
             self.screen = self.loaded_screens[self.available_screens[idx]]
+            if self.screen.name == "fc":
+                self.screen.ids.icon_view_tab.selection = []
         else:
             self.screen = Builder.load_file(self.available_screens[idx])
 
