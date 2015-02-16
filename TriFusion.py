@@ -964,6 +964,7 @@ class TriFusionApp(App):
             txt.text = fc_wgt.path
             txt.bind(on_text_validate=path_updater)
             self.screen.ids.path_bx.add_widget(txt)
+            self.screen.ids.path_bx.children[0].focus = True
 
     ########################## SCREEN NAVIGATION ###############################
 
