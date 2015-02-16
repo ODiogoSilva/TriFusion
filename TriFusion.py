@@ -874,17 +874,32 @@ class TriFusionApp(App):
         # Only do this routine when the filechooser screen is on
         if self.screen.name == "fc" and self.mouse_over_ready and \
                 self.show_side_panel is False:
-            for bt in self.bookmarks_bt:
+            case_bt = self.screen.ids.case_bt
+            for bt in self.bookmarks_bt + [case_bt]:
                 if determine_collision(bt):
                     collision = True
-                    if bt.id != self.previous_mouse_over:
-                        if self.old_mouse_over:
-                            self.root_window.remove_widget(self.old_mouse_over)
+                    if bt == case_bt:
+                        if "Case sensitive" not in self.previous_mouse_over:
+                            if case_bt.state == "down":
+                                label = create_label("Case sensitive is ON")
+                            else:
+                                label = create_label("Case sensitive is OFF")
 
-                        label = create_label(text=bt.id)
-                        Clock.schedule_once(partial(show_label, mp, label),
-                                            .8)
-                        self.mouse_over_ready = False
+                            Clock.schedule_once(partial(show_label, mp, label),
+                                                .1)
+                            self.mouse_over_ready = False
+
+                    else:
+                        if bt.id != self.previous_mouse_over:
+                            if self.old_mouse_over:
+                                self.root_window.remove_widget(
+                                    self.old_mouse_over)
+
+                            label = create_label(text=bt.id)
+
+                            Clock.schedule_once(partial(show_label, mp, label),
+                                                .8)
+                            self.mouse_over_ready = False
             else:
                 # If no collision is detected, remove any remaining label widget
                 if collision is False and \
@@ -942,6 +957,9 @@ class TriFusionApp(App):
                 if collision is False and \
                    self.old_mouse_over in self.root_window.children:
                     self.root_window.remove_widget(self.old_mouse_over)
+
+        if collision is False:
+            self.previous_mouse_over = ""
 
     def switch_path_wgt(self, wgt_id):
 
