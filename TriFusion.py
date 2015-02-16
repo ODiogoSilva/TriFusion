@@ -1436,6 +1436,10 @@ class TriFusionApp(App):
         # Check if there are 0 out of 0 files. In this case, disabled the
         # select/unselect all buttons
         if len(self.active_file_list) == 0 and len(self.file_list) == 0:
+            # Core changes
+            self.sequence_types = []
+
+            # App changes
             if "species_temp" not in [x.id for x in
                                       self.root.ids.file_sl.children]:
                 no_bt = Button(id="file_temp", text="No files loaded",
