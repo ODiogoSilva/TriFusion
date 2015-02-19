@@ -51,9 +51,9 @@ Name_separator = "_"  # Specify the name separator in the input files (e.g.,
 min_length = 10  # Minimum allowed length of proteins.  (suggested: 10)
 max_percent_stop = 20  # Maximum percent stop codons.  (suggested 20)
 
-# For allvsall BLAST
+# For allvsall BLAST or USEARCH (recommended)
 database_name = "goodProteins_db"
-blast_out_name = "AllVsAll_BLAST.out"
+usearch_out_name = "AllVsAll.out"
 evalue_cutoff = "0.00001"  # 1E-5 - Recommended
 CPUs = "15"  # Number of CPU's for multiprocessing
 
@@ -148,20 +148,6 @@ def check_unique_field(proteome_file):
         return None
 
 
-def prep_blastdb(proteome_file):
-    print("\t Preparing file for BLAST database")
-    subprocess.Popen(["mv " + proteome_file + " " + proteome_file + ".old"],
-                     shell=True).wait()
-    with open(proteome_file + ".old", "r") as file_in, open(proteome_file, "w")\
-            as file_out:
-        for line in file_in:
-            if line.startswith(">"):
-                file_out.write(">gnl|" + line[1:])
-            else:
-                file_out.write(line)
-    subprocess.Popen(["rm " + proteome_file + ".old"], shell=True).wait()
-
-
 def adjust_fasta(proteome_dir):
     print("Running orthomcladjust_fasta")
     proteome_file_list = os.listdir(proteome_dir)
@@ -183,7 +169,6 @@ def adjust_fasta(proteome_dir):
                           str(unique_id)], shell=True).wait()
 
         id_duplicate_check(code_name + ".fasta")
-        prep_blastdb(code_name + ".fasta")
 
     subprocess.Popen(["mkdir compliantFasta/"], shell=True).wait()
 
@@ -209,23 +194,17 @@ def filter_fasta():
                     shell=True).wait()
 
 
-def make_blastdb(goodproteins):
-    print("Making BLAST database")
-    subprocess.Popen(["makeblastdb -in " + goodproteins +
-                      " -dbtype prot -parse_seqids -input_type fasta -out "
-                      + database_name], shell=True).wait()
-
-
-def allvsall_blast(goodproteins):
-    print("BLASTing all the way (may take a while...)")
-    subprocess.Popen(["blastp -query " + goodproteins + " -db " + database_name
-                      + " -out " + blast_out_name + " -evalue " + evalue_cutoff
-                      + " -outfmt 6 -num_threads " + CPUs], shell=True).wait()
+def allvsall_usearch(goodproteins):
+    print("Perfoming USEARCH allvsall")
+    subprocess.Popen(["usearch -ublast " + goodproteins + " -db " +
+                      goodproteins + " -blast6out " + usearch_out_name +
+                      " -evalue " + evalue_cutoff + " --maxaccepts 0 -threads "
+                      + CPUs], shell=True).wait()
 
 
 def blast_parser():
     print("Parsing BLAST output")
-    subprocess.Popen(["orthomclBlastParser " + blast_out_name +
+    subprocess.Popen(["orthomclBlastParser " + usearch_out_name +
                       " compliantFasta/ >> similarSequences.txt"],
                       shell=True).wait()
 
@@ -270,8 +249,7 @@ if arg.adjust:
 elif arg.no_adjust:
     install_schema()
     filter_fasta()
-    make_blastdb("goodProteins.fasta")
-    allvsall_blast("goodProteins.fasta")
+    allvsall_usearch("goodProteins.fasta")
     blast_parser()
     load_blast()
     pairs()
@@ -285,8 +263,7 @@ elif arg.normal:
     install_schema()
     adjust_fasta(arg.infile)
     filter_fasta()
-    make_blastdb("goodProteins.fasta")
-    allvsall_blast("goodProteins.fasta")
+    allvsall_usearch("goodProteins.fasta")
     blast_parser()
     load_blast()
     pairs()
