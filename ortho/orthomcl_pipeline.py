@@ -148,6 +148,20 @@ def check_unique_field(proteome_file):
         return None
 
 
+def prep_usearchdb(proteome_file):
+    print("\t Preparing file for USEARCH")
+    subprocess.Popen(["mv " + proteome_file + " " + proteome_file + ".old"],
+                     shell=True).wait()
+    with open(proteome_file + ".old", "r") as file_in, open(proteome_file, "w")\
+            as file_out:
+        for line in file_in:
+            if line.startswith(">"):
+                file_out.write(">gnl|" + line[1:])
+            else:
+                file_out.write(line)
+    subprocess.Popen(["rm " + proteome_file + ".old"], shell=True).wait()
+
+
 def adjust_fasta(proteome_dir):
     print("Running orthomcladjust_fasta")
     proteome_file_list = os.listdir(proteome_dir)
@@ -169,6 +183,7 @@ def adjust_fasta(proteome_dir):
                           str(unique_id)], shell=True).wait()
 
         id_duplicate_check(code_name + ".fasta")
+        prep_usearchdb(code_name + ".fasta")
 
     subprocess.Popen(["mkdir compliantFasta/"], shell=True).wait()
 
