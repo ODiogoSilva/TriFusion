@@ -307,6 +307,41 @@ class MultiGroups ():
 
         output_handle.close()
 
+    def group_overlap(self):
+        """
+        This will find the overlap of orthologs between two group files.
+        THIS METHOD IS TEMPORARY AND EXPERIMENTAL
+        """
+
+        def parse_groups(group_obj):
+            """
+            Returns a list with the sorted ortholog clusters
+            """
+
+            storage = []
+
+            for cluster in group_obj.groups:
+                storage.append(set(cluster.sequences))
+
+            return storage
+
+        if len(self.multiple_groups) != 2:
+            raise SystemExit("This method can only be used with two group "
+                             "files")
+
+        group1 = self.multiple_groups[0]
+        group2 = self.multiple_groups[1]
+
+        group1_list = parse_groups(group1)
+        group2_list = parse_groups(group2)
+
+        counter = 0
+        for i in group1_list:
+            if i in group2_list:
+                counter += 1
+
+        print(counter)
+
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva"]

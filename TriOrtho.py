@@ -53,6 +53,9 @@ parser.add_argument("-p", dest="pipeline", nargs="*", choices=["1"],
                     help="TriOrtho can be used in pipeline format to perform "
                     "sequential steps that users most often use. 1: Filter the"
                     " original groups file and retrieve the Fasta sequences. ")
+parser.add_argument("-compare", dest="compare", action="store_const",
+                    const=True, help="Use this option to "
+                    "compare the overlap of orthologs between two group files")
 
 arg = parser.parse_args()
 
@@ -100,6 +103,9 @@ def main():
         if arg.stats:
             if "1" in arg.stats:
                 multiple_groups_object.basic_multigroup_statistics()
+
+        if arg.compare:
+            multiple_groups_object.group_overlap()
 
 
 main()
