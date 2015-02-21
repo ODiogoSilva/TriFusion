@@ -33,6 +33,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.core.window import Window
+from kivy.core.window import WindowBase
 from kivy.uix.codeinput import CodeInput
 from kivy.uix.textinput import TextInput
 from kivy.uix.rst import RstDocument
@@ -857,6 +858,11 @@ class TriFusionApp(App):
         # Toggle side panel (slash)
         if key_code == (92, 49):
             self.root.ids.ap.dispatch("on_release")
+
+        # Prevents app from closing when Escape is pressed
+        if key_code == (27, 9):
+            return True
+
 
         #=======================================================================
         # Text input autocompletion
