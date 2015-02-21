@@ -86,8 +86,26 @@ class ShowcaseScreen(Screen):
 
 class FileChooserM(FileChooserIconView):
 
+    shift = False
+
     def __init__(self, **kwargs):
         super(FileChooserM, self).__init__(**kwargs)
+        Window.bind(on_key_down=self.set_shift)
+        Window.bind(on_key_up=self.release_shift)
+
+    def set_shift(self, *vals):
+
+        key_code = vals[1:3]
+        if key_code == (304, 50):
+            self.shift = True
+        else:
+            self.shift = False
+
+    def release_shift(self, *vals):
+
+        key_code = vals[1:3]
+        if key_code == (304, 50):
+            self.shift = False
 
     def open_entry(self, entry):
         """
@@ -111,6 +129,67 @@ class FileChooserM(FileChooserIconView):
             else:
                 self.path = join(self.path, entry.path)
                 self.selection = []
+
+    def entry_touched(self, entry, touch):
+        """
+        (internal) This method must be called by the template when an entry
+        is touched by the user.
+        """
+        if (
+            'button' in touch.profile and touch.button in (
+                'scrollup', 'scrolldown', 'scrollleft', 'scrollright')):
+            return False
+
+        _dir = self.file_system.is_dir(entry.path)
+        dirselect = self.dirselect
+
+        if _dir and dirselect and touch.is_double_tap:
+            self.open_entry(entry)
+            return
+
+        if self.shift and self.selection:
+            # Get index of last selection entry and current entry
+            idx_selection = self.files.index(self.selection[-1])
+            idx_current = self.files.index(entry.path)
+
+            # If current entry is ahead of last selection, select files
+            # going forward
+            if idx_selection < idx_current:
+                idx_s = idx_selection
+                idx_f = idx_current
+            else:
+                idx_s = idx_current
+                idx_f = idx_selection
+
+        if self.multiselect:
+            if entry.path in self.selection:
+                # This will deselect multiple files when the shift key is down
+                # while clicking
+                if self.shift and self.selection:
+                    for i in range(idx_s + 1, idx_f + 1):
+                        f = self.files[i]
+                        if f in self.selection:
+                            self.selection.remove(f)
+                else:
+                    self.selection.remove(entry.path)
+            else:
+                if _dir and not self.dirselect:
+                    self.open_entry(entry)
+                    return
+                # This will select multiple files when the shift key is down
+                # while clicking
+                if self.shift and self.selection:
+                    for i in range(idx_s, idx_f + 1):
+                        f = self.files[i]
+                        if f not in self.selection:
+                            self.selection.append(f)
+                else:
+                    self.selection.append(entry.path)
+        else:
+            if _dir and not self.dirselect:
+                self.open_entry
+                return
+            self.selection = [entry.path, ]
 
 
 class CustomPopup(Popup):
