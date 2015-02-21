@@ -150,7 +150,7 @@ ShowcaseScreen:
                 size_hint_y: None
                 height: 40
                 #padding: 10
-                spacing: 30
+                spacing: 15
 
                 Button:
                     id: open_bt
@@ -169,3 +169,11 @@ ShowcaseScreen:
                     background_down: "data/backgrounds/bt_process.png"
                     bold: True
                     on_release: app.go_previous_screen()
+
+                Button:
+                    id: clear_bt
+                    text: "Clear selection"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    bold: True
+                    on_release: icon_view_tab.selection = []
