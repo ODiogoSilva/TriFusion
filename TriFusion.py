@@ -832,7 +832,8 @@ class TriFusionApp(App):
             bd = join("data", "backgrounds", "bt_process_off.png")
             open_bt = self.screen.ids.open_bt
             cancel_bt = self.screen.ids.cancel_bt
-            popup_keys(bn, bd, open_bt, cancel_bt)
+            clear_bt = self.screen.ids.clear_bt
+            popup_keys(bn, bd, open_bt, cancel_bt, clear_bt)
 
         #=======================================================================
         # General keybindings

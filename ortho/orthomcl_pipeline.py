@@ -55,13 +55,13 @@ max_percent_stop = 20  # Maximum percent stop codons.  (suggested 20)
 database_name = "goodProteins_db"
 usearch_out_name = "AllVsAll.out"
 evalue_cutoff = "0.00001"  # 1E-5 - Recommended
-CPUs = "15"  # Number of CPU's for multiprocessing
+CPUs = "4"  # Number of CPU's for multiprocessing
 
 # For mcl
 inflation = ["1.5", "2", "3", "4", "5"]
 
 # For mcl_groups
-prefix = "Basidiomycota"  # Arbitrary string for the name of the groups
+prefix = "Test"  # Arbitrary string for the name of the groups
 start_ID = "1000"  # Starting number for the groups
 groups_file = "groups"
 
@@ -224,6 +224,31 @@ def blast_parser():
                       shell=True).wait()
 
 
+def remove_duplicate_entries():
+    print("Removing possible dupplicate entries")
+    subprocess.Popen(["mv similarSequences.txt similarSequences.txt.old"], shell=True).wait()
+    file_handle = open("similarSequences.txt.old")
+    output_handle = open("similarSequences.txt", "w")
+
+    storage = {}
+
+    for line in file_handle:
+        fields = line.split()
+        id1 = fields[0]
+        id2 = fields[1]
+
+        if id1 not in storage:
+            storage[id1] = [id2]
+        else:
+            if id2 not in storage[id1]:
+                output_handle.write(line)
+                storage[id1].append(id2)
+
+    file_handle.close()
+    output_handle.close()
+    subprocess.Popen(["rm similarSequences.txt.old"], shell=True).wait()
+
+
 def load_blast():
     print("Loading BLAST output into orthoMCL database")
     subprocess.Popen(["orthomclLoadBlast " + config_file +
@@ -266,6 +291,7 @@ elif arg.no_adjust:
     filter_fasta()
     allvsall_usearch("goodProteins.fasta")
     blast_parser()
+    remove_duplicate_entries()
     load_blast()
     pairs()
     dump_pairs()
@@ -280,6 +306,7 @@ elif arg.normal:
     filter_fasta()
     allvsall_usearch("goodProteins.fasta")
     blast_parser()
+    remove_duplicate_entries()
     load_blast()
     pairs()
     dump_pairs()
