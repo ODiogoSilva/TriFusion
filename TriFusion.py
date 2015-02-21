@@ -90,16 +90,14 @@ class FileChooserM(FileChooserIconView):
 
     def __init__(self, **kwargs):
         super(FileChooserM, self).__init__(**kwargs)
-        Window.bind(on_key_down=self.set_shift)
+        Window.bind(on_key_down=self.keyboard_listen)
         Window.bind(on_key_up=self.release_shift)
 
-    def set_shift(self, *vals):
+    def keyboard_listen(self, *vals):
 
         key_code = vals[1:3]
         if key_code == (304, 50):
             self.shift = True
-        else:
-            self.shift = False
 
     def release_shift(self, *vals):
 
