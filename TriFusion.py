@@ -820,6 +820,12 @@ class TriFusionApp(App):
                     self.screen.ids.path_toggle.state = "down"
                 self.screen.ids.path_toggle.dispatch("on_release")
 
+            # Select/Deselect all files with ctrl+a
+            if modifier == "ctrl" and key_code == (97, 38):
+                self.screen.ids.icon_view_tab.selection = \
+                    [x for x in self.screen.ids.icon_view_tab.files if not
+                     os.path.isdir(x)]
+
             # Use arrow keys and enter to navigate through open/cancel buttons
             # and selecting them
             bn = join("data", "backgrounds", "bt_process.png")
