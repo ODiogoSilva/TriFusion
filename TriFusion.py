@@ -125,6 +125,7 @@ class FileChooserM(FileChooserIconView):
             # parent directory
             if entry.path == "../":
                 self.path = abspath(join(self.path, pardir))
+                self.selection = []
             else:
                 self.path = join(self.path, entry.path)
                 self.selection = []
