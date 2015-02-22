@@ -2073,28 +2073,29 @@ class TriFusionApp(App):
                     # App related action
                     i.state = "down"
 
-                    # Core changes to files
-                    if sv_parent == self.root.ids.sv_file:
-                        self.active_file_list = deepcopy(self.file_list)
-                        self.active_alignment_list = deepcopy(
-                            self.alignment_list)
-                        # Update label
-                    #Core changes to taxa
-                    if sv_parent == self.root.ids.sv_sp:
-                        self.active_taxa_list = deepcopy(
-                            self.alignment_list.taxa_names)
-
                 elif value.text == "Deselect All":
                     # App related action
                     i.state = "normal"
 
-                    # Core changes to files
-                    if sv_parent == self.root.ids.sv_file:
-                        self.active_file_list = []
-                        self.active_alignment_list.clear_files()
-                    # Core changes to taxa
-                    if sv_parent == self.root.ids.sv_sp:
-                        self.active_taxa_list = []
+        # Core changes to files
+        if sv_parent == self.root.ids.sv_file and value.text == "Select All":
+            self.active_file_list = deepcopy(self.file_list)
+            self.active_alignment_list = deepcopy(
+                self.alignment_list)
+            # Update label
+
+        #Core changes to taxa
+        if sv_parent == self.root.ids.sv_sp and value.text == "Select All":
+            self.active_taxa_list = deepcopy(
+                self.alignment_list.taxa_names)
+
+        # Core changes to files
+        if sv_parent == self.root.ids.sv_file and value.text == "Deselect All":
+            self.active_file_list = []
+            self.active_alignment_list.clear_files()
+        # Core changes to taxa
+        if sv_parent == self.root.ids.sv_sp and value.text == "Deselect All":
+            self.active_taxa_list = []
 
         # Updates labels
         self.update_sp_label()
