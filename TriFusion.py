@@ -451,7 +451,7 @@ class TriFusionApp(App):
     cur_dir = dirname(__file__)
 
     # Only the original input files. SHOULD NOT BE MODIFIED
-    file_list = ListProperty()
+    file_list = []
     # Dynamic list containing only the activated files
     active_file_list = ListProperty()
     # Dictionary mapping file names to their corresponding full paths. This
@@ -2079,7 +2079,7 @@ class TriFusionApp(App):
 
         # Core changes to files
         if sv_parent == self.root.ids.sv_file and value.text == "Select All":
-            self.active_file_list = deepcopy(self.file_list)
+            self.active_file_list = self.file_list[:]
             self.active_alignment_list = deepcopy(
                 self.alignment_list)
             # Update label
