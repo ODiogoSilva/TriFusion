@@ -3015,10 +3015,15 @@ class TriFusionApp(App):
         aln_obj = self.update_active_fileset(self.alignment_list)
 
         # Get main operation
-        main_op = [nm for nm, bl in self.main_operations.items()
-                       if bl is True][0]
-        content.ids.main_op.text = "[b][size=18][color=37abc8ff]Main " \
-                                   "operation:[/color][/size][/b] %s" % main_op
+        try:
+            main_op = [nm for nm, bl in self.main_operations.items()
+                           if bl is True][0]
+            content.ids.main_op.text = "[b][size=18][color=37abc8ff]Main " \
+                                       "operation:[/color][/size][/b] %s" % \
+                                       main_op
+        except IndexError:
+            return self.dialog_floatcheck("WARNING: Please select a main "
+                                          "operation", t="error")
 
         # Get secondary operations
         secondary_op = [nm for nm, bl in self.secondary_operations.items()
