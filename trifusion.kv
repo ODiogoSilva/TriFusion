@@ -1691,7 +1691,10 @@
                     text: "OFF"
                     disabled: True
                     on_release:
+                        if app.active_file_list: \
                         app.dialog_zorro()
+                        else: \
+                        app.dialog_floatcheck("ERROR: No input files have been selected", t="error")
 
     TabbedPanelItem:
         id: partition_tab
