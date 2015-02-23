@@ -576,11 +576,19 @@
                 text: "Ok"
                 bold: True
                 on_release:
-                    if not select_grid.children: app.dialog_warning("No selected items", "Cannot create an empty data set group")
-                    if root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
-                    if root.ds_type == "files" and root.ids.group_name.text in app.file_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
-                    if root.ds_type == "taxa" and select_grid.children and root.ids.group_name.text not in app.taxa_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
-                    if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
+                    # Check for empty selected group
+                    if not select_grid.children: \
+                    app.dialog_floatcheck("ERROR: Cannot create an empty data set group", t="error")
+                    # Check for duplicate group name for taxa and file dialogs
+                    elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
+                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    elif root.ds_type == "files" and root.ids.group_name.text in app.file_groups: \
+                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    # Save group and quit dialog
+                    if root.ds_type == "taxa" and select_grid.children and root.ids.group_name.text not in app.taxa_groups: \
+                    app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
+                    if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: \
+                    app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
 
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
@@ -590,11 +598,19 @@
                 text: "Apply"
                 bold: True
                 on_release:
-                    if not select_grid.children: app.dialog_warning("No selected items", "Cannot create an empty data set group")
-                    if root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
-                    if root.ds_type == "files" and root.ids.group_name.text in app.file_groups: app.dialog_warning("Duplicate group name", "Cannot create a data set group with a duplicate name. Please use a different name.")
-                    if root.ds_type == "taxa" and select_grid.children and root.ids.group_name.text not in app.taxa_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
-                    if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
+                    # Check for empty selected group
+                    if not select_grid.children: \
+                    app.dialog_floatcheck("ERROR: Cannot create an empty data set group", t="error")
+                    # Check for duplicate group name for taxa and file dialogs
+                    elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
+                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    elif root.ds_type == "files" and root.ids.group_name.text in app.file_groups: \
+                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    # Save group
+                    if root.ds_type == "taxa" and select_grid.children and root.ids.group_name.text not in app.taxa_groups: \
+                    app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
+                    if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: \
+                    app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
                 background_down: "data/backgrounds/bt_process_off.png"
