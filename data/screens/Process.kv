@@ -76,7 +76,10 @@ ShowcaseScreen:
                             text: "OFF"
                             bold: True
                             on_release:
+                                if app.active_file_list: \
                                 app.dialog_reverse_concatenation("Reverse concatenation settings")
+                                else: \
+                                app.dialog_floatcheck("ERROR: No input files have been selected to use this option", t="error")
 
         # This will be the main screen with the options and stuff
 
