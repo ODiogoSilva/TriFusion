@@ -881,8 +881,7 @@ class TriFusionApp(App):
                     s = self._auto_completion(path)
                     self.screen.ids.path_bx.children[0].text = s
 
-    @staticmethod
-    def _auto_completion(path):
+    def _auto_completion(self, path):
         """
         Method used for providing auto completion for text input widgets
         navigating the os file system
@@ -913,6 +912,8 @@ class TriFusionApp(App):
             return join(path, os.path.commonprefix(dirlist))
 
         else:
+            self.dialog_floatcheck("WARNING: Path does not exist",
+                                   t="error")
             return original_path
 
     def _on_mouseover_tabs(self, dt):
