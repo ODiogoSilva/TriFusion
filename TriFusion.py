@@ -2663,6 +2663,10 @@ class TriFusionApp(App):
             elif wgt.state == "normal" and idx in self.output_formats:
                 self.output_formats.remove(idx)
 
+        if not self.output_formats:
+            return self.dialog_floatcheck("WARNING: Please choose at least one "
+                                   "output format", t="error")
+
         self.dismiss_popup()
 
         # Updates the text in the select format button. In case only one format
@@ -2788,8 +2792,10 @@ class TriFusionApp(App):
         # Determine background color
         if t == "error":
             check_wgt.cl = (.9, .33, .33, 1)
+            check_wgt.line_cl = (1, 0.3, 0.3, 1)
         else:
             check_wgt.cl = (.33, .7, .33, 1)
+            check_wgt.line_cl = (.3, 1, .3, 1)
 
         # Add widget
         self.root_window.add_widget(check_wgt)
