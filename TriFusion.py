@@ -1525,8 +1525,9 @@ class TriFusionApp(App):
                                                   in bad_aln))
 
             # removes bad alignment files from selection list
-            selection = [path for path in selection if path not in
-                        [x.name for x in bad_aln]]
+            selection = [path for path in selection if
+                         path.split(sep)[-1].split(".")[0] not in
+                         [x.name for x in bad_aln]]
 
             if self.file_list:
                 # Updating complete and active file lists
