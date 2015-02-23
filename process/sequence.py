@@ -24,6 +24,7 @@
 #  Last update: 11/02/14
 
 # TriFusion imports
+import process
 from process.base import *
 from process.missing_filter import MissingFilter
 from process.data import Partitions
@@ -435,6 +436,18 @@ class Alignment (Base):
 
         output_handle.close()
 
+    def _check_partitions(self, partition_obj):
+        """
+        Internal. Makes a consistency check for the self.partitions attribute
+        """
+
+        # Checks if total lenght of partitions matches the lenght of the
+        # current alignment
+
+        if partition_obj.counter != self.locus_length:
+            return process.data.InvalidPartitionFile("Partitions in partition"
+                   "file are inconsistency with current alignment")
+
     def set_partitions(self, partitions):
         """
         Updates the Partitions object of the current alignment.
@@ -444,7 +457,13 @@ class Alignment (Base):
         See process.data.Partitions documentation
         """
 
-        self.partitions = partitions
+        # Checks partition's consistency
+        er = self._check_partitions(partitions)
+
+        if isinstance(er, process.data.InvalidPartitionFile):
+            return er
+        else:
+            self.partitions = partitions
 
     def reverse_concatenate(self):
         """
