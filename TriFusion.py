@@ -2824,13 +2824,25 @@ class TriFusionApp(App):
         the partitions are correctly defined
         """
 
-        # Check for the validity of the partitions file
         part_obj = data.Partitions()
         er = part_obj.read_from_file(self.partitions_file)
-        if isinstance(er, Exception):
-            return self.dialog_warning("Invalid partitions file",
-                       "The provided partitions file is invalid. Please check"
-                       " the file or replace with an appropriate one.")
+
+        aln_obj = self.alignment_list.retrieve_alignment(self.rev_infile)
+        aln_er = aln_obj.set_partitions(part_obj)
+
+        # Check for the validity of the partitions file
+        if isinstance(er, data.InvalidPartitionFile):
+            return self.dialog_floatcheck("The provided partitions file is "
+                       "invalid. Please check the file or replace with an "
+                       "appropriate one.", t="error")
+
+        # Check for the validity of the partitions file
+        if isinstance(aln_er, data.InvalidPartitionFile):
+            return self.dialog_floatcheck("The provided partitions in the "
+                   "partition file do not match the selected alignment",
+                    t="error")
+        else:
+            return True
 
     def save_reverseconc_settings(self):
         """
@@ -2839,17 +2851,21 @@ class TriFusionApp(App):
         """
 
         # Check for the validity of the partitions file
-        self.check_partitions_file()
+        er = self.check_partitions_file()
 
-        if self.main_operations["reverse_concatenation"]:
-            self.screen.ids.rev_conc.background_normal = \
-                "data/backgrounds/bt_process.png"
-            self.screen.ids.rev_conc.text = "Active"
+        if er is True:
 
-        else:
-            self.screen.ids.rev_conc.background_normal = \
-                "data/backgrounds/bt_process_off.png"
-            self.screen.ids.rev_conc.text = "OFF"
+            if self.main_operations["reverse_concatenation"]:
+                self.screen.ids.rev_conc.background_normal = \
+                    "data/backgrounds/bt_process.png"
+                self.screen.ids.rev_conc.text = "Active"
+
+            else:
+                self.screen.ids.rev_conc.background_normal = \
+                    "data/backgrounds/bt_process_off.png"
+                self.screen.ids.rev_conc.text = "OFF"
+
+            self.dismiss_popup()
 
     def dialog_format(self):
         """
