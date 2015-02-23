@@ -3044,6 +3044,10 @@ class TriFusionApp(App):
         # Get output files
         # In case concatenation
         if main_op == "concatenation":
+            # Check if an output directory has been selected
+            if self.output_file == "":
+                return self.dialog_floatcheck("ERROR: No output file has been "
+                                       "selected", t="error")
             out_file = self.output_file.split(sep)[-1]
             add_files = [out_file + "_" + nm for nm, bl in
                          self.secondary_operations.items() if bl]
@@ -3053,6 +3057,10 @@ class TriFusionApp(App):
                                        ", ".join(add_files))
         # In case conversion
         if main_op == "conversion":
+            # Check if an output file has been selected
+            if self.output_dir == "":
+                return self.dialog_floatcheck("ERROR: No output directory has"
+                                       " been selected", t="error")
             try:
                 # Check for additional files
                 add_files = [nm for nm, bl in
