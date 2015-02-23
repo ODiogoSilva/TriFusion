@@ -13,6 +13,38 @@
                 cols: 1
 
 #===============================================================================
+# ROOT WINDOW
+#===============================================================================
+
+<WarningFloat@Label>:
+    root_pos: [0, 0]
+    size_hint: None, None
+    padding: (10, 15)
+    halign: "left"
+    valign: "middle"
+    width: len(self.text)*9.5 if len(self.text)*8 < 400 else 400
+    text_size: self.size
+    height: self.texture_size[1]
+    pos: self.root_pos[0] - self.size[0] - 10, self.root_pos[1] - self.size[1] - 60
+    cl: (.7, .33, .33, 1)
+    bold: True
+    canvas.before:
+        Color:
+            rgba: self.cl
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: 0.1,0.1,0.1
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
+
+#===============================================================================
 # FILECHOOSER
 #===============================================================================
 

@@ -250,6 +250,10 @@ class CloseBox(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class WarningFloat(Label):
+    pass
+
+
 class InfoPopup(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -2755,6 +2759,44 @@ class TriFusionApp(App):
         self._popup.content.ids.part_file.text = partfile.split(sep)[-1]
         self._popup.content.ids.part_file.background_normal = \
             "data/backgrounds/bt_process.png"
+
+    def dialog_floatcheck(self, text, t):
+        """
+        Creates a floating label with informative text on the right upper
+        corner of the app. This is used for showing errors, warnings and
+        general informative messages that fade in and fade out after a time
+        :param t: string, with type of check. Can be either error or info
+        :param text: string, text to appear in the label
+        :return:
+        """
+
+        def fade_in():
+            Animation(opacity=1, d=2, t="out_quart").start(check_wgt)
+
+        def fade_out(*args):
+            Animation(opacity=0, d=1, t="out_quart").start(check_wgt)
+            Clock.schedule_once(
+                lambda dt: self.root_window.remove_widget(check_wgt), 1)
+
+        # Get position from root window
+        x, y = self.root_window.size
+
+        # Create widget
+        check_wgt = WarningFloat(text=text, opacity=0, markup=True)
+        check_wgt.root_pos = [x, y]
+
+        # Determine background color
+        if t == "error":
+            check_wgt.cl = (.9, .33, .33, 1)
+        else:
+            check_wgt.cl = (.33, .7, .33, 1)
+
+        # Add widget
+        self.root_window.add_widget(check_wgt)
+
+        # Set animations
+        fade_in()
+        Clock.schedule_once(fade_out, 5)
 
     def check_partitions_file(self):
         """
