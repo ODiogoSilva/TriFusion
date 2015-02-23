@@ -31,6 +31,10 @@ class PartitionException(Exception):
     pass
 
 
+class InvalidPartitionFile(Exception):
+    pass
+
+
 class Partitions():
     """
     The Partitions class is used to define partitions for Alignment objects and
@@ -231,10 +235,12 @@ class Partitions():
                     partition_range = [int(x) - 1 for x in
                                        partition_range_temp.strip().split("-")]
                     # Add information to partitions storage
-                    self.add_partition(partition_name, locus_range=partition_range,
+                    self.add_partition(partition_name,
+                                       locus_range=partition_range,
                                        model=model_name)
                 except IndexError:
-                    return PartitionException("Badly formatted partitions file")
+                    return InvalidPartitionFile("Badly formatted partitions "
+                                                "file")
 
         elif partition_format == "nexus":
             for line in part_file:
