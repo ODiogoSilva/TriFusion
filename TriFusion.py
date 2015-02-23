@@ -1105,7 +1105,11 @@ class TriFusionApp(App):
     def switch_path_wgt(self, wgt_id):
 
         def path_updater(*args):
-            self.screen.ids.icon_view_tab.path = txt.text
+            if os.path.exists(txt.text):
+                self.screen.ids.icon_view_tab.path = txt.text
+            else:
+                return self.dialog_floatcheck("ERROR: Directory does not exist",
+                                              t="error")
 
         label = PathLabel()
         txt = PathText()
