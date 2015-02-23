@@ -22,7 +22,7 @@
     padding: (10, 15)
     halign: "left"
     valign: "middle"
-    width: len(self.text)*9.5 if len(self.text)*8 < 400 else 400
+    width: len(self.text)*9 if len(self.text)*9 < 400 else 400
     text_size: self.size
     height: self.texture_size[1]
     pos: self.root_pos[0] - self.size[0] - 10, self.root_pos[1] - self.size[1] - 60
@@ -645,11 +645,21 @@
                 background_down: "data/backgrounds/bt_process_off.png"
                 text: "Save"
                 id: ok_bt
+                text_io: text_input.text if not None else ""
                 on_release:
-                    if text_input.text != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
-                    if text_input.text != "" and sd_filechooser.text == "main_output" and txt_box.height == 0: app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
-                    if text_input.text != "" and sd_filechooser.text == "export": app.export_names(sd_filechooser.path, file_name = text_input.text)
-                    if text_input.text != "": root.cancel()
+                    # For save dialogs requiring file name, make this check
+                    if self.text_io == "" and txt_box.height == 30: \
+                    app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
+                    # For save dialogs requiring a file name, save the file name
+                    if self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
+                    app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
+                    if self.text_io != "" and sd_filechooser.text == "export": \
+                    app.export_names(sd_filechooser.path, file_name = text_input.text)
+                    # For save dialogs that do not require file names
+                    if sd_filechooser.text == "main_output" and txt_box.height == 0: \
+                    app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
+                    # Close dialog
+                    if self.text_io != "" or txt_box.height == 0: root.cancel()
 
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
