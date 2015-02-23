@@ -22,11 +22,12 @@
     padding: (10, 15)
     halign: "left"
     valign: "middle"
-    width: len(self.text)*9 if len(self.text)*9 < 400 else 400
-    text_size: self.size
+    width: len(self.text) * 9 if len(self.text) * 9 < 400 else 400
+    text_size: (self.size[0], None)
     height: self.texture_size[1]
     pos: self.root_pos[0] - self.size[0] - 10, self.root_pos[1] - self.size[1] - 60
     cl: (.7, .33, .33, 1)
+    line_cl: (1, 0.3, 0.3, 1)
     bold: True
     canvas.before:
         Color:
@@ -37,7 +38,7 @@
     StackLayout:
         canvas.after:
             Color:
-                rgb: 0.1,0.1,0.1
+                rgb: root.line_cl
             Line:
                 width: 1.1
                 cap: "round"
