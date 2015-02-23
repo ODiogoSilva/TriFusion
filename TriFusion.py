@@ -2791,18 +2791,18 @@ class TriFusionApp(App):
 
         # Determine background color
         if t == "error":
-            check_wgt.cl = (.9, .33, .33, 1)
-            check_wgt.line_cl = (1, 0.3, 0.3, 1)
+            check_wgt.cl = (1, .33, .33, 1)
+            check_wgt.line_cl = (1, 0, 0, 1)
         else:
             check_wgt.cl = (.33, .7, .33, 1)
-            check_wgt.line_cl = (.3, 1, .3, 1)
+            check_wgt.line_cl = (0, 1, 0, 1)
 
         # Add widget
         self.root_window.add_widget(check_wgt)
 
         # Set animations
         fade_in()
-        Clock.schedule_once(fade_out, 5)
+        Clock.schedule_once(fade_out, 3)
 
     def check_partitions_file(self):
         """
