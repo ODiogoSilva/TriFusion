@@ -2738,6 +2738,14 @@ class TriFusionApp(App):
         :param suffix: string, suffix of the ZORRO files
         """
 
+        # Check if the zorro files exist
+        for f in self.active_file_list:
+            f = sep.join(f.split(".")[0:-1])
+            f = "%s%s.txt" % (f, suffix)
+            if not os.path.isfile(f):
+                return self.dialog_floatcheck("ERROR: File %s does not"
+                                              " exist" % f, t="error")
+
         self.update_process_switch("zorro",
                                    self._popup.content.ids.zorro_switch.active)
 
