@@ -3022,7 +3022,7 @@ class TriFusionApp(App):
                                        "operation:[/color][/size][/b] %s" % \
                                        main_op
         except IndexError:
-            return self.dialog_floatcheck("WARNING: Please select a main "
+            return self.dialog_floatcheck("ERROR: Please select a main "
                                           "operation", t="error")
 
         # Get secondary operations
@@ -3053,16 +3053,28 @@ class TriFusionApp(App):
                                        ", ".join(add_files))
         # In case conversion
         if main_op == "conversion":
-            add_files = [nm for nm, bl in
-                         self.secondary_operations.items() if bl]
-            content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
-                        "file(s):[/color][/size][/b] %s converted file(s)" % \
-                (len(aln_obj.alignment_object_list) +
-                len(aln_obj.alignment_object_list) * len(add_files))
+            try:
+                # Check for additional files
+                add_files = [nm for nm, bl in
+                             self.secondary_operations.items() if bl]
+                content.ids.out_files.text = "[b][size=18][color=37abc8ff]" \
+                            "Output file(s):[/color][/size][/b] %s converted " \
+                            "file(s)" % \
+                    (len(aln_obj.alignment_object_list) +
+                    len(aln_obj.alignment_object_list) * len(add_files))
+            # In case aln_obj has not being defined, probably because there
+            # are no input files
+            except AttributeError:
+                return self.dialog_floatcheck("ERROR: No input files have"
+                                              "been selected", t="error")
 
-        self.show_popup(title="Process execution summary - Processing %s file("
-                "s)" % len(aln_obj.alignment_object_list),
-                content=content, size=(550, 350))
+        try:
+            self.show_popup(title="Process execution summary - Processing %s "
+                "file(s)" % len(aln_obj.alignment_object_list),
+                            content=content, size=(550, 350))
+        except AttributeError:
+            return self.dialog_floatcheck("ERROR: No input files have"
+                                              "been selected", t="error")
 
     def dialog_partitions(self):
         """
