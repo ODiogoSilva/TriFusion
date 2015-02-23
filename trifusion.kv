@@ -1104,10 +1104,16 @@
         orientation: "horizontal"
         spacing: 10
         Button:
-            text: "Done"
+            id: ok_bt
+            text: "Ok"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
             on_release: app.save_zorro_settings(zorro_txt.text)
         Button:
+            id: cancel_bt
             text: "Cancel"
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
             on_release: root.cancel()
 
 #===============================================================================
