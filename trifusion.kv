@@ -358,6 +358,249 @@
                 root.cancel()
 
 #===============================================================================
+# ORTHOLOGY SCREEN
+#===============================================================================
+
+<OrthoSearch_MainGrid@GridLayout>:
+    id: gl_orto_search
+    cols: 1
+    size_hint_y: None
+    height: sum([x.size[1] for x in self.children])
+    LightBox:
+        Label:
+            markup: True
+            text: "[size=15][b]Basic settings[/b][/size]"
+            halign: "center"
+            valign: "middle"
+            color: [.85, .85, .85, 1]
+            text_size: self.size
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]MySQL settings[/b][/size]\n[size=13]Provide the required information to access and modify SQL databases[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    Hseparator
+
+    DarkBox:
+        id: dark_l
+        Label:
+            id: output_label
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Threads[/b][/size]\n[size=13]Number of threads (CPU's) to use during USEARCH[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        Spinner:
+            size_hint_x: .2
+            text: "Select..."
+
+    Hseparator
+
+    DarkBox:
+        Label:
+            id: output_label
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Output directry[/b][/size]\n[size=13]Save output files to...[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        ProcessBt:
+            id: conv
+            text: "Select..."
+
+    DarkBox:
+        padding: (-10, 0, 0, 0)
+        Sidebt:
+            id: adv_options
+            size_hint_x: None
+            width: 200
+            text: "Advanced options"
+            bold: True
+            on_release:
+                app.toggle_orto_soptions()
+
+
+<OrthologySearchGrid@GridLayout>:
+    cols: 1
+    padding: (5, 5)
+    size_hint_y:None
+    height: sum([x.size[1] for x in self.children])
+    LightBox:
+        Label:
+            markup: True
+            text: "[size=15][b]MySQL configuration[/b][/size]"
+            halign: "left"
+            valign: "middle"
+            color: [.85, .85, .85, 1]
+            text_size: self.size
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]OrthoMCL configuration file[/b][/size]\n[size=13]Select or create the configuration file for OrthoMCL.[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    LightBox:
+        Label:
+            markup: True
+            text: "[size=15][b]Sequence quality control[/b][/size]"
+            halign: "left"
+            valign: "middle"
+            color: [.85, .85, .85, 1]
+            text_size: self.size
+
+    DarkBox:
+        height: 70
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Filter protein sequences[/b][/size]\n[size=13]Set filters to remove poor quality sequences based on sequence length and stop codon percentage.[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    LightBox:
+        Label:
+            markup: True
+            text: "[size=15][b]USEARCH options[/b][/size]"
+            halign: "left"
+            valign: "middle"
+            color: [.85, .85, .85, 1]
+            text_size: self.size
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Database name[/b][/size]\n[size=13]Name of the database against which USEARCH will run (default: gooProteins_db).[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    Hseparator
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]USEARCH output file[/b][/size]\n[size=13]Name of the file containing the search results of USEARCH (default: AllVsAll.out).[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    Hseparator
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]E-value cutoff[/b][/size]\n[size=13](default: AllVsAll.out)Set minimum necessary e-value cutoff to retain USEARCH hits.[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    Hseparator
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Threads[/b][/size]\n[size=13]Set number of parallel threads (cpu's) for USEARCH.[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    LightBox:
+        Label:
+            markup: True
+            text: "[size=15][b]MCL options[/b][/size]"
+            halign: "left"
+            valign: "middle"
+            color: [.85, .85, .85, 1]
+            text_size: self.size
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Inflation[/b][/size]\n[size=13]Set one or more inflation values for MCL run.[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    Hseparator
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Ortholog group prefix[/b][/size]\n[size=13]Set a prefix name for the ortholog groups detected by OrthoMCL.[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+    Hseparator
+
+    DarkBox:
+        height: 70
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Groups file[/b][/size]\n[size=13]Set the name for the final output of OrthoMCL containing the ortholog groups. If more than one inflation values were specified, this name will be used as a prefix[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        ProcessBt:
+            size_hint_x: .2
+            text: "Select..."
+
+#===============================================================================
 # PROCESS EXECUTION SUMMARY
 #===============================================================================
 
@@ -729,6 +972,19 @@
 #===============================================================================
 #                               PROCESS SCREEN
 #===============================================================================
+
+<ExecutionBt@Button>
+    background_normal: "data/backgrounds/process_exec.png"
+    background_down: "data/backgrounds/process_exec_down.png"
+    border: 0,0,0,0
+    bold: True
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+    font_size: 18
+    color: (1,1,1,1)
+    size_hint_y: None
+    height: 45
 
 #===============================================================================
 # PROCESS PARTITIONS

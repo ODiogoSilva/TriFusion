@@ -246,6 +246,14 @@ class AutoCompTextInput(TextInput):
                                                           from_undo=from_undo)
 
 
+class OrthologySearchGrid(GridLayout):
+    pass
+
+
+class OrthoSearch_MainGrid(GridLayout):
+    pass
+
+
 class CloseBox(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -502,6 +510,10 @@ class TriFusionApp(App):
                                     ("filter_file", False),
                                     ("gcoder_file", False)])
 
+    # Attributes for the Orthology screen widgets
+    ortho_search_options = None
+    ortho_search_grid_wgt = None
+
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
     process_grid_wgt = None
@@ -622,9 +634,13 @@ class TriFusionApp(App):
         # Listen to keybindings
         Window.bind(on_key_down=self._on_keyboard_events)
 
+        #### Orthology widgets
+        self.ortho_search_options = OrthologySearchGrid()
+        self.ortho_search_grid_wgt = OrthoSearch_MainGrid()
+
+        #### Process widgets
         # Creating GridLayout instance for general options of Process
         self.process_grid_wgt = ProcessGeneral()
-
         # Create GridLayout instance for additional options of Process.
         self.process_options = AdditionalProcessContents()
 
@@ -2585,6 +2601,36 @@ class TriFusionApp(App):
 
         for switch in self.secondary_options:
             self.process_options.ids[switch].active = False
+
+    ########################## ORTHOLOGY SCREEN ################################
+
+    def toggle_orto_main(self):
+        """
+        Controls the main widgets to be displayed in the Orthology screen. It is
+        controlled by the two main buttons in Orthology screen, Search orthologs
+        and process raw orthologs
+        """
+
+        if self.screen.ids.orto_search_bt.state == "down":
+            self.screen.ids.orto_search_sv.add_widget(
+                self.ortho_search_grid_wgt)
+        else:
+            pass
+
+    def toggle_orto_soptions(self):
+        """
+        Controls the toggling of the GridLayout with the advanced options for
+        the Orthology screen, Ortholog search slide
+        """
+
+        if self.ortho_search_grid_wgt.ids.adv_options.state == "down":
+            self.ortho_search_grid_wgt.add_widget(
+                self.ortho_search_options)
+
+        else:
+            self.ortho_search_grid_wgt.remove_widget(
+                self.ortho_search_options)
+
 
     ########################### PROCESS SCREEN #################################
 

@@ -1,6 +1,50 @@
 ShowcaseScreen:
     name: "Orthology"
 
-    Label:
-        text: "Orthology screen\nPlaceholder"
+    BoxLayout:
+        orientation: "vertical"
+        cols: 1
+        BoxLayout:
+            size_hint_y: None
+            height: 65
+            padding: 5
+            BoxLayout:
+                spacing: 10
+                orientation: "horizontal"
+                Sidebt:
+                    id: orto_search_bt
+                    text: "Search for orthologs"
+                    group: "orthology_panel"
+                    on_release:
+                        app.toggle_orto_main()
+                        app.toggle_groups(self)
+                Sidebt:
+                    id: orto_proc_bt
+                    text: "Process raw orthologs"
+                    group: "orthology_panel"
+                    on_press:
+                        app.toggle_groups(self)
 
+        ScrollView:
+            id: orto_search_sv
+
+        BoxLayout:
+            size_hint_y: None
+            height: 60
+            padding: 10
+            spacing: 10
+            canvas.before:
+                Color:
+                    rgba: (.3,.3,.3,.3)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            ExecutionBt:
+                text: "Search orthologs!"
+                bold: True
+                font_size: 18
+            ExecutionBt:
+                text: "Clear Options"
+                bold: True
+                font_size: 18
