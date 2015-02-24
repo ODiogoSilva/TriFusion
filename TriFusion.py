@@ -250,6 +250,10 @@ class CloseBox(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class RemoveFloat(Button):
+    pass
+
+
 class WarningFloat(Label):
     pass
 
@@ -2789,12 +2793,16 @@ class TriFusionApp(App):
         """
 
         def fade_in():
-            Animation(opacity=1, d=2, t="out_quart").start(check_wgt)
+            Animation(opacity=1, d=.5, t="out_quart").start(check_wgt)
+            Animation(opacity=1, d=.5, t="out_quart").start(rm_wgt)
 
         def fade_out(*args):
-            Animation(opacity=0, d=1, t="out_quart").start(check_wgt)
+            Animation(opacity=0, d=.5, t="out_quart").start(check_wgt)
+            Animation(opacity=0, d=.5, t="out_quart").start(rm_wgt)
             Clock.schedule_once(
                 lambda dt: self.root_window.remove_widget(check_wgt), 1)
+            Clock.schedule_once(
+                lambda dt: self.root_window.remove_widget(rm_wgt), 1)
 
         # Get position from root window
         x, y = self.root_window.size
@@ -2802,6 +2810,9 @@ class TriFusionApp(App):
         # Create widget
         check_wgt = WarningFloat(text=text, opacity=0, markup=True)
         check_wgt.root_pos = [x, y]
+        # Create remove button
+        rm_wgt = RemoveFloat(pos=(x - 38, y - 75), opacity=0)
+        rm_wgt.bind(on_release=fade_out)
 
         # Determine background color
         if t == "error":
@@ -2813,6 +2824,7 @@ class TriFusionApp(App):
 
         # Add widget
         self.root_window.add_widget(check_wgt)
+        self.root_window.add_widget(rm_wgt)
 
         # Set animations
         fade_in()
