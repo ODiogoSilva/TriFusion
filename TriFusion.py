@@ -57,6 +57,7 @@ from kivy.clock import Clock
 from kivy.core.text.markup import MarkupLabel
 from kivy.uix.treeview import TreeView, TreeViewLabel
 from kivy.graphics import Color, Rectangle
+from kivy.uix.scrollview import ScrollView
 
 # Main program imports
 from process.sequence import AlignmentList
@@ -74,6 +75,9 @@ from functools import partial
 import pickle
 
 Config.set("kivy", "log_level", "warning")
+Config.set("kivy", "desktop", 1)
+Config.set("kivy", "exit_on_escape", 0)
+Config.set("graphics", "resizable", 0)
 
 
 class ShowcaseScreen(Screen):
@@ -883,11 +887,6 @@ class TriFusionApp(App):
         # Toggle side panel (slash)
         if key_code == (92, 49):
             self.root.ids.ap.dispatch("on_release")
-
-        # Prevents app from closing when Escape is pressed
-        if key_code == (27, 9):
-            return True
-
 
         #=======================================================================
         # Text input autocompletion
