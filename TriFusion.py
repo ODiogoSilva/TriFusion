@@ -2819,8 +2819,8 @@ class TriFusionApp(App):
             check_wgt.cl = (1, .33, .33, 1)
             check_wgt.line_cl = (1, 0, 0, 1)
         else:
-            check_wgt.cl = (.33, .7, .33, 1)
-            check_wgt.line_cl = (0, 1, 0, 1)
+            check_wgt.cl = (.35, .63, .17, 1)
+            check_wgt.line_cl = (0.2, 1, 0.2, 1)
 
         # Add widget
         self.root_window.add_widget(check_wgt)
@@ -3771,12 +3771,17 @@ class TriFusionApp(App):
                                 output_dir=self.output_dir,
                                 use_charset=self.use_nexus_partitions)
 
-        content = DoneDialog(cancel=self.dismiss_subpopup)
-
-        self._subpopup = Popup(title="Success!", content=content,
-                               size=(200, 180), size_hint=(None, None))
-
-        self._subpopup.open()
+        proc_files = len(aln_object.alignment_object_list)
+        if proc_files == 1:
+            self.dialog_floatcheck("All Done! %s file was successfully "
+                                   "processed" %
+                                   (len(aln_object.alignment_object_list)),
+                                   t="info")
+        else:
+            self.dialog_floatcheck("All Done! %s files were successfully "
+                                   "processed" %
+                                   (len(aln_object.alignment_object_list)),
+                                   t="info")
 
 if __name__ == '__main__':
     TriFusionApp().run()
