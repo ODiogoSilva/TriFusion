@@ -1533,6 +1533,7 @@ class TriFusionApp(App):
                          path.split(sep)[-1].split(".")[0] not in
                          [x.name for x in bad_aln]]
 
+            # If data has been previously loaded, updated these attributes
             if self.file_list:
                 # Updating complete and active file lists
                 self.file_list.extend(selection)
@@ -1543,6 +1544,7 @@ class TriFusionApp(App):
                                      zip([x.split("/")[-1] for x in selection],
                                          selection)))
 
+            # If no data has been previously loaded, set the attributed
             else:
                 # Set an attribute with the input file list
                 self.file_list = selection
@@ -1552,6 +1554,7 @@ class TriFusionApp(App):
                 self.filename_map = dict((x, y) for x, y in zip(
                     [x.split("/")[-1] for x in selection], selection))
 
+            # If more than one alignment has been provided
             if self.active_alignment_list:
                 # Update active taxa list
                 self.update_taxa()
@@ -1565,6 +1568,10 @@ class TriFusionApp(App):
                 self.root.ids.tx_group_bt.disabled = False
                 self.root.ids.file_group_bt.disabled = False
                 self.process_options.ids.part_dialog.disabled = False
+
+                # Issue float check
+                self.dialog_floatcheck("%s file(s) successfully loaded" %
+                                       len(selection), t="info")
 
     def update_tabs(self):
         """
