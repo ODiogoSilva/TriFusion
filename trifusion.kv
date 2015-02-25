@@ -674,6 +674,9 @@
                 ProcessBt:
                     size_hint_x: .2
                     text: "My_group"
+                    id: orto_group
+                    on_release:
+                        app.dialog_text("Prefix for ortholog groups", "orto_group")
 
             Hseparator
 
@@ -690,6 +693,9 @@
                 ProcessBt:
                     size_hint_x: .2
                     text: "group"
+                    id: group_prefix
+                    on_release:
+                        app.dialog_text("Groups file name", "groups")
 
 #===============================================================================
 # PROCESS EXECUTION SUMMARY

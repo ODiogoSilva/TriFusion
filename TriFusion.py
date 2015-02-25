@@ -571,6 +571,10 @@ class TriFusionApp(App):
     usearch_output = "AllVsAll.out"
     usearch_evalue = "0.00001"
 
+    # MCL/Groups attributes
+    ortholog_prefix = "My_group"
+    group_prefix = "group"
+
     # Protein quality filters
     protein_min_len = 10  # Absolute
     protein_max_stop = 20  # Percentage
@@ -3393,6 +3397,12 @@ class TriFusionApp(App):
         elif idx == "evalue":
             content.ids.txt_dlg.text = self.usearch_evalue
 
+        elif idx == "orto_group":
+            content.ids.txt_dlg.text = self.ortholog_prefix
+
+        elif idx == "groups":
+            content.ids.txt_dlg.text = self.group_prefix
+
         self.show_popup(title=title, content=content,
                         size=(200, 150))
 
@@ -3441,6 +3451,14 @@ class TriFusionApp(App):
         elif idx == "evalue":
             self.usearch_evalue = text
             self.ortho_search_options.ids.eval.text = text
+
+        elif idx == "orto_group":
+            self.ortholog_prefix = text
+            self.ortho_search_options.ids.orto_group.text = text
+
+        elif idx == "groups":
+            self.group_prefix = text
+            self.ortho_search_options.ids.group_prefix.text = text
 
     def update_main_operations(self, op):
         """
