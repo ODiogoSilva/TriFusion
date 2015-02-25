@@ -249,7 +249,7 @@ class AutoCompTextInput(TextInput):
                                                           from_undo=from_undo)
 
 
-class OrthologySearchGrid(GridLayout):
+class OrthologySearchGrid(TabbedPanel):
     pass
 
 
@@ -2631,6 +2631,11 @@ class TriFusionApp(App):
             # Add orthology search main grid
             self.screen.ids.orto_search_sv.add_widget(
                 self.ortho_search_grid_wgt)
+
+            # Store the original height of the gridlayout containing the
+            # general options so that it can be updated
+            self.orto_search_height = self.ortho_search_grid_wgt.height
+
             # Animate widget entrance
             Animation(opacity=1, d=.32, t="in_quart").start(
                 self.ortho_search_grid_wgt)
@@ -2657,6 +2662,9 @@ class TriFusionApp(App):
             # Update button text
             self.ortho_search_grid_wgt.ids.adv_options.text = \
                 "Hide additional options"
+            self.ortho_search_grid_wgt.height = self.orto_search_height + \
+                sum(x.height + 5 for x in
+                    self.ortho_search_options.ids.mcl_grid.children) + 5
 
         elif self.ortho_search_grid_wgt.ids.adv_options.text == \
                 "Hide additional options":
@@ -2666,6 +2674,8 @@ class TriFusionApp(App):
             # Update button text
             self.ortho_search_grid_wgt.ids.adv_options.text = \
                 "Show additional options"
+            self.ortho_search_grid_wgt.height -= sum(x.height for x in
+                self.ortho_search_options.ids.mcl_grid.children)
 
     def dialog_mysql(self):
         """
