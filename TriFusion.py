@@ -265,6 +265,10 @@ class MySQLDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class InflationDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class CloseBox(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -574,6 +578,7 @@ class TriFusionApp(App):
     # MCL/Groups attributes
     ortholog_prefix = "My_group"
     group_prefix = "group"
+    mcl_inflation = ["3"]
 
     # Protein quality filters
     protein_min_len = 10  # Absolute
@@ -2703,6 +2708,36 @@ class TriFusionApp(App):
 
         self.show_popup(title="Protein filter settings", content=content,
                         size=(350, 200))
+
+    def dialog_inflation(self):
+        """
+        Creates dialog for inflation values selection
+        """
+
+        content = InflationDialog(cancel=self.dismiss_popup)
+        # Updated dialog with the selected inflation values
+        for i in content.ids.inflation_bx.children:
+            if i.text in self.mcl_inflation:
+                i.state = "down"
+            else:
+                i.state = "normal"
+
+        self.show_popup(title="MCL inflation settings", content=content,
+                        size=(300, 220))
+
+    def save_inflation(self, inflation_wgt):
+        """
+        Save inflation values
+        """
+
+        for wgt in inflation_wgt.children:
+            if wgt.state == "down" and wgt.text not in self.mcl_inflation:
+                self.mcl_inflation.append(wgt.text)
+            elif wgt.state == "normal" and wgt.text in self.mcl_inflation:
+                self.mcl_inflation.remove(wgt.text)
+
+        self.ortho_search_options.ids.inflation_bt.text = \
+            str(sorted(self.mcl_inflation))
 
     def save_mysql_pass(self, txt):
         """

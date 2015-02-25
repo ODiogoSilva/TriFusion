@@ -362,6 +362,61 @@
 # ORTHOLOGY SCREEN
 #===============================================================================
 
+<InflationDialog>:
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        Label:
+            size_hint_x: .6
+            text: "Select one or more inflation values:"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+    BoxLayout:
+        id: inflation_bx
+        size_hint_y: None
+        height: 30
+        ToggleButton:
+            text: "1.5"
+        ToggleButton:
+            text: "2"
+        ToggleButton:
+            state: "down"
+            text: "3"
+        ToggleButton:
+            text: "4"
+        ToggleButton:
+            text: "5"
+
+    Widget:
+        size_hint_y: None
+        height: 10
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
+                app.save_inflation(inflation_bx)
+                root.cancel()
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            on_release: root.cancel()
+
 <MySQLDialog>:
     orientation: "vertical"
     padding: 10
@@ -658,7 +713,10 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "3"
+                    id: inflation_bt
+                    text: "['3']"
+                    on_release:
+                        app.dialog_inflation()
 
             Hseparator
 
