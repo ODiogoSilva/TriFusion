@@ -361,6 +361,33 @@
 # ORTHOLOGY SCREEN
 #===============================================================================
 
+<MySQLDialog>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    TextInput:
+        id: txt_dlg
+        password: True
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
+                app.save_mysql_pass(txt_dlg.text)
+                root.cancel()
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            on_release: root.cancel()
+
 <OrthoSearch_MainGrid@GridLayout>:
     id: gl_orto_search
     cols: 1
@@ -385,8 +412,11 @@
             valign: "middle"
             text_size: self.size
         ProcessBt:
+            id: mysql_bt
             size_hint_x: .2
             text: "Select..."
+            on_release:
+                app.dialog_mysql()
 
     Hseparator
 

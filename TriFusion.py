@@ -257,6 +257,10 @@ class OrthoSearch_MainGrid(GridLayout):
     pass
 
 
+class MySQLDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class CloseBox(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -551,6 +555,9 @@ class TriFusionApp(App):
     # CORE PROGRAM RELATED VARIABLES
     #
     ################################
+
+    # MySQL access
+    mysql_pass = ""
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
@@ -2649,6 +2656,28 @@ class TriFusionApp(App):
             self.ortho_search_grid_wgt.ids.adv_options.text = \
                 "Show additional options"
 
+    def dialog_mysql(self):
+        """
+        Creates dialog for MySQL settings
+        """
+
+        content = MySQLDialog(cancel=self.dismiss_popup)
+        content.ids.txt_dlg.text = self.mysql_pass
+
+        self.show_popup(title="MySQL root password", content=content,
+                        size=(200, 150))
+
+    def save_mysql_pass(self, txt):
+        """
+        Saves mysql access for database creation and manipulation
+        """
+
+        self.mysql_pass = txt
+
+        if txt != "":
+            self.ortho_search_grid_wgt.ids.mysql_bt.text = "Password set"
+        else:
+            self.ortho_search_grid_wgt.ids.mysql_bt.text = "Select..."
 
     ########################### PROCESS SCREEN #################################
 
