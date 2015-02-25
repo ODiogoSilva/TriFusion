@@ -438,29 +438,8 @@
     cols: 1
     padding: (5, 5)
     size_hint_y: None
-    height: sum([x.size[1] for x in self.children])
+    height: sum([(x.size[1] + 5) for x in self.children]) - 20
     opacity: 0
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]MySQL configuration[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
-
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]OrthoMCL configuration file[/b][/size]\n[size=13]Select or create the configuration file for OrthoMCL.[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
 
     LightBox:
         Label:
@@ -529,21 +508,6 @@
             size_hint_x: .8
             markup: True
             text: "[size=18][b]E-value cutoff[/b][/size]\n[size=13](default: AllVsAll.out)Set minimum necessary e-value cutoff to retain USEARCH hits.[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
-
-    Hseparator
-
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Threads[/b][/size]\n[size=13]Set number of parallel threads (cpu's) for USEARCH.[/size]"
             halign: "left"
             valign: "middle"
             text_size: self.size
