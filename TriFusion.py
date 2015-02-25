@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-#
 #
-#
 #  Copyright 2012 Unknown <diogo@arch>
 #
 #  This program is free software; you can redistribute it and/or modify
@@ -2880,7 +2879,7 @@ class TriFusionApp(App):
 
         # Set animations
         fade_in()
-        Clock.schedule_once(fade_out, 3)
+        Clock.schedule_once(fade_out, 5)
 
     def check_partitions_file(self):
         """
