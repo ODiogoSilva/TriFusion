@@ -605,6 +605,9 @@
                 ProcessBt:
                     size_hint_x: .2
                     text: "AllVsAll.out"
+                    id: out_bt
+                    on_release:
+                        app.dialog_text("USEARCH output file", "usearch_out")
 
             Hseparator
 
@@ -1487,9 +1490,6 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             on_release:
-                if root.text == "haplotype": \
-                app.save_text(txt_dlg.text, root.text)
-                if root.text == "usearch_db": \
                 app.save_text(txt_dlg.text, root.text)
                 root.cancel()
         Button:
