@@ -418,16 +418,19 @@
             id: conv
             text: "Select..."
 
-    DarkBox:
-        padding: (-10, 0, 0, 0)
-        Sidebt:
-            id: adv_options
-            size_hint_x: None
-            width: 200
-            text: "Advanced options"
-            bold: True
-            on_release:
-                app.toggle_orto_soptions()
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        AnchorLayout:
+            Button:
+                bold: True
+                id: adv_options
+                text: "Show additional options"
+                size_hint: None, None
+                width: 300
+                height: 40
+                on_release:
+                    app.toggle_orto_soptions()
 
 
 <OrthologySearchGrid@GridLayout>:
@@ -1875,14 +1878,17 @@
                 text: "Select..."
                 on_release: app.dialog_filechooser("main_output")
 
-        BoxLayout:
-            padding: [100,10,100,10]
-            size_hint_y: None
-            height: 60
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        AnchorLayout:
             Button:
                 bold: True
                 id: opt_bt
                 text: "Show additional options"
+                size_hint: None, None
+                width: 300
+                height: 40
                 on_release:
                     app.toggle_process_options()
 
