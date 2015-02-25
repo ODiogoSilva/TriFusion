@@ -566,6 +566,9 @@ class TriFusionApp(App):
     # OrthoMCL output directory
     ortho_dir = ""
 
+    # USEARCH database
+    usearch_db = "goodProteins_db"
+
     # Protein quality filters
     protein_min_len = 10  # Absolute
     protein_max_stop = 20  # Percentage
@@ -3368,13 +3371,19 @@ class TriFusionApp(App):
         self.show_popup(title="Partitions options", content=content,
                    size=(750, 550))
 
-    def dialog_text(self, title=""):
+    def dialog_text(self, title, idx):
         """
         Generates a simple text dialog to capture text input
         """
 
         content = TextDialog(cancel=self.dismiss_popup)
-        content.ids.txt_dlg.text = self.hap_prefix
+        content.text = idx
+
+        if idx == "haplotype":
+            content.ids.txt_dlg.text = self.hap_prefix
+
+        elif idx == "usearch_db":
+            content.ids.txt_dlg.text = self.usearch_db
 
         self.show_popup(title=title, content=content,
                         size=(200, 150))
@@ -3401,14 +3410,21 @@ class TriFusionApp(App):
         self.show_popup(title="ZORRO support", content=content,
                         size=(350, 200))
 
-    def save_hap_prefix(self, text_wgt):
+    def save_text(self, text, idx):
         """
-        Saves the specified string suffix for haplotypes when collapsing
-        :param text_wgt. The widget of the text input to retrieve its text
+        Saves a text input, whose attribute depends on the idx argument
+        :param text: string. The text to be assigned to the attribute
+        :param idx: string. This will determine which attribute will be used
         property
         """
 
-        self.hap_prefix = text_wgt.text
+        if idx == "haplotype":
+            self.hap_prefix = text
+            self.process_options.ids.hapbt.text = text
+
+        elif idx == "usearch_db":
+            self.usearch_db = text
+            self.ortho_search_options.ids.db_bt.text = text
 
     def update_main_operations(self, op):
         """
