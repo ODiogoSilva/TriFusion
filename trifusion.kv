@@ -389,6 +389,50 @@
             text: "Cancel"
             on_release: root.cancel()
 
+<ProteinFilterDialog>:
+    padding: 10
+    spacing: 10
+    orientation: "vertical"
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            size_hint_x: .7
+            text: "Minimum sequence length:"
+        TextInput:
+            size_hint_x: .3
+            id: txt_len
+            text: str(app.protein_min_len)
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            size_hint_x: .7
+            text: "Maximum codon stops (%):"
+        TextInput
+            size_hint_x: .3
+            id: txt_stop
+            text: str(app.protein_max_stop)
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
+                app.save_protein_filters(txt_len.text, txt_stop.text)
+                root.cancel()
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            on_release: root.cancel()
+
 <OrthoSearch_MainGrid@GridLayout>:
     id: gl_orto_search
     cols: 1
@@ -494,9 +538,13 @@
             valign: "middle"
             text_size: self.size
 
-        ProcessBt:
+        BoxLayout:
+            padding: (0, 7.5, 0, 7.5)
             size_hint_x: .2
-            text: "Select..."
+            ProcessBt:
+                text: "Set filters"
+                on_release:
+                    app.dialog_protein_filter()
 
     LightBox:
         Label:
@@ -1737,148 +1785,142 @@
 #===============================================================================
 
 <ProcessGeneral@GridLayout>:
-    size_hint_y: None
-    #height: 45 * len([x for y in [z.children for z in self.children] for x in y])
-    height: (45 * len(self.children[0].children))
+    id: main_grid
     cols: 1
+    size_hint_y: None
+    height: sum([x.size[1] for x in self.children])
     opacity: 0
     __safe_id: [taxa_dropdown.__self__, file_dropdown.__self__]
-    GridLayout:
-        cols: 1
-        padding: 5
-        spacing: 5
-        size_hint_y: None
-        height: 45 * len(self.children)
-        LightBox:
-            Label:
-                markup: True
-                text: "[size=15][b]General[/b][/size]"
-                halign: "left"
-                valign: "middle"
-                color: [.85, .85, .85, 1]
-                text_size: self.size
+    LightBox:
+        Label:
+            markup: True
+            text: "[size=15][b]General[/b][/size]"
+            halign: "left"
+            valign: "middle"
+            color: [.85, .85, .85, 1]
+            text_size: self.size
 
-        DarkBox:
-            Label:
-                size_hint_x: .74
-                markup: True
-                text: "[size=18][b]Data set[/b][/size]\n[size=13]Select the active taxa data set to perform operations[/size]"
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
-            InfoBt:
-                width: 50
-                height: 50
-                height:
-                on_release:
-                    app.dialog_general_info("process_dataset")
+    DarkBox:
+        Label:
+            size_hint_x: .74
+            markup: True
+            text: "[size=18][b]Data set[/b][/size]\n[size=13]Select the active taxa data set to perform operations[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        InfoBt:
+            width: 50
+            height: 50
+            height:
+            on_release:
+                app.dialog_general_info("process_dataset")
 
-            BoxLayout:
-                spacing: 5
-                size_hint_x: .2
+        BoxLayout:
+            spacing: 5
+            size_hint_x: .2
 
-                ProcessBt:
-                    id: active_file_set
-                    text: "All files"
-                    on_release: file_dropdown.open(self)
-
-                ProcessBt:
-                    id: active_taxa_set
-                    text: "All taxa"
-                    on_release: taxa_dropdown.open(self)
-
-                DropDown:
-                    id: taxa_dropdown
-                    auto_width: False
-                    size_hint_x: None
-                    width: 170
-                    on_select: active_taxa_set.text = args[1]
-                    canvas.before:
-                        Color:
-                            rgba: (0,0,0,1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                    Widget:
-                        size_hint_y: None
-                        height: 3
-                    ProcessBt:
-                        background_color: (1,1,1,.3)
-                        text: 'All taxa'
-                        size_hint_y: None
-                        height: 40
-                        on_release: taxa_dropdown.select(self.text)
-                    Widget:
-                        size_hint_y: None
-                        height: 3
-                    ProcessBt:
-                        background_color: (1,1,1,.3)
-                        text: 'Active taxa'
-                        size_hint_y: None
-                        height: 40
-                        on_release: taxa_dropdown.select(self.text)
-
-                DropDown:
-                    id: file_dropdown
-                    auto_width: False
-                    size_hint_x: None
-                    width: 170
-                    on_select: active_file_set.text = args[1]
-                    canvas.before:
-                        Color:
-                            rgba: (0,0,0,1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                    Widget:
-                        size_hint_y: None
-                        height: 3
-                    ProcessBt:
-                        background_color: (1,1,1,.3)
-                        text: 'All files'
-                        size_hint_y: None
-                        height: 40
-                        on_release: file_dropdown.select(self.text)
-                    Widget:
-                        size_hint_y: None
-                        height: 3
-                    ProcessBt:
-                        background_color: (1,1,1,.3)
-                        text: 'Active files'
-                        size_hint_y: None
-                        height: 40
-                        on_release: file_dropdown.select(self.text)
-
-        Hseparator
-
-        DarkBox:
-            Label:
-                size_hint_x: .8
-                markup: True
-                text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
             ProcessBt:
-                id: conv_formatbt
-                text: "Fasta"
-                on_release: app.dialog_format()
-        Hseparator
+                id: active_file_set
+                text: "All files"
+                on_release: file_dropdown.open(self)
 
-        DarkBox:
-            id: dark_l
-            Label:
-                id: output_label
-                size_hint_x: .8
-                markup: True
-                text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
             ProcessBt:
-                id: conv
-                text: "Select..."
-                on_release: app.dialog_filechooser("main_output")
+                id: active_taxa_set
+                text: "All taxa"
+                on_release: taxa_dropdown.open(self)
+
+            DropDown:
+                id: taxa_dropdown
+                auto_width: False
+                size_hint_x: None
+                width: 170
+                on_select: active_taxa_set.text = args[1]
+                canvas.before:
+                    Color:
+                        rgba: (0,0,0,1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Widget:
+                    size_hint_y: None
+                    height: 3
+                ProcessBt:
+                    background_color: (1,1,1,.3)
+                    text: 'All taxa'
+                    size_hint_y: None
+                    height: 40
+                    on_release: taxa_dropdown.select(self.text)
+                Widget:
+                    size_hint_y: None
+                    height: 3
+                ProcessBt:
+                    background_color: (1,1,1,.3)
+                    text: 'Active taxa'
+                    size_hint_y: None
+                    height: 40
+                    on_release: taxa_dropdown.select(self.text)
+
+            DropDown:
+                id: file_dropdown
+                auto_width: False
+                size_hint_x: None
+                width: 170
+                on_select: active_file_set.text = args[1]
+                canvas.before:
+                    Color:
+                        rgba: (0,0,0,1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Widget:
+                    size_hint_y: None
+                    height: 3
+                ProcessBt:
+                    background_color: (1,1,1,.3)
+                    text: 'All files'
+                    size_hint_y: None
+                    height: 40
+                    on_release: file_dropdown.select(self.text)
+                Widget:
+                    size_hint_y: None
+                    height: 3
+                ProcessBt:
+                    background_color: (1,1,1,.3)
+                    text: 'Active files'
+                    size_hint_y: None
+                    height: 40
+                    on_release: file_dropdown.select(self.text)
+
+    Hseparator
+
+    DarkBox:
+        Label:
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        ProcessBt:
+            id: conv_formatbt
+            text: "Fasta"
+            on_release: app.dialog_format()
+    Hseparator
+
+    DarkBox:
+        id: dark_l
+        Label:
+            id: output_label
+            size_hint_x: .8
+            markup: True
+            text: "[size=18][b]Output file[/b][/size]\n[size=13]Save output file to...[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        ProcessBt:
+            id: conv
+            text: "Select..."
+            on_release: app.dialog_filechooser("main_output")
 
     BoxLayout:
         size_hint_y: None
