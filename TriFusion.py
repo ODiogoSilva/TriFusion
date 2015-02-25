@@ -569,6 +569,7 @@ class TriFusionApp(App):
     # USEARCH database
     usearch_db = "goodProteins_db"
     usearch_output = "AllVsAll.out"
+    usearch_evalue = "0.00001"
 
     # Protein quality filters
     protein_min_len = 10  # Absolute
@@ -3389,6 +3390,9 @@ class TriFusionApp(App):
         elif idx == "usearch_out":
             content.ids.txt_dlg.text = self.usearch_output
 
+        elif idx == "evalue":
+            content.ids.txt_dlg.text = self.usearch_evalue
+
         self.show_popup(title=title, content=content,
                         size=(200, 150))
 
@@ -3433,6 +3437,10 @@ class TriFusionApp(App):
         elif idx == "usearch_out":
             self.usearch_output = text
             self.ortho_search_options.ids.out_bt.text = text
+
+        elif idx == "evalue":
+            self.usearch_evalue = text
+            self.ortho_search_options.ids.eval.text = text
 
     def update_main_operations(self, op):
         """

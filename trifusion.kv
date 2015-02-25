@@ -622,7 +622,10 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "0.0001"
+                    text: "0.00001"
+                    id: eval
+                    on_release:
+                        app.dialog_text("E-value cutoff value", "evalue")
 
     TabbedPanelItem:
         id: mcl_tab
