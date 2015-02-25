@@ -579,14 +579,14 @@
                 Label:
                     size_hint_x: .8
                     markup: True
-                    text: "[size=18][b]Database name[/b][/size]\n[size=13]Name of the database against which USEARCH will run (default: gooProteins_db).[/size]"
+                    text: "[size=18][b]Database name[/b][/size]\n[size=13]Name of the database against which USEARCH will run.[/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "Select..."
+                    text: "gooProteins_db"
 
             Hseparator
 
@@ -594,14 +594,14 @@
                 Label:
                     size_hint_x: .8
                     markup: True
-                    text: "[size=18][b]USEARCH output file[/b][/size]\n[size=13]Name of the file containing the search results of USEARCH (default: AllVsAll.out).[/size]"
+                    text: "[size=18][b]USEARCH output file[/b][/size]\n[size=13]Name of the file containing the search results of USEARCH.[/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "Select..."
+                    text: "AllVsAll.out"
 
             Hseparator
 
@@ -616,7 +616,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "Select..."
+                    text: "0.0001"
 
     TabbedPanelItem:
         id: mcl_tab
@@ -649,7 +649,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "Select..."
+                    text: "3"
 
             Hseparator
 
@@ -664,7 +664,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "Select..."
+                    text: "My_group"
 
             Hseparator
 
@@ -680,7 +680,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "Select..."
+                    text: "group"
 
 #===============================================================================
 # PROCESS EXECUTION SUMMARY
