@@ -559,6 +559,9 @@ class TriFusionApp(App):
     # MySQL access
     mysql_pass = ""
 
+    # OrthoMCL output directory
+    ortho_dir = ""
+
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
     alignment_list = None
@@ -2741,19 +2744,18 @@ class TriFusionApp(App):
 
         if idx == "main_output":
             if self.main_operations["concatenation"]:
-                # Ensures that empty file names cannot be specified
-                while file_name != "":
-
-                    # Adds output file to storage
-                    self.output_file = join(path, file_name)
-                    # Renames the output file button text
-                    self.process_grid_wgt.ids.conv.text = file_name
-                    # Breaks loop
-                    break
+                # Adds output file to storage
+                self.output_file = join(path, file_name)
+                # Renames the output file button text
+                self.process_grid_wgt.ids.conv.text = file_name
 
             else:
                 self.output_dir = path
                 self.process_grid_wgt.ids.conv.text = path.split(sep)[-1]
+
+        if idx == "ortho_dir":
+            self.ortho_dir = path
+            self.ortho_search_grid_wgt.ids.orto_dir.text = path.split(sep)[-1]
 
     def save_format(self, value):
         """
@@ -3102,6 +3104,12 @@ class TriFusionApp(App):
 
         if idx == "export":
             title = "Choose file for exportation"
+
+        # Custom behaviour for orthology output directory
+        if idx == "ortho_dir":
+            content.ids.txt_box.clear_widgets()
+            content.ids.txt_box.height = 0
+            title = "Choose destination directory for OrthoMCL output files"
 
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
