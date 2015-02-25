@@ -512,144 +512,175 @@
                     app.toggle_orto_soptions()
 
 
-<OrthologySearchGrid@GridLayout>:
-    cols: 1
-    padding: (5, 5)
-    size_hint_y: None
-    height: sum([(x.size[1] + 5) for x in self.children]) - 20
+<OrthologySearchGrid@TabbedPanel>:
+    do_default_tab: False
+    tab_pos: "top_left"
+    background_color: (0,0,0,0)
     opacity: 0
 
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]Sequence quality control[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
+    TabbedPanelItem:
+        id: main_tab
+        text: "Filtering"
 
-    DarkBox:
-        height: 70
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Filter protein sequences[/b][/size]\n[size=13]Set filters to remove poor quality sequences based on sequence length and stop codon percentage.[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+        GridLayout:
+            id: protein_filter
+            cols: 1
+            padding: 5
+            spacing: 5
 
-        BoxLayout:
-            padding: (0, 7.5, 0, 7.5)
-            size_hint_x: .2
-            ProcessBt:
-                text: "Set filters"
-                on_release:
-                    app.dialog_protein_filter()
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]Sequence quality control[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
 
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]USEARCH options[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
+            DarkBox:
+                height: 70
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Filter protein sequences[/b][/size]\n[size=13]Set filters to remove poor quality sequences based on sequence length and stop codon percentage.[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Database name[/b][/size]\n[size=13]Name of the database against which USEARCH will run (default: gooProteins_db).[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+                BoxLayout:
+                    padding: (0, 7.5, 0, 7.5)
+                    size_hint_x: .2
+                    ProcessBt:
+                        text: "Set filters"
+                        on_release:
+                            app.dialog_protein_filter()
 
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
+    TabbedPanelItem:
+        id: partition_tab
+        text: "USEARCH"
 
-    Hseparator
+        GridLayout:
+            id: usearch_tab
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]USEARCH output file[/b][/size]\n[size=13]Name of the file containing the search results of USEARCH (default: AllVsAll.out).[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]USEARCH options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
 
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Database name[/b][/size]\n[size=13]Name of the database against which USEARCH will run (default: gooProteins_db).[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
 
-    Hseparator
+                ProcessBt:
+                    size_hint_x: .2
+                    text: "Select..."
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]E-value cutoff[/b][/size]\n[size=13](default: AllVsAll.out)Set minimum necessary e-value cutoff to retain USEARCH hits.[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+            Hseparator
 
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]USEARCH output file[/b][/size]\n[size=13]Name of the file containing the search results of USEARCH (default: AllVsAll.out).[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
 
-    LightBox:
-        Label:
-            markup: True
-            text: "[size=15][b]MCL options[/b][/size]"
-            halign: "left"
-            valign: "middle"
-            color: [.85, .85, .85, 1]
-            text_size: self.size
+                ProcessBt:
+                    size_hint_x: .2
+                    text: "Select..."
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Inflation[/b][/size]\n[size=13]Set one or more inflation values for MCL run.[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+            Hseparator
 
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]E-value cutoff[/b][/size]\n[size=13](default: AllVsAll.out)Set minimum necessary e-value cutoff to retain USEARCH hits.[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
 
-    Hseparator
+                ProcessBt:
+                    size_hint_x: .2
+                    text: "Select..."
 
-    DarkBox:
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Ortholog group prefix[/b][/size]\n[size=13]Set a prefix name for the ortholog groups detected by OrthoMCL.[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+    TabbedPanelItem:
+        id: mcl_tab
+        text: "MCL"
 
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
+        GridLayout:
+            id: mcl_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
 
-    Hseparator
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]MCL options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
 
-    DarkBox:
-        height: 70
-        Label:
-            size_hint_x: .8
-            markup: True
-            text: "[size=18][b]Groups file[/b][/size]\n[size=13]Set the name for the final output of OrthoMCL containing the ortholog groups. If more than one inflation values were specified, this name will be used as a prefix[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Inflation[/b][/size]\n[size=13]Set one or more inflation values for MCL run.[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
 
-        ProcessBt:
-            size_hint_x: .2
-            text: "Select..."
+                ProcessBt:
+                    size_hint_x: .2
+                    text: "Select..."
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Ortholog group prefix[/b][/size]\n[size=13]Set a prefix name for the ortholog groups detected by OrthoMCL.[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+
+                ProcessBt:
+                    size_hint_x: .2
+                    text: "Select..."
+
+            Hseparator
+
+            DarkBox:
+                height: 70
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    text: "[size=18][b]Groups file[/b][/size]\n[size=13]Set the name for the final output of OrthoMCL containing the ortholog groups. If more than one inflation values were specified, this name will be used as a prefix[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+
+                ProcessBt:
+                    size_hint_x: .2
+                    text: "Select..."
 
 #===============================================================================
 # PROCESS EXECUTION SUMMARY
