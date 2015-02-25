@@ -257,6 +257,10 @@ class OrthoSearch_MainGrid(GridLayout):
     pass
 
 
+class ProteinFilterDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class MySQLDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -561,6 +565,10 @@ class TriFusionApp(App):
 
     # OrthoMCL output directory
     ortho_dir = ""
+
+    # Protein quality filters
+    protein_min_len = 10  # Absolute
+    protein_max_stop = 20  # Percentage
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
@@ -2670,6 +2678,13 @@ class TriFusionApp(App):
         self.show_popup(title="MySQL root password", content=content,
                         size=(200, 150))
 
+    def dialog_protein_filter(self):
+
+        content = ProteinFilterDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Protein filter settings", content=content,
+                        size=(350, 200))
+
     def save_mysql_pass(self, txt):
         """
         Saves mysql access for database creation and manipulation
@@ -2681,6 +2696,14 @@ class TriFusionApp(App):
             self.ortho_search_grid_wgt.ids.mysql_bt.text = "Password set"
         else:
             self.ortho_search_grid_wgt.ids.mysql_bt.text = "Select..."
+
+    def save_protein_filters(self, min_len, max_stop):
+        """
+        Saves protein lenght and stop percentage filters
+        """
+
+        self.protein_min_len = min_len
+        self.protein_max_stop = max_stop
 
     ########################### PROCESS SCREEN #################################
 
@@ -3472,7 +3495,7 @@ class TriFusionApp(App):
             Animation(opacity=1, d=.5, t="in_quad").start(self.process_options)
 
             # Update the height of the GridLayout to allow scrolling
-            self.process_grid_wgt.height = self.process_height + (70 * len(
+            self.process_grid_wgt.height = self.process_height + (50 * len(
                 self.process_options.ids.filter_grid.children))
 
             # Change text in the toggle button
