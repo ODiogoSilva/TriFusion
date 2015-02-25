@@ -491,6 +491,7 @@
 <OrthoSearch_MainGrid@GridLayout>:
     id: gl_orto_search
     cols: 1
+    padding: (5,5)
     size_hint_y: None
     height: sum([x.size[1] for x in self.children])
     opacity: 0
@@ -531,6 +532,8 @@
             valign: "middle"
             text_size: self.size
         Spinner:
+            background_normal: "data/backgrounds/bt_process.png"
+            bold: True
             values: tuple(str(x) for x in range(1, multiprocessing.cpu_count() + 1))
             size_hint_x: .2
             text: "Select..."
@@ -1891,6 +1894,7 @@
 
 <ProcessGeneral@GridLayout>:
     id: main_grid
+    padding: (5,5)
     cols: 1
     size_hint_y: None
     height: sum([x.size[1] for x in self.children])
