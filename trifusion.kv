@@ -1,5 +1,6 @@
 #:kivy 1.8.0
 #:import sep os.sep
+#:import multiprocessing multiprocessing
 
 <ShowcaseScreen>:
     ScrollView:
@@ -431,6 +432,7 @@
             valign: "middle"
             text_size: self.size
         Spinner:
+            values: tuple(str(x) for x in range(1, multiprocessing.cpu_count() + 1))
             size_hint_x: .2
             text: "Select..."
 
