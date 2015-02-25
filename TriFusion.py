@@ -2610,10 +2610,17 @@ class TriFusionApp(App):
         """
 
         if self.screen.ids.orto_search_bt.state == "down":
+            # Add orthology search main grid
             self.screen.ids.orto_search_sv.add_widget(
                 self.ortho_search_grid_wgt)
-        else:
-            pass
+            # Animate widget entrance
+            Animation(opacity=1, d=.32, t="in_quart").start(
+                self.ortho_search_grid_wgt)
+
+        elif self.screen.ids.orto_proc_bt.state == "down":
+            # Remove orthology search main grid
+            self.screen.ids.orto_search_sv.remove_widget(
+                self.ortho_search_grid_wgt)
 
     def toggle_orto_soptions(self):
         """
@@ -2621,13 +2628,26 @@ class TriFusionApp(App):
         the Orthology screen, Ortholog search slide
         """
 
-        if self.ortho_search_grid_wgt.ids.adv_options.state == "down":
+        if self.ortho_search_grid_wgt.ids.adv_options.text == \
+                "Show additional options":
+            # Add widget to main grid
             self.ortho_search_grid_wgt.add_widget(
                 self.ortho_search_options)
+            # Animate widget entrance
+            Animation(opacity=1, d=.5, t="in_quad").start(
+                self.ortho_search_options)
+            # Update button text
+            self.ortho_search_grid_wgt.ids.adv_options.text = \
+                "Hide additional options"
 
-        else:
+        elif self.ortho_search_grid_wgt.ids.adv_options.text == \
+                "Hide additional options":
+            # Remove widget from main grid
             self.ortho_search_grid_wgt.remove_widget(
                 self.ortho_search_options)
+            # Update button text
+            self.ortho_search_grid_wgt.ids.adv_options.text = \
+                "Show additional options"
 
 
     ########################### PROCESS SCREEN #################################
