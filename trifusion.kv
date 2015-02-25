@@ -587,6 +587,9 @@
                 ProcessBt:
                     size_hint_x: .2
                     text: "gooProteins_db"
+                    id: db_bt
+                    on_release:
+                        app.dialog_text("USEARCH database", "usearch_db")
 
             Hseparator
 
@@ -1470,6 +1473,7 @@
     orientation: "vertical"
     padding: 10
     spacing: 10
+    idx: None
     TextInput:
         id: txt_dlg
     BoxLayout:
@@ -1483,7 +1487,10 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             on_release:
-                app.save_hap_prefix(txt_dlg)
+                if root.text == "haplotype": \
+                app.save_text(txt_dlg.text, root.text)
+                if root.text == "usearch_db": \
+                app.save_text(txt_dlg.text, root.text)
                 root.cancel()
         Button:
             id: cancel_bt
@@ -2142,9 +2149,9 @@
                     size_hint_x: .2
                     id: hapbt
                     disabled: True
-                    text: "Select..."
+                    text: "Hap"
                     on_release:
-                        app.dialog_text("Haplotype prefix")
+                        app.dialog_text("Haplotype prefix", "haplotype")
 
     TabbedPanelItem:
         id: filter_tab
