@@ -62,6 +62,7 @@ from kivy.uix.scrollview import ScrollView
 from process.sequence import AlignmentList
 from process import data
 from data.resources.info_data import informative_storage
+from data.resources.db_tools import *
 
 # Other imports
 import os
@@ -3880,6 +3881,32 @@ class TriFusionApp(App):
                                  set(tx_set)))
 
         return aln_obj
+
+    def orthology_search_exec(self):
+        """
+        Main function that executes all queued procedures of the orthology
+        module
+        """
+
+        # Check for mysql pass
+        if self.mysql_pass == "":
+            return self.dialog_floatcheck("Please provide the access password "
+                                          "to MySQL", t="error")
+
+        # Setup mysql configuration
+        er = sql_setup(self.mysql_pass)
+        if er:
+            return self.dialog_warning("MySQL configuration error", "MySQL "
+                                       "setup exited with the following error:"
+                                       "\n\n%s" % er)
+
+        # Check for output directory
+        if self.output_dir == "":
+            return self.dialog_floatcheck("Please select an output directory",
+                                          t="error")
+
+        # Create orthomcl_config
+        create_orthomcl_cfg(self.output_dir)
 
     def process_exec(self):
         """
