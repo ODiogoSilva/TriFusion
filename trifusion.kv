@@ -1040,7 +1040,33 @@
         spacing: 10
         padding: 10
 
-        FileChooserListView:
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 10
+            Label:
+                padding: (5, 0)
+                canvas.before:
+                    Color:
+                        rgba: .35, .35, .35, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                text: sd_filechooser.path
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Button:
+                bold: True
+                size_hint_x: None
+                width: 120
+                text: "Create folder"
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                on_release:
+                    app.dialog_text("New folder", "new_folder")
+
+        FileChooserL:
             id: sd_filechooser
             text: "master"
             on_selection: text_input.text = self.selection
@@ -1560,6 +1586,9 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             on_release:
+                if root.text == "new_folder": \
+                app.create_folder(txt_dlg.text)
+                else: \
                 app.save_text(txt_dlg.text, root.text)
                 root.cancel()
         Button:

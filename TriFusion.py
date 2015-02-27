@@ -89,6 +89,36 @@ class ShowcaseScreen(Screen):
         return super(ShowcaseScreen, self).add_widget(*args)
 
 
+class FileChooserL(FileChooserListView):
+
+    def __init__(self, **kwargs):
+        super(FileChooserL, self).__init__(**kwargs)
+
+    def open_entry(self, entry):
+        """
+        Modification of the open entry method so that when the entry.path is
+        "../", the path is updated to the parent directory, instead of
+        appending the entry.path
+        """
+        try:
+            # Just check if we can list the directory. This is also what
+            # _add_file does, so if it fails here, it would also fail later
+            # on. Do the check here to prevent setting path to an invalid
+            # directory that we cannot list.
+            self.file_system.listdir(entry.path)
+        except OSError:
+            entry.locked = True
+        else:
+            # If entry.path is to jump to previous directory, update path with
+            # parent directory
+            if entry.path == "../":
+                self.path = abspath(join(self.path, pardir))
+                self.selection = []
+            else:
+                self.path = join(self.path, entry.path)
+                self.selection = []
+
+
 class FileChooserM(FileChooserIconView):
 
     shift = False
@@ -1179,6 +1209,19 @@ class TriFusionApp(App):
             txt.bind(on_text_validate=path_updater)
             self.screen.ids.path_bx.add_widget(txt)
             self.screen.ids.path_bx.children[0].focus = True
+
+    def create_folder(self, text):
+
+        path = self._popup.content.ids.sd_filechooser.path
+        dir_name = join(path, text)
+
+        if os.path.exists(dir_name):
+            return self.dialog_floatcheck("The specified folder already exists",
+                                          t="error")
+        else:
+            os.makedirs(dir_name)
+            self._popup.content.ids.sd_filechooser.path = dir_name
+            self.dismiss_subpopup()
 
     ########################## SCREEN NAVIGATION ###############################
 
@@ -3418,7 +3461,10 @@ class TriFusionApp(App):
         Generates a simple text dialog to capture text input
         """
 
-        content = TextDialog(cancel=self.dismiss_popup)
+        if idx == "new_folder":
+            content = TextDialog(cancel=self.dismiss_subpopup)
+        else:
+            content = TextDialog(cancel=self.dismiss_popup)
         content.text = idx
 
         if idx == "haplotype":
@@ -3439,8 +3485,13 @@ class TriFusionApp(App):
         elif idx == "groups":
             content.ids.txt_dlg.text = self.group_prefix
 
-        self.show_popup(title=title, content=content,
-                        size=(200, 150))
+        if idx == "new_folder":
+            self._subpopup = Popup(title=title, content=content,
+                                   size=(200, 150), size_hint=(None, None))
+            self._subpopup.open()
+        else:
+            self.show_popup(title=title, content=content,
+                            size=(200, 150))
 
     def dialog_warning(self, msg1, msg2):
 
