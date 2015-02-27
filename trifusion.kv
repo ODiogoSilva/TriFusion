@@ -332,20 +332,23 @@
 <WarningDialog@BoxLayout>:
     padding: 10
     orientation: "vertical"
-    BoxLayout:
-        padding: 10
-        Label:
-            id: warning_l
-            halign: "center"
-            valign: "middle"
-            text_size: self.size
-            markup: True
-            canvas.before:
-                Color:
-                    rgba: (.2, .2, .2, 1)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+    ScrollView:
+        GridLayout:
+            cols: 1
+            padding: 10
+            size_hint_y: None
+            height: warning_l.texture_size[1] * 1.1
+
+            Label:
+                id: warning_l
+                halign: "center"
+                valign: "middle"
+                size_hint: (1, None)
+                text_size: self.width, None
+                size: self.parent.width, self.texture_size[1]
+                markup: True
+
+
     BoxLayout:
         size_hint_y: None
         height: 30
