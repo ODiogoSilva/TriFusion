@@ -165,6 +165,38 @@
     height: 30
     spacing: 10
 
+<ProteomePopup@BoxLayout>
+    orientation: "vertical"
+    padding: 10
+    spacing: 5
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 10
+        PopupBox:
+            PopupLabel:
+                text: "Number of sequences:"
+            PopupText:
+                id: n_seq
+        PopupBox:
+            PopupLabel:
+                text: "Sequence size:"
+            PopupText:
+                id: n_res
+
+        Widget
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        padding: (100, 0, 100, 0)
+        Button:
+            id: close_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            bold: True
+            text: "Close"
+            on_release:
+                root.cancel()
+
 <FilePopup@BoxLayout>
     orientation: "vertical"
     padding: 10

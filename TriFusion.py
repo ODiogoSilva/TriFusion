@@ -365,6 +365,10 @@ class ExecutionDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class ProteomePopup(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class FilePopup(BoxLayout):
     """
     Class with a custom BoxLayout controlling the informative popup for the
@@ -618,6 +622,7 @@ class TriFusionApp(App):
 
     # Attribute containing the path to the proteome files
     proteome_files = []
+    active_proteome_files = []
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
@@ -1682,14 +1687,13 @@ class TriFusionApp(App):
         for f in selection:
             b = Base()
             er = b.autofinder(f)
-            f = f.split(sep)[-1]
-            print(er)
+            f_short = f.split(sep)[-1]
             if isinstance(er, Exception):
-                bad_proteomes["invalid"].append(f)
+                bad_proteomes["invalid"].append(f_short)
             elif er[0] != "fasta":
-                bad_proteomes["no_fasta"].append(f)
+                bad_proteomes["no_fasta"].append(f_short)
             elif er[1][0] != "Protein":
-                bad_proteomes["no_protein"].append(f)
+                bad_proteomes["no_protein"].append(f_short)
             else:
                 good_proteomes.append(f)
 
@@ -1698,15 +1702,26 @@ class TriFusionApp(App):
             for f in good_proteomes:
                 if f not in self.proteome_files:
                     self.proteome_files.append(f)
+                    self.active_proteome_files.append(f)
 
         # If there are no proteome files loaded
         else:
             self.proteome_files = good_proteomes
+            self.active_proteome_files = deepcopy(self.proteome_files)
 
         # Issue float dialog informing that files have been loaded
         if good_proteomes:
             self.dialog_floatcheck("%s file(s) successfully loaded" %
                                    len(good_proteomes), t="info")
+
+            # Update the filename - path mapping attribute
+            self.filename_map = dict(list(self.filename_map.items()) +
+                list((x, y) for x, y in zip([x.split(sep)[-1] for x in
+                good_proteomes], good_proteomes)))
+
+            # Populate file buttons in side panel
+            self.original_file_inf = self.get_file_information(mode="proteome")
+            self.populate_input_files(mode="proteome")
 
         if list(bad_proteomes.values()) != [[], [], []]:
             msg = ""
@@ -1749,20 +1764,31 @@ class TriFusionApp(App):
 
         self.active_taxa_list = self.active_alignment_list.taxa_names
 
-    def update_file_label(self):
+    def update_file_label(self, mode="alignment"):
         """
         Sets and updates a label on the Files tab of the side panel, informing
         how many files are selected out of the total files
-        :return:
+
+        :param mode: string. Determines which list will be used to populate.
+        If alignment, it will use file_list; If proteome, it will use
+        proteome_list
         """
 
+        # Determine which list is used to populate
+        if mode == "alignment":
+            lst = self.file_list
+            active_lst = self.active_file_list
+        else:
+            lst = self.proteome_files
+            active_lst = self.active_proteome_files
+
         self.root.ids.file_lab.text = "%s of %s files selected" % (
-                                       len(self.active_file_list),
-                                       len(self.file_list))
+                                       len(lst),
+                                       len(active_lst))
 
         # Check if there are 0 out of 0 files. In this case, disabled the
         # select/unselect all buttons
-        if len(self.active_file_list) == 0 and len(self.file_list) == 0:
+        if len(active_lst) == 0 and len(lst) == 0:
             # Core changes
             self.sequence_types = []
 
@@ -1809,12 +1835,22 @@ class TriFusionApp(App):
             self.root.ids.taxa_opt.disabled = False
             self.root.ids.rm_all_taxa.disabled = False
 
-    def populate_input_files(self):
+    def populate_input_files(self, mode="alignment"):
         """
         This method grabs the input files that were selected in the
         FileChooser widget and populates the File tab in the main side panel
         with toggle and remove buttons for each file
+
+        :param mode: string. Determines which list will be used to populate.
+        If alignment, it will use file_list; If proteome, it will use
+        proteome_list
         """
+
+        # Determine which list is used to populate
+        if mode == "alignment":
+            lst = self.file_list
+        else:
+            lst = self.proteome_files
 
         # Remove the initial disabled button, if it's still there
         if "file_temp" in self.root.ids.keys():
@@ -1823,7 +1859,7 @@ class TriFusionApp(App):
             self.root.ids.file_sl.height = 5
 
         # Enable selection  and more options buttons if file list is not empty
-        if self.file_list:
+        if lst:
             for i in self.root.ids.sb_file.children:
                 i.disabled = False
                 i.bind(on_release=self.select_bt)
@@ -1831,9 +1867,9 @@ class TriFusionApp(App):
 
         # Add a label at the end of the file list informing how many files are
         # currently selected out of the total files
-        self.update_file_label()
+        self.update_file_label(mode=mode)
 
-        for infile in self.file_list:
+        for infile in lst:
 
             file_name = infile.split("/")[-1]
             # This prevents duplicate files from being added
@@ -2029,6 +2065,7 @@ class TriFusionApp(App):
 
             # Get file name
             file_name = value.id[:-1]
+            print()
 
             if self.filename_map[file_name] in self.active_file_list:
 
@@ -2052,6 +2089,18 @@ class TriFusionApp(App):
 
                 self.show_popup(title="File: %s" % value.id[:-1],
                                 content=content, size=(400, 320))
+
+            if self.filename_map[file_name] in self.active_proteome_files:
+
+                content = ProteomePopup(cancel=self.dismiss_popup)
+
+                content.ids.n_seq.text = "%s" % \
+                                self.original_file_inf[file_name]["n_seq"]
+                content.ids.n_res.text = "%s" % \
+                                self.original_file_inf[file_name]["n_res"]
+
+                self.show_popup(title="File %s" % value.id[:-1],
+                                content=content, size=(400, 200))
 
     def export_names(self, path, file_name):
         """
@@ -3863,64 +3912,100 @@ class TriFusionApp(App):
 
         return tx_inf
 
-    def get_file_information(self):
+    def get_file_information(self, mode="alignment"):
         """
         Similar to get_taxa_information, but generating information for the
         files in the file tab.
+        :param mode: string. The type of file information to retrieve. May be
+        'alignment' or 'proteome'
 
         :return: file_inf (dictionary). Contains all relevant content for the
         file popup. It contains the following keys:
 
-            - aln_format: The format of the input file
-            - seq_type: The sequence type. If DNA, RNA, Protein.
-            - n_taxa: Number of taxa
-            - aln_len: Length of the alignment
-            - is_aln: If the input file is in alignment format of non-aligned
-            sequence set format
-            - model: The model of sequence evolution, if applicable. This is
-            usually only present on Nexus input format
+            ..:mode: alignment:
+                - aln_format: The format of the input file
+                - seq_type: The sequence type. If DNA, RNA, Protein.
+                - n_taxa: Number of taxa
+                - aln_len: Length of the alignment
+                - is_aln: If the input file is in alignment format of
+                non-aligned sequence set format
+                - model: The model of sequence evolution, if applicable. This is
+                usually only present on Nexus input format
+            ..mode: proteome:
+                - n_seq: Number of sequences
+                - n_res: Number of residues
         """
 
         # main storage
         file_inf = {}
 
-        # Iterating over file path since the name of the Alignment
-        # objects contain the full path
+        if mode == "alignment":
+            # Iterating over file path since the name of the Alignment
+            # objects contain the full path
+            if self.alignment_list:
+                for infile in self.file_list:
+                    file_name = infile.split(sep)[-1]
+                    file_inf[file_name] = {}
 
-        if self.alignment_list:
-            for infile in self.file_list:
-                file_name = infile.split(sep)[-1]
-                file_inf[file_name] = {}
+                    # Get alignment object
+                    aln = self.alignment_list.retrieve_alignment(infile)
 
-                # Get alignment object
-                aln = self.alignment_list.retrieve_alignment(infile)
+                    # Get input format
+                    file_inf[file_name]["aln_format"] = aln.input_format
 
-                # Get input format
-                file_inf[file_name]["aln_format"] = aln.input_format
+                    # Get sequence type
+                    file_inf[file_name]["seq_type"] = aln.sequence_code[0]
 
-                # Get sequence type
-                file_inf[file_name]["seq_type"] = aln.sequence_code[0]
+                    # Get sequence model
+                    # if aln.model:
+                    #     file_inf[file_name]["model"] = " ".join(aln.model)
+                    # else:
+                    #     file_inf[file_name]["model"] = "NA"
 
-                # Get sequence model
-                # if aln.model:
-                #     file_inf[file_name]["model"] = " ".join(aln.model)
-                # else:
-                #     file_inf[file_name]["model"] = "NA"
+                    # Get number of species
+                    file_inf[file_name]["n_taxa"] = len([x for x in
+                        aln.iter_taxa() if x in self.active_taxa_list])
 
-                # Get number of species
-                file_inf[file_name]["n_taxa"] = len([x for x in aln.iter_taxa()
-                                                if x in self.active_taxa_list])
+                    # Get if is alignment
+                    file_inf[file_name]["is_aln"] = str(aln.is_alignment)
+                    # if aln.model:
+                    #     file_inf[file_name]["is_aln"] += " (Concatenated)"
 
-                # Get if is alignment
-                file_inf[file_name]["is_aln"] = str(aln.is_alignment)
-                # if aln.model:
-                #     file_inf[file_name]["is_aln"] += " (Concatenated)"
+                    # Get length of largest sequence if not aligned, or alignment
+                    # length
+                    file_inf[file_name]["aln_len"] = aln.locus_length
 
-                # Get length of largest sequence if not aligned, or alignment
-                # length
-                file_inf[file_name]["aln_len"] = aln.locus_length
+        elif mode == "proteome":
+            for p in self.proteome_files:
+                p_name = p.split(sep)[-1]
+                file_inf[p_name] = {}
+                n_seq, n_res = self.get_proteome_information(p)
+
+                file_inf[p_name]["n_seq"] = n_seq
+                file_inf[p_name]["n_res"] = n_res
 
         return file_inf
+
+    def get_proteome_information(self, proteome_file):
+        """
+        Returns informative stats for a given proteome_file
+        :param proteome_file: string. Path to proteome file
+        """
+
+        file_handle = open(proteome_file)
+
+        n_seq = 0
+        n_res = 0
+
+        for line in file_handle:
+            if line.startswith(">"):
+                n_seq += 1
+            else:
+                n_res += len(line.strip())
+
+        file_handle.close()
+
+        return n_seq, n_res
 
     def update_process_switch(self, switch_id, state):
         """
