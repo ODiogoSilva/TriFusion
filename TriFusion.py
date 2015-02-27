@@ -60,6 +60,7 @@ from kivy.uix.scrollview import ScrollView
 
 # Main program imports
 from process.sequence import AlignmentList
+from process.base import Base
 from process import data
 from data.resources.info_data import informative_storage
 from data.resources.db_tools import *
@@ -614,6 +615,9 @@ class TriFusionApp(App):
     # Protein quality filters
     protein_min_len = 10  # Absolute
     protein_max_stop = 20  # Percentage
+
+    # Attribute containing the path to the proteome files
+    proteome_files = []
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
@@ -1662,6 +1666,61 @@ class TriFusionApp(App):
                 # Issue float check
                 self.dialog_floatcheck("%s file(s) successfully loaded" %
                                        len(selection), t="info")
+
+    def load_proteomes(self, selection):
+        """
+        Similar to load method, but specific for loading proteome files. Given
+        the potential size of these files, they are not stored in memory, but
+        instead are processed on the fly
+        """
+
+        # Stores invalid proteome files
+        bad_proteomes = {"invalid": [], "no_fasta": [], "no_protein": []}
+        good_proteomes = []
+
+        # Check input proteomes
+        for f in selection:
+            b = Base()
+            er = b.autofinder(f)
+            f = f.split(sep)[-1]
+            print(er)
+            if isinstance(er, Exception):
+                bad_proteomes["invalid"].append(f)
+            elif er[0] != "fasta":
+                bad_proteomes["no_fasta"].append(f)
+            elif er[1][0] != "Protein":
+                bad_proteomes["no_protein"].append(f)
+            else:
+                good_proteomes.append(f)
+
+        # If there are proteome files already loaded, extend
+        if self.proteome_files:
+            for f in good_proteomes:
+                if f not in self.proteome_files:
+                    self.proteome_files.append(f)
+
+        # If there are no proteome files loaded
+        else:
+            self.proteome_files = good_proteomes
+
+        # Issue float dialog informing that files have been loaded
+        if good_proteomes:
+            self.dialog_floatcheck("%s file(s) successfully loaded" %
+                                   len(good_proteomes), t="info")
+
+        if list(bad_proteomes.values()) != [[], [], []]:
+            msg = ""
+            if bad_proteomes["invalid"]:
+                msg += "The following files are in invalid format:\n%s\n\n" % \
+                        ", ".join(bad_proteomes["invalid"])
+            if bad_proteomes["no_fasta"]:
+                msg += "The following files are not in FASTA format:\n%s\n\n" \
+                        % ", ".join(bad_proteomes["no_fasta"])
+            if bad_proteomes["no_protein"]:
+                msg += "The following files do not contain protein sequences:" \
+                       "\n%s\n\n" % ", ".join(bad_proteomes["no_protein"])
+
+            return self.dialog_warning("Invalid proteome files detected", msg)
 
     def update_tabs(self):
         """
