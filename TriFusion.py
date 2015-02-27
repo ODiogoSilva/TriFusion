@@ -4101,7 +4101,7 @@ class TriFusionApp(App):
                                           t="error")
 
         # Create orthomcl_config
-        create_orthomcl_cfg(self.output_dir)
+        create_orthomcl_cfg(self.ortho_dir)
 
     def process_exec(self):
         """
