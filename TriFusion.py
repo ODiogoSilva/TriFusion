@@ -4096,7 +4096,7 @@ class TriFusionApp(App):
                                        "\n\n%s" % er)
 
         # Check for output directory
-        if self.output_dir == "":
+        if self.ortho_dir == "":
             return self.dialog_floatcheck("Please select an output directory",
                                           t="error")
 
