@@ -32,9 +32,7 @@ sequences and then tries to match them to the original protein sequences.
 """
 
 from process.sequence import Alignment
-from process.base import Base
-import os
-import pickle
+import subprocess
 
 dna_map = {
     'ATA': 'I', 'ATC': 'I', 'ATT': 'I', 'ATG': 'M',
@@ -88,32 +86,100 @@ def translate(sequence):
 
 def create_db(f_list):
     """
-    This function is meant to be used with DNA fasta files. It creates a
-    dictionary database with the protein sequence as a key and the original DNA
-    sequence as value
-    :param f_list: list, containing the file names of DNA/CDS/Transcript files
-    :return: dictionary. Translated protein as key, original DNA as value
+    Creates a fasta database file containing the translated protein sequences
+    from the transcript files. The final transcripts.fas file will be use
+    by USEARCH to get matches between the original protein sequences and their
+    nucleotide counterparts. A dictionary database will also be created where
+    the transcript headers will be associated with the original DNA sequence,
+    so that they will be later retrieved
+    :param f_list. List, containing the file names of the transcript files
     """
 
-    dna_db = {}
-    id_db = {}
+    output_handle = open("transcripts.fas", "w")
+    id_dic = {}
 
     for f in f_list:
-        print("\rCreating database (Processing file %s)" % f, end="")
-        aln = Alignment(f)
-        for header, nucl_seq in aln.alignment.items():
+        print("\rCreating database (Processing file %s)" %
+              str(f_list.index(f) + 1), end="")
+        handle = open(f, encoding="latin1")
+        seq = ""
+        for line in handle:
+            if line.startswith(">"):
+                if seq != "":
+                    aa_seq = translate(seq)
+                    output_handle.write(">%s\n%s\n" % (header, aa_seq))
+                    id_dic[header] = seq
+                header = line.strip()[1:].replace(" ", "€")
+                seq = ""
+            else:
+                seq += line.strip()
 
-            protein_seq = translate(nucl_seq)
-            dna_db[protein_seq] = [nucl_seq, header]
-            id_db[header] = nucl_seq
+    output_handle.close()
 
-    #pickle.dump(dna_db, open("dna_db.key", "wb"))
-    pickle.dump(id_db, open("dna_db.key", "wb"))
-
-    return dna_db, id_db
+    return id_dic
 
 
-def convert_protein_file(p_file, db, id_db, db_files, outfile_suffix="_dna"):
+def create_query(input_list):
+    """
+    To speed things up, all sequences in the input protein files will be
+    concatenated into a single file, which will be used as query in USEARCH.
+    :param input_list: List, with file names of the protein files to convert
+    """
+
+    f_handle = open("query.fas", "w")
+    query_db = {}
+
+    for f in input_list:
+
+        print("\rCreating query (Processing file %s)" % input_list.index(f),
+              end="")
+        query_db[f] = []
+        handle = open(f)
+        for line in handle:
+            if line.startswith(">"):
+                query_db[f].append(line.strip()[1:].replace(" ", "€"))
+                f_handle.write(line.replace(" ", "€"))
+            else:
+                f_handle.write(line)
+
+        handle.close()
+
+    f_handle.close()
+
+    return query_db
+
+
+def pair_search():
+    """
+    This will use USEARCH to search for translated transcript sequences
+    identical to the original protein files
+    """
+
+    print("\rRunning USEARCH", end="")
+    subprocess.Popen(["usearch -usearch_global query.fas -db transcripts.fas "
+                      "-id 1 -maxaccepts .9 -blast6out pairs.out"],
+                     shell=True).wait()
+
+
+def get_pairs():
+    """
+    Parses the output of USEARCH and creates a dictionary with the header
+    pairs between original protein and transcripts
+    """
+
+    print("\rParsing USEARCH output", end="")
+    file_h = open("pairs.out")
+    pair_db = {}
+
+    for l in file_h:
+        fields = l.split("\t")
+        pair_db[fields[0]] = fields[1]
+
+    file_h.close()
+    return pair_db
+
+
+def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
     """
     A given protein file will be converted into their corresponding nucleotide
     sequences using a previously set database using the create_db function
@@ -127,28 +193,19 @@ def convert_protein_file(p_file, db, id_db, db_files, outfile_suffix="_dna"):
 
     bad = 0
 
-    for p in p_file:
-        aln = Alignment(p)
-        output_handle = open(p.split(".")[0] + outfile_suffix + ".fa", "w")
+    for infile, vals in query_db.items():
 
-        for key, seq in aln.alignment.items():
-            seq = seq.upper().replace("X", "")
-            if seq in db:
-                output_handle.write(">%s\n%s\n" % (key, db[seq][0]))
+        f_handle = open(infile.split(".")[0] + outfile_suffix, "w")
+
+        for i in vals:
+            if i in pairs:
+                seq = id_db[pairs[i]]
+                f_handle.write(">%s\n%s\n" % (i.replace("€", " "), seq))
             else:
-                unique_id = key.split("|")[-1].split()[0]
-                res = os.popen("grep %s %s" % (unique_id, " ".join(db_files)))
-                try:
-                    s = res.read()
-                    header = s.split(":")[1].split("\n")[0].strip()[1:]
-                    bs = Base()
-                    header = bs.rm_illegal(header)
-                    output_handle.write(">%s\n%s\n" % (key, id_db[header]))
-                except IndexError:
-                    bad += 1
-                except UnicodeError:
-                    bad += 1
+                bad += 1
     else:
-        print("%s sequences not retrieved" % bad)
+        print("\r%s sequences could not be retrieved" % bad, end="")
+        subprocess.Popen(["rm pairs.out query.fas transcripts.fas"],
+                         shell=True).wait()
 
 __author__ = 'diogo'
