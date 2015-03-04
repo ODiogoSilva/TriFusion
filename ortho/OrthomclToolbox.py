@@ -23,6 +23,8 @@
 #  Version: 0.1
 #  Last update: 11/02/14
 
+from process.sequence import Alignment
+
 from collections import OrderedDict
 import subprocess
 
@@ -240,7 +242,26 @@ class Group ():
 
         self.groups = updated_group
 
-    def retrieve_fasta(self, database, ):
+    def retrieve_fasta(self, database):
+        """
+        When provided with a database in Fasta format, this will use the
+        Alignment object to retrieve sequences
+        :param database: String. Fasta file
+        """
+
+        subprocess.Popen(["mkdir Retrieved_sequences"], shell=True).wait()
+
+        db_aln = Alignment(database)
+
+        for cluster in self.groups:
+            output_handle = open(cluster.name, "w")
+            for sequence_id in cluster.sequences:
+                seq = db_aln.alignment[sequence_id]
+                output_handle.write(">%s\n%s\n" % (sequence_id, seq))
+            else:
+                output_handle.close()
+
+    def retrieve_fasta_blast(self, database):
         """ When provided with the BLAST database used in the OrthoMCL
         analysis, this will retrieve the fasta sequences from each cluster
         and save them in an individual fasta file """
