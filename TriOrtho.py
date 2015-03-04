@@ -74,9 +74,14 @@ def main():
 
     if arg.convert:
         # Create database
-        db, id_db = protein2dna.create_db(arg.convert)
+        id_db = protein2dna.create_db(arg.convert)
+        # Create query for USEARCH
+        query_db = protein2dna.create_query(groups_file)
+        # Execute search
+        protein2dna.pair_search()
+        pair_db = protein2dna.get_pairs()
         # Convert files
-        protein2dna.convert_protein_file(groups_file, db, id_db, arg.convert)
+        protein2dna.convert_protein_file(pair_db, query_db, id_db)
         return 0
 
     gene_threshold = int(arg.gene_threshold[0])
