@@ -217,7 +217,7 @@ class Alignment (Base):
         # Dictionary
         self.alignment = OrderedDict()
 
-        file_handle = open(input_alignment)
+        file_handle = open(input_alignment, encoding="latin1")
 
         #=======================================================================
         # PARSING PHYLIP FORMAT
@@ -251,7 +251,7 @@ class Alignment (Base):
         elif alignment_format == "fasta":
             for line in file_handle:
                 if line.strip().startswith(">"):
-                    taxa = line[1:].strip().replace(" ", "_")
+                    taxa = line[1:].strip()
                     taxa = self.rm_illegal(taxa)
                     self.alignment[taxa] = ""
                 elif line.strip() != "" and taxa is not None:
