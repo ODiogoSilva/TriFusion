@@ -26,6 +26,7 @@
 
 import argparse
 from ortho import OrthomclToolbox as OT
+from ortho import protein2dna
 
 parser = argparse.ArgumentParser(description="Toolbox to analyse and filter "
                                  "OrthoMCL group files")
@@ -56,6 +57,10 @@ parser.add_argument("-p", dest="pipeline", nargs="*", choices=["1"],
 parser.add_argument("-compare", dest="compare", action="store_const",
                     const=True, help="Use this option to "
                     "compare the overlap of orthologs between two group files")
+parser.add_argument("-convert", dest="convert", nargs="*", help="Convert "
+                    "unaligned protein  sequence files into their corresponding"
+                    " nucleotide sequences. Provide the DNA databases with "
+                    "this option")
 
 arg = parser.parse_args()
 
@@ -66,10 +71,18 @@ def main():
 
     # Arguments
     groups_file = arg.infile
+
+    if arg.convert:
+        # Create database
+        db, id_db = protein2dna.create_db(arg.convert)
+        # Convert files
+        protein2dna.convert_protein_file(groups_file, db, id_db, arg.convert)
+        return 0
+
     gene_threshold = int(arg.gene_threshold[0])
     species_threshold = int(arg.species_threshold[0])
     pipeline_mode = arg.pipeline
-    blast_database = arg.groups2fasta
+    database = arg.groups2fasta
 
     if len(groups_file) == 1:
 
@@ -80,7 +93,7 @@ def main():
 
             if "1" in pipeline_mode:
                 group_object.update_filtered_group()
-                group_object.retrieve_fasta(blast_database)
+                group_object.retrieve_fasta(database)
 
         else:
 
@@ -93,8 +106,8 @@ def main():
                 if "2" in arg.stats:
                     group_object.export_filtered_group()
 
-            if blast_database:
-                group_object.retrieve_fasta(blast_database)
+            if database:
+                group_object.retrieve_fasta(database)
 
     else:
         multiple_groups_object = OT.MultiGroups(groups_file, gene_threshold,
