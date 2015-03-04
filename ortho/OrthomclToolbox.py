@@ -27,6 +27,7 @@ from process.sequence import Alignment
 
 from collections import OrderedDict
 import subprocess
+from os.path import join
 
 
 class Cluster():
@@ -254,7 +255,7 @@ class Group ():
         db_aln = Alignment(database)
 
         for cluster in self.groups:
-            output_handle = open(cluster.name, "w")
+            output_handle = open(join("Retrieved_sequences", cluster.name), "w")
             for sequence_id in cluster.sequences:
                 seq = db_aln.alignment[sequence_id]
                 output_handle.write(">%s\n%s\n" % (sequence_id, seq))
