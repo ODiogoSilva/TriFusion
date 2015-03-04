@@ -159,6 +159,12 @@ class Alignment (Base):
             #The input format of the alignment (str)
             self.input_format = input_format
 
+    def __iter__(self):
+        """
+        Iterate over Alignment objects
+        """
+        return iter(self.alignment.items())
+
     def _set_format(self, input_format):
         """
         Manually sets the input format associated with the Alignment object
