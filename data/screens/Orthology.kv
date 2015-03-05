@@ -3,14 +3,13 @@ ShowcaseScreen:
 
     BoxLayout:
         orientation: "vertical"
-        cols: 1
 
         AnchorLayout:
             anchor_y: "center"
             anchor_x: "center"
             size_hint_y: None
-            height: 40
-            padding: 5
+            height: 50
+            padding: 10
             BoxLayout:
                 size_hint_x: None
                 spacing: 5
@@ -25,7 +24,6 @@ ShowcaseScreen:
                     group: "orto"
                     state: "down" if orto_car.current_slide == orto_car.slides[2] else "normal"
 
-
         Carousel:
             direction: "right"
             id: orto_car
@@ -34,7 +32,7 @@ ShowcaseScreen:
                 orientation: "vertical"
                 BoxLayout:
                     size_hint_y: None
-                    height: 45
+                    height: 40
                     padding: (5, 0, 5, 0)
                     LightBox:
                         padding: 0
@@ -61,7 +59,6 @@ ShowcaseScreen:
                             Button:
                                 text: "Next"
                                 on_release: orto_car.load_slide(orto_car.slides[1])
-
 
                 ScrollView:
                     id: orto_search_sv
@@ -130,7 +127,7 @@ ShowcaseScreen:
                             AnchorLayout:
                                 Button:
                                     bold: True
-                                    id: adv_options
+                                    id: adv_search_options
                                     text: "Show additional options"
                                     size_hint: None, None
                                     width: 300
@@ -143,7 +140,7 @@ ShowcaseScreen:
 
                 BoxLayout:
                     size_hint_y: None
-                    height: 45
+                    height: 40
                     padding: (5, 0, 5, 0)
                     LightBox:
                         padding: 0
@@ -183,7 +180,7 @@ ShowcaseScreen:
 
                 BoxLayout:
                     size_hint_y: None
-                    height: 45
+                    height: 40
                     padding: (5, 0, 5, 0)
                     LightBox:
                         padding: 0
@@ -214,28 +211,4 @@ ShowcaseScreen:
 
 
                 ScrollView:
-                    id: orto_process_sv
-
-
-        BoxLayout:
-            size_hint_y: None
-            height: 60
-            padding: 10
-            spacing: 10
-            canvas.before:
-                Color:
-                    rgba: (.3,.3,.3,.3)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-            ExecutionBt:
-                text: "Search orthologs!"
-                bold: True
-                font_size: 18
-                on_release:
-                    app.orthology_search_exec()
-            ExecutionBt:
-                text: "Clear Options"
-                bold: True
-                font_size: 18
+                    id: orto_transform_sv
