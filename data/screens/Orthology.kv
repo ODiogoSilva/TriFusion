@@ -4,30 +4,218 @@ ShowcaseScreen:
     BoxLayout:
         orientation: "vertical"
         cols: 1
-        BoxLayout:
+
+        AnchorLayout:
+            anchor_y: "center"
+            anchor_x: "center"
             size_hint_y: None
-            height: 65
+            height: 40
             padding: 5
             BoxLayout:
-                spacing: 10
-                orientation: "horizontal"
-                Sidebt:
-                    id: orto_search_bt
-                    text: "Search for orthologs"
-                    group: "orthology_panel"
-                    on_release:
-                        app.toggle_orto_main()
-                        app.toggle_groups(self)
-                Sidebt:
-                    id: orto_proc_bt
-                    text: "Process raw orthologs"
-                    group: "orthology_panel"
-                    on_press:
-                        app.toggle_orto_main()
-                        app.toggle_groups(self)
+                size_hint_x: None
+                spacing: 5
+                width: 135
+                ToggleButton:
+                    group: "orto"
+                    state: "down" if orto_car.current_slide == orto_car.slides[0] else "normal"
+                ToggleButton:
+                    group: "orto"
+                    state: "down" if orto_car.current_slide == orto_car.slides[1] else "normal"
+                ToggleButton:
+                    group: "orto"
+                    state: "down" if orto_car.current_slide == orto_car.slides[2] else "normal"
 
-        ScrollView:
-            id: orto_search_sv
+
+        Carousel:
+            direction: "right"
+            id: orto_car
+
+            BoxLayout:
+                orientation: "vertical"
+                BoxLayout:
+                    size_hint_y: None
+                    height: 45
+                    padding: (5, 0, 5, 0)
+                    LightBox:
+                        padding: 0
+                        AnchorLayout:
+                            anchor_x: "left"
+                            anchor_y: "center"
+                            size_hint_x: None
+                            width: 100
+                            padding: 5
+
+                        Label:
+                            text: "Step 1. Ortholog search"
+                            bold: True
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            size_hint_x: .8
+                        AnchorLayout:
+                            anchor_x: "right"
+                            anchor_y: "center"
+                            size_hint_x: None
+                            width: 100
+                            padding: 5
+                            Button:
+                                text: "Next"
+                                on_release: orto_car.load_slide(orto_car.slides[1])
+
+
+                ScrollView:
+                    id: orto_search_sv
+
+                    GridLayout:
+                        id: gl_orto_search
+                        cols: 1
+                        padding: (5,5)
+                        size_hint_y: None
+                        height: sum([x.size[1] for x in self.children])
+
+                        DarkBox:
+                            Label:
+                                size_hint_x: .8
+                                markup: True
+                                text: "[size=18][b]MySQL settings[/b][/size]\n[size=13]Provide the required information to access and modify SQL databases[/size]"
+                                halign: "left"
+                                valign: "middle"
+                                text_size: self.size
+                            ProcessBt:
+                                id: mysql_bt
+                                size_hint_x: .2
+                                text: "Select..."
+                                on_release:
+                                    app.dialog_mysql()
+
+                        Hseparator
+
+                        DarkBox:
+                            id: dark_l
+                            Label:
+                                id: output_label
+                                size_hint_x: .8
+                                markup: True
+                                text: "[size=18][b]Threads[/b][/size]\n[size=13]Number of threads (CPU's) to use during USEARCH[/size]"
+                                halign: "left"
+                                valign: "middle"
+                                text_size: self.size
+                            Spinner:
+                                background_normal: "data/backgrounds/bt_process.png"
+                                bold: True
+                                values: tuple(str(x) for x in range(1, multiprocessing.cpu_count() + 1))
+                                size_hint_x: .2
+                                text: "1"
+
+                        Hseparator
+
+                        DarkBox:
+                            Label:
+                                id: output_label
+                                size_hint_x: .8
+                                markup: True
+                                text: "[size=18][b]Output directry[/b][/size]\n[size=13]Save output files to...[/size]"
+                                halign: "left"
+                                valign: "middle"
+                                text_size: self.size
+                            ProcessBt:
+                                id: orto_dir
+                                text: "Select..."
+                                on_release:
+                                    app.dialog_filechooser("ortho_dir")
+
+                        BoxLayout:
+                            size_hint_y: None
+                            height: 60
+                            AnchorLayout:
+                                Button:
+                                    bold: True
+                                    id: adv_options
+                                    text: "Show additional options"
+                                    size_hint: None, None
+                                    width: 300
+                                    height: 40
+                                    on_release:
+                                        app.toggle_orto_soptions()
+
+            BoxLayout:
+                orientation: "vertical"
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: 45
+                    padding: (5, 0, 5, 0)
+                    LightBox:
+                        padding: 0
+                        AnchorLayout:
+                            anchor_x: "left"
+                            anchor_y: "center"
+                            size_hint_x: None
+                            width: 100
+                            padding: 5
+                            Button:
+                                text: "Previous"
+                                on_release: orto_car.load_slide(orto_car.slides[0])
+
+
+                        Label:
+                            text: "Step 2. Process raw orthologs"
+                            bold: True
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            size_hint_x: .8
+                        AnchorLayout:
+                            anchor_x: "right"
+                            anchor_y: "center"
+                            size_hint_x: None
+                            width: 100
+                            padding: 5
+                            Button:
+                                text: "Next"
+                                on_release: orto_car.load_slide(orto_car.slides[2])
+
+                ScrollView:
+                    id: orto_process_sv
+
+            BoxLayout:
+                orientation: "vertical"
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: 45
+                    padding: (5, 0, 5, 0)
+                    LightBox:
+                        padding: 0
+                        AnchorLayout:
+                            anchor_x: "left"
+                            anchor_y: "center"
+                            size_hint_x: None
+                            width: 100
+                            padding: 5
+                            Button:
+                                text: "Previous"
+                                on_release: orto_car.load_slide(orto_car.slides[1])
+
+
+                        Label:
+                            text: "Step 3. Translate orthogs"
+                            bold: True
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            size_hint_x: .8
+                        AnchorLayout:
+                            anchor_x: "right"
+                            anchor_y: "center"
+                            size_hint_x: None
+                            width: 100
+                            padding: 5
+
+
+                ScrollView:
+                    id: orto_process_sv
+
 
         BoxLayout:
             size_hint_y: None
