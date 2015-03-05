@@ -285,10 +285,6 @@ class OrthologySearchGrid(TabbedPanel):
     pass
 
 
-class OrthoSearch_MainGrid(GridLayout):
-    pass
-
-
 class ProteinFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -563,7 +559,7 @@ class TriFusionApp(App):
 
     # Attributes for the Orthology screen widgets
     ortho_search_options = None
-    ortho_search_grid_wgt = None
+    orto_search_height = None
 
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
@@ -711,7 +707,6 @@ class TriFusionApp(App):
 
         #### Orthology widgets
         self.ortho_search_options = OrthologySearchGrid()
-        self.ortho_search_grid_wgt = OrthoSearch_MainGrid()
 
         #### Process widgets
         # Creating GridLayout instance for general options of Process
@@ -2786,62 +2781,36 @@ class TriFusionApp(App):
 
     ########################## ORTHOLOGY SCREEN ################################
 
-    def toggle_orto_main(self):
-        """
-        Controls the main widgets to be displayed in the Orthology screen. It is
-        controlled by the two main buttons in Orthology screen, Search orthologs
-        and process raw orthologs
-        """
-
-        if self.screen.ids.orto_search_bt.state == "down":
-            # Add orthology search main grid
-            self.screen.ids.orto_search_sv.add_widget(
-                self.ortho_search_grid_wgt)
-
-            # Store the original height of the gridlayout containing the
-            # general options so that it can be updated
-            self.orto_search_height = self.ortho_search_grid_wgt.height
-
-            # Animate widget entrance
-            Animation(opacity=1, d=.32, t="in_quart").start(
-                self.ortho_search_grid_wgt)
-
-        elif self.screen.ids.orto_proc_bt.state == "down":
-            # Remove orthology search main grid
-            self.screen.ids.orto_search_sv.remove_widget(
-                self.ortho_search_grid_wgt)
-
     def toggle_orto_soptions(self):
         """
         Controls the toggling of the GridLayout with the advanced options for
         the Orthology screen, Ortholog search slide
         """
 
-        if self.ortho_search_grid_wgt.ids.adv_options.text == \
-                "Show additional options":
+        if not self.orto_search_height:
+            self.orto_search_height = self.screen.ids.gl_orto_search.height
+
+        if self.screen.ids.adv_search_options.text == "Show additional options":
             # Add widget to main grid
-            self.ortho_search_grid_wgt.add_widget(
-                self.ortho_search_options)
+            self.screen.ids.gl_orto_search.add_widget(self.ortho_search_options)
             # Animate widget entrance
             Animation(opacity=1, d=.5, t="in_quad").start(
                 self.ortho_search_options)
             # Update button text
-            self.ortho_search_grid_wgt.ids.adv_options.text = \
-                "Hide additional options"
-            self.ortho_search_grid_wgt.height = self.orto_search_height + \
-                sum(x.height + 5 for x in
-                    self.ortho_search_options.ids.mcl_grid.children) + 5
+            self.screen.ids.adv_search_options.text = "Hide additional options"
 
-        elif self.ortho_search_grid_wgt.ids.adv_options.text == \
+            self.screen.ids.gl_orto_search.height = self.orto_search_height + \
+                sum(x.height + 5 for x in
+                    self.ortho_search_options.ids.mcl_grid.children) + 20
+
+        elif self.screen.ids.adv_search_options.text == \
                 "Hide additional options":
+            self.screen.ids.gl_orto_search.height = self.orto_search_height
             # Remove widget from main grid
-            self.ortho_search_grid_wgt.remove_widget(
+            self.screen.ids.gl_orto_search.remove_widget(
                 self.ortho_search_options)
             # Update button text
-            self.ortho_search_grid_wgt.ids.adv_options.text = \
-                "Show additional options"
-            self.ortho_search_grid_wgt.height -= sum(x.height for x in
-                self.ortho_search_options.ids.mcl_grid.children)
+            self.screen.ids.adv_search_options.text = "Show additional options"
 
     def dialog_mysql(self):
         """
