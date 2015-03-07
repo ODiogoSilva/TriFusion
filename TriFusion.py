@@ -4102,6 +4102,11 @@ class TriFusionApp(App):
             return self.dialog_floatcheck("Please provide the access password "
                                           "to MySQL", t="error")
 
+        # Check for output directory
+        if self.ortho_dir == "":
+            return self.dialog_floatcheck("Please specify an output directory"
+                                          "for orthology results", t="error")
+
     def process_exec(self):
         """
         Main function that executes all queued procedures of the process module
