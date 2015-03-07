@@ -397,6 +397,63 @@
 # ORTHOLOGY SCREEN
 #===============================================================================
 
+<OrtoFilterDialog>:
+    orientation: "vertical"
+    spacing: 20
+    padding: 10
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 10
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                size_hint_x: .8
+                text: "Maximum number of gene copies:"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            TextInput:
+                id: gene_txt
+                size_hint_x: .2
+                text: str(app.orto_max_gene)
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                size_hint_x: .8
+                text: "Minimum number of taxa:"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            TextInput:
+                id: sp_txt
+                size_hint_x: .2
+                text: str(app.orto_min_sp)
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
+                app.save_ortho_filters(gene_txt.text, sp_txt.text)
+                root.cancel()
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            on_release:
+                root.cancel()
+
 <InflationDialog>:
     orientation: "vertical"
     spacing: 10
