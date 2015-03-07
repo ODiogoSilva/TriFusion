@@ -282,33 +282,34 @@ def mcl_groups(mcl_prefix, start_id, group_file):
                           + " > " + group_file + "_" + val + ".txt"],
                          shell=True).wait()
 
+if __name__ == '__main__':
 
-if arg.adjust:
-    adjust_fasta(arg.infile)
+    if arg.adjust:
+        adjust_fasta(arg.infile)
 
-elif arg.no_adjust:
-    install_schema()
-    filter_fasta()
-    allvsall_usearch("goodProteins.fasta")
-    blast_parser()
-    remove_duplicate_entries()
-    load_blast()
-    pairs()
-    dump_pairs()
-    mcl()
-    mcl_groups(prefix, start_ID, groups_file)
+    elif arg.no_adjust:
+        install_schema()
+        filter_fasta()
+        allvsall_usearch("goodProteins.fasta")
+        blast_parser()
+        remove_duplicate_entries()
+        load_blast()
+        pairs()
+        dump_pairs()
+        mcl()
+        mcl_groups(prefix, start_ID, groups_file)
 
-elif arg.check:
-    check_fasta(arg.infile)
-elif arg.normal:
-    install_schema()
-    adjust_fasta(arg.infile)
-    filter_fasta()
-    allvsall_usearch("goodProteins.fasta")
-    blast_parser()
-    remove_duplicate_entries()
-    load_blast()
-    pairs()
-    dump_pairs()
-    mcl()
-    mcl_groups(prefix, start_ID, groups_file)
+    elif arg.check:
+        check_fasta(arg.infile)
+    elif arg.normal:
+        install_schema()
+        adjust_fasta(arg.infile)
+        filter_fasta()
+        allvsall_usearch("goodProteins.fasta")
+        blast_parser()
+        remove_duplicate_entries()
+        load_blast()
+        pairs()
+        dump_pairs()
+        mcl()
+        mcl_groups(prefix, start_ID, groups_file)
