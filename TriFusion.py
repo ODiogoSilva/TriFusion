@@ -2895,6 +2895,16 @@ class TriFusionApp(App):
         Saves mysql access for database creation and manipulation
         """
 
+        # Setup mysql configuration
+        er = sql_setup(txt)
+        if er:
+            return self.dialog_warning("MySQL configuration error", "MySQL "
+                                       "setup exited with the following error:"
+                                       "\n\n%s" % er)
+
+        # Create orthomcl_config
+        create_orthomcl_cfg(self.ortho_dir)
+
         self.mysql_pass = txt
 
         if txt != "":
@@ -2902,20 +2912,6 @@ class TriFusionApp(App):
         else:
             self.screen.ids.mysql_bt.text = "Select..."
 
-        # Setup mysql configuration
-        er = sql_setup(self.mysql_pass)
-        if er:
-            return self.dialog_warning("MySQL configuration error", "MySQL "
-                                       "setup exited with the following error:"
-                                       "\n\n%s" % er)
-
-        # Check for output directory
-        if self.ortho_dir == "":
-            return self.dialog_floatcheck("Please select an output directory",
-                                          t="error")
-
-        # Create orthomcl_config
-        create_orthomcl_cfg(self.ortho_dir)
 
     def save_protein_filters(self, min_len, max_stop):
         """
