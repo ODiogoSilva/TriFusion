@@ -204,20 +204,13 @@ ShowcaseScreen:
                     ScrollView:
                         id: orto_process_sv
 
-                        AnchorLayout:
-                            anchor_y: "center"
-                            anchor_x: "center"
-                            BoxLayout:
-                                orientation: "vertical"
-                                size_hint: None, None
-                                Label:
-                                    size_hint_y: None
-                                    height: 40
-                                    text: "An overview of the Orthology search results will be displayed here. Please "
-                                Button:
-                                    size_hint: None, None
-                                    size: 150, 40
-
+                        Label:
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            bold: True
+                            text: "An overview of the Orthology search results will be displayed here"
+                            color: (.7,.7,.7,1)
 
                 BoxLayout:
                     orientation: "vertical"
