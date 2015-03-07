@@ -59,6 +59,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.scrollview import ScrollView
 
 # Main program imports
+from ortho import orthomcl_pipeline as opipe
 from process.sequence import AlignmentList
 from process.base import Base
 from process import data
@@ -2901,6 +2902,21 @@ class TriFusionApp(App):
         else:
             self.screen.ids.mysql_bt.text = "Select..."
 
+        # Setup mysql configuration
+        er = sql_setup(self.mysql_pass)
+        if er:
+            return self.dialog_warning("MySQL configuration error", "MySQL "
+                                       "setup exited with the following error:"
+                                       "\n\n%s" % er)
+
+        # Check for output directory
+        if self.ortho_dir == "":
+            return self.dialog_floatcheck("Please select an output directory",
+                                          t="error")
+
+        # Create orthomcl_config
+        create_orthomcl_cfg(self.ortho_dir)
+
     def save_protein_filters(self, min_len, max_stop):
         """
         Saves protein lenght and stop percentage filters
@@ -4085,21 +4101,6 @@ class TriFusionApp(App):
         if self.mysql_pass == "":
             return self.dialog_floatcheck("Please provide the access password "
                                           "to MySQL", t="error")
-
-        # Setup mysql configuration
-        er = sql_setup(self.mysql_pass)
-        if er:
-            return self.dialog_warning("MySQL configuration error", "MySQL "
-                                       "setup exited with the following error:"
-                                       "\n\n%s" % er)
-
-        # Check for output directory
-        if self.ortho_dir == "":
-            return self.dialog_floatcheck("Please select an output directory",
-                                          t="error")
-
-        # Create orthomcl_config
-        create_orthomcl_cfg(self.ortho_dir)
 
     def process_exec(self):
         """
