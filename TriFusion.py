@@ -2919,7 +2919,7 @@ class TriFusionApp(App):
 
     def save_protein_filters(self, min_len, max_stop):
         """
-        Saves protein lenght and stop percentage filters
+        Saves protein length and stop percentage filters
         """
 
         self.protein_min_len = min_len
