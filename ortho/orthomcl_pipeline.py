@@ -34,13 +34,6 @@ arg = parser.parse_args()
 # Configuration file for orthocml
 config_file = "orthomcl.config"
 
-# For adjustFast
-#Unique_ID = 1  # Specify the field of the sequence header where the unique
-                # protein ID is. If the field is different depending on the
-                #  proteomes, perhaps it will be better to group proteomes with
-                #  unique ID in the same field number and run the script with
-                # the -a flag
-
 Name_separator = "_"  # Specify the name separator in the input files (e.g.,
                       # the separator is "_" if the file name is
                       # Homo_sapiens.fasta). This parameter only applies if
