@@ -761,12 +761,14 @@
                     valign: "middle"
                     text_size: self.size
 
-                ProcessBt:
+                BoxLayout:
                     size_hint_x: .2
-                    text: "group"
-                    id: group_prefix
-                    on_release:
-                        app.dialog_text("Groups file name", "groups")
+                    padding: (0, 7.5, 0, 7.5)
+                    ProcessBt:
+                        text: "group"
+                        id: group_prefix
+                        on_release:
+                            app.dialog_text("Groups file name", "groups")
 
 #===============================================================================
 # PROCESS EXECUTION SUMMARY

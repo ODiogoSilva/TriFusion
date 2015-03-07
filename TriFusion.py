@@ -2809,7 +2809,7 @@ class TriFusionApp(App):
 
             self.screen.ids.gl_orto_search.height = self.orto_search_height + \
                 sum(x.height + 5 for x in
-                    self.ortho_search_options.ids.mcl_grid.children) + 20
+                    self.ortho_search_options.ids.mcl_grid.children) + 30
 
         elif self.screen.ids.adv_search_options.text == \
                 "Hide additional options":
