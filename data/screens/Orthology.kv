@@ -124,7 +124,9 @@ ShowcaseScreen:
                                     padding: (0,7.5,0,7.5)
                                     ProcessBt:
                                         id: orto_dir
-                                        text: "Select..."
+                                        text: "Set filters"
+                                        on_release:
+                                            app.dialog_ortho_filter()
 
                             Hseparator
 
@@ -172,7 +174,6 @@ ShowcaseScreen:
                             ExecutionBt:
                                 id: execute
                                 text: "Search Orthologs"
-                                on_press:
                             ExecutionBt:
                                 text: "View Queue"
                                 id: queue_bt

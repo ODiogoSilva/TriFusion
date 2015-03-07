@@ -285,6 +285,10 @@ class OrthologySearchGrid(TabbedPanel):
     pass
 
 
+class OrtoFilterDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class ProteinFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -615,6 +619,10 @@ class TriFusionApp(App):
     # Protein quality filters
     protein_min_len = 10  # Absolute
     protein_max_stop = 20  # Percentage
+
+    # Orthology cluster filters
+    orto_max_gene = 1
+    orto_min_sp = .3
 
     # Attribute containing the path to the proteome files
     proteome_files = []
@@ -2845,6 +2853,27 @@ class TriFusionApp(App):
 
         self.show_popup(title="MCL inflation settings", content=content,
                         size=(300, 220))
+
+    def dialog_ortho_filter(self):
+        """
+        Creates dialog for orthology cluster filters
+        """
+
+        content = OrtoFilterDialog(cancel=self.dismiss_popup)
+
+        content.ids.gene_txt = self.orto_max_gene
+        content.ids.sp_txt = self.orto_min_sp
+
+        self.show_popup(title="Ortholog filters", content=content,
+                        size=(400, 200))
+
+    def save_ortho_filters(self, gene_filt, sp_filt):
+        """
+        Save orthology clusters filters
+        """
+
+        self.orto_max_gene = gene_filt
+        self.orto_min_sp = sp_filt
 
     def save_inflation(self, inflation_wgt):
         """
