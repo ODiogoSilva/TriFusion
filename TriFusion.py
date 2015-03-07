@@ -2868,9 +2868,9 @@ class TriFusionApp(App):
         self.mysql_pass = txt
 
         if txt != "":
-            self.ortho_search_grid_wgt.ids.mysql_bt.text = "Password set"
+            self.screen.ids.mysql_bt.text = "Password set"
         else:
-            self.ortho_search_grid_wgt.ids.mysql_bt.text = "Select..."
+            self.screen.ids.mysql_bt.text = "Select..."
 
     def save_protein_filters(self, min_len, max_stop):
         """
@@ -2953,7 +2953,7 @@ class TriFusionApp(App):
 
         if idx == "ortho_dir":
             self.ortho_dir = path
-            self.ortho_search_grid_wgt.ids.orto_dir.text = path.split(sep)[-1]
+            self.screen.ids.orto_dir.text = path.split(sep)[-1]
 
     def save_format(self, value):
         """
