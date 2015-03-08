@@ -182,11 +182,16 @@ def check_fasta(proteome_list):
                 "Checking proteomes: ", 50, proteome)
 
 
-def filter_fasta():
-    print("Filtering proteome fasta files")
-    subprocess.Popen(["\torthomclFilterFasta compliantFasta/ " +
-                      str(min_length) + " " + str(max_percent_stop)],
-                    shell=True).wait()
+def filter_fasta(min_len, max_stop, verbose=False):
+
+    if verbose:
+        print("Filtering proteome fasta files")
+
+    print("orthomclFilterFasta compliantFasta %s %s" %
+                      (str(min_len), str(max_stop)))
+
+    subprocess.Popen(["orthomclFilterFasta compliantFasta %s %s" %
+                      (str(min_len), str(max_stop))], shell=True).wait()
 
 
 def allvsall_usearch(goodproteins):
@@ -271,11 +276,11 @@ if __name__ == '__main__':
     os.chdir(output_dir)
 
     if arg.adjust:
-        adjust_fasta(proteome_files, name_separator, verbose=True)
+        adjust_fasta(proteome_files, verbose=True)
 
     elif arg.no_adjust:
         install_schema(config_file, verbose=True)
-        filter_fasta()
+        filter_fasta(output_dir, min_length, max_percent_stop)
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
         remove_duplicate_entries()
@@ -289,8 +294,8 @@ if __name__ == '__main__':
         check_fasta(arg.infile)
     elif arg.normal:
         install_schema(config_file, verbose=True)
-        adjust_fasta(proteome_files, name_separator, verbose=True)
-        filter_fasta()
+        adjust_fasta(proteome_files, verbose=True)
+        filter_fasta(output_dir, min_length, max_percent_stop)
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
         remove_duplicate_entries()
