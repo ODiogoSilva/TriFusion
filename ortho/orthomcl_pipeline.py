@@ -4,6 +4,7 @@ import os
 import sys
 import codecs
 import subprocess
+import shutil
 
 #For systems without argparse installed, provide the path to the module
 #sys.path.append("/home/diogo/Python/Modules")
@@ -82,38 +83,6 @@ def install_schema(cfg_file, verbose=False):
                      shell=True).wait()
 
 
-def id_duplicate_check(proteome):
-    print("\t Checking duplicates for " + proteome)
-    previous_ids, duplicate_ids = [], {}
-    subprocess.Popen(["mv " + proteome + " " + proteome + ".old"],
-                     shell=True).wait()
-    with codecs.open(proteome + ".old", "r", "cp1252") as proteome_read,\
-            open(proteome, "w") as proteome_out, open("ID_check.log",
-            "a") as ID_check_log:
-        x = 1
-        ID_check_log.write("## ID duplicate check for " + proteome + "\n\n")
-        for line in proteome_read:
-            if line.startswith(">") and line not in previous_ids:
-                previous_ids.append(line)
-                proteome_out.write(line)
-            elif line.startswith(">") and line in previous_ids:
-                duplicate_ids[line] = line[:-1] + "_" + str(x) + "\n"
-                previous_ids.append(line[:-1] + "_" + str(x) + "\n")
-                proteome_out.write(line[:-1] + "_" + str(x) + "\n")
-                x += 1
-            elif "(" in line or ")" in line:
-                pass
-            else:
-                proteome_out.write(line)
-        if duplicate_ids == {}:
-            ID_check_log.write("No duplicates found!\n")
-        else:
-            for k, v in duplicate_ids.items():
-                ID_check_log.write("Found duplicate entry: " + k[:-1] +
-                                   "; replaced by " + v + "\n")
-    subprocess.Popen(["rm " + proteome + ".old"], shell=True).wait()
-
-
 def check_unique_field(proteome_file):
     """  Checks the original proteome file for a field in the fasta header
      that is unique to all sequences"""
@@ -141,55 +110,69 @@ def check_unique_field(proteome_file):
 
             # The orthoMCL program uses an index starting from 1, so the +1 is
             #  a necessary adjustment
-            return i + 1
+            return i
 
     else:
         return None
 
 
-def prep_usearchdb(proteome_file):
-    print("\t Preparing file for USEARCH")
-    subprocess.Popen(["mv " + proteome_file + " " + proteome_file + ".old"],
-                     shell=True).wait()
-    with open(proteome_file + ".old", "r") as file_in, open(proteome_file, "w")\
-            as file_out:
-        for line in file_in:
-            if line.startswith(">"):
-                file_out.write(">gnl|" + line[1:])
+def prep_fasta(proteome_file, code, unique_id, verbose=False):
+
+    if verbose:
+        print("\t Preparing file for USEARCH")
+
+    # Storing header list to check for duplicates
+    header_list = []
+
+    # Will prevent writing
+    lock = True
+
+    # File handles
+    file_in = open(proteome_file)
+    file_out = open(proteome_file.split(".")[0] + "_mod.fas", "w")
+
+    for line in file_in:
+        if line.startswith(">"):
+            if line not in header_list:
+                header_list.append(line)
+                fields = line.split("|")
+                file_out.write(">%s|%s\n" % (code, fields[unique_id]))
+                lock = True
             else:
-                file_out.write(line)
-    subprocess.Popen(["rm " + proteome_file + ".old"], shell=True).wait()
+                lock = False
+        elif lock:
+            file_out.write(line)
+
+    # Close file handles:
+    file_in.close()
+    file_out.close()
 
 
-def adjust_fasta(proteome_files, name_sep, verbose=False):
+def adjust_fasta(proteome_files, code=True, verbose=False):
 
     if verbose:
         print("Running orthomcladjust_fasta")
 
-    proteome_code_list = []
+    # Create compliant fasta directory
+    if not os.path.exists(os.path.join(output_dir, "compliantFasta")):
+        os.makedirs(os.path.join(output_dir, "compliantFasta"))
 
     for proteome in proteome_files:
-        if arg.code:
-            code_name = proteome.split(".")[0]
-        else:
-            code_temp = proteome.split(name_sep)
-            code_name = str(code_temp[0][:2] + code_temp[1][:3]).lower()
+        # Get code for proteome
+        code_name = proteome.split(os.path.sep)[-1].split(".")[0]
 
-        proteome_code_list.append(code_name)
-
+        # Check the unique ID field
         unique_id = check_unique_field(proteome)
 
-        subprocess.Popen(["orthomclAdjustFasta " + code_name + " " +
-                          proteome + " " + str(unique_id)], shell=True).wait()
+        # Adjust fasta
+        prep_fasta(proteome, code_name, unique_id)
 
-        id_duplicate_check(code_name + ".fasta")
-        prep_usearchdb(code_name + ".fasta")
+        protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
+                            ".fas"
 
-    subprocess.Popen(["mkdir compliantFasta/"], shell=True).wait()
-
-    for code in proteome_code_list:
-        subprocess.Popen(["mv " + code + ".fasta compliantFasta/"],
-                         shell=True).wait()
+        shutil.move(proteome.split(".")[0] + "_mod.fas",
+                    os.path.join(output_dir, "compliantFasta",
+                                 protome_file_name))
 
 
 def check_fasta(proteome_list):
@@ -197,7 +180,6 @@ def check_fasta(proteome_list):
     for proteome in proteome_list:
         loading(proteome_list.index(proteome), len(proteome_list),
                 "Checking proteomes: ", 50, proteome)
-        id_duplicate_check(proteome)
 
 
 def filter_fasta():
