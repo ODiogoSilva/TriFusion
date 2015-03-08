@@ -4113,6 +4113,18 @@ class TriFusionApp(App):
         opipe.adjust_fasta(self.proteome_files)
         print("Filter fasta files")
         opipe.filter_fasta(self.protein_min_len, self.protein_max_stop)
+        print("Running USEARCH")
+        opipe.allvsall_usearch("goodProteins.fasta", self.usearch_evalue,
+                               self.screen.ids.usearch_threads.text,
+                               self.usearch_output)
+        opipe.blast_parser(self.usearch_output)
+        opipe.remove_duplicate_entries()
+        opipe.load_blast("orthomcl.config")
+        opipe.pairs("orthomcl.config")
+        opipe.dump_pairs("orthomcl.config")
+        opipe.mcl(self.mcl_inflation)
+        opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix, "1000",
+                         self.group_prefix)
 
     def process_exec(self):
         """
