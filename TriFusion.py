@@ -2902,9 +2902,6 @@ class TriFusionApp(App):
                                        "setup exited with the following error:"
                                        "\n\n%s" % er)
 
-        # Create orthomcl_config
-        create_orthomcl_cfg(self.ortho_dir)
-
         self.mysql_pass = txt
 
         if txt != "":
@@ -4102,6 +4099,16 @@ class TriFusionApp(App):
         if self.ortho_dir == "":
             return self.dialog_floatcheck("Please specify an output directory"
                                           "for orthology results", t="error")
+
+        # Change working directory
+        os.chdir(self.ortho_dir)
+
+        # Create orthomcl_config
+        create_orthomcl_cfg(self.ortho_dir)
+
+        # Begin search pipeline
+        print("Installing schema")
+        opipe.install_schema("orthomcl.config")
 
     def process_exec(self):
         """
