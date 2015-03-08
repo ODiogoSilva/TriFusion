@@ -280,7 +280,7 @@ if __name__ == '__main__':
 
     elif arg.no_adjust:
         install_schema(config_file, verbose=True)
-        filter_fasta(output_dir, min_length, max_percent_stop)
+        filter_fasta(output_dir, min_length)
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
         remove_duplicate_entries()
