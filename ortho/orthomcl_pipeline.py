@@ -168,7 +168,7 @@ def adjust_fasta(proteome_files, code=True, verbose=False):
         prep_fasta(proteome, code_name, unique_id)
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
-                            ".fas"
+                            ".fasta"
 
         shutil.move(proteome.split(".")[0] + "_mod.fas",
                     os.path.join(output_dir, "compliantFasta",
@@ -194,24 +194,32 @@ def filter_fasta(min_len, max_stop, verbose=False):
                       (str(min_len), str(max_stop))], shell=True).wait()
 
 
-def allvsall_usearch(goodproteins):
-    print("Perfoming USEARCH allvsall")
+def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False):
+
+    if verbose:
+        print("Perfoming USEARCH allvsall")
+
     subprocess.Popen(["usearch -ublast " + goodproteins + " -db " +
-                      goodproteins + " -blast6out " + usearch_out_name +
-                      " -evalue " + evalue_cutoff + " --maxaccepts 0 -threads "
-                      + CPUs], shell=True).wait()
+                      goodproteins + " -blast6out " + usearch_outfile +
+                      " -evalue " + eval + " --maxaccepts 0 -threads "
+                      + cpus], shell=True).wait()
 
 
-def blast_parser():
-    print("Parsing BLAST output")
-    subprocess.Popen(["orthomclBlastParser " + usearch_out_name +
+def blast_parser(usearch_ouput, verbose=False):
+
+    if verbose:
+        print("Parsing BLAST output")
+
+    subprocess.Popen(["orthomclBlastParser " + usearch_ouput +
                       " compliantFasta/ >> similarSequences.txt"],
                       shell=True).wait()
 
 
 def remove_duplicate_entries():
     print("Removing possible dupplicate entries")
-    subprocess.Popen(["mv similarSequences.txt similarSequences.txt.old"], shell=True).wait()
+
+    shutil.move("similarSequences.txt", "similarSequences.txt.old")
+
     file_handle = open("similarSequences.txt.old")
     output_handle = open("similarSequences.txt", "w")
 
@@ -231,40 +239,40 @@ def remove_duplicate_entries():
 
     file_handle.close()
     output_handle.close()
-    subprocess.Popen(["rm similarSequences.txt.old"], shell=True).wait()
+    os.remove("similarSequences.txt.old")
 
 
-def load_blast():
+def load_blast(cfg_file):
     print("Loading BLAST output into orthoMCL database")
-    subprocess.Popen(["orthomclLoadBlast " + config_file +
+    subprocess.Popen(["orthomclLoadBlast " + cfg_file +
                       " similarSequences.txt"], shell=True).wait()
 
 
-def pairs():
+def pairs(cfg_file):
     print("Finding pairs for orthoMCL")
-    subprocess.Popen(["orthomclPairs " + config_file +
+    subprocess.Popen(["orthomclPairs " + cfg_file +
                       " pairs.log cleanup=yes"], shell=True).wait()
 
 
-def dump_pairs():
+def dump_pairs(cfg_file):
     print("Dump files from the database produced by the orthomclPairs program")
-    subprocess.Popen(["orthomclDumpPairsFiles " + config_file],
+    subprocess.Popen(["orthomclDumpPairsFiles " + cfg_file],
                      shell=True).wait()
 
 
-def mcl():
+def mcl(inflation_list):
     print("Running mcl algorithm")
-    for val in inflation:
+    for val in inflation_list:
         subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_" +
                           val.replace(".", "")], shell=True).wait()
 
 
-def mcl_groups(mcl_prefix, start_id, group_file):
+def mcl_groups(inflation_list, mcl_prefix, start_id, group_file):
     print("Dumping groups")
-    for val in inflation:
+    for val in inflation_list:
         subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " +
                           start_id + " < mclOutput_" + val.replace(".", "")
-                          + " > " + group_file + "_" + val + ".txt"],
+                          + " > " + group_file + "_" + str(val) + ".txt"],
                          shell=True).wait()
 
 if __name__ == '__main__':
@@ -299,8 +307,8 @@ if __name__ == '__main__':
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
         remove_duplicate_entries()
-        load_blast()
-        pairs()
-        dump_pairs()
+        load_blast(config_file)
+        pairs(config_file)
+        dump_pairs(config_file)
         mcl()
         mcl_groups(prefix, start_ID, groups_file)
