@@ -295,7 +295,7 @@ if __name__ == '__main__':
     elif arg.normal:
         install_schema(config_file, verbose=True)
         adjust_fasta(proteome_files, verbose=True)
-        filter_fasta(output_dir, min_length, max_percent_stop)
+        filter_fasta(min_length, max_percent_stop)
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
         remove_duplicate_entries()
