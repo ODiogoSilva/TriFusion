@@ -40,19 +40,19 @@ mysql_db = "orthomcl_db"
 
 def create_orthomcl_cfg(work_dir):
 
-    cfg_text_template = """bVendor=mysql
-    dbConnectString=dbi:mysql:%s
-    dbLogin=%s
-    dbPassword=%s
-    similarSequencesTable=SimilarSequences
-    orthologTable=Ortholog1
-    inParalogTable=InParalog1
-    coOrthologTable=CoOrtholog1
-    interTaxonMatchView=InterTaxonMatch
-    percentMatchCutoff=50
-    evalueExponentCutoff=-5
-    oracleIndexTblSpc=NONE
-    """ % (mysql_db, sql_user, sql_user_pass)
+    cfg_text_template = """dbVendor=mysql
+dbConnectString=dbi:mysql:%s
+dbLogin=%s
+dbPassword=%s
+similarSequencesTable=SimilarSequences
+orthologTable=Ortholog1
+inParalogTable=InParalog1
+coOrthologTable=CoOrtholog1
+interTaxonMatchView=InterTaxonMatch
+percentMatchCutoff=50
+evalueExponentCutoff=-5
+oracleIndexTblSpc=NONE
+""" % (mysql_db, sql_user, sql_user_pass)
 
     cfg_handle = open(join(work_dir, "orthomcl.config"), "w")
     cfg_handle.write(cfg_text_template)
