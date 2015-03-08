@@ -4109,6 +4109,10 @@ class TriFusionApp(App):
         # Begin search pipeline
         print("Installing schema")
         opipe.install_schema("orthomcl.config")
+        print("Adjusting fasta files")
+        opipe.adjust_fasta(self.proteome_files)
+        print("Filter fasta files")
+        opipe.filter_fasta(self.protein_min_len, self.protein_max_stop)
 
     def process_exec(self):
         """
