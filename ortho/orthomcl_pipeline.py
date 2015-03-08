@@ -34,7 +34,10 @@ arg = parser.parse_args()
 # Configuration file for orthocml
 config_file = "orthomcl.config"
 
-Name_separator = "_"  # Specify the name separator in the input files (e.g.,
+# Output directory
+output_dir = "./"
+
+name_separator = "_"  # Specify the name separator in the input files (e.g.,
                       # the separator is "_" if the file name is
                       # Homo_sapiens.fasta). This parameter only applies if
                       # the file names are not already in code format (e.g.,
@@ -47,7 +50,7 @@ max_percent_stop = 20  # Maximum percent stop codons.  (suggested 20)
 # For allvsall BLAST or USEARCH (recommended)
 database_name = "goodProteins_db"
 usearch_out_name = "AllVsAll.out"
-evalue_cutoff = "0.00001"  # 1E-5 - Recommended
+evalue_cutoff = "0.00001"  # 1E-5
 CPUs = "4"  # Number of CPU's for multiprocessing
 
 # For mcl
@@ -69,10 +72,13 @@ def loading(current_state, size, prefix_txt, width, proteome):
     sys.stdout.flush()
 
 
-def install_schema():
+def install_schema(cfg_file, verbose=False):
     """ Install the schema for the mySQL database """
-    print("Installing mySQL schema")
-    subprocess.Popen(["orthomclInstallSchema " + config_file],
+
+    if verbose:
+        print("Installing mySQL schema")
+
+    subprocess.Popen(["orthomclInstallSchema " + cfg_file],
                      shell=True).wait()
 
 
@@ -155,25 +161,26 @@ def prep_usearchdb(proteome_file):
     subprocess.Popen(["rm " + proteome_file + ".old"], shell=True).wait()
 
 
-def adjust_fasta(proteome_dir):
-    print("Running orthomcladjust_fasta")
-    proteome_file_list = os.listdir(proteome_dir)
+def adjust_fasta(proteome_files, name_sep, verbose=False):
+
+    if verbose:
+        print("Running orthomcladjust_fasta")
+
     proteome_code_list = []
 
-    for proteome in proteome_file_list:
+    for proteome in proteome_files:
         if arg.code:
             code_name = proteome.split(".")[0]
         else:
-            code_temp = proteome.split(Name_separator)
+            code_temp = proteome.split(name_sep)
             code_name = str(code_temp[0][:2] + code_temp[1][:3]).lower()
 
         proteome_code_list.append(code_name)
 
-        unique_id = check_unique_field(proteome_dir + "/" + proteome)
+        unique_id = check_unique_field(proteome)
 
         subprocess.Popen(["orthomclAdjustFasta " + code_name + " " +
-                          proteome_dir + "/" + proteome + " " +
-                          str(unique_id)], shell=True).wait()
+                          proteome + " " + str(unique_id)], shell=True).wait()
 
         id_duplicate_check(code_name + ".fasta")
         prep_usearchdb(code_name + ".fasta")
@@ -183,8 +190,6 @@ def adjust_fasta(proteome_dir):
     for code in proteome_code_list:
         subprocess.Popen(["mv " + code + ".fasta compliantFasta/"],
                          shell=True).wait()
-
-    return proteome_code_list
 
 
 def check_fasta(proteome_list):
@@ -277,11 +282,17 @@ def mcl_groups(mcl_prefix, start_id, group_file):
 
 if __name__ == '__main__':
 
+    # Get proteome files
+    proteome_files = os.listdir(arg.infile)
+
+    # Change working directory
+    os.chdir(output_dir)
+
     if arg.adjust:
-        adjust_fasta(arg.infile)
+        adjust_fasta(proteome_files, name_separator, verbose=True)
 
     elif arg.no_adjust:
-        install_schema()
+        install_schema(config_file, verbose=True)
         filter_fasta()
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
@@ -295,8 +306,8 @@ if __name__ == '__main__':
     elif arg.check:
         check_fasta(arg.infile)
     elif arg.normal:
-        install_schema()
-        adjust_fasta(arg.infile)
+        install_schema(config_file, verbose=True)
+        adjust_fasta(proteome_files, name_separator, verbose=True)
         filter_fasta()
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
