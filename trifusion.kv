@@ -834,6 +834,7 @@
 <ExecutionDialog@BoxLayout>:
     padding: 10
     orientation: "vertical"
+    spacing: 10
     BoxLayout:
         padding: 10
         orientation: "vertical"
@@ -860,15 +861,17 @@
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Execute"
-            #id: ok_bt
+            id: ok_bt
+            bold: True
             on_release:
                 app.process_exec()
                 root.cancel()
         Button:
-            #id: cancel_bt
+            id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
             background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
+            bold: True
             on_release:
                 root.cancel()
 
