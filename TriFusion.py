@@ -290,6 +290,10 @@ class OrtoFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class OrtoExecutionDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class ProteinFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -4084,10 +4088,9 @@ class TriFusionApp(App):
 
         return aln_obj
 
-    def orthology_search_exec(self):
+    def dialog_orto_execution(self):
         """
-        Main function that executes all queued procedures of the orthology
-        module
+        Creates and populates the pre-execution dialog for orthology search
         """
 
         # Check for mysql pass
@@ -4099,6 +4102,40 @@ class TriFusionApp(App):
         if self.ortho_dir == "":
             return self.dialog_floatcheck("Please specify an output directory"
                                           "for orthology results", t="error")
+
+        content = OrtoExecutionDialog(cancel=self.dismiss_popup)
+
+        content.ids.gene_filter.text = "[b][size=18][color=37abc8ff]Maximum" \
+                                       " number of gene copies per cluster:" \
+                                       "[/color][/size][/b] %s" % \
+                                       self.orto_max_gene
+
+        content.ids.sp_filter.text = "[b][size=18][color=37abc8ff]Minimum" \
+                                       " number of taxa per cluster:[/color]" \
+                                       "[/size][/b] %s" % self.orto_min_sp
+
+        content.ids.eval.text = "[b][size=18][color=37abc8ff]USEARCH e-value" \
+                                " threshold:[/color][/size][/b] %s" % \
+                                self.usearch_evalue
+
+        content.ids.inflation.text = "[b][size=18][color=37abc8ff]MCL " \
+                                     "inflation value(s):[/color][/size][/b] "\
+                                     "%s" % ", ".join(self.mcl_inflation)
+
+        content.ids.threads.text = "[b][size=18][color=37abc8ff]Threads " \
+                                   ":[/color][/size][/b] %s" % \
+                                   self.screen.ids.usearch_threads.text
+
+        self.show_popup(title="Orthology search execution summary - Processing"
+                              " %s file(s)" % len(self.proteome_files),
+                        content=content, size=(550, 350))
+
+
+    def orthology_search_exec(self):
+        """
+        Main function that executes all queued procedures of the orthology
+        module
+        """
 
         # Change working directory
         os.chdir(self.ortho_dir)
