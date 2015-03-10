@@ -397,6 +397,56 @@
 # ORTHOLOGY SCREEN
 #===============================================================================
 
+#===============================================================================
+# ORTHOLOGY EXECUTION DIALOG
+#===============================================================================
+
+<OrtoExecutionDialog@BoxLayout>:
+    padding: 10
+    orientation: "vertical"
+    spacing: 10
+    BoxLayout:
+        orientation: "vertical"
+        padding: 10
+        ExecLabel:
+            id: gene_filter
+        ExecLabel:
+            id: sp_filter
+        ExecLabel:
+            id: eval
+        ExecLabel:
+            id: inflation
+        ExecLabel:
+            id: threads
+
+    Label:
+        size_hint_y:None
+        height: 30
+        bold: True
+        text: "[color=37abc8ff]Do you want to proceed?[/color]"
+        markup: True
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        padding: (50, 0, 50, 0)
+        spacing: 20
+        Button:
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Execute"
+            id: ok_bt
+            bold: True
+
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            bold: True
+            on_release:
+                root.cancel()
+
+
 <OrtoFilterDialog>:
     orientation: "vertical"
     spacing: 20
