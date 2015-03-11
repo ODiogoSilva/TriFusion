@@ -27,6 +27,7 @@ from process.sequence import Alignment
 
 from collections import OrderedDict
 import subprocess
+import os
 from os.path import join
 
 
@@ -250,12 +251,13 @@ class Group ():
         :param database: String. Fasta file
         """
 
-        subprocess.Popen(["mkdir Retrieved_sequences"], shell=True).wait()
+        if not os.path.exists("Orthologs"):
+            os.makedirs("Orthologs")
 
         db_aln = Alignment(database)
 
         for cluster in self.groups:
-            output_handle = open(join("Retrieved_sequences", cluster.name), "w")
+            output_handle = open(join("Orthologs", cluster.name), "w")
             for sequence_id in cluster.sequences:
                 seq = db_aln.alignment[sequence_id]
                 output_handle.write(">%s\n%s\n" % (sequence_id, seq))

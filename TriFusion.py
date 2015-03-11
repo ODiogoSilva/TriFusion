@@ -4179,6 +4179,12 @@ class TriFusionApp(App):
             nm.c = 9
             opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix, "1000",
                              self.group_prefix)
+            nm.t = "Filtering group files"
+            nm.c = 10
+            opipe.export_filtered_groups(self.mcl_inflation, self.group_prefix,
+                                         self.orto_max_gene, self.orto_min_sp,
+                                         "goodProteins.fasta")
+
 
         def check_process(p, dt):
             """
