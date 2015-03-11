@@ -80,7 +80,7 @@ def install_schema(cfg_file, verbose=False):
     if verbose:
         print("Installing mySQL schema")
 
-    subprocess.Popen(["orthomclInstallSchema", cfg_file]).wait()
+    x = subprocess.Popen(["orthomclInstallSchema", cfg_file]).wait()
 
 
 def check_unique_field(proteome_file):
@@ -187,7 +187,7 @@ def filter_fasta(min_len, max_stop, verbose=False):
     if verbose:
         print("Filtering proteome fasta files")
 
-    subprocess.Popen(["orthomclFilterFasta", "compliantFasta", str(min_len),
+    x = subprocess.Popen(["orthomclFilterFasta", "compliantFasta", str(min_len),
                       str(max_stop)]).wait()
 
 
@@ -196,7 +196,7 @@ def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False):
     if verbose:
         print("Perfoming USEARCH allvsall")
 
-    subprocess.Popen(["usearch", "-ublast", goodproteins, "-db",
+    x = subprocess.Popen(["usearch", "-ublast", goodproteins, "-db",
                           goodproteins, "-blast6out", usearch_outfile,
                           "-evalue", str(eval), "--maxaccepts", "0",
                           "-threads", str(cpus)]).wait()
@@ -207,7 +207,7 @@ def blast_parser(usearch_ouput, verbose=False):
     if verbose:
         print("Parsing BLAST output")
 
-    subprocess.Popen(["orthomclBlastParser " + usearch_ouput +
+    x = subprocess.Popen(["orthomclBlastParser " + usearch_ouput +
                       " compliantFasta/ >> similarSequences.txt"],
                       shell=True).wait()
 
@@ -246,7 +246,7 @@ def load_blast(cfg_file, verbose=False):
     if verbose:
         print("Loading BLAST output into orthoMCL database")
 
-    subprocess.Popen(["orthomclLoadBlast", cfg_file,
+    x = subprocess.Popen(["orthomclLoadBlast", cfg_file,
                       "similarSequences.txt"]).wait()
 
 
@@ -255,7 +255,7 @@ def pairs(cfg_file, verbose=False):
     if verbose:
         print("Finding pairs for orthoMCL")
 
-    subprocess.Popen(["orthomclPairs", cfg_file,
+    x = subprocess.Popen(["orthomclPairs", cfg_file,
                       "pairs.log", "cleanup=yes"]).wait()
 
 
@@ -265,7 +265,7 @@ def dump_pairs(cfg_file, verbose=False):
         print("Dump files from the database produced by the orthomclPairs "
               "program")
 
-    subprocess.Popen(["orthomclDumpPairsFiles", cfg_file]).wait()
+    x = subprocess.Popen(["orthomclDumpPairsFiles", cfg_file]).wait()
 
 
 def mcl(inflation_list, verbose=False):
@@ -274,7 +274,7 @@ def mcl(inflation_list, verbose=False):
         print("Running mcl algorithm")
 
     for val in inflation_list:
-        subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_" +
+        x = subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_" +
                           val.replace(".", "")], shell=True).wait()
 
 
@@ -284,7 +284,7 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
         print("Dumping groups")
 
     for val in inflation_list:
-        subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " +
+        x = subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " +
                           start_id + " < mclOutput_" + val.replace(".", "")
                           + " > " + group_file + "_" + str(val) + ".txt"],
                          shell=True).wait()
