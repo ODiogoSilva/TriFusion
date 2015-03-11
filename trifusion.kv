@@ -436,6 +436,9 @@
             text: "Execute"
             id: ok_bt
             bold: True
+            on_release:
+                root.cancel()
+                app.orthology_search_exec()
 
         Button:
             id: cancel_bt
@@ -446,6 +449,26 @@
             on_release:
                 root.cancel()
 
+
+<OrtoProgressDialog@BoxLayout>:
+    padding: 10
+    orientation: "vertical"
+
+    Label:
+        id: msg
+        bold: True
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        padding: (30, 0, 30, 0)
+        Button:
+            id: close_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Close"
+            on_release:
+                root.cancel()
 
 <OrtoFilterDialog>:
     orientation: "vertical"

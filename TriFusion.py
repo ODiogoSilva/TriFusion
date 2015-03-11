@@ -75,6 +75,7 @@ from os.path import expanduser
 from copy import deepcopy
 from functools import partial
 import pickle
+import multiprocessing
 
 Config.set("kivy", "log_level", "warning")
 Config.set("kivy", "desktop", 1)
@@ -292,6 +293,10 @@ class OrtoFilterDialog(BoxLayout):
 
 class OrtoExecutionDialog(BoxLayout):
     cancel = ObjectProperty(None)
+
+
+class OrtoProgressDialog(BoxLayout):
+    pass
 
 
 class ProteinFilterDialog(BoxLayout):
@@ -4130,12 +4135,75 @@ class TriFusionApp(App):
                               " %s file(s)" % len(self.proteome_files),
                         content=content, size=(550, 350))
 
-
     def orthology_search_exec(self):
         """
         Main function that executes all queued procedures of the orthology
         module
         """
+
+        def process_dispatch(nm):
+            """
+            Executes all pipeline subprocesses sequentially and updates the
+            Progess dialog label
+            """
+
+            nm.t = "Installing schema"
+            opipe.install_schema("orthomcl.config")
+            nm.t = "Adjusting Fasta Files"
+            opipe.adjust_fasta(self.proteome_files)
+            nm.t = "Filtering Fasta Files"
+            opipe.filter_fasta(self.protein_min_len, self.protein_max_stop)
+            nm.t = "Running USearch"
+            opipe.allvsall_usearch("goodProteins.fasta", self.usearch_evalue,
+                                   self.screen.ids.usearch_threads.text,
+                                   self.usearch_output)
+            nm.t = "Parsing USEARCH output"
+            opipe.blast_parser(self.usearch_output)
+            opipe.remove_duplicate_entries()
+            nm.t = "Loading USEARCH output to database"
+            opipe.load_blast("orthomcl.config")
+            nm.t = "Obtaining Pairs"
+            opipe.pairs("orthomcl.config")
+            opipe.dump_pairs("orthomcl.config")
+            nm.t = "Running MCL"
+            opipe.mcl(self.mcl_inflation)
+            nm.t = "Dumping groups"
+            opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix, "1000",
+                             self.group_prefix)
+
+        def check_process(p, dt):
+            """
+            Checks the status of the background process "p" and updates
+            the progress dialog label
+            """
+
+            # Updates progress dialog label
+            content.ids.msg.text = ns.t
+
+            # When the process finishes, close progress dialog and unschedule
+            # this callback
+            if not p.is_alive():
+                Clock.unschedule(func)
+                self.dismiss_popup()
+
+        # Create Progression dialog
+        content = OrtoProgressDialog()
+        self.show_popup(title="Running Orthology Search", content=content,
+                        size=(300, 300))
+
+        # Setup multiprocess
+        # The manager will allow shared variables between independent processes
+        # so that the progress dialog label can be updated with the current
+        # pipeline status
+        manager = multiprocessing.Manager()
+        ns = manager.Namespace()
+
+        # Create Process instance
+        d = multiprocessing.Process(name="daemon", target=process_dispatch,
+                                    args=(ns, ))
+        # This will make the process run in the background so that the app
+        # doesn't freeze
+        d.daemon = True
 
         # Change working directory
         os.chdir(self.ortho_dir)
@@ -4143,25 +4211,12 @@ class TriFusionApp(App):
         # Create orthomcl_config
         create_orthomcl_cfg(self.ortho_dir)
 
-        # Begin search pipeline
-        print("Installing schema")
-        opipe.install_schema("orthomcl.config")
-        print("Adjusting fasta files")
-        opipe.adjust_fasta(self.proteome_files)
-        print("Filter fasta files")
-        opipe.filter_fasta(self.protein_min_len, self.protein_max_stop)
-        print("Running USEARCH")
-        opipe.allvsall_usearch("goodProteins.fasta", self.usearch_evalue,
-                               self.screen.ids.usearch_threads.text,
-                               self.usearch_output)
-        opipe.blast_parser(self.usearch_output)
-        opipe.remove_duplicate_entries()
-        opipe.load_blast("orthomcl.config")
-        opipe.pairs("orthomcl.config")
-        opipe.dump_pairs("orthomcl.config")
-        opipe.mcl(self.mcl_inflation)
-        opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix, "1000",
-                         self.group_prefix)
+        # Start pipeline in the background
+        d.start()
+
+        # Check status of pipeline and update progress dialog
+        func = partial(check_process, d)
+        Clock.schedule_interval(func, .1)
 
     def process_exec(self):
         """
