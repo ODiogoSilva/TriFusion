@@ -79,8 +79,7 @@ def install_schema(cfg_file, verbose=False):
     if verbose:
         print("Installing mySQL schema")
 
-    subprocess.Popen(["orthomclInstallSchema " + cfg_file],
-                     shell=True).wait()
+    subprocess.Popen(["orthomclInstallSchema", cfg_file]).wait()
 
 
 def check_unique_field(proteome_file):
@@ -187,11 +186,8 @@ def filter_fasta(min_len, max_stop, verbose=False):
     if verbose:
         print("Filtering proteome fasta files")
 
-    print("orthomclFilterFasta compliantFasta %s %s" %
-                      (str(min_len), str(max_stop)))
-
-    subprocess.Popen(["orthomclFilterFasta compliantFasta %s %s" %
-                      (str(min_len), str(max_stop))], shell=True).wait()
+    subprocess.Popen(["orthomclFilterFasta", "compliantFasta", str(min_len),
+                      str(max_stop)]).wait()
 
 
 def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False):
@@ -199,10 +195,10 @@ def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False):
     if verbose:
         print("Perfoming USEARCH allvsall")
 
-    subprocess.Popen(["usearch -ublast " + goodproteins + " -db " +
-                      goodproteins + " -blast6out " + usearch_outfile +
-                      " -evalue " + eval + " --maxaccepts 0 -threads "
-                      + cpus], shell=True).wait()
+    subprocess.Popen(["usearch", "-ublast", goodproteins, "-db",
+                          goodproteins, "-blast6out", usearch_outfile,
+                          "-evalue", str(eval), "--maxaccepts", "0",
+                          "-threads", str(cpus)]).wait()
 
 
 def blast_parser(usearch_ouput, verbose=False):
@@ -215,8 +211,10 @@ def blast_parser(usearch_ouput, verbose=False):
                       shell=True).wait()
 
 
-def remove_duplicate_entries():
-    print("Removing possible dupplicate entries")
+def remove_duplicate_entries(verbose=False):
+
+    if verbose:
+        print("Removing possible dupplicate entries")
 
     shutil.move("similarSequences.txt", "similarSequences.txt.old")
 
@@ -242,33 +240,48 @@ def remove_duplicate_entries():
     os.remove("similarSequences.txt.old")
 
 
-def load_blast(cfg_file):
-    print("Loading BLAST output into orthoMCL database")
-    subprocess.Popen(["orthomclLoadBlast " + cfg_file +
-                      " similarSequences.txt"], shell=True).wait()
+def load_blast(cfg_file, verbose=False):
+
+    if verbose:
+        print("Loading BLAST output into orthoMCL database")
+
+    subprocess.Popen(["orthomclLoadBlast", cfg_file,
+                      "similarSequences.txt"]).wait()
 
 
-def pairs(cfg_file):
-    print("Finding pairs for orthoMCL")
-    subprocess.Popen(["orthomclPairs " + cfg_file +
-                      " pairs.log cleanup=yes"], shell=True).wait()
+def pairs(cfg_file, verbose=False):
+
+    if verbose:
+        print("Finding pairs for orthoMCL")
+
+    subprocess.Popen(["orthomclPairs", cfg_file,
+                      "pairs.log", "cleanup=yes"]).wait()
 
 
-def dump_pairs(cfg_file):
-    print("Dump files from the database produced by the orthomclPairs program")
-    subprocess.Popen(["orthomclDumpPairsFiles " + cfg_file],
-                     shell=True).wait()
+def dump_pairs(cfg_file, verbose=False):
+
+    if verbose:
+        print("Dump files from the database produced by the orthomclPairs "
+              "program")
+
+    subprocess.Popen(["orthomclDumpPairsFiles", cfg_file]).wait()
 
 
-def mcl(inflation_list):
-    print("Running mcl algorithm")
+def mcl(inflation_list, verbose=False):
+
+    if verbose:
+        print("Running mcl algorithm")
+
     for val in inflation_list:
         subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_" +
                           val.replace(".", "")], shell=True).wait()
 
 
-def mcl_groups(inflation_list, mcl_prefix, start_id, group_file):
-    print("Dumping groups")
+def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
+
+    if verbose:
+        print("Dumping groups")
+
     for val in inflation_list:
         subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " +
                           start_id + " < mclOutput_" + val.replace(".", "")
