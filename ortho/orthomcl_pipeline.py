@@ -10,6 +10,7 @@ import shutil
 #sys.path.append("/home/diogo/Python/Modules")
 
 import argparse
+from ortho import OrthomclToolbox as OT
 
 parser = argparse.ArgumentParser(description="Pipeline for the OrthoMCL "
                                  "software")
@@ -287,6 +288,16 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
                           start_id + " < mclOutput_" + val.replace(".", "")
                           + " > " + group_file + "_" + str(val) + ".txt"],
                          shell=True).wait()
+
+
+def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
+
+    for val in inflation_list:
+        group_obj = OT.Group(group_prefix + "_%s.txt" % val, gene_t, sp_t)
+        group_obj.export_filtered_group(output_file_name="Filtered_groups_%s."
+                                                         "txt" % val)
+        group_obj.retrieve_fasta(db)
+
 
 if __name__ == '__main__':
 
