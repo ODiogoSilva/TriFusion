@@ -75,6 +75,7 @@ from os.path import expanduser
 from copy import deepcopy
 from functools import partial
 import pickle
+import signal
 import multiprocessing
 
 Config.set("kivy", "log_level", "warning")
@@ -4147,50 +4148,76 @@ class TriFusionApp(App):
             Progess dialog label
             """
 
-            nm.t = "Installing schema"
-            nm.c = 1
-            opipe.install_schema("orthomcl.config")
-            nm.t = "Adjusting Fasta Files"
-            nm.c = 2
-            opipe.adjust_fasta(self.proteome_files)
-            nm.t = "Filtering Fasta Files"
-            nm.c = 3
-            opipe.filter_fasta(self.protein_min_len, self.protein_max_stop)
-            nm.t = "Running USearch"
-            nm.c = 4
-            opipe.allvsall_usearch("goodProteins.fasta", self.usearch_evalue,
-                                   self.screen.ids.usearch_threads.text,
-                                   self.usearch_output)
-            nm.t = "Parsing USEARCH output"
-            nm.c = 5
-            opipe.blast_parser(self.usearch_output)
-            opipe.remove_duplicate_entries()
-            nm.t = "Loading USEARCH output to database"
-            nm.c = 6
-            opipe.load_blast("orthomcl.config")
-            nm.t = "Obtaining Pairs"
-            nm.c = 7
-            opipe.pairs("orthomcl.config")
-            opipe.dump_pairs("orthomcl.config")
-            nm.t = "Running MCL"
-            nm.c = 8
-            opipe.mcl(self.mcl_inflation)
-            nm.t = "Dumping groups"
-            nm.c = 9
-            opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix, "1000",
-                             self.group_prefix)
-            nm.t = "Filtering group files"
-            nm.c = 10
-            opipe.export_filtered_groups(self.mcl_inflation, self.group_prefix,
-                                         self.orto_max_gene, self.orto_min_sp,
-                                         "goodProteins.fasta")
+            if nm.k:
+                nm.t = "Installing schema"
+                nm.c = 1
+                opipe.install_schema("orthomcl.config")
 
+            if nm.k:
+                nm.t = "Adjusting Fasta Files"
+                nm.c = 2
+                opipe.adjust_fasta(self.proteome_files)
+
+            if nm.k:
+                nm.t = "Filtering Fasta Files"
+                nm.c = 3
+                opipe.filter_fasta(self.protein_min_len, self.protein_max_stop)
+
+            if nm.k:
+                nm.t = "Running USearch"
+                nm.c = 4
+                opipe.allvsall_usearch("goodProteins.fasta",
+                                  self.usearch_evalue,
+                                  self.screen.ids.usearch_threads.text,
+                                  self.usearch_output)
+
+            if nm.k:
+                nm.t = "Parsing USEARCH output"
+                nm.c = 5
+                opipe.blast_parser(self.usearch_output)
+
+            if nm.k:
+                opipe.remove_duplicate_entries()
+
+            if nm.k:
+                nm.t = "Loading USEARCH output to database"
+                nm.c = 6
+                opipe.load_blast("orthomcl.config")
+
+            if nm.k:
+                nm.t = "Obtaining Pairs"
+                nm.c = 7
+                opipe.pairs("orthomcl.config")
+
+            if nm.k:
+                opipe.dump_pairs("orthomcl.config")
+
+            if nm.k:
+                nm.t = "Running MCL"
+                nm.c = 8
+                opipe.mcl(self.mcl_inflation)
+
+            if nm.k:
+                nm.t = "Dumping groups"
+                nm.c = 9
+                opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix,
+                                 "1000", self.group_prefix)
+
+            if nm.k:
+                nm.t = "Filtering group files"
+                nm.c = 10
+                opipe.export_filtered_groups(self.mcl_inflation,
+                                             self.group_prefix,
+                                             self.orto_max_gene,
+                                             self.orto_min_sp,
+                                             "goodProteins.fasta")
 
         def check_process(p, dt):
             """
             Checks the status of the background process "p" and updates
             the progress dialog label
             """
+
 
             # Updates progress dialog label
             content.ids.msg.text = ns.t
@@ -4203,6 +4230,12 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
                 self.dismiss_popup()
 
+            # Listens for cancel signal
+            if content.proc_kill:
+                ns.k = False
+                self.dismiss_popup()
+                Clock.unschedule(func)
+
         # Create Progression dialog
         content = OrtoProgressDialog()
         self.show_popup(title="Running Orthology Search", content=content,
@@ -4214,6 +4247,7 @@ class TriFusionApp(App):
         # pipeline status
         manager = multiprocessing.Manager()
         ns = manager.Namespace()
+        ns.k = True
 
         # Create Process instance
         d = multiprocessing.Process(name="daemon", target=process_dispatch,

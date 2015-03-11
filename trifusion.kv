@@ -453,6 +453,7 @@
 <OrtoProgressDialog@BoxLayout>:
     padding: 10
     orientation: "vertical"
+    proc_kill: False
 
     Label:
         id: msg
@@ -470,9 +471,9 @@
             id: close_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            text: "Close"
+            text: "Cancel"
             on_release:
-                root.cancel()
+                root.proc_kill = True
 
 <OrtoFilterDialog>:
     orientation: "vertical"
