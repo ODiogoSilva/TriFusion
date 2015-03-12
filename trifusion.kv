@@ -2704,16 +2704,23 @@ FloatLayout:
                                                 AnchorLayout:
                                                     BoxLayout:
                                                         size_hint_x: None
-                                                        width: 250
+                                                        width: 200
+                                                        canvas.before:
+                                                            Color:
+                                                                rgba: 0.8, 0.8, 0.8, 1
+                                                            Rectangle:
+                                                                pos: self.pos
+                                                                size: self.size
                                                         Button:
                                                             size_hint_x: None
                                                             width: 30
                                                             background_normal: "data/backgrounds/search_bt.png"
+                                                            background_down: "data/backgrounds/search_bt.png"
                                                         TextInput:
                                                             size_hint_x: None
-                                                            width: 190
+                                                            width: 140
                                                             id: file_search
-                                                            background_color: (1, 1, 1, .8)
+                                                            background_color: (1, 1, 1, 0)
                                                             foreground_color: (.1, .1, .1, .51)
                                                             hint_text: "Search files..."
                                                             multiline: False
@@ -2721,6 +2728,7 @@ FloatLayout:
                                                             size_hint_x: None
                                                             width: 30
                                                             background_normal: "data/backgrounds/clear_bt.png"
+                                                            background_down: "data/backgrounds/clear_bt.png"
 
                                             ScrollView:
                                                 id: sv_file
@@ -2831,16 +2839,23 @@ FloatLayout:
                                                 AnchorLayout:
                                                     BoxLayout:
                                                         size_hint_x: None
-                                                        width: 250
+                                                        width: 200
+                                                        canvas.before:
+                                                            Color:
+                                                                rgba: 0.8, 0.8, 0.8, 1
+                                                            Rectangle:
+                                                                pos: self.pos
+                                                                size: self.size
                                                         Button:
                                                             size_hint_x: None
                                                             width: 30
                                                             background_normal: "data/backgrounds/search_bt.png"
+                                                            background_down: "data/backgrounds/search_bt.png"
                                                         TextInput:
                                                             size_hint_x: None
-                                                            width: 190
+                                                            width: 140
                                                             id: file_search
-                                                            background_color: (1, 1, 1, .8)
+                                                            background_color: (1, 1, 1, 0)
                                                             foreground_color: (.1, .1, .1, .51)
                                                             hint_text: "Search taxa..."
                                                             multiline: False
@@ -2848,6 +2863,7 @@ FloatLayout:
                                                             size_hint_x: None
                                                             width: 30
                                                             background_normal: "data/backgrounds/clear_bt.png"
+                                                            background_down: "data/backgrounds/clear_bt.png"
                                             ScrollView:
                                                 id: sv_sp
                                                 GridLayout:
