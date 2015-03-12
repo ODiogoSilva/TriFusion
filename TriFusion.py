@@ -587,6 +587,14 @@ class TriFusionApp(App):
     operation_tv = ObjectProperty(None)
     main_nodes = {}
 
+    # Attributes for storing taxa and file buttons for side panel. These will
+    # be used when search for files/taxa and for loading only button subsets
+    # for very large data sets. Each list element pertains a single file/taxon
+    # and it will be a tupple containing the main button, information button
+    # and remove button.
+    sp_file_bts = []
+    sp_taxa_bts = []
+
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
     # Contains the button widgets from the Files and Taxa tabs
@@ -1929,6 +1937,10 @@ class TriFusionApp(App):
                                              self.remove_bt))
                 self.root.ids.file_sl.add_widget(x_bt)
 
+                # Add all three buttons of the current file to the storage
+                # attribute
+                self.sp_file_bts.append((bt, inf_bt, x_bt))
+
                 # Updates the size of the grid layout according to the added
                 # buttons
                 self.root.ids.file_sl.height += 35
@@ -2001,6 +2013,10 @@ class TriFusionApp(App):
                                              " this taxon?",
                                              self.remove_bt))
                 self.root.ids.taxa_sl.add_widget(x_bt)
+
+                # Add all three buttons of the current taxon to the storage
+                # attribute
+                self.sp_taxa_bts.append((bt, inf_bt, x_bt))
 
                 # Updates the size of the grid layout according to the added
                 # button
