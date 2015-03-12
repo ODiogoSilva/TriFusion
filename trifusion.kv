@@ -2716,6 +2716,11 @@ FloatLayout:
                                                             width: 30
                                                             background_normal: "data/backgrounds/search_bt.png"
                                                             background_down: "data/backgrounds/search_bt.png"
+                                                            on_release:
+                                                                if file_search.text == "": \
+                                                                app.sidepanel_clear_search("files")
+                                                                else: \
+                                                                app.sidepanel_search_bts(file_search.text, "files")
                                                         TextInput:
                                                             size_hint_x: None
                                                             width: 140
@@ -2724,12 +2729,19 @@ FloatLayout:
                                                             foreground_color: (.1, .1, .1, .51)
                                                             hint_text: "Search files..."
                                                             multiline: False
+                                                            on_text_validate:
+                                                                if self.text == "": \
+                                                                app.sidepanel_clear_search("files")
+                                                                else: \
+                                                                app.sidepanel_search_bts(self.text, "files")
                                                         Button:
                                                             size_hint_x: None
                                                             width: 30
                                                             background_normal: "data/backgrounds/clear_bt.png"
                                                             background_down: "data/backgrounds/clear_bt.png"
-
+                                                            on_release:
+                                                                app.sidepanel_clear_search("files")
+                                                                file_search.text = ""
                                             ScrollView:
                                                 id: sv_file
                                                 GridLayout:
@@ -2738,8 +2750,7 @@ FloatLayout:
                                                     id: file_sl
                                                     padding: (10, 0, 10, 0)
                                                     spacing: 5
-                                                    height: 35
-                                                    #minimum_height: root.height*.1
+                                                    height: sum([x.height + 5 for x in self.children]) / 3
 
                                                     Button:
                                                         id: file_temp
@@ -2851,19 +2862,32 @@ FloatLayout:
                                                             width: 30
                                                             background_normal: "data/backgrounds/search_bt.png"
                                                             background_down: "data/backgrounds/search_bt.png"
+                                                            on_release:
+                                                                if taxa_search.text == "": \
+                                                                app.sidepanel_clear_search("taxa")
+                                                                else: \
+                                                                app.sidepanel_search_bts(taxa_search.text, "taxa")
                                                         TextInput:
                                                             size_hint_x: None
                                                             width: 140
-                                                            id: file_search
+                                                            id: taxa_search
                                                             background_color: (1, 1, 1, 0)
                                                             foreground_color: (.1, .1, .1, .51)
                                                             hint_text: "Search taxa..."
                                                             multiline: False
+                                                            on_text_validate:
+                                                                if self.text == "": \
+                                                                app.sidepanel_clear_search("taxa")
+                                                                else: \
+                                                                app.sidepanel_search_bts(self.text, "taxa")
                                                         Button:
                                                             size_hint_x: None
                                                             width: 30
                                                             background_normal: "data/backgrounds/clear_bt.png"
                                                             background_down: "data/backgrounds/clear_bt.png"
+                                                            on_release:
+                                                                app.sidepanel_clear_search("taxa")
+                                                                taxa_search.text = ""
                                             ScrollView:
                                                 id: sv_sp
                                                 GridLayout:
@@ -2872,6 +2896,7 @@ FloatLayout:
                                                     id: taxa_sl
                                                     padding: (10, 0, 10, 0)
                                                     spacing: 5
+                                                    height: sum([x.height + 5 for x in self.children]) / 3
                                                     Button:
                                                         id: species_temp
                                                         height: 40

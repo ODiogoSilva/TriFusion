@@ -592,8 +592,8 @@ class TriFusionApp(App):
     # for very large data sets. Each list element pertains a single file/taxon
     # and it will be a tupple containing the main button, information button
     # and remove button.
-    sp_file_bts = []
-    sp_taxa_bts = []
+    sp_file_bts = ListProperty([])
+    sp_taxa_bts = ListProperty([])
 
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
@@ -1605,6 +1605,57 @@ class TriFusionApp(App):
 
         Animation(width=width, d=.3, t="out_quart").start(wgt)
 
+    def sidepanel_search_bts(self, txt, panel):
+        """
+        Performs a search for file or taxa buttons in the side panel based
+        on the text string provided
+        :param txt: string, the expression used for the search
+        :param panel: string, the panel to perform the search. Can be either
+        'files' or 'taxa'.
+        """
+
+        if panel == "files":
+            # Setting which original button list
+            bt_list = self.sp_file_bts
+            # Setting which sink grid layout
+            gl_wgt = self.root.ids.file_sl
+        else:
+            bt_list = self.sp_taxa_bts
+            gl_wgt = self.root.ids.taxa_sl
+
+        # Find buttons that match the txt string
+        found_bts = [el for el in bt_list if txt.lower() in el[0].text.lower()]
+
+        # Clear the grid and populate with the found bts
+        gl_wgt.clear_widgets()
+        for bt, inf_bt, rm_bt in found_bts:
+            gl_wgt.add_widget(bt)
+            gl_wgt.add_widget(inf_bt)
+            gl_wgt.add_widget(rm_bt)
+
+    def sidepanel_clear_search(self, panel):
+        """
+        Clears previous search string and populates with the original buttons
+        :param panel: string, the panel to clear the search. Can be either
+        'files' or 'taxa'
+        """
+
+        if panel == "files":
+            # Setting which original button list
+            bt_list = self.sp_file_bts
+            # Setting which sink grid layout
+            gl_wgt = self.root.ids.file_sl
+        else:
+            bt_list = self.sp_taxa_bts
+            gl_wgt = self.root.ids.taxa_sl
+
+        # Clear the grid and populate with the found bts
+        gl_wgt.clear_widgets()
+        for bt, inf_bt, rm_bt in bt_list:
+            gl_wgt.add_widget(bt)
+            gl_wgt.add_widget(inf_bt)
+            gl_wgt.add_widget(rm_bt)
+
     def load(self, selection):
         """
         Loads selected input files into the program. This should be switched
@@ -1941,10 +1992,6 @@ class TriFusionApp(App):
                 # attribute
                 self.sp_file_bts.append((bt, inf_bt, x_bt))
 
-                # Updates the size of the grid layout according to the added
-                # buttons
-                self.root.ids.file_sl.height += 35
-
     def populate_species(self):
         """
         This method grabs the taxa names from the input files that were
@@ -2017,10 +2064,6 @@ class TriFusionApp(App):
                 # Add all three buttons of the current taxon to the storage
                 # attribute
                 self.sp_taxa_bts.append((bt, inf_bt, x_bt))
-
-                # Updates the size of the grid layout according to the added
-                # button
-                self.root.ids.taxa_sl.height += 35
 
     def popup_info(self, value):
         """
