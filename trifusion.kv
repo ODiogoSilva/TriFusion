@@ -2646,10 +2646,8 @@ FloatLayout:
                                         pos: self.pos
                                         size: self.size
 
-                    ScrollView:
+                    BoxLayout:
                         id: sp
-                        size_hint_x: .8
-                        width: 0
 
                         Carousel:
                             id: carousel
@@ -2696,16 +2694,41 @@ FloatLayout:
 
                                         BoxLayout:
                                             orientation: "vertical"
-                                            spacing: 20
+                                            spacing: 10
+                                            Widget:
+                                                size_hint_y: None
+                                                height: 0
+                                            BoxLayout:
+                                                size_hint_y: None
+                                                height: 30
+                                                AnchorLayout:
+                                                    BoxLayout:
+                                                        size_hint_x: None
+                                                        width: 250
+                                                        Button:
+                                                            size_hint_x: None
+                                                            width: 30
+                                                            background_normal: "data/backgrounds/search_bt.png"
+                                                        TextInput:
+                                                            size_hint_x: None
+                                                            width: 190
+                                                            id: file_search
+                                                            background_color: (1, 1, 1, .8)
+                                                            foreground_color: (.1, .1, .1, .51)
+                                                            hint_text: "Search files..."
+                                                            multiline: False
+                                                        Button:
+                                                            size_hint_x: None
+                                                            width: 30
+                                                            background_normal: "data/backgrounds/clear_bt.png"
+
                                             ScrollView:
-                                                size_hint_y: .9
-                                                height: root.height*.65
                                                 id: sv_file
                                                 GridLayout:
                                                     cols: 3
                                                     size_hint_y: None
                                                     id: file_sl
-                                                    padding: 10
+                                                    padding: (10, 0, 10, 0)
                                                     spacing: 5
                                                     height: 35
                                                     #minimum_height: root.height*.1
@@ -2720,7 +2743,7 @@ FloatLayout:
                                             Label:
                                                 id: file_lab
                                                 size_hint_y: None
-                                                height: 1
+                                                height: 30
                                                 color: (.6, .6, .6, 1)
                                             BoxLayout:
                                                 id: bt_bar_file
@@ -2798,16 +2821,40 @@ FloatLayout:
                                         text: "Taxa"
                                         BoxLayout:
                                             orientation: "vertical"
-                                            spacing: 20
+                                            spacing: 10
+                                            Widget:
+                                                size_hint_y: None
+                                                height: 0
+                                            BoxLayout:
+                                                size_hint_y: None
+                                                height: 30
+                                                AnchorLayout:
+                                                    BoxLayout:
+                                                        size_hint_x: None
+                                                        width: 250
+                                                        Button:
+                                                            size_hint_x: None
+                                                            width: 30
+                                                            background_normal: "data/backgrounds/search_bt.png"
+                                                        TextInput:
+                                                            size_hint_x: None
+                                                            width: 190
+                                                            id: file_search
+                                                            background_color: (1, 1, 1, .8)
+                                                            foreground_color: (.1, .1, .1, .51)
+                                                            hint_text: "Search taxa..."
+                                                            multiline: False
+                                                        Button:
+                                                            size_hint_x: None
+                                                            width: 30
+                                                            background_normal: "data/backgrounds/clear_bt.png"
                                             ScrollView:
-                                                size_hint_y: .9
-                                                height: root.height*.65
                                                 id: sv_sp
                                                 GridLayout:
                                                     cols: 3
                                                     size_hint_y: None
                                                     id: taxa_sl
-                                                    padding: 10
+                                                    padding: (10, 0, 10, 0)
                                                     spacing: 5
                                                     Button:
                                                         id: species_temp
@@ -2818,7 +2865,7 @@ FloatLayout:
                                             Label:
                                                 id: sp_lab
                                                 size_hint_y: None
-                                                height: 1
+                                                height: 30
                                                 color: (.6, .6, .6, 1)
                                             BoxLayout:
                                                 spacing: 5
