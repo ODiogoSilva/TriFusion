@@ -4218,7 +4218,6 @@ class TriFusionApp(App):
             the progress dialog label
             """
 
-
             # Updates progress dialog label
             content.ids.msg.text = ns.t
             # Updates progress bar
