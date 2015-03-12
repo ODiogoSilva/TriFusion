@@ -1656,7 +1656,7 @@ class TriFusionApp(App):
             gl_wgt.add_widget(inf_bt)
             gl_wgt.add_widget(rm_bt)
 
-    def load(self, selection):
+    def load(self, selection, bad_aln):
         """
         Loads selected input files into the program. This should be switched
         after selecting files in a FileChooser widget. The selected files
@@ -1674,7 +1674,7 @@ class TriFusionApp(App):
         """
 
         # Parses the files into the program
-        bad_aln = self.load_files(selection)
+        #bad_aln = self.load_files(selection)
 
         # Checking for input sequence type inconsistencies. If there are
         # alignments with different sequence types, then issue and error popup
@@ -3848,7 +3848,38 @@ class TriFusionApp(App):
     #
     ###################################
 
-    def load_files(self, files):
+    def load_files_subproc(self, files):
+
+        def load_proc(nm):
+
+            nm.alns = AlignmentList(files)
+            return
+
+        def check_proc(p, dt):
+
+            if not p.is_alive():
+                alns = ns.alns
+                Clock.unschedule(func)
+                self.dismiss_popup()
+                self.load_files(files, alns)
+
+        manager = multiprocessing.Manager()
+        ns = manager.Namespace()
+
+        #parent_con, child_con = multiprocessing.Pipe()
+        d = multiprocessing.Process(target=load_proc, args=(ns, ))
+
+        d.start()
+
+        content = OrtoProgressDialog()
+        self.show_popup(title="Loading files", content=content,
+                        size=(400, 200))
+        content.ids.msg.text = "Processing..."
+
+        func = partial(check_proc, d)
+        Clock.schedule_interval(func, .5)
+
+    def load_files(self, selection, aln_list):
         """
         Loads the selected input files into the program using the
         AlignmentList object. If there are invalid alignment objects in the
@@ -3862,7 +3893,7 @@ class TriFusionApp(App):
         :returns: List of invalid/badly formatted alignment objects
         """
 
-        aln_list = AlignmentList(files)
+        #aln_list = AlignmentList(files)
 
         # Check for consistency in sequence type across alignments
         current_seq_type = set(self.sequence_types + aln_list.format_list())
@@ -3893,7 +3924,7 @@ class TriFusionApp(App):
                 self.active_alignment_list = deepcopy(self.alignment_list)
                 self.active_taxa_list = self.active_alignment_list.taxa_names
 
-        return aln_list.bad_alignments
+        self.load(selection, aln_list.bad_alignments)
 
     def get_taxa_information(self, alt_list=None):
         """
