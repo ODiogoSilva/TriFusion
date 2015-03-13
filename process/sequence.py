@@ -260,9 +260,9 @@ class Alignment (Base):
                     taxa = line[1:].strip()
                     taxa = self.rm_illegal(taxa)
                     self.alignment[taxa] = ""
-                elif line.strip() != "" and taxa is not None:
+                elif line.strip() != "" and taxa:
                     self.alignment[taxa] += line.strip().lower().\
-                        replace(" ", "")
+                        replace(" ", "").replace("*", "")
             self.locus_length = len(list(self.alignment.values())[0])
             self.partitions.set_length(self.locus_length)
 
