@@ -1280,10 +1280,15 @@
 
 <LoadMoreBt@AnchorLayout>:
     anchor_x: "left"
+    Widget:
+        size_hint_y:None
+        height: 50
     Button:
         text: "Load next 20"
         size_hint_x: None
         width: 260
+        background_normal: "data/backgrounds/main_op_bt.png"
+        background_down: "data/backgrounds/bt_sideprocess.png"
         on_release:
             app.sidepanel_load_more_filebts()
 
