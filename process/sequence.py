@@ -1054,7 +1054,10 @@ class AlignmentList (Base):
         :param alignment_obj: Alignment object
         """
 
-        self.alignment_object_list.append(alignment_obj)
+        if isinstance(alignment_obj.alignment, Exception):
+            self.bad_alignments.append(alignment_obj)
+        else:
+            self.alignment_object_list.append(alignment_obj)
 
         # Update taxa names with the new alignment
         self.taxa_names = self._get_taxa_list()
