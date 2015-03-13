@@ -1640,10 +1640,14 @@ class TriFusionApp(App):
         else:
             bt_list = sorted(self.active_taxa_list)
             gl_wgt = self.root.ids.taxa_sl
+            mouse_bts = self.mouse_over_bts["Taxa"]
 
         # Find buttons that match the txt string
-        found_bts = [el.split(sep)[-1] for el in bt_list if
-                     txt.lower() in el.split(sep)[-1]]
+        if panel == "files":
+            found_bts = [el.split(sep)[-1] for el in bt_list if
+                         txt.lower() in el.split(sep)[-1].lower()]
+        else:
+            found_bts = [el for el in bt_list if txt.lower() in el.lower()]
 
         # Clear the grid and populate with the found bts
         gl_wgt.clear_widgets()
