@@ -604,6 +604,13 @@ class TriFusionApp(App):
     sp_file_bts = ListProperty([])
     sp_taxa_bts = ListProperty([])
 
+    # Attributes that control the amount of taxa/file buttons showing at the
+    # side panel. To avoid staggering the app with tons of buttons, a
+    # maximum number of buttons showing initially is set. More buttons
+    # can be later added.
+    MAX_BUTTON = 20
+    count = 0
+
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
     # Contains the button widgets from the Files and Taxa tabs
@@ -1966,9 +1973,6 @@ class TriFusionApp(App):
         proteome_list
         """
 
-        MAX_BUTTON = 20
-        count = 0
-
         # Determine which list is used to populate
         if mode == "alignment":
             lst = self.file_list
@@ -1994,9 +1998,9 @@ class TriFusionApp(App):
 
         for infile in lst:
 
-            if count <= MAX_BUTTON:
+            if self.count <= self.MAX_BUTTON:
 
-                count += 1
+                self.count += 1
 
                 file_name = infile.split("/")[-1]
                 # This prevents duplicate files from being added
