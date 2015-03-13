@@ -380,6 +380,10 @@ class ProteomePopup(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class LoadProgressDialog(BoxLayout):
+    pass
+
+
 class FilePopup(BoxLayout):
     """
     Class with a custom BoxLayout controlling the informative popup for the
@@ -3852,16 +3856,34 @@ class TriFusionApp(App):
 
         def load_proc(nm):
 
-            nm.alns = AlignmentList(files)
+            aln_obj = AlignmentList([])
+            nm.c = 0
+            for f in files:
+                nm.c += 1
+                nm.m = f.split(sep)[-1]
+                aln_obj.add_alignment_file(f)
+            else:
+                nm.alns = aln_obj
             return
 
         def check_proc(p, dt):
+
+            try:
+                content.ids.pb.value = ns.c
+                content.ids.msg.text = "Processing file %s" % ns.m
+            except AttributeError:
+                pass
 
             if not p.is_alive():
                 alns = ns.alns
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 self.load_files(files, alns)
+
+            if content.proc_kill:
+                d.terminate()
+                self.dismiss_popup()
+                Clock.unschedule(func)
 
         manager = multiprocessing.Manager()
         ns = manager.Namespace()
@@ -3871,13 +3893,13 @@ class TriFusionApp(App):
 
         d.start()
 
-        content = OrtoProgressDialog()
+        content = LoadProgressDialog()
+        content.ids.pb.max = len(files)
         self.show_popup(title="Loading files", content=content,
-                        size=(400, 200))
-        content.ids.msg.text = "Processing..."
+                        size=(400, 300))
 
         func = partial(check_proc, d)
-        Clock.schedule_interval(func, .5)
+        Clock.schedule_interval(func, .1)
 
     def load_files(self, selection, aln_list):
         """
