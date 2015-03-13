@@ -44,6 +44,7 @@ from kivy.factory import Factory
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
@@ -345,6 +346,10 @@ class BookmarkLabel(Label):
 
 
 class SideLabel(Label):
+    pass
+
+
+class LoadMoreBt(AnchorLayout):
     pass
 
 
@@ -1738,7 +1743,7 @@ class TriFusionApp(App):
                 self.update_tabs()
                 # Gathers taxa  and file information
                 self.original_tx_inf = self.get_taxa_information()
-                self.original_file_inf = self.get_file_information()
+                #self.original_file_inf = self.get_file_information()
 
                 # Unlocks options dependent on the availability of input data
                 self.root.ids.tx_group_bt.disabled = False
@@ -1912,6 +1917,44 @@ class TriFusionApp(App):
             self.root.ids.taxa_opt.disabled = False
             self.root.ids.rm_all_taxa.disabled = False
 
+    def sidepanel_create_bts(self, idx):
+
+        bt = ToggleButton(text=idx, state="down", id=idx,
+                          height=30, size_hint=(.8, None), shorten=True,
+                          shorten_from="right", halign="center",
+                          bold=True,
+                          background_down=join("data", "backgrounds",
+                                                 "bt_process.png"),
+                          background_normal=join("data", "backgrounds",
+                                                 "bt_process_off.png"))
+
+        # Setting horizontal text size for shortening
+        bt.text_size[0] = bt.size[0] * 1.3
+        # Binding functionality to toggle button
+        bt.bind(on_release=self.toggle_selection)
+
+        # Set Information button and add the widget
+        inf_bt = Button(size_hint=(None, None), width=30,
+                        height=30, id="%s?" % idx,
+                        background_normal=join("data",
+                                             "backgrounds",
+                                             "info_bt.png"))
+        inf_bt.bind(on_release=self.popup_info)
+
+        # Set remove button with event binded and add the widget
+        x_bt = Button(size_hint=(None, None), width=30,
+                      height=30, id="%sX" % idx,
+                      border=(0, 0, 0, 0),
+                      background_normal=join("data",
+                                             "backgrounds",
+                                             "remove_bt.png"))
+        x_bt.bind(on_release=partial(self.check_action,
+                                     "Are you sure you want to remove"
+                                     " this item?",
+                                     self.remove_bt))
+
+        return bt, inf_bt, x_bt
+
     def populate_input_files(self, mode="alignment"):
         """
         This method grabs the input files that were selected in the
@@ -1922,6 +1965,9 @@ class TriFusionApp(App):
         If alignment, it will use file_list; If proteome, it will use
         proteome_list
         """
+
+        MAX_BUTTON = 20
+        count = 0
 
         # Determine which list is used to populate
         if mode == "alignment":
@@ -1948,53 +1994,32 @@ class TriFusionApp(App):
 
         for infile in lst:
 
-            file_name = infile.split("/")[-1]
-            # This prevents duplicate files from being added
-            if file_name not in [x.id for x in self.root.ids.file_sl.children]:
+            if count <= MAX_BUTTON:
 
-                bt = ToggleButton(text=file_name, state="down", id=file_name,
-                                  height=30, size_hint=(.8, None), shorten=True,
-                                  shorten_from="right", halign="center",
-                                  bold=True,
-                                  background_down=join("data", "backgrounds",
-                                                         "bt_process.png"),
-                                  background_normal=join("data", "backgrounds",
-                                                         "bt_process_off.png"))
-                # Add button to storage for mouse over events
-                self.mouse_over_bts["Files"].append(bt)
-                # Setting horizontal text size for shortening
-                bt.text_size[0] = bt.size[0] * 1.3
-                # Binding functionality to toggle button
-                bt.bind(on_release=self.toggle_selection)
+                count += 1
 
-                # Adds toggle button with file name
-                self.root.ids.file_sl.add_widget(bt)
+                file_name = infile.split("/")[-1]
+                # This prevents duplicate files from being added
+                if file_name not in [x.id for x in
+                                     self.root.ids.file_sl.children]:
 
-                # Set Information button and add the widget
-                inf_bt = Button(size_hint=(None, None), width=30,
-                                height=30, id="%s?" % file_name,
-                                background_normal=join("data",
-                                                     "backgrounds",
-                                                     "info_bt.png"))
-                self.root.ids.file_sl.add_widget(inf_bt)
-                inf_bt.bind(on_release=self.popup_info)
+                    bt, inf_bt, x_bt = self.sidepanel_create_bts(file_name)
 
-                # Set remove button with event binded and add the widget
-                x_bt = Button(size_hint=(None, None), width=30,
-                              height=30, id="%sX" % file_name,
-                              border=(0, 0, 0, 0),
-                              background_normal=join("data",
-                                                     "backgrounds",
-                                                     "remove_bt.png"))
-                x_bt.bind(on_release=partial(self.check_action,
-                                             "Are you sure you want to remove"
-                                             " this file?",
-                                             self.remove_bt))
-                self.root.ids.file_sl.add_widget(x_bt)
+                    # Add button to storage for mouse over events
+                    self.mouse_over_bts["Files"].append(bt)
 
-                # Add all three buttons of the current file to the storage
-                # attribute
-                self.sp_file_bts.append((bt, inf_bt, x_bt))
+                    # Adds buttons to gridlayout
+                    self.root.ids.file_sl.add_widget(bt)
+                    self.root.ids.file_sl.add_widget(inf_bt)
+                    self.root.ids.file_sl.add_widget(x_bt)
+
+                    # Add all three buttons of the current file to the storage
+                    # attribute
+                    self.sp_file_bts.append((bt, inf_bt, x_bt))
+
+            else:
+                self.root.ids.file_sl.add_widget(LoadMoreBt())
+                return
 
     def populate_species(self):
         """
@@ -2025,44 +2050,14 @@ class TriFusionApp(App):
             # Prevents duplicate taxa from being entered
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
 
-                bt = ToggleButton(text=tx, state="down", id=tx,
-                                  height=30, size_hint=(.8, None), shorten=True,
-                                  shorten_from="right", halign="center",
-                                  bold=True,
-                                  background_down=join("data", "backgrounds",
-                                                         "bt_process.png"),
-                                  background_normal=join("data", "backgrounds",
-                                                         "bt_process_off.png"))
+                bt, inf_bt, x_bt = self.sidepanel_create_bts(tx)
+
                 # Add button to storage for mouse over events
                 self.mouse_over_bts["Taxa"].append(bt)
-                # Setting horizontal text size for shortening
-                bt.text_size[0] = bt.size[0] * 1.3
-                # Binding functionality to toggle button
-                bt.bind(on_release=self.toggle_selection)
 
-                # Add toggle button with taxa name
+                # Add buttons to gridlayout
                 self.root.ids.taxa_sl.add_widget(bt)
-
-                # Set Information button and add the widget
-                inf_bt = Button(size_hint=(None, None), width=30,
-                                height=30, id="%s?" % tx, border=(0, 0, 0, 0),
-                                background_normal=join("data",
-                                                     "backgrounds",
-                                                     "info_bt.png"))
                 self.root.ids.taxa_sl.add_widget(inf_bt)
-                inf_bt.bind(on_release=self.popup_info)
-
-                # Set remove button with event binded and add the widget
-                x_bt = Button(size_hint=(None, None), width=30,
-                              height=30, id="%sX" % tx,
-                              borders=(0, 0, 0, 0),
-                              background_normal=join("data",
-                                                     "backgrounds",
-                                                     "remove_bt.png"))
-                x_bt.bind(on_release=partial(self.check_action,
-                                             "Are you sure you want to remove"
-                                             " this taxon?",
-                                             self.remove_bt))
                 self.root.ids.taxa_sl.add_widget(x_bt)
 
                 # Add all three buttons of the current taxon to the storage
@@ -2142,7 +2137,6 @@ class TriFusionApp(App):
 
             # Get file name
             file_name = value.id[:-1]
-            print()
 
             if self.filename_map[file_name] in self.active_file_list:
 
@@ -2154,11 +2148,11 @@ class TriFusionApp(App):
                 self.active_file_inf = self.get_file_information()
 
                 content.ids.in_format.text = "%s" % \
-                                self.original_file_inf[file_name]["aln_format"]
+                                self.active_file_inf[file_name]["aln_format"]
                 content.ids.seq_type.text = "%s" % \
-                                self.original_file_inf[file_name]["seq_type"]
+                                self.active_file_inf[file_name]["seq_type"]
                 content.ids.is_aln.text = "%s" % \
-                                self.original_file_inf[file_name]["is_aln"]
+                                self.active_file_inf[file_name]["is_aln"]
                 content.ids.seq_size.text = "%s" % \
                                 self.active_file_inf[file_name]["aln_len"]
                 content.ids.n_taxa.text = "%s" % \
