@@ -2001,29 +2001,47 @@ class TriFusionApp(App):
             if self.count <= self.MAX_BUTTON:
 
                 self.count += 1
-
-                file_name = infile.split("/")[-1]
-                # This prevents duplicate files from being added
-                if file_name not in [x.id for x in
-                                     self.root.ids.file_sl.children]:
-
-                    bt, inf_bt, x_bt = self.sidepanel_create_bts(file_name)
-
-                    # Add button to storage for mouse over events
-                    self.mouse_over_bts["Files"].append(bt)
-
-                    # Adds buttons to gridlayout
-                    self.root.ids.file_sl.add_widget(bt)
-                    self.root.ids.file_sl.add_widget(inf_bt)
-                    self.root.ids.file_sl.add_widget(x_bt)
-
-                    # Add all three buttons of the current file to the storage
-                    # attribute
-                    self.sp_file_bts.append((bt, inf_bt, x_bt))
+                self.sidepanel_add_filebts(infile)
 
             else:
                 self.root.ids.file_sl.add_widget(LoadMoreBt())
                 return
+
+    def sidepanel_add_filebts(self, infile):
+
+        file_name = infile.split("/")[-1]
+        # This prevents duplicate files from being added
+        if file_name not in [x.id for x in
+                             self.root.ids.file_sl.children]:
+            bt, inf_bt, x_bt = self.sidepanel_create_bts(file_name)
+            # Add button to storage for mouse over events
+            self.mouse_over_bts["Files"].append(bt)
+            # Adds buttons to gridlayout
+            self.root.ids.file_sl.add_widget(bt)
+            self.root.ids.file_sl.add_widget(inf_bt)
+            self.root.ids.file_sl.add_widget(x_bt)
+            # Add all three buttons of the current file to the storage
+            # attribute
+            self.sp_file_bts.append((bt, inf_bt, x_bt))
+
+    def sidepanel_load_more_filebts(self):
+
+        MAX_BUTTONS = self.MAX_BUTTON + self.count
+
+        self.root.ids.file_sl.remove_widget(self.root.ids.file_sl.children[0])
+
+        for i in range(self.count, MAX_BUTTONS):
+
+            self.count += 1
+
+            try:
+                infile = self.file_list[self.count]
+                self.sidepanel_add_filebts(infile)
+            except IndexError:
+                return
+
+        else:
+            self.root.ids.file_sl.add_widget(LoadMoreBt())
 
     def populate_species(self):
         """
