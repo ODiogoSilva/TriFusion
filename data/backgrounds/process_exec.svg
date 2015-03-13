@@ -825,9 +825,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="-1238.2969"
-     inkscape:cy="-273.18416"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="-934.24785"
+     inkscape:cy="201.02963"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -2311,5 +2311,53 @@
        style="fill:#ff5555;fill-opacity:1"
        inkscape:export-xdpi="17.089373"
        inkscape:export-ydpi="17.089373" />
+    <path
+       style="fill:#333333;fill-opacity:1;stroke:#5599ff;stroke-width:1.01908171;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -907.33825,926.86892 -155.71015,0 0.1544,-38.98041 156.60486,0.16327 19.22456,19.51542 z"
+       id="path3068-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_label.png"
+       inkscape:export-xdpi="179.96001"
+       inkscape:export-ydpi="179.96001" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40.76327133px;line-height:125%;font-family:'Jungle Fever NF';-inkscape-font-specification:'Jungle Fever NF';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-1075.9899"
+       y="893.87146"
+       id="text4456"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="179.96001"
+       inkscape:export-ydpi="179.96001"
+       transform="scale(0.98114477,1.0192176)"><tspan
+         sodipodi:role="line"
+         id="tspan4458"
+         x="-1075.9899"
+         y="893.87146"
+         style="font-weight:bold;font-size:15.28622627px;fill:#ffffff">Orthology Results</tspan></text>
+    <path
+       style="fill:#333333;fill-opacity:1;stroke:#5599ff;stroke-width:1.01908171;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -1040.9432,939.18008 155.7102,0 -0.1544,38.98041 -156.6049,-0.16327 -19.2245,-19.51542 z"
+       id="path3068-9-7"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_label.png"
+       inkscape:export-xdpi="179.96001"
+       inkscape:export-ydpi="179.96001" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40.76327133px;line-height:125%;font-family:'Jungle Fever NF';-inkscape-font-specification:'Jungle Fever NF';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-1059.4985"
+       y="945.09894"
+       id="text4456-9"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="179.96001"
+       inkscape:export-ydpi="179.96001"
+       transform="scale(0.98114476,1.0192176)"><tspan
+         sodipodi:role="line"
+         id="tspan4458-7"
+         x="-1059.4985"
+         y="945.09894"
+         style="font-weight:bold;font-size:15.28622627px;fill:#ffffff">Orthology Search</tspan></text>
   </g>
 </svg>
