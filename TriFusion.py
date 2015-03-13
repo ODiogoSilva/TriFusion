@@ -1655,6 +1655,11 @@ class TriFusionApp(App):
             gl_wgt.add_widget(x_bt)
             mouse_bts.append(bt)
 
+        if panel == "files":
+            self.mouse_over_bts["Files"] = mouse_bts
+        else:
+            self.mouse_over_bts["Taxa"] = mouse_bts
+
     def sidepanel_clear_search(self, panel):
         """
         Clears previous search string and populates with the original buttons
@@ -1681,6 +1686,17 @@ class TriFusionApp(App):
             gl_wgt.add_widget(inf_bt)
             gl_wgt.add_widget(rm_bt)
             mouse_bts.append(bt)
+
+        if panel == "files":
+            self.mouse_over_bts["Files"] = mouse_bts
+        else:
+            self.mouse_over_bts["Taxa"] = mouse_bts
+
+        try:
+            d = self.file_list[self.count + 1]
+            gl_wgt.add_widget(LoadMoreBt())
+        except IndexError:
+            return
 
     def load(self, selection, bad_aln):
         """
@@ -4430,6 +4446,7 @@ class TriFusionApp(App):
         # the alignment list, there is no way to return those taxa to the
         # object
         aln_object = deepcopy(self.active_alignment_list)
+        proc_files = len(aln_object.alignment_object_list)
 
         # Update active file set of the alignment object
         aln_object = self.update_active_fileset(aln_object)
@@ -4522,17 +4539,12 @@ class TriFusionApp(App):
                                 output_dir=self.output_dir,
                                 use_charset=self.use_nexus_partitions)
 
-        proc_files = len(aln_object.alignment_object_list)
         if proc_files == 1:
             self.dialog_floatcheck("All Done! %s file was successfully "
-                                   "processed" %
-                                   (len(aln_object.alignment_object_list)),
-                                   t="info")
+                                   "processed" % proc_files, t="info")
         else:
             self.dialog_floatcheck("All Done! %s files were successfully "
-                                   "processed" %
-                                   (len(aln_object.alignment_object_list)),
-                                   t="info")
+                                   "processed" % proc_files, t="info")
 
 if __name__ == '__main__':
     TriFusionApp().run()
