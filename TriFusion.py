@@ -1902,8 +1902,8 @@ class TriFusionApp(App):
             active_lst = self.active_proteome_files
 
         self.root.ids.file_lab.text = "%s of %s files selected" % (
-                                       len(lst),
-                                       len(active_lst))
+                                       len(active_lst),
+                                       len(lst))
 
         # Check if there are 0 out of 0 files. In this case, disabled the
         # select/unselect all buttons
