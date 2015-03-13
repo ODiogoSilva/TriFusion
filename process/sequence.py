@@ -1059,8 +1059,24 @@ class AlignmentList (Base):
         else:
             self.alignment_object_list.append(alignment_obj)
 
-        # Update taxa names with the new alignment
-        self.taxa_names = self._get_taxa_list()
+            # Update taxa names with the new alignment
+            self.taxa_names = self._get_taxa_list()
+
+    def add_alignment_file(self, file_name):
+        """
+        Adds a new alignment based on a file name
+        :param file_name: string. Path to the alignment file
+        """
+
+        aln = Alignment(file_name)
+
+        if isinstance(aln.alignment, Exception):
+            self.bad_alignments.append(aln)
+        else:
+            self.alignment_object_list.append(aln)
+
+            # Update taxa names with the new alignment
+            self.taxa_names = self._get_taxa_list()
 
     def retrieve_alignment(self, name):
         """
