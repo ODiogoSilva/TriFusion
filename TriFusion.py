@@ -289,6 +289,14 @@ class OrthologySearchGrid(TabbedPanel):
     pass
 
 
+class OrthoReportDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
+class OrthoGraphicReport(BoxLayout):
+    pass
+
+
 class OrtoFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -2940,6 +2948,48 @@ class TriFusionApp(App):
             # Update button text
             self.screen.ids.adv_search_options.text = "Show additional options"
 
+    def dialog_search_report(self, stat_storage):
+        """
+        Creates the dialog that reports the results of the Orthology search
+        :param stat_storage: dictionary. Each entry corresponds to an inflation
+        value, which will have a list as a value. The list will contain:
+
+           [total_orts, species_compliant_orts, gene_compliant_orts,
+           final_orts]
+        """
+
+        content = OrthoReportDialog(cancel=self.dismiss_popup)
+
+        for inf in self.mcl_inflation:
+            stats = stat_storage[inf]
+
+            # Creating graphical report
+            report_wgt = OrthoGraphicReport()
+
+            # Setting total orthologs
+            report_wgt.ids.total_ort.text = str(stats[0])
+
+            # Setting gene compliant
+            report_wgt.ids.gf_txt.text = str(stats[2])
+            report_wgt.ids.gf_box.size_hint_x = float(stats[2]) / \
+                                                float(stats[0])
+
+            # Setting species compliant
+            report_wgt.ids.sf_txt.text = str(stats[1])
+            report_wgt.ids.sf_box.size_hint_x = float(stats[1]) / \
+                                                float(stats[0])
+
+            # Setting final orthologs
+            report_wgt.ids.final_txt.text = str(stats[3])
+            report_wgt.ids.final_box.size_hint_x = float(stats[3]) / \
+                                                float(stats[0])
+
+            # Adding widget to carousel
+            content.ids.report_car.add_widget(report_wgt)
+
+        self.show_popup(title="Orthology search report", content=content,
+                        size=(400, 470))
+
     def dialog_mysql(self):
         """
         Creates dialog for MySQL settings
@@ -3027,7 +3077,6 @@ class TriFusionApp(App):
             self.screen.ids.mysql_bt.text = "Password set"
         else:
             self.screen.ids.mysql_bt.text = "Select..."
-
 
     def save_protein_filters(self, min_len, max_stop):
         """
@@ -4364,11 +4413,13 @@ class TriFusionApp(App):
             if nm.k:
                 nm.t = "Filtering group files"
                 nm.c = 10
-                opipe.export_filtered_groups(self.mcl_inflation,
+                stats = opipe.export_filtered_groups(self.mcl_inflation,
                                              self.group_prefix,
                                              self.orto_max_gene,
                                              self.orto_min_sp,
                                              "goodProteins.fasta")
+                print(stats)
+                nm.stats = stats
 
         def check_process(p, dt):
             """
@@ -4386,6 +4437,8 @@ class TriFusionApp(App):
             if not p.is_alive():
                 Clock.unschedule(func)
                 self.dismiss_popup()
+                print(ns.stats)
+                self.dialog_search_report(ns.stats)
 
             # Listens for cancel signal
             if content.proc_kill:

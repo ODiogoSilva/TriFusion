@@ -505,6 +505,207 @@
             on_release:
                 root.proc_kill = True
 
+<OrthoGraphicReport@BoxLayout>:
+    padding: 10
+    spacing: 10
+    orientation: "vertical"
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        spacing: 5
+        orientation: "vertical"
+        Label:
+            bold: True
+            text: "Total orthologs"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: (.33, .6, 1, .8)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                bold: True
+                id: total_ort
+
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        spacing: 5
+        orientation: "vertical"
+        Label:
+            bold: True
+            text: "After gene filter"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+        BoxLayout:
+            BoxLayout:
+                id: gf_box
+                canvas.before:
+                    Color:
+                        rgba: (.33, .6, 1, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    id: gf_txt
+                    bold: True
+
+            BoxLayout
+                size_hint_x: 1 - gf_box.size_hint_x
+                canvas.before:
+                    Color:
+                        rgba: (.4, .4, .4, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        spacing: 5
+        orientation: "vertical"
+        Label:
+            bold: True
+            text: "After species filter"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+        BoxLayout
+            BoxLayout:
+                id: sf_box
+                canvas.before:
+                    Color:
+                        rgba: (.33, .6, 1, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    bold: True
+                    id: sf_txt
+            BoxLayout
+                size_hint_x: 1 - sf_box.size_hint_x
+                canvas.before:
+                    Color:
+                        rgba: (.4, .4, .4, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+    BoxLayout:
+        size_hint_y: None
+        height: 80
+        spacing: 5
+        orientation: "vertical"
+        Label:
+            bold: True
+            text: "Final Orthologs"
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+        BoxLayout:
+            BoxLayout:
+                id: final_box
+                canvas.before:
+                    Color:
+                        rgba: (.33, .6, 1, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    bold: True
+                    id: final_txt
+            BoxLayout
+                size_hint_x: 1 - final_box.size_hint_x
+                canvas.before:
+                    Color:
+                        rgba: (.4, .4, .4, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+<OrthoReportDialog@BoxLayout>:
+    padding: 10
+    orientation: "vertical"
+    spacing: 10
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        AnchorLayout:
+            padding: 5
+            anchor_x: "left"
+            anchor_y: "center"
+            size_hint_x: None
+            width: 50
+            Button:
+                background_normal: "data/backgrounds/prev_car.png"
+                background_down: "data/backgrounds/prev_car_down.png"
+                on_release:
+                    report_car.load_previous()
+        AnchorLayout:
+            anchor_x: "center"
+            anchor_y: "center"
+            Label:
+                bold: True
+                text: "Inflation values"
+        AnchorLayout:
+            padding: 5
+            anchor_x: "right"
+            anchor_y: "center"
+            size_hint_x: None
+            width: 50
+            Button:
+                background_normal: "data/backgrounds/next_car.png"
+                background_down: "data/backgrounds/next_car_down.png"
+                on_release:
+                    report_car.load_next()
+
+    BoxLayout:
+        padding: 10
+        Carousel:
+            id: report_car
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Go to Restuls"
+            bold: True
+            on_release:
+                root.cancel()
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Close"
+            bold: True
+            on_release:
+                root.cancel()
+
+<OrtoReportBox@BoxLayout>:
+    orientation: "vertical"
+    ExecLabel:
+        id: total_orts
+    ExecLabel:
+        id: genet_orts
+    ExecLabel:
+        id: spt_orts
+    ExecLabel:
+        id: twot_orts
+
 <OrtoFilterDialog>:
     orientation: "vertical"
     spacing: 20
