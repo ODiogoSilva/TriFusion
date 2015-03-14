@@ -240,8 +240,6 @@ ShowcaseScreen:
                                     spacing: 10
                                     orientation: "vertical"
                                     BoxLayout
-                                        size_hint_y: None
-                                        height: 150
                                         orientation: "vertical"
                                         Label:
                                             size_hint_y: None
@@ -255,11 +253,46 @@ ShowcaseScreen:
                                         Hseparator:
                                             thickness: 1.5
                                         ScrollView:
-                                    Button
-                                    Button
-                                    Button
+                                            GridLayout:
+                                                cols: 1
+                                                id: group_gl
+                                                padding: 5,5
+                                                Button:
+                                                    disabled: True
+                                                    text: "No groups loaded"
+                                                    size_hint_y: None
+                                                    height: 35
+                                    Hseparator:
+                                        thickness: 1.5
+                                    Button:
+                                        size_hint_y: None
+                                        height: 85
+                                        text: "Plots"
+                                        bold: True
+                                        color: (0.216, 0.67, 0.784, 1)
+                                        font_size: 34
+                                        background_normal: "data/backgrounds/plots_bt.png"
+                                        border: 0,0,0,0
+                                    Button:
+                                        size_hint_y: None
+                                        height: 85
+                                        text: "Tables"
+                                        bold: True
+                                        color: (0.216, 0.67, 0.784, 1)
+                                        font_size: 34
+                                        background_normal: "data/backgrounds/tables_bt.png"
+                                        border: 0,0,0,0
+                                    Button:
+                                        size_hint_y: None
+                                        height: 85
+                                        text: "Export Data"
+                                        bold: True
+                                        color: (0.216, 0.67, 0.784, 1)
+                                        font_size: 30
+                                        background_normal: "data/backgrounds/exports_bt.png"
+                                        border: 0,0,0,0
                                 ScrollView:
-                                    id: par
+                                    id: display
                                     ScatterLayout:
                                         do_rotation: False
                                         Label:
