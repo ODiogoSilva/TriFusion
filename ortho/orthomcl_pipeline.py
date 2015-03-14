@@ -297,11 +297,11 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
     for val in inflation_list:
         group_obj = OT.Group(group_prefix + "_%s.txt" % val, gene_t, sp_t)
         stats = group_obj.export_filtered_group(
-            output_file_name="Filtered_groups_%s.txt" % val)
+            output_file_name="Filtered_groups_%s.txt" % val, get_stats=True)
         group_obj.retrieve_fasta(db)
         stats_storage[val] = stats
 
-    return stats
+    return stats_storage
 
 
 if __name__ == '__main__':
