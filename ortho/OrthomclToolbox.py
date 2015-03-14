@@ -228,8 +228,7 @@ class Group ():
             final_orthologs = 0
 
         for cluster in self.groups:
-            if cluster.species_compliant is True and cluster.gene_compliant is\
-                    True:
+            if cluster.species_compliant and cluster.gene_compliant:
                 output_handle.write("%s: %s\n" % (
                                     cluster.name, " ".join(cluster.sequences)))
                 if get_stats:
