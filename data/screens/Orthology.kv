@@ -256,12 +256,16 @@ ShowcaseScreen:
                                             GridLayout:
                                                 cols: 1
                                                 id: group_gl
-                                                padding: 5,5
+                                                padding: (5, 5)
+                                                spacing: 5
+                                                size_hint_y: None
+                                                height: sum([x.size[1] for x in self.children])
                                                 Button:
                                                     disabled: True
                                                     text: "No groups loaded"
                                                     size_hint_y: None
                                                     height: 35
+
                                     Hseparator:
                                         thickness: 1.5
                                     Button:
