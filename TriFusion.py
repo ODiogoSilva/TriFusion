@@ -665,7 +665,7 @@ class TriFusionApp(App):
 
     # Orthology cluster filters
     orto_max_gene = 1
-    orto_min_sp = .3
+    orto_min_sp = 3
 
     # Attribute containing the path to the proteome files
     proteome_files = []
