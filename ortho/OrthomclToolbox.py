@@ -30,7 +30,6 @@ import subprocess
 import os
 from os.path import join
 
-
 class Cluster():
     """ Object for clusters of the OrthoMCL groups file. It is useful to set a
      number of attributes that will make subsequent filtration and
@@ -73,7 +72,7 @@ class Cluster():
         self.sequences = fields[1].strip().split()
 
         # Setting the gene frequency for each species in the cluster
-        species_list = set([field.split("|")[1] for field in self.sequences])
+        species_list = set([field.split("|")[0] for field in self.sequences])
         self.species_frequency = dict((species, frequency) for species,
                                       frequency in zip(species_list,
                                       map(lambda species: str(
@@ -102,6 +101,10 @@ class Cluster():
             self.gene_compliant = True
         else:
             self.gene_compliant = False
+
+
+class OrthoGroupException(Exception):
+    pass
 
 
 class Group ():
@@ -269,12 +272,19 @@ class Group ():
         if not os.path.exists("Orthologs"):
             os.makedirs("Orthologs")
 
-        db_aln = Alignment(database)
+        if isinstance(database, str):
+            db_aln = Alignment(database)
+            db_aln = db_aln.alignment
+        elif isinstance(database, dict):
+            db_aln = database
+        else:
+            raise OrthoGroupException("The input database is neither a string"
+                                      "or a dictionary object")
 
         for cluster in self.groups:
             output_handle = open(join("Orthologs", cluster.name), "w")
             for sequence_id in cluster.sequences:
-                seq = db_aln.alignment[sequence_id]
+                seq = db_aln[sequence_id]
                 output_handle.write(">%s\n%s\n" % (sequence_id, seq))
             else:
                 output_handle.close()
