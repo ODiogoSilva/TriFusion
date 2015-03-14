@@ -177,15 +177,14 @@ class Group ():
             total_sequence_num += sequence_num
 
             # For clusters above species threshold
-            if cluster.species_compliant is True:
+            if cluster.species_compliant:
                 clusters_species_threshold += 1
 
             # For clusters below gene threshold
-            if cluster.gene_compliant is True:
+            if cluster.gene_compliant:
                 clusters_gene_threshold += 1
 
-            if cluster.species_compliant is True and cluster.gene_compliant is\
-                    True:
+            if cluster.species_compliant and cluster.gene_compliant:
                 clusters_all_threshold += 1
 
         statistics = [total_cluster_num, total_sequence_num,
