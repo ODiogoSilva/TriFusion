@@ -215,18 +215,35 @@ class Group ():
 
         output_handle.close()
 
-    def export_filtered_group(self, output_file_name="filtered_groups"):
+    def export_filtered_group(self, output_file_name="filtered_groups",
+                              get_stats=False):
         """ Writes the filtered groups into a new file """
 
         output_handle = open(output_file_name, "w")
+
+        if get_stats:
+            all_orthologs = len(self.groups)
+            sp_compliant = 0
+            gene_compliant = 0
+            final_orthologs = 0
 
         for cluster in self.groups:
             if cluster.species_compliant is True and cluster.gene_compliant is\
                     True:
                 output_handle.write("%s: %s\n" % (
                                     cluster.name, " ".join(cluster.sequences)))
+                if get_stats:
+                    final_orthologs += 1
+            if get_stats:
+                if cluster.species_compliant:
+                    sp_compliant += 1
+                if cluster.gene_compliant:
+                    gene_compliant += 1
 
         output_handle.close()
+
+        if get_stats:
+            return all_orthologs, sp_compliant, gene_compliant, final_orthologs
 
     def update_filtered_group(self):
         """
