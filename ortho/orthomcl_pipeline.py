@@ -10,6 +10,8 @@ import shutil
 #sys.path.append("/home/diogo/Python/Modules")
 
 import argparse
+import time
+import pickle
 from ortho import OrthomclToolbox as OT
 
 parser = argparse.ArgumentParser(description="Pipeline for the OrthoMCL "
@@ -124,6 +126,9 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     # Storing header list to check for duplicates
     header_list = []
 
+    # Storing dictionary with header and sequence for later use
+    seq_storage = {}
+
     # Will prevent writing
     lock = True
 
@@ -134,24 +139,30 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     for line in file_in:
         if line.startswith(">"):
             if line not in header_list:
-                header_list.append(line)
                 fields = line.split("|")
+                seq_storage["%s|%s" % (code, fields[unique_id])] = ""
+                header_list.append(line)
                 file_out.write(">%s|%s\n" % (code, fields[unique_id]))
                 lock = True
             else:
                 lock = False
         elif lock:
+            seq_storage["%s|%s" % (code, fields[unique_id])] += line.strip()
             file_out.write(line)
 
     # Close file handles:
     file_in.close()
     file_out.close()
 
+    return seq_storage
+
 
 def adjust_fasta(proteome_files, code=True, verbose=False):
 
     if verbose:
         print("Running orthomcladjust_fasta")
+
+    seq_storage = {}
 
     # Create compliant fasta directory
     if not os.path.exists(os.path.join(output_dir, "compliantFasta")):
@@ -165,7 +176,8 @@ def adjust_fasta(proteome_files, code=True, verbose=False):
         unique_id = check_unique_field(proteome)
 
         # Adjust fasta
-        prep_fasta(proteome, code_name, unique_id)
+        stg = prep_fasta(proteome, code_name, unique_id)
+        seq_storage.update(stg)
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
@@ -173,6 +185,8 @@ def adjust_fasta(proteome_files, code=True, verbose=False):
         shutil.move(proteome.split(".")[0] + "_mod.fas",
                     os.path.join(output_dir, "compliantFasta",
                                  protome_file_name))
+
+    return seq_storage
 
 
 def check_fasta(proteome_list):
@@ -298,7 +312,9 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
         group_obj = OT.Group(group_prefix + "_%s.txt" % val, gene_t, sp_t)
         stats = group_obj.export_filtered_group(
             output_file_name="Filtered_groups_%s.txt" % val, get_stats=True)
+        print(time.time())
         group_obj.retrieve_fasta(db)
+        print(time.time())
         stats_storage[val] = stats
 
     return stats_storage

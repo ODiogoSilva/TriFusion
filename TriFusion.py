@@ -3042,8 +3042,8 @@ class TriFusionApp(App):
         Save orthology clusters filters
         """
 
-        self.orto_max_gene = gene_filt
-        self.orto_min_sp = sp_filt
+        self.orto_max_gene = int(gene_filt)
+        self.orto_min_sp = int(sp_filt)
 
     def save_inflation(self, inflation_wgt):
         """
@@ -4363,7 +4363,7 @@ class TriFusionApp(App):
             if nm.k:
                 nm.t = "Adjusting Fasta Files"
                 nm.c = 2
-                opipe.adjust_fasta(self.proteome_files)
+                db = opipe.adjust_fasta(self.proteome_files)
 
             if nm.k:
                 nm.t = "Filtering Fasta Files"
@@ -4416,9 +4416,8 @@ class TriFusionApp(App):
                 stats = opipe.export_filtered_groups(self.mcl_inflation,
                                              self.group_prefix,
                                              self.orto_max_gene,
-                                             self.orto_min_sp,
-                                             "goodProteins.fasta")
-                print(stats)
+                                             self.orto_min_sp, db)
+
                 nm.stats = stats
 
         def check_process(p, dt):
