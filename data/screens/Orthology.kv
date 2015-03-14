@@ -232,13 +232,40 @@ ShowcaseScreen:
                                         bold: True
                                         background_normal: "data/backgrounds/bt_process.png"
 
-                            Label:
-                                halign: "center"
-                                valign: "middle"
-                                text_size: self.size
-                                bold: True
-                                text: "An overview of the Orthology search results will be displayed here"
-                                color: (.7,.7,.7,1)
-
-
-
+                            BoxLayout:
+                                BoxLayout:
+                                    size_hint_x: None
+                                    width: 220
+                                    padding: 10
+                                    spacing: 10
+                                    orientation: "vertical"
+                                    BoxLayout
+                                        size_hint_y: None
+                                        height: 150
+                                        orientation: "vertical"
+                                        Label:
+                                            size_hint_y: None
+                                            height: 30
+                                            text: "Group file(s)"
+                                            halign: "center"
+                                            valign: "middle"
+                                            text_size: self.size
+                                            bold: True
+                                            color: (0.216, 0.67, 0.784, 1)
+                                        Hseparator:
+                                            thickness: 1.5
+                                        ScrollView:
+                                    Button
+                                    Button
+                                    Button
+                                ScrollView:
+                                    id: par
+                                    ScatterLayout:
+                                        do_rotation: False
+                                        Label:
+                                            halign: "center"
+                                            valign: "middle"
+                                            text_size: self.size
+                                            bold: True
+                                            text: "An overview of the Orthology search results will be displayed here"
+                                            color: (.7,.7,.7,1)
