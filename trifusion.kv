@@ -509,6 +509,7 @@
     padding: 10
     spacing: 10
     orientation: "vertical"
+    inf: None
     BoxLayout:
         size_hint_y: None
         height: 50
@@ -655,7 +656,7 @@
             anchor_y: "center"
             Label:
                 bold: True
-                text: "Inflation values"
+                text: "Inflation value %s" % report_car.current_slide.inf if report_car.current_slide else "Waaaa?"
         AnchorLayout:
             padding: 5
             anchor_x: "right"
@@ -667,6 +668,7 @@
                 background_down: "data/backgrounds/next_car_down.png"
                 on_release:
                     report_car.load_next()
+                    print(report_car.current_slide.inf)
 
     BoxLayout:
         padding: 10

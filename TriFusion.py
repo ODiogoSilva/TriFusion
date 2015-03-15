@@ -2960,11 +2960,14 @@ class TriFusionApp(App):
 
         content = OrthoReportDialog(cancel=self.dismiss_popup)
 
-        for inf in self.mcl_inflation:
+        for inf in sorted(self.mcl_inflation):
             stats = stat_storage[inf]
 
             # Creating graphical report
             report_wgt = OrthoGraphicReport()
+
+            # Setting inflation value attribute
+            report_wgt.inf = inf
 
             # Setting total orthologs
             report_wgt.ids.total_ort.text = str(stats[0])
