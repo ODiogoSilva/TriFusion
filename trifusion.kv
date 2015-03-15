@@ -2102,7 +2102,10 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "OK"
             on_release:
+                if rev_conc.active: \
                 app.save_reverseconc_settings()
+                else: \
+                root.cancel()
 
         Button:
             id: cancel_bt
