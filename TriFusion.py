@@ -3372,6 +3372,11 @@ class TriFusionApp(App):
         reverse concatenation
         """
 
+        # Check if a partition file has been selected
+        if self.partitions_file == "":
+            return self.dialog_floatcheck("Please provide a partitions file",
+                                          t="error")
+
         # Check for the validity of the partitions file
         er = self.check_partitions_file()
 
