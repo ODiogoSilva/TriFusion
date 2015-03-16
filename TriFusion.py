@@ -1017,6 +1017,31 @@ class TriFusionApp(App):
                     s = self._auto_completion(path)
                     self.screen.ids.path_bx.children[0].text = s
 
+    def _common_path(self):
+        """
+        Returns a string with the longest common path contained in the
+        self.file_list dir. This is used by FileChoosers to open the nearest
+        directory to their input files
+        """
+
+        # Return None if there are no input files
+        if not self.file_list:
+            return
+
+        # Get common path
+        common_path = ""
+        for char in zip(*self.file_list):
+            if len(set(char)) == 1:
+                common_path += "".join(set(char))
+            else:
+                break
+
+        # Get nearest directory from common path
+        while not os.path.isdir(common_path):
+            common_path = sep.join(common_path.split(sep)[:-1])
+
+        return common_path
+
     def _auto_completion(self, path):
         """
         Method used for providing auto completion for text input widgets
@@ -3497,8 +3522,6 @@ class TriFusionApp(App):
 
         # Inherits the layout defined in the .kv file under <SaveDialog>
         content = SaveDialog(cancel=self.dismiss_popup)
-        # Sets the home path as starting point
-        content.ids.sd_filechooser.path = self.home_path
 
         # Custom behaviour for main output file chooser dialog
         if idx == "main_output":
