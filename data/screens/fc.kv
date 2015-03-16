@@ -28,30 +28,25 @@ ShowcaseScreen:
                         size: self.size
 
             ScrollView:
-                size_hint_y: .8
                 GridLayout:
                     size_hint_y: None
-                    height: 0
+                    height: sum([x.height + 10 for x in self.children]) / 2
                     cols: 2
                     id: sv_book
                     orientation: "vertical"
                     spacing: [5, 10]
 
             BoxLayout:
-                Widget:
-                    size_hint_x: .2
-
-                Button:
-                    size_hint_y: None
-                    id: add_bk_bt
-                    bold: True
-                    height: 30
-                    text: "Add Bookmark"
-                    background_normal: "data/backgrounds/bt_process.png"
-                    on_release: app.save_bookmark(icon_view_tab.path)
-
-                Widget:
-                    size_hint_x: .2
+                size_hint_y: None
+                height: 30
+                AnchorLayout:
+                    Button:
+                        id: add_bk_bt
+                        bold: True
+                        width: 100
+                        text: "Add Bookmark"
+                        background_normal: "data/backgrounds/bt_process.png"
+                        on_release: app.save_bookmark(icon_view_tab.path)
 
         Vseparator:
             thickness: 1.5
