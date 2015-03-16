@@ -1395,7 +1395,7 @@
         FileChooserL:
             id: sd_filechooser
             text: "master"
-            path: app._common_path()
+            path: app._common_path() if app._common_path() else app.home_path
             on_selection: text_input.text = self.selection
 
         BoxLayout:
