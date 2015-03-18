@@ -30,6 +30,7 @@ import subprocess
 import os
 from os.path import join
 
+
 class Cluster():
     """ Object for clusters of the OrthoMCL groups file. It is useful to set a
      number of attributes that will make subsequent filtration and
@@ -121,6 +122,8 @@ class Group ():
         self.gene_threshold = gene_threshold
         self.species_threshold = species_threshold
 
+        # Attribute with name of the group file, which will be an ID
+        self.group_name = groups_file
         # Initialize the project prefix for possible output files
         self.prefix = project_prefix
         # Initialize attribute containing the original groups
