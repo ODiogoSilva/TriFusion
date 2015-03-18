@@ -1507,7 +1507,9 @@ class TriFusionApp(App):
         xbt = Button(size_hint=(None, None), width=30,
                      height=30, id="%sX" % bk, border=(0, 0, 0, 0),
                      background_normal=join("data", "backgrounds",
-                                            "remove_bt.png"))
+                                            "remove_bt.png"),
+                     background_down=join("data", "backgrounds",
+                                            "remove_bt_down.png"))
         # Bind to function that removes bookmark button as well as the path
         # from self.bm_file
         xbt.bind(on_release=partial(self.check_action,
@@ -2005,18 +2007,20 @@ class TriFusionApp(App):
         # Set Information button and add the widget
         inf_bt = Button(size_hint=(None, None), width=30,
                         height=30, id="%s?" % idx,
-                        background_normal=join("data",
-                                             "backgrounds",
-                                             "info_bt.png"))
+                        background_normal=join("data", "backgrounds",
+                                               "info_bt.png"),
+                        background_down=join("data", "backgrounds",
+                                               "info_bt_down.png"))
         inf_bt.bind(on_release=self.popup_info)
 
         # Set remove button with event binded and add the widget
         x_bt = Button(size_hint=(None, None), width=30,
                       height=30, id="%sX" % idx,
                       border=(0, 0, 0, 0),
-                      background_normal=join("data",
-                                             "backgrounds",
-                                             "remove_bt.png"))
+                      background_normal=join("data", "backgrounds",
+                                             "remove_bt.png"),
+                      background_down=join("data", "backgrounds",
+                                             "remove_bt_down.png"))
         x_bt.bind(on_release=partial(self.check_action,
                                      "Are you sure you want to remove"
                                      " this item?",
