@@ -338,7 +338,7 @@ class Group ():
 class MultiGroups ():
     """ Creates an object composed of multiple Group objects """
 
-    def __init__(self, groups_files, gene_threshold=None,
+    def __init__(self, groups_files=None, gene_threshold=None,
                  species_threshold=None, project_prefix="MyGroups"):
         """
         :param groups_files: A list containing the file names of the multiple
@@ -355,11 +355,12 @@ class MultiGroups ():
 
         self.multiple_groups = []
 
-        for group_file in groups_files:
+        if groups_files:
+            for group_file in groups_files:
 
-            group_object = Group(group_file, self.gene_threshold,
-                                 self.species_threshold)
-            self.multiple_groups.append(group_object)
+                group_object = Group(group_file, self.gene_threshold,
+                                     self.species_threshold)
+                self.multiple_groups.append(group_object)
 
     def add_group(self, group_obj):
         """
