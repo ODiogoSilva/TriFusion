@@ -362,6 +362,10 @@ class MultiGroups ():
                                      self.species_threshold)
                 self.multiple_groups.append(group_object)
 
+    def __iter__(self):
+
+        return iter(self.multiple_groups)
+
     def add_group(self, group_obj):
         """
         Adds a group object
