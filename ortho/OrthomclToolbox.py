@@ -369,6 +369,14 @@ class MultiGroups ():
 
         self.multiple_groups.append(group_obj)
 
+    def add_muligroups(self, multigroup_obj):
+        """
+        Merges a MultiGroup object
+        :param multigroup_obj: MultiGroup object
+        """
+
+        self.multiple_groups.extend(multigroup_obj.multiple_groups)
+
     def basic_multigroup_statistics(self, output_file_name=
                                     "multigroup_base_statistics.csv"):
         """
