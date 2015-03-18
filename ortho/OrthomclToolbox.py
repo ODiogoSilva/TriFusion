@@ -121,10 +121,14 @@ class Group ():
         self.gene_threshold = gene_threshold
         self.species_threshold = species_threshold
 
-        # Initialize the project prefix for possible ouput files
+        # Initialize the project prefix for possible output files
         self.prefix = project_prefix
-        # Initialize attributes for the parser_groups method
+        # Initialize attribute containing the original groups
         self.groups = []
+        # Initialize atribute containing the groups filtered using the gene and
+        # species threshold. This attribute can be updated at any time using
+        # the update_filtered_group method
+        self.filtered_groups = []
         self.name = None
         # Parse groups file and populate groups attribute
         self.__parse_groups(groups_file)
@@ -143,6 +147,8 @@ class Group ():
 
         for line in groups_file_handle:
             cluster_object = Cluster(line)
+            # Add cluster to general group list
+            self.groups.append(cluster_object)
 
             cluster_species = cluster_object.species_frequency.keys()
             [self.species_list.append(species) for species in cluster_species
@@ -152,21 +158,31 @@ class Group ():
                             self.gene_threshold is not None:
                 cluster_object.apply_filter(self.gene_threshold,
                                             self.species_threshold)
-                self.groups.append(cluster_object)
+                # Add cluster to the filtered group list
+                self.filtered_groups.append(cluster_object)
 
-    def basic_group_statistics(self):
+    def basic_group_statistics(self, filt=True):
         """
         This method creates a basic table in list format containing basic
         information of the groups file (total number of clusters, total number
-         of sequences, number of clusters below the gene threshold, number of
+        of sequences, number of clusters below the gene threshold, number of
         clusters below the species threshold and number of clusters below the
-         gene AND species threshold)
+        gene AND species threshold)
+        :param filt: Boolean. Whether to use the filtered groups (True) or
+        total groups (False)
         :return: List containing number of [total clusters, total sequences,
         clusters above gene threshold, clusters above species threshold,
         clusters above gene and species threshold]
         """
+
+        # Set clusters to be used
+        if filt:
+            groups = self.filtered_groups
+        else:
+            groups = self.groups
+
         # Total number of clusters
-        total_cluster_num = len(self.groups)
+        total_cluster_num = len(groups)
 
         # Remaining counters
         total_sequence_num = 0
@@ -174,7 +190,7 @@ class Group ():
         clusters_species_threshold = 0
         clusters_all_threshold = 0
 
-        for cluster in self.groups:
+        for cluster in groups:
             # For total number of sequences
             sequence_num = len(cluster.sequences)
             total_sequence_num += sequence_num
@@ -197,13 +213,24 @@ class Group ():
         return statistics
 
     def paralog_per_species_statistic(self, output_file_name=
-                                      "Paralog_per_species.csv"):
-        """ This method creates a CSV table with information on the number of
-        paralog clusters per species """
+                                      "Paralog_per_species.csv", filt=True):
+        """
+        This method creates a CSV table with information on the number of
+        paralog clusters per species
+        :param output_file_name: string. Name of the output csv file
+        :param filt: Boolean. Whether to use the filtered groups (True) or
+        total groups (False)
+        """
+
+        # Setting which clusters to use
+        if filt:
+            groups = self.filtered_groups
+        else:
+            groups = self.groups
 
         paralog_count = dict((species, 0) for species in self.species_list)
 
-        for cluster in self.groups:
+        for cluster in groups:
             for species in paralog_count:
                 if cluster.species_frequency[species] > 1:
                     paralog_count[species] += 1
@@ -221,30 +248,38 @@ class Group ():
                               get_stats=False):
         """ Writes the filtered groups into a new file """
 
-        output_handle = open(output_file_name, "w")
+        if self.filtered_groups:
 
-        if get_stats:
-            all_orthologs = len(self.groups)
-            sp_compliant = 0
-            gene_compliant = 0
-            final_orthologs = 0
+            output_handle = open(output_file_name, "w")
 
-        for cluster in self.groups:
-            if cluster.species_compliant and cluster.gene_compliant:
-                output_handle.write("%s: %s\n" % (
-                                    cluster.name, " ".join(cluster.sequences)))
-                if get_stats:
-                    final_orthologs += 1
             if get_stats:
-                if cluster.species_compliant:
-                    sp_compliant += 1
-                if cluster.gene_compliant:
-                    gene_compliant += 1
+                all_orthologs = len(self.groups)
+                sp_compliant = 0
+                gene_compliant = 0
+                final_orthologs = 0
 
-        output_handle.close()
+            for cluster in self.filtered_groups:
+                if cluster.species_compliant and cluster.gene_compliant:
+                    output_handle.write("%s: %s\n" % (
+                                        cluster.name, " ".join(cluster.sequences)))
+                    if get_stats:
+                        final_orthologs += 1
+                if get_stats:
+                    if cluster.species_compliant:
+                        sp_compliant += 1
+                    if cluster.gene_compliant:
+                        gene_compliant += 1
 
-        if get_stats:
-            return all_orthologs, sp_compliant, gene_compliant, final_orthologs
+            output_handle.close()
+
+            if get_stats:
+                return all_orthologs, sp_compliant, gene_compliant,\
+                       final_orthologs
+
+        else:
+            raise OrthoGroupException("The groups object must be filtered "
+                                       "before using the export_filtered_group"
+                                       "method")
 
     def update_filtered_group(self):
         """
@@ -260,14 +295,21 @@ class Group ():
                     True:
                 updated_group.append(cluster)
 
-        self.groups = updated_group
+        self.filtered_groups = updated_group
 
-    def retrieve_fasta(self, database):
+    def retrieve_fasta(self, database, filt=True):
         """
         When provided with a database in Fasta format, this will use the
         Alignment object to retrieve sequences
         :param database: String. Fasta file
+        :param filt: Boolean. Whether to use the filtered groups (True) or
+        total groups (False)
         """
+
+        if filt:
+            groups = self.filtered_groups
+        else:
+            groups = self.groups
 
         if not os.path.exists("Orthologs"):
             os.makedirs("Orthologs")
@@ -279,29 +321,15 @@ class Group ():
             db_aln = database
         else:
             raise OrthoGroupException("The input database is neither a string"
-                                      "or a dictionary object")
+                                      "nor a dictionary object")
 
-        for cluster in self.groups:
+        for cluster in groups:
             output_handle = open(join("Orthologs", cluster.name), "w")
             for sequence_id in cluster.sequences:
                 seq = db_aln[sequence_id]
                 output_handle.write(">%s\n%s\n" % (sequence_id, seq))
             else:
                 output_handle.close()
-
-    def retrieve_fasta_blast(self, database):
-        """ When provided with the BLAST database used in the OrthoMCL
-        analysis, this will retrieve the fasta sequences from each cluster
-        and save them in an individual fasta file """
-
-        subprocess.Popen(["mkdir Retrieved_sequences"], shell=True).wait()
-
-        for cluster in self.groups:
-            for sequence_id in cluster.sequences:
-                subprocess.Popen(["blastdbcmd -db %s -dbtype prot -entry '%s'"
-                                  " >> Retrieved_sequences/%s.fas" % (
-                                  database, sequence_id,
-                                  cluster.name)], shell=True).wait()
 
 
 class MultiGroups ():
