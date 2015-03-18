@@ -361,6 +361,14 @@ class MultiGroups ():
                                  self.species_threshold)
             self.multiple_groups.append(group_object)
 
+    def add_group(self, group_obj):
+        """
+        Adds a group object
+        :param group_obj: Group object
+        """
+
+        self.multiple_groups.append(group_obj)
+
     def basic_multigroup_statistics(self, output_file_name=
                                     "multigroup_base_statistics.csv"):
         """
