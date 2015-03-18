@@ -307,15 +307,17 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
 def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
 
     stats_storage = {}
+    group_storage = []
 
     for val in inflation_list:
         group_obj = OT.Group(group_prefix + "_%s.txt" % val, gene_t, sp_t)
+        group_storage.append(group_obj)
         stats = group_obj.export_filtered_group(
             output_file_name="Filtered_groups_%s.txt" % val, get_stats=True)
         group_obj.retrieve_fasta(db)
         stats_storage[val] = stats
 
-    return stats_storage
+    return stats_storage, OT.MultiGroups(group_storage)
 
 
 if __name__ == '__main__':
