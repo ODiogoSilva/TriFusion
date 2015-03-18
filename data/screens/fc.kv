@@ -100,6 +100,14 @@ ShowcaseScreen:
                 BoxLayout:
                     id: path_bx
                     PathLabel
+                Button:
+                    id: clear_s
+                    text: "Clear Selection"
+                    size_hint_x: None
+                    width: 125
+                    bold: True
+                    background_normal: "data/backgrounds/bt_process.png"
+                    on_release: icon_view_tab.selection = []
 
             FileChooserM:
                 id: icon_view_tab
@@ -144,18 +152,27 @@ ShowcaseScreen:
             BoxLayout:
                 size_hint_y: None
                 height: 40
-                #padding: 10
                 spacing: 15
 
                 Button:
-                    id: open_bt
-                    text: "Open"
+                    id: open_close_bt
+                    text: "Open and Close"
                     background_normal: "data/backgrounds/bt_process.png"
                     background_down: "data/backgrounds/bt_process_off.png"
                     bold: True
                     on_release:
                         if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc(icon_view_tab.selection); app.go_previous_screen()
                         if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes(icon_view_tab.selection); app.go_previous_screen()
+
+                Button:
+                    id: open_bt
+                    text: "Open"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    bold: True
+                    on_release:
+                        if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc(icon_view_tab.selection)
+                        if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes(icon_view_tab.selection)
 
                 Button:
                     id: cancel_bt
@@ -165,10 +182,3 @@ ShowcaseScreen:
                     bold: True
                     on_release: app.go_previous_screen()
 
-                Button:
-                    id: clear_bt
-                    text: "Clear selection"
-                    background_normal: "data/backgrounds/bt_process_off.png"
-                    background_down: "data/backgrounds/bt_process.png"
-                    bold: True
-                    on_release: icon_view_tab.selection = []

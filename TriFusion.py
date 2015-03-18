@@ -889,6 +889,7 @@ class TriFusionApp(App):
                         bt1.dispatch("on_release")
                     else:
                         bt2.dispatch("on_release")
+
             # This will cycle through three buttons
             else:
                 bt_list = [bt1, bt2, bt3]
@@ -977,10 +978,10 @@ class TriFusionApp(App):
             # and selecting them
             bn = join("data", "backgrounds", "bt_process.png")
             bd = join("data", "backgrounds", "bt_process_off.png")
+            open_close_bt = self.screen.ids.open_close_bt
             open_bt = self.screen.ids.open_bt
             cancel_bt = self.screen.ids.cancel_bt
-            clear_bt = self.screen.ids.clear_bt
-            popup_keys(bn, bd, open_bt, cancel_bt, clear_bt)
+            popup_keys(bn, bd, open_close_bt, open_bt, cancel_bt)
 
         #=======================================================================
         # General keybindings
