@@ -3600,7 +3600,7 @@ class TriFusionApp(App):
         """
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
-        aln_obj = self.update_active_fileset(self.alignment_list)
+        aln_obj = self.update_active_fileset(deepcopy(self.alignment_list))
 
         # Get main operation
         try:
@@ -4535,13 +4535,11 @@ class TriFusionApp(App):
         # self.active_alignment_list. This is because when taxa are removed from
         # the alignment list, there is no way to return those taxa to the
         # object
-        aln_object = deepcopy(self.active_alignment_list)
-        proc_files = len(aln_object.alignment_object_list)
-
         # Update active file set of the alignment object
-        aln_object = self.update_active_fileset(aln_object)
+        aln_object = self.update_active_fileset(deepcopy(self.alignment_list))
         # Update active taxa set of the alignment object
         aln_object = self.update_active_taxaset(aln_object)
+        proc_files = len(aln_object.alignment_object_list)
 
         # Concatenation
         if self.main_operations["concatenation"]:
