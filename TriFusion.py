@@ -4529,10 +4529,10 @@ class TriFusionApp(App):
         # Perform operations
         #####
 
-        # Setting the alignment to use. A deepcopy of the active alignment list
+        # Setting the alignment to use. A deepcopy of the alignment list
         # is used because it may be possible to do changes in the taxa data set
         # of the AlignmentList object, which should not change the original
-        # self.active_alignment_list. This is because when taxa are removed from
+        # self.alignment_list. This is because when taxa are removed from
         # the alignment list, there is no way to return those taxa to the
         # object
         # Update active file set of the alignment object
