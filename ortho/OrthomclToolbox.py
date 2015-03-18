@@ -369,7 +369,7 @@ class MultiGroups ():
 
         self.multiple_groups.append(group_obj)
 
-    def add_muligroups(self, multigroup_obj):
+    def add_mutligroups(self, multigroup_obj):
         """
         Merges a MultiGroup object
         :param multigroup_obj: MultiGroup object
