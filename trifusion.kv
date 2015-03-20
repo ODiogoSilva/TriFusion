@@ -2938,6 +2938,7 @@ FloatLayout:
                                     do_default_tab: False
                                     background_color: (0,0,0,0)
                                     tab_pos: "top_mid"
+                                    tab_width: 90
 
                                     TabbedPanelItem:
                                         id: file_tp
@@ -3229,6 +3230,97 @@ FloatLayout:
                                                             app.dialog_filechooser("export")
                                                             app.export_mode = ("taxa", "selected")
                                                             taxa_dd.dismiss()
+
+                                    TabbedPanelItem:
+                                        id: partitions_tp
+                                        text: "Partitions"
+
+                                        BoxLayout:
+                                            orientation: "vertical"
+                                            spacing: 10
+                                            Widget:
+                                                size_hint_y: None
+                                                height: 0
+                                            BoxLayout:
+                                                size_hint_y: None
+                                                height: 30
+                                                AnchorLayout:
+                                                    BoxLayout:
+                                                        size_hint_x: None
+                                                        width: 200
+                                                        canvas.before:
+                                                            Color:
+                                                                rgba: 0.8, 0.8, 0.8, 1
+                                                            Rectangle:
+                                                                pos: self.pos
+                                                                size: self.size
+                                                        Button:
+                                                            size_hint_x: None
+                                                            width: 30
+                                                            background_normal: "data/backgrounds/search_bt.png"
+                                                            background_down: "data/backgrounds/search_bt.png"
+                                                            on_release:
+
+                                                        TextInput:
+                                                            size_hint_x: None
+                                                            width: 140
+                                                            id: partition_search
+                                                            background_color: (1, 1, 1, 0)
+                                                            foreground_color: (.1, .1, .1, .51)
+                                                            hint_text: "Search partitions..."
+                                                            multiline: False
+                                                            on_text_validate:
+
+                                                        Button:
+                                                            size_hint_x: None
+                                                            width: 30
+                                                            background_normal: "data/backgrounds/clear_bt.png"
+                                                            background_down: "data/backgrounds/clear_bt.png"
+                                                            on_release:
+
+                                            ScrollView:
+                                                id: sv_partition
+                                                GridLayout:
+                                                    cols: 3
+                                                    size_hint_y: None
+                                                    id: partition_sl
+                                                    padding: (10, 0, 10, 0)
+                                                    spacing: 5
+                                                    height: sum([x.height + 5 for x in self.children]) / 3
+
+                                                    Button:
+                                                        id: partition_temp
+                                                        height: 40
+                                                        disabled: True
+                                                        size_hint_y: None
+                                                        #size_hint_x: None
+                                                        text: "No partitions loaded"
+                                            Label:
+                                                id: partition_lab
+                                                size_hint_y: None
+                                                height: 10
+                                                color: (.6, .6, .6, 1)
+                                            BoxLayout:
+                                                id: bt_bar_partition
+                                                spacing: 5
+                                                size_hint_y: None
+                                                height: 35
+                                                BoxLayout:
+                                                    id: sb_partition
+                                                    spacing: 5
+                                                    Button:
+                                                        text: "Select All"
+                                                        disabled: True
+                                                        background_normal: "data/backgrounds/bt_process_off.png"
+                                                        background_down: "data/backgrounds/bt_process.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                    Button:
+                                                        text: "Deselect All"
+                                                        disabled: True
+                                                        background_normal: "data/backgrounds/bt_process_off.png"
+                                                        background_down: "data/backgrounds/bt_process.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+
                             BoxLayout:
                                 orientation: "vertical"
                                 padding: 10

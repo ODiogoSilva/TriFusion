@@ -622,7 +622,7 @@ class TriFusionApp(App):
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
     # Contains the button widgets from the Files and Taxa tabs
-    mouse_over_bts = {"Files": [], "Taxa": []}
+    mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
     # The button text of the previous mouse over event. This will allow the
     # assessment of whether the current mouse collision is for the same button
     # (in which case the mouse over will not be triggered) or for a different
