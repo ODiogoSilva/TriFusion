@@ -611,13 +611,16 @@ class TriFusionApp(App):
     # and remove button.
     sp_file_bts = ListProperty([])
     sp_taxa_bts = ListProperty([])
+    sp_partition_bts = ListProperty([])
 
     # Attributes that control the amount of taxa/file buttons showing at the
     # side panel. To avoid staggering the app with tons of buttons, a
     # maximum number of buttons showing initially is set. More buttons
     # can be later added.
-    MAX_BUTTON = 20
-    count = 0
+    MAX_FILE_BUTTON = 20
+    count_files = 0
+    MAX_PARTITION_BUTTON = 20
+    count_partitions = 0
 
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
@@ -1734,7 +1737,7 @@ class TriFusionApp(App):
             self.mouse_over_bts["Taxa"] = mouse_bts
 
         try:
-            d = self.file_list[self.count + 1]
+            d = self.file_list[self.count_files + 1]
             gl_wgt.add_widget(LoadMoreBt())
         except IndexError:
             return
@@ -1900,6 +1903,7 @@ class TriFusionApp(App):
 
         self.populate_input_files()
         self.populate_species()
+        self.populate_partitions()
 
     def update_taxa(self):
         """
@@ -2067,44 +2071,63 @@ class TriFusionApp(App):
 
         for infile in lst:
 
-            if self.count <= self.MAX_BUTTON:
+            if self.count_files <= self.MAX_FILE_BUTTON:
 
-                self.count += 1
-                self.sidepanel_add_filebts(infile)
+                self.count_files += 1
+                file_name = infile.split("/")[-1]
+                self.sidepanel_add_bts(file_name, "Files")
 
             else:
                 self.root.ids.file_sl.add_widget(LoadMoreBt())
                 return
 
-    def sidepanel_add_filebts(self, infile):
+    def sidepanel_add_bts(self, idx, tab_name):
 
-        file_name = infile.split("/")[-1]
-        # This prevents duplicate files from being added
-        if file_name not in [x.id for x in
-                             self.root.ids.file_sl.children]:
-            bt, inf_bt, x_bt = self.sidepanel_create_bts(file_name)
+        # Set attributes to be added
+        if tab_name == "Files":
+            grid_wgt = self.root.ids.file_sl
+            bt_list = self.sp_file_bts
+
+        elif tab_name == "Taxa":
+            grid_wgt = self.root.ids.taxa_sl
+            bt_list = self.sp_taxa_bts
+
+        elif tab_name == "Partitions":
+            grid_wgt = self.root.ids.partition_sl
+            bt_list = self.sp_partition_bts
+
+        # This prevents duplicate entrie from being added
+        if idx not in [x.id for x in grid_wgt.children]:
+
+            # Create buttons
+            if tab_name == "Partitions":
+                bt, inf_bt, x_bt = self.sidepanel_create_part_bts(idx)
+            else:
+                bt, inf_bt, x_bt = self.sidepanel_create_bts(idx)
+
             # Add button to storage for mouse over events
-            self.mouse_over_bts["Files"].append(bt)
+            self.mouse_over_bts[tab_name].append(bt)
+
             # Adds buttons to gridlayout
-            self.root.ids.file_sl.add_widget(bt)
-            self.root.ids.file_sl.add_widget(inf_bt)
-            self.root.ids.file_sl.add_widget(x_bt)
-            # Add all three buttons of the current file to the storage
-            # attribute
-            self.sp_file_bts.append((bt, inf_bt, x_bt))
+            grid_wgt.add_widget(bt)
+            grid_wgt.add_widget(inf_bt)
+            grid_wgt.add_widget(x_bt)
+
+            # Add all three buttons to the storage attribute
+            bt_list.append((bt, inf_bt, x_bt))
 
     def sidepanel_load_more_filebts(self):
 
-        MAX_BUTTONS = self.MAX_BUTTON + self.count
+        MAX_BUTTONS = self.MAX_FILE_BUTTON + self.count_files
 
         self.root.ids.file_sl.remove_widget(self.root.ids.file_sl.children[0])
 
-        for i in range(self.count, MAX_BUTTONS):
+        for i in range(self.count_files, MAX_BUTTONS):
 
-            self.count += 1
+            self.count_files += 1
 
             try:
-                infile = self.file_list[self.count]
+                infile = self.file_list[self.count_files]
                 self.sidepanel_add_filebts(infile)
             except IndexError:
                 return
@@ -2141,19 +2164,7 @@ class TriFusionApp(App):
             # Prevents duplicate taxa from being entered
             if tx not in [x.id for x in self.root.ids.taxa_sl.children]:
 
-                bt, inf_bt, x_bt = self.sidepanel_create_bts(tx)
-
-                # Add button to storage for mouse over events
-                self.mouse_over_bts["Taxa"].append(bt)
-
-                # Add buttons to gridlayout
-                self.root.ids.taxa_sl.add_widget(bt)
-                self.root.ids.taxa_sl.add_widget(inf_bt)
-                self.root.ids.taxa_sl.add_widget(x_bt)
-
-                # Add all three buttons of the current taxon to the storage
-                # attribute
-                self.sp_taxa_bts.append((bt, inf_bt, x_bt))
+                self.sidepanel_add_bts(tx, "Taxa")
 
     def popup_info(self, value):
         """
@@ -3674,6 +3685,73 @@ class TriFusionApp(App):
         except AttributeError:
             return self.dialog_floatcheck("ERROR: No input files have"
                                               "been selected", t="error")
+
+    def sidepanel_create_part_bts(self, idx):
+        """
+        Creates buttons for each partition
+        :param idx: string. unique identifier of partition
+        """
+
+        # Create main button
+        bt = ToggleButton(text=idx, state="normal", id=idx,
+                          height=30, size_hint=(.8, None), shorten=True,
+                          shorten_from="right", halign="center",
+                          bold=True,
+                          background_down=join("data", "backgrounds",
+                                                 "bt_process.png"),
+                          background_normal=join("data", "backgrounds",
+                                                 "bt_process_off.png"))
+
+        # Setting horizontal text size for shortening
+        bt.text_size[0] = bt.size[0] * 1.3
+
+        # Create edition button
+        ed_bt = Button(size_hint=(None, None), width=30,
+                        height=30, id="%s?" % idx,
+                        background_normal=join("data", "backgrounds",
+                                               "edit_bt.png"),
+                        background_down=join("data", "backgrounds",
+                                               "edit_bt_down.png"))
+
+        # Create removal button
+        x_bt = Button(size_hint=(None, None), width=30,
+                      height=30, id="%sX" % idx,
+                      border=(0, 0, 0, 0),
+                      background_normal=join("data", "backgrounds",
+                                             "remove_bt.png"),
+                      background_down=join("data", "backgrounds",
+                                             "remove_bt_down.png"))
+
+        return bt, ed_bt, x_bt
+
+    def populate_partitions(self):
+        """
+        Populates the partitions tab in the side bar from the partitions object
+        associated with alignment objects.
+
+        This method is used when input files are loaded into the program,
+        which means there will be no issue with multiple files being associated
+        with the same partitions. This kind of change is done a posteriori
+        when importing partition files or setting the partitions manually.
+        """
+
+        # Remove initial disabled button, if it's still there
+        if "partition_temp" in self.root.ids.keys():
+            self.root.ids.partition_sl.remove_widget(
+                self.root.ids.partition_temp)
+            del self.root.ids["partition_temp"]
+
+        for aln in self.alignment_list:
+            for partition, vals in aln.partitions:
+
+                if self.count_partitions <= self.MAX_PARTITION_BUTTON:
+
+                    self.count_partitions += 1
+                    # Create partition buttons
+                    self.sidepanel_add_bts(partition, "Partitions")
+
+                else:
+                    self.root.ids.partition_sl.add_widget(LoadMoreBt())
 
     def dialog_partitions(self):
         """
