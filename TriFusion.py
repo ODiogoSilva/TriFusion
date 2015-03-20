@@ -2096,7 +2096,7 @@ class TriFusionApp(App):
             grid_wgt = self.root.ids.partition_sl
             bt_list = self.sp_partition_bts
 
-        # This prevents duplicate entrie from being added
+        # This prevents duplicate entries from being added
         if idx not in [x.id for x in grid_wgt.children]:
 
             # Create buttons

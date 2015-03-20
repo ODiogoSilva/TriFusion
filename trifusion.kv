@@ -1514,23 +1514,8 @@
     height: 45
 
 #===============================================================================
-# PROCESS PARTITIONS
+# PARTITIONS
 #===============================================================================
-
-<PartitionBt@ToggleButton>:
-    size_hint_y: None
-    height: 60
-    size_hint_x: .9
-    background_normal: "data/backgrounds/partitions_normal.png"
-    background_disabled_normal: "data/backgrounds/partitions_normal.png"
-    background_down: "data/backgrounds/partitions_down.png"
-    background_disabled_down: "data/backgrounds/partitions_down.png"
-    text_size: [self.size[0]*.9, self.size[1]]
-    disabled_color: (1,1,1,1)
-    shorten: True
-    shorten_from: "right"
-    haligh: "left"
-    valign: "middle"
 
 <DetailLabel@Label>:
     size_hint_y: None
@@ -1549,153 +1534,8 @@
     text_size: self.size
     color: (0.216, 0.67, 0.784, 1)
 
-<PartitionScreen@BoxLayout>:
-    orientation: "vertical"
-    Widget:
-        size_hint_y: None
-        height: 30
+<PartitionsDialog@BoxLayout>:
 
-    BoxLayout:
-        padding: 10
-        orientation: "vertical"
-        spacing: 10
-        canvas.before:
-            Color:
-                rgba: (1,1,1,1)
-            Rectangle:
-                source: "data/backgrounds/partition_content.png"
-                pos: self.pos
-                size: self.size
-
-        BoxLayout:
-            canvas.before:
-                Color:
-                    rgba: (1,1,1,1)
-                Rectangle:
-                    source: "data/backgrounds/partition_file_background.png"
-                    pos: self.pos
-                    size: self.size
-            size_hint_y: .5
-            orientation: "vertical"
-            padding: 10
-            FieldLabel:
-                text: "Files"
-            ScrollView:
-                GridLayout:
-                    cols: 1
-                    spacing: (5,5)
-                    id: file_content
-
-        Hseparator:
-            thickness: 1.5
-
-        BoxLayout:
-            size_hint_y: .5
-            padding: 10
-            orientation: "vertical"
-            canvas.before:
-                Color:
-                    rgba: (1,1,1,1)
-                Rectangle:
-                    source: "data/backgrounds/partition_file_background.png"
-                    pos: self.pos
-                    size: self.size
-            FieldLabel:
-                text: "Models and Codon Partitions"
-            BoxLayout:
-                spacing: 10
-                BoxLayout:
-                    size_hint_x: .4
-                    BoxLayout:
-                        size_hint_x: .4
-                        orientation: "vertical"
-                        Button
-                        Button
-                        Button
-                    BoxLayout:
-                        orientation: "vertical"
-                        ToggleButton:
-                            text: "1st"
-                        ToggleButton:
-                            text: "2nd"
-                        ToggleButton:
-                            text: "3rd"
-                BoxLayout:
-                    orientation: "vertical"
-                    Spinner
-                    Spinner
-                    Spinner
-
-<PartitionsDialog>:
-    padding: 10
-    spacing: 10
-    orientation: "vertical"
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        canvas.before:
-            Color:
-                rgba: (1,1,1,1)
-            Rectangle:
-                source: "data/backgrounds/partition_topbar.png"
-                pos: self.pos
-                size: self.size
-
-    BoxLayout:
-        spacing: 10
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_x: None
-            width: 300
-            spacing: 5
-            BoxLayout:
-                spacing: 5
-                size_hint_y: None
-                height: 30
-                CheckBox:
-                    size_hint_x: .1
-                Label:
-                    size_hint_x: .9
-                    text: "Partitions"
-                    bold: True
-
-            Hseparator:
-                thickness: 1.1
-
-            ScrollView:
-                size_hint_y: .9
-                bar_inactive_color: (0,0,0,0)
-                GridLayout:
-                    size_hint_y: None
-                    height: 0
-                    cols: 2
-                    id: gl_content
-
-        Carousel:
-            id: partitions_car
-            anim_move_duration: 0
-
-    Widget:
-        size_hint_y: None
-        height: 10
-
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        padding: (150, 0, 150, 0)
-        spacing: 20
-        Button:
-            id: ok_bt
-            background_normal: "data/backgrounds/bt_process.png"
-            background_down: "data/backgrounds/bt_process_off.png"
-            text: "OK"
-        Button:
-            id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
-            text: "Close"
-            on_release:
-                root.cancel()
 
 
 
