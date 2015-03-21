@@ -1557,7 +1557,7 @@
         Color:
             rgba: (1,1,1,1)
         Rectangle:
-            source: "data/backgrounds/codon_backgorund.png"
+            source: "data/backgrounds/codon_background.png"
             pos: self.pos
             size: self.size
     BoxLayout:
@@ -1567,6 +1567,7 @@
         FieldLabel:
             text: "Codon partitions"
         Spinner:
+            id: codon_spin
             text: "No codon partition"
             markup: True
             bold: True
