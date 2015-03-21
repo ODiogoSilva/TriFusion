@@ -63,22 +63,22 @@ class Partitions():
     """
 
     # GTR
-    _models["GTR"] = ["nst=6"]
+    _models["mrbayes"]["GTR"] = ["nst=6", "statefreqpr=dirichlet(1,1,1,1)"]
 
     # SYM
-    _models["SYM"] = ["nst=6", "statefreqpr=fixed(equal)"]
+    _models["mrbayes"]["SYM"] = ["nst=6", "statefreqpr=fixed(equal)"]
 
     # HKY
-    _models["HKY"] = ["nst=2"]
+    _models["mrbayes"]["HKY"] = ["nst=2", "statefreqpr=dirichlet(1,1,1,1)"]
 
     # K2P
-    _models["K2P"] = ["nst=2", "statefreqpr=fixed(equal)"]
+    _models["mrbayes"]["K2P"] = ["nst=2", "statefreqpr=fixed(equal)"]
 
     # F81
-    _models["F81"] = ["nst=1"]
+    _models["mrbayes"]["F81"] = ["nst=1", "statefreqpr=dirichlet(1,1,1,1)"]
 
     # JC
-    _models["JC"] = ["nst=1", "statefreqpr=fixed(equal)"]
+    _models["mrbayes"]["JC"] = ["nst=1", "statefreqpr=fixed(equal)"]
 
     def __init__(self):
         """
@@ -359,7 +359,7 @@ class Partitions():
                 return part
 
     def add_partition(self, name, length=None, locus_range=None, codon=False,
-                      use_counter=False, model=None, file_name=None):
+                      use_counter=False, file_name=None):
         """
         Adds a new partition providing the length or the range of current
         alignment. If both are provided, the length takes precedence.The range
@@ -370,7 +370,6 @@ class Partitions():
         :param locus_range: list/tuple. Range of the partition
         :param codon: If the codon partitions are already defined, provide the
         starting points in list format, e.g: [1,2,3]
-        :param model: string. [optional] Name of the substitution model
         :param file_name: string. If the file name is not provided by the name
         argument (which is instead the name of a partition), use this argument.
 
