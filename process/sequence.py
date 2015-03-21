@@ -984,18 +984,7 @@ class AlignmentList (Base):
                     self.bad_alignments.append(alignment_object)
                 else:
                     self.alignment_object_list.append(alignment_object)
-
-                    # Update partitions object
-                    if not alignment_object.partitions.is_single():
-                        for k, v in alignment_object:
-                            self.partitions.add_partition(k, locus_range=v[0],
-                                        codon=v[1], use_counter=True,
-                                        file_name=alignment_object.name_wext)
-                    else:
-                        self.partitions.add_partition(
-                            alignment_object.name_wext,
-                            length=alignment_object.locus_length,
-                            use_counter=True)
+                    self.set_partition(alignment_object)
 
         # elif type(alignment_list[0]) is OrderedDict:
         #
@@ -1066,6 +1055,25 @@ class AlignmentList (Base):
         """
         return [alignment.name for alignment in self.alignment_object_list]
 
+    def set_partition(self, alignment_obj):
+        """
+        Updates the partition object with the provided alignment_obj
+        :param alignment_obj: Alignment object
+        :return:
+        """
+
+        # Update partitions object
+        if not alignment_obj.partitions.is_single():
+            for k, v in alignment_obj.partitions:
+                self.partitions.add_partition(k, locus_range=v[0],
+                            codon=v[1], use_counter=True,
+                            file_name=alignment_obj.name_wext)
+        else:
+            self.partitions.add_partition(
+                alignment_obj.name_wext,
+                length=alignment_obj.locus_length,
+                use_counter=True)
+
     def add_alignment(self, alignment_obj):
         """
         Adds a new Alignment object
@@ -1076,6 +1084,7 @@ class AlignmentList (Base):
             self.bad_alignments.append(alignment_obj)
         else:
             self.alignment_object_list.append(alignment_obj)
+            self.set_partition(alignment_obj)
 
             # Update taxa names with the new alignment
             self.taxa_names = self._get_taxa_list()
@@ -1092,6 +1101,7 @@ class AlignmentList (Base):
             self.bad_alignments.append(aln)
         else:
             self.alignment_object_list.append(aln)
+            self.set_partition(aln)
 
             # Update taxa names with the new alignment
             self.taxa_names = self._get_taxa_list()
