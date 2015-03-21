@@ -262,11 +262,11 @@ class Partitions():
             for line in part_file:
                 self.read_from_nexus_string(line)
 
-    def read_from_nexus_string(self, string):
+    def read_from_nexus_string(self, string, file_name=None):
         """
         Parses the partition defined in a charset command
         :param string: string with the charset command.
-        :return:
+        :param file_name: string. Name of the current file name
         """
 
         fields = string.split("=")
@@ -290,7 +290,8 @@ class Partitions():
             partition_range = [int(partition_full[0]) - 1,
                                int(partition_full[1]) - 1]
 
-        self.add_partition(partition_name, locus_range=partition_range)
+        self.add_partition(partition_name, locus_range=partition_range,
+                           file_name=file_name)
 
     def get_partition_names(self):
         """
@@ -358,7 +359,7 @@ class Partitions():
                 return part
 
     def add_partition(self, name, length=None, locus_range=None, codon=False,
-                      use_counter=False, model=None):
+                      use_counter=False, model=None, file_name=None):
         """
         Adds a new partition providing the length or the range of current
         alignment. If both are provided, the length takes precedence.The range
@@ -370,6 +371,8 @@ class Partitions():
         :param codon: If the codon partitions are already defined, provide the
         starting points in list format, e.g: [1,2,3]
         :param model: string. [optional] Name of the substitution model
+        :param file_name: string. If the file name is not provided by the name
+        argument (which is instead the name of a partition), use this argument.
 
         IMPORTANT NOTE on self.model: The self.model attribute was designed
         in a way that allows the storage of different substitution models
@@ -392,7 +395,8 @@ class Partitions():
             # Add partition to index list
             self.partitions_index.append([name, 0])
             # Add partition to alignment list
-            self.partitions_alignments[name] = [name]
+            self.partitions_alignments[file_name if file_name else name] = \
+                [name]
             # Create empty model attribute for a single partition
             self.models[name] = [[[]], [None]]
 
@@ -439,7 +443,8 @@ class Partitions():
                 self.models[name] = [[[]], [None]]
                  # Add partition to index list
                 self.partitions_index.append([name, 0])
-                self.partitions_alignments[name] = [name]
+                self.partitions_alignments[file_name if file_name else name] =\
+                    [name]
                 if use_counter:
                     self.partitions[name] = [(self.counter + locus_range[0],
                                              self.counter + locus_range[1]),
