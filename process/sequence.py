@@ -251,7 +251,7 @@ class Alignment (Base):
                     ## TO DO: Read phylip interleave
 
             # Updating partitions object
-            self.partitions.add_partition(self.name, self.locus_length)
+            self.partitions.add_partition(self.name_wext, self.locus_length)
 
         #=======================================================================
         # PARSING FASTA FORMAT
@@ -269,7 +269,7 @@ class Alignment (Base):
             self.partitions.set_length(self.locus_length)
 
             # Updating partitions object
-            self.partitions.add_partition(self.name, self.locus_length)
+            self.partitions.add_partition(self.name_wext, self.locus_length)
 
         #=======================================================================
         # PARSING NEXUS FORMAT
@@ -311,7 +311,7 @@ class Alignment (Base):
             # If no partitions have been added during the parsing of the nexus
             # file, set a single partition
             if self.partitions.partitions == OrderedDict():
-                self.partitions.add_partition(self.name,
+                self.partitions.add_partition(self.name_wext,
                                                      self.locus_length)
 
         # Checks the size consistency of the alignment
@@ -1172,7 +1172,7 @@ class AlignmentList (Base):
                                                      codon=v[1],
                                                      use_counter=True)
             else:
-                partitions.add_partition(alignment_object.name,
+                partitions.add_partition(alignment_object.name_wext,
                                          length=alignment_object.locus_length,
                                          use_counter=True)
 
