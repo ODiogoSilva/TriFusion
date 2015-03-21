@@ -3812,6 +3812,7 @@ class TriFusionApp(App):
 
                 else:
                     self.root.ids.partition_sl.add_widget(LoadMoreBt())
+                    return
 
     def dialog_text(self, title, idx):
         """
