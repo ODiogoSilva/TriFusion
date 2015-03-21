@@ -967,6 +967,9 @@ class AlignmentList (Base):
         # Stores badly formatted/invalid input alignments
         self.bad_alignments = []
 
+        # Set partitions object
+        self.partitions = Partitions()
+
         # if type(alignment_list[0]) is str:
         if alignment_list:
             self.log_progression.record("Parsing file", len(alignment_list))
@@ -981,6 +984,18 @@ class AlignmentList (Base):
                     self.bad_alignments.append(alignment_object)
                 else:
                     self.alignment_object_list.append(alignment_object)
+
+                    # Update partitions object
+                    if not alignment_object.partitions.is_single():
+                        for k, v in alignment_object:
+                            self.partitions.add_partition(k, locus_range=v[0],
+                                        codon=v[1], use_counter=True,
+                                        file_name=alignment_object.name_wext)
+                    else:
+                        self.partitions.add_partition(
+                            alignment_object.name_wext,
+                            length=alignment_object.locus_length,
+                            use_counter=True)
 
         # elif type(alignment_list[0]) is OrderedDict:
         #
