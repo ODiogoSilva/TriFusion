@@ -1,4 +1,5 @@
 #:kivy 1.9.0
+#:import Factory kivy.factory.Factory
 #:import sep os.sep
 #:import multiprocessing multiprocessing
 
@@ -1534,10 +1535,54 @@
     text_size: self.size
     color: (0.216, 0.67, 0.784, 1)
 
+<CodonSpinner@SpinnerOption>:
+    markup: True
+    bold: True
+    on_release:
+        app.set_codon_model(self.text)
+
+<ModelSpinner@Spinner>:
+    bold: True
+    text: "JC"
+    values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR")
+    #background_normal: "data/backgrounds/model_bt1.png"
+
 <PartitionsDialog@BoxLayout>:
+    id: partition_wgt
+    padding: 5
+    orientation: "vertical"
+    spacing: 10
 
+    canvas.before:
+        Color:
+            rgba: (.4,.4,.4,1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        orientation: "vertical"
+        FieldLabel:
+            text: "Codon partitions"
+        Spinner:
+            text: "No codon partition"
+            markup: True
+            bold: True
+            option_cls: Factory.get("CodonSpinner")
+            values: ("No codon partitions", "[color=ff5555ff]1[/color] + [color=37abc8ff]2[/color] + [color=71c837ff]3[/color]", "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]3[/color]", "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + 3)[/color]", "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]2[/color]")
 
-
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        orientation: "vertical"
+        id: model_bx
+        FieldLabel:
+            text: "Substitution model"
+        BoxLayout:
+            spacing: 5
+            id: model_bx
+            ModelSpinner
 
 #===============================================================================
 # PROCESS OUTPUT FORMAT

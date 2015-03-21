@@ -45,6 +45,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.spinner import Spinner
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
@@ -285,6 +286,21 @@ class AutoCompTextInput(TextInput):
                                                           from_undo=from_undo)
 
 
+class PartitionsDialog(BoxLayout):
+    pass
+
+
+class ModelSpinner(Spinner):
+
+    def __init__(self, **kwargs):
+        super(ModelSpinner, self).__init__(**kwargs)
+
+        try:
+            self.background_normal = kwargs["background_normal"]
+        except KeyError:
+            pass
+
+
 class OrthologySearchGrid(TabbedPanel):
     pass
 
@@ -370,18 +386,6 @@ class DoneDialog(BoxLayout):
 
 
 class PathText(AutoCompTextInput):
-    pass
-
-
-class PartitionsDialog(BoxLayout):
-    cancel = ObjectProperty(None)
-
-
-class PartitionBt(ToggleButton):
-    pass
-
-
-class PartitionScreen(BoxLayout):
     pass
 
 
@@ -3145,6 +3149,59 @@ class TriFusionApp(App):
         """
         self._subpopup.dismiss()
 
+    def set_codon_model(self, codon_partition):
+        """
+        Changes the model spinners when changing the codon partitioning
+        """
+
+        first_background = join("data", "backgrounds", "model_bt1.png")
+        second_background = join("data", "backgrounds", "model_bt2.png")
+        third_background = join("data", "backgrounds", "model_bt3.png")
+
+        partition_model = {"[color=ff5555ff]1[/color] + [color=37abc8ff]2"
+                           "[/color] + [color=71c837ff]3[/color]":
+                [ModelSpinner(background_normal=first_background, id="1"),
+                ModelSpinner(background_normal=second_background, id="2"),
+                ModelSpinner(background_normal=third_background, id="3")],
+                           "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]"
+                           "3[/color]":
+                [ModelSpinner(background_normal=first_background, id="12"),
+                 ModelSpinner(background_normal=second_background, id="3")],
+                           "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + "
+                           "3)[/color]":
+                [ModelSpinner(background_normal=first_background, id="1"),
+                 ModelSpinner(background_normal=second_background, id="23")],
+                           "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]"
+                           "2[/color]":
+                [ModelSpinner(background_normal=first_background, id="13"),
+                 ModelSpinner(background_normal=second_background, id="2")],
+                           "No codon partitions": [ModelSpinner(id="0")]}
+
+        partitions_wgt = [x for x in self.root_window.children if
+                          isinstance(x, PartitionsDialog)][0]
+
+        partitions_wgt.ids.model_bx.clear_widgets()
+
+        for model in partition_model[codon_partition]:
+            partitions_wgt.ids.model_bx.add_widget(model)
+
+    def show_partitions(self, btx):
+        """
+        Shows a small widget with partition information
+        """
+
+        # Get position of partition edit button:
+        ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
+
+        # Set position for partitions dialog
+        size = (200, 140)
+        pos = [ed_pos[0] + btx.width,
+               ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
+
+        content = PartitionsDialog(pos=pos, size=size, size_hint=(None, None))
+
+        self.root_window.add_widget(content)
+
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
                    separator_color=[47 / 255., 167 / 255., 212 / 255., 1.],
                    custom_background=None):
@@ -3712,6 +3769,7 @@ class TriFusionApp(App):
                                                "edit_bt.png"),
                         background_down=join("data", "backgrounds",
                                                "edit_bt_down.png"))
+        ed_bt.bind(on_release=self.show_partitions)
 
         # Create removal button
         x_bt = Button(size_hint=(None, None), width=30,
