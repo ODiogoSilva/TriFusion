@@ -121,10 +121,12 @@ class Alignment (Base):
 
             """
             Sets the alignment object name based on the input alignment file
-            name. This will remove the extension and a preceding path, if
-            it exists
+            name. The name attribute will remove the extension and a preceding
+            path, if it exists. The name_wext attribute will retain the
+            extension
             """
             self.name = input_alignment.split(sep)[-1].split(".")[0]
+            self.name_wext = input_alignment.split(sep)[-1]
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
