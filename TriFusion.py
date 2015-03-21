@@ -3194,13 +3194,15 @@ class TriFusionApp(App):
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
 
         # Set position for partitions dialog
-        size = (200, 140)
+        size = (220, 190)
         pos = [ed_pos[0] + btx.width,
                ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
 
         content = PartitionsDialog(pos=pos, size=size, size_hint=(None, None))
+        rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20, pos[1] + size[1] - 20])
 
         self.root_window.add_widget(content)
+        self.root_window.add_widget(rm_wgt)
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
                    separator_color=[47 / 255., 167 / 255., 212 / 255., 1.],

@@ -1549,14 +1549,15 @@
 
 <PartitionsDialog@BoxLayout>:
     id: partition_wgt
-    padding: 5
+    padding: [30, 10, 10, 10]
     orientation: "vertical"
     spacing: 10
 
     canvas.before:
         Color:
-            rgba: (.4,.4,.4,1)
+            rgba: (1,1,1,1)
         Rectangle:
+            source: "data/backgrounds/codon_backgorund.png"
             pos: self.pos
             size: self.size
     BoxLayout:
@@ -1583,6 +1584,19 @@
             spacing: 5
             id: model_bx
             ModelSpinner
+
+    BoxLayout:
+        size_hint_y: None
+        height: 20
+        spacing: 10
+        AnchorLayout:
+            Button:
+                size_hint_x: None
+                width: 100
+                text: "Save"
+                bold: True
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
 
 #===============================================================================
 # PROCESS OUTPUT FORMAT
