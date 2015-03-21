@@ -300,7 +300,8 @@ class Alignment (Base):
                 # If partitions are specified using the charset command, this
                 # section will parse the partitions
                 elif line.strip().startswith("charset"):
-                    self.partitions.read_from_nexus_string(line)
+                    self.partitions.read_from_nexus_string(line,
+                                                    file_name=self.name_wext)
 
                 # If substitution models are specified using the lset or prset
                 # commands, this will parse the model parameters
