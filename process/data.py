@@ -99,7 +99,7 @@ class Partitions():
         Therefore, to convert this notation into workable integers, the size
         of the locus must be provided using the set_length method.
         """
-        self.locus_length = 0
+        self.partition_length = 0
 
         """
         partitions will contain the name and range of the partitions for a given
@@ -140,6 +140,21 @@ class Partitions():
         self.partitions_index = []
 
         """
+        The partitions_alignments attribute will associate the partition with
+        the corresponding alignment files. For single alignment partitions,
+        this will provide information on the file name. For multiple alignments,
+        besides the information of the file names, it will associate which
+        alignments are contained in a given partition.
+        An example would be:
+
+        self.partitions_alignments = {"PartitionA": ["FileA.fas"], "PartitionB":
+            ["FileB.fas", "FileC.fas"]}
+
+        """
+
+        self.partitions_alignments = {}
+
+        """
         The private self.models attribute will contain the same key list as
         self._partitions and will associate the substitution models to each
         partitions. For each partition, the format should be as follows:
@@ -150,6 +165,7 @@ class Partitions():
         parameters for up to three subpartitions, and the second element is also
         a list with the corresponding names of the substitution models
         """
+
         self.models = OrderedDict()
 
         """
@@ -176,7 +192,7 @@ class Partitions():
         :param length: int. Length of the alignments
         """
 
-        self.locus_length = length
+        self.partition_length = length
 
     #===========================================================================
     # Parsers
@@ -262,9 +278,9 @@ class Partitions():
 
         # If partition is defined using "." notation to mean full length
         if partition_full[1] == ".":
-            if self.locus_length:
+            if self.partition_length:
                 partition_range = [int(partition_full[0]) - 1,
-                                   self.locus_length - 1]
+                                   self.partition_length - 1]
             else:
                 raise PartitionException("The length of the locus must be "
                                          "provided when partitions are defined"
@@ -373,8 +389,10 @@ class Partitions():
 
         # When length is provided
         if length:
-             # Add partition to index list
+            # Add partition to index list
             self.partitions_index.append([name, 0])
+            # Add partition to alignment list
+            self.partitions_alignments[name] = [name]
             # Create empty model attribute for a single partition
             self.models[name] = [[[]], [None]]
 
@@ -421,6 +439,7 @@ class Partitions():
                 self.models[name] = [[[]], [None]]
                  # Add partition to index list
                 self.partitions_index.append([name, 0])
+                self.partitions_alignments[name] = [name]
                 if use_counter:
                     self.partitions[name] = [(self.counter + locus_range[0],
                                              self.counter + locus_range[1]),
