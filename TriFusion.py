@@ -1579,15 +1579,20 @@ class TriFusionApp(App):
         mouse and side panel position and evaluates a collision. It will
         trigger the side panel closing only when four conditions are met:
 
-         - When there is a mouse input outside the side panel
-         - When the variable controling the side panel (show_side_panel) is
-         True, meaning that the panel is extended
-         - When the mouse input is outside the previous button in the action
-         bar, which is also used to toggle the side panel. This prevents issues
-         of toggling the side panel twice with one mouse input
-         - When a popup is not open. There are several buttons in the side bar
-         that open whose position is outside the side bar. The user should be
-         able to click anywhere in the popup without the side panel closing.
+        - When there is a mouse input outside the side panel
+        - When the variable controling the side panel (show_side_panel) is
+        True, meaning that the panel is extended
+        - When the mouse input is outside the previous button in the action
+        bar, which is also used to toggle the side panel. This prevents issues
+        of toggling the side panel twice with one mouse input
+        - When a popup is not open. There are several buttons in the side bar
+        that open whose position is outside the side bar. The user should be
+        able to click anywhere in the popup without the side panel closing.
+
+        In addition, it will handle the status of the partition box dialog,
+        associated with the sidepanel. While this box is active, the sidepanel
+        must remain open. However, clicks outside the partition box will close
+        it.
         """
 
         def animate_sidebar():
@@ -1610,13 +1615,32 @@ class TriFusionApp(App):
         side_panel_wgt = self.root.ids.main_box
         ap = self.root.ids.ap
 
+        # Check for existence of a partition dialog box
+        partition_box = [x for x in self.root_window.children if
+                         isinstance(x, PartitionsDialog)]
+
+        # If the partition box exists and the collision is outside it
+        if partition_box and not partition_box[0].collide_point(
+                mous_pos[0], mous_pos[1]):
+            # Check if spinner is open
+            spin1 = partition_box[0].ids.codon_spin.is_open
+            spin2 = [x.is_open for x in partition_box[0].ids.model_bx.children]
+
+            # If the spinners are not open, remove
+            if True not in spin2 and not spin1:
+                rm_bt = [x for x in self.root_window.children if
+                        isinstance(x, RemoveFloat)][0]
+                self.root_window.remove_widget(partition_box[0])
+                self.root_window.remove_widget(rm_bt)
+
         # Check for conditions to close the side panel.
         # If touch is out of panel; if panel is open; is touch is out of menu
         # button; a popup is not open
         if side_panel_wgt.collide_point(mous_pos[0], mous_pos[1]) is False\
                 and self.show_side_panel \
                 and ap.collide_point(mous_pos[0], mous_pos[1]) is False \
-                and self._popup not in self.root_window.children:
+                and self._popup not in self.root_window.children \
+                and not partition_box:
 
             if self.screen.name == "Process":
                 queue_bt = self.screen.ids.queue_bt
@@ -3194,7 +3218,7 @@ class TriFusionApp(App):
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
 
         # Set position for partitions dialog
-        size = (220, 190)
+        size = (190, 190)
         pos = [ed_pos[0] + btx.width,
                ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
 
