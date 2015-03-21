@@ -448,7 +448,7 @@ class Partitions():
                 if use_counter:
                     self.partitions[name] = [(self.counter + locus_range[0],
                                              self.counter + locus_range[1]),
-                                             [self.counter + x for x in codon]]
+                                             codon]
                 else:
                     self.partitions[name] = [(locus_range[0], locus_range[1]),
                                              codon]
