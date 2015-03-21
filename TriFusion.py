@@ -3209,7 +3209,21 @@ class TriFusionApp(App):
         for model in partition_model[codon_partition]:
             partitions_wgt.ids.model_bx.add_widget(model)
 
-    def show_partitions(self, btx):
+    def remove_partition_box(self):
+        """
+        Removes a currently active partition box when clicking the X button
+        """
+
+        # Gathers active partition box and remove button
+        partition_box = [x for x in self.root_window.children if
+                         isinstance(x, PartitionsDialog) or
+                         isinstance(x, RemoveFloat)]
+
+        # Removes widgets:
+        for wgt in partition_box:
+            self.root_window.remove_widget(wgt)
+
+    def dialog_partitions(self, btx):
         """
         Shows a small widget with partition information
         """
@@ -3224,6 +3238,9 @@ class TriFusionApp(App):
 
         content = PartitionsDialog(pos=pos, size=size, size_hint=(None, None))
         rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20, pos[1] + size[1] - 20])
+
+        # Give functionality to remove button
+        rm_wgt.bind(on_release=lambda x: self.remove_partition_box())
 
         self.root_window.add_widget(content)
         self.root_window.add_widget(rm_wgt)
@@ -3795,7 +3812,7 @@ class TriFusionApp(App):
                                                "edit_bt.png"),
                         background_down=join("data", "backgrounds",
                                                "edit_bt_down.png"))
-        ed_bt.bind(on_release=self.show_partitions)
+        ed_bt.bind(on_release=self.dialog_partitions)
 
         # Create removal button
         x_bt = Button(size_hint=(None, None), width=30,
