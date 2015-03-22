@@ -1065,14 +1065,15 @@ class AlignmentList (Base):
         # Update partitions object
         if not alignment_obj.partitions.is_single():
             for k, v in alignment_obj.partitions:
-                self.partitions.add_partition(k, locus_range=v[0],
-                            codon=v[1], use_counter=True,
-                            file_name=alignment_obj.name_wext)
+                self.partitions.add_partition(k, locus_range=v[0], codon=v[1],
+                            use_counter=True, file_name=alignment_obj.name_wext,
+                            model_cls=alignment_obj.partitions.models[k])
         else:
-            self.partitions.add_partition(
-                alignment_obj.name_wext,
-                length=alignment_obj.locus_length,
-                use_counter=True)
+            self.partitions.add_partition(alignment_obj.name_wext,
+                                use_counter=True,
+                                length=alignment_obj.locus_length,
+                                model_cls=alignment_obj.partitions.models[
+                                    alignment_obj.name_wext])
 
     def add_alignment(self, alignment_obj):
         """
