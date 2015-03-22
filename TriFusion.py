@@ -2950,8 +2950,8 @@ class TriFusionApp(App):
             if secondary_op:
                 for op in secondary_op:
                     if self.secondary_options["%s_file" % op]:
-                        add_node("%s_%s (%s)" % (self.output_file.split(sep)[-1]
-                                                 , op, op),
+                        add_node("%s_%s (%s)" % (
+                            self.output_file.split(sep)[-1], op, op),
                                  self.main_nodes["main_file"])
             if self.main_nodes["main_file"].is_open is False:
                 self.operation_tv.toggle_node(self.main_nodes["main_file"])
