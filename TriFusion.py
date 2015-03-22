@@ -1609,7 +1609,7 @@ class TriFusionApp(App):
         trigger the side panel closing only when four conditions are met:
 
         - When there is a mouse input outside the side panel
-        - When the variable controling the side panel (show_side_panel) is
+        - When the variable controlling the side panel (show_side_panel) is
         True, meaning that the panel is extended
         - When the mouse input is outside the previous button in the action
         bar, which is also used to toggle the side panel. This prevents issues
@@ -1639,7 +1639,7 @@ class TriFusionApp(App):
             self.show_side_panel = not self.show_side_panel
 
         # Get mouse position
-        mous_pos = self.root_window.mouse_pos
+        mp = self.root_window.mouse_pos
         # Get side panel and previous button widgets
         side_panel_wgt = self.root.ids.main_box
         ap = self.root.ids.ap
@@ -1650,7 +1650,7 @@ class TriFusionApp(App):
 
         # If the partition box exists and the collision is outside it
         if partition_box and not partition_box[0].collide_point(
-                mous_pos[0], mous_pos[1]):
+                mp[0], mp[1]):
             # Check if spinner is open
             spin1 = partition_box[0].ids.codon_spin.is_open
             spin2 = [x.is_open for x in partition_box[0].ids.model_bx.children]
@@ -1665,15 +1665,15 @@ class TriFusionApp(App):
         # Check for conditions to close the side panel.
         # If touch is out of panel; if panel is open; is touch is out of menu
         # button; a popup is not open
-        if side_panel_wgt.collide_point(mous_pos[0], mous_pos[1]) is False\
+        if side_panel_wgt.collide_point(mp[0], mp[1]) is False\
                 and self.show_side_panel \
-                and ap.collide_point(mous_pos[0], mous_pos[1]) is False \
+                and ap.collide_point(mp[0], mp[1]) is False \
                 and self._popup not in self.root_window.children \
                 and not partition_box:
 
             if self.screen.name == "Process":
                 queue_bt = self.screen.ids.queue_bt
-                if queue_bt.collide_point(mous_pos[0], mous_pos[1]) is False:
+                if queue_bt.collide_point(mp[0], mp[1]) is False:
                     animate_sidebar()
             else:
                 animate_sidebar()
