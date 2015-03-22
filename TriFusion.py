@@ -1462,9 +1462,9 @@ class TriFusionApp(App):
         remove_button.bind(partial(self.check_action, self.remove_bookmark_bt))
 
         where, self.check_action is this method, and self.remove_bookmark_bt is
-        the function that will actually remove the bookmark button. This function
-        is then binder to the "OK" button of the check dialog. By default, the
-        last argument is the bt_wgt.
+        the function that will actually remove the bookmark button. This
+        function is then binder to the "OK" button of the check dialog.
+        By default, the last argument is the bt_wgt.
         """
 
         check_content = CheckDialog(cancel=self.dismiss_popup)
