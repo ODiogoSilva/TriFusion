@@ -3729,7 +3729,7 @@ class TriFusionApp(App):
     def check_filters(value):
         """
         Method that validates the input of the text input in filter settings.
-        It handles common misktakes, such as using "," instead of "." for
+        It handles common mistakes, such as using "," instead of "." for
         decimal places and truncates values between the range of 0 and 100.
         If the text input cannot be converted to float, it will return false
         and the slider value will not change
