@@ -1305,7 +1305,7 @@ class TriFusionApp(App):
 
     def switch_path_wgt(self, wgt_id):
 
-        def path_updater(*args):
+        def path_updater():
             if os.path.exists(txt.text):
                 self.screen.ids.icon_view_tab.path = txt.text
             else:
@@ -1326,7 +1326,7 @@ class TriFusionApp(App):
             self.screen.ids.path_bx.add_widget(label)
         else:
             txt.text = fc_wgt.path
-            txt.bind(on_text_validate=path_updater)
+            txt.bind(on_text_validate=lambda x: path_updater())
             self.screen.ids.path_bx.add_widget(txt)
             self.screen.ids.path_bx.children[0].focus = True
 
