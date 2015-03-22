@@ -1113,6 +1113,11 @@ class TriFusionApp(App):
             return original_path
 
     def _on_mouseover_tabs(self):
+        """
+        Provides mouse over events throughout the app. In order to reduce
+        computations in each cycle, the mouse over events should only be tested
+        when the appropriate screen/widget is visible
+        """
 
         # Get mouse position coordinates
         mp = self.root_window.mouse_pos
