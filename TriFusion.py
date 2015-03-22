@@ -1732,12 +1732,9 @@ class TriFusionApp(App):
             bt_list = self.file_list
             # Setting which sink grid layout
             gl_wgt = self.root.ids.file_sl
-            # The mouse over bt list
-            mouse_bts = self.mouse_over_bts["Files"]
         else:
             bt_list = sorted(self.active_taxa_list)
             gl_wgt = self.root.ids.taxa_sl
-            mouse_bts = self.mouse_over_bts["Taxa"]
 
         # Find buttons that match the txt string
         if panel == "files":
