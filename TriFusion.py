@@ -304,10 +304,17 @@ class AutoCompTextInput(TextInput):
 
 
 class PartitionsDialog(BoxLayout):
+    """
+    Custom layout for partition box when editing partitions
+    """
     pass
 
 
 class ModelSpinner(Spinner):
+    """
+    Custom Spinner that takes a background_normal argument to set the
+    background
+    """
 
     def __init__(self, **kwargs):
         super(ModelSpinner, self).__init__(**kwargs)
@@ -796,7 +803,7 @@ class TriFusionApp(App):
         self.operation_queue_init()
 
         # Set schedule for mouse over events on side panel
-        Clock.schedule_interval(self._on_mouseover_tabs, .1)
+        Clock.schedule_interval(lambda x: self._on_mouseover_tabs(), .1)
 
         # This corrects a weird bug where the buttons in the dropdown of the
         # taxa tab in the side panel are open by default.
@@ -900,7 +907,7 @@ class TriFusionApp(App):
             :param bt2: Button widget two (usually for Cancel buttons)
             """
 
-            # This will deal with cases with only two buttons to cicle
+            # This will deal with cases with only two buttons to cycle
             if not bt3:
                 # if left arrow key
                 if key_code == (276, 113):
@@ -995,7 +1002,7 @@ class TriFusionApp(App):
                     self.screen.ids.path_toggle.state = "down"
                 self.screen.ids.path_toggle.dispatch("on_release")
 
-            # Select/Deselect all files with ctrl+a
+            # Select all files with ctrl+a
             if modifier == "ctrl" and key_code == (97, 38):
                 self.screen.ids.icon_view_tab.selection = \
                     [x for x in self.screen.ids.icon_view_tab.files if not
@@ -1105,7 +1112,7 @@ class TriFusionApp(App):
                                    t="error")
             return original_path
 
-    def _on_mouseover_tabs(self, dt):
+    def _on_mouseover_tabs(self):
 
         # Get mouse position coordinates
         mp = self.root_window.mouse_pos
