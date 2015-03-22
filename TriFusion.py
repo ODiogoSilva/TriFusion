@@ -1187,14 +1187,14 @@ class TriFusionApp(App):
 
             return info_bt
 
-        def create_sidebt_wgt(text, pos, size):
+        def create_sidebt_wgt(text, p, s):
             """
             Creates the label for the sidebt mouseover
             :param text: string. Text for the label
             """
 
-            side_bt = SideLabel(text=text, pos=pos, size_hint=(None, None),
-                             size=size, bold=True, border=(0, 0, 0, 0))
+            side_bt = SideLabel(text=text, pos=p, size_hint=(None, None),
+                             size=s, bold=True, border=(0, 0, 0, 0))
 
             return side_bt
 
