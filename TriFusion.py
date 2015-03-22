@@ -3488,7 +3488,7 @@ class TriFusionApp(App):
             Animation(opacity=1, d=.5, t="out_quart").start(check_wgt)
             Animation(opacity=1, d=.5, t="out_quart").start(rm_wgt)
 
-        def fade_out(*args):
+        def fade_out():
             Animation(opacity=0, d=.5, t="out_quart").start(check_wgt)
             Animation(opacity=0, d=.5, t="out_quart").start(rm_wgt)
             Clock.schedule_once(
@@ -3504,7 +3504,7 @@ class TriFusionApp(App):
         check_wgt.root_pos = [x, y]
         # Create remove button
         rm_wgt = RemoveFloat(pos=(x - 38, y - 75), opacity=0)
-        rm_wgt.bind(on_release=fade_out)
+        rm_wgt.bind(on_release=lambda arg: fade_out())
 
         # Determine background color
         if t == "error":
@@ -3520,7 +3520,7 @@ class TriFusionApp(App):
 
         # Set animations
         fade_in()
-        Clock.schedule_once(fade_out, 5)
+        Clock.schedule_once(lambda arg: fade_out, 5)
 
     def check_partitions_file(self):
         """
