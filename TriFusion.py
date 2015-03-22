@@ -28,34 +28,24 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.uix.popup import Popup
-from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.core.window import Window
-from kivy.core.window import WindowBase
-from kivy.uix.codeinput import CodeInput
-from kivy.uix.textinput import TextInput
-from kivy.uix.rst import RstDocument
 from kivy.uix.boxlayout import BoxLayout
-from kivy.clock import Clock
 from kivy.uix.gridlayout import GridLayout
-#from kivy.uix.scrollview import ScrollView
-from kivy.factory import Factory
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
-from kivy.uix.image import Image
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
-    ListProperty, ObjectProperty, DictProperty
+    ListProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
 from kivy.config import Config
 from kivy.clock import Clock
-from kivy.core.text.markup import MarkupLabel
 from kivy.uix.treeview import TreeView, TreeViewLabel
 from kivy.graphics import Color, Rectangle
 from kivy.uix.scrollview import ScrollView
@@ -71,10 +61,9 @@ from data.resources.db_tools import *
 
 # Other imports
 import os
-from os.path import dirname, join, exists, abspath, pardir
+from os.path import dirname, join, exists, abspath, pardir, expanduser
 from os import sep
 from collections import OrderedDict
-from os.path import expanduser
 from copy import deepcopy
 from functools import partial
 import pickle
