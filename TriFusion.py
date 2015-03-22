@@ -1770,8 +1770,6 @@ class TriFusionApp(App):
             bt_list = self.sp_file_bts
             # Setting which sink grid layout
             gl_wgt = self.root.ids.file_sl
-            # The mouse over bt list
-            mouse_bts = self.mouse_over_bts["Files"]
         else:
             bt_list = self.sp_taxa_bts
             gl_wgt = self.root.ids.taxa_sl
