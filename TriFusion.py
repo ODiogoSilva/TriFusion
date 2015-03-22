@@ -68,6 +68,7 @@ from copy import deepcopy
 from functools import partial
 import pickle
 import multiprocessing
+import time
 
 Config.set("kivy", "log_level", "warning")
 Config.set("kivy", "desktop", 1)
@@ -4183,6 +4184,12 @@ class TriFusionApp(App):
         d = multiprocessing.Process(target=load_proc, args=(ns, ))
 
         d.start()
+
+        time.sleep(.1)
+
+        if not d.is_alive():
+            alns = ns.alns
+            return self.load_files(files, alns)
 
         content = LoadProgressDialog()
         content.ids.pb.max = len(files)
