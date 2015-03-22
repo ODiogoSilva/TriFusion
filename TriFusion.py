@@ -3199,7 +3199,7 @@ class TriFusionApp(App):
                            "2[/color]":
                 [ModelSpinner(background_normal=first_background, id="13"),
                  ModelSpinner(background_normal=second_background, id="2")],
-                           "No codon partitions": [ModelSpinner(id="0")]}
+                           "No partitions": [ModelSpinner(id="0")]}
 
         if wgt:
             partitions_wgt = wgt
@@ -3235,7 +3235,7 @@ class TriFusionApp(App):
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
 
         # Set position for partitions dialog
-        size = (190, 190)
+        size = (180, 190)
         pos = [ed_pos[0] + btx.width,
                ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
 
