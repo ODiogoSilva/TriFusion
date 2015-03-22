@@ -2493,9 +2493,6 @@ class TriFusionApp(App):
         parent_obj.remove_widget(bt)
         parent_obj.remove_widget(inf_bt)
 
-        # Updates the size of the grid layout according to the removed button
-        parent_obj.height -= self.root.height * .0715
-
         ####### CORE CHANGES
         # Get the parent tab
         if parent_obj == self.root.ids.file_sl:
