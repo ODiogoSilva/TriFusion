@@ -501,13 +501,17 @@ class Partitions():
                     part_subpart = part[1]
                     self.models[part_name][0][part_subpart] += params
 
-    # def set_model_name(self):
-    #     """
-    #     This method should be used once all partitions have been defined. It
-    #     takes the substitution model parameters of each partition and
-    #     :return:
-    #     """
+    def get_model_name(self, params):
+        """
+        Given a list of parameters, this will try to return the name of the
+        model
+        """
 
+        for model, p in self._models["mrbayes"].items():
+            if params == p:
+                return model
+        else:
+            return None
 
     # def write_to_file(self, output_format, output_file, model="LG"):
     #     """ Writes the Partitions object into an output file according to the
