@@ -85,6 +85,10 @@ class ShowcaseScreen(Screen):
 
 
 class FileChooserL(FileChooserListView):
+    """
+    Modification of the FileChooserListView widget that fixes an issue of path
+    update when clicking in the parent directory
+    """
 
     def __init__(self, **kwargs):
         super(FileChooserL, self).__init__(**kwargs)
@@ -115,6 +119,17 @@ class FileChooserL(FileChooserListView):
 
 
 class FileChooserM(FileChooserIconView):
+    """
+    Modification of the FileChooserIconView widget that fixes n issue of path
+    update when clicking in the parent directory and provides support for
+    multiple file selection using Shift+Click. To achieve this, a few methods
+    were added that listen to keyboard input in order to capture when the
+    shift key is being pressed. These methods change the new shift attribute of
+    the class, which is used when an entry is touched.
+
+    The current Shift+Click implementation supports forward and backward
+    selection from the last entry touched.
+    """
 
     shift = False
 
@@ -124,12 +139,23 @@ class FileChooserM(FileChooserIconView):
         Window.bind(on_key_up=self.release_shift)
 
     def keyboard_listen(self, *vals):
+        """
+        Listens to keyboard when a key is pressed. It is used to set the shift
+        attribute to True when Shift is being pressed
+        :param vals: keyboard input
+        """
 
         key_code = vals[1:3]
         if key_code == (304, 50):
             self.shift = True
 
     def release_shift(self, *vals):
+        """
+        Listens to keyboard when a key is released. It is used to set the
+        shift attribute to False when the Shift key is released.
+        :param vals:
+        :return:
+        """
 
         key_code = vals[1:3]
         if key_code == (304, 50):
@@ -162,7 +188,7 @@ class FileChooserM(FileChooserIconView):
     def entry_touched(self, entry, touch):
         """
         (internal) This method must be called by the template when an entry
-        is touched by the user.
+        is touched by the user. Supports Shift+Clicking for multiple selection
         """
         if (
             'button' in touch.profile and touch.button in (
@@ -227,7 +253,6 @@ class CustomPopup(Popup):
 
     .: The title does not wrap, but instead is shortened
     .: A custom background may be provided using the custom_background attribute
-
     """
 
     def __init__(self, **kwargs):
@@ -243,6 +268,7 @@ class CustomPopup(Popup):
         except KeyError:
             self.custom_background = None
 
+        # Set custom background
         if self.custom_background:
             gl = self.children[0]
             with gl.canvas.before:
@@ -252,6 +278,8 @@ class CustomPopup(Popup):
                     pos=self.pos,
                     size=self.size)
 
+                # This will update the background position when the popup is
+                # set to the final position
                 self.bind(size=self._update_rect, pos=self._update_rect)
 
     def _update_rect(self, instance, value):
