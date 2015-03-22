@@ -144,8 +144,8 @@ class Partitions():
         the corresponding alignment files. For single alignment partitions,
         this will provide information on the file name. For multiple alignments,
         besides the information of the file names, it will associate which
-        alignments are contained in a given partition.
-        An example would be:
+        alignments are contained in a given partition and support multi
+        alignment partitions. An example would be:
 
         self.partitions_alignments = {"PartitionA": ["FileA.fas"], "PartitionB":
             ["FileB.fas", "FileC.fas"]}
@@ -461,6 +461,66 @@ class Partitions():
                                              codon]
 
                 self.counter = locus_range[1] + 1
+
+    def remove_partition(self, name):
+        """
+        Removes a partitions by a given name. This will handle any necessary
+        changes on the remaining partitions. The changes will be straightforward
+        for most attributes, such as partitions_index, partitions_alignments
+        and models, but it will require a re-structuring of partitions because
+        the ranges of the subsequent partitions will have to be adjusted.
+        :param name: string. Name of the partitions
+        """
+
+        def rm_part(nm):
+            """
+            Remove a partition from self.partitions and update the ranges of the
+            remaining partitions
+            """
+
+            del self.partitions[nm]
+
+            new_dic = OrderedDict()
+
+            counter = 1
+            for nm, vals in self.partitions:
+                # Check if the starting position of the next partition is the
+                # same as the counter. If so, add the vals to the new dict.
+                # Else, correct the ranges based on the counter
+                if vals[0][0] == counter:
+                    new_dic[nm] = vals
+                    counter = vals[0][1] + 1
+                else:
+                    # Get lenght of the partition
+                    part_len = vals[0][1] - vals[0][0]
+                    # Create corrected range
+                    part_range = (counter, counter + part_len)
+                    # Correct codon position start if any
+                    if vals[1]:
+                        codon = [counter, counter + 1, counter + 2]
+                    else:
+                        codon = False
+                    new_dic[nm] = [part_range, codon]
+                    counter = counter + part_len + 1
+
+            return new_dic
+
+        # Raise exception if partition name does not exist
+        if name not in self.partitions:
+            raise PartitionException("%s is not a partition name" % name)
+
+        # Remove partition from partition_index
+        self.partitions_index = [x for x in self.partitions_index if x[0] !=
+                                 name]
+
+        # Remove partitions_alignments
+        del self.partitions_alignments[name]
+
+        # Remove models
+        del self.models[name]
+
+        # Remove from partitions
+        self.partitions = rm_part(name)
 
     #===========================================================================
     # Model handling
