@@ -359,7 +359,7 @@ class Partitions():
                 return part
 
     def add_partition(self, name, length=None, locus_range=None, codon=False,
-                      use_counter=False, file_name=None):
+                      use_counter=False, file_name=None, model_cls=None):
         """
         Adds a new partition providing the length or the range of current
         alignment. If both are provided, the length takes precedence.The range
@@ -372,6 +372,7 @@ class Partitions():
         starting points in list format, e.g: [1,2,3]
         :param file_name: string. If the file name is not provided by the name
         argument (which is instead the name of a partition), use this argument.
+        :param model_cls: list. A model value from another partition object
 
         IMPORTANT NOTE on self.model: The self.model attribute was designed
         in a way that allows the storage of different substitution models
@@ -436,12 +437,19 @@ class Partitions():
 
                     self.partitions[parent_partition][1].append(locus_range[0])
 
-            # Else, create the new partition
+            # Else, create the new partition. If codon is provided, the codon
+            # information is automatically added
             else:
-                # Create empty model attribute for a single partition
-                self.models[name] = [[[]], [None]]
-                 # Add partition to index list
-                self.partitions_index.append([name, 0])
+                if model_cls:
+                    self.models[name] = model_cls
+                else:
+                    # Create empty model attribute for a single partition
+                    self.models[name] = [[[]], [None]]
+                if codon:
+                    self.partitions_index = [[name, x] for x in codon]
+                else:
+                    # Add partition to index list
+                    self.partitions_index.append([name, 0])
                 self.partitions_alignments[file_name if file_name else name] =\
                     [name]
                 if use_counter:
