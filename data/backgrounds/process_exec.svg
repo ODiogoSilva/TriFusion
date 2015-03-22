@@ -957,16 +957,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="-591.63332"
-     inkscape:cy="-1227.3676"
+     inkscape:zoom="0.99999999"
+     inkscape:cx="-2009.6509"
+     inkscape:cy="-1039.7056"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1052"
+     inkscape:window-width="1366"
+     inkscape:window-height="713"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true" />
@@ -2831,5 +2831,80 @@
        sodipodi:nodetypes="cccc"
        inkscape:export-xdpi="18"
        inkscape:export-ydpi="18" />
+    <rect
+       style="fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3050-2-7-3-05-2-7-4"
+       width="185.31654"
+       height="135.31654"
+       x="-296.36337"
+       y="2209.4128"
+       ry="0"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="18.43162"
+       inkscape:export-ydpi="18.43162"
+       rx="0" />
+    <path
+       style="fill:#333333;fill-opacity:1;fill-rule:evenodd;stroke:#333333;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -107.43013,2347.9839 0,-48.8424 -50.89164,48.8666 z"
+       id="path5016-0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-xdpi="18"
+       inkscape:export-ydpi="18" />
+    <rect
+       style="fill:#71c837;fill-opacity:1;fill-rule:nonzero;stroke:#71c837;stroke-width:10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3050-2-7-3-05-2-7-4-0"
+       width="185.31654"
+       height="135.31654"
+       x="14.763612"
+       y="2202.3418"
+       ry="0"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="18.43162"
+       inkscape:export-ydpi="18.43162"
+       rx="0" />
+    <path
+       style="fill:#333333;fill-opacity:1;fill-rule:evenodd;stroke:#333333;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 203.69685,2340.9129 0,-48.8425 -50.89164,48.8667 z"
+       id="path5016-0-1"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-xdpi="18"
+       inkscape:export-ydpi="18" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -2116.3798,2012.0497 -51.75,0"
+       id="path4577"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g4581"
+       transform="matrix(0.81723332,0,0,1.0011675,-378.65841,-2.3494752)"
+       inkscape:export-xdpi="89.895088"
+       inkscape:export-ydpi="89.895088">
+      <rect
+         y="1918.488"
+         x="-2061.8743"
+         height="187.7484"
+         width="217.74841"
+         id="rect4571"
+         style="opacity:1;fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:2.2515955;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <path
+         inkscape:transform-center-y="8.0150385e-05"
+         inkscape:transform-center-x="0.40814842"
+         d="m -2066.1084,2010.6701 0,1.4141 0,1.4141 -1.2246,-0.707 -1.2247,-0.7071 1.2247,-0.707 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0"
+         inkscape:flatsided="false"
+         sodipodi:arg2="0"
+         sodipodi:arg1="-1.0471976"
+         sodipodi:r2="0.81644011"
+         sodipodi:r1="1.6328802"
+         sodipodi:cy="2012.0842"
+         sodipodi:cx="-2066.9248"
+         sodipodi:sides="3"
+         id="path4579"
+         style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:6.35522556;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         sodipodi:type="star" />
+    </g>
   </g>
 </svg>

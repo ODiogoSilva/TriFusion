@@ -3173,7 +3173,7 @@ class TriFusionApp(App):
         """
         self._subpopup.dismiss()
 
-    def set_codon_model(self, codon_partition):
+    def set_codon_model(self, codon_partition, wgt=None):
         """
         Changes the model spinners when changing the codon partitioning
         """
@@ -3201,8 +3201,11 @@ class TriFusionApp(App):
                  ModelSpinner(background_normal=second_background, id="2")],
                            "No codon partitions": [ModelSpinner(id="0")]}
 
-        partitions_wgt = [x for x in self.root_window.children if
-                          isinstance(x, PartitionsDialog)][0]
+        if wgt:
+            partitions_wgt = wgt
+        else:
+            partitions_wgt = [x for x in self.root_window.children if
+                              isinstance(x, PartitionsDialog)][0]
 
         partitions_wgt.ids.model_bx.clear_widgets()
 
@@ -3238,6 +3241,20 @@ class TriFusionApp(App):
 
         content = PartitionsDialog(pos=pos, size=size, size_hint=(None, None))
         rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20, pos[1] + size[1] - 20])
+
+        # Set partition object and partition name
+        part_obj = self.alignment_list.partitions
+        part_name = btx.id[:-1]
+
+        #TODO: For now this assumes all codon partitions are unlinked
+        # If there are codon partitions
+        if part_obj.partitions[part_name][1]:
+            content.ids.codon_spin.text = content.ids.codon_spin.values[1]
+            self.set_codon_model(content.ids.codon_spin.values[1], content)
+            for i in range(len(part_obj.models[part_name][0])):
+                params = part_obj.models[part_name][0][i]
+                model = part_obj.get_model_name(params)
+                content.ids.model_bx.children[i].text = model
 
         # Give functionality to remove button
         rm_wgt.bind(on_release=lambda x: self.remove_partition_box())
