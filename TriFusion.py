@@ -637,9 +637,9 @@ class TriFusionApp(App):
     # for very large data sets. Each list element pertains a single file/taxon
     # and it will be a tupple containing the main button, information button
     # and remove button.
-    sp_file_bts = ListProperty([])
-    sp_taxa_bts = ListProperty([])
-    sp_partition_bts = ListProperty([])
+    sp_file_bts = ListProperty()
+    sp_taxa_bts = ListProperty()
+    sp_partition_bts = ListProperty()
 
     # Attributes that control the amount of taxa/file buttons showing at the
     # side panel. To avoid staggering the app with tons of buttons, a
