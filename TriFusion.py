@@ -362,66 +362,105 @@ class InflationDialog(BoxLayout):
 
 
 class CloseBox(BoxLayout):
+    """
+    This is part of the taxa information popup. It contains the closing button
+    """
     cancel = ObjectProperty(None)
 
 
 class RemoveFloat(Button):
+    """
+    Simple (X) float button that can be associated with several root_window
+    widgets for closing buttons
+    """
     pass
 
 
 class WarningFloat(Label):
+    """
+    The general purpose unintruside warning float for errors and informations.
+    This dialog is added to the root_window with fade in and fade out animations
+    """
     pass
 
 
 class InfoPopup(BoxLayout):
+    """
+    Dialog for help texts that can be accessed for several options using the
+    "?" button
+    """
     cancel = ObjectProperty(None)
 
 
 class MouseOverLabel(Button):
+    """
+    General use mouse over label for diverse buttons
+    """
     pass
 
 
 class RevConcDialog(BoxLayout):
+    """
+    Reverse concatenation dialog
+    """
     cancel = ObjectProperty(None)
 
 
 class InputList(BoxLayout):
+    """
+    Dialog with list of input files to select file for reverse concatenation
+    """
     cancel = ObjectProperty(None)
 
 
-class BookmarkLabel(Label):
-    pass
-
-
 class SideLabel(Label):
+    """
+    Mouseover label for side option buttons in the sidepanel
+    """
     pass
 
 
 class LoadMoreBt(AnchorLayout):
+    """
+    Custom button widget for for the "load more button" in the side panel
+    """
     pass
 
 
 class PathLabel(Label):
+    """
+    Dialog for the Label with the path for the main file chooser
+    """
     pass
 
 
-class DoneDialog(BoxLayout):
-    cancel = ObjectProperty(None)
-
-
 class PathText(AutoCompTextInput):
+    """
+    Dialog for the TextInput for the main file chooser that controls the path
+     and inherits from the custom AutoCompTextInput for auto completion
+    """
     pass
 
 
 class ExecutionDialog(BoxLayout):
+    """
+    The Execution dialog for Process operations
+    """
     cancel = ObjectProperty(None)
 
 
 class ProteomePopup(BoxLayout):
+    """
+    Informative popup for proteome files when clicking the "i" button in the
+    side panel
+    """
     cancel = ObjectProperty(None)
 
 
 class LoadProgressDialog(BoxLayout):
+    """
+    Dialog for the progression dialog when loading files into the program
+    """
     pass
 
 
