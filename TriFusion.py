@@ -1127,7 +1127,7 @@ class TriFusionApp(App):
         sidebt_list = [x for x in self.root.ids.side_bt.children if
                        isinstance(x, ToggleButton)]
 
-        def show_label(mouse, wgt, *args):
+        def show_label(mouse, wgt):
             """
             Use this function with a Clock schedule to delay the introduction
             of the label widget. Otherwise, it could become cumbersome to have
@@ -1224,7 +1224,7 @@ class TriFusionApp(App):
 
                             label = create_label(text=bt.id)
 
-                            Clock.schedule_once(partial(show_label, mp, label),
+                            Clock.schedule_once(lambda x: show_label(mp, label),
                                                 .8)
                             self.mouse_over_ready = False
             else:
@@ -1277,8 +1277,8 @@ class TriFusionApp(App):
                                 label = create_label(text=bt.text)
 
                                 # Schedule the introduction of the label widget
-                                Clock.schedule_once(partial(show_label, mp,
-                                                            label), .8)
+                                Clock.schedule_once(lambda x: show_label(mp,
+                                                        label), .8)
                                 # Locking mouse over so that no additional label
                                 # widgets are added during the waiting time
                                 self.mouse_over_ready = False
@@ -1288,8 +1288,8 @@ class TriFusionApp(App):
                                 not in self.previous_mouse_over:
 
                             label = create_label("Removes all files and taxa")
-                            Clock.schedule_once(partial(show_label, mp,
-                                                            label), .3)
+                            Clock.schedule_once(lambda x: show_label(mp, label),
+                                                .3)
                             # Locking mouse over so that no additional label
                             # widgets are added during the waiting time
                             self.mouse_over_ready = False
