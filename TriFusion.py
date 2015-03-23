@@ -1772,9 +1772,12 @@ class TriFusionApp(App):
             bt_list = self.file_list
             # Setting which sink grid layout
             gl_wgt = self.root.ids.file_sl
-        else:
+        elif panel == "taxa":
             bt_list = sorted(self.active_taxa_list)
             gl_wgt = self.root.ids.taxa_sl
+        else:
+            bt_list = list(self.alignment_list.partitions.partitions.keys())
+            gl_wgt = self.root.ids.partition_sl
 
         # Find buttons that match the txt string
         if panel == "files":
@@ -1795,8 +1798,10 @@ class TriFusionApp(App):
 
         if panel == "files":
             self.mouse_over_bts["Files"] = mouse_bts
-        else:
+        elif panel == "taxa":
             self.mouse_over_bts["Taxa"] = mouse_bts
+        else:
+            self.mouse_over_bts["Partitions"] = mouse_bts
 
     def sidepanel_clear_search(self, panel):
         """
@@ -1810,9 +1815,12 @@ class TriFusionApp(App):
             bt_list = self.sp_file_bts
             # Setting which sink grid layout
             gl_wgt = self.root.ids.file_sl
-        else:
+        elif panel == "taxa":
             bt_list = self.sp_taxa_bts
             gl_wgt = self.root.ids.taxa_sl
+        else:
+            bt_list = self.sp_partition_bts
+            gl_wgt = self.root.ids.partition_sl
 
         # Clear the grid and populate with the found bts
         gl_wgt.clear_widgets()
@@ -1825,8 +1833,10 @@ class TriFusionApp(App):
 
         if panel == "files":
             self.mouse_over_bts["Files"] = mouse_bts
-        else:
+        elif panel == "taxa":
             self.mouse_over_bts["Taxa"] = mouse_bts
+        else:
+            self.mouse_over_bts["Partitions"] = mouse_bts
 
         try:
             d = self.file_list[self.count_files + 1]

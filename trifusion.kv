@@ -3165,6 +3165,10 @@ FloatLayout:
                                                             background_normal: "data/backgrounds/search_bt.png"
                                                             background_down: "data/backgrounds/search_bt.png"
                                                             on_release:
+                                                                if file_search.text == "": \
+                                                                app.sidepanel_clear_search("partitions")
+                                                                else: \
+                                                                app.sidepanel_search_bts(file_search.text, "partitions")
 
                                                         TextInput:
                                                             size_hint_x: None
@@ -3175,6 +3179,10 @@ FloatLayout:
                                                             hint_text: "Search partitions..."
                                                             multiline: False
                                                             on_text_validate:
+                                                                if self.text == "": \
+                                                                app.sidepanel_clear_search("partitions")
+                                                                else: \
+                                                                app.sidepanel_search_bts(self.text, "partitions")
 
                                                         Button:
                                                             size_hint_x: None
@@ -3182,7 +3190,9 @@ FloatLayout:
                                                             background_normal: "data/backgrounds/clear_bt.png"
                                                             background_down: "data/backgrounds/clear_bt.png"
                                                             on_release:
-
+                                                            on_release:
+                                                                app.sidepanel_clear_search("partitions")
+                                                                partition_search.text = ""
                                             ScrollView:
                                                 id: sv_partition
                                                 GridLayout:
