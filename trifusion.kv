@@ -2926,23 +2926,27 @@ FloatLayout:
                                                     spacing: 5
                                                     Button:
                                                         text: "Select All"
-                                                        disabled: True
+                                                        disabled: True if not app.file_list and not app.proteome_files else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        on_release:
+                                                            app.select_bt(self)
                                                     Button:
                                                         text: "Deselect All"
-                                                        disabled: True
+                                                        disabled: True if not app.file_list and not app.proteome_files else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        on_release:
+                                                            app.select_bt(self)
                                                 Button:
                                                     id: file_opt
                                                     text: "+"
                                                     font_size: 30
                                                     bold: True
                                                     size_hint_x: .18
-                                                    disabled: True
+                                                    disabled: True if not app.file_list and not app.proteome_files else False
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -2952,7 +2956,7 @@ FloatLayout:
                                                     id: rm_all_file
                                                     size_hint_x: None
                                                     width: 35
-                                                    disabled: True
+                                                    disabled: True if not app.file_list and not app.proteome_files else False
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
                                                     background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
@@ -3069,23 +3073,27 @@ FloatLayout:
                                                     spacing: 5
                                                     Button:
                                                         text: "Select All"
-                                                        disabled: True
+                                                        disabled: True if not app.file_list else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        on_release:
+                                                            app.select_bt(self)
                                                     Button:
                                                         text: "Deselect All"
-                                                        disabled: True
+                                                        disabled: True if not app.file_list else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        on_release:
+                                                            app.select_bt(self)
                                                 Button:
                                                     id: taxa_opt
                                                     text: "+"
                                                     font_size: 30
                                                     bold: True
                                                     size_hint_x: .18
-                                                    disabled: True
+                                                    disabled: True if not app.file_list else False
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -3095,7 +3103,7 @@ FloatLayout:
                                                     id: rm_all_taxa
                                                     size_hint_x: None
                                                     width: 35
-                                                    disabled: True
+                                                    disabled: True if not app.file_list else False
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
                                                     background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
