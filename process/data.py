@@ -562,8 +562,6 @@ class Partitions():
                 raise PartitionException("%s file does not belong to any"
                                          "partition" % file_name)
 
-
-
     #===========================================================================
     # Model handling
     #===========================================================================
