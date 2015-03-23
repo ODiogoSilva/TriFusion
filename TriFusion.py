@@ -614,7 +614,7 @@ class TriFusionApp(App):
     cur_dir = dirname(__file__)
 
     # Only the original input files. SHOULD NOT BE MODIFIED
-    file_list = []
+    file_list = ListProperty()
     # Dynamic list containing only the activated files
     active_file_list = ListProperty()
     # Dictionary mapping file names to their corresponding full paths. This
@@ -2038,26 +2038,18 @@ class TriFusionApp(App):
                                        len(active_lst),
                                        len(lst))
 
-        # Check if there are 0 out of 0 files. In this case, disabled the
-        # select/unselect all buttons
+        # Reset the sequence_types list when all files are removed
         if len(active_lst) == 0 and len(lst) == 0:
             # Core changes
             self.sequence_types = []
 
-            # App changes
+            # Add disabled no changes button
             if "species_temp" not in [x.id for x in
                                       self.root.ids.file_sl.children]:
                 no_bt = Button(id="file_temp", text="No files loaded",
                                size_hint_y=None, height=40, disabled=True)
                 self.root.ids["file_temp"] = no_bt
                 self.root.ids.file_sl.add_widget(no_bt)
-            self.root.ids.sb_file.disabled = True
-            self.root.ids.file_opt.disabled = True
-            self.root.ids.rm_all_file.disabled = True
-        else:
-            self.root.ids.sb_file.disabled = False
-            self.root.ids.file_opt.disabled = False
-            self.root.ids.rm_all_file.disabled = False
 
     def update_sp_label(self):
         """
@@ -2065,27 +2057,20 @@ class TriFusionApp(App):
         how many taxa are selected out of the total taxa. If the taxa list
         is empty, it disables the select/deselect buttons
         """
+
         self.root.ids.sp_lab.text = "%s of %s taxa selected" % (
                                        len(self.active_taxa_list),
                                        len(self.alignment_list.taxa_names))
 
-        # Check if there are 0 out of 0 taxa. In this case, disabled the
-        # select/unselect all buttons
+        # Add disabled no taxa button when empty
         if len(self.active_taxa_list) == 0 and \
                 len(self.alignment_list.taxa_names) == 0:
-            self.root.ids.sb_taxa.disabled = True
-            self.root.ids.taxa_opt.disabled = True
-            self.root.ids.rm_all_taxa.disabled = True
             if "species_temp" not in [x.id for x in
                                       self.root.ids.taxa_sl.children]:
                 no_bt = Button(id="species_temp", text="No species loaded",
                                size_hint_y=None, height=40, disabled=True)
                 self.root.ids["species_temp"] = no_bt
                 self.root.ids.taxa_sl.add_widget(no_bt)
-        else:
-            self.root.ids.sb_taxa.disabled = False
-            self.root.ids.taxa_opt.disabled = False
-            self.root.ids.rm_all_taxa.disabled = False
 
     def sidepanel_create_bts(self, idx):
 
@@ -2149,13 +2134,6 @@ class TriFusionApp(App):
             self.root.ids.file_sl.remove_widget(self.root.ids.file_temp)
             del self.root.ids["file_temp"]
             self.root.ids.file_sl.height = 5
-
-        # Enable selection  and more options buttons if file list is not empty
-        if lst:
-            for i in self.root.ids.sb_file.children:
-                i.disabled = False
-                i.bind(on_release=self.select_bt)
-            self.root.ids.file_opt.disabled = False
 
         # Add a label at the end of the file list informing how many files are
         # currently selected out of the total files
@@ -2239,13 +2217,6 @@ class TriFusionApp(App):
             self.root.ids.taxa_sl.remove_widget(self.root.ids.species_temp)
             del self.root.ids["species_temp"]
             self.root.ids.taxa_sl.height = 5
-
-        # Enable selection and more options buttons if taxa list is not empty
-        if self.active_taxa_list:
-            for i in self.root.ids.sb_taxa.children:
-                i.disabled = False
-                i.bind(on_release=self.select_bt)
-            self.root.ids.taxa_opt.disabled = False
 
         # Add a label at the end of the taxa list informing how many taxa are
         # currently selected out of the total taxa
