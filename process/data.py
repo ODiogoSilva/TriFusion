@@ -546,7 +546,6 @@ class Partitions():
         if file_name:
 
             for part, file_list in self.partitions_alignments.items():
-                print(part, file_list)
                 if file_name in file_list:
                     # If the partitions consists only of the provided file,
                     # Remove the entire partition
