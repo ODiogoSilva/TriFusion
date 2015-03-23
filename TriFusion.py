@@ -775,7 +775,7 @@ class TriFusionApp(App):
     output_dir = ""
 
     # Attribute storing active output formats. Fasta is True by default
-    output_formats = ["fasta"]
+    output_formats = ListProperty(["fasta"])
 
     # Attributes for extra options of output formats
     # Determines whether the part.File associated with phylip format is created
@@ -3408,24 +3408,6 @@ class TriFusionApp(App):
                                    "output format", t="error")
 
         self.dismiss_popup()
-
-        # Updates the text in the select format button. In case only one format
-        # is specified, the text will be that format; if multiple formats are
-        # specified, the text will inform the number of selected formats; if no
-        # format is specified, a no selected format text will appear
-        if len(self.output_formats) == 1:
-            self.process_grid_wgt.ids.conv_formatbt.font_size = 15
-            self.process_grid_wgt.ids.conv_formatbt.text = \
-                self.output_formats[0].title()
-
-        elif len(self.output_formats) == 0:
-            self.process_grid_wgt.ids.conv_formatbt.font_size = 14
-            self.process_grid_wgt.ids.conv_formatbt.text = "No formats selected"
-
-        else:
-            self.process_grid_wgt.ids.conv_formatbt.font_size = 16
-            self.process_grid_wgt.ids.conv_formatbt.text = "%s selected" % (
-                len(self.output_formats))
 
         # Updates the Gcoder option depending on whether the nexus output format
         # is the only one selected
