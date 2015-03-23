@@ -462,14 +462,16 @@ class Partitions():
 
                 self.counter = locus_range[1] + 1
 
-    def remove_partition(self, name):
+    def remove_partition(self, partition_name=None, file_name=None):
         """
-        Removes a partitions by a given name. This will handle any necessary
-        changes on the remaining partitions. The changes will be straightforward
-        for most attributes, such as partitions_index, partitions_alignments
-        and models, but it will require a re-structuring of partitions because
-        the ranges of the subsequent partitions will have to be adjusted.
-        :param name: string. Name of the partitions
+        Removes a partitions by a given partition or file name. This will
+        handle any necessary changes on the remaining partitions. The changes
+        will be straightforward for most attributes, such as partitions_index,
+        partitions_alignments and models, but it will require a re-structuring
+        of partitions because the ranges of the subsequent partitions will
+        have to be adjusted.
+        :param partition_name: string. Name of the partition
+        :param file_name: string. Name of file
         """
 
         def rm_part(nm):
@@ -505,22 +507,54 @@ class Partitions():
 
             return new_dic
 
-        # Raise exception if partition name does not exist
-        if name not in self.partitions:
-            raise PartitionException("%s is not a partition name" % name)
+        def remove_routine(part_name):
+            """
+            Routine that removes a partition based on its name. It ca be used
+            when calling the remove_partition method with the partition_name
+            argument, or with the file_name argument when the partition only
+            contains that file name
+            """
+            # Remove partition from partition_index
+            self.partitions_index = [x for x in self.partitions_index if x[0] !=
+                                     part_name]
 
-        # Remove partition from partition_index
-        self.partitions_index = [x for x in self.partitions_index if x[0] !=
-                                 name]
+            # Remove partitions_alignments
+            del self.partitions_alignments[part_name]
 
-        # Remove partitions_alignments
-        del self.partitions_alignments[name]
+            # Remove models
+            del self.models[part_name]
 
-        # Remove models
-        del self.models[name]
+            # Remove from partitions
+            self.partitions = rm_part(part_name)
 
-        # Remove from partitions
-        self.partitions = rm_part(name)
+        if partition_name:
+            # Raise exception if partition name does not exist
+            if partition_name not in self.partitions:
+                raise PartitionException("%s is not a partition name" %
+                                         partition_name)
+
+            remove_routine(partition_name)
+
+        if file_name:
+
+            for part, file_list in self.partitions_alignments:
+                if file_name in file_list:
+                    # If the partitions consists only of the provided file,
+                    # Remove the entire partition
+                    if len(file_list) == 1:
+                        remove_routine(part)
+                    # If the partition contains other files, then only remove
+                    # the current file from the partition
+                    else:
+                        self.partitions_alignments[part].remove(file_name)
+
+                return
+
+            else:
+                raise PartitionException("%s file does not belong to any"
+                                         "partition" % file_name)
+
+
 
     #===========================================================================
     # Model handling
