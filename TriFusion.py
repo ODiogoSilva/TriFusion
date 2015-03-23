@@ -2011,6 +2011,16 @@ class TriFusionApp(App):
 
         self.active_taxa_list = self.active_alignment_list.taxa_names
 
+    def update_partitions(self):
+        """
+        Updates partition buttons following any change to input data
+        """
+
+        # Check for missing partitions based on id and remove them
+        for bt, inf_bt, x_bt in self.sp_partition_bts:
+            if bt.id not in self.alignment_list.partitions.partitions:
+                self.remove_bt(x_bt)
+
     def update_file_label(self, mode="alignment"):
         """
         Sets and updates a label on the Files tab of the side panel, informing
@@ -2468,6 +2478,9 @@ class TriFusionApp(App):
             # self.get_taxa_information since this method relies on an
             # updated active taxa list
             self.update_taxa()
+
+            # Updates the partition list
+            self.update_partitions()
 
             # Update pop up content. Since the file has been removed,
             # it should also be excluded from the complete data set
