@@ -3496,7 +3496,7 @@ class TriFusionApp(App):
 
         # Set animations
         fade_in()
-        Clock.schedule_once(lambda arg: fade_out, 5)
+        Clock.schedule_once(lambda arg: fade_out(), 5)
 
     def check_partitions_file(self):
         """
