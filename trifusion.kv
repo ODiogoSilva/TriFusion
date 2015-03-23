@@ -2286,7 +2286,7 @@
             text_size: self.size
         ProcessBt:
             id: conv_formatbt
-            text: "Fasta"
+            text: "%s" % app.output_formats[0].title() if len(app.output_formats) == 1 else "%s selected" % len(app.output_formats)
             on_release: app.dialog_format()
     Hseparator
 
