@@ -1259,9 +1259,11 @@ class AlignmentList (Base):
         """
 
         for nm in filename_list:
+            nm_wext = nm.split(sep)[-1]
             nm = nm.split(sep)[-1].split(".")[0]
             self.alignment_object_list = [x for x in self.alignment_object_list
                                           if nm != x.name]
+            self.partitions.remove_partition(file_name=nm_wext)
 
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
