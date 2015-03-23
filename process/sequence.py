@@ -1106,7 +1106,7 @@ class AlignmentList (Base):
 
             # Update taxa names with the new alignment
             self.taxa_names = self._get_taxa_list()
-z
+
     def retrieve_alignment(self, name):
         """
         :param name: string. Name of the input alignment
