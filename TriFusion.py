@@ -621,7 +621,7 @@ class TriFusionApp(App):
     # attribute must exist, because some parts of the code need only the file
     # name instead of the full path, but a connection to the full path must
     # be maintained for future reference
-    filename_map = {}
+    filename_map = DictProperty()
 
     # Setting the list of taxa names
     active_taxa_list = ListProperty()
@@ -670,7 +670,7 @@ class TriFusionApp(App):
     # Attribute for the widget containing the treeview showing the operations
     # queue
     operation_tv = ObjectProperty(None)
-    main_nodes = {}
+    main_nodes = DictProperty()
 
     # Attributes for storing taxa and file buttons for side panel. These will
     # be used when search for files/taxa and for loading only button subsets
@@ -685,26 +685,26 @@ class TriFusionApp(App):
     # side panel. To avoid staggering the app with tons of buttons, a
     # maximum number of buttons showing initially is set. More buttons
     # can be later added.
-    MAX_FILE_BUTTON = 20
-    count_files = 0
-    MAX_PARTITION_BUTTON = 20
-    count_partitions = 0
+    MAX_FILE_BUTTON = NumericProperty(20)
+    count_files = NumericProperty(0)
+    MAX_PARTITION_BUTTON = NumericProperty(20)
+    count_partitions = NumericProperty(0)
 
     # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
     # mouse_over events
     # Contains the button widgets from the Files and Taxa tabs
-    mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
+    mouse_over_bts = DictProperty({"Files": [], "Taxa": [], "Partitions": []})
     # The button text of the previous mouse over event. This will allow the
     # assessment of whether the current mouse collision is for the same button
     # (in which case the mouse over will not be triggered) or for a different
     # button (in which case the mouse over is triggered)
-    previous_mouse_over = ""
+    previous_mouse_over = StringProperty("")
     # This is a locking mechanism of the mouse over event. When there is a
     # scheduled event for a mouse over this attribute is set to False, which
     # prevents further events from being scheduled in the meantime. When the
     # scheduled event is dispatched, the lock is released and it returns to
     # True
-    mouse_over_ready = True
+    mouse_over_ready = BooleanProperty(True)
     # Stores the previous mouse over label button so that it can be removed
     old_mouse_over = None
 
@@ -715,35 +715,35 @@ class TriFusionApp(App):
     ################################
 
     # MySQL access
-    mysql_pass = ""
+    mysql_pass = StringProperty("")
 
     # OrthoMCL output directory
-    ortho_dir = ""
+    ortho_dir = StringProperty("")
 
     # USEARCH database
-    usearch_db = "goodProteins_db"
-    usearch_output = "AllVsAll.out"
-    usearch_evalue = "0.00001"
+    usearch_db = StringProperty("goodProteins_db")
+    usearch_output = StringProperty("AllVsAll.out")
+    usearch_evalue = StringProperty("0.00001")
 
     # MCL/Groups attributes
-    ortholog_prefix = "My_group"
-    group_prefix = "group"
-    mcl_inflation = ["3"]
+    ortholog_prefix = StringProperty("My_group")
+    group_prefix = StringProperty("group")
+    mcl_inflation = ListProperty(["3"])
 
     # Protein quality filters
-    protein_min_len = 10  # Absolute
-    protein_max_stop = 20  # Percentage
+    protein_min_len = NumericProperty(10)  # Absolute
+    protein_max_stop = NumericProperty(20)  # Percentage
 
     # Orthology cluster filters
-    orto_max_gene = 1
-    orto_min_sp = 3
+    orto_max_gene = NumericProperty(1)
+    orto_min_sp = NumericProperty(3)
 
     # Attribute containing the path to the proteome files
-    proteome_files = []
-    active_proteome_files = []
+    proteome_files = ListProperty()
+    active_proteome_files = ListProperty()
 
     # Attribute containing the orthology group files
-    ortho_groups = None
+    ortho_groups = ListProperty()
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
@@ -753,51 +753,51 @@ class TriFusionApp(App):
 
     # Attributes containing the original and active taxa information
     # dictionaries
-    original_tx_inf = None
-    active_tx_inf = None
+    original_tx_inf = DictProperty()
+    active_tx_inf = DictProperty()
     # Same as before but for file information
-    original_file_inf = None
-    active_file_inf = None
+    original_file_inf = DictProperty()
+    active_file_inf = DictProperty()
 
     # Export mode. Tuple with first element "taxa" or "file" and second element
     # as "all" or "selected"
     export_mode = None
 
     # Attribute storing the sequence types currently loaded
-    sequence_types = []
+    sequence_types = ListProperty()
 
     # Attribute for taxa and file groups
-    taxa_groups = {}
-    file_groups = {}
+    taxa_groups = DictProperty()
+    file_groups = DictProperty
 
     # Attribute containing the objects for the several possible output files.
-    output_file = ""
-    output_dir = ""
+    output_file = StringProperty("")
+    output_dir = StringProperty("")
 
     # Attribute storing active output formats. Fasta is True by default
     output_formats = ListProperty(["fasta"])
 
     # Attributes for extra options of output formats
     # Determines whether the part.File associated with phylip format is created
-    create_partfile = True
+    create_partfile = BooleanProperty(True)
     # Determines whether the charset partitions in Nexus input files are to
     # be used in the output file
-    use_nexus_partitions = True
+    use_nexus_partitions = BooleanProperty(True)
 
     # Attribute storing the filter settings. The list should contain gap
     # threshold as first element and missing data threshold as second element
-    filter_settings = [25, 50]
+    filter_settings = ListProperty([25, 50])
 
     # Partitions file
-    partitions_file = ""
+    partitions_file = StringProperty("")
     # Input file for reverse concatenation
-    rev_infile = ""
+    rev_infile = StringProperty("")
 
     # Attribute for ZORRO settings
-    zorro_suffix = ""
+    zorro_suffix = StringProperty("")
 
     # Attribute storing the haplotype prefix
-    hap_prefix = "Hap"
+    hap_prefix = StringProperty("Hap")
 
     ##################################
     #
