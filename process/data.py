@@ -395,8 +395,12 @@ class Partitions():
             # Add partition to index list
             self.partitions_index.append([name, 0])
             # Add partition to alignment list
-            self.partitions_alignments[file_name if file_name else name] = \
-                [name]
+            try:
+                self.partitions_alignments[name].append(file_name if file_name
+                                                        else name)
+            except KeyError:
+                self.partitions_alignments[name] = [file_name if file_name else
+                                                    name]
             # Create empty model attribute for a single partition
             self.models[name] = [[[]], [None]]
 
@@ -450,8 +454,12 @@ class Partitions():
                 else:
                     # Add partition to index list
                     self.partitions_index.append([name, 0])
-                self.partitions_alignments[file_name if file_name else name] =\
-                    [name]
+                try:
+                    self.partitions_alignments[name].append(file_name if
+                                                            file_name else name)
+                except KeyError:
+                    self.partitions_alignments[name] = [file_name if file_name
+                                                        else name]
                 if use_counter:
                     self.partitions[name] = [(self.counter + locus_range[0],
                                              self.counter + locus_range[1]),
@@ -485,7 +493,7 @@ class Partitions():
             new_dic = OrderedDict()
 
             counter = 1
-            for nm, vals in self.partitions:
+            for nm, vals in self.partitions.items():
                 # Check if the starting position of the next partition is the
                 # same as the counter. If so, add the vals to the new dict.
                 # Else, correct the ranges based on the counter
@@ -537,7 +545,8 @@ class Partitions():
 
         if file_name:
 
-            for part, file_list in self.partitions_alignments:
+            for part, file_list in self.partitions_alignments.items():
+                print(part, file_list)
                 if file_name in file_list:
                     # If the partitions consists only of the provided file,
                     # Remove the entire partition
@@ -548,7 +557,7 @@ class Partitions():
                     else:
                         self.partitions_alignments[part].remove(file_name)
 
-                return
+                    return
 
             else:
                 raise PartitionException("%s file does not belong to any"
