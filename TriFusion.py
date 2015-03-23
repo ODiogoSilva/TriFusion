@@ -42,7 +42,7 @@ from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
-    ListProperty, ObjectProperty
+    ListProperty, ObjectProperty, DictProperty
 from kivy.uix.screenmanager import Screen
 from kivy.config import Config
 from kivy.clock import Clock
@@ -642,8 +642,8 @@ class TriFusionApp(App):
     _subpopup = ObjectProperty(None)
 
     # Dictionary containing the values for the main process operations
-    main_operations = {"concatenation": False, "conversion": False,
-                       "reverse_concatenation": False}
+    main_operations = DictProperty({"concatenation": False, "conversion": False,
+                       "reverse_concatenation": False})
 
     # Dictionary containing all values of the switches and checkboxes in the
     # process screen
@@ -2433,17 +2433,6 @@ class TriFusionApp(App):
         and taxa tabs
         """
 
-        def update_bt_states():
-            """
-            This will update several button states that are dependent on the
-            availability of input files. This is used when all alignment/files
-            have been removed.
-            """
-
-            self.root.ids.tx_group_bt.disabled = True
-            self.root.ids.file_group_bt.disabled = True
-            self.process_options.ids.part_dialog.disabled = True
-
         ####### APP CHANGES
         # Get the parent layout object from where the widget will be removed
         parent_obj = value.parent
@@ -2474,10 +2463,6 @@ class TriFusionApp(App):
             # Update alignment object list
             self.alignment_list.remove_file([self.filename_map[bt_idx]])
             self.active_alignment_list.remove_file([self.filename_map[bt_idx]])
-
-            # Update button states when alignment list is empty
-            if not self.alignment_list.alignment_object_list:
-                update_bt_states()
 
             # Update active taxa list. This must be executed before calling
             # self.get_taxa_information since this method relies on an
@@ -3375,14 +3360,6 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-        # Updates the Gcoder option depending on whether the nexus output format
-        # is the only one selected
-        if self.output_formats == ["nexus"]:
-            self.process_options.ids.gcoder.disabled = False
-        else:
-            self.process_options.ids.gcoder.active = False
-            self.process_options.ids.gcoder.disabled = True
-
     def save_filter(self, gap_val, mis_val):
         """
         Stores the information of the FilterDialog
@@ -4003,7 +3980,6 @@ class TriFusionApp(App):
                 self.process_grid_wgt.ids.conv.text = \
                     self.output_dir.split(sep)[-1]
             self.process_grid_wgt.ids.output_label.text = dir_text
-            self.process_options.ids.zorro.disabled = True
             Animation(height=0, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
         elif op == "concatenation":
@@ -4013,7 +3989,6 @@ class TriFusionApp(App):
                 self.process_grid_wgt.ids.conv.text = \
                     self.output_file.split(sep)[-1]
             self.process_grid_wgt.ids.output_label.text = file_text
-            self.process_options.ids.zorro.disabled = False
             Animation(height=50, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
         elif op == "reverse_concatenation":
@@ -4023,7 +3998,6 @@ class TriFusionApp(App):
                 self.process_grid_wgt.ids.conv.text = \
                     self.output_dir.split(sep)[-1]
             self.process_grid_wgt.ids.output_label.text = dir_text
-            self.process_options.ids.zorro.disabled = True
 
     def save_main_operation(self, op):
         """
