@@ -3397,10 +3397,11 @@ class TriFusionApp(App):
         # Add the selected output formats to the storage list and remove
         # deselected formats if they have been selected before
         for idx, wgt in value.ids.items():
-            if wgt.state == "down" and idx not in self.output_formats:
-                self.output_formats.append(idx)
-            elif wgt.state == "normal" and idx in self.output_formats:
-                self.output_formats.remove(idx)
+            if isinstance(wgt, ToggleButton):
+                if wgt.state == "down" and idx not in self.output_formats:
+                    self.output_formats.append(idx)
+                elif wgt.state == "normal" and idx in self.output_formats:
+                    self.output_formats.remove(idx)
 
         if not self.output_formats:
             return self.dialog_floatcheck("WARNING: Please choose at least one "
