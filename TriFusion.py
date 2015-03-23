@@ -1914,11 +1914,6 @@ class TriFusionApp(App):
                 self.original_tx_inf = self.get_taxa_information()
                 #self.original_file_inf = self.get_file_information()
 
-                # Unlocks options dependent on the availability of input data
-                self.root.ids.tx_group_bt.disabled = False
-                self.root.ids.file_group_bt.disabled = False
-                self.process_options.ids.part_dialog.disabled = False
-
                 # Issue float check
                 self.dialog_floatcheck("%s file(s) successfully loaded" %
                                        len(selection), t="info")
