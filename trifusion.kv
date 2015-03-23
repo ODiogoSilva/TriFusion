@@ -2383,7 +2383,7 @@
                     background_normal: "data/backgrounds/bt_process_off.png"
                     size_hint_x: .2
                     text: "OFF"
-                    disabled: True
+                    disabled: False if app.main_operations["concatenation"] else True
                     on_release:
                         if app.active_file_list: \
                         app.dialog_zorro()
@@ -2586,7 +2586,7 @@
                 Switch:
                     id: gcoder
                     size_hint_x: .2
-                    disabled: True
+                    disabled: True if app.output_formats != ["nexus"] else False
                     on_active:
                         if self.active == True: root.ids.gcoder_file.disabled = False
                         if self.active == False: root.ids.gcoder_file.disabled = True
