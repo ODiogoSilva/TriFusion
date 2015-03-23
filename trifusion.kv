@@ -3286,7 +3286,7 @@ FloatLayout:
                                                     bold: True
                                                     text: "Set new file group"
                                                     id: file_group_bt
-                                                    disabled: True
+                                                    disabled: True if not app.file_list else False
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
@@ -3317,7 +3317,7 @@ FloatLayout:
                                                     bold: True
                                                     text: "Set new taxa group"
                                                     id: tx_group_bt
-                                                    disabled: True
+                                                    disabled: True if not app.file_list else False
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
