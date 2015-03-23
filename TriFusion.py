@@ -1252,7 +1252,7 @@ class TriFusionApp(App):
                             else:
                                 label = create_label("Case sensitive is OFF")
 
-                            Clock.schedule_once(partial(show_label, mp, label),
+                            Clock.schedule_once(lambda x: show_label(mp, label),
                                                 .1)
                             self.mouse_over_ready = False
 
