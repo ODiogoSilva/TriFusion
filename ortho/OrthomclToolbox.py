@@ -160,8 +160,10 @@ class Group ():
             if self.species_threshold and self.gene_threshold:
                 cluster_object.apply_filter(self.gene_threshold,
                                             self.species_threshold)
-                # Add cluster to the filtered group list
-                self.filtered_groups.append(cluster_object)
+                if cluster_object.species_compliant and \
+                        cluster_object.gene_compliant:
+                    # Add cluster to the filtered group list
+                    self.filtered_groups.append(cluster_object)
 
     def basic_group_statistics(self, filt=True):
         """
@@ -263,7 +265,7 @@ class Group ():
             for cluster in self.filtered_groups:
                 if cluster.species_compliant and cluster.gene_compliant:
                     output_handle.write("%s: %s\n" % (
-                                        cluster.name, " ".join(cluster.sequences)))
+                                    cluster.name, " ".join(cluster.sequences)))
                     if get_stats:
                         final_orthologs += 1
                 if get_stats:
@@ -310,6 +312,7 @@ class Group ():
 
         if filt:
             groups = self.filtered_groups
+            print([x.sequences for x in self.filtered_groups])
         else:
             groups = self.groups
 
