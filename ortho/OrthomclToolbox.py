@@ -311,7 +311,6 @@ class Group ():
 
         if filt:
             groups = self.filtered_groups
-            print([x.sequences for x in self.filtered_groups])
         else:
             groups = self.groups
 
