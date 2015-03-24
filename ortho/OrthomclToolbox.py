@@ -328,10 +328,11 @@ class Group ():
                                       "nor a dictionary object")
 
         for cluster in groups:
-            output_handle = open(join("Orthologs", cluster.name), "w")
+            output_handle = open(join("Orthologs", cluster.name + ".fas"), "w")
             for sequence_id in cluster.sequences:
                 seq = db_aln[sequence_id]
-                output_handle.write(">%s\n%s\n" % (sequence_id, seq))
+                output_handle.write(">%s\n%s\n" % (sequence_id.split("|")[0],
+                                                   seq))
             else:
                 output_handle.close()
 
