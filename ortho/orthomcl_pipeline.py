@@ -157,7 +157,7 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     return seq_storage
 
 
-def adjust_fasta(proteome_files, code=True, verbose=False):
+def adjust_fasta(file_list, code=True, verbose=False):
 
     if verbose:
         print("Running orthomcladjust_fasta")
@@ -168,7 +168,7 @@ def adjust_fasta(proteome_files, code=True, verbose=False):
     if not os.path.exists(os.path.join(output_dir, "compliantFasta")):
         os.makedirs(os.path.join(output_dir, "compliantFasta"))
 
-    for proteome in proteome_files:
+    for proteome in file_list:
         # Get code for proteome
         code_name = proteome.split(os.path.sep)[-1].split(".")[0]
 
@@ -310,6 +310,9 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
     groups_obj = OT.MultiGroups()
 
     for val in inflation_list:
+        if not os.path.exists("Inflation%s" % val):
+            os.makedirs("Inflation%s" % val)
+
         group_obj = OT.Group(group_prefix + "_%s.txt" % val, gene_t, sp_t)
         groups_obj.add_group(group_obj)
         stats = group_obj.export_filtered_group(
