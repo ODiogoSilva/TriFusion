@@ -4356,6 +4356,7 @@ class TriFusionApp(App):
 
         return file_inf
 
+    @staticmethod
     def get_proteome_information(self, proteome_file):
         """
         Returns informative stats for a given proteome_file
