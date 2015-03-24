@@ -295,8 +295,7 @@ class Group ():
         updated_group = []
 
         for cluster in self.groups:
-            if cluster.species_compliant is True and cluster.gene_compliant is\
-                    True:
+            if cluster.species_compliant and cluster.gene_compliant:
                 updated_group.append(cluster)
 
         self.filtered_groups = updated_group
