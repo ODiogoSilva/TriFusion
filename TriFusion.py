@@ -4357,7 +4357,7 @@ class TriFusionApp(App):
         return file_inf
 
     @staticmethod
-    def get_proteome_information(self, proteome_file):
+    def get_proteome_information(proteome_file):
         """
         Returns informative stats for a given proteome_file
         :param proteome_file: string. Path to proteome file
