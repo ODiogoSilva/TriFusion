@@ -297,11 +297,20 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
     if verbose:
         print("Dumping groups")
 
+    # Create a results directory
+    results_dir = os.path.join("..", "Orthology_results")
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
+
     for val in inflation_list:
         x = subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " +
                           start_id + " < mclOutput_" + val.replace(".", "")
-                          + " > " + group_file + "_" + str(val) + ".txt"],
-                         shell=True).wait()
+                          + " > " + os.path.join(results_dir, group_file + "_"
+                                                 + str(val) + ".txt")],
+                             shell=True).wait()
+
+    # Change working directory to results directory
+    os.chdir(results_dir)
 
 
 def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
@@ -310,14 +319,25 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
     groups_obj = OT.MultiGroups()
 
     for val in inflation_list:
-        if not os.path.exists("Inflation%s" % val):
-            os.makedirs("Inflation%s" % val)
+        # Create a directory that will store the results for the current
+        # inflation value
+        inflation_dir = "Inflation%s" % val
+        if not os.path.exists(inflation_dir):
+            os.makedirs(inflation_dir)
 
+        # Create Group object
         group_obj = OT.Group(group_prefix + "_%s.txt" % val, gene_t, sp_t)
+        # Add group to the MultiGroups object
         groups_obj.add_group(group_obj)
+        # Export filtered groups and return stats to present in the app
         stats = group_obj.export_filtered_group(
-            output_file_name="Filtered_groups_%s.txt" % val, get_stats=True)
+            output_file_name=os.path.join(inflation_dir,
+                                          "Filtered_groups_%s.txt") % val,
+                                          get_stats=True)
+        # Retrieve fasta sequences from the filtered groups
+        os.chdir(inflation_dir)
         group_obj.retrieve_fasta(db)
+        os.chdir("..")
         stats_storage[val] = stats
 
     return stats_storage, groups_obj

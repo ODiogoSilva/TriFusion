@@ -4673,8 +4673,16 @@ class TriFusionApp(App):
         # Change working directory
         os.chdir(self.ortho_dir)
 
+        # Create directory that will store intermediate files during orthology
+        # search
+        int_dir = "backstage_files"
+        if not os.path.exists(int_dir):
+            os.makedirs(int_dir)
+
+        os.chdir(int_dir)
+
         # Create orthomcl_config
-        create_orthomcl_cfg(self.ortho_dir)
+        create_orthomcl_cfg(".")
 
         # Start pipeline in the background
         d.start()
