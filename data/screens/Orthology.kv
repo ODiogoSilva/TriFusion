@@ -259,7 +259,7 @@ ShowcaseScreen:
                                                 padding: (5, 5)
                                                 spacing: 5
                                                 size_hint_y: None
-                                                height: sum([x.size[1] for x in self.children])
+                                                height: sum([x.size[1] + 5 for x in self.children])
                                                 Button:
                                                     id: no_bt
                                                     disabled: True
