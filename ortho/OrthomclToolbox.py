@@ -157,8 +157,7 @@ class Group ():
             [self.species_list.append(species) for species in cluster_species
              if species not in self.species_list]
 
-            if self.species_threshold is not None and \
-                            self.gene_threshold is not None:
+            if self.species_threshold and self.gene_threshold:
                 cluster_object.apply_filter(self.gene_threshold,
                                             self.species_threshold)
                 # Add cluster to the filtered group list
