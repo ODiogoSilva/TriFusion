@@ -362,6 +362,13 @@ class InflationDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class LoadMultipleDialog(BoxLayout):
+    """
+    A Filechooser widget in Icon view that allows multpiple file choosing
+    """
+    cancel = ObjectProperty(None)
+
+
 class CloseBox(BoxLayout):
     """
     This is part of the taxa information popup. It contains the closing button
@@ -3097,6 +3104,16 @@ class TriFusionApp(App):
 
         self.show_popup(title="Orthology search report", content=content,
                         size=(400, 470))
+
+    def dialog_import_groups(self):
+        """
+        Creates filechooser dialog to select group files to be imported
+        """
+
+        content = LoadMultipleDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Choose group file(s) to import", content=content,
+                        size_hint=(.9, .9))
 
     def dialog_mysql(self):
         """
