@@ -359,9 +359,13 @@ class MultiGroups ():
         if groups_files:
             for group_file in groups_files:
 
-                group_object = Group(group_file, self.gene_threshold,
-                                     self.species_threshold)
-                self.multiple_groups.append(group_object)
+                # If group_file is already a Group object, just add it
+                if isinstance(group_file, Group):
+                    self.multiple_groups.append(group_file)
+                else:
+                    group_object = Group(group_file, self.gene_threshold,
+                                         self.species_threshold)
+                    self.multiple_groups.append(group_object)
 
     def __iter__(self):
 
