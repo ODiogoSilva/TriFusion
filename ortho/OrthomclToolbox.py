@@ -347,6 +347,11 @@ class MultiGroups ():
         :return: Populates the self.multiple_groups attribute
         """
 
+        # If a MultiGroups is initialized with duplicate Group objects, these
+        # will be stored in a list. If all Group objects are unique, the list
+        # will remain empty
+        self.duplicate_groups = []
+
         # Initializing thresholds. These may be set from the start, or using
         # some method that uses them as arguments
         self.gene_threshold = gene_threshold
@@ -361,11 +366,21 @@ class MultiGroups ():
 
                 # If group_file is already a Group object, just add it
                 if isinstance(group_file, Group):
-                    self.multiple_groups.append(group_file)
+                    # Check for duplicate group files
+                    if group_file.name in [x.name for x in
+                                           self.multiple_groups]:
+                        self.duplicate_groups.append(group_file)
+                    else:
+                        self.multiple_groups.append(group_file)
+
                 else:
                     group_object = Group(group_file, self.gene_threshold,
                                          self.species_threshold)
-                    self.multiple_groups.append(group_object)
+                    if group_object.name in [x.name for x in
+                                             self.multiple_groups]:
+                        self.duplicate_groups.append(group_object)
+                    else:
+                        self.multiple_groups.append(group_object)
 
     def __iter__(self):
 
@@ -377,7 +392,11 @@ class MultiGroups ():
         :param group_obj: Group object
         """
 
-        self.multiple_groups.append(group_obj)
+        # Check for duplicate groups
+        if group_obj.name not in [x.name for x in self.multiple_groups]:
+            self.multiple_groups.append(group_obj)
+        else:
+            self.duplicate_groups.append(group_obj)
 
     def add_multigroups(self, multigroup_obj):
         """
@@ -385,7 +404,8 @@ class MultiGroups ():
         :param multigroup_obj: MultiGroup object
         """
 
-        self.multiple_groups.extend(multigroup_obj.multiple_groups)
+        for group_obj in multigroup_obj:
+            self.add_group(group_obj)
 
     def basic_multigroup_statistics(self, output_file_name=
                                     "multigroup_base_statistics.csv"):

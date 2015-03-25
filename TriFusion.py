@@ -4534,37 +4534,47 @@ class TriFusionApp(App):
             elif group_obj:
                 groups = group_obj
 
-            # Populate the app gridlayout with group buttons
-            for g in groups:
-
-                # Create check box for multiple group selection
-                chk = CheckBox(id=g.group_name, size_hint_x=.1)
-
-                # If group name contains full path, get only file name
-                gname = g.group_name.split(sep)[-1]
-
-                # Create group button
-                bt = Button(text=gname, id=gname,
-                          size_hint_x=0.9, shorten=True,
-                          shorten_from="right", halign="center", bold=True,
-                          background_down=join("data", "backgrounds",
-                                                 "bt_process.png"),
-                          background_normal=join("data", "backgrounds",
-                                                 "bt_process_off.png"))
-
-                # Create box for button and checkbox
-                bx = BoxLayout(spacing=5, size_hint_y=None, height=30)
-                for wgt in [chk, bt]:
-                    bx.add_widget(wgt)
-
-                # Add box to gridlayout
-                self.screen.ids.group_gl.add_widget(bx)
-
             # Create or update self.ortho_groups
             if not self.ortho_groups:
                 self.ortho_groups = groups
             else:
                 self.ortho_groups.add_multigroups(groups)
+
+            # Check if any group file is duplicate. If so, issue a warning
+            if self.ortho_groups.duplicate_groups:
+                self.dialog_warning("Duplicate group files detected",
+                                    "The following group file(s) were found "
+                                    "to be duplicate and were not loaded:\n\n"
+                                    "[b]%s[/b]" %
+                    "\n".join(x.name.split(sep)[-1] for x in
+                              self.ortho_groups.duplicate_groups))
+
+            # Populate the app gridlayout with group buttons
+            for g in groups:
+
+                if g not in self.ortho_groups.duplicate_groups:
+                    # Create check box for multiple group selection
+                    chk = CheckBox(id=g.group_name, size_hint_x=.1)
+
+                    # If group name contains full path, get only file name
+                    gname = g.group_name.split(sep)[-1]
+
+                    # Create group button
+                    bt = Button(text=gname, id=gname,
+                              size_hint_x=0.9, shorten=True,
+                              shorten_from="right", halign="center", bold=True,
+                              background_down=join("data", "backgrounds",
+                                                     "bt_process.png"),
+                              background_normal=join("data", "backgrounds",
+                                                     "bt_process_off.png"))
+
+                    # Create box for button and checkbox
+                    bx = BoxLayout(spacing=5, size_hint_y=None, height=30)
+                    for wgt in [chk, bt]:
+                        bx.add_widget(wgt)
+
+                    # Add box to gridlayout
+                    self.screen.ids.group_gl.add_widget(bx)
 
     def orthology_search_exec(self):
         """
