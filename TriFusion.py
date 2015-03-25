@@ -750,7 +750,7 @@ class TriFusionApp(App):
     active_proteome_files = ListProperty()
 
     # Attribute containing the orthology group files
-    ortho_groups = ListProperty()
+    ortho_groups = None
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
@@ -4520,8 +4520,10 @@ class TriFusionApp(App):
         if group_obj or group_files:
 
             # Removes "No groups loaded" button if it still exists
-            if self.screen.ids.no_bt in self.screen.ids.group_gl.children:
-                self.screen.ids.group_gl.clear_widgets()
+            try:
+                self.screen.ids.group_gl.remove_widget(self.screen.ids.no_bt)
+            except ReferenceError:
+                pass
 
             # If file names were provided, create Group objects and then the
             # MultiGroup
@@ -4538,8 +4540,11 @@ class TriFusionApp(App):
                 # Create check box for multiple group selection
                 chk = CheckBox(id=g.group_name, size_hint_x=.1)
 
+                # If group name contains full path, get only file name
+                gname = g.group_name.split(sep)[-1]
+
                 # Create group button
-                bt = Button(text=g.group_name, id=g.group_name,
+                bt = Button(text=gname, id=gname,
                           size_hint_x=0.9, shorten=True,
                           shorten_from="right", halign="center", bold=True,
                           background_down=join("data", "backgrounds",
