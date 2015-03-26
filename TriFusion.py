@@ -4527,11 +4527,10 @@ class TriFusionApp(App):
                 pass
 
             # If file names were provided, create Group objects and then the
-            # MultiGroup
+            # MultiGroup. Else, use the groups object provided
             if group_files:
                 group_list = [ot.Group(f) for f in group_files]
                 groups = ot.MultiGroups(group_list)
-
             elif group_obj:
                 groups = group_obj
 
