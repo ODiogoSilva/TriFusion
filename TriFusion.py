@@ -1486,7 +1486,8 @@ class TriFusionApp(App):
         # using the get_widgets(groupname) method could result in some issues
         # with garbage collector of kivy. So, for now, this will iterate over
         # all children of the toggle button's parent
-        for i in wgt.parent.children:
+        for i in [x for x in wgt.parent.children if isinstance(x,
+                                                               ToggleButton)]:
             if i.disabled:
                 i.disabled = False
                 i.state = "normal"
@@ -4555,26 +4556,32 @@ class TriFusionApp(App):
                 if g not in self.ortho_groups.duplicate_groups:
                     # Create check box for multiple group selection
                     chk = CheckBox(id=g.group_name, size_hint_x=.1)
+                    self.screen.ids.group_check.add_widget(chk)
 
                     # If group name contains full path, get only file name
                     gname = g.group_name.split(sep)[-1]
 
                     # Create group button
-                    bt = Button(text=gname, id=gname,
-                              size_hint_x=0.9, shorten=True,
+                    bt = ToggleButton(text=gname, id=gname, group="group_bts",
+                              size_hint_y=None, height=30, shorten=True,
                               shorten_from="right", halign="center", bold=True,
                               background_down=join("data", "backgrounds",
                                                      "bt_process.png"),
                               background_normal=join("data", "backgrounds",
-                                                     "bt_process_off.png"))
+                                                     "bt_process_off.png"),
+                              background_disabled_down=join("data",
+                                                            "backgrounds",
+                                                            "bt_process.png"),
+                              disabled_color=(1, 1, 1, 1))
+                    bt.bind(on_release=self.toggle_groups)
 
                     # Create box for button and checkbox
-                    bx = BoxLayout(spacing=5, size_hint_y=None, height=30)
-                    for wgt in [chk, bt]:
-                        bx.add_widget(wgt)
+                    #bx = BoxLayout(spacing=5, size_hint_y=None, height=30)
+                    #for wgt in [chk, bt]:
+                    #    bx.add_widget(wgt)
 
                     # Add box to gridlayout
-                    self.screen.ids.group_gl.add_widget(bx)
+                    self.screen.ids.group_gl.add_widget(bt)
 
     def orthology_search_exec(self):
         """
