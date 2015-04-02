@@ -36,6 +36,8 @@ ShowcaseScreen:
                     orto_car.load_slide(orto_car.slides[1])
             MainSideBt:
                 text: "Complement"
+                on_release:
+                    orto_car.load_slide(orto_car.slides[2])
             BoxLayout:
                 orientation: "vertical"
                 canvas.before:
@@ -342,3 +344,7 @@ ShowcaseScreen:
                                         text: "Explore and transform the output of OrthoMCL by searching orthologs with the [color=37abc8ff]Search operation[/color] or importing group files"
                                         bold: True
                                         markup: True
+
+                BoxLayout:
+                    Label:
+                        text: "Placeholder"
