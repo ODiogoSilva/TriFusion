@@ -74,6 +74,7 @@ Config.set("kivy", "log_level", "warning")
 Config.set("kivy", "desktop", 1)
 Config.set("kivy", "exit_on_escape", 0)
 Config.set("graphics", "resizable", 0)
+Config.set("graphics", "fullscreen", 0)
 
 
 class ShowcaseScreen(Screen):

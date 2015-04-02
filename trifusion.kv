@@ -428,32 +428,143 @@
 # ORTHOLOGY SCREEN
 #===============================================================================
 
+#===============================================================================
+# ORTHOLOGY RESULT DESCRIPTION
+#===============================================================================
+
+<DescriptionBox@BoxLayout>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: 300
+    Label:
+        size_hint_y: None
+        height: 30
+        text: "Description"
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        bold: True
+
+    BoxLayout:
+        size_hint_y: None
+        height: 60
+        BoxLayout:
+            spacing: 10
+            Vseparator:
+                thickness: 2
+            BoxLayout:
+                orientation: "vertical"
+                DescriptionLabelLarge:
+                    text: "45753980"
+                DescriptionLabelSmall:
+                    text: "Number of proteins"
+        BoxLayout:
+            spacing: 10
+            Vseparator:
+                thickness: 2
+            BoxLayout:
+                orientation: "vertical"
+                DescriptionLabelLarge:
+                    text: "45"
+                DescriptionLabelSmall:
+                    text: "Number of taxa"
+        BoxLayout:
+            spacing: 10
+            Vseparator:
+                thickness: 2
+            BoxLayout:
+                orientation: "vertical"
+                DescriptionLabelLarge:
+                    text: "45758"
+                DescriptionLabelSmall:
+                    text: "Number of orthologs"
+    Widget:
+        size_hint_y: None
+        height: 50
+    BoxLayout:
+        size_hint_y: None
+        height: 170
+        padding: 10
+        canvas.before:
+            Color:
+                rgba: (0.3, 0.3, 0.3, 0)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        GaugePlot:
+            txt: "After species filter"
+        GaugePlot:
+            txt: "After gene filter"
+        GaugePlot:
+            txt: "Final orthologs"
+
+<DescriptionLabelLarge@Label>:
+    bold: True
+    halign: "left"
+    valign: "bottom"
+    text_size: self.size
+    font_size: 22
+    size_hint_y: None
+    height: 40
+    color: (0.216, 0.67, 0.784, 1)
+
+<DescriptionLabelSmall@Label>:
+    bold: True
+    halign: "left"
+    valign: "top"
+    text_size: self.size
+    font_size: 12
+    size_hint_y: None
+    height: 20
+    color: .7,.7,.7,1
+
 <GaugePlot@BoxLayout>:
     orientation: "vertical"
     padding: 10
     spacing: 10
+    txt: "After gene filter"
+    inner_color: {"After species filter": (0.22,0.22,0.22,1), "After gene filter": (0.18,0.18,0.18,1), "Final orthologs": (0.15,0.15,0.15,1)}
+    Label:
+        id: gauge_txt
+        text: root.txt
+        size_hint_y: None
+        height: 30
+        bold: True
     BoxLayout:
         size_hint: (None, None)
         size: 100,100
         canvas.before:
             Color:
-                rgba: 1,1,1,1
-            Ellipse:
-                size: self.size
-                pos: self.pos
-            Color:
-                rgba: .5,.5,.5,1
+                rgba: (0.216, 0.67, 0.784, 1)
             Ellipse:
                 size: self.size
                 pos: self.pos
                 angle_start: 60
             Color:
-                rgba: .2,0.2,0.2,1
+                rgba: root.inner_color[gauge_txt.text] if gauge_txt.text in root.inner_color else (0,0,0,0)
+                #rgba: (0.3, 0.3, 0.3, 1)
             Ellipse:
-                size: 60,60
-                pos: self.center_x - 30, self.center_y - 30
-        Label:
-            text: "2345"
+                size: 80, 80
+                pos: self.center_x - 40, self.center_y - 40
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                bold: True
+                text: "2345"
+                color: .7,.7,.7,1
+                font_size: 22
+                halign: "center"
+                valign: "bottom"
+                text_size: self.size
+                size_hint_y: .55
+            Label:
+                bold: True
+                text: "75%"
+                color: .7,.7,.7,1
+                halign: "center"
+                valign: "top"
+                text_size: self.size
+                size_hint_y: .45
 
 <MainSideBt@ToggleButton>:
     size_hint_y: None

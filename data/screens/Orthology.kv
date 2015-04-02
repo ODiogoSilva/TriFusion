@@ -335,16 +335,24 @@ ShowcaseScreen:
                                         border: 0,0,0,0
 
                                 BoxLayout:
-                                    Label:
-                                        id: orto_results_lb
-                                        padding: 10, 10
-                                        halign: "center"
-                                        valign: "middle"
-                                        text_size: self.size
-                                        text: "Explore and transform the output of OrthoMCL by searching orthologs with the [color=37abc8ff]Search operation[/color] or importing group files"
-                                        bold: True
-                                        markup: True
+                                    padding: 10
+                                    orientation: "vertical"
+                                    BoxLayout:
+                                        orientation: "vertical"
+                                        DescriptionBox
+                                        Widget
+
+
 
                 BoxLayout:
                     Label:
                         text: "Placeholder"
+                    Label:
+                        id: orto_results_lb
+                        padding: 10, 10
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+                        text: "Explore and transform the output of OrthoMCL by searching orthologs with the [color=37abc8ff]Search operation[/color] or importing group files"
+                        bold: True
+                        markup: True
