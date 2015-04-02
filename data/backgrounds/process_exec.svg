@@ -23,6 +23,17 @@
   <defs
      id="defs4">
     <linearGradient
+       id="linearGradient4610">
+      <stop
+         id="stop4612"
+         offset="0"
+         style="stop-color:#111111;stop-opacity:0.238" />
+      <stop
+         id="stop4614"
+         offset="1"
+         style="stop-color:#000000;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
        inkscape:collect="always"
        id="linearGradient10133">
       <stop
@@ -957,16 +968,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.99999999"
-     inkscape:cx="-2009.6509"
-     inkscape:cy="-1039.7056"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="556.33386"
+     inkscape:cy="-1056.9926"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1366"
-     inkscape:window-height="713"
+     inkscape:window-width="1920"
+     inkscape:window-height="1052"
      inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true" />
@@ -986,6 +997,18 @@
      inkscape:label="Camada 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="opacity:0;fill:#3c3b36;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:10;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4512"
+       width="120"
+       height="80"
+       x="-552.74933"
+       y="-2087.5664"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(-1,-1)" />
     <rect
        style="opacity:0;fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.81099987;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect4545"
@@ -1491,7 +1514,7 @@
     <rect
        style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
        id="rect5044-1-0-9"
-       width="1000"
+       width="1200"
        height="480"
        x="981.00354"
        y="1202.1526"
@@ -1500,9 +1523,9 @@
        inkscape:export-ydpi="9" />
     <text
        xml:space="preserve"
-       style="font-size:157.79272461px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Jungle Fever NF;-inkscape-font-specification:Jungle Fever NF"
-       x="1364.2145"
-       y="1488.7622"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:188.24012756px;line-height:125%;font-family:'Jungle Fever NF';-inkscape-font-specification:'Jungle Fever NF';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none"
+       x="1434.9586"
+       y="1493.9879"
        id="text17211"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
@@ -1510,94 +1533,15 @@
        inkscape:export-ydpi="9"><tspan
          sodipodi:role="line"
          id="tspan17213"
-         x="1364.2145"
-         y="1488.7622"
+         x="1434.9586"
+         y="1493.9879"
          style="font-weight:bold;fill:#ffffff">Menu</tspan></text>
-    <rect
-       style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none;opacity:0"
-       id="rect5044-1-0-9-7"
-       width="1000"
-       height="480"
-       x="987.75262"
-       y="1768.3706"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/app_icon.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9" />
     <path
        id="path19484"
        d="m 1048.066,1338.9526 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
        inkscape:connector-curvature="0"
        style="fill:#ffffff"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9" />
-    <rect
-       style="fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       id="rect5044-1-0-9-70"
-       width="1000"
-       height="480"
-       x="2104"
-       y="1196.3622"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9" />
-    <text
-       xml:space="preserve"
-       style="font-size:157.79272460999999339px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Jungle Fever NF;-inkscape-font-specification:Jungle Fever NF"
-       x="2487.2109"
-       y="1482.9718"
-       id="text17211-3"
-       sodipodi:linespacing="125%"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9"><tspan
-         sodipodi:role="line"
-         id="tspan17213-8"
-         x="2487.2109"
-         y="1482.9718"
-         style="font-weight:bold;fill:#333333">Menu</tspan></text>
-    <path
-       id="path19484-0"
-       d="m 2171.0625,1333.1622 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
-       inkscape:connector-curvature="0"
-       style="fill:#333333"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9" />
-    <rect
-       style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       id="rect5044-1-0-9-0"
-       width="600"
-       height="480"
-       x="984"
-       y="1776.3622"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt2.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9" />
-    <path
-       id="path19484-02"
-       d="m 1168.7538,1913.1622 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
-       inkscape:connector-curvature="0"
-       style="fill:#ffffff"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt2.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9" />
-    <rect
-       style="fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       id="rect5044-1-0-9-0-3"
-       width="600"
-       height="480"
-       x="2120.2219"
-       y="1790.998"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down2.png"
-       inkscape:export-xdpi="9"
-       inkscape:export-ydpi="9" />
-    <path
-       id="path19484-02-8"
-       d="m 2304.9757,1927.798 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.655 h -250.39 z m 0,71.54 h 250.39 v 53.6551 h -250.39 z"
-       inkscape:connector-curvature="0"
-       style="fill:#333333"
-       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt_down2.png"
        inkscape:export-xdpi="9"
        inkscape:export-ydpi="9" />
     <rect
@@ -2873,12 +2817,12 @@
        inkscape:export-ydpi="18" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -2116.3798,2012.0497 -51.75,0"
+       d="m -1084.3798,2012.0497 -51.75,0"
        id="path4577"
        inkscape:connector-curvature="0" />
     <g
        id="g4581"
-       transform="matrix(0.81723332,0,0,1.0011675,-378.65841,-2.3494752)"
+       transform="matrix(0.81723332,0,0,1.0011675,653.3416,-2.3494752)"
        inkscape:export-xdpi="89.895088"
        inkscape:export-ydpi="89.895088">
       <rect
@@ -2906,5 +2850,129 @@
          style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:6.35522556;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
          sodipodi:type="star" />
     </g>
+    <rect
+       style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:10;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4529"
+       width="6.875"
+       height="79.993629"
+       x="432.75"
+       y="2007.5653"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-0-9-8"
+       width="1200"
+       height="480"
+       x="2335.9072"
+       y="1191.3713"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:188.24012756px;line-height:125%;font-family:'Jungle Fever NF';-inkscape-font-specification:'Jungle Fever NF';letter-spacing:0px;word-spacing:0px;fill:#2e2e2e;fill-opacity:1;stroke:none;"
+       x="2789.8623"
+       y="1483.2067"
+       id="text17211-5"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9"><tspan
+         sodipodi:role="line"
+         id="tspan17213-8"
+         x="2789.8623"
+         y="1483.2067"
+         style="font-weight:bold;fill:#2e2e2e;fill-opacity:1;">Menu</tspan></text>
+    <path
+       id="path19484-5"
+       d="m 2402.9699,1328.1714 250.39,0 0,53.655 -250.39,0 z m 0,71.54 250.39,0 0,53.655 -250.39,0 z m 0,71.54 250.39,0 0,53.6551 -250.39,0 z"
+       inkscape:connector-curvature="0"
+       style="fill:#2e2e2e;fill-opacity:1"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/menu_bt.png"
+       inkscape:export-xdpi="9"
+       inkscape:export-ydpi="9" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.7060045px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 563.25,2047.6122 0,40"
+       id="path4592"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:type="star"
+       style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:10;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path4590"
+       sodipodi:sides="3"
+       sodipodi:cx="528.20874"
+       sodipodi:cy="2049.0293"
+       sodipodi:r1="8.1624136"
+       sodipodi:r2="4.0812068"
+       sodipodi:arg1="3.1415927"
+       sodipodi:arg2="4.1887902"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 520.04633,2049.0293 6.12181,-3.5344 6.12181,-3.5345 0,7.0689 0,7.0689 -6.12181,-3.5345 z"
+       inkscape:transform-center-x="1.5647617"
+       transform="matrix(0.76681359,0,0,1.4751485,144.56707,-975.04124)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       inkscape:transform-center-y="-4.9222202e-05" />
+    <rect
+       style="opacity:1;fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.003;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4512-9"
+       width="120"
+       height="80"
+       x="-552.75"
+       y="-2174.1128"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(-1,-1)" />
+    <path
+       style="fill:#666666;fill-rule:evenodd;stroke:#4d4d4d;stroke-width:1.003;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 432.75057,2173.607 119.98473,0"
+       id="path4666-5"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:1;fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00300002;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4512-9-4"
+       width="120"
+       height="50"
+       x="-552.75"
+       y="-2258.3623"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="scale(-1,-1)" />
+    <path
+       style="fill:#666666;fill-rule:evenodd;stroke:#4d4d4d;stroke-width:1.00300002;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 432.75057,2257.8564 119.98473,0"
+       id="path4666-5-2"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3050-2-7-3-0-0-1-2"
+       width="134.67111"
+       height="134.67111"
+       x="720.66443"
+       y="2117.0266"
+       ry="20.867188"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="18.949738"
+       inkscape:export-ydpi="18.949738"
+       rx="20.867188" />
+    <path
+       id="path5042"
+       d="m 818.24743,2176.4492 -22.19377,0 0,-22.1937 c 0,-1.1148 -0.90288,-2.0177 -2.01762,-2.0177 l -12.1057,0 c -1.11473,0 -2.01761,0.9029 -2.01761,2.0177 l 0,22.1937 -22.19377,0 c -1.11474,0 -2.01762,0.9029 -2.01762,2.0176 l 0,12.1057 c 0,1.1148 0.90288,2.0176 2.01762,2.0176 l 22.19377,0 0,22.1938 c 0,1.1147 0.90288,2.0176 2.01761,2.0176 l 12.1057,0 c 1.11474,0 2.01762,-0.9029 2.01762,-2.0176 l 0,-22.1938 22.19377,0 c 1.11473,0 2.01762,-0.9028 2.01762,-2.0176 l 0,-12.1057 c 0,-1.1147 -0.90289,-2.0176 -2.01762,-2.0176 z"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff"
+       inkscape:export-xdpi="18.949738"
+       inkscape:export-ydpi="18.949738" />
   </g>
 </svg>
