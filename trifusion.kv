@@ -435,68 +435,102 @@
 <DescriptionBox@BoxLayout>:
     orientation: "vertical"
     size_hint_y: None
-    height: 300
-    Label:
-        size_hint_y: None
-        height: 30
-        text: "Description"
-        halign: "left"
-        valign: "middle"
-        text_size: self.size
-        bold: True
-
+    height: 370
+    spacing: 10
     BoxLayout:
+        orientation: "vertical"
         size_hint_y: None
-        height: 60
-        BoxLayout:
-            spacing: 10
-            Vseparator:
-                thickness: 2
-            BoxLayout:
-                orientation: "vertical"
-                DescriptionLabelLarge:
-                    text: "45753980"
-                DescriptionLabelSmall:
-                    text: "Number of proteins"
-        BoxLayout:
-            spacing: 10
-            Vseparator:
-                thickness: 2
-            BoxLayout:
-                orientation: "vertical"
-                DescriptionLabelLarge:
-                    text: "45"
-                DescriptionLabelSmall:
-                    text: "Number of taxa"
-        BoxLayout:
-            spacing: 10
-            Vseparator:
-                thickness: 2
-            BoxLayout:
-                orientation: "vertical"
-                DescriptionLabelLarge:
-                    text: "45758"
-                DescriptionLabelSmall:
-                    text: "Number of orthologs"
-    Widget:
-        size_hint_y: None
-        height: 50
-    BoxLayout:
-        size_hint_y: None
-        height: 170
+        height: 100
         padding: 10
         canvas.before:
             Color:
-                rgba: (0.3, 0.3, 0.3, 0)
+                rgba: (0.1, 0.1, 0.1, .5)
             Rectangle:
                 pos: self.pos
                 size: self.size
-        GaugePlot:
-            txt: "After species filter"
-        GaugePlot:
-            txt: "After gene filter"
-        GaugePlot:
-            txt: "Final orthologs"
+        Label:
+            size_hint_y: None
+            height: 30
+            text: "General information"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+
+        BoxLayout:
+            size_hint_y: None
+            height: 60
+            BoxLayout:
+                spacing: 10
+                Vseparator:
+                    thickness: 2
+                BoxLayout:
+                    orientation: "vertical"
+                    DescriptionLabelLarge:
+                        text: "45753980"
+                    DescriptionLabelSmall:
+                        text: "Proteins"
+            BoxLayout:
+                spacing: 10
+                Vseparator:
+                    thickness: 2
+                BoxLayout:
+                    orientation: "vertical"
+                    DescriptionLabelLarge:
+                        text: "45"
+                    DescriptionLabelSmall:
+                        text: "Taxa"
+            BoxLayout:
+                spacing: 10
+                Vseparator:
+                    thickness: 2
+                BoxLayout:
+                    orientation: "vertical"
+                    DescriptionLabelLarge:
+                        text: "45758"
+                    DescriptionLabelSmall:
+                        text: "Total orthologs"
+
+    BoxLayout:
+        id: filt_bx
+        orientation: "vertical"
+        size_hint_y: None
+        height: 260
+        padding: 10
+        canvas.before:
+            Color:
+                rgba: (0.1, 0.1, 0.1, .5)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            size_hint_y: None
+            height: 30
+            text: "Filtered orthologs"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+
+        BoxLayout:
+            size_hint_y: None
+            height: 150
+            GaugePlot:
+                txt: "After species filter"
+            GaugePlot:
+                txt: "After gene filter"
+            GaugePlot:
+                txt: "Final orthologs"
+
+        AnchorLayout:
+            anchor_x: "center"
+            anchor_y: "center"
+            ToggleButton:
+                text: "Change/Set filters"
+                background_normal: "data/backgrounds/bt_process.png"
+                bold: True
+                size_hint: (None, None)
+                size: 150,30
 
 <DescriptionLabelLarge@Label>:
     bold: True
@@ -523,48 +557,59 @@
     padding: 10
     spacing: 10
     txt: "After gene filter"
-    inner_color: {"After species filter": (0.22,0.22,0.22,1), "After gene filter": (0.18,0.18,0.18,1), "Final orthologs": (0.15,0.15,0.15,1)}
+    inner_color: {"After species filter": (0.16,0.16,0.16,1), "After gene filter": (0.14,0.14,0.14,1), "Final orthologs": (0.12,0.12,0.12,1)}
+#    canvas.before:
+#        Color:
+#            rgba: .1,.1,.1,1
+#        Rectangle:
+#            pos: self.pos
+#            size: self.size
     Label:
         id: gauge_txt
         text: root.txt
         size_hint_y: None
         height: 30
         bold: True
-    BoxLayout:
-        size_hint: (None, None)
-        size: 100,100
-        canvas.before:
-            Color:
-                rgba: (0.216, 0.67, 0.784, 1)
-            Ellipse:
-                size: self.size
-                pos: self.pos
-                angle_start: 60
-            Color:
-                rgba: root.inner_color[gauge_txt.text] if gauge_txt.text in root.inner_color else (0,0,0,0)
-                #rgba: (0.3, 0.3, 0.3, 1)
-            Ellipse:
-                size: 80, 80
-                pos: self.center_x - 40, self.center_y - 40
+        font_size: 12
+    AnchorLayout:
+        anchor_y: "center"
+        anchor_x: "center"
         BoxLayout:
-            orientation: "vertical"
-            Label:
-                bold: True
-                text: "2345"
-                color: .7,.7,.7,1
-                font_size: 22
-                halign: "center"
-                valign: "bottom"
-                text_size: self.size
-                size_hint_y: .55
-            Label:
-                bold: True
-                text: "75%"
-                color: .7,.7,.7,1
-                halign: "center"
-                valign: "top"
-                text_size: self.size
-                size_hint_y: .45
+            size_hint: (None, None)
+            size: 100,100
+            canvas.before:
+                Color:
+                    rgba: (0.216, 0.67, 0.784, 1)
+                Ellipse:
+                    size: self.size
+                    pos: self.pos
+                    angle_start: 60
+                Color:
+                    rgba: root.inner_color[gauge_txt.text] if gauge_txt.text in root.inner_color else (0,0,0,0)
+                    #rgba: (0.15, 0.15, 0.15, 1)
+                Ellipse:
+                    size: 80, 80
+                    pos: self.center_x - 40, self.center_y - 40
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    bold: True
+                    text: "2345"
+                    color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
+                    font_size: 22
+                    halign: "center"
+                    valign: "bottom"
+                    text_size: self.size
+                    size_hint_y: .55
+                Label:
+                    bold: True
+                    text: "75%"
+                    color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
+                    halign: "center"
+                    valign: "top"
+                    text_size: self.size
+                    size_hint_y: .45
+
 
 <MainSideBt@ToggleButton>:
     size_hint_y: None
