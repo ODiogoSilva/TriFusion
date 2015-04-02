@@ -435,12 +435,12 @@
 <DescriptionBox@BoxLayout>:
     orientation: "vertical"
     size_hint_y: None
-    height: 370
+    height: 390
     spacing: 10
     BoxLayout:
         orientation: "vertical"
         size_hint_y: None
-        height: 100
+        height: 110
         padding: 10
         canvas.before:
             Color:
@@ -491,11 +491,12 @@
                     DescriptionLabelSmall:
                         text: "Total orthologs"
 
-    BoxLayout:
+    GridLayout:
         id: filt_bx
-        orientation: "vertical"
+        #orientation: "vertical"
         size_hint_y: None
-        height: 260
+        cols: 1
+        height: 270
         padding: 10
         canvas.before:
             Color:
@@ -514,7 +515,7 @@
 
         BoxLayout:
             size_hint_y: None
-            height: 150
+            height: 140
             GaugePlot:
                 txt: "After species filter"
             GaugePlot:
@@ -525,12 +526,22 @@
         AnchorLayout:
             anchor_x: "center"
             anchor_y: "center"
-            ToggleButton:
-                text: "Change/Set filters"
-                background_normal: "data/backgrounds/bt_process.png"
-                bold: True
+            BoxLayout:
                 size_hint: (None, None)
-                size: 150,30
+                size: 300, 30
+                spacing: 10
+                Button:
+                    text: "Change/Set filters"
+                    background_normal: "data/backgrounds/bt_process.png"
+                    bold: True
+                    size_hint_x: None
+                    width: 150
+                Button:
+                    text: "Export..."
+                    background_normal: "data/backgrounds/bt_process.png"
+                    size_hint_x: None
+                    width: 140
+                    bold: True
 
 <DescriptionLabelLarge@Label>:
     bold: True
