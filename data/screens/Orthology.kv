@@ -2,55 +2,59 @@ ShowcaseScreen:
     name: "Orthology"
 
     BoxLayout:
-        orientation: "vertical"
+        orientation: "horizontal"
 
         BoxLayout:
-            size_hint_y: None
-            height: 50
-            padding: (5, 5, 5, 0)
-            AnchorLayout:
-                anchor_x: "left"
-                anchor_y: "center"
-                size_hint_x: None
-                width: 179
-                Button:
-                    opacity: 0 if orto_car.current_slide == orto_car.slides[0] else 1
-                    #text: "Previous"
-                    border: 0,0,0,0
-                    size_hint_y: None
-                    height: 40
-                    background_normal: "data/backgrounds/previous_slide.png"
-                    disabled: True if orto_car.current_slide == orto_car.slides[0] else False
-                    on_release: orto_car.load_previous()
+            orientation: "vertical"
+            size_hint_x: None
+            width: 120
+            Label:
+                size_hint_y: None
+                height: 50
+                text: "Operations"
+                halign: "center"
+                valign: "middle"
+                bold: True
+                text_size: self.size
+                canvas.before:
+                    Color:
+                        rgba: 1,1,1,1
+                    Rectangle:
+                        source: "data/backgrounds/orto_sidebt_small.png"
+                        pos: self.pos
+                        size: self.size
 
-            AnchorLayout:
-                anchor_y: "center"
-                anchor_x: "center"
+            MainSideBt:
+                text: "Search"
+                state: "down"
+                disabled: True
+                on_release:
+                    orto_car.load_slide(orto_car.slides[0])
+            MainSideBt:
+                text: "Explore"
+                on_release:
+                    orto_car.load_slide(orto_car.slides[1])
+            MainSideBt:
+                text: "Complement"
+            BoxLayout:
+                orientation: "vertical"
+                canvas.before:
+                    Color:
+                        rgba: .18, .18, .18, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Widget
                 BoxLayout:
-                    size_hint_x: None
-                    padding: 5
-                    spacing: 5
-                    width: 135
-
-            AnchorLayout:
-                anchor_x: "right"
-                anchor_y: "center"
-                size_hint_x: None
-                width: 179
-                Button:
-                    border: 0,0,0,0
-                    #text: "Orthology results"
-                    #bold: True
                     size_hint_y: None
-                    height: 40
-                    opacity: 0 if orto_car.current_slide == orto_car.slides[1] else 1
-                    disabled: True if orto_car.current_slide == orto_car.slides[1] else False
-                    background_normal: "data/backgrounds/next_slide.png"
-                    on_release: orto_car.load_next()
+                    height: 50
+                    padding: 10
+                    Button:
+                        text: "Hide panel"
 
         ScrollView:
             Carousel:
-                direction: "right"
+                direction: "bottom"
                 id: orto_car
 
                 BoxLayout:
@@ -200,39 +204,39 @@ ShowcaseScreen:
                             orientation: "vertical"
                             padding: (5,5)
 
-                            BoxLayout:
-                                size_hint_y: None
-                                height: 40
-                                AnchorLayout:
-                                    anchor_y: "center"
-                                    anchor_x: "center"
-                                    LightBox:
-                                        padding: 5
-                                        Label:
-                                            text: "Orthology search results"
-                                            bold: True
-                                            halign: "center"
-                                            valign: "middle"
-                                            text_size: self.size
-                                AnchorLayout:
-                                    anchor_x: "right"
-                                    anchor_y: "center"
-                                    size_hint_x: None
-                                    padding: (0,0,10,0)
-                                    canvas.before:
-                                        Color:
-                                            rgba: (.3, .3, .3, .8)
-                                        Rectangle:
-                                            pos: self.pos
-                                            size: self.size
-                                    Button:
-                                        size_hint: None, None
-                                        size: (160,30)
-                                        text: "Import group file(s)"
-                                        bold: True
-                                        background_normal: "data/backgrounds/bt_process.png"
-                                        on_release:
-                                            app.dialog_import_groups()
+#                            BoxLayout:
+#                                size_hint_y: None
+#                                height: 40
+#                                AnchorLayout:
+#                                    anchor_y: "center"
+#                                    anchor_x: "center"
+#                                    LightBox:
+#                                        padding: 5
+#                                        Label:
+#                                            text: "Orthology search results"
+#                                            bold: True
+#                                            halign: "center"
+#                                            valign: "middle"
+#                                            text_size: self.size
+#                                AnchorLayout:
+#                                    anchor_x: "right"
+#                                    anchor_y: "center"
+#                                    size_hint_x: None
+#                                    padding: (0,0,10,0)
+#                                    canvas.before:
+#                                        Color:
+#                                            rgba: (.3, .3, .3, .8)
+#                                        Rectangle:
+#                                            pos: self.pos
+#                                            size: self.size
+#                                    Button:
+#                                        size_hint: None, None
+#                                        size: (160,30)
+#                                        text: "Import group file(s)"
+#                                        bold: True
+#                                        background_normal: "data/backgrounds/bt_process.png"
+#                                        on_release:
+#                                            app.dialog_import_groups()
 
                             BoxLayout:
                                 BoxLayout:
@@ -243,34 +247,58 @@ ShowcaseScreen:
                                     orientation: "vertical"
                                     BoxLayout
                                         orientation: "vertical"
-                                        Label:
+                                        size_hint_y: .4
+                                        BoxLayout:
                                             size_hint_y: None
-                                            height: 30
-                                            text: "Group file(s)"
-                                            halign: "center"
-                                            valign: "middle"
-                                            text_size: self.size
-                                            bold: True
-                                            color: (0.216, 0.67, 0.784, 1)
+                                            height: 40
+                                            AnchorLayout:
+                                                anchor_x: "center"
+                                                anchor_y: "center"
+                                                Label:
+                                                    text: "Group file(s)"
+                                                    halign: "center"
+                                                    valign: "middle"
+                                                    text_size: self.size
+                                                    bold: True
+                                                    color: (0.216, 0.67, 0.784, 1)
+                                            AnchorLayout:
+                                                anchor_x: "right"
+                                                anchor_y: "center"
+                                                Button:
+                                                    size_hint: None, None
+                                                    size: 30,30
+                                                    background_normal: "data/backgrounds/add_group_bt.png"
+
                                         Hseparator:
                                             thickness: 1.5
                                         ScrollView:
-                                            GridLayout:
-                                                cols: 1
-                                                id: group_gl
-                                                padding: (5, 5)
-                                                spacing: 5
+                                            BoxLayout:
                                                 size_hint_y: None
-                                                height: sum([x.size[1] + 5 for x in self.children])
-                                                Button:
-                                                    id: no_bt
-                                                    disabled: True
-                                                    text: "No groups loaded"
-                                                    size_hint_y: None
-                                                    height: 35
+                                                height: sum([x.size[1] + 5 for x in group_gl.children])
+                                                GridLayout:
+                                                    cols: 1
+                                                    id: group_check
+                                                    size_hint_x: .1
+                                                    padding: (5, 5)
+                                                    spacing: 5
+                                                GridLayout:
+                                                    cols: 1
+                                                    size_hint_x: .9
+                                                    id: group_gl
+                                                    padding: (5, 5)
+                                                    spacing: 5
+                                                    #size_hint_y: None
+
+                                                    Button:
+                                                        id: no_bt
+                                                        disabled: True
+                                                        text: "No groups loaded"
+                                                        size_hint_y: None
+                                                        height: 35
 
                                     Hseparator:
                                         thickness: 1.5
+
                                     Button:
                                         size_hint_y: None
                                         height: 85
@@ -301,14 +329,14 @@ ShowcaseScreen:
                                         background_normal: "data/backgrounds/exports_bt.png"
                                         background_down: "data/backgrounds/exports_bt.png"
                                         border: 0,0,0,0
-                                ScrollView:
-                                    id: display
-                                    ScatterLayout:
-                                        do_rotation: False
-                                        Label:
-                                            halign: "center"
-                                            valign: "middle"
-                                            text_size: self.size
-                                            bold: True
-                                            text: "An overview of the Orthology search results will be displayed here"
-                                            color: (.7,.7,.7,1)
+
+                                BoxLayout:
+                                    Label:
+                                        id: orto_results_lb
+                                        padding: 10, 10
+                                        halign: "center"
+                                        valign: "middle"
+                                        text_size: self.size
+                                        text: "Explore and transform the output of OrthoMCL by searching orthologs with the [color=37abc8ff]Search operation[/color] or importing group files"
+                                        bold: True
+                                        markup: True

@@ -428,6 +428,48 @@
 # ORTHOLOGY SCREEN
 #===============================================================================
 
+<GaugePlot@BoxLayout>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    BoxLayout:
+        size_hint: (None, None)
+        size: 100,100
+        canvas.before:
+            Color:
+                rgba: 1,1,1,1
+            Ellipse:
+                size: self.size
+                pos: self.pos
+            Color:
+                rgba: .5,.5,.5,1
+            Ellipse:
+                size: self.size
+                pos: self.pos
+                angle_start: 60
+            Color:
+                rgba: .2,0.2,0.2,1
+            Ellipse:
+                size: 60,60
+                pos: self.center_x - 30, self.center_y - 30
+        Label:
+            text: "2345"
+
+<MainSideBt@ToggleButton>:
+    size_hint_y: None
+    height: 80
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+    bold: True
+    group: "orto_main"
+    #background_color: (1,1,1,.7) if self.state == "normal" else (1,1,1,1)
+    disabled_color: (0.216, 0.67, 0.784, 1)
+    background_normal: "data/backgrounds/orto_sidebt.png"
+    background_disabled_down: "data/backgrounds/orto_sidebt_down.png"
+    on_release:
+        app.toggle_groups(self)
+
 #===============================================================================
 # ORTHOLOGY EXECUTION DIALOG
 #===============================================================================
@@ -2714,17 +2756,11 @@ FloatLayout:
                     background_normal: "data/backgrounds/menu_bt.png"
                     background_down: "data/backgrounds/menu_bt_down.png"
                     border: (0,0,0,0)
-                    width: 100
+                    width: 120
                     #title: "Menu"
                     with_previous: False
                     on_release:
                         app.toggle_sidepanel()
-                    canvas.before:
-                        Color:
-                            rgba: (0.180, 0.180, 0.180, .8)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
 
                 MainHeader:
                     id: h_ortho
