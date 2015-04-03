@@ -4616,7 +4616,7 @@ class TriFusionApp(App):
         stats = group_obj.basic_group_statistics(filt=False)
 
         # Create cards
-        cards = DescriptionBox()
+        cards = DescriptionBox(opacity=0)
 
         cards.prot_txt = str(stats[1])
         cards.ortholog_txt = str(stats[0])
@@ -4651,10 +4651,18 @@ class TriFusionApp(App):
             cards.ids.gauge_bx.add_widget(lb)
 
         # Clear any previous content from card gridlayout holder
-        self.screen.ids.card_gl.clear_widgets()
+        Animation(opacity=0, d=.3, t="out_quart").start(
+            self.screen.ids.card_gl.children[0])
+        Clock.schedule_once(lambda x: self.screen.ids.card_gl.clear_widgets(),
+                            .3)
+        #self.screen.ids.card_gl.clear_widgets()
 
         # Add card
-        self.screen.ids.card_gl.add_widget(cards)
+        Clock.schedule_once(lambda x: self.screen.ids.card_gl.add_widget(cards),
+                            .35)
+        Clock.schedule_once(lambda x: Animation(opacity=1, d=.5,
+                                                t="out_quart").start(cards),
+                            .35)
 
     def orthology_search_exec(self):
         """
