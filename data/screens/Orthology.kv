@@ -206,40 +206,6 @@ ShowcaseScreen:
                             orientation: "vertical"
                             padding: (5,5)
 
-#                            BoxLayout:
-#                                size_hint_y: None
-#                                height: 40
-#                                AnchorLayout:
-#                                    anchor_y: "center"
-#                                    anchor_x: "center"
-#                                    LightBox:
-#                                        padding: 5
-#                                        Label:
-#                                            text: "Orthology search results"
-#                                            bold: True
-#                                            halign: "center"
-#                                            valign: "middle"
-#                                            text_size: self.size
-#                                AnchorLayout:
-#                                    anchor_x: "right"
-#                                    anchor_y: "center"
-#                                    size_hint_x: None
-#                                    padding: (0,0,10,0)
-#                                    canvas.before:
-#                                        Color:
-#                                            rgba: (.3, .3, .3, .8)
-#                                        Rectangle:
-#                                            pos: self.pos
-#                                            size: self.size
-#                                    Button:
-#                                        size_hint: None, None
-#                                        size: (160,30)
-#                                        text: "Import group file(s)"
-#                                        bold: True
-#                                        background_normal: "data/backgrounds/bt_process.png"
-#                                        on_release:
-#                                            app.dialog_import_groups()
-
                             BoxLayout:
                                 BoxLayout:
                                     size_hint_x: None
@@ -339,21 +305,17 @@ ShowcaseScreen:
                                     orientation: "vertical"
                                     GridLayout:
                                         cols: 1
-                                        #orientation: "vertical"
-                                        DescriptionBox
-
-
-
+                                        id: card_gl
+                                        Label:
+                                            id: orto_results_lb
+                                            padding: 10, 10
+                                            halign: "center"
+                                            valign: "middle"
+                                            text_size: self.size
+                                            text: "Explore and transform the output of OrthoMCL by searching orthologs with the [color=37abc8ff]Search operation[/color] or importing group files"
+                                            bold: True
+                                            markup: True
 
                 BoxLayout:
                     Label:
                         text: "Placeholder"
-                    Label:
-                        id: orto_results_lb
-                        padding: 10, 10
-                        halign: "center"
-                        valign: "middle"
-                        text_size: self.size
-                        text: "Explore and transform the output of OrthoMCL by searching orthologs with the [color=37abc8ff]Search operation[/color] or importing group files"
-                        bold: True
-                        markup: True
