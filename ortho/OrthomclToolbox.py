@@ -174,13 +174,17 @@ class Group ():
         gene AND species threshold)
         :param filt: Boolean. Whether to use the filtered groups (True) or
         total groups (False)
-        :return: List containing number of [total clusters, total sequences,
-        clusters above gene threshold, clusters above species threshold,
-        clusters above gene and species threshold]
+        :return: List containing number of
+
+        [total clusters,
+         total sequences,
+         clusters above gene threshold,
+         clusters above species threshold,
+         clusters above gene and species threshold]
         """
 
         # Set clusters to be used
-        if filt:
+        if filt and self.filtered_groups:
             groups = self.filtered_groups
         else:
             groups = self.groups
