@@ -331,6 +331,25 @@ class OrthologySearchGrid(TabbedPanel):
     pass
 
 
+class DescriptionBox(BoxLayout):
+    # Attribute for number of proteins
+    prot_txt = StringProperty()
+    # Attribute for number of taxa
+    taxa_txt = StringProperty()
+    # Attribute for total number of orthologs
+    ortholog_txt = StringProperty()
+
+
+class GaugePlot(BoxLayout):
+    # Attribute for Gauge plot top label
+    txt = StringProperty()
+    # Attribute for proportion for gauge plot. This proportion should range
+    # between 0 and 1. It will be automatically adapted in the gauge plot
+    proportion = NumericProperty()
+    # Attribute for number of orthologs
+    ortholog_num = StringProperty()
+
+
 class OrthoReportDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -4573,15 +4592,69 @@ class TriFusionApp(App):
                                                             "backgrounds",
                                                             "bt_process.png"),
                               disabled_color=(1, 1, 1, 1))
-                    bt.bind(on_release=self.toggle_groups)
-
-                    # Create box for button and checkbox
-                    #bx = BoxLayout(spacing=5, size_hint_y=None, height=30)
-                    #for wgt in [chk, bt]:
-                    #    bx.add_widget(wgt)
+                    # Apparently I need to use partial instead of lambda
+                    # in order to provide a diferent group object as argument
+                    # Using lambda will overwrite the group objects of all
+                    # buttons with the last group of the iteration. Go figure..
+                    bt.bind(on_release=partial(self.orthology_card, g))
 
                     # Add box to gridlayout
                     self.screen.ids.group_gl.add_widget(bt)
+
+    def orthology_card(self, group_obj, bt):
+        """
+        Generates the descriptive cards with general information for a group
+        file.
+        :param group_obj: Group object.
+        :param bt: ToggleButton instance
+        """
+
+        # Create desired behaviour for group toggle buttons
+        self.toggle_groups(bt)
+
+        # Get statistics from group object
+        stats = group_obj.basic_group_statistics(filt=False)
+
+        # Create cards
+        cards = DescriptionBox()
+
+        cards.prot_txt = str(stats[1])
+        cards.ortholog_txt = str(stats[0])
+        cards.taxa_txt = str(len(group_obj.species_list))
+
+        # Create gauge plots, if there are any filtered groups
+        if group_obj.filtered_groups:
+            # Create species filter plot and add to box
+            sp_filter_plot = GaugePlot()
+            sp_filter_plot.txt = "After species filter"
+            sp_filter_plot.proportion = float(stats[3]) / float(stats[0])
+            sp_filter_plot.ortholog_num = str(stats[3])
+            cards.ids.gauge_bx.add_widget(sp_filter_plot)
+
+            # Create gene filter plot and add to box
+            gn_filter_plot = GaugePlot()
+            gn_filter_plot.txt = "After gene filter"
+            gn_filter_plot.proportion = float(stats[2]) / float(stats[0])
+            gn_filter_plot.ortholog_num = str(stats[2])
+            cards.ids.gauge_bx.add_widget(gn_filter_plot)
+
+            # Create final ortholog plot
+            final_ortholog_plot = GaugePlot()
+            final_ortholog_plot.txt = "Final orthologs"
+            final_ortholog_plot.proportion = float(stats[4]) / float(stats[0])
+            final_ortholog_plot.ortholog_num = str(stats[4])
+            cards.ids.gauge_bx.add_widget(final_ortholog_plot)
+
+        else:
+            lb = Label(text="Please specify gene and species filters",
+                       bold=True, color=(0.216, 0.67, 0.784, 1))
+            cards.ids.gauge_bx.add_widget(lb)
+
+        # Clear any previous content from card gridlayout holder
+        self.screen.ids.card_gl.clear_widgets()
+
+        # Add card
+        self.screen.ids.card_gl.add_widget(cards)
 
     def orthology_search_exec(self):
         """
