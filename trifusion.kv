@@ -437,6 +437,10 @@
     size_hint_y: None
     height: 390
     spacing: 10
+    # Setting custom attributes
+    prot_txt: ""
+    taxa_txt: ""
+    ortholog_txt: ""
     BoxLayout:
         orientation: "vertical"
         size_hint_y: None
@@ -467,7 +471,7 @@
                 BoxLayout:
                     orientation: "vertical"
                     DescriptionLabelLarge:
-                        text: "45753980"
+                        text: root.prot_txt
                     DescriptionLabelSmall:
                         text: "Proteins"
             BoxLayout:
@@ -477,7 +481,7 @@
                 BoxLayout:
                     orientation: "vertical"
                     DescriptionLabelLarge:
-                        text: "45"
+                        text: root.taxa_txt
                     DescriptionLabelSmall:
                         text: "Taxa"
             BoxLayout:
@@ -487,7 +491,7 @@
                 BoxLayout:
                     orientation: "vertical"
                     DescriptionLabelLarge:
-                        text: "45758"
+                        text: root.ortholog_txt
                     DescriptionLabelSmall:
                         text: "Total orthologs"
 
@@ -516,12 +520,7 @@
         BoxLayout:
             size_hint_y: None
             height: 140
-            GaugePlot:
-                txt: "After species filter"
-            GaugePlot:
-                txt: "After gene filter"
-            GaugePlot:
-                txt: "Final orthologs"
+            id: gauge_bx
 
         AnchorLayout:
             anchor_x: "center"
@@ -568,13 +567,9 @@
     padding: 10
     spacing: 10
     txt: "After gene filter"
+    proportion: 0
+    ortholog_num: ""
     inner_color: {"After species filter": (0.16,0.16,0.16,1), "After gene filter": (0.14,0.14,0.14,1), "Final orthologs": (0.12,0.12,0.12,1)}
-#    canvas.before:
-#        Color:
-#            rgba: .1,.1,.1,1
-#        Rectangle:
-#            pos: self.pos
-#            size: self.size
     Label:
         id: gauge_txt
         text: root.txt
@@ -594,7 +589,7 @@
                 Ellipse:
                     size: self.size
                     pos: self.pos
-                    angle_start: 60
+                    angle_start: 360 - (root.proportion * 360)
                 Color:
                     rgba: root.inner_color[gauge_txt.text] if gauge_txt.text in root.inner_color else (0,0,0,0)
                     #rgba: (0.15, 0.15, 0.15, 1)
@@ -605,7 +600,7 @@
                 orientation: "vertical"
                 Label:
                     bold: True
-                    text: "2345"
+                    text: root.ortholog_num
                     color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                     font_size: 22
                     halign: "center"
@@ -614,7 +609,7 @@
                     size_hint_y: .55
                 Label:
                     bold: True
-                    text: "75%"
+                    text: str(round(root.proportion * 100, 1)) + "%"
                     color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                     halign: "center"
                     valign: "top"
