@@ -1057,6 +1057,10 @@ class TriFusionApp(App):
             if modifier == "ctrl" and key == b'\x06':
                 self.screen.ids.text_filter.focus = True
 
+            # Keybinding ctrl+backspace to clear selection
+            if modifier == "ctrl" and key_code == (8, 22):
+                self.screen.ids.clear_s.dispatch("on_release")
+
             # Add bookmarks with ctrl+d
             if modifier == "ctrl" and key_code == (100, 40):
                 self.screen.ids.add_bk_bt.dispatch("on_release")
