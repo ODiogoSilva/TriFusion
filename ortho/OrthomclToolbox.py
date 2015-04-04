@@ -402,6 +402,15 @@ class MultiGroups ():
         else:
             self.duplicate_groups.append(group_obj)
 
+    def remove_group(self, group_id):
+        """
+        Removes a group object according to its name
+        :param group_id: string, name matching a Group object name attribute
+        """
+
+        self.multiple_groups = [x for x in self.multiple_groups if
+                                x.name != group_id]
+
     def add_multigroups(self, multigroup_obj):
         """
         Merges a MultiGroup object
