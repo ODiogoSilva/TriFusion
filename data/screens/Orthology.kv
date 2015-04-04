@@ -272,9 +272,25 @@ ShowcaseScreen:
                                                     padding: (5,5)
                                                     spacing: 5
                                                     #size_hint_y: None
+                                        Hseparator:
+                                            thickness: 1.5
+                                        BoxLayout:
+                                            size_hint_y: None
+                                            height: 40
+                                            padding: 5
+                                            spacing: 10
+                                            Button:
+                                                text: "Compare"
+                                                bold: True
+                                                background_normal: "data/backgrounds/bt_process.png"
+                                            Button:
+                                                size_hint_x: None
+                                                width: 30
+                                                background_normal: "data/backgrounds/remove_bt.png"
+                                                background_down: "data/backgrounds/remove_bt_down.png"
 
-                                    Hseparator:
-                                        thickness: 1.5
+                                        Hseparator:
+                                            thickness: 1.5
 
                                     Button:
                                         size_hint_y: None
