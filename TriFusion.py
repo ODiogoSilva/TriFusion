@@ -4601,6 +4601,12 @@ class TriFusionApp(App):
                     # Add box to gridlayout
                     self.screen.ids.group_gl.add_widget(bt)
 
+        # If no group button is active, dispatch the first
+        if not [x for x in self.screen.ids.group_gl.children
+                if x.state == "down"]:
+            self.screen.ids.group_gl.children[-1].dispatch("on_release")
+            self.screen.ids.group_gl.children[-1].state = "down"
+
     def orthology_card(self, group_obj, bt):
         """
         Generates the descriptive cards with general information for a group
@@ -4621,6 +4627,7 @@ class TriFusionApp(App):
         cards.prot_txt = str(stats[1])
         cards.ortholog_txt = str(stats[0])
         cards.taxa_txt = str(len(group_obj.species_list))
+        cards.group_name = group_obj.name.split(sep)[-1]
 
         # Create gauge plots, if there are any filtered groups
         if group_obj.filtered_groups:
@@ -4650,19 +4657,29 @@ class TriFusionApp(App):
                        bold=True, color=(0.216, 0.67, 0.784, 1))
             cards.ids.gauge_bx.add_widget(lb)
 
-        # Clear any previous content from card gridlayout holder
-        Animation(opacity=0, d=.3, t="out_quart").start(
-            self.screen.ids.card_gl.children[0])
-        Clock.schedule_once(lambda x: self.screen.ids.card_gl.clear_widgets(),
-                            .3)
+        # Clear any previous content from card gridlayout holder if any
+        if len(self.screen.ids.card_gl.children) == 1 and \
+                isinstance(self.screen.ids.card_gl.children[0], Label):
+            self.screen.ids.card_gl.clear_widgets()
+
+        else:
+            try:
+                Animation(opacity=0, d=.2, t="out_quart").start(
+                    self.screen.ids.card_gl.children[0])
+            except IndexError:
+                pass
+
+            Clock.schedule_once(lambda x: self.screen.ids.card_gl.clear_widgets(),
+                                .2)
         #self.screen.ids.card_gl.clear_widgets()
+        #self.screen.ids.card_gl.add_widget(cards)
 
         # Add card
         Clock.schedule_once(lambda x: self.screen.ids.card_gl.add_widget(cards),
-                            .35)
-        Clock.schedule_once(lambda x: Animation(opacity=1, d=.5,
+                            .3)
+        Clock.schedule_once(lambda x: Animation(opacity=1, d=.3,
                                                 t="out_quart").start(cards),
-                            .35)
+                            .3)
 
     def orthology_search_exec(self):
         """
