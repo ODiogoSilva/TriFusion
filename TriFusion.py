@@ -2478,6 +2478,28 @@ class TriFusionApp(App):
         for i in file_bts:
             self.remove_bt(i)
 
+    def remove_groups(self, value):
+        """
+        Removes orthology group buttons
+        :param value: Instance of remove button
+        """
+
+        # Remove group from MultiGroup object
+        self.ortho_groups.remove_group(value.id)
+
+        # Get box container of all gridlayouts
+        gl_bx = value.parent.parent
+
+        for gl in gl_bx.children:
+            # Remove appropriate item, according to id, from its gridlayout
+            gl.remove_widget([x for x in gl.children if x.id == value.id][0])
+
+        # If no group button is active, dispatch the first
+        if not [x for x in self.screen.ids.group_gl.children
+                if x.state == "down"]:
+            self.screen.ids.group_gl.children[-1].dispatch("on_release")
+            self.screen.ids.group_gl.children[-1].state = "down"
+
     def remove_bt(self, value):
         """
         Functionality for the "X" remove buttons in the side panel. It
@@ -4581,13 +4603,13 @@ class TriFusionApp(App):
             # Populate the app gridlayout with group buttons
             for g in groups:
 
+                # If group name contains full path, get only file name
+                gname = g.group_name.split(sep)[-1]
+
                 if g not in self.ortho_groups.duplicate_groups:
                     # Create check box for multiple group selection
-                    chk = CheckBox(id=g.group_name, size_hint_x=.1)
+                    chk = CheckBox(id=gname, size_hint_x=.1)
                     self.screen.ids.group_check.add_widget(chk)
-
-                    # If group name contains full path, get only file name
-                    gname = g.group_name.split(sep)[-1]
 
                     # Create group button
                     bt = ToggleButton(text=gname, id=gname, group="group_bts",
@@ -4609,6 +4631,19 @@ class TriFusionApp(App):
 
                     # Add box to gridlayout
                     self.screen.ids.group_gl.add_widget(bt)
+
+                    # Create removal button
+                    x_bt = Button(size_hint=(None, None), width=30, height=30,
+                                  id=gname, border=(0, 0, 0, 0),
+                                  background_normal=join("data", "backgrounds",
+                                                         "remove_bt.png"),
+                                  background_down=join("data", "backgrounds",
+                                                       "remove_bt_down.png"))
+                    x_bt.bind(on_release=partial(self.check_action,
+                                                 "Are you sure you want to"
+                                                 "remove this group?",
+                                                 self.remove_groups))
+                    self.screen.ids.group_rm.add_widget(x_bt)
 
         # If no group button is active, dispatch the first
         if not [x for x in self.screen.ids.group_gl.children
