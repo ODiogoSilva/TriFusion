@@ -254,18 +254,24 @@ ShowcaseScreen:
                                                     spacing: 5
                                                 GridLayout:
                                                     cols: 1
-                                                    size_hint_x: .9
+                                                    size_hint_x: .7
                                                     id: group_gl
                                                     padding: (5, 5)
                                                     spacing: 5
-                                                    #size_hint_y: None
-
                                                     Button:
                                                         id: no_bt
                                                         disabled: True
                                                         text: "No groups loaded"
                                                         size_hint_y: None
                                                         height: 35
+                                                GridLayout:
+                                                    cols: 1
+                                                    size_hint_x: None
+                                                    width: 40
+                                                    id: group_rm
+                                                    padding: (5,5)
+                                                    spacing: 5
+                                                    #size_hint_y: None
 
                                     Hseparator:
                                         thickness: 1.5
