@@ -441,6 +441,7 @@
     prot_txt: ""
     taxa_txt: ""
     ortholog_txt: ""
+    group_name: ""
     BoxLayout:
         orientation: "vertical"
         size_hint_y: None
@@ -452,14 +453,23 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
-        Label:
+        BoxLayout:
             size_hint_y: None
             height: 30
-            text: "General information"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-            bold: True
+            Label:
+                text: "General information"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+            Label:
+                text: root.group_name
+                halign: "right"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+                font_size: 20
+                color: (0.216, 0.67, 0.784, 1)
 
         BoxLayout:
             size_hint_y: None
@@ -521,6 +531,9 @@
             size_hint_y: None
             height: 140
             id: gauge_bx
+            #GaugePlot:
+            #    proportion: 0.7
+            #    ortholog_num: "47236"
 
         AnchorLayout:
             anchor_x: "center"
@@ -576,7 +589,7 @@
         size_hint_y: None
         height: 30
         bold: True
-        font_size: 12
+        font_size: 14 if root.txt == "Final orthologs" else 12
     AnchorLayout:
         anchor_y: "center"
         anchor_x: "center"
@@ -585,7 +598,7 @@
             size: 100,100
             canvas.before:
                 Color:
-                    rgba: (0.216, 0.67, 0.784, 1)
+                    rgba: (113/255, 200/255, 55/255, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                 Ellipse:
                     size: self.size
                     pos: self.pos
@@ -601,7 +614,7 @@
                 Label:
                     bold: True
                     text: root.ortholog_num
-                    color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
+                    color: (113/255, 200/255, 55/255, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                     font_size: 22
                     halign: "center"
                     valign: "bottom"
@@ -610,7 +623,7 @@
                 Label:
                     bold: True
                     text: str(round(root.proportion * 100, 1)) + "%"
-                    color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
+                    color: (113/255, 200/255, 55/255, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                     halign: "center"
                     valign: "top"
                     text_size: self.size
