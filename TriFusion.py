@@ -4491,6 +4491,11 @@ class TriFusionApp(App):
         Creates and populates the pre-execution dialog for orthology search
         """
 
+        # Check for input proteomes
+        if not self.proteome_files:
+            return self.dialog_floatcheck("Please provide proteome files as "
+                                          "input data", t="error")
+
         # Check for mysql pass
         if self.mysql_pass == "":
             return self.dialog_floatcheck("Please provide the access password "
