@@ -2496,9 +2496,12 @@ class TriFusionApp(App):
 
         # If no group button is active, dispatch the first
         if not [x for x in self.screen.ids.group_gl.children
-                if x.state == "down"]:
+                if x.state == "down"] and self.screen.ids.group_gl.children:
             self.screen.ids.group_gl.children[-1].dispatch("on_release")
             self.screen.ids.group_gl.children[-1].state = "down"
+
+        if not self.screen.ids.group_gl.children:
+            self.screen.ids.card_gl.clear_widgets()
 
     def remove_bt(self, value):
         """
