@@ -409,7 +409,7 @@ class MultiGroups ():
         """
 
         self.multiple_groups = [x for x in self.multiple_groups if
-                                x.name != group_id]
+                                x.name.split(os.sep)[-1] != group_id]
 
     def add_multigroups(self, multigroup_obj):
         """
