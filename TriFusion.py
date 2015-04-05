@@ -3222,16 +3222,28 @@ class TriFusionApp(App):
         Save orthology clusters filters
         """
 
-        self.orto_max_gene = int(gene_filt)
+        try:
+            self.orto_max_gene = int(gene_filt)
 
-        # Add check for min species. If this filter is set to a number greater
-        # that the number of proteome input files (which should represent a
-        # single species each) this will issue a warning.
+        except ValueError:
+            return self.dialog_floatcheck("Invalid filter value: '%s'. Must be "
+                                          "integer" % gene_filt, t="error")
+        try:
+            self.orto_min_sp = int(sp_filt)
+
+        except ValueError:
+            return self.dialog_floatcheck("Invalid filter value: '%s'. Must be "
+                                          "integer" % sp_filt, t="error")
+
+        self.dismiss_popup()
+
+        # Add check for min species. If this filter is set to a number
+        # greater that the number of proteome input files (which should
+        # represent a single species each) this will issue a warning.
         if self.proteome_files and int(sp_filt) > len(self.proteome_files):
-            return self.dialog_floatcheck("WARNING: Minimum number of species"
-                                          " larger than the provided proteomes",
-                                          t="error")
-        self.orto_min_sp = int(sp_filt)
+            return self.dialog_floatcheck("WARNING: Minimum number of "
+                                          "species larger than the provided"
+                                          " proteomes", t="error")
 
     def save_inflation(self, inflation_wgt):
         """
