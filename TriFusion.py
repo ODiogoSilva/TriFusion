@@ -1997,6 +1997,11 @@ class TriFusionApp(App):
             self.proteome_files = good_proteomes
             self.active_proteome_files = deepcopy(self.proteome_files)
 
+        # Update gene filter value to number of proteomes. This will
+        # automatically set the minimum number of species to the number of
+        # proteome files, each of which should represent a species.
+        self.orto_min_sp = len(self.proteome_files)
+
         # Issue float dialog informing that files have been loaded
         if good_proteomes:
             self.dialog_floatcheck("%s file(s) successfully loaded" %
@@ -3218,6 +3223,14 @@ class TriFusionApp(App):
         """
 
         self.orto_max_gene = int(gene_filt)
+
+        # Add check for min species. If this filter is set to a number greater
+        # that the number of proteome input files (which should represent a
+        # single species each) this will issue a warning.
+        if self.proteome_files and int(sp_filt) > len(self.proteome_files):
+            return self.dialog_floatcheck("WARNING: Minimum number of species"
+                                          " larger than the provided proteomes",
+                                          t="error")
         self.orto_min_sp = int(sp_filt)
 
     def save_inflation(self, inflation_wgt):
