@@ -296,6 +296,20 @@ class Group ():
                                        "before using the export_filtered_group"
                                        "method")
 
+    def update_filters(self, gn_filter, sp_filter):
+        """
+        Sets new values for the self.species_threshold and self.gene_threshold
+        and updates the filtered_group
+        :param gn_filter: int. Maximum value for gene copies in cluster
+        :param sp_filter:  int. Minimum value for species in cluster
+        """
+
+        self.species_threshold = sp_filter
+        self.gene_threshold = gn_filter
+
+        self.update_filtered_group()
+
+
     def update_filtered_group(self):
         """
         This method creates a new filtered group variable, like
