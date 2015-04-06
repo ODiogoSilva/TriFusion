@@ -4635,6 +4635,21 @@ class TriFusionApp(App):
         # Update current orto card
         self.orthology_card(g_obj)
 
+    def orto_change_state(self):
+        """
+        Toggle selection or deselection of group checkboxes
+        """
+
+        # In case all are already selected, deselect all
+        if len(self.screen.ids.group_check.children) == \
+                len([x for x in self.screen.ids.group_check.children if
+                     x.active]):
+            for chk in self.screen.ids.group_check.children:
+                chk.active = False
+        else:
+            for chk in self.screen.ids.group_check.children:
+                chk.active = True
+
     def orto_check_state(self):
         """
         sets the "Compare" button disabled attribute according to the
