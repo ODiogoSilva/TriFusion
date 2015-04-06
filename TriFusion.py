@@ -4047,23 +4047,18 @@ class TriFusionApp(App):
 
         elif idx == "usearch_db":
             self.usearch_db = text
-            self.ortho_search_options.ids.db_bt.text = text
 
         elif idx == "usearch_out":
             self.usearch_output = text
-            self.ortho_search_options.ids.out_bt.text = text
 
         elif idx == "evalue":
             self.usearch_evalue = text
-            self.ortho_search_options.ids.eval.text = text
 
         elif idx == "orto_group":
             self.ortholog_prefix = text
-            self.ortho_search_options.ids.orto_group.text = text
 
         elif idx == "groups":
             self.group_prefix = text
-            self.ortho_search_options.ids.group_prefix.text = text
 
     def update_main_operations(self, op):
         """
