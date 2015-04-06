@@ -548,6 +548,8 @@
                     bold: True
                     size_hint_x: None
                     width: 150
+                    on_release:
+                        app.dialog_orto_setfilter(root.group_name)
                 Button:
                     text: "Export..."
                     background_normal: "data/backgrounds/bt_process.png"
@@ -644,6 +646,80 @@
     background_disabled_down: "data/backgrounds/orto_sidebt_down.png"
     on_release:
         app.toggle_groups(self)
+
+
+<OrtoSetFiltersDialog@BoxLayout>:
+    orientation: "vertical"
+    spacing: 20
+    padding: 10
+    group_name: ""
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 10
+        AnchorLayout:
+            size_hint_y: None
+            height: 40
+            anchor_x: "center"
+            anchor_y: "center"
+            BoxLayout:
+                size_hint: None, None
+                size: 250, 30
+                Label:
+                    text: "Apply filters to all group files"
+                    size_hint_x: .9
+                CheckBox:
+                    id: apply_chk
+                    size_hint_x: .1
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                size_hint_x: .8
+                text: "Maximum number of gene copies:"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            TextInput:
+                id: gene_txt
+                size_hint_x: .2
+                text: str(app.orto_max_gene)
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                size_hint_x: .8
+                text: "Minimum number of taxa:"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            TextInput:
+                id: sp_txt
+                size_hint_x: .2
+                text: str(app.orto_min_sp)
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
+                app.orto_change_filters(root.group_name, gene_txt.text, sp_txt.text, apply_chk.active)
+                root.cancel()
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            on_release:
+                root.cancel()
 
 #===============================================================================
 # ORTHOLOGY EXECUTION DIALOG
