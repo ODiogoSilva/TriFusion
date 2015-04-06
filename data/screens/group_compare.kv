@@ -1,0 +1,27 @@
+ShowcaseScreen:
+    name: "group_compare"
+
+    BoxLayout:
+        orientation: "vertical"
+        BoxLayout:
+            size_hint_y: None
+            height: 70
+            AnchorLayout:
+                anchor_x: "left"
+                anchor_y: "center"
+                Button:
+                    size_hint: None, None
+                    size: 100,30
+                    text: "Back"
+                    on_release:
+                        app.go_previous_screen()
+            Label:
+                text: "Toolbar"
+
+        Hseparator:
+            thickness: 1.5
+
+        ScrollView:
+            ScatterLayout:
+                Label:
+                    text: "Plots and stuff"
