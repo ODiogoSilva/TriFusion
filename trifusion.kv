@@ -535,6 +535,10 @@
             #    proportion: 0.7
             #    ortholog_num: "47236"
 
+        Widget:
+            size_hint_y: None
+            height: 10
+
         AnchorLayout:
             anchor_x: "center"
             anchor_y: "center"
@@ -556,6 +560,25 @@
                     size_hint_x: None
                     width: 140
                     bold: True
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Label:
+                color: .7, .7, .7, 1
+                font_size: 12
+                text: "Maximum gene copies: %s" % app.ortho_groups.get_group(root.group_name).gene_threshold if app.ortho_groups.get_group(root.group_name) else "None"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Label:
+                color: .7, .7, .7, 1
+                font_size: 12
+                text: "Minimum taxa representation: %s" % app.ortho_groups.get_group(root.group_name).species_threshold if app.ortho_groups.get_group(root.group_name) else "None"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
 
 <DescriptionLabelLarge@Label>:
     bold: True
