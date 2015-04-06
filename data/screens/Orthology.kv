@@ -276,7 +276,7 @@ ShowcaseScreen:
                                             thickness: 1.5
                                         BoxLayout:
                                             size_hint_y: None
-                                            height: 40
+                                            height: 45
                                             padding: 5
                                             spacing: 10
                                             Button:
@@ -284,12 +284,15 @@ ShowcaseScreen:
                                                 text: "Compare"
                                                 bold: True
                                                 background_normal: "data/backgrounds/bt_process.png"
+                                                background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                 disabled: True
                                             Button:
                                                 size_hint_x: None
-                                                width: 30
-                                                background_normal: "data/backgrounds/remove_bt.png"
-                                                background_down: "data/backgrounds/remove_bt_down.png"
+                                                width: 35
+                                                background_normal: "data/backgrounds/remove_bt_35.png"
+                                                background_down: "data/backgrounds/remove_bt_down_35.png"
+                                                background_disabled_normal: "data/backgrounds/remove_bt_disabled_35.png"
+                                                disabled: False if app.ortho_groups else True
 
                                         Hseparator:
                                             thickness: 1.5
