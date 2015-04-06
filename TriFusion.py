@@ -774,7 +774,7 @@ class TriFusionApp(App):
     active_proteome_files = ListProperty()
 
     # Attribute containing the orthology group files
-    ortho_groups = None
+    ortho_groups = ObjectProperty(None)
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
