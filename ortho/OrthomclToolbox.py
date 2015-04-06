@@ -55,9 +55,9 @@ class Cluster():
         # objects of whether this cluster is compliant with the specified
         # gene_threshold
         self.gene_compliant = None
-         # If the value is different than None, this will inform downstream
-         # objects of whether this cluster is compliant with the specified
-         # species_threshold
+        # If the value is different than None, this will inform downstream
+        # objects of whether this cluster is compliant with the specified
+        # species_threshold
         self.species_compliant = None
 
         self.parse_string(line_string)
@@ -83,8 +83,8 @@ class Cluster():
     def apply_filter(self, gene_threshold, species_threshold):
         """
         This method will update two Cluster attributes, self.gene_flag and
-         self.species_flag, which will inform downstream objects if this
-         cluster respects the gene and species threshold
+        self.species_flag, which will inform downstream objects if this
+        cluster respects the gene and species threshold
         :param gene_threshold: Integer for the maximum number of gene copies
         per species
         :param species_threshold: Integer for the minimum number of species
@@ -304,11 +304,10 @@ class Group ():
         :param sp_filter:  int. Minimum value for species in cluster
         """
 
-        self.species_threshold = sp_filter
-        self.gene_threshold = gn_filter
+        self.species_threshold = int(sp_filter)
+        self.gene_threshold = int(gn_filter)
 
         self.update_filtered_group()
-
 
     def update_filtered_group(self):
         """
@@ -320,6 +319,7 @@ class Group ():
         updated_group = []
 
         for cluster in self.groups:
+            cluster.apply_filter(self.gene_threshold, self.species_threshold)
             if cluster.species_compliant and cluster.gene_compliant:
                 updated_group.append(cluster)
 
