@@ -165,6 +165,13 @@ class Group ():
                     # Add cluster to the filtered group list
                     self.filtered_groups.append(cluster_object)
 
+    def get_filters(self):
+        """
+        Returns a tuple with the thresholds for max gene copies and min species
+        """
+
+        return self.gene_threshold, self.species_threshold
+
     def basic_group_statistics(self, filt=True):
         """
         This method creates a basic table in list format containing basic
