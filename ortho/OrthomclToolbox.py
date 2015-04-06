@@ -432,6 +432,20 @@ class MultiGroups ():
         self.multiple_groups = [x for x in self.multiple_groups if
                                 x.name.split(os.sep)[-1] != group_id]
 
+    def get_group(self, group_id):
+        """
+        Returns a group object based on its name. If the name does not match
+        any group object, returns None
+        :param group_id: string. Name of group object
+        """
+
+        try:
+            group_obj = [x for x in self.multiple_groups if
+                         x.name.split(os.sep)[-1] == group_id][0]
+            return group_obj
+        except IndexError:
+            return
+
     def add_multigroups(self, multigroup_obj):
         """
         Merges a MultiGroup object
