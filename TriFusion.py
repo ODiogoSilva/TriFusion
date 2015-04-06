@@ -778,9 +778,9 @@ class TriFusionApp(App):
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
-    alignment_list = None
+    alignment_list = ObjectProperty(None)
     # List of active alignment object variables.
-    active_alignment_list = None
+    active_alignment_list = ObjectProperty(None)
 
     # Attributes containing the original and active taxa information
     # dictionaries
