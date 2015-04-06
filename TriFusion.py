@@ -4749,7 +4749,8 @@ class TriFusionApp(App):
         cards.group_name = group_obj.name.split(sep)[-1]
 
         # Create gauge plots, if there are any filtered groups
-        if group_obj.filtered_groups:
+        if group_obj.species_threshold or group_obj.gene_threshold or \
+              (group_obj.species_threshold, group_obj.gene_threshold) == (0, 0):
             # Create species filter plot and add to box
             sp_filter_plot = GaugePlot()
             sp_filter_plot.txt = "After species filter"
@@ -4771,7 +4772,8 @@ class TriFusionApp(App):
             final_ortholog_plot.ortholog_num = str(stats[4])
             cards.ids.gauge_bx.add_widget(final_ortholog_plot)
 
-        else:
+        elif not group_obj.filtered_groups and not group_obj.species_threshold\
+                and not group_obj.gene_threshold:
             lb = Label(text="Please specify gene and species filters",
                        bold=True, color=(0.216, 0.67, 0.784, 1))
             cards.ids.gauge_bx.add_widget(lb)
