@@ -92,13 +92,15 @@ class Cluster():
         """
 
         # Check whether cluster is compliant with species_threshold
-        if len(self.species_frequency) >= species_threshold:
+        if len(self.species_frequency) >= species_threshold and \
+                species_threshold:
             self.species_compliant = True
         else:
             self.species_compliant = False
 
         # Check whether cluster is compliant with gene_threshold
-        if max(self.species_frequency.values()) <= gene_threshold:
+        if max(self.species_frequency.values()) <= gene_threshold and \
+                gene_threshold:
             self.gene_compliant = True
         else:
             self.gene_compliant = False
@@ -222,7 +224,7 @@ class Group ():
                 clusters_all_threshold += 1
 
         statistics = [total_cluster_num, total_sequence_num,
-                      clusters_species_threshold, clusters_gene_threshold,
+                      clusters_gene_threshold, clusters_species_threshold,
                       clusters_all_threshold]
 
         return statistics
