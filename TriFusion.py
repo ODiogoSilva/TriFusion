@@ -2487,6 +2487,21 @@ class TriFusionApp(App):
         for i in file_bts:
             self.remove_bt(i)
 
+    def remove_all_groups(self):
+        """
+        Removes all loaded orthology groups
+        """
+
+        # Clear gridlayout contents
+        for gl in self.screen.ids.orto_group_glbx.children:
+            gl.clear_widgets()
+
+        # Clear orthology cards
+        self.screen.ids.card_gl.clear_widgets()
+
+        # Resets ortho_groups object
+        self.ortho_groups = ObjectProperty(None)
+
     def remove_groups(self, value):
         """
         Removes orthology group buttons
@@ -4659,7 +4674,8 @@ class TriFusionApp(App):
                 groups = group_obj
 
             # Create or update self.ortho_groups
-            if not self.ortho_groups:
+            if not self.ortho_groups or isinstance(self.ortho_groups,
+                                                   ObjectProperty):
                 self.ortho_groups = groups
             else:
                 self.ortho_groups.add_multigroups(groups)
