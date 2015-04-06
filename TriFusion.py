@@ -4792,8 +4792,6 @@ class TriFusionApp(App):
 
             Clock.schedule_once(lambda x: self.screen.ids.card_gl.clear_widgets(),
                                 .2)
-        #self.screen.ids.card_gl.clear_widgets()
-        #self.screen.ids.card_gl.add_widget(cards)
 
         # Add card
         Clock.schedule_once(lambda x: self.screen.ids.card_gl.add_widget(cards),
