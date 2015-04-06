@@ -843,7 +843,7 @@ class TriFusionApp(App):
 
         # Setting available screens
         self.available_screens = ["main", "Orthology", "Process",
-                                  "Statistics", "fc"]
+                                  "Statistics", "fc", "group_compare"]
         self.screen_names = self.available_screens
 
         # Transforming screen names into complete paths to be loaded by kivy
@@ -4610,6 +4610,10 @@ class TriFusionApp(App):
         self.show_popup(title="Orthology search execution summary - Processing"
                               " %s file(s)" % len(self.proteome_files),
                         content=content, size=(550, 350))
+
+    def orto_compare_groups(self):
+
+        self.go_screen(5)
 
     def orto_change_filters(self, group_name, gn_filter, sp_filter,
                             apply_all=False):
