@@ -350,6 +350,10 @@ class GaugePlot(BoxLayout):
     ortholog_num = StringProperty()
 
 
+class OrtoSetFiltersDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class OrthoReportDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -3204,15 +3208,25 @@ class TriFusionApp(App):
         self.show_popup(title="MCL inflation settings", content=content,
                         size=(300, 220))
 
+    def dialog_orto_setfilter(self, group_name):
+        """
+        A similar dialog to dialog_ortho_filter but for the explore screen.
+        Contains an additional option of applying the specified filters
+        to all group files
+        """
+
+        content = OrtoSetFiltersDialog(cancel=self.dismiss_popup)
+        content.group_name = group_name
+
+        self.show_popup(title="Set/change ortholog filters for %s file" %
+                              group_name, content=content, size=(400, 250))
+
     def dialog_ortho_filter(self):
         """
         Creates dialog for orthology cluster filters
         """
 
         content = OrtoFilterDialog(cancel=self.dismiss_popup)
-
-        content.ids.gene_txt = self.orto_max_gene
-        content.ids.sp_txt = self.orto_min_sp
 
         self.show_popup(title="Ortholog filters", content=content,
                         size=(400, 200))
@@ -4582,6 +4596,30 @@ class TriFusionApp(App):
                               " %s file(s)" % len(self.proteome_files),
                         content=content, size=(550, 350))
 
+    def orto_change_filters(self, group_name, gn_filter, sp_filter,
+                            apply_all=False):
+        """
+
+        :param group_name: string. Name of a group object
+        :param gn_filter: int. Gene filter
+        :param sp_filter: int. Species filter
+        :param apply_all: Boolean. If True, apply filters to all group objects
+        else, apply to the current group object
+        """
+
+        # Set change list according to apply_all argument value
+        if apply_all:
+            chg_list = [x for x in self.ortho_groups]
+        else:
+            chg_list = [x for x in self.ortho_groups if
+                        x.name.split(sep)[-1] == group_name]
+
+        for g_obj in chg_list:
+            g_obj.update_filters(gn_filter, sp_filter)
+
+        # Update current orto card
+        self.orthology_card(g_obj)
+
     def orto_check_state(self):
         """
         sets the "Compare" button disabled attribute according to the
@@ -4687,7 +4725,7 @@ class TriFusionApp(App):
             self.screen.ids.group_gl.children[-1].dispatch("on_release")
             self.screen.ids.group_gl.children[-1].state = "down"
 
-    def orthology_card(self, group_obj, bt):
+    def orthology_card(self, group_obj, bt=None):
         """
         Generates the descriptive cards with general information for a group
         file.
@@ -4696,7 +4734,8 @@ class TriFusionApp(App):
         """
 
         # Create desired behaviour for group toggle buttons
-        self.toggle_groups(bt)
+        if bt:
+            self.toggle_groups(bt)
 
         # Get statistics from group object
         stats = group_obj.basic_group_statistics(filt=False)
