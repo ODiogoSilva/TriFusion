@@ -1188,7 +1188,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "gooProteins_db"
+                    text: app.usearch_db
                     id: db_bt
                     on_release:
                         app.dialog_text("USEARCH database", "usearch_db")
@@ -1206,7 +1206,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "AllVsAll.out"
+                    text: app.usearch_output
                     id: out_bt
                     on_release:
                         app.dialog_text("USEARCH output file", "usearch_out")
@@ -1224,7 +1224,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "0.00001"
+                    text: app.usearch_evalue
                     id: eval
                     on_release:
                         app.dialog_text("E-value cutoff value", "evalue")
@@ -1278,7 +1278,7 @@
 
                 ProcessBt:
                     size_hint_x: .2
-                    text: "My_group"
+                    text: app.ortholog_prefix
                     id: orto_group
                     on_release:
                         app.dialog_text("Prefix for ortholog groups", "orto_group")
@@ -1299,7 +1299,7 @@
                     size_hint_x: .2
                     padding: (0, 7.5, 0, 7.5)
                     ProcessBt:
-                        text: "group"
+                        text: app.group_prefix
                         id: group_prefix
                         on_release:
                             app.dialog_text("Groups file name", "groups")
