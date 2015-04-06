@@ -220,6 +220,16 @@ ShowcaseScreen:
                                         BoxLayout:
                                             size_hint_y: None
                                             height: 40
+                                            padding: (0, 0, 5, 0)
+                                            AnchorLayout:
+                                                anchor_y: "center"
+                                                anchor_x: "left"
+                                                CheckBox:
+                                                    size_hint_x: None
+                                                    width: group_check.width
+                                                    disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
+                                                    on_active:
+                                                        app.orto_change_state()
                                             AnchorLayout:
                                                 anchor_x: "center"
                                                 anchor_y: "center"
@@ -228,6 +238,8 @@ ShowcaseScreen:
                                                     halign: "center"
                                                     valign: "middle"
                                                     text_size: self.size
+                                                    size_hint_x: None
+                                                    width: 120
                                                     bold: True
                                                     color: (0.216, 0.67, 0.784, 1)
                                             AnchorLayout:
@@ -277,7 +289,7 @@ ShowcaseScreen:
                                             thickness: 1.5
                                         BoxLayout:
                                             size_hint_y: None
-                                            height: 45
+                                            height: 42.5
                                             padding: 5
                                             spacing: 10
                                             Button:
@@ -293,7 +305,7 @@ ShowcaseScreen:
                                                 background_normal: "data/backgrounds/remove_bt_35.png"
                                                 background_down: "data/backgrounds/remove_bt_down_35.png"
                                                 background_disabled_normal: "data/backgrounds/remove_bt_disabled_35.png"
-                                                disabled: False if app.ortho_groups else True
+                                                disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
                                                 on_release:
                                                     app.check_action(text="Are you sure you want to remove all group files?", func=app.remove_all_groups)
 
