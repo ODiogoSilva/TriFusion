@@ -76,6 +76,12 @@ Config.set("kivy", "exit_on_escape", 0)
 Config.set("graphics", "resizable", 0)
 Config.set("graphics", "fullscreen", 0)
 
+#### MEMO
+# scatter.py on_touch_up function was modified to prevent a bug from crashing
+# the app. Before the fix, when right-clicking in a ScatterLayout and then
+# left-clicking in the generate ball would crash the app with a KeyError
+# exception. The fix on lines 595-598 handles this exception by not deleting
+# a touch from _last_touch_pos dictionary, since the key is not there anymore.
 
 class ShowcaseScreen(Screen):
     fullscreen = BooleanProperty(False)
