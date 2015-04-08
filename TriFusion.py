@@ -69,6 +69,8 @@ from functools import partial
 import pickle
 import multiprocessing
 import time
+import tempfile
+import shutil
 
 Config.set("kivy", "log_level", "warning")
 Config.set("kivy", "desktop", 1)
@@ -647,6 +649,9 @@ class TriFusionApp(App):
     # Attribute to load screens
     index = NumericProperty(-1)
 
+    # Create temporary directory for transient files
+    temp_dir = tempfile.TemporaryDirectory()
+
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
 
@@ -867,6 +872,9 @@ class TriFusionApp(App):
         # Listen to keybindings
         Window.bind(on_key_down=self._on_keyboard_events)
 
+        # Execute cleaning function when exiting app
+        Window.bind(on_request_close=lambda x: self._exit_clean())
+
         #### Orthology widgets
         self.ortho_search_options = OrthologySearchGrid()
 
@@ -955,6 +963,14 @@ class TriFusionApp(App):
         When the method performs a unique operations, the specific_task should
         prefix the name of the method.
         """
+
+    def _exit_clean(self):
+        """
+        This method is issued when the application is closed and performs any
+        necessary clean up operations
+        """
+
+        shutil.rmtree(self.temp_dir.name)
 
     def _on_keyboard_events(self, *vals):
         """
