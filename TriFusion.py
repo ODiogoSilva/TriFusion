@@ -4640,10 +4640,16 @@ class TriFusionApp(App):
         initial plot comparing total orthologs across group files
         """
 
+        # Get MultiGroup object with the selected groups
+        active_groups = ot.MultiGroups()
+        for gchk in self.screen.ids.group_check.children:
+            if gchk.active:
+                active_groups.add_group(self.ortho_groups.get_group(gchk.id))
+
         self.go_screen(5)
 
         # Create first comparison plot of total orthologs
-        self.ortho_groups.bar_orthologs(dest=self.temp_dir.name, mode="total")
+        active_groups.bar_orthologs(dest=self.temp_dir.name, mode="total")
 
         # Load plot
         self.orto_compare_loadplot(join(self.temp_dir.name,
@@ -4658,11 +4664,11 @@ class TriFusionApp(App):
         """
 
         # Clear previous content
-        self.screen.ids.plot_content.clear_widgets()
+        self.screen.ids.plot_content.children[0].clear_widgets()
 
         # Add content
-        img_wgt = Image(source=file_path)
-        self.screen.ids.plot_content.add_widget(img_wgt)
+        img_wgt = Image(source=file_path, nocache=True)
+        self.screen.ids.plot_content.children[0].add_widget(img_wgt)
 
     def orto_change_filters(self, group_name, gn_filter, sp_filter,
                             apply_all=False):
