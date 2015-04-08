@@ -26,7 +26,9 @@
 from process.sequence import Alignment
 
 from collections import OrderedDict
-import subprocess
+from operator import itemgetter
+import numpy as np
+import matplotlib.pyplot as plt
 import os
 from os.path import join
 
@@ -482,6 +484,45 @@ class MultiGroups ():
                                                                in vals])))
 
         output_handle.close()
+
+    def bar_orthologs(self, output_file_name="Final_orthologs",
+                             dest="./", mode="total"):
+        """
+        Creates a bar plot with the final ortholog values for each group file
+        :param output_file_name: string. Name of output file
+        :param dest: string. output directory
+        :param mode: Controls the type of data that will be ploted:
+            ..:total: Total number of orthologs
+            ..:final: Final number of orthologs
+        """
+
+        # Stores the x-axys labels
+        x_labels = []
+        # Stores final ortholog values
+        vals = []
+
+        # Get final ortholog values
+        for g_obj in self.multiple_groups:
+
+            x_labels.append(g_obj.name)
+            if mode == "final":
+                vals.append(len(g_obj.filtered_groups))
+            else:
+                vals.append(len(g_obj.groups))
+
+        # Sort values and labels
+        x_labels, vals = [list(x) for x in zip(*sorted(zip(x_labels, vals),
+                                                       key=itemgetter(1)))]
+
+        # Setting plot
+        plt.style.use("ggplot")
+        fig, ax = plt.subplots()
+
+        ax.bar(np.arange(len(x_labels)), vals)
+        ax.set_xticklabels(x_labels)
+
+        plt.savefig(os.path.join(dest, output_file_name))
+        plt.close()
 
     def group_overlap(self):
         """
