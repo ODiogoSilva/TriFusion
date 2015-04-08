@@ -27,6 +27,7 @@ from kivy.app import App
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
 from kivy.animation import Animation
+from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
@@ -4634,8 +4635,34 @@ class TriFusionApp(App):
                         content=content, size=(550, 350))
 
     def orto_compare_groups(self):
+        """
+        Switches to the orthology group comparison screen and presents the
+        initial plot comparing total orthologs across group files
+        """
 
         self.go_screen(5)
+
+        # Create first comparison plot of total orthologs
+        self.ortho_groups.bar_orthologs(dest=self.temp_dir.name, mode="total")
+
+        # Load plot
+        self.orto_compare_loadplot(join(self.temp_dir.name,
+                                        "Final_orthologs.png"))
+
+    def orto_compare_loadplot(self, file_path):
+        """
+        Loads a new plot into the ScatterLayout. This will clear all previous
+        content and load a new image based on the file_path argument
+        :param file_path: string. Path to the image to be loaded
+        :return:
+        """
+
+        # Clear previous content
+        self.screen.ids.plot_content.clear_widgets()
+
+        # Add content
+        img_wgt = Image(source=file_path)
+        self.screen.ids.plot_content.add_widget(img_wgt)
 
     def orto_change_filters(self, group_name, gn_filter, sp_filter,
                             apply_all=False):
