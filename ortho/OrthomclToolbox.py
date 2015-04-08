@@ -27,8 +27,7 @@ from process.sequence import Alignment
 
 from collections import OrderedDict
 from operator import itemgetter
-import numpy as np
-import matplotlib.pyplot as plt
+from base.plotter import *
 import os
 from os.path import join
 
@@ -504,7 +503,7 @@ class MultiGroups ():
         # Get final ortholog values
         for g_obj in self.multiple_groups:
 
-            x_labels.append(g_obj.name)
+            x_labels.append(g_obj.name.split(os.sep)[-1])
             if mode == "final":
                 vals.append(len(g_obj.filtered_groups))
             else:
@@ -514,15 +513,10 @@ class MultiGroups ():
         x_labels, vals = [list(x) for x in zip(*sorted(zip(x_labels, vals),
                                                        key=itemgetter(1)))]
 
-        # Setting plot
-        plt.style.use("ggplot")
-        fig, ax = plt.subplots()
-
-        ax.bar(np.arange(len(x_labels)), vals)
-        ax.set_xticklabels(x_labels)
-
-        plt.savefig(os.path.join(dest, output_file_name))
-        plt.close()
+        # Create plot
+        b_plt = bar_plot(vals, x_labels)
+        b_plt.savefig(os.path.join(dest, output_file_name))
+        b_plt.close()
 
     def group_overlap(self):
         """
