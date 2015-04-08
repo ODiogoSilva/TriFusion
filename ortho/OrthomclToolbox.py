@@ -514,7 +514,7 @@ class MultiGroups ():
                                                        key=itemgetter(1)))]
 
         # Create plot
-        b_plt = bar_plot(vals, x_labels)
+        b_plt = bar_plot(vals, x_labels, title="Total orthologs")
         b_plt.savefig(os.path.join(dest, output_file_name))
         b_plt.close()
 
