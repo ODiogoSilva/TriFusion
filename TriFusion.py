@@ -4766,6 +4766,10 @@ class TriFusionApp(App):
             # Populate the app gridlayout with group buttons
             for g in groups:
 
+                # Automatically update group filters to the default values of
+                # 1 copy per cluster and all taxa represented
+                g.update_filters(self.orto_max_gene, len(g.species_list))
+
                 # If group name contains full path, get only file name
                 gname = g.group_name.split(sep)[-1]
 
