@@ -72,6 +72,7 @@ import multiprocessing
 import time
 import tempfile
 import shutil
+import re
 
 Config.set("kivy", "log_level", "warning")
 Config.set("kivy", "desktop", 1)
@@ -93,6 +94,18 @@ class ShowcaseScreen(Screen):
         if 'content' in self.ids:
             return self.ids.content.add_widget(*args)
         return super(ShowcaseScreen, self).add_widget(*args)
+
+
+class StringInput(TextInput):
+    """
+    Modification of TextInput that only accepts integers
+    """
+
+    def insert_text(self, substring, from_undo=False):
+
+        s = re.sub(r"\D", "", substring)
+
+        return super(StringInput, self).insert_text(s, from_undo=from_undo)
 
 
 class FileChooserL(FileChooserListView):
@@ -4640,20 +4653,32 @@ class TriFusionApp(App):
         initial plot comparing total orthologs across group files
         """
 
+        # Displays correspondence
+        displays = {"total_ort": "1", "sp_ort": "2", "gn_ort": "3",
+                    "final_ort": "4"}
+
         # Get MultiGroup object with the selected groups
         active_groups = ot.MultiGroups()
-        for gchk in self.screen.ids.group_check.children:
+        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
+
+        for gchk in self.loaded_screens[orto_screen].ids.group_check.children:
             if gchk.active:
                 active_groups.add_group(self.ortho_groups.get_group(gchk.id))
 
-        self.go_screen(5)
+        # Get active displays
+        stats = "".join([y for x, y in displays.items()
+                         if self.screen.ids[x].active])
 
-        # Create first comparison plot of total orthologs
-        active_groups.bar_orthologs(dest=self.temp_dir.name, stats="all")
+        if stats:
+            # Create first comparison plot of total orthologs
+            active_groups.bar_orthologs(dest=self.temp_dir.name, stats=stats)
 
-        # Load plot
-        self.orto_compare_loadplot(join(self.temp_dir.name,
-                                        "Final_orthologs.png"))
+            # Load plot
+            self.orto_compare_loadplot(join(self.temp_dir.name,
+                                            "Final_orthologs.png"))
+
+        else:
+            self.screen.ids.plot_content.children[0].clear_widgets()
 
     def orto_compare_loadplot(self, file_path):
         """
@@ -4670,7 +4695,7 @@ class TriFusionApp(App):
         img_wgt = Image(source=file_path, nocache=True)
         self.screen.ids.plot_content.children[0].add_widget(img_wgt)
 
-    def orto_change_filters(self, group_name, gn_filter, sp_filter,
+    def orto_change_filters(self, gn_filter, sp_filter, group_name=None,
                             apply_all=False):
         """
 
@@ -4690,9 +4715,6 @@ class TriFusionApp(App):
 
         for g_obj in chg_list:
             g_obj.update_filters(gn_filter, sp_filter)
-
-        # Update current orto card
-        self.orthology_card(g_obj)
 
     def orto_change_state(self):
         """
@@ -4769,6 +4791,7 @@ class TriFusionApp(App):
                 # Automatically update group filters to the default values of
                 # 1 copy per cluster and all taxa represented
                 g.update_filters(self.orto_max_gene, len(g.species_list))
+                self.orto_min_sp = len(g.species_list)
 
                 # If group name contains full path, get only file name
                 gname = g.group_name.split(sep)[-1]
