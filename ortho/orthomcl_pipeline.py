@@ -10,9 +10,12 @@ import shutil
 #sys.path.append("/home/diogo/Python/Modules")
 
 import argparse
-import time
-import pickle
+
 from ortho import OrthomclToolbox as OT
+import ortho.orthomclInstallSchema as install_sqlite
+import ortho.orthomclLoadBlast as load_blast2sqlite
+import ortho.orthomclPairs as make_pairs_sqlite
+import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
 
 parser = argparse.ArgumentParser(description="Pipeline for the OrthoMCL "
                                  "software")
@@ -82,7 +85,8 @@ def install_schema(cfg_file, verbose=False):
     if verbose:
         print("Installing mySQL schema")
 
-    x = subprocess.Popen(["orthomclInstallSchema", cfg_file]).wait()
+    # x = subprocess.Popen(["orthomclInstallSchema", cfg_file]).wait()
+    install_sqlite.execute()
 
 
 def check_unique_field(proteome_file):
@@ -260,8 +264,10 @@ def load_blast(cfg_file, verbose=False):
     if verbose:
         print("Loading BLAST output into orthoMCL database")
 
-    x = subprocess.Popen(["orthomclLoadBlast", cfg_file,
-                      "similarSequences.txt"]).wait()
+    # x = subprocess.Popen(["orthomclLoadBlast", cfg_file,
+    #                  "similarSequences.txt"]).wait()
+
+    load_blast2sqlite.execute("similarSequences.txt")
 
 
 def pairs(cfg_file, verbose=False):
@@ -269,8 +275,10 @@ def pairs(cfg_file, verbose=False):
     if verbose:
         print("Finding pairs for orthoMCL")
 
-    x = subprocess.Popen(["orthomclPairs", cfg_file,
-                      "pairs.log", "cleanup=yes"]).wait()
+    # x = subprocess.Popen(["orthomclPairs", cfg_file,
+    #                  "pairs.log", "cleanup=yes"]).wait()
+
+    make_pairs_sqlite.execute()
 
 
 def dump_pairs(cfg_file, verbose=False):
@@ -279,7 +287,9 @@ def dump_pairs(cfg_file, verbose=False):
         print("Dump files from the database produced by the orthomclPairs "
               "program")
 
-    x = subprocess.Popen(["orthomclDumpPairsFiles", cfg_file]).wait()
+    # x = subprocess.Popen(["orthomclDumpPairsFiles", cfg_file]).wait()
+
+    dump_pairs_sqlite.execute()
 
 
 def mcl(inflation_list, verbose=False):
@@ -288,8 +298,8 @@ def mcl(inflation_list, verbose=False):
         print("Running mcl algorithm")
 
     for val in inflation_list:
-        x = subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_" +
-                          val.replace(".", "")], shell=True).wait()
+        x = subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_"
+                              + val.replace(".", "")], shell=True).wait()
 
 
 def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
