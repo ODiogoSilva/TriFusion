@@ -4649,7 +4649,7 @@ class TriFusionApp(App):
         self.go_screen(5)
 
         # Create first comparison plot of total orthologs
-        active_groups.bar_orthologs(dest=self.temp_dir.name, mode="total")
+        active_groups.bar_orthologs(dest=self.temp_dir.name, stats="all")
 
         # Load plot
         self.orto_compare_loadplot(join(self.temp_dir.name,
