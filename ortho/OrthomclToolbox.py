@@ -127,11 +127,11 @@ class Group ():
 
         # Attributes that will store the number (int) of cluster after gene and
         # species filter
-        self.num_gene_compliant = None
-        self.num_species_compliant = None
+        self.num_gene_compliant = 0
+        self.num_species_compliant = 0
 
         # Attribute containing the total number of sequences
-        self.total_seqs = None
+        self.total_seqs = 0
 
         # Attribute with name of the group file, which will be an ID
         self.group_name = groups_file
@@ -500,38 +500,60 @@ class MultiGroups ():
         output_handle.close()
 
     def bar_orthologs(self, output_file_name="Final_orthologs",
-                             dest="./", mode="total"):
+                             dest="./", stats="total"):
         """
         Creates a bar plot with the final ortholog values for each group file
         :param output_file_name: string. Name of output file
         :param dest: string. output directory
-        :param mode: Controls the type of data that will be ploted:
-            ..:total: Total number of orthologs
-            ..:final: Final number of orthologs
+        :param stats: string. The statistics that should be used to generate
+        the bar plot. Options are:
+            ..: "1": Total orthologs
+            ..: "2": Species compliant orthologs
+            ..: "3": Gene compliant orthologs
+            ..: "4": Final orthologs
+            ..: "all": All of the above
+            Multiple combinations can be provided, for instance: "123" will
+            display bars for total, species compliant and gene compliant stats
         """
 
         # Stores the x-axys labels
         x_labels = []
-        # Stores final ortholog values
-        vals = []
+        # Stores final ortholog values for all 4 possible data sets
+        vals = [[], [], [], []]
+        lgd = ["Total orthologs", "After species filter", "After gene filter",
+               "Final orthologs"]
 
         # Get final ortholog values
         for g_obj in self.multiple_groups:
 
             x_labels.append(g_obj.name.split(os.sep)[-1])
-            if mode == "final":
-                vals.append(len(g_obj.filtered_groups))
-            else:
-                vals.append(len(g_obj.groups))
+            # Populate total orthologs
+            if "1" in stats or stats == "all":
+                vals[0].append(len(g_obj.groups))
+            # Populate species compliant orthologs
+            if "2" in stats or stats == "all":
+                vals[1].append(g_obj.num_species_compliant)
+            # Populate gene compliant orthologs
+            if "3" in stats or stats == "all":
+                vals[2].append(g_obj.num_gene_compliant)
+            # Populate final orthologs
+            if "4" in stats or stats == "all":
+                vals[3].append(len(g_obj.filtered_groups))
+
+        # Filter valid data sets
+        lgd = [x for x in lgd if set(vals[lgd.index(x)]) != {None} and
+               set(vals[lgd.index(x)]) != {0}]
+        vals = [l for l in vals if set(l) != {None} and set(l) != {0}]
 
         # Sort values and labels
-        x_labels, vals = [list(x) for x in zip(*sorted(zip(x_labels, vals),
-                                                       key=itemgetter(1)))]
+        # x_labels, vals = [list(x) for x in zip(*sorted(zip(x_labels, vals),
+        #                                                key=itemgetter(1)))]
 
         # Create plot
-        b_plt, lgd = bar_plot([vals], x_labels, title="Total orthologs")
+        b_plt, lgd = bar_plot(vals, x_labels, lgd_list=lgd)
         b_plt.savefig(os.path.join(dest, output_file_name),
-                      bbox_extra_artists=(lgd,), bbox_inches="tight")
+                      bbox_extra_artists=(lgd,), bbox_inches="tight",
+                      transparent=True)
         b_plt.close()
 
     def group_overlap(self):
