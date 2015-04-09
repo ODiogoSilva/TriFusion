@@ -4828,7 +4828,7 @@ class TriFusionApp(App):
             self.toggle_groups(bt)
 
         # Get statistics from group object
-        stats = group_obj.basic_group_statistics(filt=False)
+        stats = group_obj.basic_group_statistics()
 
         # Create cards
         cards = DescriptionBox(opacity=0)
