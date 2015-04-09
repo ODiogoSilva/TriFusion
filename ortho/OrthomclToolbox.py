@@ -125,6 +125,14 @@ class Group ():
         self.gene_threshold = gene_threshold
         self.species_threshold = species_threshold
 
+        # Attributes that will store the number (int) of cluster after gene and
+        # species filter
+        self.num_gene_compliant = None
+        self.num_species_compliant = None
+
+        # Attribute containing the total number of sequences
+        self.total_seqs = None
+
         # Attribute with name of the group file, which will be an ID
         self.group_name = groups_file
         # Initialize the project prefix for possible output files
@@ -153,13 +161,20 @@ class Group ():
 
         for line in groups_file_handle:
             cluster_object = Cluster(line)
+
             # Add cluster to general group list
             self.groups.append(cluster_object)
 
+            # Update total sequence counter
+            self.total_seqs = len(cluster_object.sequences)
+
+            # Update species_list attribute
             cluster_species = cluster_object.species_frequency.keys()
             [self.species_list.append(species) for species in cluster_species
              if species not in self.species_list]
 
+            # If thresholds have been specified, update self.filtered_groups
+            # attribute
             if self.species_threshold and self.gene_threshold:
                 cluster_object.apply_filter(self.gene_threshold,
                                             self.species_threshold)
@@ -168,6 +183,14 @@ class Group ():
                     # Add cluster to the filtered group list
                     self.filtered_groups.append(cluster_object)
 
+                # Update num_species_compliant attribute
+                if cluster_object.species_compliant:
+                    self.num_species_compliant += 1
+                # Update num_gene_compliant attribute
+                if cluster_object.gene_compliant:
+                    self.num_gene_compliant += 1
+
+
     def get_filters(self):
         """
         Returns a tuple with the thresholds for max gene copies and min species
@@ -175,15 +198,13 @@ class Group ():
 
         return self.gene_threshold, self.species_threshold
 
-    def basic_group_statistics(self, filt=True):
+    def basic_group_statistics(self):
         """
         This method creates a basic table in list format containing basic
         information of the groups file (total number of clusters, total number
         of sequences, number of clusters below the gene threshold, number of
         clusters below the species threshold and number of clusters below the
         gene AND species threshold)
-        :param filt: Boolean. Whether to use the filtered groups (True) or
-        total groups (False)
         :return: List containing number of
 
         [total clusters,
@@ -193,36 +214,19 @@ class Group ():
          clusters above gene and species threshold]
         """
 
-        # Set clusters to be used
-        if filt and self.filtered_groups:
-            groups = self.filtered_groups
-        else:
-            groups = self.groups
-
         # Total number of clusters
-        total_cluster_num = len(groups)
+        total_cluster_num = len(self.groups)
 
-        # Remaining counters
-        total_sequence_num = 0
-        clusters_gene_threshold = 0
-        clusters_species_threshold = 0
-        clusters_all_threshold = 0
+        # Total number of sequenes
+        total_sequence_num = self.total_seqs
 
-        for cluster in groups:
-            # For total number of sequences
-            sequence_num = len(cluster.sequences)
-            total_sequence_num += sequence_num
+        # Gene compliant clusters
+        clusters_gene_threshold = self.num_gene_compliant
 
-            # For clusters above species threshold
-            if cluster.species_compliant:
-                clusters_species_threshold += 1
+        # Species compliant clusters
+        clusters_species_threshold = self.num_species_compliant
 
-            # For clusters below gene threshold
-            if cluster.gene_compliant:
-                clusters_gene_threshold += 1
-
-            if cluster.species_compliant and cluster.gene_compliant:
-                clusters_all_threshold += 1
+        clusters_all_threshold = len(self.filtered_groups)
 
         statistics = [total_cluster_num, total_sequence_num,
                       clusters_gene_threshold, clusters_species_threshold,
@@ -316,15 +320,26 @@ class Group ():
         """
         This method creates a new filtered group variable, like
         export_filtered_group, but instead of writing into a new file, it
-        replaces the self.groups variable
+        replaces the self.filtered_groups variable
         """
 
         updated_group = []
+
+        # Reset gene and species compliant counters
+        self.num_gene_compliant = 0
+        self.num_species_compliant = 0
 
         for cluster in self.groups:
             cluster.apply_filter(self.gene_threshold, self.species_threshold)
             if cluster.species_compliant and cluster.gene_compliant:
                 updated_group.append(cluster)
+
+            # Update num_species_compliant attribute
+            if cluster.species_compliant:
+                self.num_species_compliant += 1
+            # Update num_gene_compliant attribute
+            if cluster.gene_compliant:
+                self.num_gene_compliant += 1
 
         self.filtered_groups = updated_group
 
@@ -514,8 +529,9 @@ class MultiGroups ():
                                                        key=itemgetter(1)))]
 
         # Create plot
-        b_plt = bar_plot(vals, x_labels, title="Total orthologs")
-        b_plt.savefig(os.path.join(dest, output_file_name))
+        b_plt, lgd = bar_plot([vals], x_labels, title="Total orthologs")
+        b_plt.savefig(os.path.join(dest, output_file_name),
+                      bbox_extra_artists=(lgd,), bbox_inches="tight")
         b_plt.close()
 
     def group_overlap(self):
