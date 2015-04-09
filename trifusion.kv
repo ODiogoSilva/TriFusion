@@ -736,7 +736,8 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             on_release:
-                app.orto_change_filters(root.group_name, gene_txt.text, sp_txt.text, apply_chk.active)
+                app.orto_change_filters(gene_txt.text, sp_txt.text, group_name=root.group_name, apply_all=apply_chk.active)
+                app.orthology_card(app.ortho_groups.get_group(root.group_name))
                 root.cancel()
         Button:
             id: cancel_bt
