@@ -5,18 +5,91 @@ ShowcaseScreen:
         orientation: "vertical"
         BoxLayout:
             size_hint_y: None
-            height: 70
+            height: 90
             AnchorLayout:
                 anchor_x: "left"
                 anchor_y: "center"
+                size_hint_x: None
+                width: 110
                 Button:
                     size_hint: None, None
                     size: 100,30
                     text: "Back"
                     on_release:
                         app.go_previous_screen()
-            Label:
-                text: "Toolbar"
+
+            Vseparator:
+                thickness: 1.5
+
+            BoxLayout:
+                orientation: "vertical"
+                padding: 5
+                Label:
+                    text: "Display:"
+                    size_hint_y: None
+                    height: 25
+                    bold: True
+                    color: (0.216, 0.67, 0.784, 1)
+                BoxLayout:
+                    BoxLayout:
+                        orientation: "vertical"
+                        BoxLayout:
+                            Label:
+                                text: "Total orthologs"
+                                size_hint_x: .8
+                            CheckBox:
+                                id: total_ort
+                                size_hint_x: .2
+                        BoxLayout:
+                            Label:
+                                text: "Species filter"
+                                size_hint_x: .8
+                            CheckBox:
+                                id: sp_ort
+                                size_hint_x: .2
+                    BoxLayout:
+                        orientation: "vertical"
+                        BoxLayout:
+                            Label:
+                                text: "Gene filter"
+                                size_hint_x: .8
+                            CheckBox:
+                                id: gn_ort
+                                size_hint_x: .2
+                        BoxLayout:
+                            Label:
+                                text: "Final orthologs"
+                                size_hint_x: .8
+                            CheckBox:
+                                id: final_ort
+                                size_hint_x: .2
+
+            Vseparator:
+                thickness: 1.5
+
+            BoxLayout:
+                orientation: "vertical"
+                padding: 5
+                Label:
+                    text: "Filter settings:"
+                    size_hint_y: None
+                    height: 25
+                    bold: True
+                    color: (0.216, 0.67, 0.784, 1)
+                BoxLayout:
+                    orientation: "vertical"
+                    BoxLayout:
+                        Label:
+                            text: "Maximum gene copies:"
+                            size_hint_x: 0.8
+                        TextInput:
+                            size_hint_x: .2
+                    BoxLayout:
+                        Label:
+                            text: "Minimum species represented:"
+                            size_hint_x: 0.8
+                        TextInput:
+                            size_hint_x: .2
 
         Hseparator:
             thickness: 1.5
