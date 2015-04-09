@@ -166,7 +166,7 @@ class Group ():
             self.groups.append(cluster_object)
 
             # Update total sequence counter
-            self.total_seqs = len(cluster_object.sequences)
+            self.total_seqs += len(cluster_object.sequences)
 
             # Update species_list attribute
             cluster_species = cluster_object.species_frequency.keys()
