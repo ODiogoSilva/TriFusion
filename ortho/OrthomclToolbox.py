@@ -190,7 +190,6 @@ class Group ():
                 if cluster_object.gene_compliant:
                     self.num_gene_compliant += 1
 
-
     def get_filters(self):
         """
         Returns a tuple with the thresholds for max gene copies and min species
@@ -541,9 +540,8 @@ class MultiGroups ():
                 vals[3].append(len(g_obj.filtered_groups))
 
         # Filter valid data sets
-        lgd = [x for x in lgd if set(vals[lgd.index(x)]) != {None} and
-               set(vals[lgd.index(x)]) != {0}]
-        vals = [l for l in vals if set(l) != {None} and set(l) != {0}]
+        lgd = [x for x in lgd if vals[lgd.index(x)]]
+        vals = [l for l in vals if l]
 
         # Sort values and labels
         # x_labels, vals = [list(x) for x in zip(*sorted(zip(x_labels, vals),
