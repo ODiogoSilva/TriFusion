@@ -33,20 +33,27 @@ ShowcaseScreen:
                 BoxLayout:
                     BoxLayout:
                         orientation: "vertical"
+                        id: display_bx
                         BoxLayout:
                             Label:
                                 text: "Total orthologs"
                                 size_hint_x: .8
                             CheckBox:
                                 id: total_ort
+                                active: True
                                 size_hint_x: .2
+                                on_active:
+                                    app.orto_compare_groups()
                         BoxLayout:
                             Label:
                                 text: "Species filter"
                                 size_hint_x: .8
                             CheckBox:
                                 id: sp_ort
+                                active: True
                                 size_hint_x: .2
+                                on_active:
+                                    app.orto_compare_groups()
                     BoxLayout:
                         orientation: "vertical"
                         BoxLayout:
@@ -55,14 +62,20 @@ ShowcaseScreen:
                                 size_hint_x: .8
                             CheckBox:
                                 id: gn_ort
+                                active: True
                                 size_hint_x: .2
+                                on_active:
+                                    app.orto_compare_groups()
                         BoxLayout:
                             Label:
                                 text: "Final orthologs"
                                 size_hint_x: .8
                             CheckBox:
                                 id: final_ort
+                                active: True
                                 size_hint_x: .2
+                                on_active:
+                                    app.orto_compare_groups()
 
             Vseparator:
                 thickness: 1.5
@@ -82,14 +95,27 @@ ShowcaseScreen:
                         Label:
                             text: "Maximum gene copies:"
                             size_hint_x: 0.8
-                        TextInput:
+                        StringInput:
+                            text: str(app.orto_max_gene)
                             size_hint_x: .2
+                            multiline: False
+                            id: gn_txt
+                            on_text_validate:
+                                app.orto_change_filters(int(self.text), int(sp_txt.text), apply_all=True)
+                                app.orto_compare_groups()
+
                     BoxLayout:
                         Label:
                             text: "Minimum species represented:"
                             size_hint_x: 0.8
-                        TextInput:
+                        StringInput:
+                            text: str(app.orto_min_sp)
                             size_hint_x: .2
+                            multiline: False
+                            id: sp_txt
+                            on_text_validate:
+                                app.orto_change_filters(int(gn_txt.text), int(self.text), apply_all=True)
+                                app.orto_compare_groups()
 
         Hseparator:
             thickness: 1.5
