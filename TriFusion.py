@@ -349,6 +349,10 @@ class ModelSpinner(Spinner):
             pass
 
 
+class PlotToolbar(BoxLayout):
+    pass
+
+
 class OrthologySearchGrid(TabbedPanel):
     pass
 
@@ -2321,6 +2325,164 @@ class TriFusionApp(App):
 
                 self.sidepanel_add_bts(tx, "Taxa")
 
+    def populate_partitions(self):
+        """
+        Populates the partitions tab in the side bar from the partitions object
+        associated with alignment objects.
+
+        This method is used when input files are loaded into the program,
+        which means there will be no issue with multiple files being associated
+        with the same partitions. This kind of change is done a posteriori
+        when importing partition files or setting the partitions manually.
+        """
+
+        # Remove initial disabled button, if it's still there
+        if "partition_temp" in self.root.ids.keys():
+            self.root.ids.partition_sl.remove_widget(
+                self.root.ids.partition_temp)
+            del self.root.ids["partition_temp"]
+
+        for aln in self.alignment_list:
+            for partition, vals in aln.partitions:
+
+                if self.count_partitions <= self.MAX_PARTITION_BUTTON:
+
+                    self.count_partitions += 1
+                    # Create partition buttons
+                    self.sidepanel_add_bts(partition, "Partitions")
+
+                else:
+                    self.root.ids.partition_sl.add_widget(LoadMoreBt())
+                    return
+
+    def sidepanel_create_part_bts(self, idx):
+        """
+        Creates buttons for each partition
+        :param idx: string. unique identifier of partition
+        """
+
+        # Create main button
+        bt = ToggleButton(text=idx, state="normal", id=idx,
+                          height=30, size_hint=(.8, None), shorten=True,
+                          shorten_from="right", halign="center",
+                          bold=True,
+                          background_down=join("data", "backgrounds",
+                                                 "bt_process.png"),
+                          background_normal=join("data", "backgrounds",
+                                                 "bt_process_off.png"))
+
+        # Setting horizontal text size for shortening
+        bt.text_size[0] = bt.size[0] * 1.3
+
+        # Create edition button
+        ed_bt = Button(size_hint=(None, None), width=30,
+                        height=30, id="%s?" % idx,
+                        background_normal=join("data", "backgrounds",
+                                               "edit_bt.png"),
+                        background_down=join("data", "backgrounds",
+                                               "edit_bt_down.png"))
+        ed_bt.bind(on_release=self.dialog_partitions)
+
+        # Create removal button
+        x_bt = Button(size_hint=(None, None), width=30,
+                      height=30, id="%sX" % idx,
+                      border=(0, 0, 0, 0),
+                      background_normal=join("data", "backgrounds",
+                                             "remove_bt.png"),
+                      background_down=join("data", "backgrounds",
+                                             "remove_bt_down.png"))
+
+        return bt, ed_bt, x_bt
+
+    def set_codon_model(self, codon_partition, wgt=None):
+        """
+        Changes the model spinners when changing the codon partitioning
+        """
+
+        first_background = join("data", "backgrounds", "model_bt1.png")
+        second_background = join("data", "backgrounds", "model_bt2.png")
+        third_background = join("data", "backgrounds", "model_bt3.png")
+
+        partition_model = {"[color=ff5555ff]1[/color] + [color=37abc8ff]2"
+                           "[/color] + [color=71c837ff]3[/color]":
+                [ModelSpinner(background_normal=first_background, id="1"),
+                ModelSpinner(background_normal=second_background, id="2"),
+                ModelSpinner(background_normal=third_background, id="3")],
+                           "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]"
+                           "3[/color]":
+                [ModelSpinner(background_normal=first_background, id="12"),
+                 ModelSpinner(background_normal=second_background, id="3")],
+                           "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + "
+                           "3)[/color]":
+                [ModelSpinner(background_normal=first_background, id="1"),
+                 ModelSpinner(background_normal=second_background, id="23")],
+                           "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]"
+                           "2[/color]":
+                [ModelSpinner(background_normal=first_background, id="13"),
+                 ModelSpinner(background_normal=second_background, id="2")],
+                           "No partitions": [ModelSpinner(id="0")]}
+
+        if wgt:
+            partitions_wgt = wgt
+        else:
+            partitions_wgt = [x for x in self.root_window.children if
+                              isinstance(x, PartitionsDialog)][0]
+
+        partitions_wgt.ids.model_bx.clear_widgets()
+
+        for model in partition_model[codon_partition]:
+            partitions_wgt.ids.model_bx.add_widget(model)
+
+    def remove_partition_box(self):
+        """
+        Removes a currently active partition box when clicking the X button
+        """
+
+        # Gathers active partition box and remove button
+        partition_box = [x for x in self.root_window.children if
+                         isinstance(x, PartitionsDialog) or
+                         isinstance(x, RemoveFloat)]
+
+        # Removes widgets:
+        for wgt in partition_box:
+            self.root_window.remove_widget(wgt)
+
+    def dialog_partitions(self, btx):
+        """
+        Shows a small widget with partition information
+        """
+
+        # Get position of partition edit button:
+        ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
+
+        # Set position for partitions dialog
+        size = (180, 190)
+        pos = [ed_pos[0] + btx.width,
+               ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
+
+        content = PartitionsDialog(pos=pos, size=size, size_hint=(None, None))
+        rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20, pos[1] + size[1] - 20])
+
+        # Set partition object and partition name
+        part_obj = self.alignment_list.partitions
+        part_name = btx.id[:-1]
+
+        #TODO: For now this assumes all codon partitions are unlinked
+        # If there are codon partitions
+        if part_obj.partitions[part_name][1]:
+            content.ids.codon_spin.text = content.ids.codon_spin.values[1]
+            self.set_codon_model(content.ids.codon_spin.values[1], content)
+            for i in range(len(part_obj.models[part_name][0])):
+                params = part_obj.models[part_name][0][i]
+                model = part_obj.get_model_name(params)
+                content.ids.model_bx.children[i].text = model
+
+        # Give functionality to remove button
+        rm_wgt.bind(on_release=lambda x: self.remove_partition_box())
+
+        self.root_window.add_widget(content)
+        self.root_window.add_widget(rm_wgt)
+
     def popup_info(self, value):
         """
         Generates the pop up information content for the pressed taxa or file
@@ -3351,108 +3513,277 @@ class TriFusionApp(App):
         self.protein_min_len = min_len
         self.protein_max_stop = max_stop
 
-    ########################### PROCESS SCREEN #################################
-
-    def dismiss_popup(self, *args):
+    def orto_compare_groups(self):
         """
-        General purpose method to close popups from the process screen
-        """
-        self._popup.dismiss()
-
-    def dismiss_subpopup(self, *args):
-        """
-    General purpose method to close sub-popups from the process screen
-        """
-        self._subpopup.dismiss()
-
-    def set_codon_model(self, codon_partition, wgt=None):
-        """
-        Changes the model spinners when changing the codon partitioning
+        Switches to the orthology group comparison screen and presents the
+        initial plot comparing total orthologs across group files
         """
 
-        first_background = join("data", "backgrounds", "model_bt1.png")
-        second_background = join("data", "backgrounds", "model_bt2.png")
-        third_background = join("data", "backgrounds", "model_bt3.png")
+        # Displays correspondence
+        displays = {"total_ort": "1", "sp_ort": "2", "gn_ort": "3",
+                    "final_ort": "4"}
 
-        partition_model = {"[color=ff5555ff]1[/color] + [color=37abc8ff]2"
-                           "[/color] + [color=71c837ff]3[/color]":
-                [ModelSpinner(background_normal=first_background, id="1"),
-                ModelSpinner(background_normal=second_background, id="2"),
-                ModelSpinner(background_normal=third_background, id="3")],
-                           "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]"
-                           "3[/color]":
-                [ModelSpinner(background_normal=first_background, id="12"),
-                 ModelSpinner(background_normal=second_background, id="3")],
-                           "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + "
-                           "3)[/color]":
-                [ModelSpinner(background_normal=first_background, id="1"),
-                 ModelSpinner(background_normal=second_background, id="23")],
-                           "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]"
-                           "2[/color]":
-                [ModelSpinner(background_normal=first_background, id="13"),
-                 ModelSpinner(background_normal=second_background, id="2")],
-                           "No partitions": [ModelSpinner(id="0")]}
+        # Get MultiGroup object with the selected groups
+        active_groups = ot.MultiGroups()
+        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
 
-        if wgt:
-            partitions_wgt = wgt
+        for gchk in self.loaded_screens[orto_screen].ids.group_check.children:
+            if gchk.active:
+                active_groups.add_group(self.ortho_groups.get_group(gchk.id))
+
+        # Get active displays
+        stats = "".join([y for x, y in displays.items()
+                         if self.screen.ids[x].active])
+
+        if stats:
+            # Create first comparison plot of total orthologs
+            active_groups.bar_orthologs(dest=self.temp_dir.name, stats=stats)
+
+            # Load plot
+            self.orto_compare_loadplot(join(self.temp_dir.name,
+                                            "Final_orthologs.png"))
+
         else:
-            partitions_wgt = [x for x in self.root_window.children if
-                              isinstance(x, PartitionsDialog)][0]
+            self.screen.ids.plot_content.children[0].clear_widgets()
 
-        partitions_wgt.ids.model_bx.clear_widgets()
-
-        for model in partition_model[codon_partition]:
-            partitions_wgt.ids.model_bx.add_widget(model)
-
-    def remove_partition_box(self):
+    def orto_compare_loadplot(self, file_path):
         """
-        Removes a currently active partition box when clicking the X button
+        Loads a new plot into the ScatterLayout. This will clear all previous
+        content and load a new image based on the file_path argument
+        :param file_path: string. Path to the image to be loaded
+        :return:
         """
 
-        # Gathers active partition box and remove button
-        partition_box = [x for x in self.root_window.children if
-                         isinstance(x, PartitionsDialog) or
-                         isinstance(x, RemoveFloat)]
+        # Clear previous content
+        self.screen.ids.plot_content.children[0].clear_widgets()
 
-        # Removes widgets:
-        for wgt in partition_box:
-            self.root_window.remove_widget(wgt)
+        # Add content
+        img_wgt = Image(source=file_path, nocache=True)
+        self.screen.ids.plot_content.children[0].add_widget(img_wgt)
 
-    def dialog_partitions(self, btx):
-        """
-        Shows a small widget with partition information
+    def orto_change_filters(self, gn_filter, sp_filter, group_name=None,
+                            apply_all=False):
         """
 
-        # Get position of partition edit button:
-        ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
+        :param group_name: string. Name of a group object
+        :param gn_filter: int. Gene filter
+        :param sp_filter: int. Species filter
+        :param apply_all: Boolean. If True, apply filters to all group objects
+        else, apply to the current group object
+        """
 
-        # Set position for partitions dialog
-        size = (180, 190)
-        pos = [ed_pos[0] + btx.width,
-               ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
+        # Set change list according to apply_all argument value
+        if apply_all:
+            chg_list = [x for x in self.ortho_groups]
+        else:
+            chg_list = [x for x in self.ortho_groups if
+                        x.name.split(sep)[-1] == group_name]
 
-        content = PartitionsDialog(pos=pos, size=size, size_hint=(None, None))
-        rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20, pos[1] + size[1] - 20])
+        for g_obj in chg_list:
+            g_obj.update_filters(gn_filter, sp_filter)
 
-        # Set partition object and partition name
-        part_obj = self.alignment_list.partitions
-        part_name = btx.id[:-1]
+    def orto_change_state(self):
+        """
+        Toggle selection or deselection of group checkboxes
+        """
 
-        #TODO: For now this assumes all codon partitions are unlinked
-        # If there are codon partitions
-        if part_obj.partitions[part_name][1]:
-            content.ids.codon_spin.text = content.ids.codon_spin.values[1]
-            self.set_codon_model(content.ids.codon_spin.values[1], content)
-            for i in range(len(part_obj.models[part_name][0])):
-                params = part_obj.models[part_name][0][i]
-                model = part_obj.get_model_name(params)
-                content.ids.model_bx.children[i].text = model
+        # In case all are already selected, deselect all
+        if len(self.screen.ids.group_check.children) == \
+                len([x for x in self.screen.ids.group_check.children if
+                     x.active]):
+            for chk in self.screen.ids.group_check.children:
+                chk.active = False
+        else:
+            for chk in self.screen.ids.group_check.children:
+                chk.active = True
 
-        # Give functionality to remove button
-        rm_wgt.bind(on_release=lambda x: self.remove_partition_box())
+    def orto_check_state(self):
+        """
+        sets the "Compare" button disabled attribute according to the
+        number of active check boxes
+        """
 
-        self.root_window.add_widget(content)
-        self.root_window.add_widget(rm_wgt)
+        if len([x for x in self.screen.ids.group_check.children if x.active])\
+                >= 2:
+            self.screen.ids.compare_group_bt.disabled = False
+        else:
+            self.screen.ids.compare_group_bt.disabled = True
+
+    def load_groups(self, group_obj=None, group_files=None):
+        """
+        Loads the group files generated by the Orthology search or manually
+        imported into the app. Use group_obj argument for MultiGroup object
+        and group_files for file names
+        :param group_obj: MultiGroup object
+        :param group_files: string. File names of one or more group files
+        """
+
+        # Only perform actions if any of these arguments have been used
+        if group_obj or group_files:
+
+            # Removes "No groups loaded" button if it still exists
+            try:
+                self.screen.ids.group_gl.remove_widget(self.screen.ids.no_bt)
+            except ReferenceError:
+                pass
+
+            # If file names were provided, create Group objects and then the
+            # MultiGroup. Else, use the groups object provided
+            if group_files:
+                group_list = [ot.Group(f) for f in group_files]
+                groups = ot.MultiGroups(group_list)
+            elif group_obj:
+                groups = group_obj
+
+            # Create or update self.ortho_groups
+            if not self.ortho_groups or isinstance(self.ortho_groups,
+                                                   ObjectProperty):
+                self.ortho_groups = groups
+            else:
+                self.ortho_groups.add_multigroups(groups)
+
+            # Check if any group file is duplicate. If so, issue a warning
+            if self.ortho_groups.duplicate_groups:
+                self.dialog_warning("Duplicate group files detected",
+                                    "The following group file(s) were found "
+                                    "to be duplicate and were not loaded:\n\n"
+                                    "[b]%s[/b]" %
+                    "\n".join(x.name.split(sep)[-1] for x in
+                              self.ortho_groups.duplicate_groups))
+
+            # Populate the app gridlayout with group buttons
+            for g in groups:
+
+                # Automatically update group filters to the default values of
+                # 1 copy per cluster and all taxa represented
+                g.update_filters(self.orto_max_gene, len(g.species_list))
+                self.orto_min_sp = len(g.species_list)
+
+                # If group name contains full path, get only file name
+                gname = g.group_name.split(sep)[-1]
+
+                if g not in self.ortho_groups.duplicate_groups:
+                    # Create check box for multiple group selection
+                    chk = CheckBox(id=gname, size_hint_x=.1)
+                    chk.bind(active=lambda x, y: self.orto_check_state())
+                    self.screen.ids.group_check.add_widget(chk)
+
+                    # Create group button
+                    bt = ToggleButton(text=gname, id=gname, group="group_bts",
+                              size_hint_y=None, height=30, shorten=True,
+                              shorten_from="right", halign="center", bold=True,
+                              background_down=join("data", "backgrounds",
+                                                     "bt_process.png"),
+                              background_normal=join("data", "backgrounds",
+                                                     "bt_process_off.png"),
+                              background_disabled_down=join("data",
+                                                            "backgrounds",
+                                                            "bt_process.png"),
+                              disabled_color=(1, 1, 1, 1))
+                    # Apparently I need to use partial instead of lambda
+                    # in order to provide a diferent group object as argument
+                    # Using lambda will overwrite the group objects of all
+                    # buttons with the last group of the iteration. Go figure..
+                    bt.bind(on_release=partial(self.orthology_card, g))
+
+                    # Add box to gridlayout
+                    self.screen.ids.group_gl.add_widget(bt)
+
+                    # Create removal button
+                    x_bt = Button(size_hint=(None, None), width=30, height=30,
+                                  id=gname, border=(0, 0, 0, 0),
+                                  background_normal=join("data", "backgrounds",
+                                                         "remove_bt.png"),
+                                  background_down=join("data", "backgrounds",
+                                                       "remove_bt_down.png"))
+                    x_bt.bind(on_release=partial(self.check_action,
+                                                 "Are you sure you want to"
+                                                 "remove this group?",
+                                                 self.remove_groups))
+                    self.screen.ids.group_rm.add_widget(x_bt)
+
+        # If no group button is active, dispatch the first
+        if not [x for x in self.screen.ids.group_gl.children
+                if x.state == "down"] and self.screen.ids.group_gl.children:
+            self.screen.ids.group_gl.children[-1].dispatch("on_release")
+            self.screen.ids.group_gl.children[-1].state = "down"
+
+    def orthology_card(self, group_obj, bt=None):
+        """
+        Generates the descriptive cards with general information for a group
+        file.
+        :param group_obj: Group object.
+        :param bt: ToggleButton instance
+        """
+
+        # Create desired behaviour for group toggle buttons
+        if bt:
+            self.toggle_groups(bt)
+
+        # Get statistics from group object
+        stats = group_obj.basic_group_statistics()
+
+        # Create cards
+        cards = DescriptionBox(opacity=0)
+
+        cards.prot_txt = str(stats[1])
+        cards.ortholog_txt = str(stats[0])
+        cards.taxa_txt = str(len(group_obj.species_list))
+        cards.group_name = group_obj.name.split(sep)[-1]
+
+        # Create gauge plots, if there are any filtered groups
+        if group_obj.species_threshold or group_obj.gene_threshold or \
+              (group_obj.species_threshold, group_obj.gene_threshold) == (0, 0):
+            # Create species filter plot and add to box
+            sp_filter_plot = GaugePlot()
+            sp_filter_plot.txt = "After species filter"
+            sp_filter_plot.proportion = float(stats[3]) / float(stats[0])
+            sp_filter_plot.ortholog_num = str(stats[3])
+            cards.ids.gauge_bx.add_widget(sp_filter_plot)
+
+            # Create gene filter plot and add to box
+            gn_filter_plot = GaugePlot()
+            gn_filter_plot.txt = "After gene filter"
+            gn_filter_plot.proportion = float(stats[2]) / float(stats[0])
+            gn_filter_plot.ortholog_num = str(stats[2])
+            cards.ids.gauge_bx.add_widget(gn_filter_plot)
+
+            # Create final ortholog plot
+            final_ortholog_plot = GaugePlot()
+            final_ortholog_plot.txt = "Final orthologs"
+            final_ortholog_plot.proportion = float(stats[4]) / float(stats[0])
+            final_ortholog_plot.ortholog_num = str(stats[4])
+            cards.ids.gauge_bx.add_widget(final_ortholog_plot)
+
+        elif not group_obj.filtered_groups and not group_obj.species_threshold\
+                and not group_obj.gene_threshold:
+            lb = Label(text="Please specify gene and species filters",
+                       bold=True, color=(0.216, 0.67, 0.784, 1))
+            cards.ids.gauge_bx.add_widget(lb)
+
+        # Clear any previous content from card gridlayout holder if any
+        if len(self.screen.ids.card_gl.children) == 1 and \
+                isinstance(self.screen.ids.card_gl.children[0], Label):
+            self.screen.ids.card_gl.clear_widgets()
+
+        else:
+            try:
+                Animation(opacity=0, d=.2, t="out_quart").start(
+                    self.screen.ids.card_gl.children[0])
+            except IndexError:
+                pass
+
+            Clock.schedule_once(lambda x: self.screen.ids.card_gl.clear_widgets(),
+                                .2)
+
+        # Add card
+        Clock.schedule_once(lambda x: self.screen.ids.card_gl.add_widget(cards),
+                            .3)
+        Clock.schedule_once(lambda x: Animation(opacity=1, d=.3,
+                                                t="out_quart").start(cards),
+                            .3)
+
+    ########################### POPUP OPS ######################################
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
                    separator_color=[47 / 255., 167 / 255., 212 / 255., 1.],
@@ -3484,6 +3815,20 @@ class TriFusionApp(App):
                                 title_color=separator_color,
                                 custom_background=custom_background)
         self._popup.open()
+
+    def dismiss_popup(self, *args):
+        """
+        General purpose method to close popups from the process screen
+        """
+        self._popup.dismiss()
+
+    def dismiss_subpopup(self, *args):
+        """
+    General purpose method to close sub-popups from the process screen
+        """
+        self._subpopup.dismiss()
+
+    ########################### PROCESS SCREEN #################################
 
     def save_file(self, path, file_name=None, idx=None):
         """
@@ -3969,75 +4314,6 @@ class TriFusionApp(App):
         except AttributeError:
             return self.dialog_floatcheck("ERROR: No input files have"
                                               "been selected", t="error")
-
-    def sidepanel_create_part_bts(self, idx):
-        """
-        Creates buttons for each partition
-        :param idx: string. unique identifier of partition
-        """
-
-        # Create main button
-        bt = ToggleButton(text=idx, state="normal", id=idx,
-                          height=30, size_hint=(.8, None), shorten=True,
-                          shorten_from="right", halign="center",
-                          bold=True,
-                          background_down=join("data", "backgrounds",
-                                                 "bt_process.png"),
-                          background_normal=join("data", "backgrounds",
-                                                 "bt_process_off.png"))
-
-        # Setting horizontal text size for shortening
-        bt.text_size[0] = bt.size[0] * 1.3
-
-        # Create edition button
-        ed_bt = Button(size_hint=(None, None), width=30,
-                        height=30, id="%s?" % idx,
-                        background_normal=join("data", "backgrounds",
-                                               "edit_bt.png"),
-                        background_down=join("data", "backgrounds",
-                                               "edit_bt_down.png"))
-        ed_bt.bind(on_release=self.dialog_partitions)
-
-        # Create removal button
-        x_bt = Button(size_hint=(None, None), width=30,
-                      height=30, id="%sX" % idx,
-                      border=(0, 0, 0, 0),
-                      background_normal=join("data", "backgrounds",
-                                             "remove_bt.png"),
-                      background_down=join("data", "backgrounds",
-                                             "remove_bt_down.png"))
-
-        return bt, ed_bt, x_bt
-
-    def populate_partitions(self):
-        """
-        Populates the partitions tab in the side bar from the partitions object
-        associated with alignment objects.
-
-        This method is used when input files are loaded into the program,
-        which means there will be no issue with multiple files being associated
-        with the same partitions. This kind of change is done a posteriori
-        when importing partition files or setting the partitions manually.
-        """
-
-        # Remove initial disabled button, if it's still there
-        if "partition_temp" in self.root.ids.keys():
-            self.root.ids.partition_sl.remove_widget(
-                self.root.ids.partition_temp)
-            del self.root.ids["partition_temp"]
-
-        for aln in self.alignment_list:
-            for partition, vals in aln.partitions:
-
-                if self.count_partitions <= self.MAX_PARTITION_BUTTON:
-
-                    self.count_partitions += 1
-                    # Create partition buttons
-                    self.sidepanel_add_bts(partition, "Partitions")
-
-                else:
-                    self.root.ids.partition_sl.add_widget(LoadMoreBt())
-                    return
 
     def dialog_text(self, title, idx):
         """
@@ -4646,276 +4922,6 @@ class TriFusionApp(App):
         self.show_popup(title="Orthology search execution summary - Processing"
                               " %s file(s)" % len(self.proteome_files),
                         content=content, size=(550, 350))
-
-    def orto_compare_groups(self):
-        """
-        Switches to the orthology group comparison screen and presents the
-        initial plot comparing total orthologs across group files
-        """
-
-        # Displays correspondence
-        displays = {"total_ort": "1", "sp_ort": "2", "gn_ort": "3",
-                    "final_ort": "4"}
-
-        # Get MultiGroup object with the selected groups
-        active_groups = ot.MultiGroups()
-        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
-
-        for gchk in self.loaded_screens[orto_screen].ids.group_check.children:
-            if gchk.active:
-                active_groups.add_group(self.ortho_groups.get_group(gchk.id))
-
-        # Get active displays
-        stats = "".join([y for x, y in displays.items()
-                         if self.screen.ids[x].active])
-
-        if stats:
-            # Create first comparison plot of total orthologs
-            active_groups.bar_orthologs(dest=self.temp_dir.name, stats=stats)
-
-            # Load plot
-            self.orto_compare_loadplot(join(self.temp_dir.name,
-                                            "Final_orthologs.png"))
-
-        else:
-            self.screen.ids.plot_content.children[0].clear_widgets()
-
-    def orto_compare_loadplot(self, file_path):
-        """
-        Loads a new plot into the ScatterLayout. This will clear all previous
-        content and load a new image based on the file_path argument
-        :param file_path: string. Path to the image to be loaded
-        :return:
-        """
-
-        # Clear previous content
-        self.screen.ids.plot_content.children[0].clear_widgets()
-
-        # Add content
-        img_wgt = Image(source=file_path, nocache=True)
-        self.screen.ids.plot_content.children[0].add_widget(img_wgt)
-
-    def orto_change_filters(self, gn_filter, sp_filter, group_name=None,
-                            apply_all=False):
-        """
-
-        :param group_name: string. Name of a group object
-        :param gn_filter: int. Gene filter
-        :param sp_filter: int. Species filter
-        :param apply_all: Boolean. If True, apply filters to all group objects
-        else, apply to the current group object
-        """
-
-        # Set change list according to apply_all argument value
-        if apply_all:
-            chg_list = [x for x in self.ortho_groups]
-        else:
-            chg_list = [x for x in self.ortho_groups if
-                        x.name.split(sep)[-1] == group_name]
-
-        for g_obj in chg_list:
-            g_obj.update_filters(gn_filter, sp_filter)
-
-    def orto_change_state(self):
-        """
-        Toggle selection or deselection of group checkboxes
-        """
-
-        # In case all are already selected, deselect all
-        if len(self.screen.ids.group_check.children) == \
-                len([x for x in self.screen.ids.group_check.children if
-                     x.active]):
-            for chk in self.screen.ids.group_check.children:
-                chk.active = False
-        else:
-            for chk in self.screen.ids.group_check.children:
-                chk.active = True
-
-    def orto_check_state(self):
-        """
-        sets the "Compare" button disabled attribute according to the
-        number of active check boxes
-        """
-
-        if len([x for x in self.screen.ids.group_check.children if x.active])\
-                >= 2:
-            self.screen.ids.compare_group_bt.disabled = False
-        else:
-            self.screen.ids.compare_group_bt.disabled = True
-
-    def load_groups(self, group_obj=None, group_files=None):
-        """
-        Loads the group files generated by the Orthology search or manually
-        imported into the app. Use group_obj argument for MultiGroup object
-        and group_files for file names
-        :param group_obj: MultiGroup object
-        :param group_files: string. File names of one or more group files
-        """
-
-        # Only perform actions if any of these arguments have been used
-        if group_obj or group_files:
-
-            # Removes "No groups loaded" button if it still exists
-            try:
-                self.screen.ids.group_gl.remove_widget(self.screen.ids.no_bt)
-            except ReferenceError:
-                pass
-
-            # If file names were provided, create Group objects and then the
-            # MultiGroup. Else, use the groups object provided
-            if group_files:
-                group_list = [ot.Group(f) for f in group_files]
-                groups = ot.MultiGroups(group_list)
-            elif group_obj:
-                groups = group_obj
-
-            # Create or update self.ortho_groups
-            if not self.ortho_groups or isinstance(self.ortho_groups,
-                                                   ObjectProperty):
-                self.ortho_groups = groups
-            else:
-                self.ortho_groups.add_multigroups(groups)
-
-            # Check if any group file is duplicate. If so, issue a warning
-            if self.ortho_groups.duplicate_groups:
-                self.dialog_warning("Duplicate group files detected",
-                                    "The following group file(s) were found "
-                                    "to be duplicate and were not loaded:\n\n"
-                                    "[b]%s[/b]" %
-                    "\n".join(x.name.split(sep)[-1] for x in
-                              self.ortho_groups.duplicate_groups))
-
-            # Populate the app gridlayout with group buttons
-            for g in groups:
-
-                # Automatically update group filters to the default values of
-                # 1 copy per cluster and all taxa represented
-                g.update_filters(self.orto_max_gene, len(g.species_list))
-                self.orto_min_sp = len(g.species_list)
-
-                # If group name contains full path, get only file name
-                gname = g.group_name.split(sep)[-1]
-
-                if g not in self.ortho_groups.duplicate_groups:
-                    # Create check box for multiple group selection
-                    chk = CheckBox(id=gname, size_hint_x=.1)
-                    chk.bind(active=lambda x, y: self.orto_check_state())
-                    self.screen.ids.group_check.add_widget(chk)
-
-                    # Create group button
-                    bt = ToggleButton(text=gname, id=gname, group="group_bts",
-                              size_hint_y=None, height=30, shorten=True,
-                              shorten_from="right", halign="center", bold=True,
-                              background_down=join("data", "backgrounds",
-                                                     "bt_process.png"),
-                              background_normal=join("data", "backgrounds",
-                                                     "bt_process_off.png"),
-                              background_disabled_down=join("data",
-                                                            "backgrounds",
-                                                            "bt_process.png"),
-                              disabled_color=(1, 1, 1, 1))
-                    # Apparently I need to use partial instead of lambda
-                    # in order to provide a diferent group object as argument
-                    # Using lambda will overwrite the group objects of all
-                    # buttons with the last group of the iteration. Go figure..
-                    bt.bind(on_release=partial(self.orthology_card, g))
-
-                    # Add box to gridlayout
-                    self.screen.ids.group_gl.add_widget(bt)
-
-                    # Create removal button
-                    x_bt = Button(size_hint=(None, None), width=30, height=30,
-                                  id=gname, border=(0, 0, 0, 0),
-                                  background_normal=join("data", "backgrounds",
-                                                         "remove_bt.png"),
-                                  background_down=join("data", "backgrounds",
-                                                       "remove_bt_down.png"))
-                    x_bt.bind(on_release=partial(self.check_action,
-                                                 "Are you sure you want to"
-                                                 "remove this group?",
-                                                 self.remove_groups))
-                    self.screen.ids.group_rm.add_widget(x_bt)
-
-        # If no group button is active, dispatch the first
-        if not [x for x in self.screen.ids.group_gl.children
-                if x.state == "down"] and self.screen.ids.group_gl.children:
-            self.screen.ids.group_gl.children[-1].dispatch("on_release")
-            self.screen.ids.group_gl.children[-1].state = "down"
-
-    def orthology_card(self, group_obj, bt=None):
-        """
-        Generates the descriptive cards with general information for a group
-        file.
-        :param group_obj: Group object.
-        :param bt: ToggleButton instance
-        """
-
-        # Create desired behaviour for group toggle buttons
-        if bt:
-            self.toggle_groups(bt)
-
-        # Get statistics from group object
-        stats = group_obj.basic_group_statistics()
-
-        # Create cards
-        cards = DescriptionBox(opacity=0)
-
-        cards.prot_txt = str(stats[1])
-        cards.ortholog_txt = str(stats[0])
-        cards.taxa_txt = str(len(group_obj.species_list))
-        cards.group_name = group_obj.name.split(sep)[-1]
-
-        # Create gauge plots, if there are any filtered groups
-        if group_obj.species_threshold or group_obj.gene_threshold or \
-              (group_obj.species_threshold, group_obj.gene_threshold) == (0, 0):
-            # Create species filter plot and add to box
-            sp_filter_plot = GaugePlot()
-            sp_filter_plot.txt = "After species filter"
-            sp_filter_plot.proportion = float(stats[3]) / float(stats[0])
-            sp_filter_plot.ortholog_num = str(stats[3])
-            cards.ids.gauge_bx.add_widget(sp_filter_plot)
-
-            # Create gene filter plot and add to box
-            gn_filter_plot = GaugePlot()
-            gn_filter_plot.txt = "After gene filter"
-            gn_filter_plot.proportion = float(stats[2]) / float(stats[0])
-            gn_filter_plot.ortholog_num = str(stats[2])
-            cards.ids.gauge_bx.add_widget(gn_filter_plot)
-
-            # Create final ortholog plot
-            final_ortholog_plot = GaugePlot()
-            final_ortholog_plot.txt = "Final orthologs"
-            final_ortholog_plot.proportion = float(stats[4]) / float(stats[0])
-            final_ortholog_plot.ortholog_num = str(stats[4])
-            cards.ids.gauge_bx.add_widget(final_ortholog_plot)
-
-        elif not group_obj.filtered_groups and not group_obj.species_threshold\
-                and not group_obj.gene_threshold:
-            lb = Label(text="Please specify gene and species filters",
-                       bold=True, color=(0.216, 0.67, 0.784, 1))
-            cards.ids.gauge_bx.add_widget(lb)
-
-        # Clear any previous content from card gridlayout holder if any
-        if len(self.screen.ids.card_gl.children) == 1 and \
-                isinstance(self.screen.ids.card_gl.children[0], Label):
-            self.screen.ids.card_gl.clear_widgets()
-
-        else:
-            try:
-                Animation(opacity=0, d=.2, t="out_quart").start(
-                    self.screen.ids.card_gl.children[0])
-            except IndexError:
-                pass
-
-            Clock.schedule_once(lambda x: self.screen.ids.card_gl.clear_widgets(),
-                                .2)
-
-        # Add card
-        Clock.schedule_once(lambda x: self.screen.ids.card_gl.add_widget(cards),
-                            .3)
-        Clock.schedule_once(lambda x: Animation(opacity=1, d=.3,
-                                                t="out_quart").start(cards),
-                            .3)
 
     def orthology_search_exec(self):
         """
