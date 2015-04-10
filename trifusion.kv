@@ -709,7 +709,7 @@
             TextInput:
                 id: gene_txt
                 size_hint_x: .2
-                text: str(app.orto_max_gene)
+                text: str(app.ortho_groups.get_group(root.group_name).gene_threshold) if app.ortho_groups.get_group(root.group_name) else str(app.orto_max_gene)
         BoxLayout:
             size_hint_y: None
             height: 30
@@ -723,7 +723,7 @@
             TextInput:
                 id: sp_txt
                 size_hint_x: .2
-                text: str(app.orto_min_sp)
+                text: str(app.ortho_groups.get_group(root.group_name).species_threshold) if app.ortho_groups.get_group(root.group_name) else str(app.orto_min_sp)
 
     BoxLayout:
         size_hint_y: None
