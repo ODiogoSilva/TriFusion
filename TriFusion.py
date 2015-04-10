@@ -1243,7 +1243,7 @@ class TriFusionApp(App):
             Use this function with a Clock schedule to delay the introduction
             of the label widget. Otherwise, it could become cumbersome to have
             an label appearing right after the mouse colliding with the button
-            :param wgt: FloatLayout widget, containing a descriptive label
+            :param wgt: Layout widget, containing a descriptive label
             """
 
             # Checking if the current mouse position is the same as the mouse
