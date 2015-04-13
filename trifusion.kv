@@ -134,6 +134,63 @@
             size: self.size
 
 #===============================================================================
+# PLOT TOOLBAR
+#===============================================================================
+
+<PlotToolbar@BoxLayout>:
+    orientation: "vertical"
+    size_hint: None, None
+    size: 50, 240
+    opacity: .2
+    canvas.before:
+        Color:
+            rgba: (.2,.2,.2,1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
+        BoxLayout:
+            orientation: "vertical"
+            size_hint: None, None
+            size: 40, 220
+            spacing: 5
+            id: content
+            Button
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/zoom_in.png"
+                on_release:
+                    app.screen.ids.plot_content.scale += .1
+            Button
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/zoom_out.png"
+                on_release:
+                    app.screen.ids.plot_content.scale -= .1 if app.screen.ids.plot_content.scale > 0.5 else 0
+                    print(app.screen.ids.plot_content.scale)
+            Button:
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/fit_plot.png"
+                on_release:
+                    app.screen.ids.plot_content.scale = 1
+            Button:
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/export_fig.png"
+                on_release:
+                    app.screen.ids.plot_content.scale = 1
+            Button:
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/export_table.png"
+                on_release:
+                    app.screen.ids.plot_content.scale = 1
+
+#===============================================================================
 # GENERAL INFORMATIVE POPUP
 #===============================================================================
 

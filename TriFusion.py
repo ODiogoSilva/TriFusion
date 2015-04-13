@@ -659,6 +659,7 @@ class TriFusionApp(App):
     screen_names = ListProperty()
     available_screens = ListProperty()
     loaded_screens = {}
+    plot_screens = ListProperty()
 
     # Attributes to know current and previous screen
     current_screen = StringProperty()
@@ -879,6 +880,10 @@ class TriFusionApp(App):
         self.available_screens = [join(self.cur_dir, "data", "screens",
                                  "{}.kv".format(screen)) for screen in
                                   self.available_screens]
+
+        # Store screen names specifically designed for plot display
+        self.plot_screens = ["group_compare"]
+
         self.loaded_screens = dict((sc, None) for sc in self.available_screens)
 
         # First thing is go to main screen
@@ -1418,6 +1423,16 @@ class TriFusionApp(App):
         if collision is False:
             self.previous_mouse_over = ""
 
+        # Only do this when plot screen is on
+        if self.screen.name in self.plot_screens:
+            # Get PlotToolbar object
+            toolbar_wgt = [x for x in self.root_window.children
+                           if isinstance(x, PlotToolbar)][0]
+            if determine_collision(toolbar_wgt):
+                Animation(opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
+            else:
+                Animation(opacity=.2, d=.3, t="out_quart").start(toolbar_wgt)
+
     def switch_path_wgt(self, wgt_id):
 
         def path_updater():
@@ -1472,6 +1487,10 @@ class TriFusionApp(App):
             screen_path = join(self.cur_dir, "data", "screens", "{}.kv".format(
                 self.screen.name))
             self.loaded_screens[screen_path] = self.screen
+
+            # Automatic removal of plot toolbar when not in a plot screen
+            if self.screen_names[idx] not in self.plot_screens:
+                self.dismiss_plot_toolbar()
 
         self.index = idx
 
@@ -3298,6 +3317,32 @@ class TriFusionApp(App):
 
         for switch in self.secondary_options:
             self.process_options.ids[switch].active = False
+
+    ############################ PLOT SCREENS ##################################
+
+    def show_plot_toolbar(self):
+        """
+        Adds a PlotToolbar BoxLayout to self.root_window. This is meant to be an
+        auxiliary toolbar for specific operations related to plots.
+        """
+
+        # Determine position
+        pos = self.root.width - 50, self.root.height - 480
+        content = PlotToolbar(pos=pos)
+
+        self.root_window.add_widget(content)
+
+    def dismiss_plot_toolbar(self):
+        """
+        Removes the PlotToolbar from self.root_window
+        """
+
+        try:
+            wgt = [x for x in self.root_window.children if
+                   isinstance(x, PlotToolbar)][0]
+            self.root_window.remove_widget(wgt)
+        except IndexError:
+            pass
 
     ########################## ORTHOLOGY SCREEN ################################
 
