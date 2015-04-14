@@ -125,6 +125,7 @@ class Alignment (Base):
             path, if it exists. The name_wext attribute will retain the
             extension
             """
+            self.path = input_alignment
             self.name = input_alignment.split(sep)[-1].split(".")[0]
             self.name_wext = input_alignment.split(sep)[-1]
 
