@@ -134,7 +134,7 @@
             size: self.size
 
 #===============================================================================
-# PLOT TOOLBAR
+# PLOT SCREEN
 #===============================================================================
 
 <PlotToolbar@BoxLayout>:
@@ -182,11 +182,97 @@
                 size: 40, 40
                 id: export_fig
                 background_normal: "data/backgrounds/export_fig.png"
+                on_release:
+                    app.dialog_export_graphic()
             Button:
                 size_hint: None, None
                 size: 40, 40
                 id: export_table
                 background_normal: "data/backgrounds/export_table.png"
+
+<ExportGraphics@BoxLayout>:
+    size: root.size
+    pos: root.pos
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        Label:
+            padding: (5, 0)
+            canvas.before:
+                Color:
+                    rgba: .35, .35, .35, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            text: sd_filechooser.path
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        Button:
+            bold: True
+            size_hint_x: None
+            width: 100
+            text: "New folder"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                app.dialog_text("New folder", "new_folder")
+
+    FileChooserL:
+        id: sd_filechooser
+        text: "master"
+        path: app._common_path() if app._common_path() else app.home_path
+        on_selection: text_input.text = self.selection
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 5
+        Label:
+            size_hint_x: None
+            width: 80
+            text: "File name:"
+        TextInput:
+            id: text_input
+            multiline: False
+        Spinner:
+            size_hint_x: None
+            width: 80
+            id: ext
+            text: ".png"
+            values: [".png", ".svg", ".pdf"]
+
+    AnchorLayout:
+        size_hint_y: None
+        height: 30
+        anchor_x: "center"
+        anchor_y: "center"
+        BoxLayout:
+            size_hint_x: None
+            width: 140
+            spacing: 20
+            Button:
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                text: "Save"
+                id: ok_bt
+                size_hint_x: None
+                width: 100
+                on_release:
+                    app.export_graphic(sd_filechooser.path, text_input.text, ext.text)
+            Button:
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
+                id: cancel_bt
+                text: "Cancel"
+                size_hint_x: None
+                width: 100
+                on_release: root.cancel()
 
 #===============================================================================
 # GENERAL INFORMATIVE POPUP
