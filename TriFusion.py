@@ -1338,6 +1338,9 @@ class TriFusionApp(App):
             labels in github, for example
             """
 
+            # Cleans any possible mouse overs
+            clear_mouse_overs()
+
             # In case the coordinates of the widget have to be adjusted to the
             # winsow
             if adjust_pos:
@@ -1396,6 +1399,18 @@ class TriFusionApp(App):
 
             for w in [point_wgt, lbl_wgt]:
                 self.root_window.add_widget(w)
+
+        def clear_mouse_overs():
+            """
+            Clears fancy mouseovers, if any, from an id list
+            """
+
+            id_list = ["Export as graphics", "Export as table",
+                       "Add group files"]
+
+            for i in [x for x in self.root_window.children
+                      if x.id in id_list]:
+                self.root_window.remove_widget(i)
 
         # Only do this routine when the filechooser screen is on
         if self.screen.name == "fc" and self.mouse_over_ready and \
@@ -1518,43 +1533,37 @@ class TriFusionApp(App):
 
             # Check for collision with export figure or export table buttons
             if determine_collision(toolbar_wgt.ids.export_fig):
+                collision = True
                 if "Export as graphics" not in [x.id for x in
                                                 self.root_window.children]:
+                    # Create fancy label
                     create_fancy_label("Export as graphics",
                                        toolbar_wgt.ids.export_fig)
 
-            else:
-                for i in [x for x in self.root_window.children if
-                          x.id == "Export as graphics"]:
-                    self.root_window.remove_widget(i)
-
-            if determine_collision(toolbar_wgt.ids.export_table):
+            elif determine_collision(toolbar_wgt.ids.export_table):
+                collision = True
                 if "Export as table" not in [x.id for x in
                                              self.root_window.children]:
+                    # Create fancy label
                     create_fancy_label("Export as table",
                                        toolbar_wgt.ids.export_table)
-            else:
-                for i in [x for x in self.root_window.children if
-                          x.id == "Export as table"]:
-                    self.root_window.remove_widget(i)
 
         # Only do this in Orthology screen
         if self.screen.name == "Orthology":
 
             # Determine collision with add groups button
             if determine_collision(self.screen.ids.add_group):
+                collision = True
                 if "Add group files" not in [x.id for x in
                                              self.root_window.children]:
+                    # Create fancy label
                     create_fancy_label("Add group files",
                                        self.screen.ids.add_group,
                                        adjust_pos=True)
-            else:
-                for i in [x for x in self.root_window.children if
-                          x.id == "Add group files"]:
-                    self.root_window.remove_widget(i)
 
         if collision is False:
             self.previous_mouse_over = ""
+            clear_mouse_overs()
 
     def switch_path_wgt(self, wgt_id):
 
