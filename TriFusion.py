@@ -2182,6 +2182,15 @@ class TriFusionApp(App):
                                 "one sequence type (DNA, RNA, Protein). Please"
                                 " select input files of the same sequence type")
             return 0
+
+        # If duplicate alignments were loaded, issue a warning
+        if self.alignment_list.duplicate_alignments:
+            self.dialog_floatcheck("Duplicate input alignments detected and "
+                                   "ignored", t="error")
+            # Reset the duplicate alignment storage, so that it doesn't issue
+            # the warning everytime data is loaded
+            self.alignment_list.duplicate_alignments = []
+
         else:
             # Checking if there are invalid input alignments
             if bad_aln:
