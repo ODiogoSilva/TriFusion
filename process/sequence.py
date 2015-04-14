@@ -965,8 +965,10 @@ class AlignmentList (Base):
         self.log_progression = Progression()
 
         self.alignment_object_list = []
-        # Stores badly formatted/invalid input alignments
+        # Stores badly formatted/invalid input alignment
         self.bad_alignments = []
+        # Stores duplicate alignment paths
+        self.duplicate_alignments = []
 
         # Set partitions object
         self.partitions = Partitions()
@@ -981,8 +983,13 @@ class AlignmentList (Base):
                         alignment_list.index(alignment) + 1)
 
                 alignment_object = Alignment(alignment)
+                # Check for badly formatted alignments
                 if isinstance(alignment_object.alignment, Exception):
                     self.bad_alignments.append(alignment_object)
+                # Check for duplicate alignments
+                if alignment_object.path in [x.path for x in
+                                             self.alignment_object_list]:
+                    self.duplicate_alignments.append(alignment_object.path)
                 else:
                     self.alignment_object_list.append(alignment_object)
                     self.set_partition(alignment_object)
@@ -1084,6 +1091,9 @@ class AlignmentList (Base):
 
         if isinstance(alignment_obj.alignment, Exception):
             self.bad_alignments.append(alignment_obj)
+        if alignment_obj.path in [x.path for x in
+                                     self.alignment_object_list]:
+            self.duplicate_alignments.append(alignment_obj.path)
         else:
             self.alignment_object_list.append(alignment_obj)
             self.set_partition(alignment_obj)
