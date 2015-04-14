@@ -62,10 +62,6 @@ def bar_plot(data_list, labels=None, lgd_list=None):
 
     fig, ax = plt.subplots()
 
-    # Set axys color
-    for sp in ax.spines:
-        ax.spines[sp].set_color(clr_list[6])
-
     # Set margin between bar groups
     margin = 0.1
 
@@ -91,12 +87,12 @@ def bar_plot(data_list, labels=None, lgd_list=None):
         ax.set_xticklabels(labels, rotation=45, ha="center", fontweight="bold")
 
     # Set label colors
-    ax.tick_params(axis="x", colors=[.8, .8, .8])
-    ax.tick_params(axis="y", colors=[.8, .8, .8])
+    ax.tick_params(axis="x", colors=[.4, .4, .4])
+    ax.tick_params(axis="y", colors=[.3, .3, .3])
 
     # Add legend
     lgd = plt.legend(bbox_to_anchor=(1, .5), loc="center left",
-                     fancybox=True, shadow=True)
+                     fancybox=True, shadow=True, framealpha=0.8)
 
     # Add text to the top of bar with the corresponding value
     for b in bplt:
