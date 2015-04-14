@@ -2403,7 +2403,13 @@ class TriFusionApp(App):
 
     def sidepanel_create_bts(self, idx):
 
-        bt = SidepanelToggle(text=idx, id=idx)
+        bt = ToggleButton(text=idx, id=idx, state="down", height=30,
+                          size_hint=(.8, None), shorten=True,
+                          shorten_from="right", halign="center", bold=True,
+                          background_normal=join("data", "backgrounds",
+                                                 "bt_process_off.png"),
+                          background_down=join("data", "backgrounds",
+                                               "bt_process.png"))
 
         # Setting horizontal text size for shortening
         bt.text_size[0] = bt.size[0] * 1.3
