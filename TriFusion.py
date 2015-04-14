@@ -349,6 +349,10 @@ class ModelSpinner(Spinner):
             pass
 
 
+class ExportGraphics(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class PlotToolbar(BoxLayout):
     pass
 
@@ -732,6 +736,10 @@ class TriFusionApp(App):
     # queue
     operation_tv = ObjectProperty(None)
     main_nodes = DictProperty()
+
+    # Attributes containing plot related elements
+    current_plot = ObjectProperty(None)
+    current_lgd = ObjectProperty(None)
 
     # Attributes for storing taxa and file buttons for side panel. These will
     # be used when search for files/taxa and for loading only button subsets
@@ -1341,7 +1349,8 @@ class TriFusionApp(App):
             # orientation
             if wgt.pos[0] + lbl_wgt.width < self.root.width:
                 # Determine position of arrow widget
-                point_pos = wgt.pos[0] + wgt.width, wgt.pos[1] + wgt.height / 2 - 6
+                point_pos = wgt.pos[0] + wgt.width, wgt.pos[1] + wgt.height / \
+                            2 - 6
 
                 # Determine label position
                 lbl_wgt.pos = point_pos[0] + 7,\
@@ -1349,8 +1358,8 @@ class TriFusionApp(App):
 
                 # Create arrow widget with left arrow
                 point_wgt = Button(background_normal=join("data",
-                                                          "backgrounds",
-                                                          "box_arrow_right.png"),
+                                                        "backgrounds",
+                                                        "box_arrow_right.png"),
                                    pos=point_pos, size=(7, 12), id=text,
                                    size_hint=(None, None),
                                    border=(0, 0, 0, 0))
@@ -1818,6 +1827,34 @@ class TriFusionApp(App):
         del self.bookmarks[1][bk_name]
         # Update self.bm_file
         pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
+
+    ######################## PLOT SCREEN OPERATIONS ############################
+
+    def dialog_export_graphic(self):
+        """
+        Creates a filechooser dialog for graphics exportation. It differs from
+        other filechooser dialogs in the presence of a spinner to select
+        the graphical extension
+        :return:
+        """
+
+        content = ExportGraphics(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Export graphic as...", content=content,
+                        size_hint=(.9, .9))
+
+    def export_graphic(self, path, file_name, ext):
+        """
+        Saves the current plot object into a file based on file name and
+        extension
+        :param path: string, path to final directory
+        :param file_name: string, name of graphic file
+        :param ext: string, extension of graphic file (e.g. png, svg, pdf, etc)
+        """
+
+        self.current_plot.savefig(join(path, file_name + ext),
+                                  bbox_extra_artists=(self.current_lgd,),
+                                  bbox_inches="tight")
 
     ######################## SIDE PANEL OPERATIONS #############################
 
@@ -3668,7 +3705,8 @@ class TriFusionApp(App):
 
         if stats:
             # Create first comparison plot of total orthologs
-            active_groups.bar_orthologs(dest=self.temp_dir.name, stats=stats)
+            self.current_plot, self.current_lgd = active_groups.bar_orthologs(
+                dest=self.temp_dir.name, stats=stats)
 
             # Load plot
             self.orto_compare_loadplot(join(self.temp_dir.name,
