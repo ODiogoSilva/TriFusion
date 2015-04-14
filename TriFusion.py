@@ -1486,7 +1486,8 @@ class TriFusionApp(App):
                     self.root_window.remove_widget(self.old_mouse_over)
 
         # Only do this when plot screen is on
-        if self.screen.name in self.plot_screens:
+        if self.screen.name in self.plot_screens and self._popup not in \
+                self.root_window.children:
             # Get PlotToolbar object
             toolbar_wgt = [x for x in self.root_window.children
                            if isinstance(x, PlotToolbar)][0]
