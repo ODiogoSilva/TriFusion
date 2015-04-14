@@ -28,15 +28,18 @@ ShowcaseScreen:
                 text: "Search"
                 state: "down"
                 disabled: True
+                id: search
                 on_release:
                     orto_car.load_slide(orto_car.slides[0])
             MainSideBt:
                 id: explore_bt
                 text: "Explore"
+                id: explore
                 on_release:
                     orto_car.load_slide(orto_car.slides[1])
             MainSideBt:
                 text: "Complement"
+                id: complement
                 on_release:
                     orto_car.load_slide(orto_car.slides[2])
             BoxLayout:
