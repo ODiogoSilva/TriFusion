@@ -22,8 +22,14 @@
 #  Version:
 #  Last update:
 
+import matplotlib
+# Using the agg backend prevent a segmentation fault when quiting the
+# application
+matplotlib.use("agg")
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 """
 Set of 10 easily distinguishable colors that will be used when generating plots
