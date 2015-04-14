@@ -189,6 +189,8 @@
                 size: 40, 40
                 id: export_table
                 background_normal: "data/backgrounds/export_table.png"
+                on_release:
+                    app.dialog_filechooser("export_table")
 
 <ExportGraphics@BoxLayout>:
     size: root.size
@@ -1961,6 +1963,8 @@
                     app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
                     if self.text_io != "" and sd_filechooser.text == "export": \
                     app.export_names(sd_filechooser.path, file_name = text_input.text)
+                    if self.text_io != "" and sd_filechooser.text == "export_table": \
+                    app.export_table(sd_filechooser.path, text_input.text)
                     # For save dialogs that do not require file names
                     if sd_filechooser.text == "main_output" and txt_box.height == 0: \
                     app.save_file(sd_filechooser.path, idx = sd_filechooser.text)

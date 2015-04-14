@@ -740,6 +740,7 @@ class TriFusionApp(App):
     # Attributes containing plot related elements
     current_plot = ObjectProperty(None)
     current_lgd = ObjectProperty(None)
+    current_table = ObjectProperty(None)
 
     # Attributes for storing taxa and file buttons for side panel. These will
     # be used when search for files/taxa and for loading only button subsets
@@ -1841,7 +1842,7 @@ class TriFusionApp(App):
 
         content = ExportGraphics(cancel=self.dismiss_popup)
 
-        self.show_popup(title="Export graphic as...", content=content,
+        self.show_popup(title="Export as graphic...", content=content,
                         size_hint=(.9, .9))
 
     def export_graphic(self, path, file_name, ext):
@@ -1856,6 +1857,24 @@ class TriFusionApp(App):
         self.current_plot.savefig(join(path, file_name + ext),
                                   bbox_extra_artists=(self.current_lgd,),
                                   bbox_inches="tight")
+
+    def export_table(self, path, file_name):
+        """
+        Saves the current_table list attribute to a .csv file.
+        :param path: string, path to final directory
+        :param file_name: string, name of table file
+        """
+
+        # Create table file object handle
+        table_handle = open(join(path, file_name + ".csv"), "w")
+
+        # Writting table. Each entry in self.current_table should represent a
+        # line in the table
+        for l in self.current_table:
+            table_handle.write(";".join([str(x) for x in l]) + "\n")
+
+        # Close file object
+        table_handle.close()
 
     ######################## SIDE PANEL OPERATIONS #############################
 
@@ -3706,8 +3725,9 @@ class TriFusionApp(App):
 
         if stats:
             # Create first comparison plot of total orthologs
-            self.current_plot, self.current_lgd = active_groups.bar_orthologs(
-                dest=self.temp_dir.name, stats=stats)
+            self.current_plot, self.current_lgd, self.current_table = \
+                active_groups.bar_orthologs(dest=self.temp_dir.name,
+                                            stats=stats)
 
             # Load plot
             self.orto_compare_loadplot(join(self.temp_dir.name,
@@ -4361,6 +4381,9 @@ class TriFusionApp(App):
             content.ids.txt_box.clear_widgets()
             content.ids.txt_box.height = 0
             title = "Choose destination directory for OrthoMCL output files"
+
+        if idx == "export_table":
+            title = "Export as table..."
 
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
