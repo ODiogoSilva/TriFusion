@@ -552,7 +552,8 @@ class MultiGroups ():
         b_plt.savefig(os.path.join(dest, output_file_name),
                       bbox_extra_artists=(lgd,), bbox_inches="tight",
                       transparent=True)
-        b_plt.close()
+
+        return b_plt, lgd
 
     def group_overlap(self):
         """
