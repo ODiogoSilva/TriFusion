@@ -1804,7 +1804,11 @@ class TriFusionApp(App):
         """
 
         path = value.id
-        self.screen.ids.icon_view_tab.path = path
+        if os.path.exists(path):
+            self.screen.ids.icon_view_tab.path = path
+        else:
+            self.dialog_floatcheck("The path to the selected bookmark no longer"
+                                   " exists.", t="error")
 
     def remove_bookmark_bt(self, value):
         """
