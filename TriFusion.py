@@ -70,8 +70,6 @@ from functools import partial
 import pickle
 import multiprocessing
 import time
-import tempfile
-import shutil
 import re
 
 Config.set("kivy", "log_level", "warning")
@@ -673,7 +671,7 @@ class TriFusionApp(App):
     index = NumericProperty(-1)
 
     # Create temporary directory for transient files
-    temp_dir = tempfile.TemporaryDirectory()
+    temp_dir = StringProperty()
 
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
@@ -880,6 +878,12 @@ class TriFusionApp(App):
         # Setting main window title
         self.title = "TriFusion - Streamline phylogenomics"
 
+        # Create temporary directory for transient files if it doesn't exist
+        if not os.path.exists(join(self.user_data_dir, "tmp")):
+            os.makedirs(join(self.user_data_dir, "tmp"))
+
+        self.temp_dir = join(self.user_data_dir, "tmp")
+
         # Setting available screens
         self.available_screens = ["main", "Orthology", "Process",
                                   "Statistics", "fc", "group_compare"]
@@ -1002,7 +1006,8 @@ class TriFusionApp(App):
         necessary clean up operations
         """
 
-        shutil.rmtree(self.temp_dir.name)
+        for i in os.listdir(self.temp_dir):
+            os.remove(join(self.temp_dir, i))
 
     def _on_keyboard_events(self, *vals):
         """
@@ -3730,11 +3735,11 @@ class TriFusionApp(App):
         if stats:
             # Create first comparison plot of total orthologs
             self.current_plot, self.current_lgd, self.current_table = \
-                active_groups.bar_orthologs(dest=self.temp_dir.name,
+                active_groups.bar_orthologs(dest=self.temp_dir,
                                             stats=stats)
 
             # Load plot
-            self.orto_compare_loadplot(join(self.temp_dir.name,
+            self.orto_compare_loadplot(join(self.temp_dir,
                                             "Final_orthologs.png"))
 
         else:
