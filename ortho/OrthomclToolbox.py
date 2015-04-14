@@ -550,8 +550,7 @@ class MultiGroups ():
         # Create plot
         b_plt, lgd = bar_plot(vals, x_labels, lgd_list=lgd_list)
         b_plt.savefig(os.path.join(dest, output_file_name),
-                      bbox_extra_artists=(lgd,), bbox_inches="tight",
-                      transparent=True)
+                      bbox_extra_artists=(lgd,), bbox_inches="tight")
 
         # Create table list object
         table_list = []
