@@ -540,7 +540,7 @@ class MultiGroups ():
                 vals[3].append(len(g_obj.filtered_groups))
 
         # Filter valid data sets
-        lgd = [x for x in lgd if vals[lgd.index(x)]]
+        lgd_list = [x for x in lgd if vals[lgd.index(x)]]
         vals = [l for l in vals if l]
 
         # Sort values and labels
@@ -548,12 +548,20 @@ class MultiGroups ():
         #                                                key=itemgetter(1)))]
 
         # Create plot
-        b_plt, lgd = bar_plot(vals, x_labels, lgd_list=lgd)
+        b_plt, lgd = bar_plot(vals, x_labels, lgd_list=lgd_list)
         b_plt.savefig(os.path.join(dest, output_file_name),
                       bbox_extra_artists=(lgd,), bbox_inches="tight",
                       transparent=True)
 
-        return b_plt, lgd
+        # Create table list object
+        table_list = []
+        # Create header
+        table_list.append([""] + x_labels)
+        # Create content
+        for i in range(len(vals)):
+            table_list += [x for x in [[lgd_list[i]] + vals[i]]]
+
+        return b_plt, lgd, table_list
 
     def group_overlap(self):
         """
