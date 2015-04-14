@@ -414,6 +414,10 @@ class InflationDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class SidepanelToggle(ToggleButton):
+    pass
+
+
 class LoadMultipleDialog(BoxLayout):
     """
     A Filechooser widget in Icon view that allows multpiple file choosing
@@ -450,6 +454,14 @@ class InfoPopup(BoxLayout):
     "?" button
     """
     cancel = ObjectProperty(None)
+
+
+class FancyButton(Button):
+    pass
+
+
+class FancyMarker(Button):
+    pass
 
 
 class MouseOverLabel(Button):
@@ -775,6 +787,7 @@ class TriFusionApp(App):
     mouse_over_ready = BooleanProperty(True)
     # Stores the previous mouse over label button so that it can be removed
     old_mouse_over = None
+    fancy_bt = ObjectProperty(FancyButton())
 
     ################################
     #
@@ -1327,12 +1340,15 @@ class TriFusionApp(App):
             :param text: string. Text for the label
             """
 
+            clear_mouse_overs()
             side_bt = SideLabel(text=text, pos=p, size_hint=(None, None),
                              size=s, bold=True, border=(0, 0, 0, 0))
 
             return side_bt
 
-        def create_fancy_label(text, wgt, lbl_height=30, adjust_pos=False):
+        def create_fancy_label(text, wgt, lbl_height=30, adjust_pos=False,
+                               c=(0.216, 0.67, 0.784, 1), wgt_pos=None,
+                               wgt_size=None):
             """
             Creates a fancy label. This is akin to the mouse over
             labels in github, for example
@@ -1341,75 +1357,80 @@ class TriFusionApp(App):
             # Cleans any possible mouse overs
             clear_mouse_overs()
 
-            # In case the coordinates of the widget have to be adjusted to the
-            # winsow
-            if adjust_pos:
-                wgt_pos = wgt.to_window(wgt.pos[0], wgt.pos[1])
+            # Determines which coordinates to use
+            if wgt_pos:
+                wgt_pos = wgt_pos
             else:
-                wgt_pos = wgt.pos
+                if adjust_pos:
+                    wgt_pos = wgt.to_window(wgt.pos[0], wgt.pos[1])
+                else:
+                    wgt_pos = wgt.pos
+
+            # Determines size attribute
+            if wgt_size:
+                wgt_size = wgt_size
+            else:
+                wgt_size = wgt.size
 
             # Create label
-            lbl_wgt = Button(text=text, size_hint=(None, None), height=30,
-                             background_disabled_normal=join("data",
-                                "backgrounds", "fancy_mo_background.png"),
-                             disabled=True, disabled_color=(1, 1, 1, 1),
-                             bold=True, id=text)
+            self.fancy_bt = FancyButton(text=text, height=lbl_height, id=text,
+                                  background_color=c)
             # Update label texture size, so that we can evaluate the available
             # space for the label
-            lbl_wgt.texture_update()
+            self.fancy_bt.texture_update()
 
             # Determine label size. Add horizontal margin space (10)
-            lbl_wgt.size = (lbl_wgt.texture_size[0] + 10, lbl_height)
+            self.fancy_bt.size = (self.fancy_bt.texture_size[0] + 10,
+                                  lbl_height)
 
             # Determine if the label has space to the right. If not, flip the
             # orientation
-            if wgt_pos[0] + lbl_wgt.width < self.root.width:
+            if wgt_pos[0] + self.fancy_bt.width < self.root.width:
                 # Determine position of arrow widget
-                point_pos = wgt_pos[0] + wgt.width, wgt_pos[1] + wgt.height / \
-                            2 - 6
+                point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + wgt_size[1]\
+                            / 2 - 6
 
                 # Determine label position
-                lbl_wgt.pos = point_pos[0] + 7,\
-                          wgt_pos[1] + wgt.height / 2 - lbl_wgt.height / 2
+                self.fancy_bt.pos = point_pos[0] + 7,\
+                          wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
 
                 # Create arrow widget with left arrow
-                point_wgt = Button(background_normal=join("data",
+                point_wgt = FancyMarker(background_normal=join("data",
                                                         "backgrounds",
                                                         "box_arrow_right.png"),
-                                   pos=point_pos, size=(7, 12), id=text,
-                                   size_hint=(None, None),
-                                   border=(0, 0, 0, 0))
+                                        pos=point_pos, size=(7, 12), id=text,
+                                        background_color=c)
 
             else:
 
                 # Determine position of arrow widget
-                point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt.height / 2 - 6
+                point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt_size[1] / 2 - 6
 
                 # Determine label position
-                lbl_wgt.pos = point_pos[0] - lbl_wgt.width,\
-                          wgt_pos[1] + wgt.height / 2 - lbl_wgt.height / 2
+                self.fancy_bt.pos = point_pos[0] - self.fancy_bt.width,\
+                          wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
 
                 # Create arrow widget with left arrow
-                point_wgt = Button(background_normal=join("data",
+                point_wgt = FancyMarker(background_normal=join("data",
                                                           "backgrounds",
                                                           "box_arrow_left.png"),
                                    pos=point_pos, size=(7, 12), id=text,
-                                   size_hint=(None, None),
-                                   border=(0, 0, 0, 0))
+                                   background_color=c)
 
-            for w in [point_wgt, lbl_wgt]:
+            for w in [point_wgt, self.fancy_bt]:
                 self.root_window.add_widget(w)
+
+            # Unlocking mouse over
+            self.mouse_over_ready = True
 
         def clear_mouse_overs():
             """
             Clears fancy mouseovers, if any, from an id list
             """
 
-            id_list = ["Export as graphics", "Export as table",
-                       "Add group files"]
-
             for i in [x for x in self.root_window.children
-                      if x.id in id_list]:
+                      if isinstance(x, FancyButton) or
+                         isinstance(x, FancyMarker)]:
                 self.root_window.remove_widget(i)
 
         # Only do this routine when the filechooser screen is on
@@ -1479,34 +1500,41 @@ class TriFusionApp(App):
                                 self.root_window.remove_widget(
                                     self.old_mouse_over)
 
-                            if bt in sidebt_list:
-                                pos = (bt.center_x + bt.width * .5,
-                                       bt.center_y - bt.height * .5)
-                                size = (200, bt.height)
-                                label = create_sidebt_wgt(bt.att, pos, size)
-                                show_label(mp, label)
+                        if bt in sidebt_list:
+                            pos = (bt.center_x + bt.width * .5,
+                                   bt.center_y - bt.height * .5)
+                            size = (200, bt.height)
+                            label = create_sidebt_wgt(bt.att, pos, size)
+                            show_label(mp, label)
 
-                            elif bt in self.mouse_over_bts[active_tab]:
-                                # Create label widget
-                                label = create_label(text=bt.text)
+                        elif bt in self.mouse_over_bts[active_tab]:
 
-                                # Schedule the introduction of the label widget
-                                Clock.schedule_once(lambda x: show_label(mp,
-                                                        label), .8)
-                                # Locking mouse over so that no additional label
-                                # widgets are added during the waiting time
-                                self.mouse_over_ready = False
+                            txt = bt.text
+                            pos = bt.to_window(bt.pos[0], bt.pos[1])
+                            size = bt.size
+                            if [txt] != [x.text for x in
+                                         self.root_window.children if
+                                         isinstance(x, FancyButton)]:
+                                clear_mouse_overs()
+
+                            # Schedule the introduction of the label widget
+                            Clock.schedule_once(lambda x:
+                                create_fancy_label(txt, bt, wgt_pos=pos,
+                                                   wgt_size=size,
+                                                   c=(.3, .3, .3, .95)), 1,)
+
+                            # Locking mouse over so that no additional label
+                            # widgets are added during the waiting time
+                            self.mouse_over_ready = False
 
                     elif bt in rm_bt:
                         if "Removes all files and taxa" \
                                 not in self.previous_mouse_over:
 
-                            label = create_label("Removes all files and taxa")
-                            Clock.schedule_once(lambda x: show_label(mp, label),
-                                                .3)
-                            # Locking mouse over so that no additional label
-                            # widgets are added during the waiting time
-                            self.mouse_over_ready = False
+                            if not bt.disabled:
+                                create_fancy_label("Removes all files and taxa",
+                                                   bt, adjust_pos=True,
+                                                   c=(1, .33, .33, 1))
 
             else:
                 # If no collision is detected, remove any remaining label widget
@@ -1561,7 +1589,7 @@ class TriFusionApp(App):
                                        self.screen.ids.add_group,
                                        adjust_pos=True)
 
-        if collision is False:
+        if collision is False and self.mouse_over_ready:
             self.previous_mouse_over = ""
             clear_mouse_overs()
 
@@ -2375,14 +2403,7 @@ class TriFusionApp(App):
 
     def sidepanel_create_bts(self, idx):
 
-        bt = ToggleButton(text=idx, state="down", id=idx,
-                          height=30, size_hint=(.8, None), shorten=True,
-                          shorten_from="right", halign="center",
-                          bold=True,
-                          background_down=join("data", "backgrounds",
-                                                 "bt_process.png"),
-                          background_normal=join("data", "backgrounds",
-                                                 "bt_process_off.png"))
+        bt = SidepanelToggle(text=idx, id=idx)
 
         # Setting horizontal text size for shortening
         bt.text_size[0] = bt.size[0] * 1.3
