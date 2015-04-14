@@ -266,7 +266,11 @@
                 size_hint_x: None
                 width: 100
                 on_release:
+                    if text_input.text == "": \
+                    app.dialog_floatcheck("Please specify a file name", t="error")
+                    else: \
                     app.export_graphic(sd_filechooser.path, text_input.text, ext.text)
+                    root.cancel()
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
                 background_down: "data/backgrounds/bt_process.png"
