@@ -170,7 +170,6 @@
                 background_normal: "data/backgrounds/zoom_out.png"
                 on_release:
                     app.screen.ids.plot_content.scale -= .1 if app.screen.ids.plot_content.scale > 0.5 else 0
-                    print(app.screen.ids.plot_content.scale)
             Button:
                 size_hint: None, None
                 size: 40, 40
@@ -180,15 +179,13 @@
             Button:
                 size_hint: None, None
                 size: 40, 40
+                id: export_fig
                 background_normal: "data/backgrounds/export_fig.png"
-                on_release:
-                    app.screen.ids.plot_content.scale = 1
             Button:
                 size_hint: None, None
                 size: 40, 40
+                id: export_table
                 background_normal: "data/backgrounds/export_table.png"
-                on_release:
-                    app.screen.ids.plot_content.scale = 1
 
 #===============================================================================
 # GENERAL INFORMATIVE POPUP
