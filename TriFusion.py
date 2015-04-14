@@ -1318,6 +1318,62 @@ class TriFusionApp(App):
 
             return side_bt
 
+        def create_fancy_label(text, wgt, lbl_height=30):
+            """
+            Creates a fancy label. This is akin to the mouse over
+            labels in github, for example
+            """
+
+            # Create label
+            lbl_wgt = Button(text=text, size_hint=(None, None), height=30,
+                             background_disabled_normal=join("data",
+                                "backgrounds", "fancy_mo_background.png"),
+                             disabled=True, disabled_color=(1, 1, 1, 1),
+                             bold=True, id=text)
+            # Update label texture size, so that we can evaluate the available
+            # space for the label
+            lbl_wgt.texture_update()
+
+            # Determine label size. Add horizontal margin space (10)
+            lbl_wgt.size = (lbl_wgt.texture_size[0] + 10, lbl_height)
+
+            # Determine if the label has space to the right. If not, flip the
+            # orientation
+            if wgt.pos[0] + lbl_wgt.width < self.root.width:
+                # Determine position of arrow widget
+                point_pos = wgt.pos[0] + wgt.width, wgt.pos[1] + wgt.height / 2 - 6
+
+                # Determine label position
+                lbl_wgt.pos = point_pos[0] + 7,\
+                          wgt.pos[1] + wgt.height / 2 - lbl_wgt.height / 2
+
+                # Create arrow widget with left arrow
+                point_wgt = Button(background_normal=join("data",
+                                                          "backgrounds",
+                                                          "box_arrow_right.png"),
+                                   pos=point_pos, size=(7, 12), id=text,
+                                   size_hint=(None, None),
+                                   border=(0, 0, 0, 0))
+
+            else:
+
+                # Determine position of arrow widget
+                point_pos = wgt.pos[0] - 10, wgt.pos[1] + wgt.height / 2 - 6
+
+                # Determine label position
+                lbl_wgt.pos = point_pos[0] - lbl_wgt.width,\
+                          wgt.pos[1] + wgt.height / 2 - lbl_wgt.height / 2
+
+                # Create arrow widget with left arrow
+                point_wgt = Button(background_normal=join("data",
+                                                          "backgrounds",
+                                                          "box_arrow_left.png"),
+                                   pos=point_pos, size=(7, 12), id=text,
+                                   size_hint=(None, None),
+                                   border=(0, 0, 0, 0))
+
+            return point_wgt, lbl_wgt
+
         # Only do this routine when the filechooser screen is on
         if self.screen.name == "fc" and self.mouse_over_ready and \
                 self.show_side_panel is False:
@@ -1420,18 +1476,48 @@ class TriFusionApp(App):
                    self.old_mouse_over in self.root_window.children:
                     self.root_window.remove_widget(self.old_mouse_over)
 
-        if collision is False:
-            self.previous_mouse_over = ""
-
         # Only do this when plot screen is on
         if self.screen.name in self.plot_screens:
             # Get PlotToolbar object
             toolbar_wgt = [x for x in self.root_window.children
                            if isinstance(x, PlotToolbar)][0]
+
+            # Change toolbar opacity to become visible when collision is true
             if determine_collision(toolbar_wgt):
-                Animation(opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
+                if toolbar_wgt.opacity != 1:
+                    Animation(opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
+
             else:
-                Animation(opacity=.2, d=.3, t="out_quart").start(toolbar_wgt)
+                if toolbar_wgt.opacity == 1:
+                    Animation(opacity=.2, d=.3, t="out_quart").start(
+                        toolbar_wgt)
+
+            # Check for collision with export figure or export table buttons
+            if determine_collision(toolbar_wgt.ids.export_fig):
+                if "mo1" not in [x.id for x in self.root_window.children]:
+                    wgt, wgt2 = create_fancy_label("Export as graphics",
+                                    toolbar_wgt.ids.export_fig, (100, 30))
+                    self.root_window.add_widget(wgt)
+                    self.root_window.add_widget(wgt2)
+
+            else:
+                for i in [x for x in self.root_window.children if
+                          x.id == "Export as graphics"]:
+                    self.root_window.remove_widget(i)
+
+            if determine_collision(toolbar_wgt.ids.export_table):
+                if "mo1" not in [x.id for x in self.root_window.children]:
+                    wgt, wgt2 = create_fancy_label("Export as table",
+                                    toolbar_wgt.ids.export_table, (100, 30))
+                    self.root_window.add_widget(wgt)
+                    self.root_window.add_widget(wgt2)
+            else:
+                for i in [x for x in self.root_window.children if
+                          x.id == "Export as table"]:
+                    self.root_window.remove_widget(i)
+
+        if collision is False:
+            self.previous_mouse_over = ""
 
     def switch_path_wgt(self, wgt_id):
 
