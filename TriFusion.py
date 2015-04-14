@@ -1332,11 +1332,18 @@ class TriFusionApp(App):
 
             return side_bt
 
-        def create_fancy_label(text, wgt, lbl_height=30):
+        def create_fancy_label(text, wgt, lbl_height=30, adjust_pos=False):
             """
             Creates a fancy label. This is akin to the mouse over
             labels in github, for example
             """
+
+            # In case the coordinates of the widget have to be adjusted to the
+            # winsow
+            if adjust_pos:
+                wgt_pos = wgt.to_window(wgt.pos[0], wgt.pos[1])
+            else:
+                wgt_pos = wgt.pos
 
             # Create label
             lbl_wgt = Button(text=text, size_hint=(None, None), height=30,
@@ -1353,14 +1360,14 @@ class TriFusionApp(App):
 
             # Determine if the label has space to the right. If not, flip the
             # orientation
-            if wgt.pos[0] + lbl_wgt.width < self.root.width:
+            if wgt_pos[0] + lbl_wgt.width < self.root.width:
                 # Determine position of arrow widget
-                point_pos = wgt.pos[0] + wgt.width, wgt.pos[1] + wgt.height / \
+                point_pos = wgt_pos[0] + wgt.width, wgt_pos[1] + wgt.height / \
                             2 - 6
 
                 # Determine label position
                 lbl_wgt.pos = point_pos[0] + 7,\
-                          wgt.pos[1] + wgt.height / 2 - lbl_wgt.height / 2
+                          wgt_pos[1] + wgt.height / 2 - lbl_wgt.height / 2
 
                 # Create arrow widget with left arrow
                 point_wgt = Button(background_normal=join("data",
@@ -1373,11 +1380,11 @@ class TriFusionApp(App):
             else:
 
                 # Determine position of arrow widget
-                point_pos = wgt.pos[0] - 10, wgt.pos[1] + wgt.height / 2 - 6
+                point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt.height / 2 - 6
 
                 # Determine label position
                 lbl_wgt.pos = point_pos[0] - lbl_wgt.width,\
-                          wgt.pos[1] + wgt.height / 2 - lbl_wgt.height / 2
+                          wgt_pos[1] + wgt.height / 2 - lbl_wgt.height / 2
 
                 # Create arrow widget with left arrow
                 point_wgt = Button(background_normal=join("data",
@@ -1387,7 +1394,8 @@ class TriFusionApp(App):
                                    size_hint=(None, None),
                                    border=(0, 0, 0, 0))
 
-            return point_wgt, lbl_wgt
+            for w in [point_wgt, lbl_wgt]:
+                self.root_window.add_widget(w)
 
         # Only do this routine when the filechooser screen is on
         if self.screen.name == "fc" and self.mouse_over_ready and \
@@ -1510,11 +1518,10 @@ class TriFusionApp(App):
 
             # Check for collision with export figure or export table buttons
             if determine_collision(toolbar_wgt.ids.export_fig):
-                if "mo1" not in [x.id for x in self.root_window.children]:
-                    wgt, wgt2 = create_fancy_label("Export as graphics",
-                                    toolbar_wgt.ids.export_fig, (100, 30))
-                    self.root_window.add_widget(wgt)
-                    self.root_window.add_widget(wgt2)
+                if "Export as graphics" not in [x.id for x in
+                                                self.root_window.children]:
+                    create_fancy_label("Export as graphics",
+                                       toolbar_wgt.ids.export_fig)
 
             else:
                 for i in [x for x in self.root_window.children if
@@ -1522,14 +1529,28 @@ class TriFusionApp(App):
                     self.root_window.remove_widget(i)
 
             if determine_collision(toolbar_wgt.ids.export_table):
-                if "mo1" not in [x.id for x in self.root_window.children]:
-                    wgt, wgt2 = create_fancy_label("Export as table",
-                                    toolbar_wgt.ids.export_table, (100, 30))
-                    self.root_window.add_widget(wgt)
-                    self.root_window.add_widget(wgt2)
+                if "Export as table" not in [x.id for x in
+                                             self.root_window.children]:
+                    create_fancy_label("Export as table",
+                                       toolbar_wgt.ids.export_table)
             else:
                 for i in [x for x in self.root_window.children if
                           x.id == "Export as table"]:
+                    self.root_window.remove_widget(i)
+
+        # Only do this in Orthology screen
+        if self.screen.name == "Orthology":
+
+            # Determine collision with add groups button
+            if determine_collision(self.screen.ids.add_group):
+                if "Add group files" not in [x.id for x in
+                                             self.root_window.children]:
+                    create_fancy_label("Add group files",
+                                       self.screen.ids.add_group,
+                                       adjust_pos=True)
+            else:
+                for i in [x for x in self.root_window.children if
+                          x.id == "Add group files"]:
                     self.root_window.remove_widget(i)
 
         if collision is False:
