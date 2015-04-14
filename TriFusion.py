@@ -1858,6 +1858,8 @@ class TriFusionApp(App):
                                   bbox_extra_artists=(self.current_lgd,),
                                   bbox_inches="tight")
 
+        self.dialog_floatcheck("Graphic successfully exported!", t="info")
+
     def export_table(self, path, file_name):
         """
         Saves the current_table list attribute to a .csv file.
@@ -1875,6 +1877,8 @@ class TriFusionApp(App):
 
         # Close file object
         table_handle.close()
+
+        self.dialog_floatcheck("Table successfully exported!", t="info")
 
     ######################## SIDE PANEL OPERATIONS #############################
 
