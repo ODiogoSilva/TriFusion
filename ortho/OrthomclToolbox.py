@@ -543,10 +543,6 @@ class MultiGroups ():
         lgd_list = [x for x in lgd if vals[lgd.index(x)]]
         vals = [l for l in vals if l]
 
-        # Sort values and labels
-        # x_labels, vals = [list(x) for x in zip(*sorted(zip(x_labels, vals),
-        #                                                key=itemgetter(1)))]
-
         # Create plot
         b_plt, lgd = bar_plot(vals, x_labels, lgd_list=lgd_list)
         b_plt.savefig(os.path.join(dest, output_file_name),
