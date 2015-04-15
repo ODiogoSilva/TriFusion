@@ -1350,8 +1350,22 @@ class TriFusionApp(App):
                                c=(0.216, 0.67, 0.784, 1), wgt_pos=None,
                                wgt_size=None):
             """
-            Creates a fancy label. This is akin to the mouse over
-            labels in github, for example
+            Creates a fancy label akin to the mouse over labels in github. This
+            method is quite versatile as it is able to calculate the available
+            space for the label and determine its orientation accordingly. It
+            also starts by removing any other potential fancy labels.
+
+            :param text: string, text that will be displayed in the label
+            :param wgt: widget that triggered the mouse over
+            :param lbl_height: int, height of the label
+            :param adjust_pos: Boolean, If True the position of wgt will
+            be adjusted to window coordenates; If False, use the origial
+            position of the wgt. This is only relevant when wgt_pos=None
+            :param c: tuple. Label color
+            :param wgt_pos: tuple/list, If not None, this will be the position
+            used to create the label. Superseeds wgt.pos
+            :param wgt_size: tuple/list, If not None this will be the size
+            of the wgt. Superseed wgt.size
             """
 
             # Cleans any possible mouse overs
@@ -1387,12 +1401,12 @@ class TriFusionApp(App):
             # orientation
             if wgt_pos[0] + self.fancy_bt.width < self.root.width:
                 # Determine position of arrow widget
-                point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + wgt_size[1]\
-                            / 2 - 6
+                point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + \
+                            wgt_size[1] / 2 - 6
 
                 # Determine label position
-                self.fancy_bt.pos = point_pos[0] + 7,\
-                          wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
+                self.fancy_bt.pos = point_pos[0] + 7, wgt_pos[1] + wgt_size[1]\
+                                    / 2 - self.fancy_bt.height / 2
 
                 # Create arrow widget with left arrow
                 point_wgt = FancyMarker(background_normal=join("data",
@@ -1408,7 +1422,7 @@ class TriFusionApp(App):
 
                 # Determine label position
                 self.fancy_bt.pos = point_pos[0] - self.fancy_bt.width,\
-                          wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
+                        wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
 
                 # Create arrow widget with left arrow
                 point_wgt = FancyMarker(background_normal=join("data",
@@ -1425,7 +1439,7 @@ class TriFusionApp(App):
 
         def clear_mouse_overs():
             """
-            Clears fancy mouseovers, if any, from an id list
+            Clears fancy mouseovers, if any
             """
 
             for i in [x for x in self.root_window.children
@@ -1509,9 +1523,14 @@ class TriFusionApp(App):
 
                         elif bt in self.mouse_over_bts[active_tab]:
 
+                            # Saving relevant attributes, otherwise they would
+                            # be lost
                             txt = bt.text
                             pos = bt.to_window(bt.pos[0], bt.pos[1])
                             size = bt.size
+
+                            # If the current collision is different from the
+                            # existing fancy lavel, remove it
                             if [txt] != [x.text for x in
                                          self.root_window.children if
                                          isinstance(x, FancyButton)]:
