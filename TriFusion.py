@@ -1350,7 +1350,7 @@ class TriFusionApp(App):
 
         def create_fancy_label(text, wgt, lbl_height=30, adjust_pos=False,
                                c=(0.216, 0.67, 0.784, 1), wgt_pos=None,
-                               wgt_size=None):
+                               wgt_size=None, orientation="horizontal"):
             """
             Creates a fancy label akin to the mouse over labels in github. This
             method is quite versatile as it is able to calculate the available
@@ -1368,6 +1368,8 @@ class TriFusionApp(App):
             used to create the label. Superseeds wgt.pos
             :param wgt_size: tuple/list, If not None this will be the size
             of the wgt. Superseed wgt.size
+            :param orientation: string, whether the label will be display in
+            the same horizontal or vertical plane of the widget
             """
 
             # Cleans any possible mouse overs
@@ -1399,39 +1401,61 @@ class TriFusionApp(App):
             self.fancy_bt.size = (self.fancy_bt.texture_size[0] + 10,
                                   lbl_height)
 
-            # Determine if the label has space to the right. If not, flip the
-            # orientation
-            if wgt_pos[0] + self.fancy_bt.width < self.root.width:
-                # Determine position of arrow widget
-                point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + \
-                            wgt_size[1] / 2 - 6
+            if orientation == "horizontal":
+                # Determine if the label has space to the right. If not, flip
+                # the orientation
+                if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.width < \
+                        self.root.width:
+                    # Determine position of arrow widget
+                    point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + \
+                                wgt_size[1] / 2 - 6
 
-                # Determine label position
-                self.fancy_bt.pos = point_pos[0] + 7, wgt_pos[1] + wgt_size[1]\
-                                    / 2 - self.fancy_bt.height / 2
+                    # Determine label position
+                    self.fancy_bt.pos = point_pos[0] + 7, wgt_pos[1] + \
+                                        wgt_size[1] / 2 - self.fancy_bt.height\
+                                        / 2
 
-                # Create arrow widget with left arrow
-                point_wgt = FancyMarker(background_normal=join("data",
+                    # Create arrow widget with left arrow
+                    point_wgt = FancyMarker(background_normal=join("data",
                                                         "backgrounds",
                                                         "box_arrow_right.png"),
-                                        pos=point_pos, size=(7, 12), id=text,
-                                        background_color=c)
+                                            pos=point_pos, size=(7, 12),
+                                            id=text, background_color=c)
 
+                else:
+
+                    # Determine position of arrow widget
+                    point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt_size[1] / \
+                                2 - 6
+
+                    # Determine label position
+                    self.fancy_bt.pos = point_pos[0] - self.fancy_bt.width,\
+                            wgt_pos[1] + wgt_size[1] / 2 - \
+                            self.fancy_bt.height / 2
+
+                    # Create arrow widget with left arrow
+                    point_wgt = FancyMarker(background_normal=join("data",
+                                                      "backgrounds",
+                                                       "box_arrow_left.png"),
+                                       pos=point_pos, size=(7, 12), id=text,
+                                       background_color=c)
+            # For vertical orientation
             else:
+                # For now, show always on top
+                # Determine position of arrow
+                point_pos = [wgt_pos[0] + (wgt_size[0] / 2),
+                            wgt_pos[1] + wgt_size[1] + 5]
 
-                # Determine position of arrow widget
-                point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt_size[1] / 2 - 6
+                # Determine position of label
+                self.fancy_bt.pos = [point_pos[0] - (self.fancy_bt.width / 2) +
+                                     6, point_pos[1] + 7]
 
-                # Determine label position
-                self.fancy_bt.pos = point_pos[0] - self.fancy_bt.width,\
-                        wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
-
-                # Create arrow widget with left arrow
+                # Create arrow widget with down arrow
                 point_wgt = FancyMarker(background_normal=join("data",
-                                                          "backgrounds",
-                                                          "box_arrow_left.png"),
-                                   pos=point_pos, size=(7, 12), id=text,
-                                   background_color=c)
+                                                      "backgrounds",
+                                                       "box_arrow_down.png"),
+                                        pos=point_pos, size=(12, 7), id=text,
+                                        background_color=c)
 
             for w in [point_wgt, self.fancy_bt]:
                 self.root_window.add_widget(w)
@@ -1599,6 +1623,8 @@ class TriFusionApp(App):
 
         # Only do this in Orthology screen
         if self.screen.name == "Orthology":
+            id_to_txt = {"sp_vis": "Species focused exploration",
+                         "gn_vis": "Ortholog focused exploration"}
 
             # Determine collision with add groups button
             if determine_collision(self.screen.ids.add_group):
@@ -1609,6 +1635,19 @@ class TriFusionApp(App):
                     create_fancy_label("Add group files",
                                        self.screen.ids.add_group,
                                        adjust_pos=True)
+
+            # Determine collision with orthology graph visualization bts
+            for bt, bt_id in zip([self.screen.ids.sp_vis,
+                                  self.screen.ids.gn_vis],
+                                 ["sp_vis", "gn_vis"]):
+                if determine_collision(bt):
+                    collision = True
+                    if id_to_txt[bt_id] not in [x.id for x in
+                                                self.root_window.children]:
+                        # Create fancy label
+                        create_fancy_label(id_to_txt[bt_id], bt,
+                                           orientation="vertical",
+                                           adjust_pos=True)
 
         if collision is False and self.mouse_over_ready:
             self.previous_mouse_over = ""
