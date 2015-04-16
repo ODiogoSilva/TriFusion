@@ -591,6 +591,17 @@
 # ORTHOLOGY RESULT DESCRIPTION
 #===============================================================================
 
+<ExploreOpsBt@ToggleButton>:
+    padding: 5,5
+    border: 0,0,0,0
+    group: "explore_bts"
+    size_hint_x: None
+    valign: "middle"
+    text_size: self.size
+    width: 100
+    on_release:
+        app.toggle_groups(self)
+
 <DescriptionBox@BoxLayout>:
     orientation: "vertical"
     size_hint_y: None
