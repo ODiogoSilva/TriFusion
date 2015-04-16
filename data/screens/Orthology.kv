@@ -220,7 +220,8 @@ ShowcaseScreen:
                                     orientation: "vertical"
                                     BoxLayout
                                         orientation: "vertical"
-                                        size_hint_y: .4
+                                        size_hint_y: None
+                                        height: 250
                                         BoxLayout:
                                             size_hint_y: None
                                             height: 40
@@ -321,36 +322,47 @@ ShowcaseScreen:
                                         Hseparator:
                                             thickness: 1.5
 
-                                    Button:
+                                    Label:
                                         size_hint_y: None
-                                        height: 85
-                                        text: "Plots"
+                                        height: 20
+                                        text: "Graphical visualization"
                                         bold: True
                                         color: (0.216, 0.67, 0.784, 1)
-                                        font_size: 34
-                                        background_normal: "data/backgrounds/plots_bt.png"
-                                        background_down: "data/backgrounds/plots_bt.png"
-                                        border: 0,0,0,0
-                                    Button:
+
+                                    BoxLayout:
                                         size_hint_y: None
-                                        height: 85
-                                        text: "Tables"
-                                        bold: True
-                                        color: (0.216, 0.67, 0.784, 1)
-                                        font_size: 34
-                                        background_normal: "data/backgrounds/tables_bt.png"
-                                        background_down: "data/backgrounds/tables_bt.png"
-                                        border: 0,0,0,0
-                                    Button:
-                                        size_hint_y: None
-                                        height: 85
-                                        text: "Export Data"
-                                        bold: True
-                                        color: (0.216, 0.67, 0.784, 1)
-                                        font_size: 30
-                                        background_normal: "data/backgrounds/exports_bt.png"
-                                        background_down: "data/backgrounds/exports_bt.png"
-                                        border: 0,0,0,0
+                                        height: 50
+                                        ExploreOpsBt:
+                                            id: sp_vis
+                                            # Gecko Icon made by Freepik from www.flaticon.com
+                                            state: "down"
+                                            halign: "right"
+                                            background_disabled_down: "data/backgrounds/orto_explore_sp.png"
+                                            background_normal: "data/backgrounds/orto_explore_sp_normal.png"
+                                            disabled: True
+                                            on_release:
+                                                explore_car.load_slide(explore_car.slides[0])
+                                        ExploreOpsBt:
+                                            id: gn_vis
+                                            #  Double Helix Icon made by Freepik from www.flaticon.com
+                                            background_disabled_down: "data/backgrounds/orto_explore_gn.png"
+                                            background_normal: "data/backgrounds/orto_explore_gn_normal.png"
+                                            halign: "left"
+                                            on_release:
+                                                explore_car.load_slide(explore_car.slides[1])
+
+                                    ScrollView:
+                                        Carousel:
+                                            id: explore_car
+                                            BoxLayout:
+                                                Label:
+                                                    text: "Species stuff"
+
+                                            BoxLayout:
+                                                Label:
+                                                    text: "Ortholog stuff"
+
+
 
                                 BoxLayout:
                                     padding: 10
