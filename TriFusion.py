@@ -4062,6 +4062,7 @@ class TriFusionApp(App):
         # Create cards
         cards = DescriptionBox(opacity=0)
 
+        # Populate card with group information
         cards.prot_txt = str(stats[1])
         cards.ortholog_txt = str(stats[0])
         cards.taxa_txt = str(len(group_obj.species_list))
@@ -4091,6 +4092,7 @@ class TriFusionApp(App):
             final_ortholog_plot.ortholog_num = str(stats[4])
             cards.ids.gauge_bx.add_widget(final_ortholog_plot)
 
+        # If no filters have been specified, show this label
         elif not group_obj.filtered_groups and not group_obj.species_threshold\
                 and not group_obj.gene_threshold:
             lb = Label(text="Please specify gene and species filters",
