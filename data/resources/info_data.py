@@ -77,3 +77,11 @@ informative_storage = {
         "the alignment.\n\nIf only the first task is desired, both filter "
         "thresholds should be set to '100'."]
 }
+
+orthology_storage = {
+    "Taxa distribution": "Distribution of the number of taxa across clusters",
+    "Missing data per cluster": "Distribution of the number of missing "
+        "orthologs per taxa",
+    "Gene copy distribution": "Distribution of gene copy numbers across "
+        "clusters"
+}
