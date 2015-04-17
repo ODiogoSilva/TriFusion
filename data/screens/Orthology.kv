@@ -1,3 +1,5 @@
+#:import orthology_storage data.resources.info_data.orthology_storage
+
 ShowcaseScreen:
     name: "Orthology"
 
@@ -330,39 +332,124 @@ ShowcaseScreen:
                                         color: (0.216, 0.67, 0.784, 1)
 
                                     BoxLayout:
-                                        size_hint_y: None
-                                        height: 50
-                                        ExploreOpsBt:
-                                            id: sp_vis
-                                            # Gecko Icon made by Freepik from www.flaticon.com
-                                            state: "down"
-                                            halign: "right"
-                                            background_disabled_down: "data/backgrounds/orto_explore_sp.png"
-                                            background_normal: "data/backgrounds/orto_explore_sp_normal.png"
-                                            disabled: True
-                                            on_release:
-                                                explore_car.load_slide(explore_car.slides[0])
-                                        ExploreOpsBt:
-                                            id: gn_vis
-                                            #  Double Helix Icon made by Freepik from www.flaticon.com
-                                            background_disabled_down: "data/backgrounds/orto_explore_gn.png"
-                                            background_normal: "data/backgrounds/orto_explore_gn_normal.png"
-                                            halign: "left"
-                                            on_release:
-                                                explore_car.load_slide(explore_car.slides[1])
+                                        orientation: "vertical"
+                                        BoxLayout:
+                                            size_hint_y: None
+                                            height: 50
+                                            ExploreOpsBt:
+                                                id: sp_vis
+                                                # Gecko Icon made by Freepik from www.flaticon.com
+                                                state: "down"
+                                                halign: "right"
+                                                background_disabled_down: "data/backgrounds/orto_explore_sp.png"
+                                                background_normal: "data/backgrounds/orto_explore_sp_normal.png"
+                                                disabled: True
+                                                on_release:
+                                                    explore_car.load_slide(explore_car.slides[0])
+                                            ExploreOpsBt:
+                                                id: gn_vis
+                                                #  Double Helix Icon made by Freepik from www.flaticon.com
+                                                background_disabled_down: "data/backgrounds/orto_explore_gn.png"
+                                                background_normal: "data/backgrounds/orto_explore_gn_normal.png"
+                                                halign: "left"
+                                                on_release:
+                                                    explore_car.load_slide(explore_car.slides[1])
 
-                                    ScrollView:
-                                        Carousel:
-                                            id: explore_car
-                                            BoxLayout:
-                                                Label:
-                                                    text: "Species stuff"
+                                        ScrollView:
+                                            canvas.before:
+                                                Color:
+                                                    rgba: (0.216, 0.67, 0.784, 1)
+                                                Line:
+                                                    width: 1.5
+                                                    cap: "round"
+                                                    joint: "round"
+                                                    rectangle: self.x,self.y,self.width,self.height
+                                            Carousel:
+                                                id: explore_car
+                                                anim_move_duration: 0
+                                                BoxLayout:
+                                                    orientation: "vertical"
+                                                    spacing: 5
+                                                    padding: (10, 0, 10, 10)
+                                                    BoxLayout:
+                                                        size_hint_y: None
+                                                        height: 65
+                                                        orientation: "vertical"
+                                                        Label:
+                                                            text: "Select analysis"
+                                                            bold: True
+                                                            font_size: 13
+                                                            halign: "left"
+                                                            valign: "middle"
+                                                            text_size: self.size
+                                                        Spinner:
+                                                            id: sp_plot
+                                                            text: "Taxa distribution"
+                                                            values: ("Taxa distribution", "Missing data per cluster")
+                                                            on_release:
+                                                                plot_description.text = orthology_storage[self.text]
+                                                    BoxLayout:
+                                                        orientation: "vertical"
+                                                        Label:
+                                                            size_hint_y: None
+                                                            height: 30
+                                                            bold: True
+                                                            text: "Description"
+                                                            font_size: 13
+                                                            halign: "left"
+                                                            valign: "middle"
+                                                            text_size: self.size
+                                                        Label:
+                                                            id: plot_description
+                                                            text: orthology_storage[sp_plot.text] if sp_plot.text else ""
+                                                            text_size: self.size
+                                                            font_size: 13
+                                                            halign: "justify"
+                                                            valign: "top"
+                                                        TFButton:
+                                                            text: "Compute that shit!"
 
-                                            BoxLayout:
-                                                Label:
-                                                    text: "Ortholog stuff"
-
-
+                                                BoxLayout:
+                                                    orientation: "vertical"
+                                                    spacing: 5
+                                                    padding: (10, 0, 10, 10)
+                                                    BoxLayout:
+                                                        size_hint_y: None
+                                                        height: 65
+                                                        orientation: "vertical"
+                                                        Label:
+                                                            text: "Select analysis"
+                                                            bold: True
+                                                            font_size: 13
+                                                            halign: "left"
+                                                            valign: "middle"
+                                                            text_size: self.size
+                                                        Spinner:
+                                                            id: gn_plot
+                                                            text: "Gene copy distribution"
+                                                            values: ("Gene copy distribution")
+                                                            on_release:
+                                                                plot_description.text = orthology_storage[self.text]
+                                                    BoxLayout:
+                                                        orientation: "vertical"
+                                                        Label:
+                                                            size_hint_y: None
+                                                            height: 30
+                                                            bold: True
+                                                            text: "Description"
+                                                            font_size: 13
+                                                            halign: "left"
+                                                            valign: "middle"
+                                                            text_size: self.size
+                                                        Label:
+                                                            id: plot_description
+                                                            text: orthology_storage[gn_plot.text] if gn_plot.text else ""
+                                                            text_size: self.size
+                                                            font_size: 13
+                                                            halign: "justify"
+                                                            valign: "top"
+                                                        TFButton:
+                                                            text: "Compute that shit!"
 
                                 BoxLayout:
                                     padding: 10
