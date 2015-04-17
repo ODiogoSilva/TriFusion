@@ -1350,7 +1350,8 @@ class TriFusionApp(App):
 
         def create_fancy_label(text, wgt, lbl_height=30, adjust_pos=False,
                                c=(0.216, 0.67, 0.784, 1), wgt_pos=None,
-                               wgt_size=None, orientation="horizontal"):
+                               wgt_size=None, orientation="horizontal",
+                               line_c=(1, 1, 1, 1)):
             """
             Creates a fancy label akin to the mouse over labels in github. This
             method is quite versatile as it is able to calculate the available
@@ -1370,6 +1371,7 @@ class TriFusionApp(App):
             of the wgt. Superseed wgt.size
             :param orientation: string, whether the label will be display in
             the same horizontal or vertical plane of the widget
+            :param line_c: tuple/list, color of the border line and arrow
             """
 
             # Cleans any possible mouse overs
@@ -1396,6 +1398,8 @@ class TriFusionApp(App):
             # Update label texture size, so that we can evaluate the available
             # space for the label
             self.fancy_bt.texture_update()
+            # Set border line color
+            self.fancy_bt.line_clr = line_c
 
             # Determine label size. Add horizontal margin space (10)
             self.fancy_bt.size = (self.fancy_bt.texture_size[0] + 10,
@@ -1419,7 +1423,8 @@ class TriFusionApp(App):
                     point_wgt = FancyMarker(background_normal=join("data",
                                                         "backgrounds",
                                                         "box_arrow_right.png"),
-                                            pos=point_pos, size=(7, 12))
+                                            pos=point_pos, size=(7, 12),
+                                            background_color=line_c)
 
                 else:
 
@@ -1436,7 +1441,8 @@ class TriFusionApp(App):
                     point_wgt = FancyMarker(background_normal=join("data",
                                                       "backgrounds",
                                                        "box_arrow_left.png"),
-                                       pos=point_pos, size=(7, 12), id=text)
+                                       pos=point_pos, size=(7, 12), id=text,
+                                       background_color=line_c)
             # For vertical orientation
             else:
                 # For now, show always on top
@@ -1452,7 +1458,8 @@ class TriFusionApp(App):
                 point_wgt = FancyMarker(background_normal=join("data",
                                                       "backgrounds",
                                                        "box_arrow_down.png"),
-                                        pos=point_pos, size=(12, 7), id=text)
+                                        pos=point_pos, size=(12, 7), id=text,
+                                        background_color=line_c)
 
             for w in [self.fancy_bt, point_wgt]:
                 self.root_window.add_widget(w)
@@ -1608,7 +1615,8 @@ class TriFusionApp(App):
                                                 self.root_window.children]:
                     # Create fancy label
                     create_fancy_label("Export as graphics",
-                                       toolbar_wgt.ids.export_fig)
+                                       toolbar_wgt.ids.export_fig,
+                                       line_c=(0.216, 0.67, 0.784, 1))
 
             elif determine_collision(toolbar_wgt.ids.export_table):
                 collision = True
@@ -1616,10 +1624,12 @@ class TriFusionApp(App):
                                              self.root_window.children]:
                     # Create fancy label
                     create_fancy_label("Export as table",
-                                       toolbar_wgt.ids.export_table)
+                                       toolbar_wgt.ids.export_table,
+                                       line_c=(0.216, 0.67, 0.784, 1))
 
         # Only do this in Orthology screen
-        if self.screen.name == "Orthology":
+        if self.screen.name == "Orthology" and self.show_side_panel is False\
+                and self._popup not in self.root_window.children:
             id_to_txt = {"sp_vis": "Species focused exploration",
                          "gn_vis": "Ortholog focused exploration"}
 

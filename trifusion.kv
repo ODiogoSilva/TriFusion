@@ -124,10 +124,11 @@
     disabled: True
     disabled_color: (1,1,1,1)
     bold: True
+    line_clr: (1,1,1,1)
     StackLayout:
         canvas.after:
             Color:
-                rgb: [1,1,1,1]
+                rgb: root.line_clr
             Line:
                 width: 0.8
                 cap: "round"
@@ -137,7 +138,6 @@
 <FancyMarker@Button>:
     size_hint: None, None
     border: 0,0,0,0
-    background_color: 1,1,1,1
 
 <MouseOverLabel@Button>:
     text_size: self.size
