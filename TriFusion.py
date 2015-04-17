@@ -1419,8 +1419,7 @@ class TriFusionApp(App):
                     point_wgt = FancyMarker(background_normal=join("data",
                                                         "backgrounds",
                                                         "box_arrow_right.png"),
-                                            pos=point_pos, size=(7, 12),
-                                            id=text, background_color=c)
+                                            pos=point_pos, size=(7, 12))
 
                 else:
 
@@ -1437,8 +1436,7 @@ class TriFusionApp(App):
                     point_wgt = FancyMarker(background_normal=join("data",
                                                       "backgrounds",
                                                        "box_arrow_left.png"),
-                                       pos=point_pos, size=(7, 12), id=text,
-                                       background_color=c)
+                                       pos=point_pos, size=(7, 12), id=text)
             # For vertical orientation
             else:
                 # For now, show always on top
@@ -1454,10 +1452,9 @@ class TriFusionApp(App):
                 point_wgt = FancyMarker(background_normal=join("data",
                                                       "backgrounds",
                                                        "box_arrow_down.png"),
-                                        pos=point_pos, size=(12, 7), id=text,
-                                        background_color=c)
+                                        pos=point_pos, size=(12, 7), id=text)
 
-            for w in [point_wgt, self.fancy_bt]:
+            for w in [self.fancy_bt, point_wgt]:
                 self.root_window.add_widget(w)
 
             # Unlocking mouse over

@@ -124,10 +124,20 @@
     disabled: True
     disabled_color: (1,1,1,1)
     bold: True
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: [1,1,1,1]
+            Line:
+                width: 0.8
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
 
 <FancyMarker@Button>:
     size_hint: None, None
     border: 0,0,0,0
+    background_color: 1,1,1,1
 
 <MouseOverLabel@Button>:
     text_size: self.size
