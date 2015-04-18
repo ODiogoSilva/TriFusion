@@ -384,6 +384,7 @@ ShowcaseScreen:
                                                             text_size: self.size
                                                         Spinner:
                                                             id: sp_plot
+                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
                                                             text: "Taxa distribution"
                                                             values: ("Taxa distribution", "Missing data per cluster")
                                                             on_release:
@@ -408,6 +409,7 @@ ShowcaseScreen:
                                                             valign: "top"
                                                         TFButton:
                                                             text: "Compute that shit!"
+                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
 
                                                 BoxLayout:
                                                     orientation: "vertical"
@@ -428,6 +430,7 @@ ShowcaseScreen:
                                                             id: gn_plot
                                                             text: "Gene copy distribution"
                                                             values: ("Gene copy distribution")
+                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
                                                             on_release:
                                                                 plot_description.text = orthology_storage[self.text]
                                                     BoxLayout:
@@ -449,6 +452,7 @@ ShowcaseScreen:
                                                             halign: "justify"
                                                             valign: "top"
                                                         TFButton:
+                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
                                                             text: "Compute that shit!"
 
                                 BoxLayout:
