@@ -629,7 +629,7 @@
 <DescriptionBox@BoxLayout>:
     orientation: "vertical"
     size_hint_y: None
-    height: 390
+    height: 430
     spacing: 10
     # Setting custom attributes
     prot_txt: ""
@@ -712,14 +712,21 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
-        Label:
+
+        BoxLayout:
             size_hint_y: None
             height: 30
-            text: "Filtered orthologs"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-            bold: True
+            Label:
+                text: "Filtered orthologs"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+            Widget
+            TFButton:
+                text: "Export as..."
+                size_hint_x: None
+                width: 100
 
         BoxLayout:
             size_hint_y: None
@@ -738,22 +745,15 @@
             anchor_y: "center"
             BoxLayout:
                 size_hint: (None, None)
-                size: 300, 30
+                size: 120, 30
                 spacing: 10
-                Button:
-                    text: "Change/Set filters"
-                    background_normal: "data/backgrounds/bt_process.png"
-                    bold: True
+                TFButton:
+                    text: "Change filters"
                     size_hint_x: None
-                    width: 150
+                    width: 120
                     on_release:
                         app.dialog_orto_setfilter(root.group_name)
-                Button:
-                    text: "Export..."
-                    background_normal: "data/backgrounds/bt_process.png"
-                    size_hint_x: None
-                    width: 140
-                    bold: True
+
         BoxLayout:
             size_hint_y: None
             height: 30
