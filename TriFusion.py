@@ -4099,6 +4099,19 @@ class TriFusionApp(App):
                        bold=True, color=(0.216, 0.67, 0.784, 1))
             cards.ids.gauge_bx.add_widget(lb)
 
+        # Add button to generate full report
+        full_rep_bt = Button(text="Generate full report", bold=True,
+                             background_normal=join("data", "backgrounds",
+                                                    "check_ok.png"),
+                             background_down=join("data", "backgrounds",
+                                                  "check_cancel.png"),
+                             width=160, size_hint_x=None)
+        # Anchor layout that will hold full report button
+        anc = AnchorLayout(size_hint_y=None, height=30, anchor_y="center",
+                           achor_x="center")
+        anc.add_widget(full_rep_bt)
+        cards.add_widget(anc)
+
         # Clear any previous content from card gridlayout holder if any
         if len(self.screen.ids.card_gl.children) == 1 and \
                 isinstance(self.screen.ids.card_gl.children[0], Label):
