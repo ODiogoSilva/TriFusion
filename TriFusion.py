@@ -4105,9 +4105,10 @@ class TriFusionApp(App):
                                                     "check_ok.png"),
                              background_down=join("data", "backgrounds",
                                                   "check_cancel.png"),
-                             width=160, size_hint_x=None)
+                             size=(180, 40), size_hint= (None, None),
+                             font_size=17)
         # Anchor layout that will hold full report button
-        anc = AnchorLayout(size_hint_y=None, height=30, anchor_y="center",
+        anc = AnchorLayout(anchor_y="center",
                            achor_x="center")
         anc.add_widget(full_rep_bt)
         cards.add_widget(anc)
