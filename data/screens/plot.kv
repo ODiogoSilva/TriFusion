@@ -1,0 +1,10 @@
+ShowcaseScreen:
+    name: "plot_screen"
+    # This is a simples plot headless screen, made to maximize the area of the app showing the plot.
+    # The plot toolbar and back button must be added to the root_window so that they will be allways on front.
+
+    ScrollView:
+        ScatterLayout:
+            do_rotation: False
+            scale_min: 0.5
+            id: plot_content
