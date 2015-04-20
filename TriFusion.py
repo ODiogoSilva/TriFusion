@@ -901,7 +901,7 @@ class TriFusionApp(App):
 
         # Setting available screens
         self.available_screens = ["main", "Orthology", "Process",
-                                  "Statistics", "fc", "group_compare"]
+                                  "Statistics", "fc", "group_compare", "plot"]
         self.screen_names = self.available_screens
 
         # Transforming screen names into complete paths to be loaded by kivy
@@ -3895,16 +3895,17 @@ class TriFusionApp(App):
                                             stats=stats)
 
             # Load plot
-            self.orto_compare_loadplot(join(self.temp_dir,
+            self.load_plot(join(self.temp_dir,
                                             "Final_orthologs.png"))
 
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
 
-    def orto_compare_loadplot(self, file_path):
+    def load_plot(self, file_path):
         """
         Loads a new plot into the ScatterLayout. This will clear all previous
-        content and load a new image based on the file_path argument
+        content and load a new image based on the file_path argument.
+        This assumes that the current screen is a plot related screen.
         :param file_path: string. Path to the image to be loaded
         :return:
         """
