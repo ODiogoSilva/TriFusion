@@ -47,6 +47,9 @@ clr_list = [[0, .53, .66],  # light blue
             [.1, .1, .1],     # dark grey
             [0, .66, 0]]      # green
 
+two_clr_list = [[0, .53, .66],
+                [.62, .80, .85]]
+
 
 def bar_plot(data_list, labels=None, title=None, ax_names=None):
     """
@@ -62,8 +65,25 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None):
 
     fig, ax = plt.subplots()
 
-    # Create bar plot
-    ax.bar(np.arange(len(data_list)), data_list, align="center")
+    # Create plot
+    for i, d in enumerate(data_list):
+        # Get color from 10 color list. If more than 10 colors are required,
+        # randomly generate new ones
+        if len(data_list) > 2:
+            try:
+                clr = clr_list[i]
+            except IndexError:
+                clr = np.random.rand(3, 1)
+        else:
+            clr = two_clr_list[i]
+
+        # Create plot for first entry
+        if d == data_list[0]:
+            ax.bar(np.arange(len(d)), d, align="center", color=clr)
+        # Add plots on top
+        else:
+            ax.bar(np.arange(len(d)), d, align="center", color=clr,
+                   bottom=data_list[i - 1])
 
     # Set axys names
     if ax_names:
