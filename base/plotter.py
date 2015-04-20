@@ -62,7 +62,8 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None,
     :param reverse_x: Boolean, determines whether the x-axis is reversed or not
     """
 
-    plt.rcParams["figure.figsize"] = (8 * len(labels) / 10, 6)
+    if len(labels) > 10:
+        plt.rcParams["figure.figsize"] = (8 * len(labels) / 10, 6)
 
     # Use ggpot style
     plt.style.use("ggplot")
