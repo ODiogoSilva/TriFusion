@@ -755,7 +755,7 @@ class TriFusionApp(App):
 
     # Attributes containing plot related elements
     current_plot = ObjectProperty(None)
-    current_lgd = ObjectProperty(None)
+    current_lgd = None
     current_table = ObjectProperty(None)
 
     # Attributes for storing taxa and file buttons for side panel. These will
@@ -3949,16 +3949,17 @@ class TriFusionApp(App):
 
         # Store the plot generation method in a dictionary where keys are the
         # text attributes of the plot spinner and the values are bound methods
-        plt_method = {"Taxa distribution": group_obj.bar_species_distribution}
+        plt_method = {"Taxa distribution": [group_obj.bar_species_distribution,
+                                            "Species_distribution.png"],
+                      "Taxa coverage": [group_obj.bar_species_coverage,
+                                        "Species_coverage.png"]}
 
         # Call corresponding method and catch plot object
-        self.current_plot, self.current_table = plt_method[plt_idx](
-            dest=self.temp_dir)
-        # Set current legend to None
-        self.current_lgd = None
+        self.current_plot, self.current_lgd, self.current_table = \
+            plt_method[plt_idx][0](dest=self.temp_dir)
 
         # Load plot
-        self.load_plot(join(self.temp_dir, "Species_distribution.png"))
+        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]))
 
     def load_plot(self, file_path):
         """
