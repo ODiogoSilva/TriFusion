@@ -436,7 +436,7 @@ ShowcaseScreen:
                                                         PlotSpinner:
                                                             id: gn_plot
                                                             text: "Gene copy distribution"
-                                                            values: ("Gene copy distribution")
+                                                            values: ("Gene copy distribution", "")
                                                             disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
                                                             option_cls: Factory.get("PlotOpt")
                                                             on_release:
@@ -462,7 +462,11 @@ ShowcaseScreen:
                                                         TFButton:
                                                             disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
                                                             text: "Compute that shit!"
-
+                                                            on_release:
+                                                                app.go_screen(6)
+                                                                app.orto_show_plot(gn_plot.text)
+                                                                app.show_plot_toolbar()
+                                                                app.show_back_bt()
                                 BoxLayout:
                                     padding: 10
                                     orientation: "vertical"
