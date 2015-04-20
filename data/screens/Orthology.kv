@@ -122,6 +122,7 @@ ShowcaseScreen:
                                     bold: True
                                     values: tuple(str(x) for x in range(1, multiprocessing.cpu_count() + 1))
                                     size_hint_x: .2
+                                    option_cls: Factory.get("TFSpinnerOpt")
                                     text: "1"
 
                             Hseparator
