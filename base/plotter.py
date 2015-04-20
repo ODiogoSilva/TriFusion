@@ -55,6 +55,8 @@ def bar_plot(data_list, labels=None, lgd_list=None):
     entry. Data with two groups would be like [[1.23, .53], [1.55, .12]]
     :param labels: list, containing the labels
     :param lgd_list: list, The legend string for each data set in data_list
+    :param multibar: Boolean. Whether to attribute a different color for each
+    bar or not.
     """
 
     # Use ggpot style
@@ -68,18 +70,24 @@ def bar_plot(data_list, labels=None, lgd_list=None):
     # Determine bar group width according to the number of data lists
     w = (1. - 2. * margin) / len(data_list)
 
+    # If datalist contains more than one list, then attribute a color to each
+    # datalist entry. Otherwise, use same color
     # Create bar plots
-    for i, d in enumerate(data_list):
-        # Get color from 10 color list. If more than 10 colors are required,
-        # randomly generate new ones
-        try:
-            clr = clr_list[i]
-        except IndexError:
-            clr = np.random.rand(3, 1)
+    if len(data_list) >= 2:
+        for i, d in enumerate(data_list):
+            # Get color from 10 color list. If more than 10 colors are required,
+            # randomly generate new ones
+            try:
+                clr = clr_list[i]
+            except IndexError:
+                clr = np.random.rand(3, 1)
 
-        # Determine position of xdata
-        xdata = np.arange(len(d)) + margin + (i * w)
-        bplt = ax.bar(xdata, d, w, color=clr, label=lgd_list[i])
+                # Determine position of xdata
+                xdata = np.arange(len(d)) + margin + (i * w)
+                bplt = ax.bar(xdata, d, w, color=clr, label=lgd_list[i])
+    else:
+        xdata = np.arange(len(data_list[0]))
+        bplt = ax.bar(xdata, data_list[0])
 
     # Add labels
     if labels:
