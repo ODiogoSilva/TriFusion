@@ -177,6 +177,16 @@
 # PLOT SCREEN
 #===============================================================================
 
+<BackButton@Button>:
+    size_hint: None, None
+    size: 80,30
+    text: "  Back"
+    bold: True
+    opacity: .2
+    background_normal: "data/backgrounds/go_back_bt.png"
+    on_release:
+        app.go_previous_screen()
+
 <PlotToolbar@BoxLayout>:
     orientation: "vertical"
     size_hint: None, None
