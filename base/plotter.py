@@ -48,6 +48,43 @@ clr_list = [[0, .53, .66],  # light blue
             [0, .66, 0]]      # green
 
 
+def bar_plot(data_list, labels=None, title=None, ax_names=None):
+    """
+    Builds simple bar plot from a data_list
+    :param data_list: list with data to be plotted.
+    :param labels: list with x axis labels
+    :param title: string, plot title
+    :param ax_names: list. Names of the axis [yaxis_name, xaxis_name]
+    """
+
+    # Use ggpot style
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    # Create bar plot
+    ax.bar(np.arange(len(data_list)), data_list, align="center")
+
+    # Set axys names
+    if ax_names:
+        plt.ylabel(ax_names[0])
+        plt.xlabel(ax_names[1])
+
+    # Set title
+    if title:
+        plt.title("Species frequency histogram")
+
+    # Set labels at the center of bars
+    if labels:
+        ax.set_xticks(np.arange(len(labels)))
+        ax.set_xticklabels(labels, ha="center")
+
+    # Invert x-axis so that higher taxa prevalence is shown in the left
+    plt.gca().invert_xaxis()
+
+    return plt
+
+
 def multi_bar_plot(data_list, labels=None, lgd_list=None):
     """
     General purpose multiple bar plot with custom layout. Returns a pyplot
@@ -56,8 +93,6 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
     entry. Data with two groups would be like [[1.23, .53], [1.55, .12]]
     :param labels: list, containing the labels
     :param lgd_list: list, The legend string for each data set in data_list
-    :param multibar: Boolean. Whether to attribute a different color for each
-    bar or not.
     """
 
     # Use ggpot style
@@ -114,7 +149,7 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
                     verticalalignment="center", weight='bold', color="white",
                     size=14, rotation=90)
 
-    # Automatically adjust figure size to accomodate all labels
+    # Automatically adjust figure size to accommodate all labels
     # plt.tight_layout()
 
     return plt, lgd
