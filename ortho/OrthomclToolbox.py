@@ -393,17 +393,63 @@ class Group ():
 
         # Transform data into histogram-like
         transform_data = Counter(data)
-        x_labels = [str(x) for x in list(transform_data)]
+        x_labels = [x for x in list(transform_data)]
         y_vals = list(transform_data.values())
+
+        # Sort lists
+        x_labels, y_vals = (list(x) for x in zip(*sorted(zip(x_labels,
+                                                             y_vals))))
+        # Convert label to strings
+        x_labels = [str(x) for x in x_labels]
 
         # Create plot
         b_plt, lgd = bar_plot([y_vals], x_labels,
-                        title="Taxa frequency histogram",
+                        title="Taxa frequency distribution",
                         ax_names=["Number of taxa", "Ortholog frequency"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
         # Create table
         table_list = [["Number of species", "Ortholog frequency"]]
+        for x, y in zip(x_labels, y_vals):
+            table_list.append([x, y])
+
+        return b_plt, lgd, table_list
+
+    def bar_genecopy_distribution(self, dest="./",
+                                output_file_name="Gene_copy_distribution.png"):
+
+        data = []
+
+        for cl in self.groups:
+            # Get extra copies
+            extra_copies = sum([x for x in cl.species_frequency.values()
+                                if x > 1])
+            if extra_copies == 0:
+                data.append(1)
+            else:
+                data.append(extra_copies)
+
+        # Transform data into histogram-like
+        transform_data = Counter(data)
+        x_labels = [x for x in list(transform_data)]
+        y_vals = list(transform_data.values())
+
+        # Sort lists
+        x_labels, y_vals = (list(x) for x in zip(*sorted(zip(x_labels,
+                                                             y_vals))))
+        # Convert label to strings
+        x_labels = [str(x) for x in x_labels]
+
+        # Create plot
+        b_plt, lgd = bar_plot([y_vals], x_labels,
+                    title="Gene copy distribution",
+                    ax_names=["Number of gene copies", "Ortholog frequency"],
+                    reverse_x=False)
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
+                      figsize=(8 * len(x_labels) / 4, 6))
+
+        # Create table
+        table_list = [["Number of gene copies", "Ortholog frequency"]]
         for x, y in zip(x_labels, y_vals):
             table_list.append([x, y])
 
