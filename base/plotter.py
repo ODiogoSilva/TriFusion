@@ -77,7 +77,11 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None):
     # Set labels at the center of bars
     if labels:
         ax.set_xticks(np.arange(len(labels)))
-        ax.set_xticklabels(labels, ha="center")
+        # Determine rotation and alignmnet from labels
+        if max([len(x) for x in labels]) >= 3:
+            ax.set_xticklabels(labels, ha="right", rotation=45)
+        else:
+            ax.set_xticklabels(labels, ha="center")
 
     # Invert x-axis so that higher taxa prevalence is shown in the left
     plt.gca().invert_xaxis()
