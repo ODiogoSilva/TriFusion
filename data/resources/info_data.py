@@ -80,8 +80,7 @@ informative_storage = {
 
 orthology_storage = {
     "Taxa distribution": "Distribution of the number of taxa across clusters",
-    "Missing data per cluster": "Distribution of the number of missing "
-        "orthologs per taxa",
+    "Taxa coverage": "Shows available and missing ortholog data per taxon",
     "Gene copy distribution": "Distribution of gene copy numbers across "
         "clusters"
 }
