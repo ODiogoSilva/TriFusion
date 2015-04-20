@@ -1372,7 +1372,17 @@ class TriFusionApp(App):
             :param orientation: string, whether the label will be display in
             the same horizontal or vertical plane of the widget
             :param line_c: tuple/list, color of the border line and arrow
+            :param mouse_pos: For mouse hover with timers, providing the
+            original mouse coordinates will prevent the label from being
+            shown if the mouse position changed.
             """
+
+            # If the current mouse position is no longer the same when the
+            # label was issued, then do nothing
+            if self.root_window.mouse_pos != mp:
+                # Unlocking mouse over
+                self.mouse_over_ready = True
+                return
 
             # Cleans any possible mouse overs
             clear_mouse_overs()
@@ -1501,6 +1511,13 @@ class TriFusionApp(App):
                         txt = bt.id
                         pos = bt.to_window(bt.pos[0], bt.pos[1])
                         size = bt.size
+
+                        # If the current collision is different from the
+                        # existing fancy lavel, remove it
+                        if [txt] != [x.text for x in
+                                     self.root_window.children if
+                                     isinstance(x, FancyButton)]:
+                            clear_mouse_overs()
 
                         Clock.schedule_once(lambda x: create_fancy_label(txt,
                                                         bt, adjust_pos=True,
