@@ -25,7 +25,7 @@
 
 from process.sequence import Alignment
 
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from operator import itemgetter
 from base.plotter import *
 import os
@@ -389,11 +389,22 @@ class Group ():
             data.append(len([x for x, y in i.species_frequency.items()
                              if y > 0]))
 
+        # Transform data into histogram-like
+        transform_data = Counter(data)
+        x_labels = list(transform_data)
+        y_vals = list(transform_data.values())
+
         # Create plot
-        b_plt, lgd = bar_plot([data])
+        b_plt = bar_plot(y_vals, x_labels, title="Species frequency histogram",
+                         ax_names=["Ortholog frequency", "Species number"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
-        return b_plt, lgd
+        # Create table
+        table_list = [["Number of species", "Ortholog frequency"]]
+        for x, y in zip(x_labels, y_vals):
+            table_list.append([x, y])
+
+        return b_plt, table_list
 
 
 class MultiGroups ():
