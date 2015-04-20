@@ -26,7 +26,6 @@
 from process.sequence import Alignment
 
 from collections import OrderedDict, Counter
-from operator import itemgetter
 from base.plotter import *
 import os
 from os.path import join
@@ -380,7 +379,10 @@ class Group ():
     def bar_species_distribution(self, dest="./",
                                  output_file_name="Species_distribution"):
         """
-        Creates a bar plot with the distribution of species numbers across cluster
+        Creates a bar plot with the distribution of species numbers across
+        clusters
+        :param dest: string, destination directory
+        :param output_file_name: string, name of the output file
         """
 
         data = []
@@ -391,12 +393,13 @@ class Group ():
 
         # Transform data into histogram-like
         transform_data = Counter(data)
-        x_labels = list(transform_data)
+        x_labels = [str(x) for x in list(transform_data)]
         y_vals = list(transform_data.values())
 
         # Create plot
-        b_plt = bar_plot(y_vals, x_labels, title="Species frequency histogram",
-                         ax_names=["Ortholog frequency", "Species number"])
+        b_plt, lgd = bar_plot([y_vals], x_labels,
+                        title="Taxa frequency histogram",
+                        ax_names=["Number of taxa", "Ortholog frequency"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
         # Create table
@@ -404,7 +407,31 @@ class Group ():
         for x, y in zip(x_labels, y_vals):
             table_list.append([x, y])
 
-        return b_plt, table_list
+        return b_plt, lgd, table_list
+
+    def bar_species_coverage(self, dest="./",
+                            output_file_name="Species_coverage"):
+        """
+        Creates a stacked bar plot with the proportion of
+        :return:
+        """
+
+        data = Counter(dict((x, 0) for x in self.species_list))
+
+        for cl in self.groups:
+            data += Counter(dict((x, 1) for x, y in cl.species_frequency.items()
+                            if y > 0))
+
+        xlabels = [str(x) for x in list(data.keys())]
+        data = [list(data.values()), [len(self.groups) - x for x in
+                                      data.values()]]
+        lgd_list = ["Available data", "Missing data"]
+
+        b_plt, lgd = bar_plot(data, xlabels, lgd_list=lgd_list,
+                              ax_names=[None, "Ortholog frequency"])
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+
+        return b_plt, lgd, ""
 
 
 class MultiGroups ():
