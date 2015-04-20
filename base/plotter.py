@@ -51,7 +51,8 @@ two_clr_list = [[0, .53, .66],
                 [.62, .80, .85]]
 
 
-def bar_plot(data_list, labels=None, title=None, ax_names=None):
+def bar_plot(data_list, labels=None, title=None, ax_names=None,
+             lgd_list=None):
     """
     Builds simple bar plot from a data_list
     :param data_list: list with data to be plotted.
@@ -79,16 +80,26 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None):
 
         # Create plot for first entry
         if d == data_list[0]:
-            ax.bar(np.arange(len(d)), d, align="center", color=clr)
+            ax.bar(np.arange(len(d)), d, align="center", color=clr,
+                   label=lgd_list[i] if lgd_list else None)
         # Add plots on top
         else:
             ax.bar(np.arange(len(d)), d, align="center", color=clr,
-                   bottom=data_list[i - 1])
+                   bottom=data_list[i - 1],
+                   label=lgd_list[i] if lgd_list else None)
+
+    # Set legend
+    if lgd_list:
+        lgd = plt.legend(bbox_to_anchor=(1, .5), loc="center left",
+                         fancybox=True, shadow=True, framealpha=0.8)
+    else:
+        lgd = None
 
     # Set axys names
-    if ax_names:
-        plt.ylabel(ax_names[0])
-        plt.xlabel(ax_names[1])
+    if ax_names[0]:
+        plt.xlabel(ax_names[0])
+    if ax_names[1]:
+        plt.ylabel(ax_names[1])
 
     # Set title
     if title:
@@ -106,7 +117,7 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None):
     # Invert x-axis so that higher taxa prevalence is shown in the left
     plt.gca().invert_xaxis()
 
-    return plt
+    return plt, lgd
 
 
 def multi_bar_plot(data_list, labels=None, lgd_list=None):
