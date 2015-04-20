@@ -353,6 +353,10 @@ class ExportGraphics(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class BackButton(Button):
+    pass
+
+
 class PlotToolbar(BoxLayout):
     pass
 
@@ -910,7 +914,7 @@ class TriFusionApp(App):
                                   self.available_screens]
 
         # Store screen names specifically designed for plot display
-        self.plot_screens = ["group_compare"]
+        self.plot_screens = ["group_compare", "plot"]
 
         self.loaded_screens = dict((sc, None) for sc in self.available_screens)
 
@@ -1613,9 +1617,23 @@ class TriFusionApp(App):
         # Only do this when plot screen is on
         if self.screen.name in self.plot_screens and self._popup not in \
                 self.root_window.children:
+
             # Get PlotToolbar object
             toolbar_wgt = [x for x in self.root_window.children
                            if isinstance(x, PlotToolbar)][0]
+
+            # For headless plot screens a back button is added to root_window
+            if self.screen.name == "plot":
+                # Get back bt
+                back_bt = [x for x in self.root_window.children
+                           if isinstance(x, BackButton)][0]
+                if determine_collision(back_bt):
+                    if back_bt.opacity != 1:
+                        Animation(opacity=1, d=.3, t="out_quart").start(back_bt)
+                else:
+                    if back_bt.opacity == 1:
+                        Animation(opacity=.2, d=.3, t="out_quart").start(
+                            back_bt)
 
             # Change toolbar opacity to become visible when collision is true
             if determine_collision(toolbar_wgt):
@@ -1736,7 +1754,7 @@ class TriFusionApp(App):
 
             # Automatic removal of plot toolbar when not in a plot screen
             if self.screen_names[idx] not in self.plot_screens:
-                self.dismiss_plot_toolbar()
+                self.dismiss_plot_wgt()
 
         self.index = idx
 
@@ -3640,15 +3658,27 @@ class TriFusionApp(App):
 
         self.root_window.add_widget(content)
 
-    def dismiss_plot_toolbar(self):
+    def show_back_bt(self):
         """
-        Removes the PlotToolbar from self.root_window
+        Adds a back button to self.root_window, which will navigate to the
+        previous screen. This is meant for headless plot screens
+        """
+
+        # Determine position
+        pos = 0, self.root.height - 100
+        bt = BackButton(pos=pos)
+
+        self.root_window.add_widget(bt)
+
+    def dismiss_plot_wgt(self):
+        """
+        Removes plot widgets from the root window
         """
 
         try:
-            wgt = [x for x in self.root_window.children if
-                   isinstance(x, PlotToolbar)][0]
-            self.root_window.remove_widget(wgt)
+            for wgt in [x for x in self.root_window.children if
+                   isinstance(x, PlotToolbar) or isinstance(x, BackButton)]:
+                self.root_window.remove_widget(wgt)
         except IndexError:
             pass
 
@@ -3900,6 +3930,14 @@ class TriFusionApp(App):
 
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
+
+    def orto_show_plot(self, plt_idx):
+        """
+        Loads a headless plot screen for orthology graphical exploration based
+        on the plot index
+        """
+
+        self.go_screen(6)
 
     def load_plot(self, file_path):
         """
