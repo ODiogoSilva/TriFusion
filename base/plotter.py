@@ -52,14 +52,17 @@ two_clr_list = [[0, .53, .66],
 
 
 def bar_plot(data_list, labels=None, title=None, ax_names=None,
-             lgd_list=None):
+             lgd_list=None, reverse_x=True):
     """
     Builds simple bar plot from a data_list
     :param data_list: list with data to be plotted.
     :param labels: list with x axis labels
     :param title: string, plot title
     :param ax_names: list. Names of the axis [yaxis_name, xaxis_name]
+    :param reverse_x: Boolean, determines whether the x-axis is reversed or not
     """
+
+    plt.rcParams["figure.figsize"] = (8 * len(labels) / 10, 6)
 
     # Use ggpot style
     plt.style.use("ggplot")
@@ -103,7 +106,7 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None,
 
     # Set title
     if title:
-        plt.title("Species frequency histogram")
+        plt.title(title)
 
     # Set labels at the center of bars
     if labels:
@@ -114,8 +117,13 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None,
         else:
             ax.set_xticklabels(labels, ha="center")
 
+        # Setting the x range to avoid large spaces between the axis and bars
+        plt.xlim([min(np.arange(len(labels))) - .5,
+                  max(np.arange(len(labels))) + .5])
+
     # Invert x-axis so that higher taxa prevalence is shown in the left
-    plt.gca().invert_xaxis()
+    if reverse_x:
+        plt.gca().invert_xaxis()
 
     return plt, lgd
 
