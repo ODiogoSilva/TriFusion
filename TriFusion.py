@@ -1487,25 +1487,27 @@ class TriFusionApp(App):
                     if bt == case_bt:
                         if "Case sensitive" not in self.previous_mouse_over:
                             if case_bt.state == "down":
-                                label = create_label("Case sensitive is ON")
+                                create_fancy_label("Case sensitive is ON",
+                                                   case_bt,
+                                                   orientation="vertical")
                             else:
-                                label = create_label("Case sensitive is OFF")
-
-                            Clock.schedule_once(lambda x: show_label(mp, label),
-                                                .1)
-                            self.mouse_over_ready = False
+                                create_fancy_label("Case sensitive is OFF",
+                                                   case_bt,
+                                                   orientation="vertical")
 
                     else:
-                        if bt.id != self.previous_mouse_over:
-                            if self.old_mouse_over:
-                                self.root_window.remove_widget(
-                                    self.old_mouse_over)
+                        # Saving relevant attributes, otherwise they would
+                        # be lost
+                        txt = bt.id
+                        pos = bt.to_window(bt.pos[0], bt.pos[1])
+                        size = bt.size
 
-                            label = create_label(text=bt.id)
-
-                            Clock.schedule_once(lambda x: show_label(mp, label),
-                                                .8)
-                            self.mouse_over_ready = False
+                        Clock.schedule_once(lambda x: create_fancy_label(txt,
+                                                        bt, adjust_pos=True,
+                                                        wgt_pos=pos,
+                                                        wgt_size=size),
+                                            .8)
+                        self.mouse_over_ready = False
             else:
                 # If no collision is detected, remove any remaining label widget
                 if collision is False and \
