@@ -377,6 +377,24 @@ class Group ():
             else:
                 output_handle.close()
 
+    def bar_species_distribution(self, dest="./",
+                                 output_file_name="Species_distribution"):
+        """
+        Creates a bar plot with the distribution of species numbers across cluster
+        """
+
+        data = []
+
+        for i in self.groups:
+            data.append(len([x for x, y in i.species_frequency.items()
+                             if y > 0]))
+
+        # Create plot
+        b_plt, lgd = bar_plot([data])
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+
+        return b_plt, lgd
+
 
 class MultiGroups ():
     """ Creates an object composed of multiple Group objects """
@@ -515,7 +533,7 @@ class MultiGroups ():
             display bars for total, species compliant and gene compliant stats
         """
 
-        # Stores the x-axys labels
+        # Stores the x-axis labels
         x_labels = []
         # Stores final ortholog values for all 4 possible data sets
         vals = [[], [], [], []]
@@ -544,7 +562,7 @@ class MultiGroups ():
         vals = [l for l in vals if l]
 
         # Create plot
-        b_plt, lgd = bar_plot(vals, x_labels, lgd_list=lgd_list)
+        b_plt, lgd = multi_bar_plot(vals, x_labels, lgd_list=lgd_list)
         b_plt.savefig(os.path.join(dest, output_file_name),
                       bbox_extra_artists=(lgd,), bbox_inches="tight")
 
