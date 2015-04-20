@@ -3952,7 +3952,9 @@ class TriFusionApp(App):
         plt_method = {"Taxa distribution": [group_obj.bar_species_distribution,
                                             "Species_distribution.png"],
                       "Taxa coverage": [group_obj.bar_species_coverage,
-                                        "Species_coverage.png"]}
+                                        "Species_coverage.png"],
+            "Gene copy distribution": [group_obj.bar_genecopy_distribution,
+                                       "Gene_copy_distribution.png"]}
 
         # Call corresponding method and catch plot object
         self.current_plot, self.current_lgd, self.current_table = \
