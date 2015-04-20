@@ -2025,9 +2025,13 @@ class TriFusionApp(App):
         :param ext: string, extension of graphic file (e.g. png, svg, pdf, etc)
         """
 
-        self.current_plot.savefig(join(path, file_name + ext),
-                                  bbox_extra_artists=(self.current_lgd,),
-                                  bbox_inches="tight")
+        if self.current_lgd:
+            self.current_plot.savefig(join(path, file_name + ext),
+                                      bbox_extra_artists=(self.current_lgd,),
+                                      bbox_inches="tight")
+        else:
+            self.current_plot.savefig(join(path, file_name + ext),
+                                      bbox_inches="tight")
 
         self.dialog_floatcheck("Graphic successfully exported!", t="info")
 
@@ -3925,8 +3929,7 @@ class TriFusionApp(App):
                                             stats=stats)
 
             # Load plot
-            self.load_plot(join(self.temp_dir,
-                                            "Final_orthologs.png"))
+            self.load_plot(join(self.temp_dir, "Final_orthologs.png"))
 
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
@@ -3937,7 +3940,25 @@ class TriFusionApp(App):
         on the plot index
         """
 
-        self.go_screen(6)
+        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
+
+        # Get active group
+        for i in self.loaded_screens[orto_screen].ids.group_gl.children:
+            if i.state == "down":
+                group_obj = self.ortho_groups.get_group(i.text)
+
+        # Store the plot generation method in a dictionary where keys are the
+        # text attributes of the plot spinner and the values are bound methods
+        plt_method = {"Taxa distribution": group_obj.bar_species_distribution}
+
+        # Call corresponding method and catch plot object
+        self.current_plot, self.current_table = plt_method[plt_idx](
+            dest=self.temp_dir)
+        # Set current legend to None
+        self.current_lgd = None
+
+        # Load plot
+        self.load_plot(join(self.temp_dir, "Species_distribution.png"))
 
     def load_plot(self, file_path):
         """
