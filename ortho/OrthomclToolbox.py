@@ -376,18 +376,25 @@ class Group ():
             else:
                 output_handle.close()
 
-    def bar_species_distribution(self, dest="./",
+    def bar_species_distribution(self, dest="./", filt=False,
                                  output_file_name="Species_distribution"):
         """
         Creates a bar plot with the distribution of species numbers across
         clusters
         :param dest: string, destination directory
+        :param filt: Boolean, whether or not to use the filtered groups.
         :param output_file_name: string, name of the output file
         """
 
         data = []
 
-        for i in self.groups:
+        # Determin which groups to use
+        if filt:
+            groups = self.filtered_groups
+        else:
+            groups = self.groups
+
+        for i in groups:
             data.append(len([x for x, y in i.species_frequency.items()
                              if y > 0]))
 
@@ -415,12 +422,25 @@ class Group ():
 
         return b_plt, lgd, table_list
 
-    def bar_genecopy_distribution(self, dest="./",
+    def bar_genecopy_distribution(self, dest="./", filt=False,
                                 output_file_name="Gene_copy_distribution.png"):
+        """
+        Creates a bar plot with the distribution of gene copies across
+        clusters
+        :param dest: string, destination directory
+        :param filt: Boolean, whether or not to use the filtered groups.
+        :param output_file_name: string, name of the output file
+        """
 
         data = []
 
-        for cl in self.groups:
+        # Determin which groups to use
+        if filt:
+            groups = self.filtered_groups
+        else:
+            groups = self.groups
+
+        for cl in groups:
             # Get extra copies
             extra_copies = sum([x for x in cl.species_frequency.values()
                                 if x > 1])
