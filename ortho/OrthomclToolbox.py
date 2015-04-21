@@ -131,6 +131,9 @@ class Group ():
 
         # Attribute containing the total number of sequences
         self.total_seqs = 0
+        # Attribute containing the maximum number of extra copies found in the
+        # clusters
+        self.max_extra_copy = 0
 
         # Attribute with name of the group file, which will be an ID
         self.group_name = groups_file
@@ -166,6 +169,12 @@ class Group ():
 
             # Update total sequence counter
             self.total_seqs += len(cluster_object.sequences)
+
+            # Update maximum number of extra copies, if needed
+            if max(cluster_object.species_frequency.values()) > \
+                    self.max_extra_copy:
+                self.max_extra_copy = \
+                    max(cluster_object.species_frequency.values())
 
             # Update species_list attribute
             cluster_species = cluster_object.species_frequency.keys()
@@ -388,7 +397,7 @@ class Group ():
 
         data = []
 
-        # Determin which groups to use
+        # Determine which groups to use
         if filt:
             groups = self.filtered_groups
         else:
