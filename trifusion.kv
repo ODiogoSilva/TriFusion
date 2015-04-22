@@ -177,6 +177,21 @@
 # PLOT SCREEN
 #===============================================================================
 
+<MySlider@Slider>:
+    FancyMarker:
+        pos: (root.value_pos[0] - 6, root.center_y + 15)
+        background_normal: "data/backgrounds/box_arrow_down.png"
+        size: 12, 7
+        background_color: (0.216, 0.67, 0.784, 1)
+        opacity: 1 if root.collide_point(app.mouse_position[0], app.mouse_position[1]) else 0
+    FancyButton:
+        text: str(root.value).split(".")[0]
+        size: 30, 20
+        pos: (root.value_pos[0] - 15, root.center_y + 22.5)
+        background_color: (0.216, 0.67, 0.784, 1)
+        line_clr: (0.216, 0.67, 0.784, 1)
+        opacity: 1 if root.collide_point(app.mouse_position[0], app.mouse_position[1]) else 0
+
 <BackButton@Button>:
     size_hint: None, None
     size: 80,30
