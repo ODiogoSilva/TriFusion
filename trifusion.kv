@@ -2544,16 +2544,30 @@
     AnchorLayout:
         size_hint_y: None
         height: 30
-        Button:
+        BoxLayout:
             size_hint_x: None
-            width: 100
-            id: close_bt
-            text: "Close"
-            bold: True
-            background_normal: "data/backgrounds/bt_process.png"
-            background_down: "data/backgrounds/bt_process_off.png"
-            on_release:
-                root.cancel()
+            width: 180
+            spacing: 10
+            Button:
+                size_hint_x: None
+                width: 80
+                id: ok_bt
+                text: "Ok"
+                bold: True
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                on_release:
+                    root.cancel()
+            Button:
+                size_hint_x: None
+                width: 80
+                id: cancel_bt
+                text: "Cancel"
+                bold: True
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
+                on_release:
+                    root.cancel()
 
 <LoadDialog>
     orientation: "vertical"
