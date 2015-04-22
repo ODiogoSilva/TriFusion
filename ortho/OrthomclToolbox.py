@@ -80,6 +80,20 @@ class Cluster():
                                           self.sequences).count(species),
                                           species_list)))
 
+    def remove_taxa(self, taxa_list):
+        """
+        Removes the taxa contained in taxa_list from self.sequences and
+        self.species_frequency
+        :param taxa_list: list, each element should be a taxon name
+        """
+
+        self.sequences = [x for x in self.sequences if x.split("|")[0]
+                          not in taxa_list]
+
+        self.species_frequency = dict((taxon, val) for taxon, val in
+                                      self.species_frequency.items()
+                                      if taxon not in taxa_list)
+
     def apply_filter(self, gene_threshold, species_threshold):
         """
         This method will update two Cluster attributes, self.gene_flag and
@@ -123,6 +137,9 @@ class Group ():
         #  some method that uses them as arguments
         self.gene_threshold = gene_threshold
         self.species_threshold = species_threshold
+
+        # Attribute that will contain taxa to be excluded from analyses
+        self.excluded_taxa = []
 
         # Attributes that will store the number (int) of cluster after gene and
         # species filter
@@ -197,6 +214,23 @@ class Group ():
                 # Update num_gene_compliant attribute
                 if cluster_object.gene_compliant:
                     self.num_gene_compliant += 1
+
+    def exclude_taxa(self, taxa_list):
+        """
+        Adds a taxon_name to the excluded_taxa list and updates the
+        filtered_groups list
+        """
+
+        self.excluded_taxa.extend(taxa_list)
+
+        # Storage variable for new filtered groups
+        filtered_groups = []
+
+        for cl in self.groups:
+            cl.remove_taxa(taxa_list)
+            filtered_groups.append(cl)
+
+        self.filtered_groups = filtered_groups
 
     def get_filters(self):
         """
