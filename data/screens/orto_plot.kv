@@ -1,0 +1,202 @@
+ShowcaseScreen:
+    name: "orto_plot"
+    # This is a simple plot screen with a header. The header contents are
+    # customizable by adding to the header_content gridlayout. By default, the
+    # height of the header is 90
+
+    BoxLayout:
+        orientation: "vertical"
+        BoxLayout:
+            size_hint_y: None
+            height: 90
+            spacing: 5
+            AnchorLayout:
+                anchor_x: "left"
+                anchor_y: "center"
+                size_hint_x: None
+                width: 90
+                Button:
+                    size_hint: None, None
+                    size: 80,30
+                    text: "  Back"
+                    bold: True
+                    background_normal: "data/backgrounds/go_back_bt.png"
+                    on_release:
+                        app.go_previous_screen()
+
+            Vseparator:
+                thickness: 1.5
+
+            GridLayout:
+                id: header_content
+                cols: 1
+                size_hint_x: None
+                width: root.width - 100
+                original_filt: None
+                plt_idx: None
+                BoxLayout:
+                    padding: 5
+                    spacing: 5
+                    BoxLayout:
+                        orientation: "vertical"
+                        size_hint_x: None
+                        width: 420
+                        Label:
+                            size_hint_y: None
+                            height: 20
+                            text: "Filter settings"
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            bold: True
+                            color: (0.216, 0.67, 0.784, 1)
+                        BoxLayout:
+                            spacing: 5
+                            BoxLayout:
+                                orientation: "vertical"
+                                Label:
+                                    size_hint_y: None
+                                    height: 20
+                                    font_size: 13
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                    text: "  Maximum gene copies"
+                                    bold: True
+                                    color: (.8, .8, .8, 1)
+                                BoxLayout:
+                                    orientation: "vertical"
+                                    padding: 5
+                                    MySlider:
+                                        step: 1
+                                        min: 1
+                                        value: self.max
+                                        id: gn_spin
+
+                            BoxLayout:
+                                orientation: "vertical"
+                                Label:
+                                    size_hint_y: None
+                                    height: 20
+                                    font_size: 13
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                    text: "  Minimum taxa"
+                                    bold: True
+                                    color: (.8, .8, .8, 1)
+                                BoxLayout:
+                                    orientation: "vertical"
+                                    padding: 5
+                                    MySlider:
+                                        step: 1
+                                        min: 1
+                                        value: self.max
+                                        id: sp_spin
+
+                    Vseparator:
+                        thickness: 1.5
+
+
+                    AnchorLayout:
+                        anchor_x: "center"
+                        anchor_y: "center"
+                        size_hint_x: None
+                        width: 40
+                        BoxLayout:
+                            orientation: "vertical"
+                            size_hint: None, None
+                            spacing: 10
+                            size: 30, 70
+                            Button:
+                                size_hint: None, None
+                                size: 30, 30
+                                text_size: self.size
+                                halign: "center"
+                                valign: "middle"
+                                bold: True
+                                background_normal: "data/backgrounds/taxa_filter_bt.png"
+
+                            Button:
+                                size_hint: None, None
+                                size: 30, 30
+                                text_size: self.size
+                                halign: "center"
+                                valign: "middle"
+                                bold: True
+                                background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == (int(gn_spin.value), int(sp_spin.value)) else "data/backgrounds/refresh_update_bt.png"
+                                on_release:
+                                    if header_content.original_filt and header_content.original_filt != (int(gn_spin.value), int(sp_spin.value)):\
+                                    app.orto_show_plot(header_content.plt_idx, filt=(int(gn_spin.value), int(sp_spin.value)))
+
+                    Vseparator:
+                        thickness: 1.5
+
+                    BoxLayout:
+                        orientation: "vertical"
+                        Label:
+                            size_hint_y: None
+                            height: 20
+                            text: "Orthologs"
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            bold: True
+                            color: (0.216, 0.67, 0.784, 1)
+                        BoxLayout:
+                            padding: (0, 0, 10, 0)
+                            BoxLayout:
+                                orientation: "vertical"
+                                Label:
+                                    size_hint_y: None
+                                    height: 20
+                                    text: "Showing:"
+                                    halign: "left"
+                                    valign: "middle"
+                                    text_size: self.size
+                                    bold: True
+                                    font_size: 13
+
+                                BoxLayout:
+                                    orientation: "vertical"
+                                    Label:
+                                        id: save_orto
+                                        bold: True
+                                        color: (113/255, 200/255, 55/255, 1)
+                                        font_size: 28
+                                        halign: "left"
+                                        valign: "middle"
+                                        text_size: self.size
+                            BoxLayout:
+                                orientation: "vertical"
+                                Label:
+                                    size_hint_y: None
+                                    height: 20
+                                    text: "Discarded:"
+                                    bold: True
+                                    halign: "right"
+                                    valign: "middle"
+                                    text_size: self.size
+                                    font_size: 13
+                                BoxLayout:
+                                    orientation: "vertical"
+                                    Label:
+                                        id: discard_orto
+                                        text: "0"
+                                        bold: True
+                                        color: (1, .33, .33, 1)
+                                        font_size: 28
+                                        halign: "right"
+                                        valign: "middle"
+                                        text_size: self.size
+
+        Hseparator:
+            thickness: 1.5
+
+
+        ScrollView:
+            ScatterLayout:
+                auto_bring_to_front: False
+                do_rotation: False
+                scale_min: 0.5
+                id: plot_content
