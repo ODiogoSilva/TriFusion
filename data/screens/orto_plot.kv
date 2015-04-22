@@ -34,6 +34,7 @@ ShowcaseScreen:
                 width: root.width - 100
                 original_filt: None
                 plt_idx: None
+                excluded_taxa: []
                 BoxLayout:
                     padding: 5
                     spacing: 5
@@ -117,7 +118,7 @@ ShowcaseScreen:
                                 bold: True
                                 background_normal: "data/backgrounds/taxa_filter_bt.png"
                                 on_release:
-                                    app.dialog_exclude_orto_taxa()
+                                    app.dialog_exclude_orto_taxa(header_content.plt_idx)
 
                             Button:
                                 size_hint: None, None
