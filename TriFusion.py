@@ -3943,7 +3943,7 @@ class TriFusionApp(App):
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
 
-    def orto_show_plot(self, plt_idx, filt=None):
+    def orto_show_plot(self, plt_idx, filt=None, exclude_taxa=None):
         """
         Loads a orto_plot screen for orthology graphical exploration based
         on the plot index
@@ -3953,6 +3953,8 @@ class TriFusionApp(App):
         respectively. If none, this will set a new plot and all plot screen
         attributes. Else, it will only update the plot image and ortholog
         statistics.
+        :param exclude_taxa: list, each element should be a taxon name to be
+        excluded from the plot
         """
 
         orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
@@ -3960,7 +3962,9 @@ class TriFusionApp(App):
         # Get active group
         for i in self.loaded_screens[orto_screen].ids.group_gl.children:
             if i.state == "down":
-                group_obj = self.ortho_groups.get_group(i.text)
+                # Create Group object independent copy to make changes
+                # reversible
+                group_obj = deepcopy(self.ortho_groups.get_group(i.text))
 
         # If filt is specified, update the groups object
         if filt:
@@ -3988,6 +3992,16 @@ class TriFusionApp(App):
         else:
             self.screen.ids.header_content.original_filt = \
                 (group_obj.max_extra_copy, 1)
+
+        # Exclude taxa, if any
+        if exclude_taxa:
+            self.screen.ids.header_content.excluded_taxa = exclude_taxa
+            group_obj.exclude_taxa(exclude_taxa)
+
+        # When excluded taxa is not None, but explicitly an empty list,
+        # reset the excluded_taxa property of header_content
+        elif exclude_taxa == []:
+            self.screen.ids.header_content.excluded_taxa = []
 
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
@@ -4025,7 +4039,7 @@ class TriFusionApp(App):
         img_wgt = Image(source=file_path, nocache=True)
         self.screen.ids.plot_content.children[0].add_widget(img_wgt)
 
-    def dialog_exclude_orto_taxa(self):
+    def dialog_exclude_orto_taxa(self, plt_idx):
 
         content = InputList(cancel=self.dismiss_popup)
 
@@ -4035,9 +4049,23 @@ class TriFusionApp(App):
             if i.state == "down":
                 group_obj = self.ortho_groups.get_group(i.text)
 
+        # Add button for each taxon
         for taxon in group_obj.species_list:
             bt = TGToggleBtutton(text=taxon)
+            # deselect button if taxa is excluded
+            if taxon in self.screen.ids.header_content.excluded_taxa:
+                bt.state = "normal"
+            # Add button to list
             content.ids.rev_inlist.add_widget(bt)
+
+        # Add bindings to Ok button
+        # Get current filters
+        gn_filter = int(self.screen.ids.gn_spin.value)
+        sp_filter = int(self.screen.ids.sp_spin.value)
+        content.ids.ok_bt.bind(on_release=lambda x:
+            self.orto_show_plot(plt_idx, filt=[gn_filter, sp_filter],
+                exclude_taxa=[x.text for x in content.ids.rev_inlist.children if
+                              x.state == "normal"]))
 
         self.show_popup(title="Included taxa", content=content,
                         size_hint=(.3, .8))
