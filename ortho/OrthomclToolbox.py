@@ -450,13 +450,10 @@ class Group ():
             groups = self.groups
 
         for cl in groups:
-            # Get extra copies
-            extra_copies = sum([x for x in cl.species_frequency.values()
-                                if x > 1])
-            if extra_copies == 0:
-                data.append(1)
-            else:
-                data.append(extra_copies)
+            # Get max number of copies
+            max_copies = max(cl.species_frequency.values())
+
+            data.append(max_copies)
 
         # Transform data into histogram-like
         transform_data = Counter(data)
