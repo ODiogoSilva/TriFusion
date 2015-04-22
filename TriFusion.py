@@ -3976,6 +3976,13 @@ class TriFusionApp(App):
 
         # Exclude taxa, if any
         if exclude_taxa:
+
+            # If all taxa were excluded issue a warning and do nothing more
+            if set(exclude_taxa) == set(group.species_list):
+                return self.dialog_floatcheck("WARNING: At least one taxon "
+                                              "must be included.", t="error")
+
+            # Update attributes and remove taxa from group object
             self.screen.ids.header_content.excluded_taxa = exclude_taxa
             group.exclude_taxa(exclude_taxa)
 
