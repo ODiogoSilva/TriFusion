@@ -116,6 +116,8 @@ ShowcaseScreen:
                                 valign: "middle"
                                 bold: True
                                 background_normal: "data/backgrounds/taxa_filter_bt.png"
+                                on_release:
+                                    app.dialog_exclude_orto_taxa()
 
                             Button:
                                 size_hint: None, None
