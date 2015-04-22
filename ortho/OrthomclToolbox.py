@@ -28,6 +28,7 @@ from process.sequence import Alignment
 from collections import OrderedDict, Counter
 from base.plotter import *
 import os
+from copy import deepcopy
 from os.path import join
 
 
@@ -138,6 +139,8 @@ class Group ():
         self.gene_threshold = gene_threshold
         self.species_threshold = species_threshold
 
+        # Attribute containig the list of included species
+        self.species_list = []
         # Attribute that will contain taxa to be excluded from analyses
         self.excluded_taxa = []
 
@@ -226,11 +229,22 @@ class Group ():
         # Storage variable for new filtered groups
         filtered_groups = []
 
+        # Reset max_extra_copy attribute
+        self.max_extra_copy = 0
+
         for cl in self.groups:
             cl.remove_taxa(taxa_list)
-            filtered_groups.append(cl)
+            if cl.sequences and cl.species_frequency:
+                filtered_groups.append(cl)
 
-        self.filtered_groups = filtered_groups
+                # Update maximum number of extra copies, if needed
+                if max(cl.species_frequency.values()) > self.max_extra_copy:
+                    self.max_extra_copy = max(cl.species_frequency.values())
+
+        # Update species_list
+        self.species_list = list(set(self.species_list) - set(taxa_list))
+
+        self.filtered_groups = self.groups = filtered_groups
 
     def get_filters(self):
         """
