@@ -3946,7 +3946,17 @@ class TriFusionApp(App):
     def orto_show_plot(self, plt_idx, filt=None, exclude_taxa=None):
         """
         Loads a orto_plot screen for orthology graphical exploration based
-        on the plot index
+        on the plot index. This method can be called in three ways:
+
+        ..: Orthology Explore screen button, which generates the plot for
+            the first time and sets initial attributes for plot screen header.
+            This only uses the plt_idx argument.
+        ..: Update button in plot screen, used after gene/species filters have
+            been changed. This uses the plt_idx and filt arguments.
+        ..: Taxa filter button in plot screen, used after changing the taxa
+            that should be included in the plot analysis. This uses the plt_idx
+            and exclude_taxa arguments
+
         :param plt_idx: string, id of the plot in plt_method to issue the
         appropriate method
         :param filt: list, contains the gn and sp filters for group object,
@@ -3962,58 +3972,63 @@ class TriFusionApp(App):
         # Get active group
         for i in self.loaded_screens[orto_screen].ids.group_gl.children:
             if i.state == "down":
-                # Create Group object independent copy to make changes
-                # reversible
-                group_obj = deepcopy(self.ortho_groups.get_group(i.text))
-
-        # If filt is specified, update the groups object
-        if filt:
-            group_obj.update_filters(filt[0], filt[1])
-
-            # Update ortholog counts
-            self.screen.ids.save_orto.text = str(len(group_obj.filtered_groups))
-            self.screen.ids.discard_orto.text = str(len(group_obj.groups) -
-                                           len(group_obj.filtered_groups))
-
-        # These attributes are only set when loading the plot for the first time
-        # When the filt option is used, they should be already defined
-        else:
-            # Setting up values in plt header
-            self.screen.ids.gn_spin.max = group_obj.max_extra_copy
-            self.screen.ids.sp_spin.max = len(group_obj.species_list)
-            self.screen.ids.gn_spin.value = group_obj.max_extra_copy
-            self.screen.ids.sp_spin.value = 1
-            self.screen.ids.save_orto.text = str(len(group_obj.groups))
-            self.screen.ids.discard_orto.text = "0"
-
-        # Set/update the current filters
-        if filt:
-            self.screen.ids.header_content.original_filt = filt
-        else:
-            self.screen.ids.header_content.original_filt = \
-                (group_obj.max_extra_copy, 1)
+                group = deepcopy(self.ortho_groups.get_group(i.text))
 
         # Exclude taxa, if any
         if exclude_taxa:
             self.screen.ids.header_content.excluded_taxa = exclude_taxa
-            group_obj.exclude_taxa(exclude_taxa)
+            group.exclude_taxa(exclude_taxa)
 
         # When excluded taxa is not None, but explicitly an empty list,
         # reset the excluded_taxa property of header_content
         elif exclude_taxa == []:
+            # Reset excluded taxa storage list
             self.screen.ids.header_content.excluded_taxa = []
+
+        # If filt is specified, update the groups object
+        if filt:
+            group.update_filters(filt[0], filt[1])
+            self.screen.ids.header_content.original_filt = filt
+
+        # Setting filters for the first time
+        if not filt and not exclude_taxa:
+            self.screen.ids.gn_spin.value = group.max_extra_copy
+            self.screen.ids.sp_spin.value = 1
+            self.screen.ids.header_content.original_filt = \
+                [group.max_extra_copy, 1]
+            self.screen.ids.save_orto.text = str(len(group.groups))
+            self.screen.ids.discard_orto.text = "0"
+        else:
+            self.screen.ids.save_orto.text = str(len(group.filtered_groups))
+            self.screen.ids.discard_orto.text = str(len(group.groups) -
+                                            len(group.filtered_groups))
+        # Update slider max values
+        self.screen.ids.gn_spin.max = group.max_extra_copy
+        self.screen.ids.sp_spin.max = len(group.species_list)
+        # Update slider values if they are outside bounds
+        if self.screen.ids.gn_spin.value > self.screen.ids.gn_spin.max:
+            self.screen.ids.gn_spin.value = self.screen.ids.gn_spin.max
+
+        if self.screen.ids.sp_spin.value > len(group.species_list):
+            self.screen.ids.sp_spin.value = len(group.species_list)
+
+        self.screen.ids.header_content.original_filt = \
+            [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
 
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
 
         # Store the plot generation method in a dictionary where keys are the
         # text attributes of the plot spinner and the values are bound methods
-        plt_method = {"Taxa distribution": [group_obj.bar_species_distribution,
-                                            "Species_distribution.png"],
-                      "Taxa coverage": [group_obj.bar_species_coverage,
-                                        "Species_coverage.png"],
-            "Gene copy distribution": [group_obj.bar_genecopy_distribution,
-                                       "Gene_copy_distribution.png"]}
+        plt_method = {"Taxa distribution": [
+            group.bar_species_distribution,
+            "Species_distribution.png"],
+                      "Taxa coverage": [
+            group.bar_species_coverage,
+            "Species_coverage.png"],
+                      "Gene copy distribution": [
+            group.bar_genecopy_distribution,
+            "Gene_copy_distribution.png"]}
 
         # Call corresponding method and catch plot object
         self.current_plot, self.current_lgd, self.current_table = \
@@ -4059,12 +4074,10 @@ class TriFusionApp(App):
             content.ids.rev_inlist.add_widget(bt)
 
         # Add bindings to Ok button
-        # Get current filters
-        gn_filter = int(self.screen.ids.gn_spin.value)
-        sp_filter = int(self.screen.ids.sp_spin.value)
         content.ids.ok_bt.bind(on_release=lambda x:
-            self.orto_show_plot(plt_idx, filt=[gn_filter, sp_filter],
-                exclude_taxa=[x.text for x in content.ids.rev_inlist.children if
+            self.orto_show_plot(plt_idx,
+                exclude_taxa=[x.text for x in
+                              content.ids.rev_inlist.children if
                               x.state == "normal"]))
 
         self.show_popup(title="Included taxa", content=content,
