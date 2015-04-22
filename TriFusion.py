@@ -795,6 +795,8 @@ class TriFusionApp(App):
     old_mouse_over = None
     fancy_bt = ObjectProperty(FancyButton())
 
+    mouse_position = ListProperty()
+
     ################################
     #
     # CORE PROGRAM RELATED VARIABLES
@@ -905,7 +907,8 @@ class TriFusionApp(App):
 
         # Setting available screens
         self.available_screens = ["main", "Orthology", "Process",
-                                  "Statistics", "fc", "group_compare", "plot"]
+                                  "Statistics", "fc", "group_compare", "plot",
+                                  "orto_plot"]
         self.screen_names = self.available_screens
 
         # Transforming screen names into complete paths to be loaded by kivy
@@ -914,7 +917,7 @@ class TriFusionApp(App):
                                   self.available_screens]
 
         # Store screen names specifically designed for plot display
-        self.plot_screens = ["group_compare", "plot"]
+        self.plot_screens = ["group_compare", "plot", "orto_plot"]
 
         self.loaded_screens = dict((sc, None) for sc in self.available_screens)
 
@@ -1271,6 +1274,8 @@ class TriFusionApp(App):
         computations in each cycle, the mouse over events should only be tested
         when the appropriate screen/widget is visible
         """
+
+        self.mouse_position = self.root_window.mouse_pos
 
         # Get mouse position coordinates
         mp = self.root_window.mouse_pos
@@ -3934,10 +3939,16 @@ class TriFusionApp(App):
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
 
-    def orto_show_plot(self, plt_idx):
+    def orto_show_plot(self, plt_idx, filt=None):
         """
-        Loads a headless plot screen for orthology graphical exploration based
+        Loads a orto_plot screen for orthology graphical exploration based
         on the plot index
+        :param plt_idx: string, id of the plot in plt_method to issue the
+        appropriate method
+        :param filt: list, contains the gn and sp filters for group object,
+        respectively. If none, this will set a new plot and all plot screen
+        attributes. Else, it will only update the plot image and ortholog
+        statistics.
         """
 
         orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
@@ -3946,6 +3957,36 @@ class TriFusionApp(App):
         for i in self.loaded_screens[orto_screen].ids.group_gl.children:
             if i.state == "down":
                 group_obj = self.ortho_groups.get_group(i.text)
+
+        # If filt is specified, update the groups object
+        if filt:
+            group_obj.update_filters(filt[0], filt[1])
+
+            # Update ortholog counts
+            self.screen.ids.save_orto.text = str(len(group_obj.filtered_groups))
+            self.screen.ids.discard_orto.text = str(len(group_obj.groups) -
+                                           len(group_obj.filtered_groups))
+
+        # These attributes are only set when loading the plot for the first time
+        # When the filt option is used, they should be already defined
+        else:
+            # Setting up values in plt header
+            self.screen.ids.gn_spin.max = group_obj.max_extra_copy
+            self.screen.ids.sp_spin.max = len(group_obj.species_list)
+            self.screen.ids.gn_spin.value = group_obj.max_extra_copy
+            self.screen.ids.sp_spin.value = 1
+            self.screen.ids.save_orto.text = str(len(group_obj.groups))
+            self.screen.ids.discard_orto.text = "0"
+
+        # Set/update the current filters
+        if filt:
+            self.screen.ids.header_content.original_filt = filt
+        else:
+            self.screen.ids.header_content.original_filt = \
+                (group_obj.max_extra_copy, 1)
+
+        # Set the current plt_idx for update reference
+        self.screen.ids.header_content.plt_idx = plt_idx
 
         # Store the plot generation method in a dictionary where keys are the
         # text attributes of the plot spinner and the values are bound methods
@@ -3958,7 +3999,8 @@ class TriFusionApp(App):
 
         # Call corresponding method and catch plot object
         self.current_plot, self.current_lgd, self.current_table = \
-            plt_method[plt_idx][0](dest=self.temp_dir)
+            plt_method[plt_idx][0](dest=self.temp_dir,
+                                   filt=True if filt else False)
 
         # Load plot
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]))
