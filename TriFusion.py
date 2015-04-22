@@ -349,6 +349,10 @@ class ModelSpinner(Spinner):
             pass
 
 
+class TGToggleBtutton(ToggleButton):
+    pass
+
+
 class ExportGraphics(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -4020,6 +4024,23 @@ class TriFusionApp(App):
         # Add content
         img_wgt = Image(source=file_path, nocache=True)
         self.screen.ids.plot_content.children[0].add_widget(img_wgt)
+
+    def dialog_exclude_orto_taxa(self):
+
+        content = InputList(cancel=self.dismiss_popup)
+
+        # Get active group
+        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
+        for i in self.loaded_screens[orto_screen].ids.group_gl.children:
+            if i.state == "down":
+                group_obj = self.ortho_groups.get_group(i.text)
+
+        for taxon in group_obj.species_list:
+            bt = TGToggleBtutton(text=taxon)
+            content.ids.rev_inlist.add_widget(bt)
+
+        self.show_popup(title="Included taxa", content=content,
+                        size_hint=(.3, .8))
 
     def orto_change_filters(self, gn_filter, sp_filter, group_name=None,
                             apply_all=False):
