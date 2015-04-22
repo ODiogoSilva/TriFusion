@@ -71,7 +71,6 @@ ShowcaseScreen:
                                     MySlider:
                                         step: 1
                                         min: 1
-                                        value: self.max
                                         id: gn_spin
 
                             BoxLayout:
@@ -92,7 +91,6 @@ ShowcaseScreen:
                                     MySlider:
                                         step: 1
                                         min: 1
-                                        value: self.max
                                         id: sp_spin
 
                     Vseparator:
@@ -127,10 +125,10 @@ ShowcaseScreen:
                                 halign: "center"
                                 valign: "middle"
                                 bold: True
-                                background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == (int(gn_spin.value), int(sp_spin.value)) else "data/backgrounds/refresh_update_bt.png"
+                                background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt.png"
                                 on_release:
-                                    if header_content.original_filt and header_content.original_filt != (int(gn_spin.value), int(sp_spin.value)):\
-                                    app.orto_show_plot(header_content.plt_idx, filt=(int(gn_spin.value), int(sp_spin.value)))
+                                    if header_content.original_filt and header_content.original_filt != [int(gn_spin.value), int(sp_spin.value)]:\
+                                    app.orto_show_plot(header_content.plt_idx, filt=[int(gn_spin.value), int(sp_spin.value)])
 
                     Vseparator:
                         thickness: 1.5
