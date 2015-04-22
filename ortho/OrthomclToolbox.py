@@ -481,21 +481,29 @@ class Group ():
 
         return b_plt, lgd, table_list
 
-    def bar_species_coverage(self, dest="./",
+    def bar_species_coverage(self, dest="./", filt=False,
                             output_file_name="Species_coverage"):
         """
         Creates a stacked bar plot with the proportion of
         :return:
         """
 
+        data = []
+
+        # Determine which groups to use
+        if filt:
+            groups = self.filtered_groups
+        else:
+            groups = self.groups
+
         data = Counter(dict((x, 0) for x in self.species_list))
 
-        for cl in self.groups:
+        for cl in groups:
             data += Counter(dict((x, 1) for x, y in cl.species_frequency.items()
                             if y > 0))
 
         xlabels = [str(x) for x in list(data.keys())]
-        data = [list(data.values()), [len(self.groups) - x for x in
+        data = [list(data.values()), [len(groups) - x for x in
                                       data.values()]]
         lgd_list = ["Available data", "Missing data"]
 
