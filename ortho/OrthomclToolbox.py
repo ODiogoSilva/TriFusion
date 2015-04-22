@@ -218,6 +218,9 @@ class Group ():
                 if cluster_object.gene_compliant:
                     self.num_gene_compliant += 1
 
+        # Sort species_list
+        self.species_list = sorted(self.species_list)
+
     def exclude_taxa(self, taxa_list):
         """
         Adds a taxon_name to the excluded_taxa list and updates the
@@ -242,7 +245,8 @@ class Group ():
                     self.max_extra_copy = max(cl.species_frequency.values())
 
         # Update species_list
-        self.species_list = list(set(self.species_list) - set(taxa_list))
+        self.species_list = sorted(list(set(self.species_list) -
+                                        set(taxa_list)))
 
         self.filtered_groups = self.groups = filtered_groups
 
