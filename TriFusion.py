@@ -3992,6 +3992,24 @@ class TriFusionApp(App):
             # Reset excluded taxa storage list
             self.screen.ids.header_content.excluded_taxa = []
 
+        # If excluded_taxa is not provided in function calling, but has already
+        # being defined in header_content.excluded_taxa, use this list.
+        elif not exclude_taxa and self.screen.ids.header_content.excluded_taxa:
+            group.exclude_taxa(self.screen.ids.header_content.excluded_taxa)
+
+        # Update slider max values
+        self.screen.ids.gn_spin.max = group.max_extra_copy
+        self.screen.ids.sp_spin.max = len(group.species_list)
+        # Update slider values if they are outside bounds
+        if self.screen.ids.gn_spin.value > self.screen.ids.gn_spin.max:
+            self.screen.ids.gn_spin.value = self.screen.ids.gn_spin.max
+
+        if self.screen.ids.sp_spin.value > len(group.species_list):
+            self.screen.ids.sp_spin.value = len(group.species_list)
+
+        self.screen.ids.header_content.original_filt = \
+            [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
+
         # If filt is specified, update the groups object
         if filt:
             group.update_filters(filt[0], filt[1])
@@ -4019,19 +4037,6 @@ class TriFusionApp(App):
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
                             (len(group.species_list),
                             len(self.screen.ids.header_content.excluded_taxa))
-
-        # Update slider max values
-        self.screen.ids.gn_spin.max = group.max_extra_copy
-        self.screen.ids.sp_spin.max = len(group.species_list)
-        # Update slider values if they are outside bounds
-        if self.screen.ids.gn_spin.value > self.screen.ids.gn_spin.max:
-            self.screen.ids.gn_spin.value = self.screen.ids.gn_spin.max
-
-        if self.screen.ids.sp_spin.value > len(group.species_list):
-            self.screen.ids.sp_spin.value = len(group.species_list)
-
-        self.screen.ids.header_content.original_filt = \
-            [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
 
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
@@ -4093,10 +4098,11 @@ class TriFusionApp(App):
 
         # Add bindings to Ok button
         content.ids.ok_bt.bind(on_release=lambda x:
-            self.orto_show_plot(plt_idx,
-                exclude_taxa=[x.text for x in
-                              content.ids.rev_inlist.children if
-                              x.state == "normal"]))
+            self.orto_show_plot(plt_idx, filt=[self.screen.ids.gn_spin.value,
+                                               self.screen.ids.sp_spin.value],
+                                exclude_taxa=[x.text for x in
+                                content.ids.rev_inlist.children if
+                                x.state == "normal"]))
 
         self.show_popup(title="Included taxa", content=content,
                         size_hint=(.3, .8))
