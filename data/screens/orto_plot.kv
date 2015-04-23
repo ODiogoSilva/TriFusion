@@ -138,7 +138,7 @@ ShowcaseScreen:
                         Label:
                             size_hint_y: None
                             height: 20
-                            text: "Orthologs"
+                            text: "Summary"
                             halign: "center"
                             valign: "middle"
                             text_size: self.size
@@ -148,10 +148,11 @@ ShowcaseScreen:
                             padding: (0, 0, 10, 0)
                             BoxLayout:
                                 orientation: "vertical"
+                                size_hint_x: .6
                                 Label:
                                     size_hint_y: None
                                     height: 20
-                                    text: "Showing:"
+                                    text: "Orthologs"
                                     halign: "left"
                                     valign: "middle"
                                     text_size: self.size
@@ -161,19 +162,21 @@ ShowcaseScreen:
                                 BoxLayout:
                                     orientation: "vertical"
                                     Label:
-                                        id: save_orto
+                                        id: orto_sum
                                         bold: True
-                                        color: (113/255, 200/255, 55/255, 1)
-                                        font_size: 28
+                                        #color: (113/255, 200/255, 55/255, 1)
+                                        font_size: 26
                                         halign: "left"
                                         valign: "middle"
                                         text_size: self.size
+                                        markup: True
                             BoxLayout:
                                 orientation: "vertical"
+                                size_hint_x: .4
                                 Label:
                                     size_hint_y: None
                                     height: 20
-                                    text: "Discarded:"
+                                    text: "Taxa"
                                     bold: True
                                     halign: "right"
                                     valign: "middle"
@@ -182,7 +185,7 @@ ShowcaseScreen:
                                 BoxLayout:
                                     orientation: "vertical"
                                     Label:
-                                        id: discard_orto
+                                        id: taxa_sum
                                         text: "0"
                                         bold: True
                                         color: (1, .33, .33, 1)
@@ -190,6 +193,7 @@ ShowcaseScreen:
                                         halign: "right"
                                         valign: "middle"
                                         text_size: self.size
+                                        markup: True
 
         Hseparator:
             thickness: 1.5
