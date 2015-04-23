@@ -4077,6 +4077,10 @@ class TriFusionApp(App):
         img_wgt = Image(source=file_path, nocache=True)
         self.screen.ids.plot_content.children[0].add_widget(img_wgt)
 
+        # Reset position and scale of Scatter
+        self.screen.ids.plot_content.scale = 1
+        self.screen.ids.plot_content.pos = (0, 0)
+
     def dialog_exclude_orto_taxa(self, plt_idx):
 
         content = InputList(cancel=self.dismiss_popup)
