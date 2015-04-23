@@ -4003,12 +4003,23 @@ class TriFusionApp(App):
             self.screen.ids.sp_spin.value = 1
             self.screen.ids.header_content.original_filt = \
                 [group.max_extra_copy, 1]
-            self.screen.ids.save_orto.text = str(len(group.groups))
-            self.screen.ids.discard_orto.text = "0"
+            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
+                len(group.groups)
+            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
+                len(group.species_list)
         else:
-            self.screen.ids.save_orto.text = str(len(group.filtered_groups))
-            self.screen.ids.discard_orto.text = str(len(group.groups) -
-                                            len(group.filtered_groups))
+            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
+                                            (str(len(group.filtered_groups)),
+                                            str(len(group.groups) -
+                                            len(group.filtered_groups)))
+            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
+                            (len(group.species_list),
+                            len(self.screen.ids.header_content.excluded_taxa))
+
         # Update slider max values
         self.screen.ids.gn_spin.max = group.max_extra_copy
         self.screen.ids.sp_spin.max = len(group.species_list)
