@@ -64,6 +64,8 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None,
 
     if len(labels) > 10:
         plt.rcParams["figure.figsize"] = (8 * len(labels) / 10, 6)
+    else:
+        plt.rcParams["figure.figsize"] = (8, 6)
 
     # Use ggpot style
     plt.style.use("ggplot")
