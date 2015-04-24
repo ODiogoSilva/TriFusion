@@ -1892,7 +1892,7 @@ class TriFusionApp(App):
 
     ########################### GENERAL USE ###################################
 
-    def run_in_background(self, func, second_func, *args):
+    def run_in_background(self, func, second_func, args1, args2):
         """
         This method is intended to run time/resource consuming operations in the
         background, without freezing the app, and return the final result to the
@@ -1906,8 +1906,10 @@ class TriFusionApp(App):
         :param func: intensive callable bound method to run in the background
         :param second_func: Follow-up bound method that will use the value
         returned by func
-        :param args: list, with the arguments for the method. No keywords
+        :param args1: list, with the arguments for func t method. No keywords
         allowed
+        :param args2: list, with arguments for second_func. These will be added
+        to the argument list returned by func
         """
 
         def background_process(f, ns, a):
@@ -1922,7 +1924,7 @@ class TriFusionApp(App):
             val = f(*a)
             ns.val = val
 
-        def check_process_status(p, second_function, dt):
+        def check_process_status(p, second_function, args, dt):
             """
             This scheduled function will check the status of the second process.
             When finished, it will dismiss the waiting popup, get the value
@@ -1933,13 +1935,16 @@ class TriFusionApp(App):
                 val = shared_ns.val
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
+                # In case there are additional arguments for secondary function
+                if args2:
+                    val += [args]
                 second_function(val)
 
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
 
         second_process = multiprocessing.Process(target=background_process,
-                                                 args=(func, shared_ns, args))
+                                                 args=(func, shared_ns, args1))
         second_process.start()
 
         # Remove any possible previous popups
@@ -1950,7 +1955,8 @@ class TriFusionApp(App):
         self.show_popup(title="", content=content, size=(230, 180))
 
         # Schedule function that checks the process' pulse
-        check_func = partial(check_process_status, second_process, second_func)
+        check_func = partial(check_process_status, second_process, second_func,
+                             args2)
         Clock.schedule_interval(check_func, .5)
 
     ####################### BOOKMARKS OPERATIONS ###############################
