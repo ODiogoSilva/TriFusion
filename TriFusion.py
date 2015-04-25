@@ -821,6 +821,9 @@ class TriFusionApp(App):
     # OrthoMCL output directory
     ortho_dir = StringProperty("")
 
+    # Export directory for orthology exports
+    orto_export_dir = StringProperty("")
+
     # USEARCH database
     usearch_db = StringProperty("goodProteins_db")
     usearch_output = StringProperty("AllVsAll.out")
@@ -3997,9 +4000,79 @@ class TriFusionApp(App):
         Dialog for group exportation.
         """
 
-        content = ExportGroupDialog(cancel=self.dismiss_popup)
+        content = ExportGroupDialog(cancel=self.dismiss_all_popups)
         self.show_popup(title="Export group as...", content=content,
-                        size=(580, 370))
+                        size=(580, 440))
+
+    def orto_export_groups(self, export_idx, output_name=None):
+        """
+        This will handle the group exportation of the orthology screen. The
+        intensive export methods will run in the background while updating
+        the main process of their process.
+        :param export_idx: string, with the identifier of exportation. Can be
+        either 'group', 'protein' or 'dna'
+        the database from which sequences will be retrieved
+        :param output_name: string, for group exportation, provide the name
+        of the output filtered file
+        """
+
+        def background_process(f, nm, a):
+            """
+            Calls function f with a arguments
+            :param f: bound method
+            :param nm: shared namespace object to provide to bound method
+            :param a: list, with arguments
+            """
+
+            f(*a, shared_namespace=nm)
+
+        def check_process(p, dt):
+
+            # Update dialog text
+            try:
+                content.ids.msg.text = ns.act
+            except AttributeError:
+                pass
+
+            # Update progress bar
+            try:
+                content.ids.pb.value = ns.progress
+            except AttributeError:
+                pass
+
+            # Check process status
+            if not p.is_alive():
+                Clock.unschedule(func)
+                self.dismiss_popup()
+                self.dialog_floatcheck("%s sequences successfully exported" %
+                                       ns.progress, t="info")
+
+        # Get active group
+        for i in self.screen.ids.group_gl.children:
+            if i.state == "down":
+                group_obj = deepcopy(self.ortho_groups.get_group(i.text))
+
+        method_store = {"group": [group_obj.export_filtered_group,
+                                  [output_name]],
+                        "protein": [group_obj.retrieve_fasta,
+                                    [self.protein_db, self.orto_export_dir]]}
+
+        # Get method and args
+        m = method_store[export_idx]
+
+        manager = multiprocessing.Manager()
+        ns = manager.Namespace()
+
+        d = multiprocessing.Process(target=background_process,
+                                    args=(m[0], ns, m[1]))
+        d.start()
+
+        content = LoadProgressDialog()
+        content.ids.pb.max = len(group_obj.filtered_groups)
+        self.show_popup(title="Exporting...", content=content, size=(400, 250))
+
+        func = partial(check_process, d)
+        Clock.schedule_interval(func, .5)
 
     def orto_compare_groups(self):
         """
@@ -4471,15 +4544,24 @@ class TriFusionApp(App):
                                 custom_background=custom_background)
         self._popup.open()
 
+    def dismiss_all_popups(self, *args):
+        """
+        Method that force closes all popups in thre screen
+        """
+
+        for wgt in (x for x in self.root_window.children
+                    if isinstance(x, CustomPopup)):
+            wgt.dismiss()
+
     def dismiss_popup(self, *args):
         """
-        General purpose method to close popups from the process screen
+        General purpose method to close popups from the screen
         """
         self._popup.dismiss()
 
     def dismiss_subpopup(self, *args):
         """
-    General purpose method to close sub-popups from the process screen
+        General purpose method to close sub-popups from the screen
         """
         self._subpopup.dismiss()
 
@@ -4511,9 +4593,15 @@ class TriFusionApp(App):
                 self.output_dir = path
                 self.process_grid_wgt.ids.conv.text = path.split(sep)[-1]
 
-        if idx == "ortho_dir":
+        elif idx == "ortho_dir":
             self.ortho_dir = path
             self.screen.ids.orto_dir.text = path.split(sep)[-1]
+
+        elif idx == "protein_db":
+            self.protein_db = path[0]
+
+        elif idx == "orto_export_dir":
+            self.orto_export_dir = path
 
     def save_format(self, value):
         """
@@ -4838,17 +4926,27 @@ class TriFusionApp(App):
             else:
                 title = "Choose output file"
 
-        if idx == "export":
+        elif idx == "orto_export_dir":
+            content.ids.txt_box.clear_widgets()
+            content.ids.txt_box.height = 0
+            title = "Choose directory"
+
+        elif idx == "export":
             title = "Choose file for exportation"
 
         # Custom behaviour for orthology output directory
-        if idx == "ortho_dir":
+        elif idx == "ortho_dir":
             content.ids.txt_box.clear_widgets()
             content.ids.txt_box.height = 0
             title = "Choose destination directory for OrthoMCL output files"
 
-        if idx == "export_table":
+        elif idx == "export_table":
             title = "Export as table..."
+
+        elif idx == "protein_db":
+            content.ids.txt_box.clear_widgets()
+            content.ids.txt_box.height = 0
+            title = "Choose protein sequence database file"
 
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
