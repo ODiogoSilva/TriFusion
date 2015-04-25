@@ -1943,10 +1943,12 @@ class TriFusionApp(App):
                 val = shared_ns.val
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
-                # In case there are additional arguments for secondary function
-                if args2:
-                    val += [args]
-                second_function(val)
+                # Checks if there is a second function to run and whether there
+                # are additional arguments for secondary function
+                if second_func:
+                    if args2:
+                        val += [args]
+                    second_function(val)
 
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
