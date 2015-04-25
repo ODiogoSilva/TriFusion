@@ -10,6 +10,7 @@ import shutil
 #sys.path.append("/home/diogo/Python/Modules")
 
 import argparse
+import pickle
 
 from ortho import OrthomclToolbox as OT
 import ortho.orthomclInstallSchema as install_sqlite
@@ -189,6 +190,10 @@ def adjust_fasta(file_list, code=True, verbose=False):
         shutil.move(proteome.split(".")[0] + "_mod.fas",
                     os.path.join(output_dir, "compliantFasta",
                                  protome_file_name))
+
+    # Store seq_storage dictionary with pickle so that it can be latter used
+    # for retrieval operations
+    pickle.dump(seq_storage, open("protein_database.dic", "wb"))
 
     return seq_storage
 
