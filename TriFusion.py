@@ -839,6 +839,10 @@ class TriFusionApp(App):
     orto_max_gene = NumericProperty(1)
     orto_min_sp = NumericProperty(3)
 
+    # Attributes for exporting groups as protein/nucleotides
+    protein_db = None
+    cds_db = StringProperty("")
+
     # Attribute containing the path to the proteome files
     proteome_files = ListProperty()
     active_proteome_files = ListProperty()
@@ -3988,7 +3992,7 @@ class TriFusionApp(App):
 
     def dialog_export_groups(self):
         """
-
+        Dialog for group exportation.
         """
 
         content = ExportGroupDialog(cancel=self.dismiss_popup)
@@ -5595,7 +5599,7 @@ class TriFusionApp(App):
             if nm.k:
                 nm.t = "Adjusting Fasta Files"
                 nm.c = 2
-                db = opipe.adjust_fasta(self.proteome_files)
+                nm.db = opipe.adjust_fasta(self.proteome_files)
 
             if nm.k:
                 nm.t = "Filtering Fasta Files"
@@ -5649,7 +5653,7 @@ class TriFusionApp(App):
                                              self.mcl_inflation,
                                              self.group_prefix,
                                              self.orto_max_gene,
-                                             self.orto_min_sp, db)
+                                             self.orto_min_sp, nm.db)
 
                 # stats is a dictionary containing the inflation value as key
                 # and a list with the orthologs as value
@@ -5674,6 +5678,8 @@ class TriFusionApp(App):
                 self.dismiss_popup()
                 self.dialog_search_report(ns.stats)
                 self.load_groups(ns.groups)
+                # Get protein database in dict format
+                self.protein_db = ns.db
 
             # Listens for cancel signal
             if content.proc_kill:
