@@ -361,6 +361,10 @@ class ExportGraphics(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class ExportGroupDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class BackButton(Button):
     pass
 
@@ -3981,6 +3985,15 @@ class TriFusionApp(App):
 
         self.protein_min_len = min_len
         self.protein_max_stop = max_stop
+
+    def dialog_export_groups(self):
+        """
+
+        """
+
+        content = ExportGroupDialog(cancel=self.dismiss_popup)
+        self.show_popup(title="Export group as...", content=content,
+                        size=(580, 370))
 
     def orto_compare_groups(self):
         """
