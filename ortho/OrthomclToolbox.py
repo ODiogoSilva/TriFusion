@@ -402,13 +402,19 @@ class Group ():
 
         self.filtered_groups = updated_group
 
-    def retrieve_fasta(self, database, filt=True):
+    def retrieve_fasta(self, database, dest="./", filt=True,
+                       shared_namespace=None):
         """
         When provided with a database in Fasta format, this will use the
         Alignment object to retrieve sequences
         :param database: String. Fasta file
         :param filt: Boolean. Whether to use the filtered groups (True) or
         total groups (False)
+        :param shared_namespace: Namespace object. This argument is meant for
+        when fast are retrieved in a background process, where there is a need
+        to update the main process of the changes in this method
+        :param dest: string. Path to directory where the retrieved sequences
+        will be created.
         """
 
         if filt:
@@ -419,6 +425,11 @@ class Group ():
         if not os.path.exists("Orthologs"):
             os.makedirs("Orthologs")
 
+        # Update method progress
+        if shared_namespace:
+            shared_namespace.act = "Creating database"
+
+        # Check what type of database was provided
         if isinstance(database, str):
             db_aln = Alignment(database)
             db_aln = db_aln.alignment
@@ -428,8 +439,13 @@ class Group ():
             raise OrthoGroupException("The input database is neither a string"
                                       "nor a dictionary object")
 
+        # Update method progress
+        if shared_namespace:
+            shared_namespace.act = "Retrieving sequences"
         for cluster in groups:
-            output_handle = open(join("Orthologs", cluster.name + ".fas"), "w")
+            if shared_namespace:
+                shared_namespace.progress = groups.index(cluster)
+            output_handle = open(join(dest, cluster.name + ".fas"), "w")
             for sequence_id in cluster.sequences:
                 seq = db_aln[sequence_id]
                 output_handle.write(">%s\n%s\n" % (sequence_id.split("|")[0],
