@@ -346,7 +346,7 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
                                           get_stats=True)
         # Retrieve fasta sequences from the filtered groups
         os.chdir(inflation_dir)
-        group_obj.retrieve_fasta(db)
+        group_obj.retrieve_fasta(db, dest="Orthologs")
         os.chdir("..")
         stats_storage[val] = stats
 
