@@ -27,6 +27,7 @@ from process.sequence import Alignment
 
 from collections import OrderedDict, Counter
 from base.plotter import *
+import pickle
 import os
 from copy import deepcopy
 from os.path import join
@@ -430,9 +431,13 @@ class Group ():
             shared_namespace.act = "Creating database"
 
         # Check what type of database was provided
+        #TODO: Add exception handling if file is not parsed with Aligment
         if isinstance(database, str):
-            db_aln = Alignment(database)
-            db_aln = db_aln.alignment
+            try:
+                db_aln = pickle.load(open(database, "rb"))
+            except (FileNotFoundError, pickle.UnpicklingError):
+                db_aln = Alignment(database)
+                db_aln = db_aln.alignment
         elif isinstance(database, dict):
             db_aln = database
         else:
