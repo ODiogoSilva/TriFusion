@@ -331,7 +331,9 @@
             text_size: self.size
         ProcessBt:
             disabled: True if group_fmt.state == "down" or nuc_fmt.state == "down" else False
-            text: "Select..."
+            text: app.protein_db if app.protein_db else "Select..."
+            on_release:
+                app.dialog_filechooser("protein_db")
 
     Hseparator:
         thickness: .5
@@ -351,6 +353,22 @@
             text: "Select"
 
     Hseparator:
+        thickness: .5
+
+    DarkBox:
+        Label:
+            size_hint_x: .7
+            markup: True
+            text: "[size=18][b]Output directory[/b][/size]\n[size=13]The output directory for the exported files[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        ProcessBt:
+            text: "Select..."
+            on_release:
+                app.dialog_filechooser("orto_export_dir")
+
+    Hseparator:
         thickness: 1.5
 
     BoxLayout:
@@ -366,13 +384,14 @@
                 Button:
                     background_normal: "data/backgrounds/bt_process.png"
                     background_down: "data/backgrounds/bt_process_off.png"
-                    text: "Save"
+                    text: "Export"
                     id: ok_bt
                     size_hint_x: None
                     width: 100
                     bold: True
                     on_release:
-
+                        if prot_fmt.state == "down":\
+                        app.orto_export_groups('protein')
                 Button:
                     background_normal: "data/backgrounds/bt_process_off.png"
                     background_down: "data/backgrounds/bt_process.png"
@@ -2182,7 +2201,7 @@
             id: sd_filechooser
             text: "master"
             path: app._common_path() if app._common_path() else app.home_path
-            on_selection: text_input.text = self.selection
+            #on_selection: text_input.text = self.selection
 
         BoxLayout:
             id: txt_box
@@ -2226,6 +2245,10 @@
                     app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
                     if sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
                     app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
+                    if sd_filechooser.text == "protein_db" and txt_box.height == 0: \
+                    app.save_file(sd_filechooser.selection, idx=sd_filechooser.text)
+                    if sd_filechooser.text == "orto_export_dir" and txt_box.height == 0: \
+                    app.save_file(sd_filechooser.path, idx=sd_filechooser.text)
                     # Close dialog
                     if self.text_io != "" or txt_box.height == 0: root.cancel()
 
