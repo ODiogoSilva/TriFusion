@@ -290,6 +290,94 @@
                 on_release:
                     app.dialog_filechooser("export_table")
 
+<ExportGroupDialog@BoxLayout>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: 40
+        BoxLayout:
+            spacing: 10
+            FileTypeBt:
+                state: "down"
+                id: group_fmt
+                text: "Groups file"
+            FileTypeBt:
+                id: prot_fmt
+                text: "Protein sequences"
+            FileTypeBt:
+                id: nuc_fmt
+                text: "Nucleotide sequences"
+
+    Hseparator:
+        thickness: 1.5
+
+    DarkBox:
+        height: 70
+        Label:
+            opacity: .2 if group_fmt.state == "down" or nuc_fmt.state == "down" else 1
+            size_hint_x: .7
+            markup: True
+            text: "[size=18][b]Protein database[/b][/size]\n[size=13]Provide a Fasta file containing the proteins used as a database for the Search operation[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        ProcessBt:
+            disabled: True if group_fmt.state == "down" or nuc_fmt.state == "down" else False
+            text: "Select..."
+
+    Hseparator:
+        thickness: .5
+
+    DarkBox:
+        height: 70
+        Label:
+            opacity: .2 if group_fmt.state == "down" or prot_fmt.state == "down" else 1
+            size_hint_x: .7
+            markup: True
+            text: "[size=18][b]CDS database[/b][/size]\n[size=13]Provide a Fasta file containing the nucleotide CDS files that correspond to the searched proteins[/size]"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        ProcessBt:
+            disabled: True if group_fmt.state == "down" or prot_fmt.state == "down" else False
+            text: "Select"
+
+    Hseparator:
+        thickness: 1.5
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        AnchorLayout:
+            anchor_x: "center"
+            anchor_y: "center"
+            BoxLayout:
+                size_hint_x: None
+                width: 220
+                spacing: 20
+                Button:
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_down: "data/backgrounds/bt_process_off.png"
+                    text: "Save"
+                    id: ok_bt
+                    size_hint_x: None
+                    width: 100
+                    bold: True
+                    on_release:
+
+                Button:
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: cancel_bt
+                    bold: True
+                    text: "Cancel"
+                    size_hint_x: None
+                    width: 100
+                    on_release: root.cancel()
+
 <ExportGraphics@BoxLayout>:
     size: root.size
     pos: root.pos
@@ -812,6 +900,8 @@
                 text: "Export as..."
                 size_hint_x: None
                 width: 100
+                on_release:
+                    app.dialog_export_groups()
 
         BoxLayout:
             size_hint_y: None
