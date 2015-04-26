@@ -87,7 +87,7 @@ def translate(sequence):
 def create_db(f_list):
     """
     Creates a fasta database file containing the translated protein sequences
-    from the transcript files. The final transcripts.fas file will be use
+    from the cds files. The final transcripts.fas file will be use
     by USEARCH to get matches between the original protein sequences and their
     nucleotide counterparts. A dictionary database will also be created where
     the transcript headers will be associated with the original DNA sequence,
@@ -143,6 +143,21 @@ def create_query(input_list):
                 f_handle.write(line)
 
         handle.close()
+
+    f_handle.close()
+
+    return query_db
+
+
+def create_query_from_dict(protein_dict):
+
+    query_db = {"group": []}
+    f_handle = open("query", "w")
+
+    for cl in protein_dict:
+        for seq_id, seq in cl:
+            query_db[cl].append(seq_id.replace(" ", "€"))
+            f_handle.write(">%s\n%s\n" % (seq_id.replace(" ", "€"), seq))
 
     f_handle.close()
 
@@ -207,5 +222,34 @@ def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
         print("\r%s sequences could not be retrieved" % bad, end="")
         subprocess.Popen(["rm pairs.out query.fas transcripts.fas"],
                          shell=True).wait()
+
+
+def convert_group(cds_file_list, group_sequences, shared_namespace=None):
+    """
+    Convenience function that wraps all required operations to convert protein
+    to nucleotide files from a Group object
+    """
+
+    if shared_namespace:
+        shared_namespace.act = "Creating database"
+    # Create database
+    id_db = create_db(cds_file_list)
+
+    if shared_namespace:
+        shared_namespace.act = "Creating query"
+    # Create query for USEARCH
+    query_db = create_query_from_dict(group_sequences)
+    # Execute search
+
+    if shared_namespace:
+        shared_namespace.act = "Performing search"
+    pair_search()
+    pair_db = get_pairs()
+    # Convert files
+
+    if shared_namespace:
+            shared_namespace.act = "Converting to nucleotide"
+    convert_protein_file(pair_db, query_db, id_db)
+
 
 __author__ = 'diogo'
