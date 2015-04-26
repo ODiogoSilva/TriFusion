@@ -403,12 +403,15 @@ class Group ():
 
         self.filtered_groups = updated_group
 
-    def retrieve_fasta(self, database, dest="./", filt=True,
+    def retrieve_sequences(self, database, dest="./", mode="fasta", filt=True,
                        shared_namespace=None):
         """
         When provided with a database in Fasta format, this will use the
         Alignment object to retrieve sequences
         :param database: String. Fasta file
+        :param dest: directory where files will be save
+        :param mode: string, whether to retrieve sequences to a file ('fasta'),
+        or a dictionary ('dict')
         :param filt: Boolean. Whether to use the filtered groups (True) or
         total groups (False)
         :param shared_namespace: Namespace object. This argument is meant for
@@ -417,6 +420,9 @@ class Group ():
         :param dest: string. Path to directory where the retrieved sequences
         will be created.
         """
+
+        if mode == "dict":
+            seq_storage = {}
 
         if filt:
             groups = self.filtered_groups
@@ -448,15 +454,27 @@ class Group ():
         if shared_namespace:
             shared_namespace.act = "Retrieving sequences"
         for cluster in groups:
+
             if shared_namespace:
                 shared_namespace.progress = groups.index(cluster)
+
+            if mode == "dict":
+                seq_storage[cluster.name] = []
+
             output_handle = open(join(dest, cluster.name + ".fas"), "w")
             for sequence_id in cluster.sequences:
                 seq = db_aln[sequence_id]
-                output_handle.write(">%s\n%s\n" % (sequence_id.split("|")[0],
-                                                   seq))
+                if mode == "fasta":
+                    output_handle.write(">%s\n%s\n" % (
+                        sequence_id.split("|")[0], seq))
+                elif mode == "dict":
+                    seq_storage[cluster.name].append([sequence_id.split("|")[0],
+                                                      seq])
             else:
                 output_handle.close()
+
+        if mode == "dict":
+            return seq_storage
 
     def bar_species_distribution(self, dest="./", filt=False,
                                  output_file_name="Species_distribution"):
