@@ -4054,7 +4054,7 @@ class TriFusionApp(App):
                 group_obj = deepcopy(self.ortho_groups.get_group(i.text))
 
         method_store = {"group": [group_obj.export_filtered_group,
-                                  [output_name]],
+                                  [output_name, self.orto_export_dir]],
                         "protein": [group_obj.retrieve_sequences,
                                     [self.protein_db, self.orto_export_dir]],
                         "nucleotide": [protein2dna.convert_group(self.cds_db,
