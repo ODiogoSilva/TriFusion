@@ -364,7 +364,7 @@
             valign: "middle"
             text_size: self.size
         ProcessBt:
-            text: "Select..."
+            text: app.orto_export_dir if app.orto_export_dir else "Select..."
             on_release:
                 app.dialog_filechooser("orto_export_dir")
 
@@ -390,6 +390,8 @@
                     width: 100
                     bold: True
                     on_release:
+                        if not app.orto_export_dir: \
+                        return app.dialog_floatcheck("Please select and output directory", t="error")
                         if prot_fmt.state == "down":\
                         app.orto_export_groups('protein')
                 Button:
