@@ -54,6 +54,7 @@ from kivy.uix.scrollview import ScrollView
 # Main program imports
 from ortho import orthomcl_pipeline as opipe
 from ortho import OrthomclToolbox as ot
+from ortho import protein2dna
 from process.sequence import AlignmentList
 from process.base import Base
 from process import data
@@ -4054,8 +4055,10 @@ class TriFusionApp(App):
 
         method_store = {"group": [group_obj.export_filtered_group,
                                   [output_name]],
-                        "protein": [group_obj.retrieve_fasta,
-                                    [self.protein_db, self.orto_export_dir]]}
+                        "protein": [group_obj.retrieve_sequences,
+                                    [self.protein_db, self.orto_export_dir]],
+                        "nucleotide": [protein2dna.convert_group(self.cds_db,
+                                                                 group_obj)]}
 
         # Get method and args
         m = method_store[export_idx]
