@@ -327,12 +327,19 @@ class Group ():
         output_handle.close()
 
     def export_filtered_group(self, output_file_name="filtered_groups",
-                              get_stats=False):
-        """ Writes the filtered groups into a new file """
+                              dest="./", get_stats=False):
+        """
+        Export the filtered groups into a new file.
+        :param output_file_name: string, name of the filtered groups file
+        :param dest: string, path to directory where the filtered groups file
+        will be created
+        :param get_stats: Boolean, whether to return the basic count stats or
+        not
+        """
 
         if self.filtered_groups:
 
-            output_handle = open(output_file_name, "w")
+            output_handle = open(os.path.join(dest, output_file_name), "w")
 
             if get_stats:
                 all_orthologs = len(self.groups)
