@@ -194,9 +194,8 @@ class Group ():
                     max(cluster_object.species_frequency.values())
 
             # Update species_list attribute
-            cluster_species = cluster_object.species_frequency.keys()
             self.species_list = list(set(self.species_list).union(
-                set(cluster_species)))
+                set(cluster_object.species_frequency.keys())))
 
             # If thresholds have been specified, update self.filtered_groups
             # attribute
