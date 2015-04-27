@@ -4003,9 +4003,37 @@ class TriFusionApp(App):
 
         content = ExportGroupDialog(cancel=self.dismiss_all_popups)
         self.show_popup(title="Export group as...", content=content,
-                        size=(580, 440))
+                        size=(600, 360))
 
-    def orto_export_groups(self, export_idx, output_name=None):
+    def dialog_export_groups_filechooser(self, idx):
+        """
+        When clicking Export groups in the main dialog for group exportation,
+        the user is redirected to a filechooser to choose the output directory
+        and output file name, in the case of group exportation.
+        :param idx: string. Determines the export mode: if "protein" or
+        "nucleotide", it will export sequence files, if "group", it will
+        export to another group file
+        """
+
+        content = SaveDialog(cancel=self.dismiss_popup)
+
+        # Set the path from previously imported groups, if any
+        content.ids.sd_filechooser.path = self.orto_export_dir if \
+                self.orto_export_dir else self.home_path
+
+        if idx == "nucleotide" or idx == "protein":
+            content.ids.txt_box.clear_widgets()
+            content.ids.txt_box.height = 0
+            title = "Export sequences to directory ..."
+
+        else:
+            title = "Export group file to directory ..."
+
+        content.ids.sd_filechooser.text = idx
+
+        self.show_popup(title=title, content=content)
+
+    def orto_export_groups(self, export_idx, output_dir=None, output_name=None):
         """
         This will handle the group exportation of the orthology screen. The
         intensive export methods will run in the background while updating
@@ -4046,7 +4074,11 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 self.dialog_floatcheck("%s sequences successfully exported" %
-                                       ns.progress, t="info")
+                                       (ns.progress + 1), t="info")
+
+        # Update orthology export directory, if necessary
+        if output_dir != self.orto_export_dir:
+            self.orto_export_dir = output_dir
 
         # Get active group
         for i in self.screen.ids.group_gl.children:
@@ -4054,12 +4086,11 @@ class TriFusionApp(App):
                 group_obj = deepcopy(self.ortho_groups.get_group(i.text))
 
         method_store = {"group": [group_obj.export_filtered_group,
-                                  [output_name, self.orto_export_dir]],
+                                  [output_name, output_dir]],
                         "protein": [group_obj.retrieve_sequences,
-                                    [self.protein_db, self.orto_export_dir]],
-                        "nucleotide": [protein2dna.convert_group(self.cds_db,
-                                                                 group_obj)]}
-
+                                    [self.protein_db, output_dir]],
+                        "nucleotide": [protein2dna.convert_group,
+                                    [self.cds_db, self.protein_db, group_obj]]}
         # Get method and args
         m = method_store[export_idx]
 
@@ -4070,12 +4101,15 @@ class TriFusionApp(App):
                                     args=(m[0], ns, m[1]))
         d.start()
 
+        # Remove any previous popups
+        self.dismiss_all_popups()
+
         content = LoadProgressDialog()
         content.ids.pb.max = len(group_obj.filtered_groups)
         self.show_popup(title="Exporting...", content=content, size=(400, 250))
 
         func = partial(check_process, d)
-        Clock.schedule_interval(func, .5)
+        Clock.schedule_interval(func, .1)
 
     def orto_compare_groups(self):
         """
@@ -4418,6 +4452,13 @@ class TriFusionApp(App):
                                                  "remove this group?",
                                                  self.remove_groups))
                     self.screen.ids.group_rm.add_widget(x_bt)
+
+            else:
+                # If last group name contains a directory, set it as the
+                # default export dir
+                path = sep.join(g.name.split(sep)[:-1])
+                if os.path.exists(path):
+                    self.orto_export_dir = path
 
         # If no group button is active, dispatch the first
         if not [x for x in self.screen.ids.group_gl.children
@@ -4930,11 +4971,6 @@ class TriFusionApp(App):
                 title = "Choose destination directory of output file(s)"
             else:
                 title = "Choose output file"
-
-        elif idx == "orto_export_dir":
-            content.ids.txt_box.clear_widgets()
-            content.ids.txt_box.height = 0
-            title = "Choose directory"
 
         elif idx == "export":
             title = "Choose file for exportation"
