@@ -195,8 +195,8 @@ class Group ():
 
             # Update species_list attribute
             cluster_species = cluster_object.species_frequency.keys()
-            [self.species_list.append(species) for species in cluster_species
-             if species not in self.species_list]
+            self.species_list = list(set(self.species_list).union(
+                set(cluster_species)))
 
             # If thresholds have been specified, update self.filtered_groups
             # attribute
@@ -214,9 +214,6 @@ class Group ():
                 # Update num_gene_compliant attribute
                 if cluster_object.gene_compliant:
                     self.num_gene_compliant += 1
-
-        # Sort species_list
-        self.species_list = sorted(self.species_list)
 
     def exclude_taxa(self, taxa_list):
         """
