@@ -150,6 +150,11 @@ def create_query(input_list):
 
 
 def create_query_from_dict(protein_dict):
+    """
+    Analogous to create_query, but begins from a dictionary provided by
+    processed group files
+    :param protein_dict: dictionary
+    """
 
     query_db = {"group": []}
     f_handle = open("query", "w")
@@ -224,7 +229,8 @@ def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
                          shell=True).wait()
 
 
-def convert_group(cds_file_list, group_sequences, shared_namespace=None):
+def convert_group(cds_file_list, protein_db, group_sequences,
+                  shared_namespace=None):
     """
     Convenience function that wraps all required operations to convert protein
     to nucleotide files from a Group object
@@ -238,7 +244,8 @@ def convert_group(cds_file_list, group_sequences, shared_namespace=None):
     if shared_namespace:
         shared_namespace.act = "Creating query"
     # Create query for USEARCH
-    query_db = create_query_from_dict(group_sequences)
+    seq_dict = group_sequences.retrieve_sequences(protein_db, mode="dict")
+    query_db = create_query_from_dict(seq_dict)
     # Execute search
 
     if shared_namespace:
