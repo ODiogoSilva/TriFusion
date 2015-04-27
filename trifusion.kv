@@ -322,7 +322,7 @@
     DarkBox:
         height: 70
         Label:
-            opacity: .2 if group_fmt.state == "down" or nuc_fmt.state == "down" else 1
+            opacity: .2 if group_fmt.state == "down" else 1
             size_hint_x: .7
             markup: True
             text: "[size=18][b]Protein database[/b][/size]\n[size=13]Provide a Fasta or .dic file containing the proteins used as a database for the Search operation. [/size]"
@@ -330,7 +330,7 @@
             valign: "middle"
             text_size: self.size
         ProcessBt:
-            disabled: True if group_fmt.state == "down" or nuc_fmt.state == "down" else False
+            disabled: True if group_fmt.state == "down" else False
             text: app.protein_db if app.protein_db else "Select..."
             on_release:
                 app.dialog_filechooser("protein_db")
@@ -351,22 +351,6 @@
         ProcessBt:
             disabled: True if group_fmt.state == "down" or prot_fmt.state == "down" else False
             text: "Select"
-
-    Hseparator:
-        thickness: .5
-
-    DarkBox:
-        Label:
-            size_hint_x: .7
-            markup: True
-            text: "[size=18][b]Output directory[/b][/size]\n[size=13]The output directory for the exported files[/size]"
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
-        ProcessBt:
-            text: app.orto_export_dir if app.orto_export_dir else "Select..."
-            on_release:
-                app.dialog_filechooser("orto_export_dir")
 
     Hseparator:
         thickness: 1.5
@@ -390,10 +374,17 @@
                     width: 100
                     bold: True
                     on_release:
-                        if not app.orto_export_dir: \
-                        return app.dialog_floatcheck("Please select and output directory", t="error")
-                        if prot_fmt.state == "down":\
-                        app.orto_export_groups('protein')
+                        if prot_fmt.state == "down" and not app.protein_db: \
+                        app.dialog_floatcheck("Please provide a protein database", t="error")
+                        elif nuc_fmt.state == "down" and not app.protein_db and not app.cds_db: \
+                        app.dialog_floatcheck("Please provide a protein and/or CDS database(s)", t="error")
+                        elif prot_fmt.state == "down": \
+                        app.dialog_export_groups_filechooser("protein")
+                        elif group_fmt.state == "down": \
+                        app.dialog_export_groups_filechooser("group")
+                        elif nuc_fmt.state == "down": \
+                        app.dialog_export_groups_filechooser("nucleotide")
+
                 Button:
                     background_normal: "data/backgrounds/bt_process_off.png"
                     background_down: "data/backgrounds/bt_process.png"
@@ -2236,23 +2227,28 @@
                     if self.text_io == "" and txt_box.height == 30: \
                     app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
                     # For save dialogs requiring a file name, save the file name
-                    if self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
+                    elif self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
                     app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
-                    if self.text_io != "" and sd_filechooser.text == "export": \
+                    elif self.text_io != "" and sd_filechooser.text == "export": \
                     app.export_names(sd_filechooser.path, file_name = text_input.text)
-                    if self.text_io != "" and sd_filechooser.text == "export_table": \
+                    elif self.text_io != "" and sd_filechooser.text == "export_table": \
                     app.export_table(sd_filechooser.path, text_input.text)
+                    elif self.text_io != "" and sd_filechooser.text == "group": \
+                    app.orto_export_groups("group", output_dir=sd_filechooser.path, output_name=text_input.text)
+
                     # For save dialogs that do not require file names
-                    if sd_filechooser.text == "main_output" and txt_box.height == 0: \
+                    elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
                     app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
-                    if sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
+                    elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
                     app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
-                    if sd_filechooser.text == "protein_db" and txt_box.height == 0: \
+                    elif sd_filechooser.text == "protein_db" and txt_box.height == 0: \
                     app.save_file(sd_filechooser.selection, idx=sd_filechooser.text)
-                    if sd_filechooser.text == "orto_export_dir" and txt_box.height == 0: \
+                    elif sd_filechooser.text == "orto_export_dir" and txt_box.height == 0: \
                     app.save_file(sd_filechooser.path, idx=sd_filechooser.text)
+                    elif sd_filechooser.text == "protein" or sd_filechooser.text == "nucleotide": \
+                    app.orto_export_groups(sd_filechooser.text, output_dir=sd_filechooser.path)
                     # Close dialog
-                    if self.text_io != "" or txt_box.height == 0: root.cancel()
+                    if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group": root.cancel()
 
             Button:
                 background_normal: "data/backgrounds/bt_process_off.png"
