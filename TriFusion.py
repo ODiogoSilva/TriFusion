@@ -4209,13 +4209,43 @@ class TriFusionApp(App):
         if self.screen.ids.sp_spin.value > len(group.species_list):
             self.screen.ids.sp_spin.value = len(group.species_list)
 
-        self.screen.ids.header_content.original_filt = \
-            [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
-
         # If filt is specified, update the groups object
         if filt:
-            group.update_filters(filt[0], filt[1])
-            self.screen.ids.header_content.original_filt = filt
+            # This will test whether the specified filters are inside bounds
+            # of the group object. Removal of taxa may alter the maximum number
+            # of gene copies and/or taxa and this will account for that and
+            # correct it
+            gn_filt = filt[0] if filt[0] <= group.max_extra_copy else \
+                group.max_extra_copy
+            sp_filt = filt[1] if filt[1] <= len(group.species_list) else \
+                len(group.species_list)
+            # Update group filters
+            group.update_filters(gn_filt, sp_filt)
+            self.screen.ids.header_content.original_filt = [gn_filt, sp_filt]
+            # If any of the filters had to be adjusted, issue a warning
+            if gn_filt != filt[0] or sp_filt != filt[1]:
+                self.dialog_floatcheck("WARNING: Current filters beyond the "
+                                       "maximum accepted values. Adjusting gene"
+                                       " and species thresholds to %s and %s, "
+                                       "respectively" % (gn_filt, sp_filt),
+                                       t="error")
+
+        # If no filter has been specified, but taxa removal changed the maximum
+        # number of species and/or gene copies beyond the current filter,
+        # adjust it
+        elif exclude_taxa and self.screen.ids.header_content.original_filt != \
+                [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]:
+            self.screen.ids.header_content.original_filt = \
+                [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
+            group.update_filters(self.screen.ids.gn_spin.value,
+                                 self.screen.ids.sp_spin.value)
+            # Issue warning that the filters were adjusted
+            self.dialog_floatcheck("WARNING: Current filters beyond the maximum"
+                                   " accepted values. Adjusting gene and "
+                                   "species thresholds to %s and %s, "
+                                   "respectively" %
+                                   (self.screen.ids.gn_spin.value,
+                                 self.screen.ids.sp_spin.value), t="error")
 
         # Setting filters for the first time
         if not filt and not exclude_taxa:
