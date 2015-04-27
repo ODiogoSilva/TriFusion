@@ -393,7 +393,7 @@ class Group ():
         replaces the self.filtered_groups variable
         """
 
-        updated_group = []
+        self.filtered_groups = []
 
         # Reset gene and species compliant counters
         self.num_gene_compliant = 0
@@ -402,7 +402,7 @@ class Group ():
         for cluster in self.groups:
             cluster.apply_filter(self.gene_threshold, self.species_threshold)
             if cluster.species_compliant and cluster.gene_compliant:
-                updated_group.append(cluster)
+                self.filtered_groups.append(cluster)
 
             # Update num_species_compliant attribute
             if cluster.species_compliant:
@@ -410,8 +410,6 @@ class Group ():
             # Update num_gene_compliant attribute
             if cluster.gene_compliant:
                 self.num_gene_compliant += 1
-
-        self.filtered_groups = updated_group
 
     def retrieve_sequences(self, database, dest="./", mode="fasta", filt=True,
                        shared_namespace=None):
