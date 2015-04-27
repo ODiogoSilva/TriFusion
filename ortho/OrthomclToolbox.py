@@ -75,12 +75,8 @@ class Cluster():
         self.sequences = fields[1].strip().split()
 
         # Setting the gene frequency for each species in the cluster
-        species_list = set([field.split("|")[0] for field in self.sequences])
-        self.species_frequency = dict((species, frequency) for species,
-                                      frequency in zip(species_list,
-                                      map(lambda species: str(
-                                          self.sequences).count(species),
-                                          species_list)))
+        self.species_frequency = Counter([field.split("|")[0] for field in
+                                          self.sequences])
 
     def remove_taxa(self, taxa_list):
         """
