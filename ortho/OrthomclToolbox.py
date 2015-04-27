@@ -327,7 +327,8 @@ class Group ():
         output_handle.close()
 
     def export_filtered_group(self, output_file_name="filtered_groups",
-                              dest="./", get_stats=False):
+                              dest="./", get_stats=False,
+                              shared_namespace=None):
         """
         Export the filtered groups into a new file.
         :param output_file_name: string, name of the filtered groups file
@@ -335,9 +336,14 @@ class Group ():
         will be created
         :param get_stats: Boolean, whether to return the basic count stats or
         not
+        :param shared_namespace: Namespace object, for communicating with
+        main process.
         """
 
         if self.filtered_groups:
+
+            if shared_namespace:
+                    shared_namespace.act = "Exporting filtered orthologs"
 
             output_handle = open(os.path.join(dest, output_file_name), "w")
 
@@ -348,6 +354,11 @@ class Group ():
                 final_orthologs = 0
 
             for cluster in self.filtered_groups:
+
+                if shared_namespace:
+                    shared_namespace.progress = \
+                        self.filtered_groups.index(cluster)
+
                 if cluster.species_compliant and cluster.gene_compliant:
                     output_handle.write("%s: %s\n" % (
                                     cluster.name, " ".join(cluster.sequences)))
