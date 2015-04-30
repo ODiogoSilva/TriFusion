@@ -853,6 +853,7 @@ class TriFusionApp(App):
 
     # Attribute containing the orthology group files
     ortho_groups = ObjectProperty(None)
+    active_group = ObjectProperty(None)
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
@@ -4089,23 +4090,13 @@ class TriFusionApp(App):
         if output_dir != self.orto_export_dir:
             self.orto_export_dir = output_dir
 
-        # Get active group
-        try:
-            for i in self.screen.ids.group_gl.children:
-                if i.state == "down":
-                    group_obj = deepcopy(self.ortho_groups.get_group(i.text))
-        except AttributeError:
-            orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
-            for gchk in self.loaded_screens[orto_screen].ids.group_gl.children:
-                if gchk.state == "down":
-                    group_obj = self.ortho_groups.get_group(gchk.id)
-
-        method_store = {"group": [group_obj.export_filtered_group,
+        method_store = {"group": [self.active_group.export_filtered_group,
                                   [output_name, output_dir]],
-                        "protein": [group_obj.retrieve_sequences,
+                        "protein": [self.active_group.retrieve_sequences,
                                     [self.protein_db, output_dir]],
                         "nucleotide": [protein2dna.convert_group,
-                                    [self.cds_db, self.protein_db, group_obj]]}
+                                    [self.cds_db, self.protein_db,
+                                     self.active_group]]}
         # Get method and args
         m = method_store[export_idx]
 
@@ -4120,7 +4111,7 @@ class TriFusionApp(App):
         self.dismiss_all_popups()
 
         content = LoadProgressDialog()
-        content.ids.pb.max = len(group_obj.filtered_groups)
+        content.ids.pb.max = len(self.active_group.filtered_groups)
         self.show_popup(title="Exporting...", content=content, size=(400, 250))
 
         func = partial(check_process, d)
@@ -4184,24 +4175,17 @@ class TriFusionApp(App):
         excluded from the plot
         """
 
-        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
-
-        # Get active group
-        for i in self.loaded_screens[orto_screen].ids.group_gl.children:
-            if i.state == "down":
-                group = deepcopy(self.ortho_groups.get_group(i.text))
-
         # Exclude taxa, if any
         if exclude_taxa:
 
             # If all taxa were excluded issue a warning and do nothing more
-            if set(exclude_taxa) == set(group.species_list):
+            if set(exclude_taxa) == set(self.active_group.species_list):
                 return self.dialog_floatcheck("WARNING: At least one taxon "
                                               "must be included.", t="error")
 
             # Update attributes and remove taxa from group object
             self.screen.ids.header_content.excluded_taxa = exclude_taxa
-            group.exclude_taxa(exclude_taxa)
+            self.active_group.exclude_taxa(exclude_taxa)
 
         # When excluded taxa is not None, but explicitly an empty list,
         # reset the excluded_taxa property of header_content
@@ -4212,17 +4196,17 @@ class TriFusionApp(App):
         # If excluded_taxa is not provided in function calling, but has already
         # being defined in header_content.excluded_taxa, use this list.
         elif not exclude_taxa and self.screen.ids.header_content.excluded_taxa:
-            group.exclude_taxa(self.screen.ids.header_content.excluded_taxa)
+            self.active_group.exclude_taxa(self.screen.ids.header_content.excluded_taxa)
 
         # Update slider max values
-        self.screen.ids.gn_spin.max = group.max_extra_copy
-        self.screen.ids.sp_spin.max = len(group.species_list)
+        self.screen.ids.gn_spin.max = self.active_group.max_extra_copy
+        self.screen.ids.sp_spin.max = len(self.active_group.species_list)
         # Update slider values if they are outside bounds
         if self.screen.ids.gn_spin.value > self.screen.ids.gn_spin.max:
             self.screen.ids.gn_spin.value = self.screen.ids.gn_spin.max
 
-        if self.screen.ids.sp_spin.value > len(group.species_list):
-            self.screen.ids.sp_spin.value = len(group.species_list)
+        if self.screen.ids.sp_spin.value > len(self.active_group.species_list):
+            self.screen.ids.sp_spin.value = len(self.active_group.species_list)
 
         # If filt is specified, update the groups object
         if filt:
@@ -4230,12 +4214,12 @@ class TriFusionApp(App):
             # of the group object. Removal of taxa may alter the maximum number
             # of gene copies and/or taxa and this will account for that and
             # correct it
-            gn_filt = filt[0] if filt[0] <= group.max_extra_copy else \
-                group.max_extra_copy
-            sp_filt = filt[1] if filt[1] <= len(group.species_list) else \
-                len(group.species_list)
+            gn_filt = filt[0] if filt[0] <= self.active_group.max_extra_copy \
+                else self.active_group.max_extra_copy
+            sp_filt = filt[1] if filt[1] <= len(self.active_group.species_list)\
+                else len(self.active_group.species_list)
             # Update group filters
-            group.update_filters(gn_filt, sp_filt)
+            self.active_group.update_filters(gn_filt, sp_filt)
             self.screen.ids.header_content.original_filt = [gn_filt, sp_filt]
             # If any of the filters had to be adjusted, issue a warning
             if gn_filt != filt[0] or sp_filt != filt[1]:
@@ -4252,7 +4236,7 @@ class TriFusionApp(App):
                 [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]:
             self.screen.ids.header_content.original_filt = \
                 [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
-            group.update_filters(self.screen.ids.gn_spin.value,
+            self.active_group.update_filters(self.screen.ids.gn_spin.value,
                                  self.screen.ids.sp_spin.value)
             # Issue warning that the filters were adjusted
             self.dialog_floatcheck("WARNING: Current filters beyond the maximum"
@@ -4264,27 +4248,29 @@ class TriFusionApp(App):
 
         # Setting filters for the first time
         if not filt and not exclude_taxa:
-            self.screen.ids.gn_spin.value = group.max_extra_copy
+            self.screen.ids.gn_spin.value = self.active_group.max_extra_copy
             self.screen.ids.sp_spin.value = 1
             self.screen.ids.header_content.original_filt = \
-                [group.max_extra_copy, 1]
+                [self.active_group.max_extra_copy, 1]
             self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
-                len(group.groups)
+                len(self.active_group.groups)
             self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
-                len(group.species_list)
+                len(self.active_group.species_list)
+            self.active_group.update_filters(self.active_group.max_extra_copy,
+                                             1)
         else:
             self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
-                                            (str(len(group.filtered_groups)),
-                                            str(len(group.groups) -
-                                            len(group.filtered_groups)))
+                                (str(len(self.active_group.filtered_groups)),
+                                str(len(self.active_group.groups) -
+                                len(self.active_group.filtered_groups)))
             self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
-                            (len(group.species_list),
+                            (len(self.active_group.species_list),
                             len(self.screen.ids.header_content.excluded_taxa) +
-                             len(group.species_list))
+                             len(self.active_group.species_list))
 
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
@@ -4292,13 +4278,13 @@ class TriFusionApp(App):
         # Store the plot generation method in a dictionary where keys are the
         # text attributes of the plot spinner and the values are bound methods
         plt_method = {"Taxa distribution": [
-            group.bar_species_distribution,
+            self.active_group.bar_species_distribution,
             "Species_distribution.png"],
                       "Taxa coverage": [
-            group.bar_species_coverage,
+            self.active_group.bar_species_coverage,
             "Species_coverage.png"],
                       "Gene copy distribution": [
-            group.bar_genecopy_distribution,
+            self.active_group.bar_genecopy_distribution,
             "Gene_copy_distribution.png"]}
 
         # Call corresponding method and catch plot object
@@ -4519,6 +4505,9 @@ class TriFusionApp(App):
         :param group_obj: Group object.
         :param bt: ToggleButton instance
         """
+
+        # Update active group
+        self.active_group = group_obj
 
         # Create desired behaviour for group toggle buttons
         if bt:
