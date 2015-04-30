@@ -239,10 +239,10 @@
     on_release:
         app.go_previous_screen()
 
-<PlotToolbar@BoxLayout>:
+<OrtoPlotToolbar@BoxLayout>:
     orientation: "vertical"
     size_hint: None, None
-    size: 50, 240
+    size: 50, 285
     opacity: .2
     canvas.before:
         Color:
@@ -257,7 +257,7 @@
         BoxLayout:
             orientation: "vertical"
             size_hint: None, None
-            size: 40, 220
+            size: 40, 265
             spacing: 5
             id: content
             Button
@@ -279,6 +279,13 @@
                 on_release:
                     app.screen.ids.plot_content.scale = 1
                     app.screen.ids.plot_content.pos = (0, 0)
+            Button:
+                size_hint: None, None
+                size: 40, 40
+                id: export_group
+                background_normal: "data/backgrounds/export_group.png"
+                on_release:
+                    app.dialog_export_groups()
             Button:
                 size_hint: None, None
                 size: 40, 40

@@ -370,7 +370,7 @@ class BackButton(Button):
     pass
 
 
-class PlotToolbar(BoxLayout):
+class OrtoPlotToolbar(BoxLayout):
     pass
 
 
@@ -1645,7 +1645,7 @@ class TriFusionApp(App):
 
             # Get PlotToolbar object
             toolbar_wgt = [x for x in self.root_window.children
-                           if isinstance(x, PlotToolbar)][0]
+                           if isinstance(x, OrtoPlotToolbar)][0]
 
             # For headless plot screens a back button is added to root_window
             if self.screen.name == "plot":
@@ -1687,6 +1687,15 @@ class TriFusionApp(App):
                     # Create fancy label
                     create_fancy_label("Export as table",
                                        toolbar_wgt.ids.export_table,
+                                       line_c=(0.216, 0.67, 0.784, 1))
+
+            elif determine_collision(toolbar_wgt.ids.export_group):
+                collision = True
+                if "Export group" not in [x.id for x in
+                                             self.root_window.children]:
+                    # Create fancy label
+                    create_fancy_label("Export group",
+                                       toolbar_wgt.ids.export_group,
                                        line_c=(0.216, 0.67, 0.784, 1))
 
         # Only do this in Orthology screen
@@ -3753,8 +3762,8 @@ class TriFusionApp(App):
         """
 
         # Determine position
-        pos = self.root.width - 50, self.root.height - 480
-        content = PlotToolbar(pos=pos)
+        pos = self.root.width - 50, self.root.height - 500
+        content = OrtoPlotToolbar(pos=pos)
 
         self.root_window.add_widget(content)
 
@@ -3777,7 +3786,7 @@ class TriFusionApp(App):
 
         try:
             for wgt in [x for x in self.root_window.children if
-                   isinstance(x, PlotToolbar) or isinstance(x, BackButton)]:
+                   isinstance(x, OrtoPlotToolbar) or isinstance(x, BackButton)]:
                 self.root_window.remove_widget(wgt)
         except IndexError:
             pass
@@ -4081,9 +4090,15 @@ class TriFusionApp(App):
             self.orto_export_dir = output_dir
 
         # Get active group
-        for i in self.screen.ids.group_gl.children:
-            if i.state == "down":
-                group_obj = deepcopy(self.ortho_groups.get_group(i.text))
+        try:
+            for i in self.screen.ids.group_gl.children:
+                if i.state == "down":
+                    group_obj = deepcopy(self.ortho_groups.get_group(i.text))
+        except AttributeError:
+            orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
+            for gchk in self.loaded_screens[orto_screen].ids.group_gl.children:
+                if gchk.state == "down":
+                    group_obj = self.ortho_groups.get_group(gchk.id)
 
         method_store = {"group": [group_obj.export_filtered_group,
                                   [output_name, output_dir]],
@@ -4268,7 +4283,8 @@ class TriFusionApp(App):
             self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
                             (len(group.species_list),
-                            len(self.screen.ids.header_content.excluded_taxa))
+                            len(self.screen.ids.header_content.excluded_taxa) +
+                             len(group.species_list))
 
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
