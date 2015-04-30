@@ -159,7 +159,7 @@ class Alignment (Base):
             self.name = alignment_name
             # Gets several attributes from the dictionary alignment
             self._init_dicobj(input_alignment)
-            #The input format of the alignment (str)
+            # The input format of the alignment (str)
             self.input_format = input_format
 
     def __iter__(self):
@@ -231,6 +231,7 @@ class Alignment (Base):
         #=======================================================================
         # PARSING PHYLIP FORMAT
         #=======================================================================
+
         if alignment_format == "phylip":
             # Get the number of taxa and sequence length from the file header
             header = file_handle.readline().split()
@@ -332,21 +333,19 @@ class Alignment (Base):
 
     def iter_taxa(self):
         """
-        Returns a list with the taxa contained in the alignment
+        Generator for taxa names
         """
 
-        taxa = [sp for sp in self.alignment]
-
-        return taxa
+        for sp in self.alignment:
+            yield sp
 
     def iter_sequences(self):
         """
-        Returns a list with the sequences contained in the alignment
+        Generator for sequences
         """
 
-        sequences = [seq for seq in self.alignment]
-
-        return sequences
+        for seq in self.alignment.values():
+            yield seq
 
     def remove_taxa(self, taxa_list_file, mode="remove"):
         """
