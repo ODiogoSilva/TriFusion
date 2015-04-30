@@ -1914,7 +1914,7 @@ class TriFusionApp(App):
 
     ########################### GENERAL USE ###################################
 
-    def run_in_background(self, func, second_func, args1, args2):
+    def run_in_background(self, func, second_func, args1, args2, no_arg2=False):
         """
         This method is intended to run time/resource consuming operations in the
         background, without freezing the app, and return the final result to the
@@ -1932,6 +1932,8 @@ class TriFusionApp(App):
         allowed
         :param args2: list, with arguments for second_func. These will be added
         to the argument list returned by func
+        :param no_arg2: Boolean. Whether func will return something to
+        second_func
         """
 
         def background_process(f, ns, a):
@@ -1959,10 +1961,13 @@ class TriFusionApp(App):
                 self.dismiss_popup()
                 # Checks if there is a second function to run and whether there
                 # are additional arguments for secondary function
-                if second_func:
-                    if args2:
-                        val += [args]
-                    second_function(val)
+                if not no_arg2:
+                    if second_func:
+                        if args2:
+                            val += [args]
+                        second_function(val)
+                else:
+                    second_function()
 
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
@@ -4393,8 +4398,7 @@ class TriFusionApp(App):
         else:
             self.screen.ids.compare_group_bt.disabled = True
 
-    @staticmethod
-    def load_group_files(group_files):
+    def load_group_files(self, group_files):
 
         group_list = [ot.Group(f) for f in group_files]
         groups = ot.MultiGroups(group_list)
