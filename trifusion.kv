@@ -959,7 +959,7 @@
             Label:
                 color: .7, .7, .7, 1
                 font_size: 12
-                text: "Maximum gene copies: %s" % app.ortho_groups.get_group(root.group_name).gene_threshold if app.ortho_groups.get_group(root.group_name) else "None"
+                text: "Maximum gene copies: %s" % app.ortho_groups.filters[app.active_group_name][0] if app.ortho_groups else "None"
                 bold: True
                 halign: "left"
                 valign: "middle"
@@ -967,7 +967,7 @@
             Label:
                 color: .7, .7, .7, 1
                 font_size: 12
-                text: "Minimum taxa representation: %s" % app.ortho_groups.get_group(root.group_name).species_threshold if app.ortho_groups.get_group(root.group_name) else "None"
+                text: "Minimum taxa representation: %s" % app.ortho_groups.filters[app.active_group_name][1] if app.ortho_groups else "None"
                 bold: True
                 halign: "left"
                 valign: "middle"
@@ -1101,7 +1101,7 @@
             TextInput:
                 id: gene_txt
                 size_hint_x: .2
-                text: str(app.ortho_groups.get_group(root.group_name).gene_threshold) if app.ortho_groups.get_group(root.group_name) else str(app.orto_max_gene)
+                text: str(app.ortho_groups.filters[app.active_group_name][0])
         BoxLayout:
             size_hint_y: None
             height: 30
@@ -1115,7 +1115,7 @@
             TextInput:
                 id: sp_txt
                 size_hint_x: .2
-                text: str(app.ortho_groups.get_group(root.group_name).species_threshold) if app.ortho_groups.get_group(root.group_name) else str(app.orto_min_sp)
+                text: str(app.ortho_groups.filters[app.active_group_name][1])
 
     BoxLayout:
         size_hint_y: None
@@ -1129,9 +1129,7 @@
             text: "Ok"
             bold: True
             on_release:
-                app.orto_change_filters(gene_txt.text, sp_txt.text, group_name=root.group_name, apply_all=apply_chk.active)
-                app.orthology_card(app.ortho_groups.get_group(root.group_name))
-                root.cancel()
+                app.run_in_background(app.orto_update_filters, app.orthology_card, [gene_txt.text, sp_txt.text, [app.active_group_name] if not apply_chk.active else None, False], None, False)
         Button:
             id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
@@ -1874,7 +1872,7 @@
                 bold: True
                 on_release:
                     if sd_filechooser.selection:\
-                    app.run_in_background(app.load_group_files, app.load_groups, [sd_filechooser.selection], None)
+                    app.run_in_background(app.load_group_files, app.load_groups, [sd_filechooser.selection], None, False)
                     #root.cancel()
 
             Button:
