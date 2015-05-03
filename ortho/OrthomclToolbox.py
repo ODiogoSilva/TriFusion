@@ -32,6 +32,8 @@ import os
 import sqlite3
 import shelve
 from os.path import join
+import random
+import string
 
 
 class Cluster():
@@ -155,6 +157,15 @@ class GroupLight():
 
         # Attribute with name of the group file, which will be an ID
         self.name = groups_file
+        self.table = groups_file.split(os.sep)[-1].split(".")[0]
+
+        # if os.path.exists(sql_db):
+        #     os.remove(sql_db)
+        #
+        # self.c = sqlite3.connect(sql_db).cursor()
+        # self.c.execute("CREATE TABLE {}(cl_name, seq, sp_freq)".
+        #                format(self.table))
+
         # Initialize atribute containing the groups filtered using the gene and
         # species threshold. This attribute can be updated at any time using
         # the update_filtered_group method
@@ -203,14 +214,17 @@ class GroupLight():
         if cp <= self.gene_threshold and self.gene_threshold and\
             len(cl) >= self.species_threshold and  \
                 self.species_threshold:
-            return "all"
+            return 1, 1
 
         elif cp <= self.gene_threshold and self.gene_threshold:
-            return "gn"
+            return 1, 0
 
         elif len(cl) >= self.species_threshold and \
                 self.species_threshold:
-            return "sp"
+            return 0, 1
+
+        else:
+            return 0, 0
 
     def _reset_counter(self):
 
@@ -228,6 +242,23 @@ class GroupLight():
             # Update species frequency list
             sp_freq = Counter((x.split("|")[0] for x in
                                                    sequence_field.split()))
+            #
+            # self.species_list.extend([x for x in sp_freq if x not in
+            #                           self.species_list])
+            #
+            # self.c.execute("INSERT INTO {} VALUES(?, ?, ?)".
+            #                format(self.table), (cl_name, sequence_field,
+            #                                     str(sp_freq)))
+            #
+            # if self.species_threshold and self.gene_threshold:
+            #     filt = self._get_compliance(sp_freq)
+            #     if filt == (1, 1):
+            #         self.all_compliant += 1
+            #     elif filt == (1, 0):
+            #         self.num_gene_compliant += 1
+            #     elif filt == (0, 1):
+            #         self.num_species_compliant += 1
+
             self.species_frequency.append(sp_freq)
 
             # Update number of sequences
@@ -550,9 +581,6 @@ class Group ():
                 # Update num_gene_compliant attribute
                 if cluster_object.gene_compliant:
                     self.num_gene_compliant += 1
-
-        print(self.all_compliant, self.num_gene_compliant,
-                  self.num_species_compliant)
 
     def exclude_taxa(self, taxa_list):
         """
@@ -1004,6 +1032,14 @@ class MultiGroups ():
 
         return iter(self.multiple_groups)
 
+    def iter_gnames(self):
+
+        return (x.name for x in self.multiple_groups)
+
+    def get_gnames(self):
+
+        return [x.name for x in self.multiple_groups]
+
     def add_group(self, group_obj):
         """
         Adds a group object
@@ -1208,7 +1244,7 @@ class MultiGroupsLight():
     the disk
     """
 
-    def __init__(self, shelve_path, groups=None, gene_threshold=None,
+    def __init__(self, db_path, groups=None, gene_threshold=None,
                  species_threshold=None, project_prefix="MyGroups"):
         """
         :param groups: A list containing the file names of the multiple
@@ -1216,12 +1252,17 @@ class MultiGroupsLight():
         :return: Populates the self.multiple_groups attribute
         """
 
-        self.shelve_path = shelve_path
+        #self.shelve_path = shelve_path
+        self.db_path = db_path
 
         # If a MultiGroups is initialized with duplicate Group objects, their
         # names will be stored in a list. If all Group objects are unique, the
         # list will remain empty
         self.duplicate_groups = []
+
+        self.groups = {}
+
+        self.groups_stats = {}
 
         # Initializing thresholds. These may be set from the start, or using
         # some method that uses them as arguments
@@ -1235,28 +1276,32 @@ class MultiGroupsLight():
         self.prefix = project_prefix
 
         if groups:
-            with shelve.open(self.shelve_path) as sf:
-                for group_file in groups:
-                    # If group_file is already a Group object, just add it
-                    if not isinstance(group_file, Group):
-                        group_object = Group(group_file, self.gene_threshold,
-                                             self.species_threshold)
-                    else:
-                        group_object = group_file
-                        # Check for duplicate group files
+            #with shelve.open(self.shelve_path) as sf:
+            for group_file in groups:
+                # If group_file is already a Group object, just add it
+                if not isinstance(group_file, Group):
+                    group_object = Group(group_file, self.gene_threshold,
+                                         self.species_threshold)
+                else:
+                    group_object = group_file
+                    # Check for duplicate group files
 
-                    if group_file.name in sf:
-                        self.duplicate_groups.append(group_file.name)
-                    else:
-                        sf[group_file.name] = group_object
-                        # Setting starting string filters
-                        self.filters[group_file.name] = (1,
-                                                    len(group_object.species_list))
+                if group_object.name in self.groups:
+                    self.duplicate_groups.append(group_file.name)
+                else:
+
+                    gpath = os.path.join(self.db_path,
+                        "".join(random.choice(string.ascii_uppercase) for _ in
+                                range(15)))
+                    pickle.dump(group_object, open(gpath, "wb"))
+                    self.groups[group_object.name] = gpath
+                    # Setting starting string filters
+                    self.filters[group_file.name] = (1,
+                                                len(group_object.species_list))
 
     def __iter__(self):
-        with shelve.open(self.shelve_path) as sf:
-            for key, val in sf.items():
-                yield key, val
+        for k, val in self.items():
+            yield k, pickle.load(open(val, "rb"))
 
     def add_group(self, group_obj):
         """
@@ -1264,13 +1309,17 @@ class MultiGroupsLight():
         :param group_obj: Group object
         """
 
-        with shelve.open(self.shelve_path) as sf:
-            # Check for duplicate groups
-            if group_obj.name not in sf:
-                sf[group_obj.name] = group_obj
-                self.filters[group_obj.name] = (1, len(group_obj.species_list))
-            else:
-                self.duplicate_groups.append(group_obj.name)
+        #with shelve.open(self.shelve_path) as sf:
+        # Check for duplicate groups
+        if group_obj.name not in self.groups:
+            gpath = os.path.join(self.db_path,
+                    "".join(random.choice(string.ascii_uppercase) for _ in
+                            range(15)))
+            pickle.dump(group_obj, open(gpath, "wb"))
+            self.groups[group_obj.name] = gpath
+            self.filters[group_obj.name] = (1, len(group_obj.species_list))
+        else:
+            self.duplicate_groups.append(group_obj.name)
 
     def remove_group(self, group_id):
         """
@@ -1278,9 +1327,9 @@ class MultiGroupsLight():
         :param group_id: string, name matching a Group object name attribute
         """
 
-        with shelve.open(self.shelve_path) as sf:
-            if group_id in sf:
-                del sf[group_id]
+        #with shelve.open(self.shelve_path) as sf:
+        if group_id in self.groups:
+            os.remove(self.groups[group_id])
 
     def get_group(self, group_id):
         """
@@ -1289,11 +1338,11 @@ class MultiGroupsLight():
         :param group_id: string. Name of group object
         """
 
-        with shelve.open(self.shelve_path) as sf:
-            try:
-                return sf[group_id]
-            except KeyError:
-                return
+        #with shelve.open(self.shelve_path) as sf:
+        try:
+            return pickle.load(open(self.groups[group_id], "rb"))
+        except KeyError:
+            return
 
     def add_multigroups(self, multigroup_obj):
         """
@@ -1315,63 +1364,38 @@ class MultiGroupsLight():
         :param group_names: list, with names of group objects
         """
 
-        with shelve.open(self.shelve_path) as sf:
-            if group_names:
-                for group_name in group_names:
-                    # Get group object
-                    group_obj = sf[group_name]
-                    # Define filters
-                    gn_filter = gn_filter if not default else 1
-                    sp_filter = sp_filter if not default else \
-                        len(group_obj.species_list)
-                    # Update Group object with new filters
-                    group_obj.update_filters(gn_filter, sp_filter)
-                    # Reassign group object to shelve
-                    del sf[group_name]
-                    sf[group_name] = group_obj
-                    # Update filter map
-                    self.filters[group_name] = (gn_filter, sp_filter)
-            else:
-                for gname in sf:
-                    group_obj = sf[gname]
-                    # Define filters
-                    gn_filter = gn_filter if not default else 1
-                    sp_filter = sp_filter if not default else \
-                        len(group_obj.species_list)
-                    # Update Group object with new filters
-                    group_obj.update_filters(gn_filter, sp_filter)
-                    # Reassign group object to shelve
-                    del sf[gname]
-                    sf[gname] = group_obj
-                    # Update filter map
-                    self.filters[gname] = (gn_filter, sp_filter)
 
-    def basic_multigroup_statistics(self, output_file_name=
-                                    "multigroup_base_statistics.csv"):
+        if group_names:
+            glist = group_names
+        else:
+            glist = self.groups
+
+        for group_name in glist:
+            # Get group object
+            group_obj = pickle.load(open(self.groups[group_name], "rb"))
+            # Define filters
+            gn_filter = gn_filter if not default else 1
+            sp_filter = sp_filter if not default else \
+                len(group_obj.species_list)
+            # Update Group object with new filters
+            group_obj.update_filters(gn_filter, sp_filter)
+            # Update group stats
+            self.get_multigroup_statistics(group_obj)
+            pickle.dump(group_obj, open(self.groups[group_name], "wb"))
+            # Update filter map
+            self.filters[group_name] = (gn_filter, sp_filter)
+
+    def get_multigroup_statistics(self, group_obj):
         """
         :param output_file_name:
         :return:
         """
 
-        # Creates the storage for the statistics of the several files
-        statistics_storage = OrderedDict()
+        stats = group_obj.basic_group_statistics()
 
-        with shelve.open(self.shelve_path) as sf:
-            for gname, group in sf.items():
-                group_statistics = group.basic_group_statistics()
-                statistics_storage[group.name] = group_statistics
-
-        output_handle = open(self.prefix + "." + output_file_name, "w")
-        output_handle.write("Group file; Total clusters; Total sequences; "
-                            "Clusters below gene threshold; Clusters above "
-                            "species threshold; Clusters below gene and above"
-                            " species thresholds\n")
-
-        for group, vals in statistics_storage.items():
-            output_handle.write("%s; %s\n" % (group, ";".join([str(x) for x
-                                                               in vals])))
-
-        output_handle.close()
+        self.groups_stats[group_obj.name] = {"stats": stats,
+                                        "species": group_obj.species_list,
+                                        "max_copies": group_obj.max_extra_copy}
 
     def bar_orthologs(self, output_file_name="Final_orthologs",
                              dest="./", stats="total"):
