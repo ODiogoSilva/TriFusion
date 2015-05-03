@@ -29,7 +29,8 @@ from collections import OrderedDict, Counter
 from base.plotter import *
 import pickle
 import os
-from copy import deepcopy
+import sqlite3
+import shelve
 from os.path import join
 
 
@@ -122,6 +123,340 @@ class OrthoGroupException(Exception):
     pass
 
 
+class GroupLight():
+    """
+    Analogous to Group object but with several changes to reduce memory usage
+    """
+
+    def __init__(self, groups_file, gene_threshold=None,
+                 species_threshold=None):
+
+        self.gene_threshold = int(gene_threshold) if gene_threshold else None
+        self.species_threshold = int(species_threshold) if species_threshold \
+            else None
+
+        # Attribute containing the list of included species
+        self.species_list = []
+        # Attribute that will contain taxa to be excluded from analyses
+        self.excluded_taxa = []
+        self.species_frequency = []
+
+        # Attributes that will store the number (int) of cluster after gene and
+        # species filter
+        self.num_gene_compliant = 0
+        self.num_species_compliant = 0
+        self.all_compliant = 0
+
+        # Attribute containing the total number of sequences
+        self.total_seqs = 0
+        # Attribute containing the maximum number of extra copies found in the
+        # clusters
+        self.max_extra_copy = 0
+
+        # Attribute with name of the group file, which will be an ID
+        self.name = groups_file
+        # Initialize atribute containing the groups filtered using the gene and
+        # species threshold. This attribute can be updated at any time using
+        # the update_filtered_group method
+        self.filtered_groups = []
+
+        self._parse_groups()
+
+    def groups(self):
+        """
+        Generator for group file. This replaces the self.groups attribute of
+        the original Group Object. Instead of loading the whole file into
+        memory, a generator is created to iterate over its contents. It may
+        run a bit slower but its a lot more memory efficient.
+        :return:
+        """
+
+        file_handle = open(self.name)
+        for line in file_handle:
+            if line.strip() != "":
+                yield line.strip()
+
+    def _apply_filter(self, cl):
+
+        extra_copies = max(cl.values())
+        if extra_copies > self.max_extra_copy:
+            self.max_extra_copy = extra_copies
+
+        if extra_copies <= self.gene_threshold and self.gene_threshold and\
+            len(cl) >= self.species_threshold and  \
+                self.species_threshold:
+            self.num_gene_compliant += 1
+            self.num_species_compliant += 1
+            self.all_compliant += 1
+
+        elif extra_copies <= self.gene_threshold and self.gene_threshold:
+            self.num_gene_compliant += 1
+
+        elif len(cl) >= self.species_threshold and \
+                self.species_threshold:
+            self.num_species_compliant += 1
+
+    def _get_compliance(self, cl):
+
+        cp = max(cl.values())
+
+        if cp <= self.gene_threshold and self.gene_threshold and\
+            len(cl) >= self.species_threshold and  \
+                self.species_threshold:
+            return "all"
+
+        elif cp <= self.gene_threshold and self.gene_threshold:
+            return "gn"
+
+        elif len(cl) >= self.species_threshold and \
+                self.species_threshold:
+            return "sp"
+
+    def _reset_counter(self):
+
+        self.num_gene_compliant = 0
+        self.num_species_compliant = 0
+        self.all_compliant = 0
+
+    def _parse_groups(self):
+
+        for cl in self.groups():
+
+            # Retrieve the field containing the ortholog sequences
+            cl_name, sequence_field = cl.split(":")
+
+            # Update species frequency list
+            sp_freq = Counter((x.split("|")[0] for x in
+                                                   sequence_field.split()))
+            self.species_frequency.append(sp_freq)
+
+            # Update number of sequences
+            self.total_seqs += len(sequence_field)
+
+            # Update max number of extra copies
+            extra_copies = max(sp_freq.values())
+            if extra_copies > self.max_extra_copy:
+                self.max_extra_copy = max(sp_freq.values())
+
+            self.species_list.extend([x for x in sp_freq if x not in
+                                      self.species_list])
+
+            # Apply filters, if any
+            # gene filter
+            if self.species_threshold and self.gene_threshold:
+                if self.gene_threshold and extra_copies <= self.gene_threshold \
+                        and len(sp_freq) >= self.species_threshold and  \
+                        self.species_threshold:
+                    self.num_gene_compliant += 1
+                    self.num_species_compliant += 1
+                    self.all_compliant += 1
+
+                elif extra_copies <= self.gene_threshold and \
+                        self.gene_threshold:
+                    self.num_gene_compliant += 1
+
+                elif len(sp_freq) >= self.species_threshold and \
+                        self.species_threshold:
+                    self.num_species_compliant += 1
+
+    def exclude_taxa(self, taxa_list):
+
+        self.excluded_taxa.extend(taxa_list)
+
+        self._reset_counter()
+
+        for cl in self.species_frequency:
+            for tx in taxa_list:
+                del cl[tx]
+
+            if cl:
+                self._apply_filter(cl)
+
+        self.species_list = [x for x in self.species_list if x not in taxa_list]
+
+    def basic_group_statistics(self, update=True):
+
+        if update:
+            self._reset_counter()
+            for cl in self.species_frequency:
+                self._apply_filter(cl)
+
+        return len(self.species_frequency), self.total_seqs, \
+                   self.num_gene_compliant, self.num_species_compliant, \
+                   self.all_compliant
+
+    def update_filters(self, gn_filter, sp_filter):
+
+        self.gene_threshold = int(gn_filter)
+        self.species_threshold = int(sp_filter)
+
+    def retrieve_sequences(self, sqldb, protein_db, dest="./", mode="fasta",
+                           shared_namespace=None):
+
+        if not os.path.exists(dest):
+            os.makedirs(dest)
+
+        if shared_namespace:
+            shared_namespace.act = "Creating database"
+
+        # Connect to database
+        conn = sqlite3.connect(sqldb)
+        c = conn.cursor()
+
+        # Create database
+        c.execute("CREATE TABLE prot_table (seq_id text, seq text)")
+        # Create index
+        c.execute("CREATE UNIQUE INDEX seq_id ON prot_table (seq_id)")
+        # Populate dabase
+        with open(protein_db) as ph:
+            seq = ""
+            for line in ph:
+                if line.startswith(">"):
+                    seq_id = line.strip()[1:]
+                    if seq != "":
+                        c.execute("INSERT INTO prot_table VALUES (?, ?)",
+                                  (seq_id, seq))
+                    seq = ""
+                else:
+                    seq += line.strip()
+
+        if shared_namespace:
+            shared_namespace.act = "Fetching sequeces"
+
+        # Fetching sequences
+        for line, cl in zip(self.groups(), self.species_frequency):
+
+            # Filter sequences
+            if max(cl.values()) <= self.gene_threshold and self.gene_threshold \
+                    and len(cl) >= self.species_threshold and \
+                    self.species_threshold:
+
+                # Retrieve sequences from current cluster
+                fields = line.split(":")
+
+                # Open file
+                cl_name = fields[0]
+                output_handle = open(os.path.join(dest, cl_name) + ".fas", "w")
+
+                seqs = fields[-1].split()
+                for i in seqs:
+                    # Query database
+                    c.execute("SELECT * FROM prot_table WHERE seq_id = ?",
+                                (i,))
+                    vals = c.fetchone()
+                    output_handle.write(">{}\n{}\n".format(vals[0], vals[1]))
+
+                output_handle.close()
+
+    def export_filtered_group(self, output_file_name="filtered_groups",
+                              dest="./", shared_namespace=None):
+
+        if shared_namespace:
+            shared_namespace.act = "Exporting filtered orthologs"
+
+        output_handle = open(os.path.join(dest, output_file_name), "w")
+
+        for line, cl in zip(self.groups(), self.species_frequency):
+
+            if shared_namespace:
+                shared_namespace.progress = \
+                    self.species_frequency.index(cl)
+
+            if self._get_compliance(cl) == "all":
+                output_handle.write("{}\n".format(line))
+
+        output_handle.close()
+
+    def bar_species_distribution(self, dest="./", filt=False,
+                                 output_file_name="Species_distribution"):
+
+        data = Counter((len(cl) for cl in self.species_frequency if
+                       self._get_compliance(cl) == "all" and filt))
+
+        x_labels = [x for x in list(data)]
+        data = list(data.values())
+
+        # Sort lists
+        x_labels, y_vals = (list(x) for x in zip(*sorted(zip(x_labels, data))))
+
+        # Convert label to strings
+        x_labels = [str(x) for x in x_labels]
+
+        # Create plot
+        b_plt, lgd = bar_plot([data], x_labels,
+                        title="Taxa frequency distribution",
+                        ax_names=["Number of taxa", "Ortholog frequency"])
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+
+        # Create table
+        table_list = [["Number of species", "Ortholog frequency"]]
+        for x, y in zip(x_labels, data):
+            table_list.append([x, y])
+
+        return b_plt, lgd, table_list
+
+    def bar_genecopy_distribution(self, dest="./", filt=False,
+                                output_file_name="Gene_copy_distribution.png"):
+        """
+        Creates a bar plot with the distribution of gene copies across
+        clusters
+        :param dest: string, destination directory
+        :param filt: Boolean, whether or not to use the filtered groups.
+        :param output_file_name: string, name of the output file
+        """
+
+        data = Counter((max(cl.values()) for cl in self.species_frequency if
+                       self._get_compliance(cl) == "all" and filt))
+
+        x_labels = [x for x in list(data)]
+        data = list(data.values())
+
+        x_labels, data = (list(x) for x in zip(*sorted(zip(x_labels, data))))
+
+        # Convert label to strings
+        x_labels = [str(x) for x in x_labels]
+
+        # Create plot
+        b_plt, lgd = bar_plot([data], x_labels,
+                    title="Gene copy distribution",
+                    ax_names=["Number of gene copies", "Ortholog frequency"],
+                    reverse_x=False)
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
+                      figsize=(8 * len(x_labels) / 4, 6))
+
+        # Create table
+        table_list = [["Number of gene copies", "Ortholog frequency"]]
+        for x, y in zip(x_labels, data):
+            table_list.append([x, y])
+
+        return b_plt, lgd, table_list
+
+    def bar_species_coverage(self, dest="./", filt=False,
+                            output_file_name="Species_coverage"):
+        """
+        Creates a stacked bar plot with the proportion of
+        :return:
+        """
+
+        data = Counter(dict((x, 0) for x in self.species_list))
+
+        for cl in self.species_frequency:
+            data += Counter(dict((x, 1) for x, y in cl.items() if y > 0 if
+                       self._get_compliance(cl) == "all" and filt))
+
+        x_labels = [str(x) for x in list(data.keys())]
+        data = [list(data.values()), [self.all_compliant - x for x in
+                                      data.values()]]
+
+        lgd_list = ["Available data", "Missing data"]
+
+        b_plt, lgd = bar_plot(data, x_labels, lgd_list=lgd_list,
+                              ax_names=[None, "Ortholog frequency"])
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+
+        return b_plt, lgd, ""
+
+
 class Group ():
     """ This represents the main object of the orthomcl toolbox module. It is
      initialized with a file name of a orthomcl groups file and provides
@@ -136,13 +471,14 @@ class Group ():
         self.gene_threshold = gene_threshold
         self.species_threshold = species_threshold
 
-        # Attribute containig the list of included species
+        # Attribute containing the list of included species
         self.species_list = []
         # Attribute that will contain taxa to be excluded from analyses
         self.excluded_taxa = []
 
         # Attributes that will store the number (int) of cluster after gene and
         # species filter
+        self.all_compliant = 0
         self.num_gene_compliant = 0
         self.num_species_compliant = 0
 
@@ -206,6 +542,7 @@ class Group ():
                         cluster_object.gene_compliant:
                     # Add cluster to the filtered group list
                     self.filtered_groups.append(cluster_object)
+                    self.all_compliant += 1
 
                 # Update num_species_compliant attribute
                 if cluster_object.species_compliant:
@@ -213,6 +550,9 @@ class Group ():
                 # Update num_gene_compliant attribute
                 if cluster_object.gene_compliant:
                     self.num_gene_compliant += 1
+
+        print(self.all_compliant, self.num_gene_compliant,
+                  self.num_species_compliant)
 
     def exclude_taxa(self, taxa_list):
         """
@@ -444,6 +784,7 @@ class Group ():
         if shared_namespace:
             shared_namespace.act = "Creating database"
 
+        print("Creating db")
         # Check what type of database was provided
         #TODO: Add exception handling if file is not parsed with Aligment
         if isinstance(database, str):
@@ -458,6 +799,7 @@ class Group ():
             raise OrthoGroupException("The input database is neither a string"
                                       "nor a dictionary object")
 
+        print("Retrieving seqs")
         # Update method progress
         if shared_namespace:
             shared_namespace.act = "Retrieving sequences"
@@ -604,6 +946,7 @@ class Group ():
         xlabels = [str(x) for x in list(data.keys())]
         data = [list(data.values()), [len(groups) - x for x in
                                       data.values()]]
+
         lgd_list = ["Available data", "Missing data"]
 
         b_plt, lgd = bar_plot(data, xlabels, lgd_list=lgd_list,
@@ -636,28 +979,26 @@ class MultiGroups ():
 
         self.prefix = project_prefix
 
-        self.multiple_groups = []
+        self.multiple_groups = {}
+        self.filters = {}
 
         if groups_files:
             for group_file in groups_files:
 
                 # If group_file is already a Group object, just add it
-                if isinstance(group_file, Group):
+                if not isinstance(group_file, Group):
                     # Check for duplicate group files
-                    if group_file.name in [x.name for x in
-                                           self.multiple_groups]:
-                        self.duplicate_groups.append(group_file)
-                    else:
-                        self.multiple_groups.append(group_file)
-
-                else:
                     group_object = Group(group_file, self.gene_threshold,
                                          self.species_threshold)
-                    if group_object.name in [x.name for x in
-                                             self.multiple_groups]:
-                        self.duplicate_groups.append(group_object)
-                    else:
-                        self.multiple_groups.append(group_object)
+                else:
+                    group_object = group_file
+
+                if group_object.name in self.multiple_groups:
+                    self.duplicate_groups.append(group_object.name)
+                else:
+                    self.multiple_groups[group_object.name] = group_object
+                    self.filters[group_object.name] = (1,
+                                                len(group_object.species_list))
 
     def __iter__(self):
 
@@ -670,10 +1011,10 @@ class MultiGroups ():
         """
 
         # Check for duplicate groups
-        if group_obj.name not in [x.name for x in self.multiple_groups]:
-            self.multiple_groups.append(group_obj)
+        if group_obj.name in self.multiple_groups:
+            self.duplicate_groups.append(group_obj.name)
         else:
-            self.duplicate_groups.append(group_obj)
+            self.multiple_groups[group_obj.name] = group_obj
 
     def remove_group(self, group_id):
         """
@@ -681,8 +1022,8 @@ class MultiGroups ():
         :param group_id: string, name matching a Group object name attribute
         """
 
-        self.multiple_groups = [x for x in self.multiple_groups if
-                                x.name.split(os.sep)[-1] != group_id]
+        if group_id in self.multiple_groups:
+            del self.multiple_groups[group_id]
 
     def get_group(self, group_id):
         """
@@ -692,10 +1033,8 @@ class MultiGroups ():
         """
 
         try:
-            group_obj = [x for x in self.multiple_groups if
-                         x.name.split(os.sep)[-1] == group_id][0]
-            return group_obj
-        except IndexError:
+            return self.multiple_groups[group_id]
+        except KeyError:
             return
 
     def add_multigroups(self, multigroup_obj):
@@ -706,6 +1045,39 @@ class MultiGroups ():
 
         for group_obj in multigroup_obj:
             self.add_group(group_obj)
+
+    def update_filters(self, gn_filter, sp_filter, group_names=None,
+                       default=False):
+        """
+        This will not change the Group object themselves, only the filter
+        mapping. The filter is only applied when the Group object is retrieved
+        to reduce computations
+        :param gn_filter: int, filter for max gene copies
+        :param sp_filter: int, filter for min species
+        :param group_names: list, with names of group objects
+        """
+
+        if group_names:
+            for group_name in group_names:
+                # Get group object
+                group_obj = self.multiple_groups[group_name]
+                # Define filters
+                gn_filter = gn_filter if not default else 1
+                sp_filter = sp_filter if not default else \
+                    len(group_obj.species_list)
+                # Update Group object with new filters
+                group_obj.update_filters(gn_filter, sp_filter)
+                # Update filter map
+                self.filters[group_name] = (gn_filter, sp_filter)
+            for gname, group_obj in self.multiple_groups.items():
+                # Define filters
+                gn_filter = gn_filter if not default else 1
+                sp_filter = sp_filter if not default else \
+                    len(group_obj.species_list)
+                # Update Group object with new filters
+                group_obj.update_filters(gn_filter, sp_filter)
+                # Update filter map
+                self.filters[group_name] = (gn_filter, sp_filter)
 
     def basic_multigroup_statistics(self, output_file_name=
                                     "multigroup_base_statistics.csv"):
@@ -827,6 +1199,241 @@ class MultiGroups ():
                 counter += 1
 
         print(counter)
+
+
+class MultiGroupsLight():
+    """
+    Creates an object composed of multiple Group objects like MultiGroups.
+    However, instead of storing the groups in memory, these are shelved in
+    the disk
+    """
+
+    def __init__(self, shelve_path, groups=None, gene_threshold=None,
+                 species_threshold=None, project_prefix="MyGroups"):
+        """
+        :param groups: A list containing the file names of the multiple
+        group files
+        :return: Populates the self.multiple_groups attribute
+        """
+
+        self.shelve_path = shelve_path
+
+        # If a MultiGroups is initialized with duplicate Group objects, their
+        # names will be stored in a list. If all Group objects are unique, the
+        # list will remain empty
+        self.duplicate_groups = []
+
+        # Initializing thresholds. These may be set from the start, or using
+        # some method that uses them as arguments
+        self.gene_threshold = gene_threshold
+        self.species_threshold = species_threshold
+
+        # Initializing mapping of group filters to their names. Should be
+        # something like {"groupA": (1, 10)}
+        self.filters = {}
+
+        self.prefix = project_prefix
+
+        if groups:
+            with shelve.open(self.shelve_path) as sf:
+                for group_file in groups:
+                    # If group_file is already a Group object, just add it
+                    if not isinstance(group_file, Group):
+                        group_object = Group(group_file, self.gene_threshold,
+                                             self.species_threshold)
+                    else:
+                        group_object = group_file
+                        # Check for duplicate group files
+
+                    if group_file.name in sf:
+                        self.duplicate_groups.append(group_file.name)
+                    else:
+                        sf[group_file.name] = group_object
+                        # Setting starting string filters
+                        self.filters[group_file.name] = (1,
+                                                    len(group_object.species_list))
+
+    def __iter__(self):
+        with shelve.open(self.shelve_path) as sf:
+            for key, val in sf.items():
+                yield key, val
+
+    def add_group(self, group_obj):
+        """
+        Adds a group object
+        :param group_obj: Group object
+        """
+
+        with shelve.open(self.shelve_path) as sf:
+            # Check for duplicate groups
+            if group_obj.name not in sf:
+                sf[group_obj.name] = group_obj
+                self.filters[group_obj.name] = (1, len(group_obj.species_list))
+            else:
+                self.duplicate_groups.append(group_obj.name)
+
+    def remove_group(self, group_id):
+        """
+        Removes a group object according to its name
+        :param group_id: string, name matching a Group object name attribute
+        """
+
+        with shelve.open(self.shelve_path) as sf:
+            if group_id in sf:
+                del sf[group_id]
+
+    def get_group(self, group_id):
+        """
+        Returns a group object based on its name. If the name does not match
+        any group object, returns None
+        :param group_id: string. Name of group object
+        """
+
+        with shelve.open(self.shelve_path) as sf:
+            try:
+                return sf[group_id]
+            except KeyError:
+                return
+
+    def add_multigroups(self, multigroup_obj):
+        """
+        Merges a MultiGroup object
+        :param multigroup_obj: MultiGroup object
+        """
+
+        for group_obj in multigroup_obj:
+            self.add_group(group_obj)
+
+    def update_filters(self, gn_filter, sp_filter, group_names=None,
+                       default=False):
+        """
+        This will not change the Group object themselves, only the filter
+        mapping. The filter is only applied when the Group object is retrieved
+        to reduce computations
+        :param gn_filter: int, filter for max gene copies
+        :param sp_filter: int, filter for min species
+        :param group_names: list, with names of group objects
+        """
+
+        with shelve.open(self.shelve_path) as sf:
+            if group_names:
+                for group_name in group_names:
+                    # Get group object
+                    group_obj = sf[group_name]
+                    # Define filters
+                    gn_filter = gn_filter if not default else 1
+                    sp_filter = sp_filter if not default else \
+                        len(group_obj.species_list)
+                    # Update Group object with new filters
+                    group_obj.update_filters(gn_filter, sp_filter)
+                    # Reassign group object to shelve
+                    del sf[group_name]
+                    sf[group_name] = group_obj
+                    # Update filter map
+                    self.filters[group_name] = (gn_filter, sp_filter)
+            else:
+                for gname in sf:
+                    group_obj = sf[gname]
+                    # Define filters
+                    gn_filter = gn_filter if not default else 1
+                    sp_filter = sp_filter if not default else \
+                        len(group_obj.species_list)
+                    # Update Group object with new filters
+                    group_obj.update_filters(gn_filter, sp_filter)
+                    # Reassign group object to shelve
+                    del sf[gname]
+                    sf[gname] = group_obj
+                    # Update filter map
+                    self.filters[gname] = (gn_filter, sp_filter)
+
+    def basic_multigroup_statistics(self, output_file_name=
+                                    "multigroup_base_statistics.csv"):
+        """
+        :param output_file_name:
+        :return:
+        """
+
+        # Creates the storage for the statistics of the several files
+        statistics_storage = OrderedDict()
+
+        with shelve.open(self.shelve_path) as sf:
+            for gname, group in sf.items():
+                group_statistics = group.basic_group_statistics()
+                statistics_storage[group.name] = group_statistics
+
+        output_handle = open(self.prefix + "." + output_file_name, "w")
+        output_handle.write("Group file; Total clusters; Total sequences; "
+                            "Clusters below gene threshold; Clusters above "
+                            "species threshold; Clusters below gene and above"
+                            " species thresholds\n")
+
+        for group, vals in statistics_storage.items():
+            output_handle.write("%s; %s\n" % (group, ";".join([str(x) for x
+                                                               in vals])))
+
+        output_handle.close()
+
+    def bar_orthologs(self, output_file_name="Final_orthologs",
+                             dest="./", stats="total"):
+        """
+        Creates a bar plot with the final ortholog values for each group file
+        :param output_file_name: string. Name of output file
+        :param dest: string. output directory
+        :param stats: string. The statistics that should be used to generate
+        the bar plot. Options are:
+            ..: "1": Total orthologs
+            ..: "2": Species compliant orthologs
+            ..: "3": Gene compliant orthologs
+            ..: "4": Final orthologs
+            ..: "all": All of the above
+            Multiple combinations can be provided, for instance: "123" will
+            display bars for total, species compliant and gene compliant stats
+        """
+
+        # Stores the x-axis labels
+        x_labels = []
+        # Stores final ortholog values for all 4 possible data sets
+        vals = [[], [], [], []]
+        lgd = ["Total orthologs", "After species filter", "After gene filter",
+               "Final orthologs"]
+
+        with shelve.open(self.shelve_path) as sf:
+            # Get final ortholog values
+            for gname, g_obj in sf.items():
+
+                x_labels.append(g_obj.name.split(os.sep)[-1])
+                # Populate total orthologs
+                if "1" in stats or stats == "all":
+                    vals[0].append(len(g_obj.groups))
+                # Populate species compliant orthologs
+                if "2" in stats or stats == "all":
+                    vals[1].append(g_obj.num_species_compliant)
+                # Populate gene compliant orthologs
+                if "3" in stats or stats == "all":
+                    vals[2].append(g_obj.num_gene_compliant)
+                # Populate final orthologs
+                if "4" in stats or stats == "all":
+                    vals[3].append(len(g_obj.filtered_groups))
+
+        # Filter valid data sets
+        lgd_list = [x for x in lgd if vals[lgd.index(x)]]
+        vals = [l for l in vals if l]
+
+        # Create plot
+        b_plt, lgd = multi_bar_plot(vals, x_labels, lgd_list=lgd_list)
+        b_plt.savefig(os.path.join(dest, output_file_name),
+                      bbox_extra_artists=(lgd,), bbox_inches="tight")
+
+        # Create table list object
+        table_list = []
+        # Create header
+        table_list.append([""] + x_labels)
+        # Create content
+        for i in range(len(vals)):
+            table_list += [x for x in [[lgd_list[i]] + vals[i]]]
+
+        return b_plt, lgd, table_list
+
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
