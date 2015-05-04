@@ -4363,24 +4363,6 @@ class TriFusionApp(App):
         self.show_popup(title="Included taxa", content=content,
                         size_hint=(.3, .8))
 
-    def orto_change_filters(self, gn_filter, sp_filter, group_name=None,
-                            apply_all=False):
-        """
-
-        :param group_name: string. Name of a group object
-        :param gn_filter: int. Gene filter
-        :param sp_filter: int. Species filter
-        :param apply_all: Boolean. If True, apply filters to all group objects
-        else, apply to the current group object
-        """
-
-        # Set change list according to apply_all argument value
-        if apply_all:
-            self.ortho_groups.update_filters(gn_filter, sp_filter)
-        else:
-            self.ortho_groups.update_filters(gn_filter, sp_filter,
-                                             group_names=[group_name])
-
     def orto_change_state(self):
         """
         Toggle selection or deselection of group checkboxes
