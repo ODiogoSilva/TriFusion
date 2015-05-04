@@ -4211,7 +4211,8 @@ class TriFusionApp(App):
         """
 
         # Set active group
-        self.active_group = self.ortho_groups.get_group(self.active_group_name)
+        self.active_group = deepcopy(self.ortho_groups.get_group(
+            self.active_group_name))
 
         # Exclude taxa, if any
         if exclude_taxa:
@@ -4234,7 +4235,8 @@ class TriFusionApp(App):
         # If excluded_taxa is not provided in function calling, but has already
         # being defined in header_content.excluded_taxa, use this list.
         elif not exclude_taxa and self.screen.ids.header_content.excluded_taxa:
-            self.active_group.exclude_taxa(self.screen.ids.header_content.excluded_taxa)
+            self.active_group.exclude_taxa(
+                self.screen.ids.header_content.excluded_taxa)
 
         # Update slider max values
         self.screen.ids.gn_spin.max = self.active_group.max_extra_copy
