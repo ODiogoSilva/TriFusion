@@ -82,5 +82,6 @@ orthology_storage = {
     "Taxa distribution": "Distribution of the number of taxa across clusters",
     "Taxa coverage": "Shows available and missing ortholog data per taxon",
     "Gene copy distribution": "Distribution of gene copy numbers across "
-        "clusters"
+        "clusters",
+    "Taxa gene copies": "Cumulative number of multiple gene copies per taxon"
 }

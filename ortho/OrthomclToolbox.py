@@ -494,6 +494,33 @@ class GroupLight():
 
         return b_plt, lgd, ""
 
+    def bar_genecopy_per_species(self, dest="./", filt=False,
+                            output_file_name="Species_copy_number"):
+
+        data = Counter(dict((x, 0) for x in self.species_list))
+
+        if filt:
+            self._reset_counter()
+
+        for cl in self.species_frequency:
+            self._apply_filter(cl)
+            if filt:
+                data += Counter(dict((x, y) for x, y in cl.items() if y > 1 and
+                           self._get_compliance(cl) == (1, 1)))
+            else:
+                data += Counter(dict((x, y) for x, y in cl.items() if y > 1))
+
+        data = data.most_common()
+
+        x_labels = [str(x[0]) for x in data]
+        data = [[x[1] for x in data]]
+
+        b_plt, lgd = bar_plot(data, x_labels, reverse_x=False,
+                              ax_names=[None, "Gene copies"])
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+
+        return b_plt, lgd, ""
+
 
 class Group ():
     """ This represents the main object of the orthomcl toolbox module. It is
