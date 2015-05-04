@@ -388,7 +388,7 @@ ShowcaseScreen:
                                                             disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
                                                             text: "Taxa distribution"
                                                             option_cls: Factory.get("PlotOpt")
-                                                            values: ("Taxa distribution", "Taxa coverage")
+                                                            values: ("Taxa distribution", "Taxa coverage", "Taxa gene copies")
                                                             on_release:
                                                                 plot_description.text = orthology_storage[self.text]
                                                     BoxLayout:
