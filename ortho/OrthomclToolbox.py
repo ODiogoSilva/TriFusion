@@ -478,9 +478,6 @@ class GroupLight():
             else:
                 data += Counter(dict((x, 1) for x, y in cl.items() if y > 0))
 
-        print(self.all_compliant, self.gene_threshold, self.species_threshold,
-              data)
-
         x_labels = [str(x) for x in list(data.keys())]
         data = [list(data.values()), [len(self.species_frequency) - x if not
                                       filt else self.all_compliant - x for x in
