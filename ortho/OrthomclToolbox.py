@@ -478,15 +478,18 @@ class GroupLight():
             else:
                 data += Counter(dict((x, 1) for x, y in cl.items() if y > 0))
 
-        x_labels = [str(x) for x in list(data.keys())]
-        data = [list(data.values()), [len(self.species_frequency) - x if not
-                                      filt else self.all_compliant - x for x in
-                                      data.values()]]
+        data = data.most_common()
+
+        x_labels = [str(x[0]) for x in data]
+        data = [[x[1] for x in data], [len(self.species_frequency) - x[1] if not
+                                      filt else self.all_compliant - x[1]
+                                      for x in data]]
 
         lgd_list = ["Available data", "Missing data"]
 
         b_plt, lgd = bar_plot(data, x_labels, lgd_list=lgd_list,
-                              ax_names=[None, "Ortholog frequency"])
+                              ax_names=[None, "Ortholog frequency"],
+                              reverse_x=False)
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
         return b_plt, lgd, ""
