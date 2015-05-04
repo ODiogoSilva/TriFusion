@@ -4193,6 +4193,9 @@ class TriFusionApp(App):
         excluded from the plot
         """
 
+        # Set active group
+        self.active_group = self.ortho_groups.get_group(self.active_group_name)
+
         # Exclude taxa, if any
         if exclude_taxa:
 
@@ -4264,32 +4267,6 @@ class TriFusionApp(App):
                                    (self.screen.ids.gn_spin.value,
                                  self.screen.ids.sp_spin.value), t="error")
 
-        # Setting filters for the first time
-        if not filt and not exclude_taxa:
-            self.screen.ids.gn_spin.value = self.active_group.max_extra_copy
-            self.screen.ids.sp_spin.value = 1
-            self.screen.ids.header_content.original_filt = \
-                [self.active_group.max_extra_copy, 1]
-            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
-                len(self.active_group.species_frequency)
-            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
-                len(self.active_group.species_list)
-            self.active_group.update_filters(self.active_group.max_extra_copy,
-                                             1)
-        else:
-            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
-                                (str(len(self.active_group.filtered_groups)),
-                                str(len(self.active_group.species_frequency) -
-                                len(self.active_group.filtered_groups)))
-            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
-                            (len(self.active_group.species_list),
-                            len(self.screen.ids.header_content.excluded_taxa) +
-                             len(self.active_group.species_list))
-
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
 
@@ -4309,6 +4286,32 @@ class TriFusionApp(App):
         self.current_plot, self.current_lgd, self.current_table = \
             plt_method[plt_idx][0](dest=self.temp_dir,
                                    filt=True if filt else False)
+
+        # Setting filters for the first time
+        if not filt and not exclude_taxa:
+            self.screen.ids.gn_spin.value = self.active_group.max_extra_copy
+            self.screen.ids.sp_spin.value = 1
+            self.screen.ids.header_content.original_filt = \
+                [self.active_group.max_extra_copy, 1]
+            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
+                len(self.active_group.species_frequency)
+            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
+                len(self.active_group.species_list)
+            self.active_group.update_filters(self.active_group.max_extra_copy,
+                                             1)
+        else:
+            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
+                                (str(self.active_group.all_compliant),
+                                str(len(self.active_group.species_frequency) -
+                                len(self.active_group.filtered_groups)))
+            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
+                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
+                            (len(self.active_group.species_list),
+                            len(self.screen.ids.header_content.excluded_taxa) +
+                             len(self.active_group.species_list))
 
         # Load plot
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]))
@@ -4341,7 +4344,7 @@ class TriFusionApp(App):
         orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
         for i in self.loaded_screens[orto_screen].ids.group_gl.children:
             if i.state == "down":
-                group_obj = self.ortho_groups.get_group(i.text)
+                group_obj = self.ortho_groups.get_group(i.id)
 
         # Add button for each taxon
         for taxon in group_obj.species_list:
