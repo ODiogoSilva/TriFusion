@@ -319,12 +319,19 @@ class GroupLight():
 
         if shared_namespace:
             shared_namespace.act = "Creating database"
+            # Stores sequences that could not be retrieved
+            shared_namespace.missed = 0
 
         # Connect to database
         conn = sqlite3.connect(sqldb)
         c = conn.cursor()
 
         # Create database
+        try:
+            c.execute("DROP TABLE prot_table")
+        except:
+            pass
+
         c.execute("CREATE TABLE prot_table (seq_id text, seq text)")
         # Create index
         c.execute("CREATE UNIQUE INDEX seq_id ON prot_table (seq_id)")
@@ -342,15 +349,18 @@ class GroupLight():
                     seq += line.strip()
 
         if shared_namespace:
-            shared_namespace.act = "Fetching sequeces"
+            shared_namespace.act = "Fetching sequences"
+            shared_namespace.progress = 0
+            shared_namespace.loci = 0
 
         # Fetching sequences
         for line, cl in zip(self.groups(), self.species_frequency):
 
             # Filter sequences
-            if max(cl.values()) <= self.gene_threshold and self.gene_threshold \
-                    and len(cl) >= self.species_threshold and \
-                    self.species_threshold:
+            if self._get_compliance(cl) == (1, 1):
+
+                if shared_namespace:
+                    shared_namespace.progress += 1
 
                 # Retrieve sequences from current cluster
                 fields = line.split(":")
@@ -365,9 +375,14 @@ class GroupLight():
                     c.execute("SELECT * FROM prot_table WHERE seq_id = ?",
                                 (i,))
                     vals = c.fetchone()
-                    output_handle.write(">{}\n{}\n".format(vals[0], vals[1]))
-
-                output_handle.close()
+                    # Handles cases where the sequence could not be retrieved
+                    try:
+                        output_handle.write(">{}\n{}\n".format(vals[0],
+                                                               vals[1]))
+                    except TypeError:
+                        pass
+                else:
+                    output_handle.close()
 
     def export_filtered_group(self, output_file_name="filtered_groups",
                               dest="./", shared_namespace=None):
