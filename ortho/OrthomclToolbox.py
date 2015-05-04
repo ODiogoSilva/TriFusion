@@ -189,23 +189,26 @@ class GroupLight():
 
     def _apply_filter(self, cl):
 
-        extra_copies = max(cl.values())
-        if extra_copies > self.max_extra_copy:
-            self.max_extra_copy = extra_copies
+        # After taxa removal, some clusters may be empty
+        if cl:
 
-        if extra_copies <= self.gene_threshold and self.gene_threshold and\
-            len(cl) >= self.species_threshold and  \
-                self.species_threshold:
-            self.num_gene_compliant += 1
-            self.num_species_compliant += 1
-            self.all_compliant += 1
+            extra_copies = max(cl.values())
+            if extra_copies > self.max_extra_copy:
+                self.max_extra_copy = extra_copies
 
-        elif extra_copies <= self.gene_threshold and self.gene_threshold:
-            self.num_gene_compliant += 1
+            if extra_copies <= self.gene_threshold and self.gene_threshold and\
+                len(cl) >= self.species_threshold and  \
+                    self.species_threshold:
+                self.num_gene_compliant += 1
+                self.num_species_compliant += 1
+                self.all_compliant += 1
 
-        elif len(cl) >= self.species_threshold and \
-                self.species_threshold:
-            self.num_species_compliant += 1
+            elif extra_copies <= self.gene_threshold and self.gene_threshold:
+                self.num_gene_compliant += 1
+
+            elif len(cl) >= self.species_threshold and \
+                    self.species_threshold:
+                self.num_species_compliant += 1
 
     def _get_compliance(self, cl):
 
@@ -275,20 +278,7 @@ class GroupLight():
             # Apply filters, if any
             # gene filter
             if self.species_threshold and self.gene_threshold:
-                if self.gene_threshold and extra_copies <= self.gene_threshold \
-                        and len(sp_freq) >= self.species_threshold and  \
-                        self.species_threshold:
-                    self.num_gene_compliant += 1
-                    self.num_species_compliant += 1
-                    self.all_compliant += 1
-
-                elif extra_copies <= self.gene_threshold and \
-                        self.gene_threshold:
-                    self.num_gene_compliant += 1
-
-                elif len(sp_freq) >= self.species_threshold and \
-                        self.species_threshold:
-                    self.num_species_compliant += 1
+                self._apply_filter(sp_freq)
 
     def exclude_taxa(self, taxa_list):
 
@@ -401,8 +391,11 @@ class GroupLight():
     def bar_species_distribution(self, dest="./", filt=False,
                                  output_file_name="Species_distribution"):
 
-        data = Counter((len(cl) for cl in self.species_frequency if
-                       self._get_compliance(cl) == "all" and filt))
+        if filt:
+            data = Counter((len(cl) for cl in self.species_frequency if
+                           self._get_compliance(cl) == (1, 1)))
+        else:
+            data = Counter((len(cl) for cl in self.species_frequency))
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
@@ -436,8 +429,11 @@ class GroupLight():
         :param output_file_name: string, name of the output file
         """
 
-        data = Counter((max(cl.values()) for cl in self.species_frequency if
-                       self._get_compliance(cl) == "all" and filt))
+        if filt:
+            data = Counter((max(cl.values()) for cl in self.species_frequency if
+                            self._get_compliance(cl) == (1, 1)))
+        else:
+            data = Counter((max(cl.values()) for cl in self.species_frequency))
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
@@ -471,12 +467,23 @@ class GroupLight():
 
         data = Counter(dict((x, 0) for x in self.species_list))
 
+        if filt:
+            self._reset_counter()
+
         for cl in self.species_frequency:
-            data += Counter(dict((x, 1) for x, y in cl.items() if y > 0 if
-                       self._get_compliance(cl) == "all" and filt))
+            self._apply_filter(cl)
+            if filt:
+                data += Counter(dict((x, 1) for x, y in cl.items() if y > 0 and
+                           self._get_compliance(cl) == (1, 1)))
+            else:
+                data += Counter(dict((x, 1) for x, y in cl.items() if y > 0))
+
+        print(self.all_compliant, self.gene_threshold, self.species_threshold,
+              data)
 
         x_labels = [str(x) for x in list(data.keys())]
-        data = [list(data.values()), [self.all_compliant - x for x in
+        data = [list(data.values()), [len(self.species_frequency) - x if not
+                                      filt else self.all_compliant - x for x in
                                       data.values()]]
 
         lgd_list = ["Available data", "Missing data"]
