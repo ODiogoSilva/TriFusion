@@ -818,6 +818,7 @@ class TriFusionApp(App):
 
     # MySQL access
     mysql_pass = StringProperty("")
+    sqldb = StringProperty("")
 
     # OrthoMCL output directory
     ortho_dir = StringProperty("")
@@ -974,6 +975,9 @@ class TriFusionApp(App):
         # taxa tab in the side panel are open by default.
         self.root.ids.taxa_dd.dismiss()
         self.root.ids.file_dd.dismiss()
+
+        # Set path to sqlite database
+        self.sqldb = join(self.temp_dir, "trifusion.sql3")
 
         self._start_clean()
 
@@ -4101,17 +4105,30 @@ class TriFusionApp(App):
             if not p.is_alive():
                 Clock.unschedule(func)
                 self.dismiss_popup()
-                self.dialog_floatcheck("%s sequences successfully exported" %
-                                       (ns.progress + 1), t="info")
+                if not ns.missed:
+                    self.dialog_floatcheck("%s orthologs successfully "
+                                           "exported" % ns.progress,
+                                           t="info")
+                else:
+                    self.dialog_floatcheck("%s orthologs exported. However,"
+                                           " %s sequences could not be "
+                                           "retrieved!" % (ns.progress,
+                                                           ns.missed),
+                                           t="info")
 
         # Update orthology export directory, if necessary
         if output_dir != self.orto_export_dir:
             self.orto_export_dir = output_dir
 
+        if not self.active_group:
+            group_id = [x.id for x in self.screen.ids.group_gl.children
+                          if x.state == "down"][0]
+            self.active_group = self.ortho_groups.get_group(group_id)
+
         method_store = {"group": [self.active_group.export_filtered_group,
-                                  [output_name, output_dir]],
+                                  [self.sqldb, output_name, output_dir]],
                         "protein": [self.active_group.retrieve_sequences,
-                                    [self.protein_db, output_dir]],
+                                    [self.sqldb, self.protein_db, output_dir]],
                         "nucleotide": [protein2dna.convert_group,
                                     [self.cds_db, self.protein_db,
                                      self.active_group]]}
@@ -4129,7 +4146,7 @@ class TriFusionApp(App):
         self.dismiss_all_popups()
 
         content = LoadProgressDialog()
-        content.ids.pb.max = len(self.active_group.filtered_groups)
+        content.ids.pb.max = len(self.active_group.species_frequency)
         self.show_popup(title="Exporting...", content=content, size=(400, 250))
 
         func = partial(check_process, d)
