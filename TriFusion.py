@@ -4280,7 +4280,10 @@ class TriFusionApp(App):
             "Species_coverage.png"],
                       "Gene copy distribution": [
             self.active_group.bar_genecopy_distribution,
-            "Gene_copy_distribution.png"]}
+            "Gene_copy_distribution.png"],
+                      "Taxa gene copies": [
+            self.active_group.bar_genecopy_per_species,
+            "Species_copy_number.png"]}
 
         # Call corresponding method and catch plot object
         self.current_plot, self.current_lgd, self.current_table = \
@@ -4340,14 +4343,8 @@ class TriFusionApp(App):
 
         content = InputList(cancel=self.dismiss_popup)
 
-        # Get active group
-        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
-        for i in self.loaded_screens[orto_screen].ids.group_gl.children:
-            if i.state == "down":
-                group_obj = self.ortho_groups.get_group(i.id)
-
         # Add button for each taxon
-        for taxon in group_obj.species_list:
+        for taxon in sorted(self.active_group.species_list):
             bt = TGToggleButton(text=taxon)
             # deselect button if taxa is excluded
             if taxon in self.screen.ids.header_content.excluded_taxa:
