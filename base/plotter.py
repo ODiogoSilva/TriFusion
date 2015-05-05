@@ -151,6 +151,8 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
 
     # Determine bar group width according to the number of data lists
     w = (1. - 2. * margin) / len(data_list)
+    # Determine max plt height to calculate text label space
+    max_height = max((x for y in data_list for x in y))
 
     # Create bar plots
     for i, d in enumerate(data_list):
@@ -185,15 +187,24 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
         # horizontal orientation
         if w >= 0.8:
             xpos = b.get_x() + b.get_width() / 2
-            ypos = b.get_height() * .92
+            ypos = b.get_height() * .90
             ax.text(xpos, ypos, b.get_height(), horizontalalignment="center",
                     weight='bold', color="white", size=14)
         else:
-            xpos = b.get_x() + b.get_width() / 2 * 1.3
-            ypos = b.get_height() * .92
-            ax.text(xpos, ypos, b.get_height(), horizontalalignment="center",
-                    verticalalignment="center", weight='bold', color="white",
-                    size=14, rotation=90)
+            if b.get_height() / max_height >= 0.2:
+                xpos = b.get_x() + b.get_width() / 2 * 1.3
+                ypos = b.get_height() * .95
+                ax.text(xpos, ypos, b.get_height(),
+                        horizontalalignment="center", color="white",
+                        verticalalignment="top", weight='bold',
+                        size=14, rotation=90)
+            else:
+                xpos = b.get_x() + b.get_width() / 2
+                ypos = b.get_height() * 1.1
+                ax.text(xpos, ypos, b.get_height(),
+                        horizontalalignment="center", color="black",
+                        verticalalignment="bottom", weight='bold',
+                        size=14, rotation=90)
 
     # Automatically adjust figure size to accommodate all labels
     # plt.tight_layout()
