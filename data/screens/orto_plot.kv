@@ -128,7 +128,7 @@ ShowcaseScreen:
                                 background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt.png"
                                 on_release:
                                     if header_content.original_filt and header_content.original_filt != [int(gn_spin.value), int(sp_spin.value)]:\
-                                    app.orto_show_plot(header_content.plt_idx, filt=[int(gn_spin.value), int(sp_spin.value)])
+                                    app.orto_show_plot(app.active_group, header_content.plt_idx, filt=[int(gn_spin.value), int(sp_spin.value)])
 
                     Vseparator:
                         thickness: 1.5

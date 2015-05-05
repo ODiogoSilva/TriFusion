@@ -1963,7 +1963,10 @@ class TriFusionApp(App):
             :param a: list arguments
             """
 
-            val = f(*a)
+            if a:
+                val = f(*a)
+            else:
+                val = f()
             ns.val = val
 
         def check_process_status(p, second_function, args, dt):
@@ -1982,7 +1985,7 @@ class TriFusionApp(App):
                 if not no_arg2:
                     if second_func:
                         if args2:
-                            val += [args]
+                            val.extend(args)
                         second_function(*val)
                 else:
                     second_function()
@@ -4198,7 +4201,15 @@ class TriFusionApp(App):
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
 
-    def orto_show_plot(self, plt_idx, filt=None, exclude_taxa=None):
+    def get_active_group(self):
+
+        active_group = deepcopy(self.ortho_groups.get_group(
+            self.active_group_name))
+
+        return [active_group]
+
+    def orto_show_plot(self, active_group, plt_idx, filt=None,
+                       exclude_taxa=None):
         """
         Loads a orto_plot screen for orthology graphical exploration based
         on the plot index. This method can be called in three ways:
@@ -4223,8 +4234,7 @@ class TriFusionApp(App):
         """
 
         # Set active group
-        self.active_group = deepcopy(self.ortho_groups.get_group(
-            self.active_group_name))
+        self.active_group = active_group
 
         # Exclude taxa, if any
         if exclude_taxa:
@@ -4375,7 +4385,8 @@ class TriFusionApp(App):
         content = InputList(cancel=self.dismiss_popup)
 
         # Add button for each taxon
-        for taxon in sorted(self.active_group.species_list):
+        for taxon in sorted(self.active_group.species_list +
+                            self.screen.ids.header_content.excluded_taxa):
             bt = TGToggleButton(text=taxon)
             # deselect button if taxa is excluded
             if taxon in self.screen.ids.header_content.excluded_taxa:
@@ -4385,11 +4396,13 @@ class TriFusionApp(App):
 
         # Add bindings to Ok button
         content.ids.ok_bt.bind(on_release=lambda x:
-            self.orto_show_plot(plt_idx, filt=[self.screen.ids.gn_spin.value,
-                                               self.screen.ids.sp_spin.value],
-                                exclude_taxa=[x.text for x in
-                                content.ids.rev_inlist.children if
-                                x.state == "normal"]))
+            self.run_in_background(self.get_active_group, self.orto_show_plot,
+                                   None, [plt_idx,
+                                          [self.screen.ids.gn_spin.value,
+                                          self.screen.ids.sp_spin.value],
+                                          [x.text for x in
+                                           content.ids.rev_inlist.children if
+                                           x.state == "normal"]], False))
 
         self.show_popup(title="Included taxa", content=content,
                         size_hint=(.3, .8))
