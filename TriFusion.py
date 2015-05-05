@@ -845,7 +845,7 @@ class TriFusionApp(App):
     orto_min_sp = NumericProperty(3)
 
     # Attributes for exporting groups as protein/nucleotides
-    protein_db = None
+    protein_db = StringProperty("")
     cds_db = StringProperty("")
 
     # Attribute containing the path to the proteome files
