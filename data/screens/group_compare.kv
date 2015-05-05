@@ -98,7 +98,7 @@ ShowcaseScreen:
                             text: "Maximum gene copies:"
                             size_hint_x: 0.8
                         StringInput:
-                            text: str(app.ortho_groups.filters[app.active_group_name][1])
+                            text: str(app.ortho_groups.filters[app.active_group_name][0])
                             size_hint_x: .2
                             multiline: False
                             id: gn_txt
@@ -110,7 +110,7 @@ ShowcaseScreen:
                             text: "Minimum species represented:"
                             size_hint_x: 0.8
                         StringInput:
-                            text: str(app.ortho_groups.filters[app.active_group_name][0])
+                            text: str(app.ortho_groups.filters[app.active_group_name][1])
                             size_hint_x: .2
                             multiline: False
                             id: sp_txt
