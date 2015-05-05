@@ -318,7 +318,7 @@ ShowcaseScreen:
                                                 background_normal: "data/backgrounds/remove_bt_35.png"
                                                 background_down: "data/backgrounds/remove_bt_down_35.png"
                                                 background_disabled_normal: "data/backgrounds/remove_bt_disabled_35.png"
-                                                disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
+                                                disabled: True if not app.ortho_group_files else False
                                                 on_release:
                                                     app.check_action(text="Are you sure you want to remove all group files?", func=app.remove_all_groups)
 
@@ -385,7 +385,7 @@ ShowcaseScreen:
                                                             text_size: self.size
                                                         PlotSpinner:
                                                             id: sp_plot
-                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
+                                                            disabled: True if not app.ortho_group_files else False
                                                             text: "Taxa distribution"
                                                             option_cls: Factory.get("PlotOpt")
                                                             values: ("Taxa distribution", "Taxa coverage", "Taxa gene copies")
@@ -411,7 +411,7 @@ ShowcaseScreen:
                                                             valign: "top"
                                                         TFButton:
                                                             text: "Compute that shit!"
-                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
+                                                            disabled: True if not app.ortho_group_files else False
                                                             on_release:
                                                                 app.go_screen(7)
                                                                 app.orto_show_plot(sp_plot.text)
@@ -436,7 +436,7 @@ ShowcaseScreen:
                                                             id: gn_plot
                                                             text: "Gene copy distribution"
                                                             values: ("Gene copy distribution", "")
-                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
+                                                            disabled: True if not app.ortho_group_files else False
                                                             option_cls: Factory.get("PlotOpt")
                                                             on_release:
                                                                 plot_description.text = orthology_storage[self.text]
@@ -459,7 +459,7 @@ ShowcaseScreen:
                                                             halign: "justify"
                                                             valign: "top"
                                                         TFButton:
-                                                            disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
+                                                            disabled: True if not app.ortho_group_files else False
                                                             text: "Compute that shit!"
                                                             on_release:
                                                                 app.go_screen(7)
