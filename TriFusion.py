@@ -1932,7 +1932,7 @@ class TriFusionApp(App):
     ########################### GENERAL USE ###################################
 
     def run_in_background(self, func, second_func, args1, args2=None,
-                          no_arg2=False):
+                          no_arg2=False, msg="Crunching data..."):
         """
         This method is intended to run time/resource consuming operations in the
         background, without freezing the app, and return the final result to the
@@ -2001,6 +2001,8 @@ class TriFusionApp(App):
         self.dismiss_popup()
         # Create waiting dialog
         content = CrunchData()
+        #Set label
+        content.ids.msg.text = msg
         # Create popup with waiting dialog
         self.show_popup(title="", content=content, size=(230, 180))
 
@@ -4546,7 +4548,8 @@ class TriFusionApp(App):
 
         self.run_in_background(self.orto_update_filters, self.orthology_card,
                                [None, None, [x for x in groups_obj.groups],
-                                True], None, False)
+                                True], None, False,
+                               msg="Setting up filters...")
 
     def orthology_card(self, group_name=None, bt=None):
         """
