@@ -58,6 +58,7 @@
             id: img
             source: "data/backgrounds/image-loading.gif"
     Label:
+        id: msg
         size_hint_y: .4
         text: "Crunching data..."
         bold: True
@@ -1874,7 +1875,7 @@
                 bold: True
                 on_release:
                     if sd_filechooser.selection:\
-                    app.run_in_background(app.load_group_files, app.load_groups, [sd_filechooser.selection], None, False)
+                    app.run_in_background(app.load_group_files, app.load_groups, [sd_filechooser.selection], None, False, "Loading group files...")
                     #root.cancel()
 
             Button:
