@@ -414,7 +414,7 @@ ShowcaseScreen:
                                                             disabled: True if not app.ortho_group_files else False
                                                             on_release:
                                                                 app.go_screen(7)
-                                                                app.orto_show_plot(sp_plot.text)
+                                                                app.run_in_background(app.get_active_group, app.orto_show_plot, None, [sp_plot.text], False)
                                                                 app.show_plot_toolbar()
 
                                                 BoxLayout:
