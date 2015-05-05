@@ -853,7 +853,8 @@ class TriFusionApp(App):
     active_proteome_files = ListProperty()
 
     # Attribute containing the orthology group files
-    ortho_groups = ObjectProperty(None)
+    ortho_group_files = ListProperty()
+    ortho_groups = None
     active_group = None
     active_group_name = None
 
@@ -3186,6 +3187,9 @@ class TriFusionApp(App):
         # Remove group from MultiGroup object
         self.ortho_groups.remove_group(value.id)
 
+        # Remove from ortho group file container
+        self.ortho_group_files.pop(value.id)
+
         # Get box container of all gridlayouts
         gl_bx = value.parent.parent
 
@@ -4125,6 +4129,10 @@ class TriFusionApp(App):
                           if x.state == "down"][0]
             self.active_group = self.ortho_groups.get_group(group_id)
 
+        # Update filter values
+        self.active_group.update_filters(*self.ortho_groups.filters[
+            self.active_group.name])
+
         method_store = {"group": [self.active_group.export_filtered_group,
                                   [self.sqldb, output_name, output_dir]],
                         "protein": [self.active_group.retrieve_sequences,
@@ -4456,6 +4464,8 @@ class TriFusionApp(App):
             else:
                 self.ortho_groups.add_multigroups(groups_obj)
 
+            self.ortho_group_files.extend(list(groups_obj.groups.keys()))
+
             # Check if any group file is duplicate. If so, issue a warning
             if self.ortho_groups.duplicate_groups:
                 self.dialog_warning("Duplicate group files detected",
@@ -4532,7 +4542,11 @@ class TriFusionApp(App):
 
         # If no group button is active, dispatch the first
         if group_name and isinstance(group_name, ot.MultiGroupsLight):
-            self.ortho_groups = group_name
+            try:
+                self.ortho_groups = group_name
+            except:
+                print("here")
+                pass
 
         if group_name and not isinstance(group_name, ot.MultiGroupsLight):
             pass
