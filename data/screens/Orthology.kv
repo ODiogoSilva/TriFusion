@@ -235,7 +235,7 @@ ShowcaseScreen:
                                                 CheckBox:
                                                     size_hint_x: None
                                                     width: group_check.width
-                                                    disabled: True if not app.ortho_groups or isinstance(app.ortho_groups, ObjectProperty) else False
+                                                    disabled: True if not app.ortho_group_files else False
                                                     on_active:
                                                         app.orto_change_state()
                                             AnchorLayout:
