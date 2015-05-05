@@ -4160,23 +4160,23 @@ class TriFusionApp(App):
         func = partial(check_process, d)
         Clock.schedule_interval(func, .1)
 
-    def orto_compare_groups(self):
+    def orto_compare_groups(self, groups_objs=None):
         """
         Switches to the orthology group comparison screen and presents the
         initial plot comparing total orthologs across group files
+        :param groups_objs: MultiGroupLight object. Provide only when
+        updating filters in the plot screen
         """
 
         # Displays correspondence
         displays = {"total_ort": "1", "sp_ort": "2", "gn_ort": "3",
                     "final_ort": "4"}
 
-        # Get MultiGroup object with the selected groups
-        active_groups = ot.MultiGroupsLight(db_path=self.temp_dir)
-        orto_screen = join(self.cur_dir, "data", "screens", "Orthology.kv")
-
-        for gchk in self.loaded_screens[orto_screen].ids.group_check.children:
-            if gchk.active:
-                active_groups.add_group(self.ortho_groups.get_group(gchk.id))
+        # Determine MultiGroupLight object
+        if groups_objs:
+            groups_objs = groups_objs
+        else:
+            groups_objs = self.ortho_groups
 
         # Get active displays
         stats = "".join([y for x, y in displays.items()
@@ -4185,8 +4185,8 @@ class TriFusionApp(App):
         if stats:
             # Create first comparison plot of total orthologs
             self.current_plot, self.current_lgd, self.current_table = \
-                active_groups.bar_orthologs(dest=self.temp_dir,
-                                            stats=stats)
+                groups_objs.bar_orthologs(dest=self.temp_dir,
+                                                stats=stats)
 
             # Load plot
             self.load_plot(join(self.temp_dir, "Final_orthologs.png"))
