@@ -3188,7 +3188,11 @@ class TriFusionApp(App):
         self.ortho_groups.remove_group(value.id)
 
         # Remove from ortho group file container
-        self.ortho_group_files.pop(value.id)
+        self.ortho_group_files.remove(value.id)
+
+        # If all groups have been removed, reset ortho_groups attribute
+        if not self.ortho_group_files:
+            self.ortho_groups = None
 
         # Get box container of all gridlayouts
         gl_bx = value.parent.parent
@@ -4267,7 +4271,7 @@ class TriFusionApp(App):
             sp_filt = filt[1] if filt[1] <= len(self.active_group.species_list)\
                 else len(self.active_group.species_list)
             # Update group filters
-            self.active_group.update_filters(gn_filt, sp_filt)
+            self.active_group.update_filters(gn_filt, sp_filt, True)
             self.screen.ids.header_content.original_filt = [gn_filt, sp_filt]
             # If any of the filters had to be adjusted, issue a warning
             if gn_filt != filt[0] or sp_filt != filt[1]:
@@ -4285,7 +4289,7 @@ class TriFusionApp(App):
             self.screen.ids.header_content.original_filt = \
                 [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
             self.active_group.update_filters(self.screen.ids.gn_spin.value,
-                                 self.screen.ids.sp_spin.value)
+                                 self.screen.ids.sp_spin.value, True)
             # Issue warning that the filters were adjusted
             self.dialog_floatcheck("WARNING: Current filters beyond the maximum"
                                    " accepted values. Adjusting gene and "
@@ -4330,7 +4334,7 @@ class TriFusionApp(App):
                 "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
                 len(self.active_group.species_list)
             self.active_group.update_filters(self.active_group.max_extra_copy,
-                                             1)
+                                             1, True)
         else:
             self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
@@ -4419,8 +4423,7 @@ class TriFusionApp(App):
 
     def load_group_files(self, group_files):
 
-        if not self.ortho_groups or isinstance(self.ortho_groups,
-                                               ObjectProperty):
+        if not self.ortho_groups:
             og = ot.MultiGroupsLight(db_path=self.temp_dir)
 
         for gf in group_files:
