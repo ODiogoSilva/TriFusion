@@ -325,28 +325,32 @@ class GroupLight():
         # Connect to database
         conn = sqlite3.connect(sqldb)
         c = conn.cursor()
+        table_name = "".join(protein_db.split(os.sep)).replace(".", "")
 
-        # Create database
-        try:
-            c.execute("DROP TABLE prot_table")
-        except:
-            pass
+        # Create database if it does not exist
+        if not c.execute("SELECT name FROM sqlite_master WHERE type='table' AND"
+                    " name='{}'".format(table_name)).fetchall():
 
-        c.execute("CREATE TABLE prot_table (seq_id text, seq text)")
-        # Create index
-        c.execute("CREATE UNIQUE INDEX seq_id ON prot_table (seq_id)")
-        # Populate dabase
-        with open(protein_db) as ph:
-            seq = ""
-            for line in ph:
-                if line.startswith(">"):
-                    seq_id = line.strip()[1:]
-                    if seq != "":
-                        c.execute("INSERT INTO prot_table VALUES (?, ?)",
-                                  (seq_id, seq))
-                    seq = ""
-                else:
-                    seq += line.strip()
+            c.execute("CREATE TABLE {} (seq_id text, seq text)".
+                      format(table_name))
+            # Create index
+            c.execute("CREATE UNIQUE INDEX seq_id ON {}(seq_id)".
+                      format(table_name))
+
+            # Populate database
+            with open(protein_db) as ph:
+                seq = ""
+                for line in ph:
+                    if line.startswith(">"):
+                        seq_id = line.strip()[1:]
+                        if seq != "":
+                            c.execute("INSERT INTO {} VALUES (?, ?)".
+                                      format(table_name), (seq_id, seq))
+                        seq = ""
+                    else:
+                        seq += line.strip()
+
+            conn.commit()
 
         if shared_namespace:
             shared_namespace.act = "Fetching sequences"
@@ -372,8 +376,8 @@ class GroupLight():
                 seqs = fields[-1].split()
                 for i in seqs:
                     # Query database
-                    c.execute("SELECT * FROM prot_table WHERE seq_id = ?",
-                                (i,))
+                    c.execute("SELECT * FROM {} WHERE seq_id = ?".
+                              format(table_name), (i,))
                     vals = c.fetchone()
                     # Handles cases where the sequence could not be retrieved
                     try:
@@ -383,6 +387,8 @@ class GroupLight():
                         pass
                 else:
                     output_handle.close()
+
+        conn.close()
 
     def export_filtered_group(self, output_file_name="filtered_groups",
                               dest="./", shared_namespace=None):
@@ -1349,7 +1355,7 @@ class MultiGroupsLight():
                                                 len(group_object.species_list))
 
     def __iter__(self):
-        for k, val in self.items():
+        for k, val in self.groups.items():
             yield k, pickle.load(open(val, "rb"))
 
     def add_group(self, group_obj):
