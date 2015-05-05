@@ -1476,23 +1476,22 @@ class MultiGroupsLight():
         lgd = ["Total orthologs", "After species filter", "After gene filter",
                "Final orthologs"]
 
-        with shelve.open(self.shelve_path) as sf:
-            # Get final ortholog values
-            for gname, g_obj in sf.items():
+        # Get final ortholog values
+        for gname, gstats in self.groups_stats.items():
 
-                x_labels.append(g_obj.name.split(os.sep)[-1])
-                # Populate total orthologs
-                if "1" in stats or stats == "all":
-                    vals[0].append(len(g_obj.groups))
-                # Populate species compliant orthologs
-                if "2" in stats or stats == "all":
-                    vals[1].append(g_obj.num_species_compliant)
-                # Populate gene compliant orthologs
-                if "3" in stats or stats == "all":
-                    vals[2].append(g_obj.num_gene_compliant)
-                # Populate final orthologs
-                if "4" in stats or stats == "all":
-                    vals[3].append(len(g_obj.filtered_groups))
+            x_labels.append(gname.split(os.sep)[-1])
+            # Populate total orthologs
+            if "1" in stats or stats == "all":
+                vals[0].append(gstats["stats"][0])
+            # Populate species compliant orthologs
+            if "2" in stats or stats == "all":
+                vals[1].append(gstats["stats"][3])
+            # Populate gene compliant orthologs
+            if "3" in stats or stats == "all":
+                vals[2].append(gstats["stats"][2])
+            # Populate final orthologs
+            if "4" in stats or stats == "all":
+                vals[3].append(gstats["stats"][4])
 
         # Filter valid data sets
         lgd_list = [x for x in lgd if vals[lgd.index(x)]]
