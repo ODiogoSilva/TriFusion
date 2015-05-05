@@ -212,22 +212,24 @@ class GroupLight():
 
     def _get_compliance(self, cl):
 
-        cp = max(cl.values())
+        if cl:
 
-        if cp <= self.gene_threshold and self.gene_threshold and\
-            len(cl) >= self.species_threshold and  \
-                self.species_threshold:
-            return 1, 1
+            cp = max(cl.values())
 
-        elif cp <= self.gene_threshold and self.gene_threshold:
-            return 1, 0
+            if cp <= self.gene_threshold and self.gene_threshold and\
+                len(cl) >= self.species_threshold and  \
+                    self.species_threshold:
+                return 1, 1
 
-        elif len(cl) >= self.species_threshold and \
-                self.species_threshold:
-            return 0, 1
+            elif cp <= self.gene_threshold and self.gene_threshold:
+                return 1, 0
 
-        else:
-            return 0, 0
+            elif len(cl) >= self.species_threshold and \
+                    self.species_threshold:
+                return 0, 1
+
+            else:
+                return 0, 0
 
     def _reset_counter(self):
 
@@ -306,10 +308,15 @@ class GroupLight():
                    self.num_gene_compliant, self.num_species_compliant, \
                    self.all_compliant
 
-    def update_filters(self, gn_filter, sp_filter):
+    def update_filters(self, gn_filter, sp_filter, update_stats=False):
 
         self.gene_threshold = int(gn_filter)
         self.species_threshold = int(sp_filter)
+
+        if update_stats:
+            self._reset_counter()
+            for cl in self.species_frequency:
+                self._apply_filter(cl)
 
     def retrieve_sequences(self, sqldb, protein_db, dest="./", mode="fasta",
                            shared_namespace=None):
