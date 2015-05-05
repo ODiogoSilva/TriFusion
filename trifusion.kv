@@ -332,13 +332,14 @@
             opacity: .2 if group_fmt.state == "down" else 1
             size_hint_x: .7
             markup: True
-            text: "[size=18][b]Protein database[/b][/size]\n[size=13]Provide a Fasta or .dic file containing the proteins used as a database for the Search operation. [/size]"
+            text: "[size=18][b]Protein database[/b][/size]\n[size=13]Provide the path to the Fasta file containing the proteins used as a database for the Search operation. [/size]"
             halign: "left"
             valign: "middle"
             text_size: self.size
         ProcessBt:
             disabled: True if group_fmt.state == "down" else False
-            text: app.protein_db if app.protein_db else "Select..."
+            text: app.protein_db.split(sep)[-1] if app.protein_db else "Select..."
+            background_normal: "data/backgrounds/bt_process.png" if app.protein_db else "data/backgrounds/bt_process_off.png"
             on_release:
                 app.dialog_filechooser("protein_db")
 
@@ -351,13 +352,14 @@
             opacity: .2 if group_fmt.state == "down" or prot_fmt.state == "down" else 1
             size_hint_x: .7
             markup: True
-            text: "[size=18][b]CDS database[/b][/size]\n[size=13]Provide a Fasta file containing the nucleotide CDS files that correspond to the searched proteins[/size]"
+            text: "[size=18][b]CDS database[/b][/size]\n[size=13]Provide the path to the Fasta file containing the nucleotide CDS files that correspond to the searched proteins[/size]"
             halign: "left"
             valign: "middle"
             text_size: self.size
         ProcessBt:
             disabled: True if group_fmt.state == "down" or prot_fmt.state == "down" else False
-            text: "Select"
+            text: app.cds_db.split(sep)[-1] if app.cds_db else "Select..."
+            background_normal: "data/backgrounds/bt_process.png" if app.protein_db else "data/backgrounds/bt_process_off.png"
 
     Hseparator:
         thickness: 1.5
