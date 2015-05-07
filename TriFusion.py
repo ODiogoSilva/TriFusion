@@ -902,7 +902,7 @@ class TriFusionApp(App):
 
     # Attribute for taxa and file groups
     taxa_groups = DictProperty()
-    file_groups = DictProperty
+    file_groups = DictProperty()
 
     # Attribute containing the objects for the several possible output files.
     output_file = StringProperty("")
