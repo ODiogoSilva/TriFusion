@@ -597,6 +597,10 @@ class LoadDialog(BoxLayout):
     """
     cancel = ObjectProperty(None)
 
+    def __init__(self, **kwargs):
+        super(LoadDialog, self).__init__(**kwargs)
+
+        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.ld_filechooser)
 
 class SaveDialog(FloatLayout):
     """
@@ -605,6 +609,11 @@ class SaveDialog(FloatLayout):
     save = ObjectProperty(None)
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(SaveDialog, self).__init__(**kwargs)
+
+        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sd_filechooser)
 
 
 class FormatDialog(BoxLayout):
@@ -4071,7 +4080,8 @@ class TriFusionApp(App):
         export to another group file
         """
 
-        content = SaveDialog(cancel=self.dismiss_popup)
+        content = SaveDialog(cancel=self.dismiss_popup,
+                             bookmark_init=self.bookmark_init)
 
         # Set the path from previously imported groups, if any
         content.ids.sd_filechooser.path = self.orto_export_dir if \
@@ -5043,7 +5053,8 @@ class TriFusionApp(App):
 
     def dialog_load_partfile(self):
 
-        content = LoadDialog(cancel=self.dismiss_subpopup)
+        content = LoadDialog(cancel=self.dismiss_subpopup,
+                             bookmark_init=self.bookmark_init)
 
         # If input files have already been provided, use their directory as a
         # starting point for the partition file chooser. Otherwise, use the
@@ -5068,7 +5079,8 @@ class TriFusionApp(App):
         """
 
         # Inherits the layout defined in the .kv file under <SaveDialog>
-        content = SaveDialog(cancel=self.dismiss_popup)
+        content = SaveDialog(cancel=self.dismiss_popup,
+                             bookmark_init=self.bookmark_init)
 
         # Custom behaviour for main output file chooser dialog
         if idx == "main_output":

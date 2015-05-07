@@ -1906,12 +1906,48 @@
                         spacing: [5, 10]
                         id: bookmark_gl
 
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 5
 
-            FileChooserM:
-                id: sd_filechooser
-                text: "master"
-                multiselect: True
-                path: app.home_path
+                FileChooserM:
+                    id: sd_filechooser
+                    text: "master"
+                    multiselect: True
+                    path: app.home_path
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: 30
+                    spacing: 5
+
+                    Label:
+                        canvas.before:
+                            Color:
+                                rgba: (.2,.2,.2,1)
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+                        size_hint_x: .15
+                        text: "Find:"
+                        bold: True
+                    ToggleButton:
+                        id: case_bt
+                        text: "Aa"
+                        bold:True
+                        size_hint_x: .1
+                        state: "down"
+
+                    TextInput:
+                        id: text_filter
+                        multiline: False
+                        focus: True
+                        on_text:
+                            if case_bt.state == "down": sd_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
+                            if case_bt.state == "normal": sd_filechooser.f = "*"+self.text+"*"
+
+                        on_text_validate:
+                            focus = True
 
         BoxLayout:
             size_hint_y: None
@@ -2227,7 +2263,7 @@
         BoxLayout:
             size_hint_y: None
             height: 30
-            spacing: 10
+            spacing: 5
             Label:
                 padding: (5, 0)
                 canvas.before:
@@ -2257,11 +2293,54 @@
                 on_release:
                     app.dialog_text("New folder", "new_folder")
 
-        FileChooserL:
-            id: sd_filechooser
-            text: "master"
-            path: app._common_path() if app._common_path() else app.home_path
-            #on_selection: text_input.text = self.selection
+        BoxLayout:
+            spacing: 10
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 10
+                size_hint_x: None
+                width: 200
+                BoxLayout:
+                    size_hint_y: None
+                    height: 40
+                    canvas.before:
+                        Color:
+                            rgba: (0.3, 0.3, 0.3, .8)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    Label:
+                        text: " Bookmarks"
+                        bold: True
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+                        font_size: 18
+
+                    AnchorLayout:
+                        size_hint: None, None
+                        size: 40, 40
+                        Button:
+                            size_hint: None, None
+                            size: 30, 30
+                            background_normal: "data/backgrounds/add_bt30.png"
+                            on_release:
+                                app.save_bookmark(sd_filechooser.path, bookmark_gl, sd_filechooser)
+
+                ScrollView:
+                    GridLayout:
+                        size_hint_y: None
+                        height: sum([x.height + 10 for x in self.children]) / 2
+                        cols: 2
+                        orientation: "vertical"
+                        spacing: [5, 10]
+                        id: bookmark_gl
+
+            FileChooserL:
+                id: sd_filechooser
+                text: "master"
+                path: app._common_path() if app._common_path() else app.home_path
+                #on_selection: text_input.text = self.selection
 
         BoxLayout:
             id: txt_box
@@ -2773,65 +2852,130 @@
     orientation: "vertical"
     spacing: 10
     padding: 10
-    Label:
-        size_hint_y: None
-        text: ld_filechooser.path
-        height: 30
-        text_size: (self.size[0] - 20, self.size[1])
-        shorten: True
-        shorten_from: "left"
-        halign: "center"
-        valign: "middle"
-        canvas.before:
-            Color:
-                rgba: .35, .35, .35, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
-
-    FileChooserListView:
-        id: ld_filechooser
-        f: "/*"
-        filters: [self.path+self.f]
-        filter_dirs: True
-
     BoxLayout:
         size_hint_y: None
         height: 30
         spacing: 5
-
         Label:
+            padding: (5, 0)
             canvas.before:
                 Color:
-                    rgba: (.2,.2,.2,1)
+                    rgba: .35, .35, .35, 1
                 Rectangle:
                     pos: self.pos
                     size: self.size
-            size_hint_x: .15
-            text: "Find:"
+            text: ld_filechooser.path
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        Button:
+            size_hint_x: None
+            width: 30
+            background_normal: "data/backgrounds/up_dir_bt.png"
+            background_down: "data/backgrounds/up_dir_bt.png"
+            on_release:
+                ld_filechooser.path = os.path.abspath(os.path.join(ld_filechooser.path, os.path.pardir))
+        Button:
             bold: True
-        ToggleButton:
-            id: case_bt
-            text: "Aa"
-            bold:True
-            size_hint_x: .1
-            state: "down"
+            size_hint_x: None
+            width: 100
+            text: "New folder"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                app.dialog_text("New folder", "new_folder")
 
-        TextInput:
-            id: text_filter
-            multiline: False
-            focus: True
-            on_text:
-                if case_bt.state == "down": ld_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
-                if case_bt.state == "normal": ld_filechooser.f = "*"+self.text+"*"
+    BoxLayout:
+        spacing: 10
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            size_hint_x: None
+            width: 200
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                canvas.before:
+                    Color:
+                        rgba: (0.3, 0.3, 0.3, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    text: " Bookmarks"
+                    bold: True
+                    halign: "center"
+                    valign: "middle"
+                    text_size: self.size
+                    font_size: 18
 
-            on_text_validate:
-                focus = True
+                AnchorLayout:
+                    size_hint: None, None
+                    size: 40, 40
+                    Button:
+                        size_hint: None, None
+                        size: 30, 30
+                        background_normal: "data/backgrounds/add_bt30.png"
+                        on_release:
+                            app.save_bookmark(ld_filechooser.path, bookmark_gl, ld_filechooser)
+
+            ScrollView:
+                GridLayout:
+                    size_hint_y: None
+                    height: sum([x.height + 10 for x in self.children]) / 2
+                    cols: 2
+                    orientation: "vertical"
+                    spacing: [5, 10]
+                    id: bookmark_gl
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 5
+
+            FileChooserListView:
+                id: ld_filechooser
+                f: "/*"
+                filters: [self.path+self.f]
+                filter_dirs: True
+
+            BoxLayout:
+                size_hint_y: None
+                height: 30
+                spacing: 5
+
+                Label:
+                    canvas.before:
+                        Color:
+                            rgba: (.2,.2,.2,1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    size_hint_x: .15
+                    text: "Find:"
+                    bold: True
+                ToggleButton:
+                    id: case_bt
+                    text: "Aa"
+                    bold:True
+                    size_hint_x: .1
+                    state: "down"
+
+                TextInput:
+                    id: text_filter
+                    multiline: False
+                    focus: True
+                    on_text:
+                        if case_bt.state == "down": ld_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
+                        if case_bt.state == "normal": ld_filechooser.f = "*"+self.text+"*"
+
+                    on_text_validate:
+                        focus = True
 
     BoxLayout:
         size_hint_y: None
-        height: 35
-        spacing: 10
+        height: 30
+        spacing: 20
+        padding: (150, 0, 150, 0)
 
         Button:
             id: ok_bt
