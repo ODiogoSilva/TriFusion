@@ -2845,6 +2845,25 @@ class TriFusionApp(App):
                     self.root.ids.partition_sl.add_widget(LoadMoreBt())
                     return
 
+    def partition_merge_state(self):
+        """
+        Changes disabled state of merge partitions button
+        """
+
+        active_partitions = len([x for x in self.root.ids.partition_sl.children
+                                 if isinstance(x, ToggleButton) and
+                                 x.state == "down"])
+
+        if active_partitions >= 2:
+            self.root.ids.merge_part.disabled = False
+            self.root.ids.split_part.disabled = True
+        elif active_partitions == 0:
+            self.root.ids.merge_part.disabled = True
+            self.root.ids.split_part.disabled = True
+        else:
+            self.root.ids.merge_part.disabled = True
+            self.root.ids.split_part.disabled = False
+
     def sidepanel_create_part_bts(self, idx):
         """
         Creates buttons for each partition
@@ -2863,6 +2882,7 @@ class TriFusionApp(App):
                                                  "bt_process.png"),
                           background_normal=join("data", "backgrounds",
                                                  "bt_process_off.png"))
+        bt.bind(on_release=lambda x: self.partition_merge_state())
 
         # Setting horizontal text size for shortening
         bt.text_size[0] = bt.size[0] * 1.3
