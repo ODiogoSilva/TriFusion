@@ -1,6 +1,7 @@
 #:kivy 1.9.0
 #:import Factory kivy.factory.Factory
 #:import sep os.sep
+#:import os os
 #:import multiprocessing multiprocessing
 #:import ObjectProperty kivy.properties.ObjectProperty
 #:import StringProperty kivy.properties.StringProperty
@@ -1832,7 +1833,7 @@
         BoxLayout:
             size_hint_y: None
             height: 30
-            spacing: 10
+            spacing: 5
             Label:
                 padding: (5, 0)
                 canvas.before:
@@ -1846,6 +1847,13 @@
                 valign: "middle"
                 text_size: self.size
             Button:
+                size_hint_x: None
+                width: 30
+                background_normal: "data/backgrounds/up_dir_bt.png"
+                background_down: "data/backgrounds/up_dir_bt.png"
+                on_release:
+                    sd_filechooser.path = os.path.abspath(os.path.join(sd_filechooser.path, os.path.pardir))
+            Button:
                 bold: True
                 size_hint_x: None
                 width: 100
@@ -1855,11 +1863,55 @@
                 on_release:
                     app.dialog_text("New folder", "new_folder")
 
-        FileChooserM:
-            id: sd_filechooser
-            text: "master"
-            multiselect: True
-            path: app.home_path
+        BoxLayout:
+            spacing: 10
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 10
+                size_hint_x: None
+                width: 200
+                BoxLayout:
+                    size_hint_y: None
+                    height: 40
+                    canvas.before:
+                        Color:
+                            rgba: (0.3, 0.3, 0.3, .8)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    Label:
+                        text: " Bookmarks"
+                        bold: True
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+                        font_size: 18
+
+                    AnchorLayout:
+                        size_hint: None, None
+                        size: 40, 40
+                        Button:
+                            size_hint: None, None
+                            size: 30, 30
+                            background_normal: "data/backgrounds/add_bt30.png"
+                            on_release:
+                                app.save_bookmark(sd_filechooser.path, bookmark_gl, sd_filechooser)
+
+                ScrollView:
+                    GridLayout:
+                        size_hint_y: None
+                        height: sum([x.height + 10 for x in self.children]) / 2
+                        cols: 2
+                        orientation: "vertical"
+                        spacing: [5, 10]
+                        id: bookmark_gl
+
+
+            FileChooserM:
+                id: sd_filechooser
+                text: "master"
+                multiselect: True
+                path: app.home_path
 
         BoxLayout:
             size_hint_y: None
@@ -2188,6 +2240,13 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
+            Button:
+                size_hint_x: None
+                width: 30
+                background_normal: "data/backgrounds/up_dir_bt.png"
+                background_down: "data/backgrounds/up_dir_bt.png"
+                on_release:
+                    sd_filechooser.path = os.path.abspath(os.path.join(sd_filechooser.path, os.path.pardir))
             Button:
                 bold: True
                 size_hint_x: None
