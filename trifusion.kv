@@ -4292,16 +4292,30 @@ FloatLayout:
                                                     spacing: 5
                                                     Button:
                                                         text: "Select All"
-                                                        disabled: True
+                                                        disabled: True if not app.file_list else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     Button:
                                                         text: "Deselect All"
-                                                        disabled: True
+                                                        disabled: True if not app.file_list else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                    Button:
+                                                        id: merge_part
+                                                        disabled: True
+                                                        size_hint_x: None
+                                                        width: 35
+                                                        background_normal: "data/backgrounds/group_bt.png"
+                                                        background_disabled_normal: "data/backgrounds/group_bt_disabled.png"
+                                                    Button:
+                                                        disabled: True if not app.file_list else False
+                                                        id: split_part
+                                                        size_hint_x: None
+                                                        width: 35
+                                                        background_normal: "data/backgrounds/split_bt.png"
+                                                        background_disabled_normal: "data/backgrounds/split_bt_disabled.png"
 
                             BoxLayout:
                                 orientation: "vertical"
