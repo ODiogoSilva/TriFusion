@@ -184,6 +184,10 @@ class Partitions():
 
         return iter(self.partitions.items())
 
+    def iter_files(self):
+
+        return iter(self.partitions_alignments.items())
+
     def set_length(self, length):
         """
         Sets the length of the locus. This may be important to convert certain
