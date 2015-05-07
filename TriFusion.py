@@ -2613,7 +2613,7 @@ class TriFusionApp(App):
         # Check for missing partitions based on id and remove them
         for bt, inf_bt, x_bt in self.sp_partition_bts:
             if bt.id not in self.alignment_list.partitions.partitions:
-                self.remove_bt(x_bt)
+                self.remove_bt(x_bt, parent_wgt=self.root.ids.partition_sl)
 
     def update_file_label(self, mode="alignment"):
         """
@@ -3185,7 +3185,7 @@ class TriFusionApp(App):
                                                 "remove_bt.png")]
 
         for i in file_bts:
-            self.remove_bt(i)
+            self.remove_bt(i, parent_wgt=self.root.ids.file_sl)
 
     def remove_all_groups(self):
         """
@@ -3234,27 +3234,39 @@ class TriFusionApp(App):
         if not self.screen.ids.group_gl.children:
             self.screen.ids.card_gl.clear_widgets()
 
-    def remove_bt(self, value):
+    def remove_bt(self, value, parent_wgt=None):
         """
         Functionality for the "X" remove buttons in the side panel. It
         removes button pairs with similar id's and can be used in both files
         and taxa tabs
+        :param value: Button widget to be removed
+        :param parent_wgt: Button widget contained. If provided, it overrides
+        value.parent
         """
 
         ####### APP CHANGES
         # Get the parent layout object from where the widget will be removed
-        parent_obj = value.parent
+        if parent_wgt:
+            parent_obj = parent_wgt
+        else:
+            parent_obj = value.parent
 
         # Get button widgets to be removed
         bt_idx = value.id[:-1]
         inf_idx = value.id[:-1] + "?"
-        bt = [x for x in parent_obj.children if bt_idx == x.id][0]
-        inf_bt = [x for x in parent_obj.children if inf_idx == x.id][0]
+        try:
+            bt = [x for x in parent_obj.children if bt_idx == x.id][0]
+            parent_obj.remove_widget(bt)
+        except IndexError:
+            pass
+        try:
+            inf_bt = [x for x in parent_obj.children if inf_idx == x.id][0]
+            parent_obj.remove_widget(inf_bt)
+        except IndexError:
+            pass
 
         # Remove widgets
         parent_obj.remove_widget(value)
-        parent_obj.remove_widget(bt)
-        parent_obj.remove_widget(inf_bt)
 
         ####### CORE CHANGES
         # Get the parent tab
