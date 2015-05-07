@@ -2807,6 +2807,32 @@
 # REVERSE CONCATENATION OPTIONS
 #===============================================================================
 
+<BtList@BoxLayout>:
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
+    ScrollView:
+        GridLayout:
+            spacing: 5
+            cols: 1
+            id: rev_inlist
+            size_hint_y: None
+            height: sum([x.height + 5 for x in self.children])
+
+    AnchorLayout:
+        size_hint_y: None
+        height: 30
+        Button:
+            size_hint_x: None
+            width: 80
+            id: cancel_bt
+            text: "Close"
+            bold: True
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            on_release:
+                root.cancel()
+
 <InputList@BoxLayout>:
     orientation: "vertical"
     spacing: 10

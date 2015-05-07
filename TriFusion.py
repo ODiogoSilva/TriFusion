@@ -354,6 +354,10 @@ class CrunchData(BoxLayout):
     pass
 
 
+class TFButton(Button):
+    pass
+
+
 class TGToggleButton(ToggleButton):
     pass
 
@@ -498,6 +502,10 @@ class RevConcDialog(BoxLayout):
     """
     Reverse concatenation dialog
     """
+    cancel = ObjectProperty(None)
+
+
+class BtList(BoxLayout):
     cancel = ObjectProperty(None)
 
 
@@ -2870,6 +2878,7 @@ class TriFusionApp(App):
                                              "counter_bt.png"),
                       background_down=join("data", "backgrounds",
                                              "counter_bt.png"))
+        c_bt.bind(on_release=lambda x: self.dialog_partition_files(part_name))
 
         # Create edition button
         ed_bt = Button(size_hint=(None, None), width=30,
@@ -2934,6 +2943,25 @@ class TriFusionApp(App):
         # Removes widgets:
         for wgt in partition_box:
             self.root_window.remove_widget(wgt)
+
+    def dialog_partition_files(self, partition_name):
+        """
+        Shows a popup listing the files associated with a given partition
+        :param partition_name: string, name of partition
+        :return:
+        """
+
+        content = BtList(cancel=self.dismiss_popup)
+
+        plist = self.alignment_list.partitions.partitions_alignments[
+            partition_name]
+
+        for f in plist:
+            bt = TFButton(text=f, height=40)
+            content.ids.rev_inlist.add_widget(bt)
+
+        self.show_popup(title="Alignment files in %s" % partition_name,
+                        content=content, size_hint=(.6, .8))
 
     def dialog_partitions(self, btx):
         """
