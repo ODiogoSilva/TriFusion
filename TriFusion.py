@@ -2832,20 +2832,21 @@ class TriFusionApp(App):
                 self.root.ids.partition_temp)
             del self.root.ids["partition_temp"]
 
-        for aln in self.alignment_list:
-            for partition, fls in aln.partitions.iter_files():
+        print(self.alignment_list.partitions.partitions)
 
-                if self.count_partitions <= self.MAX_PARTITION_BUTTON:
+        for partition, fls in self.alignment_list.partitions.iter_files():
 
-                    self.count_partitions += 1
-                    # Create partition buttons
-                    self.sidepanel_add_bts([partition, fls], "Partitions")
+            if self.count_partitions <= self.MAX_PARTITION_BUTTON:
 
-                else:
-                    self.root.ids.partition_sl.add_widget(LoadMoreBt())
-                    return
+                self.count_partitions += 1
+                # Create partition buttons
+                self.sidepanel_add_bts([partition, fls], "Partitions")
 
-    def partition_merge_state(self):
+            else:
+                self.root.ids.partition_sl.add_widget(LoadMoreBt())
+                return
+
+    def partition_bt_state(self):
         """
         Changes disabled state of merge partitions button
         """
@@ -2882,7 +2883,7 @@ class TriFusionApp(App):
                                                  "bt_process.png"),
                           background_normal=join("data", "backgrounds",
                                                  "bt_process_off.png"))
-        bt.bind(on_release=lambda x: self.partition_merge_state())
+        bt.bind(on_release=lambda x: self.partition_bt_state())
 
         # Setting horizontal text size for shortening
         bt.text_size[0] = bt.size[0] * 1.3
