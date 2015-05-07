@@ -443,6 +443,10 @@ class LoadMultipleDialog(BoxLayout):
     """
     cancel = ObjectProperty(None)
 
+    def __init__(self, **kwargs):
+        super(LoadMultipleDialog, self).__init__(**kwargs)
+
+        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sd_filechooser)
 
 class CloseBox(BoxLayout):
     """
@@ -1847,7 +1851,7 @@ class TriFusionApp(App):
             if self.available_screens[idx].split("/")[-1] == "fc.kv":
                 self.screen.ids.icon_view_tab.path = self.home_path
                 # Initialize bookmarks
-                self.bookmark_init()
+                self.bookmark_init(self.screen.ids.sv_book, self.screen.ids.icon_view_tab)
                 self.switch_path_wgt("label")
 
         return self.screen
@@ -2013,7 +2017,7 @@ class TriFusionApp(App):
 
     ####################### BOOKMARKS OPERATIONS ###############################
 
-    def bookmark_init(self):
+    def bookmark_init(self, wgt, fc_wgt):
         """
         This will create a pickle file containing a list with the bookmarks
         for the file chooser menu. If no file exists, it will create an empty
@@ -2025,18 +2029,20 @@ class TriFusionApp(App):
             # Retrieving the bookmark path list from the self.bookmarks
             bk_list = self.bookmarks[0]
             for bk in bk_list:
-                self.add_bookmark_bt(bk)
+                self.add_bookmark_bt(bk, wgt, fc_wgt)
 
         else:
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
-    def save_bookmark(self, path):
+    def save_bookmark(self, path, wgt, fc_wgt):
         """
         This adds functionality to the FileChooser "Add bookmark" button. It
         will grab the selected path and add it to a storage list that
         will be saved as a pickle object and stored in a file defined in
         self.bm_file.
         :param path: String containing the path of the bookmark
+        :param wgt: Widget where the bookmark will be added
+        :param fc_wgt: FileChooser widget that the bookmark will affect
         """
 
         # Load bookmarks object
@@ -2050,10 +2056,10 @@ class TriFusionApp(App):
             new_map = {path.split(sep)[-1]: path}
             self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
                                      list(new_map.items()))
-            self.add_bookmark_bt(path)
+            self.add_bookmark_bt(path, wgt, fc_wgt)
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
-    def add_bookmark_bt(self, bk):
+    def add_bookmark_bt(self, bk, wgt, fc_wgt):
         """
         This will add a bookmark button, along with its removal button. Only
         a bookmark path will be necessary.
@@ -2062,6 +2068,8 @@ class TriFusionApp(App):
         by it's id.
 
         :param bk: string. bookmark file path
+        :param wgt: Widget, preferentially a gridlayout where the bookmark
+        buttons will be added
         """
         bookmark_name = bk.split("/")[-1]
         # Define bookmark button
@@ -2072,7 +2080,7 @@ class TriFusionApp(App):
                     background_down=join("data", "backgrounds",
                                          "bt_process_off.png"))
         # Bind to function that loads bookmark path into filechooser
-        bt.bind(on_release=self.bookmark_load)
+        bt.bind(on_release=lambda x: self.bookmark_load(x, fc_wgt))
         # Add to list for mouse over purposes
         self.bookmarks_bt.append(bt)
         # Define bookmark removal button
@@ -2089,10 +2097,10 @@ class TriFusionApp(App):
                                     " this bookmark?",
                                     self.remove_bookmark_bt))
         # Add widgets
-        self.screen.ids.sv_book.add_widget(bt)
-        self.screen.ids.sv_book.add_widget(xbt)
+        wgt.add_widget(bt)
+        wgt.add_widget(xbt)
 
-    def bookmark_load(self, value):
+    def bookmark_load(self, value, wgt):
         """
         Provided a bookmark button object, it loads the bookmark file path
         that is stored in the button id.
@@ -2101,7 +2109,7 @@ class TriFusionApp(App):
 
         path = value.id
         if os.path.exists(path):
-            self.screen.ids.icon_view_tab.path = path
+            wgt.path = path
         else:
             self.dialog_floatcheck("The path to the selected bookmark no longer"
                                    " exists.", t="error")
@@ -3910,7 +3918,8 @@ class TriFusionApp(App):
         Creates filechooser dialog to select group files to be imported
         """
 
-        content = LoadMultipleDialog(cancel=self.dismiss_popup)
+        content = LoadMultipleDialog(cancel=self.dismiss_popup,
+                                     bookmark_init=self.bookmark_init)
 
         self.show_popup(title="Choose group file(s) to import", content=content,
                         size_hint=(.9, .9))
