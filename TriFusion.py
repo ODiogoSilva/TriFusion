@@ -1433,6 +1433,8 @@ class TriFusionApp(App):
             if self.root_window.mouse_pos != mp:
                 # Unlocking mouse over
                 self.mouse_over_ready = True
+                # Cleans any possible mouse overs
+                clear_mouse_overs()
                 return
 
             # Cleans any possible mouse overs
