@@ -1376,26 +1376,6 @@ class TriFusionApp(App):
 
             return dummy_wgt.collide_point(mp[0], mp[1])
 
-        def create_label(text):
-            """
-            Creates a general use label
-            :param text: Text to appear on the button
-            :return: Button object
-            """
-
-            label_width = (len(text) + 7) * 7
-
-            if label_width > self.root.width * .7:
-                info_bt = MouseOverLabel(text=text, pos=mp,
-                                size=(self.root.width * .6, 40),
-                                size_hint=(None, None))
-            else:
-                info_bt = MouseOverLabel(text=text, pos=mp,
-                                        size=(label_width, 40),
-                            size_hint=(None, None))
-
-            return info_bt
-
         def create_sidebt_wgt(text, p, s):
             """
             Creates the label for the sidebt mouseover
@@ -1598,7 +1578,7 @@ class TriFusionApp(App):
             # Get active tab in side panel
             active_tab = self.root.ids.main_tp.current_tab.text
             # Get remove all button
-            rm_bt = [self.root.ids.rm_all_file, self.root.ids.rm_all_taxa]
+            rm_bt = [self.root.ids.rm_all_File, self.root.ids.rm_all_Taxa]
 
             # Iterate over buttons of active tab
             for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt:
@@ -2845,13 +2825,13 @@ class TriFusionApp(App):
             del self.root.ids["partition_temp"]
 
         for aln in self.alignment_list:
-            for partition, vals in aln.partitions:
+            for partition, fls in aln.partitions.iter_files():
 
                 if self.count_partitions <= self.MAX_PARTITION_BUTTON:
 
                     self.count_partitions += 1
                     # Create partition buttons
-                    self.sidepanel_add_bts(partition, "Partitions")
+                    self.sidepanel_add_bts([partition, fls], "Partitions")
 
                 else:
                     self.root.ids.partition_sl.add_widget(LoadMoreBt())
@@ -2863,8 +2843,11 @@ class TriFusionApp(App):
         :param idx: string. unique identifier of partition
         """
 
+        part_name = idx[0]
+        fl_num = str(len(idx[1]))
+
         # Create main button
-        bt = ToggleButton(text=idx, state="normal", id=idx,
+        bt = ToggleButton(text=part_name, state="normal", id=part_name,
                           height=30, size_hint=(.8, None), shorten=True,
                           shorten_from="right", halign="center",
                           bold=True,
@@ -2876,25 +2859,28 @@ class TriFusionApp(App):
         # Setting horizontal text size for shortening
         bt.text_size[0] = bt.size[0] * 1.3
 
+        # Create file counter button. This button will display the number
+        # of alignments included in this partition as its text. The
+        # on_release event will show a popup with a list of the alignment
+        # files contained
+        c_bt = Button(size_hint=(None, None), width=30, text=fl_num,
+                      height=30, id="%sC" % part_name, bold=True,
+                      border=(0, 0, 0, 0),
+                      background_normal=join("data", "backgrounds",
+                                             "counter_bt.png"),
+                      background_down=join("data", "backgrounds",
+                                             "counter_bt.png"))
+
         # Create edition button
         ed_bt = Button(size_hint=(None, None), width=30,
-                        height=30, id="%s?" % idx,
+                        height=30, id="%s?" % part_name,
                         background_normal=join("data", "backgrounds",
                                                "edit_bt.png"),
                         background_down=join("data", "backgrounds",
                                                "edit_bt_down.png"))
         ed_bt.bind(on_release=self.dialog_partitions)
 
-        # Create removal button
-        x_bt = Button(size_hint=(None, None), width=30,
-                      height=30, id="%sX" % idx,
-                      border=(0, 0, 0, 0),
-                      background_normal=join("data", "backgrounds",
-                                             "remove_bt.png"),
-                      background_down=join("data", "backgrounds",
-                                             "remove_bt_down.png"))
-
-        return bt, ed_bt, x_bt
+        return bt, c_bt, ed_bt
 
     def set_codon_model(self, codon_partition, wgt=None):
         """
@@ -3254,6 +3240,7 @@ class TriFusionApp(App):
         # Get button widgets to be removed
         bt_idx = value.id[:-1]
         inf_idx = value.id[:-1] + "?"
+
         try:
             bt = [x for x in parent_obj.children if bt_idx == x.id][0]
             parent_obj.remove_widget(bt)
