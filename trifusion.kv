@@ -2611,6 +2611,98 @@
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
 
+<SplitPartitions@BoxLayout>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: 80
+        spacing: 5
+        FieldLabel:
+            text: "Automatic split"
+        AnchorLayout:
+            size_hint_y: None
+            height: 40
+            Button:
+                size_hint_x: None
+                width: 150
+                text: "Split by files"
+                bold: True
+                background_normal: "data/backgrounds/bt_process.png"
+
+    BoxLayout:
+        size_hint_y: None
+        height: 115
+        orientation: "vertical"
+        FieldLabel:
+            text: "Manual split"
+        BoxLayout:
+            spacing: 20
+            size_hint_y: None
+            height: 30
+            Label:
+                size_hint_x: None
+                width: 10
+                font_size: 12
+                id: str(manual_slider.min)
+            MySlider:
+                id: manual_slider
+            Label:
+                size_hint_x: None
+                width: 10
+                font_size: 12
+                id: str(manual_slider.max)
+
+        Widget:
+            size_hint_y: None
+            height: 10
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 10
+            TextInput:
+                hint_text: "Partition 1 name"
+                multiline: False
+            TextInput:
+                hint_text: "Partition 2 name"
+                multiline: False
+
+        Widget:
+            size_hint_y: None
+            height: 10
+
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
+        size_hint_y: None
+        height: 30
+        BoxLayout:
+            size_hint_x: None
+            width: 220
+            spacing: 20
+            Button:
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                text: "Split"
+                id: ok_bt
+                size_hint_x: None
+                width: 100
+                bold: True
+            Button:
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                text: "Cancel"
+                id: cancel_bt
+                size_hint_x: None
+                width: 100
+                bold: True
+                on_release:
+                    root.cancel()
+
+
 <PartitionActiveDialog@BoxLayout>:
     orientation: "vertical"
     spacing: 10
@@ -4406,6 +4498,8 @@ FloatLayout:
                                                         width: 35
                                                         background_normal: "data/backgrounds/split_bt.png"
                                                         background_disabled_normal: "data/backgrounds/split_bt_disabled.png"
+                                                        on_release:
+                                                            app.dialog_partitions_split()
                                                     Button:
                                                         disabled: True if not app.file_list else False
                                                         id: add_part
