@@ -2421,6 +2421,8 @@
                     app.save_file(sd_filechooser.path, idx=sd_filechooser.text)
                     elif sd_filechooser.text == "protein" or sd_filechooser.text == "nucleotide": \
                     app.orto_export_groups(sd_filechooser.text, output_dir=sd_filechooser.path)
+                    elif sd_filechooser.text == "import_partitions" and txt_box.height == 0: \
+                    app.partitions_import_scheme(sd_filechooser.selection[0])
                     # Close dialog
                     if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group": root.cancel()
 
@@ -2582,6 +2584,28 @@
                 bold: True
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
+
+<PartitionActiveDialog@BoxLayout>:
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        spacing: 10
+        Button:
+            bold: True
+            text: "Selected partitions"
+            background_normal: "data/backgrounds/bt_process.png"
+            on_release:
+                app.dialog_filechooser("import_act_part")
+        Button:
+            bold: True
+            text: "All partitions"
+            background_normal: "data/backgrounds/bt_process.png"
+            on_release:
+                app.dialog_filechooser("import_all_part")
+
 
 #===============================================================================
 # PROCESS OUTPUT FORMAT
@@ -4359,6 +4383,8 @@ FloatLayout:
                                                         width: 35
                                                         background_normal: "data/backgrounds/add_bt35.png"
                                                         background_disabled_normal: "data/backgrounds/add_bt35_disabled.png"
+                                                        on_release:
+                                                            app.dialog_import_partitions()
 
                             BoxLayout:
                                 orientation: "vertical"

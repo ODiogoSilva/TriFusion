@@ -184,6 +184,19 @@ class Partitions():
 
         return iter(self.partitions.items())
 
+    def reset(self):
+        """
+        Clears partitions and resets object to __init__ state
+        :return:
+        """
+
+        self.partition_length = 0
+        self.partitions = OrderedDict()
+        self.partitions_index = []
+        self.partitions_alignments = OrderedDict()
+        self.models = OrderedDict()
+        self.counter = 0
+
     def iter_files(self):
 
         return iter(self.partitions_alignments.items())
@@ -256,8 +269,7 @@ class Partitions():
                                        partition_range_temp.strip().split("-")]
                     # Add information to partitions storage
                     self.add_partition(partition_name,
-                                       locus_range=partition_range,
-                                       model=model_name)
+                                       locus_range=partition_range)
                 except IndexError:
                     return InvalidPartitionFile("Badly formatted partitions "
                                                 "file")

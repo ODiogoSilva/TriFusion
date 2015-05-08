@@ -604,6 +604,10 @@ class WarningDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class PartitionActiveDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class LoadDialog(BoxLayout):
     """
     Class controlling a general purpose layout for loading additional files
@@ -2887,6 +2891,22 @@ class TriFusionApp(App):
         self.dismiss_popup()
         self.partition_bt_state()
 
+    def partitions_import_scheme(self, partition_file):
+        """
+        Imports partitions in partition_file and applies to the alignment_list
+        partition object. It applies to the entire alignment_list for now.
+        :param partition_file: string, path to partition file
+        """
+
+        self.alignment_list.partitions.reset()
+        self.alignment_list.partitions.read_from_file(partition_file)
+
+        # Clear partitions
+        self.root.ids.partition_sl.clear_widgets()
+        # Re-populate partitions
+        self.populate_partitions()
+        self.partition_bt_state()
+
     def partition_bt_state(self):
         """
         Changes disabled state of merge partitions button
@@ -3024,6 +3044,26 @@ class TriFusionApp(App):
 
         self.show_popup(title="Alignment files in %s" % partition_name,
                         content=content, size_hint=(.6, .8))
+
+    def dialog_import_partitions(self):
+        """
+        Creates a filechooser dialog to select a partition file and import its
+        scheme to the current partition. If one or more partitions are active,
+        ask the user if we wants to import the partition scheme to the selected
+        partitions or to the whole dataset
+        :return:
+        """
+
+        content = SaveDialog(cancel=self.dismiss_popup,
+                             bookmark_init=self.bookmark_init)
+
+        content.ids.txt_box.clear_widgets()
+        content.ids.txt_box.height = 0
+        title = "Choose partition scheme file"
+        content.ids.sd_filechooser.text = "import_partitions"
+
+        self.show_popup(title=title, content=content)
+
 
     def dialog_partitions(self, btx):
         """
@@ -5199,6 +5239,11 @@ class TriFusionApp(App):
             content.ids.txt_box.clear_widgets()
             content.ids.txt_box.height = 0
             title = "Choose protein sequence database file"
+
+        # elif idx == "import_act_part" or idx == "import_all_part":
+        #     content.ids.txt_box.clear_widgets()
+        #     content.ids.txt_box.height = 0
+        #     title = "Choose partition scheme file"
 
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
