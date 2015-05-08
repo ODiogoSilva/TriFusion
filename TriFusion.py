@@ -2300,7 +2300,7 @@ class TriFusionApp(App):
 
             # Fixing the width of the side panel
             # Main panel width
-            sv_panel_width = 300
+            sv_panel_width = 330
             # Side buttons width
             sv_bts_width = 60
         else:
