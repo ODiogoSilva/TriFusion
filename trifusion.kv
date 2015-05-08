@@ -2626,6 +2626,7 @@
             size_hint_y: None
             height: 40
             Button:
+                id: auto_split_bt
                 size_hint_x: None
                 width: 150
                 text: "Split by files"
@@ -2646,14 +2647,14 @@
                 size_hint_x: None
                 width: 10
                 font_size: 12
-                id: str(manual_slider.min)
+                text: str(int(manual_slider.min))
             MySlider:
                 id: manual_slider
             Label:
                 size_hint_x: None
                 width: 10
                 font_size: 12
-                id: str(manual_slider.max)
+                text: str(int(manual_slider.max))
 
         Widget:
             size_hint_y: None
@@ -2666,9 +2667,11 @@
             TextInput:
                 hint_text: "Partition 1 name"
                 multiline: False
+                id: part1
             TextInput:
                 hint_text: "Partition 2 name"
                 multiline: False
+                id: part2
 
         Widget:
             size_hint_y: None

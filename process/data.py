@@ -636,7 +636,8 @@ class Partitions():
                                                if x in partition_list)))]
 
         # Add entries for new partition
-        self.partitions[name] = [new_range, False]
+        self.partitions[name] = [new_range[0] if len(new_range) == 1 else
+            new_range, False]
         self.partitions_alignments[name] = [i for x, y in
                                             self.partitions_alignments.items()
                                             if x in partition_list for i in y]
