@@ -107,7 +107,7 @@ class Partitions():
         attribute, but gene partitions are the main entries. An example of
         different stored partitions is:
 
-        partitions = {"partitionA": ((0, 856,) False),
+        partitions = {"partitionA": ((0, 856), False),
                       "partitionB": ((857, 1450), [857,858,859] }
 
         "partitionA" is a simple gene partition ranging from 0 to 856, while
@@ -152,7 +152,7 @@ class Partitions():
 
         """
 
-        self.partitions_alignments = {}
+        self.partitions_alignments = OrderedDict()
 
         """
         The private self.models attribute will contain the same key list as
@@ -565,6 +565,51 @@ class Partitions():
             else:
                 raise PartitionException("%s file does not belong to any"
                                          "partition" % file_name)
+
+    def merge_partitions(self, partition_list, name):
+        """
+        Merge multiple partitions into a single one with name
+        :param partition_list: list with partition names to be merged
+        :param name: string with name of new partition
+        """
+
+        def merger(ranges):
+            """
+            Generator that merges ranges in a list of tuples. For example,
+            if ranges is [(1, 234), (235, 456), (560, 607), (607,789)]
+            this generator will yield [(1, 456), (560, 789)]
+            """
+            previous = 0
+            last_start = 0
+            for st, en in ranges:
+                if not previous:
+                    last_start = st
+                    previous = en
+                elif st - 1 == previous:
+                    previous = en
+                else:
+                    yield last_start, previous
+                    previous = en
+                    last_start = st
+            else:
+                yield last_start, en
+
+        # Get new range
+        new_range = [x for x in merger((y[0] for x, y in self.partitions.items()
+                                        if x in partition_list))]
+
+        # Add entries for new partition
+        self.partitions[name] = [tuple(new_range), False]
+        self.partitions_alignments[name] = [i for x, y in
+                                            self.partitions_alignments.items()
+                                            if x in partition_list for i in y]
+        self.models[name] = [[[]], [None]]
+
+        # Delete previous partitions
+        for p in partition_list:
+            del self.partitions[p]
+            del self.partitions_alignments[p]
+            del self.models[p]
 
     #===========================================================================
     # Model handling
