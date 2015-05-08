@@ -2891,6 +2891,22 @@ class TriFusionApp(App):
         self.dismiss_popup()
         self.partition_bt_state()
 
+    def partitions_change_name(self, partition_name, new_name):
+        """
+        Changes name of a partition
+        :param partition_name: string, Original partition name
+        :param new_name: string, new partition name
+        :return:
+        """
+
+        # Change partition name
+        self.alignment_list.partitions.change_name(partition_name, new_name)
+
+        # Update button in side panel
+        bt = [x for x in self.root.ids.partition_sl.children
+              if isinstance(x, ToggleButton) and x.text == partition_name][0]
+        bt.text = new_name
+
     def partitions_import_scheme(self, partition_file):
         """
         Imports partitions in partition_file and applies to the alignment_list
@@ -2960,7 +2976,7 @@ class TriFusionApp(App):
                                              "counter_bt.png"),
                       background_down=join("data", "backgrounds",
                                              "counter_bt.png"))
-        c_bt.bind(on_release=lambda x: self.dialog_partition_files(part_name))
+        c_bt.bind(on_release=lambda x: self.dialog_partition_files(bt.text))
 
         # Create edition button
         ed_bt = Button(size_hint=(None, None), width=30,
@@ -3096,6 +3112,7 @@ class TriFusionApp(App):
         part_obj = self.alignment_list.partitions
         part_name = btx.id[:-1]
         content.ids.partition_name.text = part_name
+        content.original_name = part_name
 
         # Get partition lenght
         part_range = (y[0] for x, y in self.alignment_list.partitions
