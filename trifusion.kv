@@ -68,6 +68,37 @@
         text_size: self.size
         color: (0.216, 0.67, 0.784, 1)
 
+<InputTextDialog@BoxLayout>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    TextInput:
+        id: txt_dlg
+        focus: True
+        multiline: False
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            bold: True
+            on_release:
+                root.action(txt_dlg.text)
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            bold: True
+            on_release:
+                root.cancel()
+
+
 #===============================================================================
 # ROOT WINDOW
 #===============================================================================
@@ -4310,7 +4341,7 @@ FloatLayout:
                                                         background_normal: "data/backgrounds/group_bt.png"
                                                         background_disabled_normal: "data/backgrounds/group_bt_disabled.png"
                                                         on_release:
-                                                            app.partitions_merge()
+                                                            app.partitions_merge_dialog()
                                                     Button:
                                                         disabled: True
                                                         id: split_part
