@@ -370,6 +370,11 @@ class ExportGroupDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class InputTextDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+    action = ObjectProperty(None)
+
+
 class BackButton(Button):
     pass
 
@@ -2844,11 +2849,27 @@ class TriFusionApp(App):
                 self.root.ids.partition_sl.add_widget(LoadMoreBt())
                 return
 
-    def partitions_merge(self):
+    def partitions_merge_dialog(self):
+        """
+        Dialog that appears when clicking merge partitions asking for the name
+        of the new partition
+        """
+
+        content = InputTextDialog(cancel=self.dismiss_popup,
+                                  action=lambda x: self.partitions_merge(x))
+
+        self.show_popup(title="Choose name for new partition", content=content,
+                        size=(300, 153.5))
+
+    def partitions_merge(self, name):
         """
         Merge active partitions
         :return:
         """
+
+        if name in self.alignment_list.partitions.partitions:
+            return self.dialog_floatcheck("ERROR: A partition named %s already"
+                                          " exists." % name, t="error")
 
         # Get active partitions
         active_partitions = [x.text for x in self.root.ids.partition_sl.children
@@ -2856,12 +2877,15 @@ class TriFusionApp(App):
                              x.state == "down"]
 
         self.alignment_list.partitions.merge_partitions(active_partitions,
-                                                        "Test")
+                                                        name)
 
         # Clear partitions
         self.root.ids.partition_sl.clear_widgets()
         # Re-populate partitions
         self.populate_partitions()
+        # Close popup
+        self.dismiss_popup()
+        self.partition_bt_state()
 
     def partition_bt_state(self):
         """
