@@ -633,6 +633,10 @@ class SaveDialog(FloatLayout):
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sd_filechooser)
 
 
+class SplitPartitions(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class FormatDialog(BoxLayout):
     """
     Class controlling the layout of the output format dialog in the Process
@@ -2890,6 +2894,13 @@ class TriFusionApp(App):
         # Close popup
         self.dismiss_popup()
         self.partition_bt_state()
+
+    def dialog_partitions_split(self):
+
+        content = SplitPartitions(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Split partition", content=content,
+                        size=(300, 320))
 
     def partitions_change_name(self, partition_name, new_name):
         """
