@@ -3064,17 +3064,28 @@ class TriFusionApp(App):
 
         self.show_popup(title=title, content=content)
 
-
     def dialog_partitions(self, btx):
         """
         Shows a small widget with partition information
         """
 
+        def flatter(s):
+            """
+            Creates a flat iterator of tuples. If s is [[(1,2), (2,3)], (4,5)]
+            this will yield ((1,2), (2,3), (4,5))
+            """
+            for i in s:
+                if isinstance(i, tuple):
+                    yield i
+                else:
+                    for j in i:
+                        yield j
+
         # Get position of partition edit button:
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
 
         # Set position for partitions dialog
-        size = (180, 190)
+        size = (240, 250)
         pos = [ed_pos[0] + btx.width,
                ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
 
@@ -3084,6 +3095,13 @@ class TriFusionApp(App):
         # Set partition object and partition name
         part_obj = self.alignment_list.partitions
         part_name = btx.id[:-1]
+        content.ids.partition_name.text = part_name
+
+        # Get partition lenght
+        part_range = (y[0] for x, y in self.alignment_list.partitions
+                      if x == part_name)
+        part_len = sum([x[1] - x[0] for x in flatter(part_range)])
+        content.ids.partition_lenght.text = "{}bp".format(part_len)
 
         #TODO: For now this assumes all codon partitions are unlinked
         # If there are codon partitions
