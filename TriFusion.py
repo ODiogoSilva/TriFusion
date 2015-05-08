@@ -2899,8 +2899,36 @@ class TriFusionApp(App):
 
         content = SplitPartitions(cancel=self.dismiss_popup)
 
+        # Get active partition
+        active_partition = [x.text for x in self.root.ids.partition_sl.children
+                            if isinstance(x, ToggleButton) and
+                            x.state == "down"][0]
+
+        # Get partition range
+        part_range = self.alignment_list.partitions.partitions[active_partition]
+
+        # Disable manual split if the current partition has a fragmented range
+        if not isinstance(part_range[0], tuple):
+            for wgt in [content.ids.ok_bt, content.ids.part1,
+                        content.ids.part2]:
+                wgt.disabled = True
+            content.ids.manual_slider.max = 0
+        else:
+            content.ids.manual_slider.min = int(part_range[0][0])
+            content.ids.manual_slider.max = int(part_range[0][1])
+
+        # If partition contains only one file, disable automatic split by files
+        if len(self.alignment_list.partitions.partitions_alignments[
+                active_partition]) == 1:
+            content.ids.auto_split_bt.disabled = True
+
         self.show_popup(title="Split partition", content=content,
                         size=(300, 320))
+
+        if not isinstance(part_range[0], tuple):
+            self.dialog_floatcheck("WARNING: Manual split in unavailable for"
+                                   " partitions with fragmented ranges.",
+                                   t="error")
 
     def partitions_change_name(self, partition_name, new_name):
         """
