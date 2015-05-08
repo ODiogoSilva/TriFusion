@@ -612,7 +612,6 @@ class Partitions():
             this will yield ((1,2), (2,3), (4,5))
             """
             for i in s:
-                print(i)
                 if isinstance(i, tuple):
                     yield i
                 else:
