@@ -578,6 +578,18 @@ class Partitions():
                 raise PartitionException("%s file does not belong to any"
                                          "partition" % file_name)
 
+    def change_name(self, old_name, new_name):
+        """
+        Changes the name of a single partition
+        :param old_name: string, original partition name
+        :param new_name: string, new partition name
+        """
+
+        self.partitions[new_name] = self.partitions.pop(old_name)
+        self.partitions_alignments[new_name] = \
+            self.partitions_alignments.pop(old_name)
+        self.models[new_name] = self.models.pop(old_name)
+
     def merge_partitions(self, partition_list, name):
         """
         Merge multiple partitions into a single one with name

@@ -2538,6 +2538,7 @@
     padding: [30, 10, 10, 10]
     orientation: "vertical"
     spacing: 10
+    original_name: ""
 
     canvas.before:
         Color:
@@ -2559,6 +2560,10 @@
                 id: partition_name
                 multiline: False
                 size_hint_x: .7
+                on_text_validate:
+                    if root.original_name != self.text: \
+                    app.partitions_change_name(root.original_name, self.text)
+                    root.original_name = self.text
             Label:
                 id: partition_lenght
                 halign: "center"
