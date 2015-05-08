@@ -3433,13 +3433,13 @@ class TriFusionApp(App):
         """
 
         sv_parent = [x for x in value.parent.parent.parent.children if
-                     "scrollview" in str(x.__class__)][0]
+                     isinstance(x, ScrollView)][0]
 
         # This will iterate over the first child of the parent scrollview.
         # Since scroll view only supports one child, this should be fine
         for i in sv_parent.children[0].children:
             # Skips the X buttons
-            if "togglebutton" in str(i.__class__):
+            if isinstance(i, ToggleButton):
 
                 if value.text == "Select All":
                     # App related action
@@ -3469,9 +3469,15 @@ class TriFusionApp(App):
         if sv_parent == self.root.ids.sv_sp and value.text == "Deselect All":
             self.active_taxa_list = []
 
-        # Updates labels
-        self.update_sp_label()
-        self.update_file_label()
+        # Core changes to partitions
+        if sv_parent == self.root.ids.sv_partition:
+            self.partition_bt_state()
+
+        if sv_parent == self.root.ids.sv_sp or sv_parent == \
+                self.root.ids.sv_file:
+            # Updates labels
+            self.update_sp_label()
+            self.update_file_label()
 
     def dialog_taxagroup(self, ds_type):
         """

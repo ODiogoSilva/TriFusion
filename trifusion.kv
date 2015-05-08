@@ -4354,12 +4354,16 @@ FloatLayout:
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        on_release:
+                                                            app.select_bt(self)
                                                     Button:
                                                         text: "Deselect All"
                                                         disabled: True if not app.file_list else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        on_release:
+                                                            app.select_bt(self)
                                                     Button:
                                                         id: merge_part
                                                         disabled: True
