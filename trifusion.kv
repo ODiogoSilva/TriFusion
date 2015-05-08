@@ -4040,7 +4040,8 @@ FloatLayout:
                                                     text: "+"
                                                     font_size: 30
                                                     bold: True
-                                                    size_hint_x: .18
+                                                    size_hint_x: None
+                                                    width: 35
                                                     disabled: True if not app.file_list and not app.proteome_files else False
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
@@ -4187,7 +4188,8 @@ FloatLayout:
                                                     text: "+"
                                                     font_size: 30
                                                     bold: True
-                                                    size_hint_x: .18
+                                                    size_hint_x: None
+                                                    width: 35
                                                     disabled: True if not app.file_list else False
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
@@ -4291,6 +4293,7 @@ FloatLayout:
                                                             on_release:
                                                                 app.sidepanel_clear_search("partitions")
                                                                 partition_search.text = ""
+
                                             ScrollView:
                                                 id: sv_partition
                                                 GridLayout:
@@ -4349,6 +4352,13 @@ FloatLayout:
                                                         width: 35
                                                         background_normal: "data/backgrounds/split_bt.png"
                                                         background_disabled_normal: "data/backgrounds/split_bt_disabled.png"
+                                                    Button:
+                                                        disabled: True if not app.file_list else False
+                                                        id: add_part
+                                                        size_hint_x: None
+                                                        width: 35
+                                                        background_normal: "data/backgrounds/add_bt35.png"
+                                                        background_disabled_normal: "data/backgrounds/add_bt35_disabled.png"
 
                             BoxLayout:
                                 orientation: "vertical"
