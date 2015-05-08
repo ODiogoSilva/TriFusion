@@ -169,6 +169,16 @@ class Partitions():
         self.models = OrderedDict()
 
         """
+        This attribute will keep a record of the original ranges of every file
+        that was merged. This is useful to split partitions according to files
+        or to undo any changes. Each entry should be
+
+        {"alignment_file1": (0, 1234), "alignment_file2": (3444, 6291)}
+        """
+
+        self.merged_files = {}
+
+        """
         The counter attribute will be used as an indication of where the last
         partition ends when one or more partitions are added
         """
@@ -643,8 +653,11 @@ class Partitions():
                                             if x in partition_list for i in y]
         self.models[name] = [[[]], [None]]
 
-        # Delete previous partitions
+        # Delete previous partitions and update merged dict
         for p in partition_list:
+            if len(self.partitions_alignments[p]) == 1:
+                self.merged_files[self.partitions_alignments[p][0]] = \
+                    self.partitions[p][0]
             del self.partitions[p]
             del self.partitions_alignments[p]
             del self.models[p]
