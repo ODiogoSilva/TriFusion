@@ -2832,8 +2832,6 @@ class TriFusionApp(App):
                 self.root.ids.partition_temp)
             del self.root.ids["partition_temp"]
 
-        print(self.alignment_list.partitions.partitions)
-
         for partition, fls in self.alignment_list.partitions.iter_files():
 
             if self.count_partitions <= self.MAX_PARTITION_BUTTON:
@@ -2845,6 +2843,25 @@ class TriFusionApp(App):
             else:
                 self.root.ids.partition_sl.add_widget(LoadMoreBt())
                 return
+
+    def partitions_merge(self):
+        """
+        Merge active partitions
+        :return:
+        """
+
+        # Get active partitions
+        active_partitions = [x.text for x in self.root.ids.partition_sl.children
+                             if isinstance(x, ToggleButton) and
+                             x.state == "down"]
+
+        self.alignment_list.partitions.merge_partitions(active_partitions,
+                                                        "Test")
+
+        # Clear partitions
+        self.root.ids.partition_sl.clear_widgets()
+        # Re-populate partitions
+        self.populate_partitions()
 
     def partition_bt_state(self):
         """

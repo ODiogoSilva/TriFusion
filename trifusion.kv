@@ -4309,6 +4309,8 @@ FloatLayout:
                                                         width: 35
                                                         background_normal: "data/backgrounds/group_bt.png"
                                                         background_disabled_normal: "data/backgrounds/group_bt_disabled.png"
+                                                        on_release:
+                                                            app.partitions_merge()
                                                     Button:
                                                         disabled: True
                                                         id: split_part
