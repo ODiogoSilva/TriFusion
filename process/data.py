@@ -594,12 +594,26 @@ class Partitions():
             else:
                 yield last_start, en
 
+        def flatter(s):
+            """
+            Creates a flat iterator of tuples. If s is [[(1,2), (2,3)], (4,5)]
+            this will yield ((1,2), (2,3), (4,5))
+            """
+            for i in s:
+                print(i)
+                if isinstance(i, tuple):
+                    yield i
+                else:
+                    for j in i:
+                        yield j
+
         # Get new range
-        new_range = [x for x in merger((y[0] for x, y in self.partitions.items()
-                                        if x in partition_list))]
+        new_range = [x for x in merger(flatter((y[0] for x, y in
+                                               self.partitions.items()
+                                               if x in partition_list)))]
 
         # Add entries for new partition
-        self.partitions[name] = [tuple(new_range), False]
+        self.partitions[name] = [new_range, False]
         self.partitions_alignments[name] = [i for x, y in
                                             self.partitions_alignments.items()
                                             if x in partition_list for i in y]
