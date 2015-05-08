@@ -27,6 +27,28 @@ import sys
 from process.error_handling import *
 
 
+def merger(ranges):
+    """
+    Generator that merges ranges in a list of tuples. For example,
+    if ranges is [(1, 234), (235, 456), (560, 607), (607,789)]
+    this generator will yield [(1, 456), (560, 789)]
+    """
+    previous = 0
+    last_start = 0
+    for st, en in ranges:
+        if not previous:
+            last_start = st
+            previous = en
+        elif st - 1 == previous:
+            previous = en
+        else:
+            yield last_start, previous
+            previous = en
+            last_start = st
+    else:
+        yield last_start, en
+
+
 class Base ():
 
     def autofinder(self, reference_file):
