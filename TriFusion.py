@@ -2085,7 +2085,7 @@ class TriFusionApp(App):
         """
         bookmark_name = bk.split("/")[-1]
         # Define bookmark button
-        bt = Button(text=bookmark_name, id=bk,
+        bt = Button(text=bookmark_name, id=bk, bold=True,
                     height=30, size_hint=(.8, None),
                     background_normal=join("data", "backgrounds",
                                            "bt_process.png"),
