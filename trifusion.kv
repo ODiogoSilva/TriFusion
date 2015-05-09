@@ -27,7 +27,7 @@
     bold: True
     background_normal: "data/backgrounds/spinner_opt.png"
 
-<TFButton@Button>:
+<TFButton>:
     bold: True
     halign: "center"
     valign: "middle"
@@ -37,7 +37,7 @@
     background_normal: "data/backgrounds/bt_process.png"
     background_down: "data/backgrounds/bt_process_off.png"
 
-<TGToggleButton@ToggleButton>:
+<TGToggleButton>:
     bold: True
     state: "down"
     halign: "center"
@@ -48,7 +48,7 @@
     background_normal: "data/backgrounds/bt_process_off.png"
     background_down: "data/backgrounds/bt_process.png"
 
-<CrunchData@BoxLayout>:
+<CrunchData>:
     orientation: "vertical"
     AnchorLayout:
         anchor_x: "center"
@@ -68,7 +68,7 @@
         text_size: self.size
         color: (0.216, 0.67, 0.784, 1)
 
-<InputTextDialog@BoxLayout>:
+<InputTextDialog>:
     orientation: "vertical"
     padding: 10
     spacing: 10
@@ -103,7 +103,7 @@
 # ROOT WINDOW
 #===============================================================================
 
-<WarningFloat@Label>:
+<WarningFloat>:
     root_pos: [0, 0]
     size_hint: None, None
     padding: (10, 15)
@@ -132,7 +132,7 @@
                 joint: "round"
                 rectangle: root.x,root.y,root.width,root.height
 
-<RemoveFloat@Button>:
+<RemoveFloat>:
     size_hint: None, None
     background_normal: "data/backgrounds/round_remove.png"
     background_down: "data/backgrounds/round_remove.png"
@@ -142,7 +142,7 @@
 # FILECHOOSER
 #===============================================================================
 
-<PathLabel@Label>:
+<PathLabel>:
     size_hint_x: .93
     text_size: (self.size[0] - 20, self.size[1])
     shorten: True
@@ -172,7 +172,7 @@
     on_release:
         app.toggle_groups(self)
 
-<LoadProgressDialog@BoxLayout>:
+<LoadProgressDialog>:
     padding: 10
     orientation: "vertical"
     proc_kill: False
@@ -207,7 +207,7 @@
 # MOUSE OVER
 #===============================================================================
 
-<FancyButton@Button>:
+<FancyButton>:
     size_hint: None, None
     background_disabled_normal: "data/backgrounds/fancy_mo_background.png"
     disabled: True
@@ -224,11 +224,11 @@
                 joint: "round"
                 rectangle: root.x,root.y,root.width,root.height
 
-<FancyMarker@Button>:
+<FancyMarker>:
     size_hint: None, None
     border: 0,0,0,0
 
-<MouseOverLabel@Button>:
+<MouseOverLabel>:
     text_size: self.size
     halign: "center"
     valign: "middle"
@@ -262,7 +262,7 @@
         line_clr: (0.216, 0.67, 0.784, 1)
         opacity: 1 if root.collide_point(app.mouse_position[0], app.mouse_position[1]) else 0
 
-<BackButton@Button>:
+<BackButton>:
     size_hint: None, None
     size: 80,30
     text: "  Back"
@@ -272,7 +272,7 @@
     on_release:
         app.go_previous_screen()
 
-<OrtoPlotToolbar@BoxLayout>:
+<OrtoPlotToolbar>:
     orientation: "vertical"
     size_hint: None, None
     size: 50, 285
@@ -334,7 +334,7 @@
                 on_release:
                     app.dialog_filechooser("export_table")
 
-<ExportGroupDialog@BoxLayout>:
+<ExportGroupDialog>:
     orientation: "vertical"
     padding: 10
     spacing: 10
@@ -437,7 +437,7 @@
                     width: 100
                     on_release: root.cancel()
 
-<ExportGraphics@BoxLayout>:
+<ExportGraphics>:
     size: root.size
     pos: root.pos
     orientation: "vertical"
@@ -530,7 +530,7 @@
 # GENERAL INFORMATIVE POPUP
 #===============================================================================
 
-<InfoPopup@BoxLayout>:
+<InfoPopup>:
     orientation: "vertical"
     padding: 10
     spacing: 10
@@ -591,7 +591,7 @@
     height: 30
     spacing: 10
 
-<ProteomePopup@BoxLayout>
+<ProteomePopup>
     orientation: "vertical"
     padding: 10
     spacing: 5
@@ -623,7 +623,7 @@
             on_release:
                 root.cancel()
 
-<FilePopup@BoxLayout>
+<FilePopup>
     orientation: "vertical"
     padding: 10
     spacing: 5
@@ -723,7 +723,7 @@
             #size_hint_x: .65
             id: file_cov
 
-<CloseBox@BoxLayout>:
+<CloseBox>:
     size_hint_y: None
     height: 30
     padding: (100, 0, 100, 0)
@@ -750,7 +750,7 @@
     valign: "middle"
 
 
-<CheckDialog@BoxLayout>:
+<CheckDialog>:
     orientation: "vertical"
     id: check
     text: None
@@ -787,7 +787,7 @@
 # WARNINGS
 #===============================================================================
 
-<WarningDialog@BoxLayout>:
+<WarningDialog>:
     padding: 10
     orientation: "vertical"
     ScrollView:
@@ -839,7 +839,7 @@
     on_release:
         app.toggle_groups(self)
 
-<DescriptionBox@BoxLayout>:
+<DescriptionBox>:
     orientation: "vertical"
     size_hint_y: None
     height: 520
@@ -1027,7 +1027,7 @@
     height: 20
     color: .7,.7,.7,1
 
-<GaugePlot@BoxLayout>:
+<GaugePlot>:
     orientation: "vertical"
     padding: 10
     spacing: 10
@@ -1098,7 +1098,7 @@
         app.toggle_groups(self)
 
 
-<OrtoSetFiltersDialog@BoxLayout>:
+<OrtoSetFiltersDialog>:
     orientation: "vertical"
     spacing: 20
     padding: 10
@@ -1189,7 +1189,7 @@
 # ORTHOLOGY EXECUTION DIALOG
 #===============================================================================
 
-<OrtoExecutionDialog@BoxLayout>:
+<OrtoExecutionDialog>:
     padding: 10
     orientation: "vertical"
     spacing: 10
@@ -1238,7 +1238,7 @@
                 root.cancel()
 
 
-<OrtoProgressDialog@BoxLayout>:
+<OrtoProgressDialog>:
     padding: 10
     orientation: "vertical"
     proc_kill: False
@@ -1268,7 +1268,7 @@
                 on_release:
                     root.proc_kill = True
 
-<OrthoGraphicReport@BoxLayout>:
+<OrthoGraphicReport>:
     padding: 10
     spacing: 10
     orientation: "vertical"
@@ -1396,7 +1396,7 @@
                         pos: self.pos
                         size: self.size
 
-<OrthoReportDialog@BoxLayout>:
+<OrthoReportDialog>:
     padding: 10
     orientation: "vertical"
     spacing: 10
@@ -1663,7 +1663,7 @@
             bold: True
             on_release: root.cancel()
 
-<OrthologySearchGrid@TabbedPanel>:
+<OrthologySearchGrid>:
     do_default_tab: False
     tab_pos: "top_left"
     background_color: (0,0,0,0)
@@ -2014,7 +2014,7 @@
     markup: True
     font_size: 16
 
-<ExecutionDialog@BoxLayout>:
+<ExecutionDialog>:
     padding: 10
     orientation: "vertical"
     spacing: 10
@@ -2092,7 +2092,7 @@
 # TAXA GROUP CREATION
 #===============================================================================
 
-<TaxaGroupDialog@BoxLayout>:
+<TaxaGroupDialog>:
     orientation: "vertical"
     padding: 10
     spacing: 10
@@ -2469,7 +2469,7 @@
     disabled_color: (1,1,1,1)
     border: (0,0,0,0)
 
-<LoadMoreBt@AnchorLayout>:
+<LoadMoreBt>:
     anchor_x: "left"
     Widget:
         size_hint_y:None
@@ -2527,13 +2527,13 @@
     on_release:
         app.set_codon_model(self.text)
 
-<ModelSpinner@Spinner>:
+<ModelSpinner>:
     bold: True
     text: "JC"
     values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR")
     #background_normal: "data/backgrounds/model_bt1.png"
 
-<PartitionsDialog@BoxLayout>:
+<PartitionsDialog>:
     id: partition_wgt
     padding: [30, 10, 10, 10]
     orientation: "vertical"
@@ -2626,7 +2626,7 @@
                     on_release:
                         app.save_model(root.original_name, root, True)
 
-<SplitPartitions@BoxLayout>:
+<SplitPartitions>:
     orientation: "vertical"
     padding: 10
     spacing: 10
@@ -2725,7 +2725,7 @@
                     root.cancel()
 
 
-<PartitionActiveDialog@BoxLayout>:
+<PartitionActiveDialog>:
     orientation: "vertical"
     spacing: 10
     padding: 10
@@ -2851,7 +2851,7 @@
             bold: True
             on_release: root.cancel()
 
-<NexusExtra@BoxLayout>:
+<NexusExtra>:
     padding: 10
     spacing: 10
     orientation: "vertical"
@@ -2884,7 +2884,7 @@
             text: "Cancel"
             on_release: root.cancel()
 
-<PhylipExtra@BoxLayout>:
+<PhylipExtra>:
     padding: 10
     spacing: 10
     orientation: "vertical"
@@ -3002,7 +3002,7 @@
 # REVERSE CONCATENATION OPTIONS
 #===============================================================================
 
-<BtList@BoxLayout>:
+<BtList>:
     orientation: "vertical"
     spacing: 10
     padding: 10
@@ -3028,7 +3028,7 @@
             on_release:
                 root.cancel()
 
-<InputList@BoxLayout>:
+<InputList>:
     orientation: "vertical"
     spacing: 10
     padding: 10
@@ -3434,7 +3434,7 @@
 # PROCESS GENERAL OPTIONS
 #===============================================================================
 
-<ProcessGeneral@GridLayout>:
+<ProcessGeneral>:
     id: main_grid
     padding: (5,5)
     cols: 1
@@ -3591,7 +3591,7 @@
 # PROCESS ADDITIONAL OPTIONS
 #===============================================================================
 
-<AdditionalProcessContents@TabbedPanel>:
+<AdditionalProcessContents>:
     do_default_tab: False
     tab_pos: "top_left"
     background_color: (0,0,0,0)
