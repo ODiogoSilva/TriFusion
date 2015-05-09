@@ -46,7 +46,7 @@ ShowcaseScreen:
                         width: 100
                         text: "Add Bookmark"
                         background_normal: "data/backgrounds/bt_process.png"
-                        on_release: app.save_bookmark(icon_view_tab.path, sv_book)
+                        on_release: app.save_bookmark(icon_view_tab.path, sv_book, icon_view_tab)
 
         Vseparator:
             thickness: 1.5
@@ -112,6 +112,7 @@ ShowcaseScreen:
 
             FileChooserM:
                 id: icon_view_tab
+                dirselect: True
                 multiselect: True
                 f: "/*"
                 filters: [self.path+self.f]
@@ -162,8 +163,10 @@ ShowcaseScreen:
                     background_down: "data/backgrounds/bt_process_off.png"
                     bold: True
                     on_release:
-                        if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc(icon_view_tab.selection); app.go_previous_screen()
-                        if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes(icon_view_tab.selection); app.go_previous_screen()
+                        if icon_view_tab.selection and aln_type.state == "down": \
+                        app.load_files_subproc(icon_view_tab.selection); app.go_previous_screen()
+                        if icon_view_tab.selection and prot_type.state == "down": \
+                        app.load_proteomes(icon_view_tab.selection); app.go_previous_screen()
 
                 Button:
                     id: open_bt
