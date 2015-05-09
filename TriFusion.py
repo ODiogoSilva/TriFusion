@@ -3455,7 +3455,8 @@ class TriFusionApp(App):
         """
 
         # Get file remove button list
-        file_bts = [x for x in self.root.ids.file_sl.children if
+        file_bts = [x for x in self.root.ids.file_sl.children
+                    if isinstance(x, ToggleButton) and
                     x.background_normal == join("data", "backgrounds",
                                                 "remove_bt.png")]
 
@@ -5738,7 +5739,7 @@ class TriFusionApp(App):
 
             aln_obj = AlignmentList([])
             nm.c = 0
-            for f in files:
+            for f in file_list:
                 nm.c += 1
                 nm.m = f.split(sep)[-1]
                 aln_obj.add_alignment_file(f)
@@ -5758,17 +5759,26 @@ class TriFusionApp(App):
                 alns = ns.alns
                 Clock.unschedule(func)
                 self.dismiss_popup()
-                self.load_files(files, alns)
+                self.load_files(file_list, alns)
 
             if content.proc_kill:
                 d.terminate()
                 self.dismiss_popup()
                 Clock.unschedule(func)
 
+        # To support for opening all files in one or more directories, all
+        # entries in files will be checked if they are directories. If so,
+        # all files in that directory will be appended to file_list instead
+        file_list = []
+        for i in files:
+            if os.path.isdir(i):
+                file_list.extend([join(i, x) for x in os.listdir(i)])
+            else:
+                file_list.append(i)
+
         manager = multiprocessing.Manager()
         ns = manager.Namespace()
 
-        #parent_con, child_con = multiprocessing.Pipe()
         d = multiprocessing.Process(target=load_proc, args=(ns, ))
 
         d.start()
@@ -5777,10 +5787,10 @@ class TriFusionApp(App):
 
         if not d.is_alive():
             alns = ns.alns
-            return self.load_files(files, alns)
+            return self.load_files(file_list, alns)
 
         content = LoadProgressDialog()
-        content.ids.pb.max = len(files)
+        content.ids.pb.max = len(file_list)
         self.show_popup(title="Loading files", content=content,
                         size=(400, 300))
 
