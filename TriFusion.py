@@ -2861,7 +2861,6 @@ class TriFusionApp(App):
             del self.root.ids["partition_temp"]
 
         for partition, fls in self.alignment_list.partitions.iter_files():
-            print(partition, fls)
 
             if self.count_partitions <= self.MAX_PARTITION_BUTTON:
 
@@ -3101,6 +3100,24 @@ class TriFusionApp(App):
         for model in partition_model[codon_partition]:
             partitions_wgt.ids.model_bx.add_widget(model)
 
+    def save_model(self, part_name, partition_wgt):
+
+        model_spiners = [x for x in partition_wgt.ids.model_bx.children]
+
+        if len(model_spiners) == 1:
+            self.alignment_list.partitions.set_model(part_name,
+                                                     [model_spiners[0].text])
+        else:
+            models = []
+            links = []
+            for wgt in model_spiners:
+                models.extend([wgt.text] * len(wgt.id))
+                links.append(wgt.id)
+
+            links, models = [list(x) for x in zip(*sorted(zip(links, models),
+                                          key=lambda pair: pair[0]))]
+            self.alignment_list.partitions.set_model(part_name, models, links)
+
     def remove_partition_box(self):
         """
         Removes a currently active partition box when clicking the X button
@@ -3170,6 +3187,16 @@ class TriFusionApp(App):
                     for j in i:
                         yield j
 
+        partition_model = {"1,2,3": "[color=ff5555ff]1[/color] + "
+                                "[color=37abc8ff]2[/color] + [color=71c837ff]"
+                                "3[/color]",
+                           "12,2": "[color=ff5555ff](1 + 2)[/color] + "
+                                "[color=37abc8ff]3[/color]",
+                           "1,23": "[color=ff5555ff]1[/color] + [color=3"
+                                "7abc8ff](2 + 3)[/color]",
+                           "13,2": "[color=ff5555ff](1 + 3)[/color] + ["
+                                "color=37abc8ff]2[/color]"}
+
         # Get position of partition edit button:
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
 
@@ -3193,15 +3220,30 @@ class TriFusionApp(App):
         part_len = sum([x[1] - x[0] for x in flatter(part_range)])
         content.ids.partition_lenght.text = "{}bp".format(part_len)
 
-        #TODO: For now this assumes all codon partitions are unlinked
         # If there are codon partitions
         if part_obj.partitions[part_name][1]:
-            content.ids.codon_spin.text = content.ids.codon_spin.values[1]
-            self.set_codon_model(content.ids.codon_spin.values[1], content)
-            for i in range(len(part_obj.models[part_name][0])):
-                params = part_obj.models[part_name][0][i]
-                model = part_obj.get_model_name(params)
-                content.ids.model_bx.children[i].text = model
+            if not part_obj.models[part_name][2]:
+                content.ids.codon_spin.text = content.ids.codon_spin.values[1]
+                self.set_codon_model(content.ids.codon_spin.values[1], content)
+            else:
+                m_key = ",".join(part_obj.models[part_name][2])
+                content.ids.codon_spin.text = partition_model[m_key]
+                self.set_codon_model(partition_model[m_key], content)
+            if part_obj.models[part_name][0][0]:
+                for i in range(len(part_obj.models[part_name][0])):
+                    params = part_obj.models[part_name][0][i]
+                    model = part_obj.get_model_name(params)
+                    content.ids.model_bx.children[i].text = model
+            else:
+                for p, m in enumerate(part_obj.models[part_name][1]):
+                    content.ids.model_bx.children[::-1][p].text = m
+        elif part_obj.models[part_name][0][0]:
+            params = part_obj.models[part_name][0][0]
+            model = part_obj.get_model_name(params)
+            content.ids.model_bx.children[0].text = model
+        elif part_obj.models[part_name][1][0]:
+            model = part_obj.models[part_name][1][0]
+            content.ids.model_bx.children[0].text = model
 
         # Give functionality to remove button
         rm_wgt.bind(on_release=lambda x: self.remove_partition_box())

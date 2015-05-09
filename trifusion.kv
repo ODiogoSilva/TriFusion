@@ -2610,6 +2610,8 @@
                 bold: True
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
+                on_release:
+                    app.save_model(root.original_name, root)
 
 <SplitPartitions@BoxLayout>:
     orientation: "vertical"
