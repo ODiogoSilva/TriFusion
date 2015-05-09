@@ -752,7 +752,7 @@ class Partitions():
         else:
             return None
 
-    def set_model(self, partition, models, links=None):
+    def set_model(self, partition, models, links=None, apply_all=False):
         """
         Sets model (either single or for codon positions) for a given partition
         :param partition: string, partition name
@@ -761,23 +761,33 @@ class Partitions():
         :param links: list, containing potential links between codon models. For
         example, if codon 1 and 2 are to be linked, it should be:
         links=["12", "3"]
+        :param apply_all: boolean, whether the current model will be applied to
+        all partitions or not
         """
+
+        # Get list with partitions to be changed
+        if apply_all:
+            plist = [x for x in self.partitions]
+        else:
+            plist = [partition]
 
         # Set model to the whole partition
         if len(models) == 1:
             # If the current partition was previously defined as having codon
             # partitions, revert it
-            if self.partitions[partition][1]:
-                self.partitions[partition][1] = False
-            self.models[partition][1] = models
+            for p in plist:
+                if self.partitions[p][1]:
+                    self.partitions[p][1] = False
+                self.models[p][1] = models
 
         # Set codon models
         else:
-            # Change the partition in self.partitions to have codon partitions
-            st_idx = self.partitions[partition][0][0]
-            self.partitions[partition][1] = [st_idx + x for x in range(3)]
-            self.models[partition][1] = models
-            self.models[partition][2] = links
+            for p in plist:
+                # Change the partition in self.partitions to have codon partitions
+                st_idx = self.partitions[p][0][0]
+                self.partitions[p][1] = [st_idx + x for x in range(3)]
+                self.models[p][1] = models
+                self.models[p][2] = links
 
     # def write_to_file(self, output_format, output_file, model="LG"):
     #     """ Writes the Partitions object into an output file according to the

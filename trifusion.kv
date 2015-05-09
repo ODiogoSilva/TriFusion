@@ -2600,18 +2600,31 @@
 
     BoxLayout:
         size_hint_y: None
-        height: 20
+        height: 30
         spacing: 10
         AnchorLayout:
-            Button:
+            BoxLayout:
+                spacing: 10
                 size_hint_x: None
-                width: 100
-                text: "Save"
-                bold: True
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
-                on_release:
-                    app.save_model(root.original_name, root)
+                width: 190
+                Button:
+                    size_hint_x: None
+                    width: 90
+                    text: "Apply"
+                    bold: True
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_down: "data/backgrounds/bt_process_off.png"
+                    on_release:
+                        app.save_model(root.original_name, root)
+                Button:
+                    size_hint_x: None
+                    width: 90
+                    text: "Apply All"
+                    bold: True
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_down: "data/backgrounds/bt_process_off.png"
+                    on_release:
+                        app.save_model(root.original_name, root, True)
 
 <SplitPartitions@BoxLayout>:
     orientation: "vertical"

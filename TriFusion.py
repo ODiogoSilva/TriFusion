@@ -3100,13 +3100,21 @@ class TriFusionApp(App):
         for model in partition_model[codon_partition]:
             partitions_wgt.ids.model_bx.add_widget(model)
 
-    def save_model(self, part_name, partition_wgt):
+    def save_model(self, part_name, partition_wgt, apply_all=False):
+        """
+        Saves the model currently set in the partitions dialog.
+        :param part_name: string, name of partition
+        :param partition_wgt: Widget of the Partitions dialog
+        :param apply_all: boolean, whether the current model will be applied to
+        all partitions or not
+        """
 
         model_spiners = [x for x in partition_wgt.ids.model_bx.children]
 
         if len(model_spiners) == 1:
             self.alignment_list.partitions.set_model(part_name,
-                                                     [model_spiners[0].text])
+                                                     [model_spiners[0].text],
+                                                     apply_all=apply_all)
         else:
             models = []
             links = []
@@ -3116,7 +3124,8 @@ class TriFusionApp(App):
 
             links, models = [list(x) for x in zip(*sorted(zip(links, models),
                                           key=lambda pair: pair[0]))]
-            self.alignment_list.partitions.set_model(part_name, models, links)
+            self.alignment_list.partitions.set_model(part_name, models, links,
+                                                     apply_all=apply_all)
 
     def remove_partition_box(self):
         """
@@ -3201,7 +3210,7 @@ class TriFusionApp(App):
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
 
         # Set position for partitions dialog
-        size = (240, 250)
+        size = (240, 260)
         pos = [ed_pos[0] + btx.width,
                ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
 
