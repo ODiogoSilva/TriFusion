@@ -2632,6 +2632,8 @@
                 text: "Split by files"
                 bold: True
                 background_normal: "data/backgrounds/bt_process.png"
+                on_release:
+                    app.partitions_split()
 
     BoxLayout:
         size_hint_y: None
@@ -2647,7 +2649,7 @@
                 size_hint_x: None
                 width: 10
                 font_size: 12
-                text: str(int(manual_slider.min))
+                text: str(int(manual_slider.min) + 1)
             MySlider:
                 id: manual_slider
             Label:
@@ -2694,6 +2696,8 @@
                 size_hint_x: None
                 width: 100
                 bold: True
+                on_release:
+                    app.partitions_split([(int(manual_slider.min), int(manual_slider.value)), (int(manual_slider.value + 1), int(manual_slider.max))], [part1.text, part2.text])
             Button:
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"

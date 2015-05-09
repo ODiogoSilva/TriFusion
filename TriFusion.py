@@ -1347,7 +1347,10 @@ class TriFusionApp(App):
         when the appropriate screen/widget is visible
         """
 
-        self.mouse_position = self.root_window.mouse_pos
+        try:
+            self.mouse_position = self.root_window.mouse_pos
+        except ReferenceError:
+            pass
 
         # Get mouse position coordinates
         mp = self.root_window.mouse_pos
@@ -2828,6 +2831,18 @@ class TriFusionApp(App):
 
                 self.sidepanel_add_bts(tx, "Taxa")
 
+    def repopulate_partitions(self):
+        """
+        Wrapper method that re-populates partitions after changes
+        """
+
+        # Clear partitions
+        self.root.ids.partition_sl.clear_widgets()
+        self.count_partitions = 0
+        # Re-populate partitions
+        self.populate_partitions()
+        self.partition_bt_state()
+
     def populate_partitions(self):
         """
         Populates the partitions tab in the side bar from the partitions object
@@ -2846,6 +2861,7 @@ class TriFusionApp(App):
             del self.root.ids["partition_temp"]
 
         for partition, fls in self.alignment_list.partitions.iter_files():
+            print(partition, fls)
 
             if self.count_partitions <= self.MAX_PARTITION_BUTTON:
 
@@ -2887,13 +2903,31 @@ class TriFusionApp(App):
         self.alignment_list.partitions.merge_partitions(active_partitions,
                                                         name)
 
-        # Clear partitions
-        self.root.ids.partition_sl.clear_widgets()
-        # Re-populate partitions
-        self.populate_partitions()
         # Close popup
         self.dismiss_popup()
-        self.partition_bt_state()
+        self.repopulate_partitions()
+
+    def partitions_split(self, new_range=None, new_names=None):
+        """
+        Split an active partition
+        :return:
+        """
+
+        # Get active partition
+        active_partition = [x.text for x in self.root.ids.partition_sl.children
+                            if isinstance(x, ToggleButton) and
+                            x.state == "down"][0]
+
+        if new_range:
+            self.alignment_list.partitions.split_partition(active_partition,
+                                                           new_range, new_names)
+
+        else:
+            self.alignment_list.partitions.split_partition(active_partition)
+
+        # Close popup
+        self.dismiss_popup()
+        self.repopulate_partitions()
 
     def dialog_partitions_split(self):
 
@@ -2923,7 +2957,7 @@ class TriFusionApp(App):
             content.ids.auto_split_bt.disabled = True
 
         self.show_popup(title="Split partition", content=content,
-                        size=(300, 320))
+                        size=(400, 320))
 
         if not isinstance(part_range[0], tuple):
             self.dialog_floatcheck("WARNING: Manual split in unavailable for"
@@ -4794,7 +4828,6 @@ class TriFusionApp(App):
             try:
                 self.ortho_groups = group_name
             except:
-                print("here")
                 pass
 
         if group_name and not isinstance(group_name, ot.MultiGroupsLight):

@@ -662,6 +662,45 @@ class Partitions():
             del self.partitions_alignments[p]
             del self.models[p]
 
+    def split_partition(self, name, new_range=None, new_names=None):
+        """
+        Splits a partitions with name into two with the tuple list provided by
+        new_range. If new_range is None, This will split the partition by its
+        alignment files instead.
+        :param name: string, name of the partition to be split
+        :param new_range: list of 2 tuples, containing the new ranges for the
+        splited partitions
+        :param new_names: list of 2 strings, containing the new names of the
+        splited partitions
+        """
+
+        if new_range:
+
+            # Add new partitions
+            for n, r in zip(new_names, new_range):
+                self.partitions[n] = [r, False]
+                # Create new partitions_alignments. Keep the original alignment
+                # file for both
+                self.partitions_alignments[n] = self.partitions_alignments[name]
+                self.models[n] = [[[]], [None]]
+
+        else:
+
+            for aln in self.partitions_alignments[name]:
+                #  Get original range of alignment file
+                new_range = self.merged_files[aln]
+                # Add new partitions
+                self.partitions[aln] = [new_range, False]
+                self.partitions_alignments[aln] = [aln]
+                self.models[aln] = [[[]], [None]]
+
+        # Delete original partition
+        del self.partitions[name]
+        del self.partitions_alignments[name]
+        del self.models[name]
+
+        print(self.partitions)
+
     #===========================================================================
     # Model handling
     #===========================================================================
