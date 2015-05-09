@@ -155,15 +155,17 @@ class Partitions():
         self.partitions_alignments = OrderedDict()
 
         """
-        The private self.models attribute will contain the same key list as
-        self._partitions and will associate the substitution models to each
+        The self.models attribute will contain the same key list as
+        self.partitions and will associate the substitution models to each
         partitions. For each partition, the format should be as follows:
 
-        self.models["partA"] = [[[..model_params..]],[..model_names..]]
+        self.models["partA"] = [[[..model_params..]],[..model_names..],
+                                ["12", "3"]]
 
         The first element is a list that may contain the substitution model
-        parameters for up to three subpartitions, and the second element is also
-        a list with the corresponding names of the substitution models
+        parameters for up to three subpartitions, the second element is also
+        a list with the corresponding names of the substitution models and
+        the third list will store any links between models
         """
 
         self.models = OrderedDict()
@@ -408,7 +410,7 @@ class Partitions():
         model for each one like this:
 
         self.models["PartA"] = [[[..model1_params..], [..model2_params..],
-            [..model3_params..]], [GTR, GTR, GTR]]
+            [..model3_params..]], [GTR, GTR, GTR], ["1", "2", "3"]]
 
         """
 
@@ -428,7 +430,7 @@ class Partitions():
                 self.partitions_alignments[name] = [file_name if file_name else
                                                     name]
             # Create empty model attribute for a single partition
-            self.models[name] = [[[]], [None]]
+            self.models[name] = [[[]], [None], []]
 
             self.partitions[name] = [(self.counter,
                                       self.counter + (length - 1)), codon]
@@ -452,7 +454,7 @@ class Partitions():
                     # Add partition to index list
                     self.partitions_index.append([parent_partition, 1])
                     # Create empty model attribute for two partitions
-                    self.models[parent_partition] = [[[], []], [None, None]]
+                    self.models[parent_partition] = [[[], []], [None, None], []]
 
                     parent_start = self.partitions[parent_partition][0][0]
                     self.partitions[parent_partition][1] = [parent_start,
@@ -474,7 +476,7 @@ class Partitions():
                     self.models[name] = model_cls
                 else:
                     # Create empty model attribute for a single partition
-                    self.models[name] = [[[]], [None]]
+                    self.models[name] = [[[]], [None], []]
                 if codon:
                     self.partitions_index = [[name, x] for x in codon]
                 else:
@@ -651,7 +653,7 @@ class Partitions():
         self.partitions_alignments[name] = [i for x, y in
                                             self.partitions_alignments.items()
                                             if x in partition_list for i in y]
-        self.models[name] = [[[]], [None]]
+        self.models[name] = [[[]], [None], []]
 
         # Delete previous partitions and update merged dict
         for p in partition_list:
@@ -682,7 +684,7 @@ class Partitions():
                 # Create new partitions_alignments. Keep the original alignment
                 # file for both
                 self.partitions_alignments[n] = self.partitions_alignments[name]
-                self.models[n] = [[[]], [None]]
+                self.models[n] = [[[]], [None], []]
 
         else:
 
@@ -692,7 +694,7 @@ class Partitions():
                 # Add new partitions
                 self.partitions[aln] = [new_range, False]
                 self.partitions_alignments[aln] = [aln]
-                self.models[aln] = [[[]], [None]]
+                self.models[aln] = [[[]], [None], []]
 
         # Delete original partition
         del self.partitions[name]
@@ -749,6 +751,33 @@ class Partitions():
                 return model
         else:
             return None
+
+    def set_model(self, partition, models, links=None):
+        """
+        Sets model (either single or for codon positions) for a given partition
+        :param partition: string, partition name
+        :param models: list, containing the model names for each of the three
+        codon partitions
+        :param links: list, containing potential links between codon models. For
+        example, if codon 1 and 2 are to be linked, it should be:
+        links=["12", "3"]
+        """
+
+        # Set model to the whole partition
+        if len(models) == 1:
+            # If the current partition was previously defined as having codon
+            # partitions, revert it
+            if self.partitions[partition][1]:
+                self.partitions[partition][1] = False
+            self.models[partition][1] = models
+
+        # Set codon models
+        else:
+            # Change the partition in self.partitions to have codon partitions
+            st_idx = self.partitions[partition][0][0]
+            self.partitions[partition][1] = [st_idx + x for x in range(3)]
+            self.models[partition][1] = models
+            self.models[partition][2] = links
 
     # def write_to_file(self, output_format, output_file, model="LG"):
     #     """ Writes the Partitions object into an output file according to the
