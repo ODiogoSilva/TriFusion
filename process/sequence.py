@@ -698,7 +698,7 @@ class Alignment (Base):
 
             # Write the general header of the IMa2 input file
             out_file = open(output_file + ".txt", "w")
-             # First line with general description
+            # First line with general description
             out_file.write("Input file for IMa2 using %s alignments\n"
                         "%s\n"  # Line with number of loci
                         "%s\n"  # Line with name of populations
