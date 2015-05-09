@@ -699,8 +699,6 @@ class Partitions():
         del self.partitions_alignments[name]
         del self.models[name]
 
-        print(self.partitions)
-
     #===========================================================================
     # Model handling
     #===========================================================================
