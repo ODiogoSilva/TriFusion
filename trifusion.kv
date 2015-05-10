@@ -4185,7 +4185,7 @@ FloatLayout:
                                                     spacing: 5
                                                     Button:
                                                         text: "Select All"
-                                                        disabled: True if not app.file_list and not app.proteome_files else False
+                                                        disabled: True if not app.filename_map and not app.proteome_files else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4193,7 +4193,7 @@ FloatLayout:
                                                             app.select_bt(self)
                                                     Button:
                                                         text: "Deselect All"
-                                                        disabled: True if not app.file_list and not app.proteome_files else False
+                                                        disabled: True if not app.filename_map and not app.proteome_files else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4206,7 +4206,7 @@ FloatLayout:
                                                     bold: True
                                                     size_hint_x: None
                                                     width: 35
-                                                    disabled: True if not app.file_list and not app.proteome_files else False
+                                                    disabled: True if not app.filename_map and not app.proteome_files else False
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4216,7 +4216,7 @@ FloatLayout:
                                                     id: rm_all_File
                                                     size_hint_x: None
                                                     width: 35
-                                                    disabled: True if not app.file_list and not app.proteome_files else False
+                                                    disabled: True if not app.filename_map and not app.proteome_files else False
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
                                                     background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
@@ -4333,7 +4333,7 @@ FloatLayout:
                                                     spacing: 5
                                                     Button:
                                                         text: "Select All"
-                                                        disabled: True if not app.file_list else False
+                                                        disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4341,7 +4341,7 @@ FloatLayout:
                                                             app.select_bt(self)
                                                     Button:
                                                         text: "Deselect All"
-                                                        disabled: True if not app.file_list else False
+                                                        disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4354,7 +4354,7 @@ FloatLayout:
                                                     bold: True
                                                     size_hint_x: None
                                                     width: 35
-                                                    disabled: True if not app.file_list else False
+                                                    disabled: True if not app.filename_map else False
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4364,7 +4364,7 @@ FloatLayout:
                                                     id: rm_all_Taxa
                                                     size_hint_x: None
                                                     width: 35
-                                                    disabled: True if not app.file_list else False
+                                                    disabled: True if not app.filename_map else False
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
                                                     background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
@@ -4490,7 +4490,7 @@ FloatLayout:
                                                     spacing: 5
                                                     Button:
                                                         text: "Select All"
-                                                        disabled: True if not app.file_list else False
+                                                        disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4498,7 +4498,7 @@ FloatLayout:
                                                             app.select_bt(self)
                                                     Button:
                                                         text: "Deselect All"
-                                                        disabled: True if not app.file_list else False
+                                                        disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
                                                         background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4523,7 +4523,7 @@ FloatLayout:
                                                         on_release:
                                                             app.dialog_partitions_split()
                                                     Button:
-                                                        disabled: True if not app.file_list else False
+                                                        disabled: True if not app.filename_map else False
                                                         id: add_part
                                                         size_hint_x: None
                                                         width: 35
@@ -4589,7 +4589,7 @@ FloatLayout:
                                                     bold: True
                                                     text: "Set new file group"
                                                     id: file_group_bt
-                                                    disabled: True if not app.file_list else False
+                                                    disabled: True if not app.filename_map else False
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
@@ -4620,7 +4620,7 @@ FloatLayout:
                                                     bold: True
                                                     text: "Set new taxa group"
                                                     id: tx_group_bt
-                                                    disabled: True if not app.file_list else False
+                                                    disabled: True if not app.filename_map else False
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
