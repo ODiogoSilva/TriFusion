@@ -993,23 +993,6 @@ class AlignmentList (Base):
                     self.alignment_object_list.append(alignment_object)
                     self.set_partition(alignment_object)
 
-        # elif type(alignment_list[0]) is OrderedDict:
-        #
-        #     # Setting class flag so that the object is aware that is a result
-        #     #  of reverse concatenation and not an actual list of alignments
-        #     self.reverse_concatenation = True
-        #
-        #     for alignment, model, name in zip(alignment_list, model_list,
-        #                                       name_list):
-        #
-        #         alignment_object = Alignment(alignment, model_list=[model],
-        #                                      alignment_name=name)
-        #         # In some cases, like reverse concatenating, the input format
-        #         #  must be manually set
-        #         if input_format is not None:
-        #             alignment_object._set_format(input_format)
-        #         self.alignment_object_list.append(alignment_object)
-
         #### SETTING GENERAL ATTRIBUTES
 
         # list of file names, complete with path
