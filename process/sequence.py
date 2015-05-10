@@ -1024,6 +1024,19 @@ class AlignmentList (Base):
         """
         return iter(self.alignment_object_list)
 
+    def clear_alignments(self):
+        """
+        Clears the current AlignmentList object
+        :return:
+        """
+
+        self.alignment_object_list = []
+        self.bad_alignments = []
+        self.duplicate_alignments = []
+        self.partitions = Partitions()
+        self.filename_list = []
+        self.taxa_names = []
+
     def format_list(self):
         """
         :return: List with the unique sequence types of the Alignment objects
