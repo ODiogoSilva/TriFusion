@@ -742,7 +742,7 @@ class TriFusionApp(App):
     cur_dir = dirname(__file__)
 
     # Only the original input files. SHOULD NOT BE MODIFIED
-    file_list = ListProperty()
+    file_list = []
     # Dynamic list containing only the activated files
     active_file_list = ListProperty()
     # Dictionary mapping file names to their corresponding full paths. This
@@ -2450,7 +2450,7 @@ class TriFusionApp(App):
             self.dialog_floatcheck("Duplicate input alignments detected and "
                                    "ignored", t="error")
             # Reset the duplicate alignment storage, so that it doesn't issue
-            # the warning everytime data is loaded
+            # the warning every time data is loaded
             self.alignment_list.duplicate_alignments = []
 
         else:

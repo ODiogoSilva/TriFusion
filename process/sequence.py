@@ -955,7 +955,7 @@ class AlignmentList (Base):
     Alignment classes for the write_to_file methods.
     """
 
-    def __init__(self, alignment_list, verbose=True, shared_namespace=None):
+    def __init__(self, alignment_list, shared_namespace=None):
         """
         :param alignment_list: List of Alignment objects
         :param verbose: Boolean. If True, it prints a progression bar to the
@@ -971,6 +971,8 @@ class AlignmentList (Base):
         self.bad_alignments = []
         # Stores duplicate alignment paths
         self.duplicate_alignments = []
+        self.taxa_names = []
+        self.filename_list = []
 
         # Set partitions object
         self.partitions = Partitions()
@@ -996,14 +998,10 @@ class AlignmentList (Base):
                 else:
                     self.alignment_object_list.append(alignment_object)
                     self.set_partition(alignment_object)
-
-        #### SETTING GENERAL ATTRIBUTES
-
-        # list of file names, complete with path
-        self.filename_list = self._get_filename_list()
-
-        # list of taxon names
-        self.taxa_names = self._get_taxa_list()
+                    self.taxa_names.extend((x for x in
+                                            alignment_object.alignment if x
+                                            not in self.taxa_names))
+                    self.filename_list.append(alignment_object.name)
 
     def __iter__(self):
         """
@@ -1060,7 +1058,7 @@ class AlignmentList (Base):
         """
         Returns a list with the input file names
         """
-        return [alignment.name for alignment in self.alignment_object_list]
+        return (alignment.name for alignment in self.alignment_object_list)
 
     def set_partition(self, alignment_obj):
         """
