@@ -34,6 +34,7 @@ from collections import OrderedDict
 import re
 from os import sep
 from os.path import join
+from sys import getsizeof
 
 ## TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -954,11 +955,13 @@ class AlignmentList (Base):
     Alignment classes for the write_to_file methods.
     """
 
-    def __init__(self, alignment_list, verbose=True):
+    def __init__(self, alignment_list, verbose=True, shared_namespace=None):
         """
         :param alignment_list: List of Alignment objects
         :param verbose: Boolean. If True, it prints a progression bar to the
         terminal when loading data
+        :param shared_namespace: Namespace object, used to share information
+        between subprocesses
         """
 
         self.log_progression = Progression()
@@ -972,14 +975,15 @@ class AlignmentList (Base):
         # Set partitions object
         self.partitions = Partitions()
 
+        c = 0
         # if type(alignment_list[0]) is str:
         if alignment_list:
-            self.log_progression.record("Parsing file", len(alignment_list))
             for alignment in alignment_list:
 
-                if verbose is True:
-                    self.log_progression.progress_bar(
-                        alignment_list.index(alignment) + 1)
+                if shared_namespace:
+                    shared_namespace.progress = c
+                    shared_namespace.m = alignment.split(sep)[-1]
+                    c += 1
 
                 alignment_object = Alignment(alignment)
                 # Check for badly formatted alignments

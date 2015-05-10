@@ -5758,20 +5758,15 @@ class TriFusionApp(App):
 
         def load_proc(nm):
 
-            aln_obj = AlignmentList([])
-            nm.c = 0
-            for f in file_list:
-                nm.c += 1
-                nm.m = f.split(sep)[-1]
-                aln_obj.add_alignment_file(f)
-            else:
-                nm.alns = aln_obj
+            aln_obj = AlignmentList(file_list, shared_namespace=nm)
+            nm.alns = aln_obj
+
             return
 
         def check_proc(p, dt):
 
             try:
-                content.ids.pb.value = ns.c
+                content.ids.pb.value = ns.progress
                 content.ids.msg.text = "Processing file %s" % ns.m
             except AttributeError:
                 pass
