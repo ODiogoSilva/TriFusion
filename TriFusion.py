@@ -894,9 +894,9 @@ class TriFusionApp(App):
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
-    alignment_list = ObjectProperty(None)
+    alignment_list = None
     # List of active alignment object variables.
-    active_alignment_list = ObjectProperty(None)
+    active_alignment_list = None
 
     # Attributes containing the original and active taxa information
     # dictionaries
@@ -2435,9 +2435,6 @@ class TriFusionApp(App):
         :param selection: list. Contains the paths to the selected input files
         """
 
-        # Parses the files into the program
-        #bad_aln = self.load_files(selection)
-
         # Checking for input sequence type inconsistencies. If there are
         # alignments with different sequence types, then issue and error popup
         # and do not load the files
@@ -2505,7 +2502,6 @@ class TriFusionApp(App):
                 self.update_tabs()
                 # Gathers taxa  and file information
                 self.original_tx_inf = self.get_taxa_information()
-                #self.original_file_inf = self.get_file_information()
 
                 # Issue float check
                 self.dialog_floatcheck("%s file(s) successfully loaded" %
@@ -3454,14 +3450,36 @@ class TriFusionApp(App):
         side panel. This method will remove all files and taxa from the program
         """
 
-        # Get file remove button list
-        file_bts = [x for x in self.root.ids.file_sl.children
-                    if isinstance(x, ToggleButton) and
-                    x.background_normal == join("data", "backgrounds",
-                                                "remove_bt.png")]
+        # App changes
+        # Clear widgets in side panel
+        for panel in [self.root.ids.file_sl, self.root.ids.taxa_sl,
+                      self.root.ids.partition_sl]:
+            panel.clear_widgets()
 
-        for i in file_bts:
-            self.remove_bt(i, parent_wgt=self.root.ids.file_sl)
+        self.root.ids.sp_lab.text = ""
+        self.root.ids.file_lab.text = ""
+        self.count_files = 0
+        self.count_partitions = 0
+
+        self.clear_process_input()
+
+    def clear_process_input(self):
+        """
+        Clears any input for the process/statistics screen and related variables
+        and attributes
+        """
+
+        self.sequence_types = []
+        self.alignment_list.clear_alignments()
+        self.active_alignment_list.clear_alignments()
+        self.original_tx_inf = {}
+        self.active_tx_inf = {}
+        self.original_file_inf = {}
+        self.active_file_inf = {}
+        self.active_taxa_list = []
+        self.filename_map = {}
+        self.file_list = []
+        self.active_file_list = []
 
     def remove_all_groups(self):
         """
@@ -3584,6 +3602,9 @@ class TriFusionApp(App):
             self.active_taxa_list = self.active_alignment_list.taxa_names
             # Updates label
             self.update_sp_label()
+
+        if not self.file_list:
+            self.clear_process_input()
 
     def select_bt(self, value):
         """
@@ -5810,8 +5831,6 @@ class TriFusionApp(App):
         undo/redo functionality and as backups
         :returns: List of invalid/badly formatted alignment objects
         """
-
-        #aln_list = AlignmentList(files)
 
         # Check for consistency in sequence type across alignments
         current_seq_type = set(self.sequence_types + aln_list.format_list())
