@@ -905,8 +905,7 @@ class Group ():
             for sequence_id in cluster.sequences:
                 seq = db_aln[sequence_id]
                 if mode == "fasta":
-                    output_handle.write(">%s\n%s\n" % (
-                        sequence_id.split("|")[0], seq))
+                    output_handle.write(">%s\n%s\n" % (sequence_id, seq))
                 elif mode == "dict":
                     seq_storage[cluster.name].append([sequence_id.split("|")[0],
                                                       seq])
