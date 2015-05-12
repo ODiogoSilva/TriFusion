@@ -63,7 +63,7 @@ from data.resources.db_tools import *
 
 # Other imports
 import os
-from os.path import dirname, join, exists, abspath, pardir, expanduser
+from os.path import dirname, join, exists, abspath, pardir, expanduser, basename
 from os import sep
 from collections import OrderedDict
 from copy import deepcopy
@@ -2068,7 +2068,7 @@ class TriFusionApp(App):
             # Add bookmarks to the full path list
             self.bookmarks[0].append(path)
             # Add mapping of the full path to the bookmark name
-            new_map = {path.split(sep)[-1]: path}
+            new_map = {basename(path): path}
             self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
                                      list(new_map.items()))
             self.add_bookmark_bt(path, wgt, fc_wgt)
@@ -2355,8 +2355,8 @@ class TriFusionApp(App):
 
         # Find buttons that match the txt string
         if panel == "files":
-            found_bts = [el.split(sep)[-1] for el in bt_list if
-                         txt.lower() in el.split(sep)[-1].lower()]
+            found_bts = [basename(el) for el in bt_list if
+                         txt.lower() in basename(el).lower()]
         else:
             found_bts = [el for el in bt_list if txt.lower() in el.lower()]
 
@@ -2460,17 +2460,17 @@ class TriFusionApp(App):
                     self.dialog_warning("Invalid input file detected",
                                         "The following input file is invalid:"
                                         "\n\n[b]%s[/b]" %
-                                        bad_aln[0].name.split(sep)[-1])
+                                        basename(bad_aln[0].name))
                 else:
                     self.dialog_warning("Invalid input files detected",
                                         "The following input files are invalid:"
                                         "\n\n[b]%s[/b]" %
-                                        "\n".join(x.name.split(sep)[-1] for x
+                                        "\n".join(basename(x) for x
                                                   in bad_aln))
 
             # removes bad alignment files from selection list
             selection = [path for path in selection if
-                         path.split(sep)[-1].split(".")[0] not in
+                         basename(path).split(".")[0] not in
                          [x.name for x in bad_aln]]
 
             # If data has been previously loaded, updated these attributes
@@ -2522,7 +2522,7 @@ class TriFusionApp(App):
         for f in selection:
             b = Base()
             er = b.autofinder(f)
-            f_short = f.split(sep)[-1]
+            f_short = basename(f)
             if isinstance(er, Exception):
                 bad_proteomes["invalid"].append(f_short)
             elif er[0] != "fasta":
@@ -2556,7 +2556,7 @@ class TriFusionApp(App):
 
             # Update the filename - path mapping attribute
             self.filename_map = dict(list(self.filename_map.items()) +
-                list((x, y) for x, y in zip([x.split(sep)[-1] for x in
+                list((x, y) for x, y in zip([basename(x) for x in
                 good_proteomes], good_proteomes)))
 
             # Populate file buttons in side panel
@@ -2795,8 +2795,8 @@ class TriFusionApp(App):
             self.count_files += 1
 
             try:
-                infile = self.file_list[self.count_files]
-                self.sidepanel_add_filebts(infile)
+                infile = basename(self.file_list[self.count_files])
+                self.sidepanel_add_bts(infile, "Files")
             except IndexError:
                 return
 
@@ -3383,12 +3383,12 @@ class TriFusionApp(App):
             # Export all files
             if self.export_mode[1] == "all":
                 for x in self.file_list:
-                    short_name = x.split(sep)[-1]
+                    short_name = basename(x)
                     export_file.write(short_name + "\n")
             # Export selected files
             elif self.export_mode[1] == "selected":
                 for x in self.active_file_list:
-                    short_name = x.split(sep)[-1]
+                    short_name = basename(x)
                     export_file.write(short_name + "\n")
 
         elif self.export_mode[0] == "taxa":
@@ -3674,7 +3674,7 @@ class TriFusionApp(App):
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
             title = "Create taxa groups"
         elif ds_type == "files":
-            bt_list = sorted([x.split(sep)[-1] for x in self.file_list],
+            bt_list = sorted([basename(x) for x in self.file_list],
                              reverse=True)
             title = "Create file groups"
 
@@ -3704,7 +3704,7 @@ class TriFusionApp(App):
         if ds_type == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
         elif ds_type == "files":
-            bt_list = sorted([x.split(sep)[-1] for x in self.file_list],
+            bt_list = sorted([basename(x) for x in self.file_list],
                              reverse=True)
 
         wgt.add_widget(bt, bt_list.index(bt.text))
@@ -3738,7 +3738,7 @@ class TriFusionApp(App):
         if ds_type == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
         elif ds_type == "files":
-            bt_list = sorted([x.split(sep)[-1] for x in self.file_list],
+            bt_list = sorted([basename(x) for x in self.file_list],
                              reverse=True)
 
         # In case all taxa are to be moved
@@ -4048,25 +4048,26 @@ class TriFusionApp(App):
             add_node("[Based on input] (main)", self.main_nodes["main_file"])
             if self.main_nodes["main_file"].is_open is False:
                 self.operation_tv.toggle_node(self.main_nodes["main_file"])
-            ## Output files from secondary operations
+            # Output files from secondary operations
             if secondary_op:
                 for op in secondary_op:
                     if self.secondary_options["%s_file" % op]:
                         add_node("*_%s (%s)" % (op, op),
                                  self.main_nodes["main_file"])
-        ## for concatenation
+        # for concatenation
         elif self.main_operations["concatenation"]:
             if self.output_file == "":
                 add_node("[empty] (main)", self.main_nodes["main_file"])
             else:
-                add_node("%s (main)" % self.output_file.split(sep)[-1],
+                add_node("%s (main)" % basename(self.output_file),
                          self.main_nodes["main_file"])
-            ## Output files from secondary operations
+
+            # Output files from secondary operations
             if secondary_op:
                 for op in secondary_op:
                     if self.secondary_options["%s_file" % op]:
                         add_node("%s_%s (%s)" % (
-                            self.output_file.split(sep)[-1], op, op),
+                            basename(self.output_file), op, op),
                                  self.main_nodes["main_file"])
             if self.main_nodes["main_file"].is_open is False:
                 self.operation_tv.toggle_node(self.main_nodes["main_file"])
@@ -4833,7 +4834,7 @@ class TriFusionApp(App):
             for gname in groups_obj.groups:
 
                 # If group name contains full path, get only file name
-                gname_short = gname.split(sep)[-1]
+                gname_short = basename(gname)
 
                 if gname not in self.ortho_groups.duplicate_groups:
                     # Create check box for multiple group selection
@@ -4879,7 +4880,7 @@ class TriFusionApp(App):
             else:
                 # If last group name contains a directory, set it as the
                 # default export dir
-                path = sep.join(gname.split(sep)[:-1])
+                path = dirname(gname)
                 if os.path.exists(path):
                     self.orto_export_dir = path
 
@@ -4933,7 +4934,7 @@ class TriFusionApp(App):
         cards.ortholog_txt = str(stats[0])
         cards.taxa_txt = str(len(self.ortho_groups.groups_stats[group_name]
                                  ["species"]))
-        cards.group_name = group_name.split(sep)[-1]
+        cards.group_name = basename(group_name)
 
         # Create gauge plots, if there are any filtered groups
         if self.ortho_groups.filters[group_name][0] or \
@@ -5072,11 +5073,11 @@ class TriFusionApp(App):
 
             else:
                 self.output_dir = path
-                self.process_grid_wgt.ids.conv.text = path.split(sep)[-1]
+                self.process_grid_wgt.ids.conv.text = basename(path)
 
         elif idx == "ortho_dir":
             self.ortho_dir = path
-            self.screen.ids.orto_dir.text = path.split(sep)[-1]
+            self.screen.ids.orto_dir.text = basename(path)
 
         elif idx == "protein_db":
             self.protein_db = path[0]
@@ -5182,7 +5183,7 @@ class TriFusionApp(App):
 
         self.partitions_file = partfile
 
-        self._popup.content.ids.part_file.text = partfile.split(sep)[-1]
+        self._popup.content.ids.part_file.text = basename(partfile)
         self._popup.content.ids.part_file.background_normal = \
             "data/backgrounds/bt_process.png"
 
@@ -5320,12 +5321,12 @@ class TriFusionApp(App):
             self.rev_infile = txt
             self._popup.content.ids.rev_infile.background_normal = \
                 "data/backgrounds/bt_process.png"
-            self._popup.content.ids.rev_infile.text = txt.split(sep)[-1]
+            self._popup.content.ids.rev_infile.text = basename(txt)
             self.dismiss_subpopup()
 
         if self.file_list:
             for infile in self.file_list:
-                bt = Button(text=infile.split(sep)[-1], size_hint_y=None,
+                bt = Button(text=basename(infile), size_hint_y=None,
                             height=30, bold=True, shorten=True,
                             shorten_from="right", halign="center",
                             valign="middle")
@@ -5353,16 +5354,14 @@ class TriFusionApp(App):
         if self.partitions_file:
             content.ids.part_file.background_normal = \
                 "data/backgrounds/bt_process.png"
-            content.ids.part_file.text = \
-                self.partitions_file.split(sep)[-1]
+            content.ids.part_file.text = basename(self.partitions_file)
 
         # Check if input file to reverse concatenate was already selected. If
         # so, update the corresponding button
         if self.rev_infile:
             content.ids.rev_infile.background_normal = \
                 "data/backgrounds/bt_process.png"
-            content.ids.rev_infile.text = \
-                self.rev_infile.split(sep)[-1]
+            content.ids.rev_infile.text = basename(self.rev_infile)
 
         self.show_popup(title=title, content=content, size=(300, 350))
 
@@ -5375,8 +5374,7 @@ class TriFusionApp(App):
         # starting point for the partition file chooser. Otherwise, use the
         # home path
         if self.file_list:
-            content.ids.ld_filechooser.path = sep.join(
-                self.file_list[0].split(sep)[:-1])
+            content.ids.ld_filechooser.path = dirname(self.file_list[0])
         else:
             content.ids.ld_filechooser.path = self.home_path
 
@@ -5518,7 +5516,7 @@ class TriFusionApp(App):
             if self.output_file == "":
                 return self.dialog_floatcheck("ERROR: No output file has been "
                                        "selected", t="error")
-            out_file = self.output_file.split(sep)[-1]
+            out_file = basename(self.output_file)
             add_files = [out_file + "_" + nm for nm, bl in
                          self.secondary_operations.items() if bl]
             content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
@@ -5668,7 +5666,7 @@ class TriFusionApp(App):
                 self.process_grid_wgt.ids.conv.text = "Select..."
             else:
                 self.process_grid_wgt.ids.conv.text = \
-                    self.output_dir.split(sep)[-1]
+                    basename(self.output_dir)
             self.process_grid_wgt.ids.output_label.text = dir_text
             Animation(height=0, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
@@ -5677,7 +5675,7 @@ class TriFusionApp(App):
                 self.process_grid_wgt.ids.conv.text = "Select..."
             else:
                 self.process_grid_wgt.ids.conv.text = \
-                    self.output_file.split(sep)[-1]
+                    basename(self.output_file)
             self.process_grid_wgt.ids.output_label.text = file_text
             Animation(height=50, d=.32, t="in_quad").start(
                 self.screen.ids.sub_conc)
@@ -5686,7 +5684,7 @@ class TriFusionApp(App):
                 self.process_grid_wgt.ids.conv.text = "Select..."
             else:
                 self.process_grid_wgt.ids.conv.text = \
-                    self.output_dir.split(sep)[-1]
+                    basename(self.output_dir)
             self.process_grid_wgt.ids.output_label.text = dir_text
 
     def save_main_operation(self, op):
@@ -5983,7 +5981,7 @@ class TriFusionApp(App):
             # objects contain the full path
             if self.alignment_list:
                 for infile in self.file_list:
-                    file_name = infile.split(sep)[-1]
+                    file_name = basename(infile)
                     file_inf[file_name] = {}
 
                     # Get alignment object
@@ -6016,7 +6014,7 @@ class TriFusionApp(App):
 
         elif mode == "proteome":
             for p in self.proteome_files:
-                p_name = p.split(sep)[-1]
+                p_name = basename(p)
                 file_inf[p_name] = {}
                 n_seq, n_res = self.get_proteome_information(p)
 
