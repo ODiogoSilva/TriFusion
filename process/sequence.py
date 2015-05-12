@@ -1195,22 +1195,6 @@ class AlignmentList (Base):
                     concatenation[taxa].append(missing
                                              * alignment_object.locus_length)
 
-            # UPDATING PARTITIONS OBJECT
-            # This is intended to support the concatenation of both individual
-            # and concatenated files. If one of the alignment objects is already
-            # a concatenated alignment, this will add each partition to the
-            # new partitions object
-            if not alignment_object.partitions.is_single():
-                for k, v in \
-                        alignment_object.partitions.partitions.items():
-                            partitions.add_partition(k, locus_range=v[0],
-                                                     codon=v[1],
-                                                     use_counter=True)
-            else:
-                partitions.add_partition(alignment_object.name_wext,
-                                         length=alignment_object.locus_length,
-                                         use_counter=True)
-
         # Each taxa is a list of strings for each alignment object, so here
         # the list is being converted into a string
         for taxa, seq in concatenation.items():
@@ -1219,7 +1203,7 @@ class AlignmentList (Base):
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
                                            input_format=self._get_format(),
-                                           partitions=partitions)
+                                           partitions=self.partitions)
 
         return concatenated_alignment
 
