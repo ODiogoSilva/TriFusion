@@ -3659,40 +3659,6 @@
                         app.dialog_floatcheck("ERROR: No input files have been selected to use this option", t="error")
 
     TabbedPanelItem:
-        id: partition_tab
-        text: "Partitions"
-
-        GridLayout:
-            id: partition_grid
-            cols: 1
-            padding: 5
-            spacing: 5
-            opacity: 1
-
-            LightBox:
-                Label:
-                    markup: True
-                    text: "[size=15][b]Partitioning options[/b][/size]"
-                    halign: "left"
-                    valign: "middle"
-                    color: [.85, .85, .85, 1]
-                    text_size: self.size
-
-            DarkBox:
-                Label:
-                    size_hint_x: .8
-                    markup: True
-                    id: test2
-                    text: "[size=18][b]Change/View partitions[/b][/size]\n[size=13] General options for viewing, adding or removing partitions [/size]"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                ProcessBt:
-                    id: part_dialog
-                    text: "Select..."
-                    disabled: True
-
-    TabbedPanelItem:
         id: collapse_tab
         text: "Collapse"
 
