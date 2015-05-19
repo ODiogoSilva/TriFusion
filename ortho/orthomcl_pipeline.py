@@ -80,7 +80,7 @@ def loading(current_state, size, prefix_txt, width, proteome):
     sys.stdout.flush()
 
 
-def install_schema(cfg_file, verbose=False):
+def install_schema(verbose=False):
     """ Install the schema for the mySQL database """
 
     if verbose:
@@ -162,12 +162,10 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     return seq_storage
 
 
-def adjust_fasta(file_list, code=True, verbose=False):
+def adjust_fasta(file_list, verbose=False):
 
     if verbose:
         print("Running orthomcladjust_fasta")
-
-    seq_storage = {}
 
     # Create compliant fasta directory
     if not os.path.exists(os.path.join(output_dir, "compliantFasta")):
@@ -182,7 +180,6 @@ def adjust_fasta(file_list, code=True, verbose=False):
 
         # Adjust fasta
         stg = prep_fasta(proteome, code_name, unique_id)
-        seq_storage.update(stg)
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
@@ -190,12 +187,6 @@ def adjust_fasta(file_list, code=True, verbose=False):
         shutil.move(proteome.split(".")[0] + "_mod.fas",
                     os.path.join(output_dir, "compliantFasta",
                                  protome_file_name))
-
-    # Store seq_storage dictionary with pickle so that it can be latter used
-    # for retrieval operations
-    pickle.dump(seq_storage, open("protein_database.dic", "wb"))
-
-    return seq_storage
 
 
 def check_fasta(proteome_list):
@@ -264,7 +255,7 @@ def remove_duplicate_entries(verbose=False):
     os.remove("similarSequences.txt.old")
 
 
-def load_blast(cfg_file, verbose=False):
+def load_blast(verbose=False):
 
     if verbose:
         print("Loading BLAST output into orthoMCL database")
@@ -275,18 +266,18 @@ def load_blast(cfg_file, verbose=False):
     load_blast2sqlite.execute("similarSequences.txt")
 
 
-def pairs(cfg_file, verbose=False):
+def pairs(verbose=False):
 
     if verbose:
         print("Finding pairs for orthoMCL")
 
     # x = subprocess.Popen(["orthomclPairs", cfg_file,
-    #                  "pairs.log", "cleanup=yes"]).wait()
+    #                  "pairs.log", "cleanup=no"]).wait()
 
     make_pairs_sqlite.execute()
 
 
-def dump_pairs(cfg_file, verbose=False):
+def dump_pairs(verbose=False):
 
     if verbose:
         print("Dump files from the database produced by the orthomclPairs "
@@ -328,10 +319,11 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
     os.chdir(results_dir)
 
 
-def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
+def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
+                           db, tmp_dir):
 
     stats_storage = {}
-    groups_obj = OT.MultiGroups()
+    groups_obj = OT.MultiGroupsLight(tmp_dir)
 
     for val in inflation_list:
         # Create a directory that will store the results for the current
@@ -341,17 +333,14 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, db):
             os.makedirs(inflation_dir)
 
         # Create Group object
-        group_obj = OT.Group(group_prefix + "_%s.txt" % val, gene_t, sp_t)
+        group_obj = OT.GroupLight(group_prefix + "_%s.txt" % val, gene_t, sp_t)
         # Add group to the MultiGroups object
         groups_obj.add_group(group_obj)
         # Export filtered groups and return stats to present in the app
-        stats = group_obj.export_filtered_group(
-            output_file_name=os.path.join(inflation_dir,
-                                          "Filtered_groups_%s.txt") % val,
-                                          get_stats=True)
+        stats = group_obj.basic_group_statistics()
         # Retrieve fasta sequences from the filtered groups
         os.chdir(inflation_dir)
-        group_obj.retrieve_fasta(db, dest="Orthologs")
+        group_obj.retrieve_sequences(sqldb, db, "Orthologs")
         os.chdir("..")
         stats_storage[val] = stats
 
