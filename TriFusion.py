@@ -3494,7 +3494,8 @@ class TriFusionApp(App):
         self.screen.ids.card_gl.clear_widgets()
 
         # Resets ortho_groups object
-        self.ortho_groups = ObjectProperty(None)
+        self.ortho_groups.clear_groups()
+        self.ortho_group_files = []
 
     def remove_groups(self, value):
         """
@@ -4196,7 +4197,7 @@ class TriFusionApp(App):
             # Update button text
             self.screen.ids.adv_search_options.text = "Show additional options"
 
-    def dialog_search_report(self, stat_storage):
+    def dialog_search_report(self, stat_storage, groups):
         """
         Creates the dialog that reports the results of the Orthology search
         :param stat_storage: dictionary. Each entry corresponds to an inflation
@@ -4226,17 +4227,20 @@ class TriFusionApp(App):
                                                 float(stats[0])
 
             # Setting species compliant
-            report_wgt.ids.sf_txt.text = str(stats[1])
-            report_wgt.ids.sf_box.size_hint_x = float(stats[1]) / \
+            report_wgt.ids.sf_txt.text = str(stats[3])
+            report_wgt.ids.sf_box.size_hint_x = float(stats[3]) / \
                                                 float(stats[0])
 
             # Setting final orthologs
-            report_wgt.ids.final_txt.text = str(stats[3])
-            report_wgt.ids.final_box.size_hint_x = float(stats[3]) / \
+            report_wgt.ids.final_txt.text = str(stats[4])
+            report_wgt.ids.final_box.size_hint_x = float(stats[4]) / \
                                                 float(stats[0])
 
             # Adding widget to carousel
             content.ids.report_car.add_widget(report_wgt)
+
+        content.ids.ok_bt.bind(on_release=lambda x: self.load_groups(
+            groups, groups.filters))
 
         self.show_popup(title="Orthology search report", content=content,
                         size=(400, 470))
@@ -4776,8 +4780,7 @@ class TriFusionApp(App):
 
     def load_group_files(self, group_files):
 
-        if not self.ortho_groups:
-            og = ot.MultiGroupsLight(db_path=self.temp_dir)
+        og = ot.MultiGroupsLight(db_path=self.temp_dir)
 
         for gf in group_files:
             og.add_group(ot.GroupLight(gf))
@@ -4814,11 +4817,11 @@ class TriFusionApp(App):
             except ReferenceError:
                 pass
 
-            if not self.ortho_groups:
+            if self.ortho_groups:
+                self.ortho_groups.add_multigroups(groups_obj)
+            else:
                 self.ortho_groups = groups_obj
                 self.ortho_groups.filters = default_filters
-            else:
-                self.ortho_groups.add_multigroups(groups_obj)
 
             self.ortho_group_files.extend(list(groups_obj.groups.keys()))
 
@@ -6125,11 +6128,6 @@ class TriFusionApp(App):
             return self.dialog_floatcheck("Please provide proteome files as "
                                           "input data", t="error")
 
-        # Check for mysql pass
-        if self.mysql_pass == "":
-            return self.dialog_floatcheck("Please provide the access password "
-                                          "to MySQL", t="error")
-
         # Check for output directory
         if self.ortho_dir == "":
             return self.dialog_floatcheck("Please specify an output directory"
@@ -6182,7 +6180,7 @@ class TriFusionApp(App):
             if nm.k:
                 nm.t = "Adjusting Fasta Files"
                 nm.c = 2
-                nm.db = opipe.adjust_fasta(self.proteome_files)
+                opipe.adjust_fasta(self.proteome_files)
 
             if nm.k:
                 nm.t = "Filtering Fasta Files"
@@ -6236,7 +6234,11 @@ class TriFusionApp(App):
                                              self.mcl_inflation,
                                              self.group_prefix,
                                              self.orto_max_gene,
-                                             self.orto_min_sp, nm.db)
+                                             self.orto_min_sp, self.sqldb,
+                                             join(self.ortho_dir,
+                                                  "backstage_files",
+                                                  "goodProteins.fasta"),
+                                             self.temp_dir)
 
                 # stats is a dictionary containing the inflation value as key
                 # and a list with the orthologs as value
@@ -6259,10 +6261,8 @@ class TriFusionApp(App):
             if not p.is_alive():
                 Clock.unschedule(func)
                 self.dismiss_popup()
-                self.dialog_search_report(ns.stats)
-                self.load_groups(ns.groups)
-                # Get protein database in dict format
-                self.protein_db = ns.db
+                self.dialog_search_report(ns.stats, ns.groups)
+                #self.load_groups(ns.groups, ns.groups.filters)
 
             # Listens for cancel signal
             if content.proc_kill:

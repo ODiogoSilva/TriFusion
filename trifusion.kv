@@ -1449,8 +1449,8 @@
             text: "Go to Restuls"
             bold: True
             on_release:
-                app.screen.ids.explore_bt.dispatch("on_release")
-                app.screen.ids.explore_bt.state = "down"
+                app.screen.ids.explore.dispatch("on_release")
+                app.screen.ids.explore.state = "down"
                 root.cancel()
         Button:
             id: cancel_bt

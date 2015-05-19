@@ -34,7 +34,6 @@ ShowcaseScreen:
                 on_release:
                     orto_car.load_slide(orto_car.slides[0])
             MainSideBt:
-                id: explore_bt
                 text: "Explore"
                 id: explore
                 on_release:
@@ -88,23 +87,6 @@ ShowcaseScreen:
                                     valign: "middle"
                                     text_size: self.size
                                     size_hint_x: .8
-
-                            DarkBox:
-                                Label:
-                                    size_hint_x: .8
-                                    markup: True
-                                    text: "[size=18][b]MySQL settings[/b][/size]\n[size=13]Provide the required information to access and modify SQL databases[/size]"
-                                    halign: "left"
-                                    valign: "middle"
-                                    text_size: self.size
-                                ProcessBt:
-                                    id: mysql_bt
-                                    size_hint_x: .2
-                                    text: "Select..."
-                                    on_release:
-                                        app.dialog_mysql()
-
-                            Hseparator
 
                             DarkBox:
                                 id: dark_l

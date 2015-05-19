@@ -156,7 +156,7 @@ class GroupLight():
         self.max_extra_copy = 0
 
         # Attribute with name of the group file, which will be an ID
-        self.name = groups_file
+        self.name = os.path.abspath(groups_file)
         self.table = groups_file.split(os.sep)[-1].split(".")[0]
 
         # if os.path.exists(sql_db):
@@ -334,7 +334,7 @@ class GroupLight():
         c = conn.cursor()
         table_name = "".join(protein_db.split(os.sep)).replace(".", "")
 
-        # Create database if it does not exist
+        # Create table if it does not exist
         if not c.execute("SELECT name FROM sqlite_master WHERE type='table' AND"
                     " name='{}'".format(table_name)).fetchall():
 
@@ -1364,6 +1364,19 @@ class MultiGroupsLight():
         for k, val in self.groups.items():
             yield k, pickle.load(open(val, "rb"))
 
+    def clear_groups(self):
+        """
+        Clears the current MultiGroupsLight object
+        """
+
+        for f in self.groups.values():
+            os.remove(f)
+
+        self.duplicate_groups = []
+        self.groups = {}
+        self.groups_stats = {}
+        self.filters = {}
+
     def add_group(self, group_obj):
         """
         Adds a group object
@@ -1411,7 +1424,7 @@ class MultiGroupsLight():
         :param multigroup_obj: MultiGroup object
         """
 
-        for group_obj in multigroup_obj:
+        for gname, group_obj in multigroup_obj:
             self.add_group(group_obj)
 
     def update_filters(self, gn_filter, sp_filter, group_names=None,
@@ -1424,7 +1437,6 @@ class MultiGroupsLight():
         :param sp_filter: int, filter for min species
         :param group_names: list, with names of group objects
         """
-
 
         if group_names:
             glist = group_names
