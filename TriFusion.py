@@ -4784,10 +4784,7 @@ class TriFusionApp(App):
 
     def load_group_files(self, group_files):
 
-        og = ot.MultiGroupsLight(db_path=self.temp_dir)
-
-        for gf in group_files:
-            og.add_group(ot.GroupLight(gf))
+        og = ot.MultiGroupsLight(db_path=self.temp_dir, groups=group_files)
 
         return [og, og.filters]
 
@@ -4811,7 +4808,7 @@ class TriFusionApp(App):
         be done in the background using the run_in_background and
         load_group_files methods.
 
-        :param groups: MultiGroup object
+        :param groups_obj: MultiGroup object
         """
 
         if groups_obj:
@@ -4830,29 +4827,44 @@ class TriFusionApp(App):
             self.ortho_group_files.extend(list(groups_obj.groups.keys()))
 
             # Check if any group file is duplicate. If so, issue a warning
-            if self.ortho_groups.duplicate_groups:
-                self.dialog_warning("Duplicate group files detected",
-                                    "The following group file(s) were found "
-                                    "to be duplicate and were not loaded:\n\n"
-                                    "[b]%s[/b]" %
-                    "\n".join(x for x in self.ortho_groups.duplicate_groups))
+            if groups_obj.duplicate_groups or groups_obj.bad_groups:
 
-            # Populate the app gridlayout with group buttons
-            for gname in groups_obj.groups:
+                msg = ""
 
-                # If group name contains full path, get only file name
-                gname_short = basename(gname)
+                if groups_obj.duplicate_groups:
+                    msg += "The following group files were found to be" \
+                           " duplicate and were not loaded:\n\n[b]%s[/b]" % \
+                           "\n".join(basename(x) for x in
+                                     groups_obj.duplicate_groups)
+                    # Reset duplicate_groups attribute
+                    self.ortho_groups.duplicate_groups = []
 
-                if gname not in self.ortho_groups.duplicate_groups:
-                    # Create check box for multiple group selection
-                    chk = CheckBox(id=gname, size_hint_x=.1)
-                    chk.bind(active=lambda x, y: self.orto_check_state())
-                    self.screen.ids.group_check.add_widget(chk)
+                if groups_obj.bad_groups:
+                    msg += "The following group files could not be parsed as" \
+                           " group files:\n\n[b]%s[/b]" % "\n".join(basename(x)
+                                for x in groups_obj.bad_groups)
+                    # Reset bad_groups attribute
+                    self.ortho_groups.bad_groups = []
 
-                    # Create group button
-                    bt = ToggleButton(text=gname_short, id=gname,
-                              group="group_bts", size_hint_y=None, height=30,
-                              shorten=True, shorten_from="right",
+                self.dialog_warning("Invalid group files detected", msg)
+
+            if groups_obj.groups:
+                # Populate the app gridlayout with group buttons
+                for gname in groups_obj.groups:
+
+                    # If group name contains full path, get only file name
+                    gname_short = basename(gname)
+
+                    if gname not in self.ortho_groups.duplicate_groups:
+                        # Create check box for multiple group selection
+                        chk = CheckBox(id=gname, size_hint_x=.1)
+                        chk.bind(active=lambda x, y: self.orto_check_state())
+                        self.screen.ids.group_check.add_widget(chk)
+
+                        # Create group button
+                        bt = ToggleButton(text=gname_short, id=gname,
+                              group="group_bts", size_hint_y=None,
+                              height=30, shorten=True, shorten_from="right",
                               halign="center", bold=True,
                               background_down=join("data", "backgrounds",
                                                      "bt_process.png"),
@@ -4862,39 +4874,42 @@ class TriFusionApp(App):
                                                             "backgrounds",
                                                             "bt_process.png"),
                               disabled_color=(1, 1, 1, 1))
-                    # Apparently I need to use partial instead of lambda
-                    # in order to provide a diferent group object as argument
-                    # Using lambda will overwrite the group objects of all
-                    # buttons with the last group of the iteration. Go figure..
-                    bt.bind(on_release=partial(self.orthology_card, gname))
 
-                    # Add box to gridlayout
-                    self.screen.ids.group_gl.add_widget(bt)
+                        # Apparently I need to use partial instead of lambda
+                        # in order to provide a diferent group object as
+                        # argument. Using lambda will overwrite the group
+                        # objects of all buttons with the last group of the
+                        # iteration.
+                        bt.bind(on_release=partial(self.orthology_card, gname))
 
-                    # Create removal button
-                    x_bt = Button(size_hint=(None, None), width=30, height=30,
-                                  id=gname, border=(0, 0, 0, 0),
+                        # Add box to gridlayout
+                        self.screen.ids.group_gl.add_widget(bt)
+
+                        # Create removal button
+                        x_bt = Button(size_hint=(None, None), width=30,
+                                  height=30, id=gname, border=(0, 0, 0, 0),
                                   background_normal=join("data", "backgrounds",
                                                          "remove_bt.png"),
                                   background_down=join("data", "backgrounds",
                                                        "remove_bt_down.png"))
-                    x_bt.bind(on_release=partial(self.check_action,
-                                                 "Are you sure you want to"
-                                                 "remove this group?",
-                                                 self.remove_groups))
-                    self.screen.ids.group_rm.add_widget(x_bt)
+                        x_bt.bind(on_release=partial(self.check_action,
+                                                     "Are you sure you want to"
+                                                     "remove this group?",
+                                                     self.remove_groups))
+                        self.screen.ids.group_rm.add_widget(x_bt)
 
-            else:
-                # If last group name contains a directory, set it as the
-                # default export dir
-                path = dirname(gname)
-                if os.path.exists(path):
-                    self.orto_export_dir = path
+                else:
+                    # If last group name contains a directory, set it as the
+                    # default export dir
+                    path = dirname(gname)
+                    if os.path.exists(path):
+                        self.orto_export_dir = path
 
-        self.run_in_background(self.orto_update_filters, self.orthology_card,
-                               [None, None, [x for x in groups_obj.groups],
-                                True], None, False,
-                               msg="Setting up filters...")
+                self.run_in_background(self.orto_update_filters,
+                                self.orthology_card,
+                                [None, None, [x for x in groups_obj.groups],
+                                 True], None, False,
+                                msg="Setting up filters...")
 
     def orthology_card(self, group_name=None, bt=None):
         """
