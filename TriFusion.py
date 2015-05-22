@@ -4529,6 +4529,10 @@ class TriFusionApp(App):
         else:
             groups_objs = self.ortho_groups
 
+        # Set group object for screen. This property will be used when changing
+        # which filters should be displayed in the compare plot screen
+        self.screen.group_obj = groups_objs
+
         # Get active displays
         stats = "".join([y for x, y in displays.items()
                          if self.screen.ids[x].active])
