@@ -1298,7 +1298,7 @@ class MultiGroups ():
         print(counter)
 
 
-class MultiGroupsLight():
+class MultiGroupsLight:
     """
     Creates an object composed of multiple Group objects like MultiGroups.
     However, instead of storing the groups in memory, these are shelved in
@@ -1325,6 +1325,9 @@ class MultiGroupsLight():
 
         self.groups_stats = {}
 
+        # Attribute that will store the paths of badly formated group files
+        self.bad_groups = []
+
         # Initializing thresholds. These may be set from the start, or using
         # some method that uses them as arguments
         self.gene_threshold = gene_threshold
@@ -1337,16 +1340,20 @@ class MultiGroupsLight():
         self.prefix = project_prefix
 
         if groups:
-            #with shelve.open(self.shelve_path) as sf:
             for group_file in groups:
                 # If group_file is already a Group object, just add it
                 if not isinstance(group_file, Group):
-                    group_object = Group(group_file, self.gene_threshold,
-                                         self.species_threshold)
+                    try:
+                        group_object = GroupLight(group_file,
+                                                  self.gene_threshold,
+                                                  self.species_threshold)
+                    except:
+                        self.bad_groups.append(group_file)
+                        continue
                 else:
                     group_object = group_file
-                    # Check for duplicate group files
 
+                # Check for duplicate group files
                 if group_object.name in self.groups:
                     self.duplicate_groups.append(group_file.name)
                 else:
@@ -1357,7 +1364,7 @@ class MultiGroupsLight():
                     pickle.dump(group_object, open(gpath, "wb"))
                     self.groups[group_object.name] = gpath
                     # Setting starting string filters
-                    self.filters[group_file.name] = (1,
+                    self.filters[group_object.name] = (1,
                                                 len(group_object.species_list))
 
     def __iter__(self):
