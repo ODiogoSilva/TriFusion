@@ -4812,11 +4812,6 @@ class TriFusionApp(App):
         """
 
         if groups_obj:
-            # Removes "No groups loaded" button if it still exists
-            try:
-                self.screen.ids.group_gl.remove_widget(self.screen.ids.no_bt)
-            except ReferenceError:
-                pass
 
             if self.ortho_groups:
                 self.ortho_groups.add_multigroups(groups_obj)
@@ -4849,6 +4844,13 @@ class TriFusionApp(App):
                 self.dialog_warning("Invalid group files detected", msg)
 
             if groups_obj.groups:
+
+                # Removes "No groups loaded" button if it still exists
+                try:
+                    self.screen.ids.group_gl.remove_widget(self.screen.ids.no_bt)
+                except ReferenceError:
+                    pass
+
                 # Populate the app gridlayout with group buttons
                 for gname in groups_obj.groups:
 
