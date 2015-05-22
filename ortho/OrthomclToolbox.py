@@ -30,13 +30,13 @@ from base.plotter import *
 import pickle
 import os
 import sqlite3
-import shelve
+import numpy as np
 from os.path import join
 import random
 import string
 
 
-class Cluster():
+class Cluster:
     """ Object for clusters of the OrthoMCL groups file. It is useful to set a
      number of attributes that will make subsequent filtration and
      processing much easier """
@@ -125,7 +125,7 @@ class OrthoGroupException(Exception):
     pass
 
 
-class GroupLight():
+class GroupLight:
     """
     Analogous to Group object but with several changes to reduce memory usage
     """
@@ -518,6 +518,10 @@ class GroupLight():
         b_plt, lgd = bar_plot(data, x_labels, lgd_list=lgd_list,
                               ax_names=[None, "Ortholog frequency"],
                               reverse_x=False)
+
+        mean_data = np.array(data[0]).mean()
+        b_plt.axhline(y=mean_data, ls="--", c="red")
+
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
         return b_plt, lgd, ""
