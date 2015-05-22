@@ -5,10 +5,11 @@ Made by Diogo Silva, Fernando Alves
 """
 
 import sqlite3 as lite
+import os
 
 
-def execute(similar_seqs_file):
-    con = lite.connect("orthoDB.db")
+def execute(db_dir, similar_seqs_file):
+    con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
     with con:
 
@@ -19,8 +20,8 @@ def execute(similar_seqs_file):
         for line in file_handle:
             if line.strip() != "":
                 f = line.split("\t")
-                l = (f[0], f[1], f[2], f[3], float(f[4]), int(f[5]), float(f[6]),
-                 float(f[7]))
+                l = (f[0], f[1], f[2], f[3], float(f[4]), int(f[5]),
+                     float(f[6]), float(f[7]))
 
             cur.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, "
                             "?, ? ,?, ?)", l)

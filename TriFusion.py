@@ -6199,7 +6199,7 @@ class TriFusionApp(App):
             if nm.k:
                 nm.t = "Installing schema"
                 nm.c = 1
-                opipe.install_schema("orthomcl.config")
+                opipe.install_schema(self.temp_dir)
 
             if nm.k:
                 nm.t = "Adjusting Fasta Files"
@@ -6230,15 +6230,15 @@ class TriFusionApp(App):
             if nm.k:
                 nm.t = "Loading USEARCH output to database"
                 nm.c = 6
-                opipe.load_blast("orthomcl.config")
+                opipe.load_blast(self.temp_dir)
 
             if nm.k:
                 nm.t = "Obtaining Pairs"
                 nm.c = 7
-                opipe.pairs("orthomcl.config")
+                opipe.pairs(self.temp_dir)
 
             if nm.k:
-                opipe.dump_pairs("orthomcl.config")
+                opipe.dump_pairs(self.temp_dir)
 
             if nm.k:
                 nm.t = "Running MCL"
@@ -6324,9 +6324,6 @@ class TriFusionApp(App):
             os.makedirs(int_dir)
 
         os.chdir(int_dir)
-
-        # Create orthomcl_config
-        create_orthomcl_cfg(".")
 
         # Start pipeline in the background
         d.start()

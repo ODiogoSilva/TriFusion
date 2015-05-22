@@ -5,6 +5,7 @@ Made by Diogo Silva, Fernando Alves
 """
 
 import sqlite3 as lite
+import os
 
 ##############################################################
 
@@ -102,8 +103,8 @@ def createInterTaxonMatchView(cur):
 ##############################################################
 
 
-def execute():
-    con = lite.connect("orthoDB.db")
+def execute(dir):
+    con = lite.connect(os.path.join(dir, "orthoDB.db"))
 
     with con:
 
