@@ -1313,7 +1313,6 @@ class MultiGroupsLight:
         :return: Populates the self.multiple_groups attribute
         """
 
-        #self.shelve_path = shelve_path
         self.db_path = db_path
 
         # If a MultiGroups is initialized with duplicate Group objects, their
@@ -1390,7 +1389,6 @@ class MultiGroupsLight:
         :param group_obj: Group object
         """
 
-        #with shelve.open(self.shelve_path) as sf:
         # Check for duplicate groups
         if group_obj.name not in self.groups:
             gpath = os.path.join(self.db_path,
@@ -1408,7 +1406,6 @@ class MultiGroupsLight:
         :param group_id: string, name matching a Group object name attribute
         """
 
-        #with shelve.open(self.shelve_path) as sf:
         if group_id in self.groups:
             os.remove(self.groups[group_id])
 
@@ -1419,7 +1416,6 @@ class MultiGroupsLight:
         :param group_id: string. Name of group object
         """
 
-        #with shelve.open(self.shelve_path) as sf:
         try:
             return pickle.load(open(self.groups[group_id], "rb"))
         except KeyError:
