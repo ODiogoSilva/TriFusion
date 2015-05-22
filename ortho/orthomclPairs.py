@@ -5,7 +5,7 @@ Made by Diogo Silva, Fernando Alves
 """
 
 import sqlite3 as lite
-import sys
+import os
 import math
 
 """my @steps = ( # Common
@@ -513,8 +513,8 @@ def cleanall {
 """
 
 
-def execute():
-    con = lite.connect("orthoDB.db")
+def execute(db_dir):
+    con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
     with con:
 

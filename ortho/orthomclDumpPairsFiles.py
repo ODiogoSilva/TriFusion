@@ -5,6 +5,7 @@ Made by Diogo Silva, Fernando Alves
 """
 
 import sqlite3 as lite
+import os
 
 
 def printInparalogsFile (cur, filename):
@@ -87,9 +88,8 @@ def printMclAbcFile (cur, filename):
             file.write(row[0]+"\t"+row[1]+"\t"+str((float(row[2]) * 1000 + .5)/100)+"\n")
 
 
-
-def execute():
-    con = lite.connect("orthoDB.db")
+def execute(db_dir):
+    con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
     with con:
 

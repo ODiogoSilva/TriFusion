@@ -80,14 +80,17 @@ def loading(current_state, size, prefix_txt, width, proteome):
     sys.stdout.flush()
 
 
-def install_schema(verbose=False):
-    """ Install the schema for the mySQL database """
+def install_schema(dir, verbose=False):
+    """
+    Install the schema for the mySQL database
+
+    :param dir: directory of sqlite database
+    """
 
     if verbose:
         print("Installing mySQL schema")
 
-    # x = subprocess.Popen(["orthomclInstallSchema", cfg_file]).wait()
-    install_sqlite.execute()
+    install_sqlite.execute(dir)
 
 
 def check_unique_field(proteome_file):
@@ -236,37 +239,30 @@ def remove_duplicate_entries(verbose=False):
     file_handle = open("similarSequences.txt.old")
     output_handle = open("similarSequences.txt", "w")
 
-    storage = {}
+    storage = set()
 
     for line in file_handle:
         fields = line.split()
-        id1 = fields[0]
-        id2 = fields[1]
-
-        if id1 not in storage:
-            storage[id1] = [id2]
-        else:
-            if id2 not in storage[id1]:
-                output_handle.write(line)
-                storage[id1].append(id2)
+        id1, id2 = fields[0], fields[1]
+        id12 = "".join([id1, id2])
+        if id12 not in storage:
+            output_handle.write(line)
+            storage.add(id12)
 
     file_handle.close()
     output_handle.close()
     os.remove("similarSequences.txt.old")
 
 
-def load_blast(verbose=False):
+def load_blast(db_dir, verbose=False):
 
     if verbose:
         print("Loading BLAST output into orthoMCL database")
 
-    # x = subprocess.Popen(["orthomclLoadBlast", cfg_file,
-    #                  "similarSequences.txt"]).wait()
-
-    load_blast2sqlite.execute("similarSequences.txt")
+    load_blast2sqlite.execute(db_dir, "similarSequences.txt")
 
 
-def pairs(verbose=False):
+def pairs(db_dir, verbose=False):
 
     if verbose:
         print("Finding pairs for orthoMCL")
@@ -274,10 +270,10 @@ def pairs(verbose=False):
     # x = subprocess.Popen(["orthomclPairs", cfg_file,
     #                  "pairs.log", "cleanup=no"]).wait()
 
-    make_pairs_sqlite.execute()
+    make_pairs_sqlite.execute(db_dir)
 
 
-def dump_pairs(verbose=False):
+def dump_pairs(db_dir, verbose=False):
 
     if verbose:
         print("Dump files from the database produced by the orthomclPairs "
@@ -285,7 +281,7 @@ def dump_pairs(verbose=False):
 
     # x = subprocess.Popen(["orthomclDumpPairsFiles", cfg_file]).wait()
 
-    dump_pairs_sqlite.execute()
+    dump_pairs_sqlite.execute(db_dir)
 
 
 def mcl(inflation_list, verbose=False):
