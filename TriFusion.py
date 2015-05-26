@@ -2435,16 +2435,6 @@ class TriFusionApp(App):
         :param selection: list. Contains the paths to the selected input files
         """
 
-        # Checking for input sequence type inconsistencies. If there are
-        # alignments with different sequence types, then issue and error popup
-        # and do not load the files
-        if isinstance(bad_aln, Exception):
-            self.dialog_warning("Multiple sequence types detected", "The "
-                                "selected input alignments contain more than "
-                                "one sequence type (DNA, RNA, Protein). Please"
-                                " select input files of the same sequence type")
-            return 0
-
         # If duplicate alignments were loaded, issue a warning
         if self.alignment_list.duplicate_alignments:
             self.dialog_floatcheck("Duplicate input alignments detected and "
@@ -5861,7 +5851,11 @@ class TriFusionApp(App):
         # Check for consistency in sequence type across alignments
         current_seq_type = set(self.sequence_types + aln_list.format_list())
         if len(current_seq_type) > 1:
-            return InputTypeError("Multiple sequence types detected")
+            return self.dialog_warning("Multiple sequence types detected",
+                                "The selected input alignments contain more "
+                                "than one sequence type (DNA, RNA, Protein). "
+                                "Please select input files of the same sequence"
+                                " type")
         else:
             self.sequence_types.extend(list(current_seq_type))
 
