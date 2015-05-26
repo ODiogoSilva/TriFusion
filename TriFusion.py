@@ -3551,6 +3551,7 @@ class TriFusionApp(App):
         # Get button widgets to be removed
         bt_idx = value.id[:-1]
         inf_idx = value.id[:-1] + "?"
+        c_idx = value.id[:-1] + "C"
 
         try:
             bt = [x for x in parent_obj.children if bt_idx == x.id][0]
@@ -3560,6 +3561,11 @@ class TriFusionApp(App):
         try:
             inf_bt = [x for x in parent_obj.children if inf_idx == x.id][0]
             parent_obj.remove_widget(inf_bt)
+        except IndexError:
+            pass
+        try:
+            cbt = [x for x in parent_obj.children if c_idx == x.id][0]
+            parent_obj.remove_widget(cbt)
         except IndexError:
             pass
 
