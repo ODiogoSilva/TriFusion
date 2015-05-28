@@ -1662,13 +1662,24 @@ class TriFusionApp(App):
                             self.mouse_over_ready = False
 
                     elif bt in rm_bt:
-                        if "Removes all files and taxa" \
-                                not in self.previous_mouse_over:
+                        if active_tab == "Taxa" and bt == rm_bt[1]:
+                            if "Removes all files and taxa" \
+                                    not in self.previous_mouse_over:
 
-                            if not bt.disabled:
-                                create_fancy_label("Removes all files and taxa",
-                                                   bt, adjust_pos=True,
-                                                   c=(1, .33, .33, 1))
+                                if not bt.disabled:
+                                    create_fancy_label("Removes all files and "
+                                                       "taxa", rm_bt[1],
+                                                       adjust_pos=True,
+                                                       c=(1, .33, .33, 1))
+                        elif active_tab == "Files" and bt == rm_bt[0]:
+                            if "Removes all files and taxa" \
+                                    not in self.previous_mouse_over:
+
+                                if not bt.disabled:
+                                    create_fancy_label("Removes all files and "
+                                                       "taxa", rm_bt[0],
+                                                       adjust_pos=True,
+                                                       c=(1, .33, .33, 1))
 
             else:
                 # If no collision is detected, remove any remaining label widget
