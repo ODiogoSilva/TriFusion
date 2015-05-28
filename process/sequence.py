@@ -34,7 +34,6 @@ from collections import OrderedDict
 import re
 from os import sep
 from os.path import join
-from sys import getsizeof
 
 ## TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
