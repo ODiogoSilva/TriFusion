@@ -1241,6 +1241,8 @@ class TriFusionApp(App):
                     [x for x in self.screen.ids.icon_view_tab.files if not
                      os.path.isdir(x)]
 
+            # When the path editing text input is focused, the arrows should
+            # not be used to cycle through buttons.
             try:
                 if self.screen.ids.path_bx.children[0].focus:
                     arrow_block = True
