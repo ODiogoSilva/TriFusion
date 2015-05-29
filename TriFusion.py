@@ -2371,7 +2371,7 @@ class TriFusionApp(App):
             # Setting which sink grid layout
             gl_wgt = self.root.ids.file_sl
         elif panel == "taxa":
-            bt_list = sorted(self.active_taxa_list)
+            bt_list = sorted(self.active_alignment_list.taxa_names)
             gl_wgt = self.root.ids.taxa_sl
         else:
             bt_list = list(self.alignment_list.partitions.partitions.keys())
@@ -2424,6 +2424,16 @@ class TriFusionApp(App):
         gl_wgt.clear_widgets()
         mouse_bts = []
         for bt, inf_bt, rm_bt in bt_list:
+            # Update button states during search operation
+            # Default states is down for Taxa/Files and normal for Partitions
+            state = "down" if gl_wgt != self.root.ids.partition_sl else "normal"
+            # For files
+            if bt.id in self.filename_map:
+                if self.filename_map[bt.id] not in self.active_file_list:
+                    state = "normal"
+            elif bt.id not in self.active_taxa_list:
+                state = "normal"
+            bt.state = state
             gl_wgt.add_widget(bt)
             gl_wgt.add_widget(inf_bt)
             gl_wgt.add_widget(rm_bt)
@@ -2687,7 +2697,19 @@ class TriFusionApp(App):
 
     def sidepanel_create_bts(self, idx):
 
-        bt = ToggleButton(text=idx, id=idx, state="down", height=30,
+        # Determine state based on active_file_list
+        if self.filename_map:
+            # For files
+            if idx in self.filename_map:
+                state = "down" if self.filename_map[idx] in \
+                                  self.active_file_list else "normal"
+            # For taxa
+            else:
+                state = "down" if idx in self.active_taxa_list else "normal"
+        else:
+            state = "down"
+
+        bt = ToggleButton(text=idx, id=idx, state=state, height=30,
                           size_hint=(.8, None), shorten=True,
                           shorten_from="right", halign="center", bold=True,
                           background_normal=join("data", "backgrounds",
