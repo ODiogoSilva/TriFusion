@@ -1080,7 +1080,7 @@ class AlignmentList (Base):
 
         else:
             self.alignments[aln_name] = self.shelve_alignments[aln_name]
-            del self.alignments[aln_name]
+            del self.shelve_alignments[aln_name]
 
     def format_list(self):
         """
@@ -1138,6 +1138,7 @@ class AlignmentList (Base):
         """
 
         for alignment_obj in alignment_obj_list:
+
             if isinstance(alignment_obj.alignment, Exception):
                 self.bad_alignments.append(alignment_obj.name)
             if alignment_obj.path in [x.path for x in
@@ -1149,19 +1150,24 @@ class AlignmentList (Base):
 
         self.taxa_names = self._get_taxa_list()
 
-    def add_alignment_files(self, file_name_list):
+    def add_alignment_files(self, file_name_list, shared_namespace=None):
         """
         Adds a new alignment based on a file name
         :param file_name_list: list, with the path to the alignment files
         """
 
         for file_name in file_name_list:
+
+            if shared_namespace:
+                shared_namespace.m = basename(file_name)
+                shared_namespace.progress = file_name_list.index(file_name) + 1
+
             aln = Alignment(file_name)
 
             if isinstance(aln.alignment, Exception):
-                self.bad_alignments.append(aln)
+                self.bad_alignments.append(aln.name)
             else:
-                self.alignments.append(aln)
+                self.alignments[aln.name] = aln
                 self.set_partition(aln)
 
         self.taxa_names = self._get_taxa_list()
