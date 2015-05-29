@@ -2371,7 +2371,7 @@ class TriFusionApp(App):
             # Setting which sink grid layout
             gl_wgt = self.root.ids.file_sl
         elif panel == "taxa":
-            bt_list = sorted(self.active_alignment_list.taxa_names)
+            bt_list = sorted(self.alignment_list.taxa_names)
             gl_wgt = self.root.ids.taxa_sl
         else:
             bt_list = list(self.alignment_list.partitions.partitions.keys())
@@ -2493,7 +2493,7 @@ class TriFusionApp(App):
                                                   in bad_aln))
 
             # removes bad alignment files from selection list
-            selection = [path for path in selection if
+            selection = [path.split(".")[0] for path in selection if
                          basename(path).split(".")[0] not in
                          [x.name for x in bad_aln]]
 
@@ -2505,7 +2505,7 @@ class TriFusionApp(App):
                 # Update the filename - path mapping attribute
                 self.filename_map = dict(list(self.filename_map.items()) +
                                      list((x, y) for x, y in
-                                     zip([x.split("/")[-1] for x in selection],
+                                     zip([basename(x) for x in selection],
                                          selection)))
 
             # If no data has been previously loaded, set the attributed
@@ -2519,7 +2519,7 @@ class TriFusionApp(App):
                     [x.split("/")[-1] for x in selection], selection))
 
             # If more than one alignment has been provided
-            if self.active_alignment_list:
+            if self.alignment_list:
                 # Update active taxa list
                 self.update_taxa()
                 # Populates files and taxa contents
@@ -2618,7 +2618,7 @@ class TriFusionApp(App):
 
         # If taxa were removed during the update, remove those buttons too
         removed_taxa = list(set(self.active_taxa_list) - set(
-            self.active_alignment_list.taxa_names))
+            self.alignment_list.taxa_names))
         if removed_taxa:
             for i in removed_taxa:
                 # Get the corresponding buttons:
@@ -2627,7 +2627,7 @@ class TriFusionApp(App):
                           == x.id][0]
                 self.remove_bt(bt_obj)
 
-        self.active_taxa_list = self.active_alignment_list.taxa_names
+        self.active_taxa_list = self.alignment_list.taxa_names
 
     def update_partitions(self):
         """
@@ -2778,7 +2778,7 @@ class TriFusionApp(App):
             if self.count_files <= self.MAX_FILE_BUTTON:
 
                 self.count_files += 1
-                file_name = infile.split("/")[-1]
+                file_name = basename(infile)
                 self.sidepanel_add_bts(file_name, "Files")
 
             else:
@@ -3455,14 +3455,11 @@ class TriFusionApp(App):
             # When button is normal (unselected) remove from active list
             if value.state == "normal":
                 self.active_file_list.remove(self.filename_map[value.id])
-                self.active_alignment_list.remove_file(
-                    [self.filename_map[value.id]])
+                self.alignment_list.update_active_alignment(value.id, "shelve")
             # When button is down (selected) add to active list
             elif value.state == "down":
                 self.active_file_list.append(self.filename_map[value.id])
-                self.active_alignment_list.add_alignment(
-                    self.alignment_list.retrieve_alignment(
-                        self.filename_map[value.id]))
+                self.alignment_list.update_active_alignment(value.id, "active")
 
             # Update label
             self.update_file_label()
@@ -3507,7 +3504,6 @@ class TriFusionApp(App):
 
         self.sequence_types = []
         self.alignment_list.clear_alignments()
-        self.active_alignment_list.clear_alignments()
         self.original_tx_inf = {}
         self.active_tx_inf = {}
         self.original_file_inf = {}
@@ -3620,7 +3616,6 @@ class TriFusionApp(App):
                 pass
             # Update alignment object list
             self.alignment_list.remove_file([self.filename_map[bt_idx]])
-            self.active_alignment_list.remove_file([self.filename_map[bt_idx]])
 
             # Update active taxa list. This must be executed before calling
             # self.get_taxa_information since this method relies on an
@@ -3640,9 +3635,8 @@ class TriFusionApp(App):
             self.update_sp_label()
 
         if parent_obj == self.root.ids.taxa_sl:
-            self.active_alignment_list.remove_taxa([bt_idx])
             self.alignment_list.remove_taxa([bt_idx])
-            self.active_taxa_list = self.active_alignment_list.taxa_names
+            self.active_taxa_list = self.alignment_list.taxa_names
             # Updates label
             self.update_sp_label()
 
@@ -3676,8 +3670,7 @@ class TriFusionApp(App):
         # Core changes to files
         if sv_parent == self.root.ids.sv_file and value.text == "Select All":
             self.active_file_list = self.file_list[:]
-            self.active_alignment_list = deepcopy(
-                self.alignment_list)
+            self.alignment_list.update_active_alignments(self.file_list)
             # Update label
 
         #Core changes to taxa
@@ -3688,7 +3681,7 @@ class TriFusionApp(App):
         # Core changes to files
         if sv_parent == self.root.ids.sv_file and value.text == "Deselect All":
             self.active_file_list = []
-            self.active_alignment_list.clear_files()
+            self.alignment_list.update_active_alignments([])
         # Core changes to taxa
         if sv_parent == self.root.ids.sv_sp and value.text == "Deselect All":
             self.active_taxa_list = []
@@ -5603,8 +5596,8 @@ class TriFusionApp(App):
                 content.ids.out_files.text = "[b][size=18][color=37abc8ff]" \
                             "Output file(s):[/color][/size][/b] %s converted " \
                             "file(s)" % \
-                    (len(aln_obj.alignment_object_list) +
-                    len(aln_obj.alignment_object_list) * len(add_files))
+                    (len(aln_obj.alignments) +
+                    len(aln_obj.alignments) * len(add_files))
             # In case aln_obj has not being defined, probably because there
             # are no input files
             except AttributeError:
@@ -5613,7 +5606,7 @@ class TriFusionApp(App):
 
         try:
             self.show_popup(title="Process execution summary - Processing %s "
-                "file(s)" % len(aln_obj.alignment_object_list),
+                "file(s)" % len(aln_obj.alignments),
                             content=content, size=(550, 350))
         except AttributeError:
             return self.dialog_floatcheck("ERROR: No input files have"
@@ -5823,7 +5816,13 @@ class TriFusionApp(App):
 
         def load_proc(nm):
 
-            aln_obj = AlignmentList(file_list, shared_namespace=nm)
+            if self.alignment_list:
+                self.alignment_list.add_alignment_files(file_list,
+                                                        shared_namespace=nm)
+                aln_obj = self.alignment_list
+            else:
+                aln_obj = AlignmentList(file_list, shared_namespace=nm)
+
             nm.alns = aln_obj
 
             return
@@ -5903,27 +5902,9 @@ class TriFusionApp(App):
         else:
             self.sequence_types.extend(list(current_seq_type))
 
-        # When creating an AlignmentList object, some input alignment may be
-        # invalid, in which case they are removed from the
-        # alignment_object_list. This will handle the case where all input files
-        # are invalid
-        if aln_list.alignment_object_list:
-            # In case the alignment list object is already populated with
-            # previously loaded files, then add to the object
-            if self.alignment_list:
-                for aln_obj in aln_list:
-                    self.alignment_list.add_alignment(aln_obj)
-                    self.active_alignment_list.add_alignment(aln_obj)
-                # Update active taxa list
-                self.active_taxa_list = self.active_alignment_list.taxa_names
-
-            # In case the alignment list object is empty, load it as is
-            else:
-                # Populate original alignment list
-                self.alignment_list = aln_list
-                # Updating active alignment list
-                self.active_alignment_list = deepcopy(self.alignment_list)
-                self.active_taxa_list = self.active_alignment_list.taxa_names
+        self.alignment_list = aln_list
+        # Updating active alignment list
+        self.active_taxa_list = self.alignment_list.taxa_names
 
         self.load(selection, aln_list.bad_alignments)
 
@@ -5960,7 +5941,7 @@ class TriFusionApp(App):
         if alt_list:
             aln_list = alt_list
         else:
-            aln_list = self.active_alignment_list
+            aln_list = self.alignment_list
 
         for tx in self.active_taxa_list:
 
@@ -5973,7 +5954,7 @@ class TriFusionApp(App):
             sequence = ""
             # This assures that the information will only be gathered if the
             # active data set is not empty
-            if aln_list.alignment_object_list:
+            if aln_list.alignments:
                 for aln in aln_list:
                     if tx in aln.alignment:
                         sequence += aln.alignment[tx]
@@ -6002,11 +5983,11 @@ class TriFusionApp(App):
                 # Get number of files containing the taxa in absolute and
                 # percentage
                 tx_inf[tx]["fl_coverage"] = len(
-                    aln_list.alignment_object_list) - \
+                    aln_list.alignments) - \
                     tx_missing
                 tx_inf[tx]["fl_coverage_per"] = round(((
                     tx_inf[tx]["fl_coverage"] * 100) / len(
-                    aln_list.alignment_object_list)), 2)
+                    aln_list.alignments)), 2)
 
             else:
                 # This handles the case where the active data set is empty
@@ -6385,7 +6366,7 @@ class TriFusionApp(App):
 
         # Perform checks
         if self.alignment_list is None or not\
-                self.alignment_list.alignment_object_list:
+                self.alignment_list.alignments:
             return self.dialog_warning("No input data", "Use 'Menu > Open "
                                        "file(s)' to load input data")
 
@@ -6403,7 +6384,7 @@ class TriFusionApp(App):
         aln_object = self.update_active_fileset(deepcopy(self.alignment_list))
         # Update active taxa set of the alignment object
         aln_object = self.update_active_taxaset(aln_object)
-        proc_files = len(aln_object.alignment_object_list)
+        proc_files = len(aln_object.alignments)
 
         # Concatenation
         if self.main_operations["concatenation"]:
