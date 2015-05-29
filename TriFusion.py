@@ -1117,6 +1117,10 @@ class TriFusionApp(App):
         key = vals[-2].encode("utf-8")
         key_code = vals[1:3]
 
+        # Change this variable to true when the arrow keys should NOT cycle
+        # through buttons
+        arrow_block = False
+
         #=======================================================================
         # Popup keybindings
         #=======================================================================
@@ -1131,42 +1135,43 @@ class TriFusionApp(App):
             :param bt2: Button widget two (usually for Cancel buttons)
             """
 
-            # This will deal with cases with only two buttons to cycle
-            if not bt3:
-                # if left arrow key
-                if key_code == (276, 113):
-                    bt1.background_normal = backn
-                    bt2.background_normal = backd
-                # if right arrow key
-                if key_code == (275, 114):
-                    bt1.background_normal = backd
-                    bt2.background_normal = backn
-                # if enter key. Dispatch the events of the focused button
-                if key_code == (13, 36):
-                    if bt1.background_normal == backn:
-                        bt1.dispatch("on_release")
-                    else:
-                        bt2.dispatch("on_release")
+            if not arrow_block:
+                # This will deal with cases with only two buttons to cycle
+                if not bt3:
+                    # if left arrow key
+                    if key_code == (276, 113):
+                        bt1.background_normal = backn
+                        bt2.background_normal = backd
+                    # if right arrow key
+                    if key_code == (275, 114):
+                        bt1.background_normal = backd
+                        bt2.background_normal = backn
+                    # if enter key. Dispatch the events of the focused button
+                    if key_code == (13, 36):
+                        if bt1.background_normal == backn:
+                            bt1.dispatch("on_release")
+                        else:
+                            bt2.dispatch("on_release")
 
-            # This will cycle through three buttons
-            else:
-                bt_list = [bt1, bt2, bt3]
-                idx = [x.background_normal for x in bt_list].index(backn)
-                if key_code == (276, 113) and idx > 0:
-                    idx -= 1
-                if key_code == (275, 114) and idx < 2:
-                    idx += 1
+                # This will cycle through three buttons
+                else:
+                    bt_list = [bt1, bt2, bt3]
+                    idx = [x.background_normal for x in bt_list].index(backn)
+                    if key_code == (276, 113) and idx > 0:
+                        idx -= 1
+                    if key_code == (275, 114) and idx < 2:
+                        idx += 1
 
-                for bt in bt_list:
-                    if bt_list.index(bt) == idx:
-                        bt_list[idx].background_normal = backn
-                    else:
-                        bt.background_normal = backd
+                    for bt in bt_list:
+                        if bt_list.index(bt) == idx:
+                            bt_list[idx].background_normal = backn
+                        else:
+                            bt.background_normal = backd
 
-                if key_code == (13, 36):
-                    bt_on = [x for x in bt_list if
-                             x.background_normal == backn][0]
-                    bt_on.dispatch("on_release")
+                    if key_code == (13, 36):
+                        bt_on = [x for x in bt_list if
+                                 x.background_normal == backn][0]
+                        bt_on.dispatch("on_release")
 
         # Check only when a popup is active
         if self._subpopup in self.root_window.children:
@@ -1235,6 +1240,12 @@ class TriFusionApp(App):
                 self.screen.ids.icon_view_tab.selection = \
                     [x for x in self.screen.ids.icon_view_tab.files if not
                      os.path.isdir(x)]
+
+            try:
+                if self.screen.ids.path_bx.children[0].focus:
+                    arrow_block = True
+            except AttributeError:
+                pass
 
             # Use arrow keys and enter to navigate through open/cancel buttons
             # and selecting them
