@@ -63,7 +63,8 @@ from data.resources.db_tools import *
 
 # Other imports
 import os
-from os.path import dirname, join, exists, abspath, pardir, expanduser, basename
+from os.path import dirname, join, exists, abspath, pardir, expanduser,\
+    basename, splitext
 from os import sep
 from collections import OrderedDict
 from copy import deepcopy
@@ -2494,7 +2495,7 @@ class TriFusionApp(App):
                                                   in bad_aln))
 
             # removes bad alignment files from selection list
-            selection = [path.split(".")[0] for path in selection if
+            selection = [splitext(path)[0] for path in selection if
                          basename(path).split(".")[0] not in
                          [x.name for x in bad_aln]]
 
@@ -2517,7 +2518,7 @@ class TriFusionApp(App):
                 self.active_file_list = deepcopy(self.file_list)
                 # Sett the filename - path mapping attribute
                 self.filename_map = dict((x, y) for x, y in zip(
-                    [x.split("/")[-1] for x in selection], selection))
+                    [basename(x) for x in selection], selection))
 
             # If more than one alignment has been provided
             if self.alignment_list:
