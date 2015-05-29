@@ -2431,6 +2431,7 @@ class TriFusionApp(App):
             if bt.id in self.filename_map:
                 if self.filename_map[bt.id] not in self.active_file_list:
                     state = "normal"
+            # For taxa
             elif bt.id not in self.active_taxa_list:
                 state = "normal"
             bt.state = state
@@ -3670,7 +3671,8 @@ class TriFusionApp(App):
         # Core changes to files
         if sv_parent == self.root.ids.sv_file and value.text == "Select All":
             self.active_file_list = self.file_list[:]
-            self.alignment_list.update_active_alignments(self.file_list)
+            self.alignment_list.update_active_alignments([basename(x) for x in
+                                                          self.file_list])
             # Update label
 
         #Core changes to taxa
