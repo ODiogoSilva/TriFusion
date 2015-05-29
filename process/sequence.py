@@ -33,7 +33,7 @@ from process.data import Partitions
 from collections import OrderedDict
 import re
 from os import sep
-from os.path import join
+from os.path import join, basename
 
 ## TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -126,8 +126,8 @@ class Alignment (Base):
             extension
             """
             self.path = input_alignment
-            self.name = input_alignment.split(sep)[-1].split(".")[0]
-            self.name_wext = input_alignment.split(sep)[-1]
+            self.name = basename(input_alignment).split(".")[0]
+            self.name_wext = basename(input_alignment)
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -965,12 +965,39 @@ class AlignmentList (Base):
 
         self.log_progression = Progression()
 
-        self.alignment_object_list = []
-        # Stores badly formatted/invalid input alignment
+        """
+        Stores the "active" Alignment objects for the current AlignmentList.
+        Keys will be the Alignment.path for quick lookup of Alignment object
+        values
+        """
+        self.alignments = OrderedDict()
+
+        """
+        Stores the "inactive" or "shelved" Alignment objects. All AlignmentList
+        methods will operate only on the alignments attribute, unless explicitly
+        stated otherwise. Key-value is the same as self.alignments
+        """
+        self.shelve_alignments = OrderedDict()
+
+        """
+        Attribute list that stores the Alignment.name attribute of badly
+        formatted alignments
+        """
         self.bad_alignments = []
-        # Stores duplicate alignment paths
+
+        """
+        Attribute list that stores duplicate Alignment.name.
+        """
         self.duplicate_alignments = []
+
+        """
+        List with the name of the taxa included in the AlignmentList object
+        """
         self.taxa_names = []
+
+        """
+        Lists the Alignment.name attributes of the current AlignmentList object
+        """
         self.filename_list = []
 
         # Set partitions object
@@ -989,13 +1016,13 @@ class AlignmentList (Base):
                 alignment_object = Alignment(alignment)
                 # Check for badly formatted alignments
                 if isinstance(alignment_object.alignment, Exception):
-                    self.bad_alignments.append(alignment_object)
+                    self.bad_alignments.append(alignment_object.name)
                 # Check for duplicate alignments
                 if alignment_object.path in [x.path for x in
-                                             self.alignment_object_list]:
-                    self.duplicate_alignments.append(alignment_object.path)
+                                             self.alignments.values()]:
+                    self.duplicate_alignments.append(alignment_object.name)
                 else:
-                    self.alignment_object_list.append(alignment_object)
+                    self.alignments[alignment_object.name] = alignment_object
                     self.set_partition(alignment_object)
                     self.taxa_names.extend((x for x in
                                             alignment_object.alignment if x
@@ -1006,7 +1033,7 @@ class AlignmentList (Base):
         """
         Iterate over Alignment objects
         """
-        return iter(self.alignment_object_list)
+        return iter(self.alignments.values())
 
     def clear_alignments(self):
         """
@@ -1014,12 +1041,46 @@ class AlignmentList (Base):
         :return:
         """
 
-        self.alignment_object_list = []
+        self.alignments = OrderedDict()
+        self.shelve_alignments = OrderedDict()
         self.bad_alignments = []
         self.duplicate_alignments = []
         self.partitions = Partitions()
         self.filename_list = []
         self.taxa_names = []
+
+    def update_active_alignments(self, aln_list):
+        """
+        Updates the self.alignments and self.shelve_alignments attributes.
+        The Alignment.name's provided by the argument will populate
+        self.alignments and the remaining will be
+        """
+
+        for aln_name in self.filename_list:
+            if aln_name in aln_list:
+                if aln_name in self.shelve_alignments:
+                    self.alignments[aln_name] = self.shelve_alignments[aln_name]
+                    del self.shelve_alignments[aln_name]
+            else:
+                if aln_name in self.alignments:
+                    self.shelve_alignments[aln_name] = self.alignments[aln_name]
+                    del self.alignments[aln_name]
+
+    def update_active_alignment(self, aln_name, direction):
+        """
+        Same as update_active_alignments but for a single aln_name, so that
+        the whole list does not need to be iterated
+        :param aln_name: string, name of the alignment to move
+        :param direction: string, can be either 'shelve' or 'active'
+        """
+
+        if direction == "shelve":
+            self.shelve_alignments[aln_name] = self.alignments[aln_name]
+            del self.alignments[aln_name]
+
+        else:
+            self.alignments[aln_name] = self.shelve_alignments[aln_name]
+            del self.alignments[aln_name]
 
     def format_list(self):
         """
@@ -1027,16 +1088,7 @@ class AlignmentList (Base):
         """
 
         return list(set([x.sequence_code[0] for x in
-                         self.alignment_object_list if x]))
-
-    def _get_format(self):
-        """
-        Gets the input format of the first alignment in the list
-        """
-        # TODO: To support different input format, provide information on how
-        # many alignment are in a certain input format
-
-        return self.alignment_object_list[0].input_format
+                         self.alignments.values() if x]))
 
     def _get_taxa_list(self):
         """
@@ -1046,7 +1098,7 @@ class AlignmentList (Base):
 
         full_taxa = []
 
-        for alignment in self.alignment_object_list:
+        for alignment in self.alignments.values():
             diff = set(alignment.iter_taxa()) - set(full_taxa)
             if diff != set():
                 full_taxa.extend(diff)
@@ -1057,7 +1109,7 @@ class AlignmentList (Base):
         """
         Returns a list with the input file names
         """
-        return (alignment.name for alignment in self.alignment_object_list)
+        return (alignment.name for alignment in self.alignments.values())
 
     def set_partition(self, alignment_obj):
         """
@@ -1079,40 +1131,40 @@ class AlignmentList (Base):
                                 model_cls=alignment_obj.partitions.models[
                                     alignment_obj.name_wext])
 
-    def add_alignment(self, alignment_obj):
+    def add_alignments(self, alignment_obj_list):
         """
         Adds a new Alignment object
-        :param alignment_obj: Alignment object
+        :param alignment_obj_list: list with Alignment objects
         """
 
-        if isinstance(alignment_obj.alignment, Exception):
-            self.bad_alignments.append(alignment_obj)
-        if alignment_obj.path in [x.path for x in
-                                     self.alignment_object_list]:
-            self.duplicate_alignments.append(alignment_obj.path)
-        else:
-            self.alignment_object_list.append(alignment_obj)
-            self.set_partition(alignment_obj)
+        for alignment_obj in alignment_obj_list:
+            if isinstance(alignment_obj.alignment, Exception):
+                self.bad_alignments.append(alignment_obj.name)
+            if alignment_obj.path in [x.path for x in
+                                         self.alignments.values()]:
+                self.duplicate_alignments.append(alignment_obj.name)
+            else:
+                self.alignments[alignment_obj.name] = alignment_obj
+                self.set_partition(alignment_obj)
 
-            # Update taxa names with the new alignment
-            self.taxa_names = self._get_taxa_list()
+        self.taxa_names = self._get_taxa_list()
 
-    def add_alignment_file(self, file_name):
+    def add_alignment_files(self, file_name_list):
         """
         Adds a new alignment based on a file name
-        :param file_name: string. Path to the alignment file
+        :param file_name_list: list, with the path to the alignment files
         """
 
-        aln = Alignment(file_name)
+        for file_name in file_name_list:
+            aln = Alignment(file_name)
 
-        if isinstance(aln.alignment, Exception):
-            self.bad_alignments.append(aln)
-        else:
-            self.alignment_object_list.append(aln)
-            self.set_partition(aln)
+            if isinstance(aln.alignment, Exception):
+                self.bad_alignments.append(aln)
+            else:
+                self.alignments.append(aln)
+                self.set_partition(aln)
 
-            # Update taxa names with the new alignment
-            self.taxa_names = self._get_taxa_list()
+        self.taxa_names = self._get_taxa_list()
 
     def retrieve_alignment(self, name):
         """
@@ -1120,13 +1172,10 @@ class AlignmentList (Base):
         :return: Returns an Alignment object with a given name attribute
         """
 
-        name = name.split(sep)[-1].split(".")[0]
-
-        alignment_obj = [x for x in self.alignment_object_list if x.name ==
-                         name][0]
-
-        if alignment_obj:
-            return alignment_obj
+        if name in self.alignments:
+            return self.alignments[name]
+        elif name in self.shelve_alignments:
+            return self.shelve_alignments[name]
         else:
             return None
 
@@ -1135,7 +1184,8 @@ class AlignmentList (Base):
         :return: List of the dictionary alignments
         """
 
-        return [alignment.alignment for alignment in self.alignment_object_list]
+        return iter(alignment.alignment for alignment in
+                    self.alignments.values())
 
     def write_taxa_to_file(self):
         """
@@ -1145,12 +1195,12 @@ class AlignmentList (Base):
 
         output_handle = open("Taxa_list.csv", "w")
 
-        for taxon in self._get_taxa_list():
+        for taxon in self.taxa_names:
             output_handle.write(taxon + "\n")
 
         output_handle.close()
 
-    def concatenate(self, progress_stat=True):
+    def concatenate(self):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
@@ -1160,24 +1210,13 @@ class AlignmentList (Base):
         :return concatenated_alignment: Alignment object
         """
 
-        self.log_progression.record("Concatenating file", len(
-                                    self.alignment_object_list))
-
-        taxa_list = self._get_taxa_list()
-
         # Initializing alignment dict to store the alignment information
-        concatenation = OrderedDict([(key, []) for key in taxa_list])
-        # Instanciating a Partitions object to store information on the
+        concatenation = OrderedDict([(key, []) for key in self.taxa_names])
+        # Instantiating a Partitions object to store information on the
         # partitions and substitution models
         partitions = Partitions()
 
-        for alignment_object in self.alignment_object_list:
-
-            # When set to True, this statement produces a progress status on
-            # the terminal
-            if progress_stat is True:
-                self.log_progression.progress_bar(self.alignment_object_list.
-                                                  index(alignment_object) + 1)
+        for alignment_object in self.alignments.values():
 
             # Setting the missing data symbol
             missing = alignment_object.sequence_code[1]
@@ -1186,7 +1225,7 @@ class AlignmentList (Base):
             # alignment. Appending each sequence data in a list and in the end
             # converting that list into a string is much much faster than
             # concatenating strings at this point
-            for taxa in taxa_list:
+            for taxa in self.taxa_names:
                 try:
                     sequence = alignment_object.alignment[taxa]
                     concatenation[taxa].append(sequence)
@@ -1201,30 +1240,22 @@ class AlignmentList (Base):
 
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
-                                           input_format=self._get_format(),
                                            partitions=self.partitions)
 
         return concatenated_alignment
 
-    def filter_missing_data(self, gap_threshold, missing_threshold,
-                            verbose=True):
+    def filter_missing_data(self, gap_threshold, missing_threshold):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
         See the method's documentation.
         """
 
-        self.log_progression.record("Filtering file",
-                                    len(self.alignment_object_list))
-        for alignment_obj in self.alignment_object_list:
-
-            if verbose is True:
-                self.log_progression.progress_bar(
-                    self.alignment_object_list.index(alignment_obj))
+        for alignment_obj in self.alignments.values():
 
             alignment_obj.filter_missing_data(gap_threshold=gap_threshold,
                           missing_threshold=missing_threshold)
 
-    def remove_taxa(self, taxa_list, verbose=False, mode="remove"):
+    def remove_taxa(self, taxa_list, mode="remove"):
         """
         Wrapper of the remove_taxa method of the Alignment object for
         multiple alignments. It current supports two modes:
@@ -1233,14 +1264,12 @@ class AlignmentList (Base):
             ..:inverse: removes all but the specified taxa
         """
 
-        if verbose is True:
-            self.log_progression.write("Removing taxa")
-
-        for alignment_obj in self.alignment_object_list:
+        for alignment_obj in self.alignments.values():
             alignment_obj.remove_taxa(taxa_list, mode=mode)
 
         # Updates taxa names
-        self.taxa_names = self._get_taxa_list()
+        for tx in taxa_list:
+            self.taxa_names.pop(tx)
 
     def remove_file(self, filename_list):
         """
@@ -1252,21 +1281,35 @@ class AlignmentList (Base):
         for nm in filename_list:
             nm_wext = nm.split(sep)[-1]
             nm = nm.split(sep)[-1].split(".")[0]
-            self.alignment_object_list = [x for x in self.alignment_object_list
-                                          if nm != x.name]
+            if nm in self.alignments:
+                del self.alignments[nm]
+            elif nm in self.shelve_alignments:
+                del self.shelve_alignments[nm]
             self.partitions.remove_partition(file_name=nm_wext)
 
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
 
-    def clear_files(self):
+    def shelve_file(self, filename_list):
         """
-        Removes all Alignment objects from the AlignmentList
+        Instead of completely removing the Alignment object, these are moved
+        to the shelve_alignments list.
+        :param filename_list: list with the names of the alignment objects to
+        be removed
         """
 
-        self.alignment_object_list = []
+        for nm in filename_list:
+            nm_wext = basename(nm)
+            nm = basename(nm).split(".")[0]
+            if nm in self.alignments:
+                self.shelve_alignments[nm] = self.alignments[nm]
+                del self.alignments[nm]
+            self.partitions.remove_partition(file_name=nm_wext)
 
-    def select_by_taxa(self, taxa_list, mode="strict", verbose=True):
+        # Updates taxa names
+        self.taxa_names = self._get_taxa_list()
+
+    def select_by_taxa(self, taxa_list, mode="strict"):
         """
         This method is used to selected gene alignments according to a list
         of taxa.
@@ -1287,9 +1330,6 @@ class AlignmentList (Base):
 
         selected_alignments = []
 
-        if verbose is True:
-            self.log_progression.write("Selecting alignments")
-
         # taxa_list may be a file name (string) or a list containing the name
         #  of the taxa. If taxa_list is a file name this code will parse the
         # csv file and return a list of the taxa. Otherwise, the taxa_list
@@ -1300,30 +1340,23 @@ class AlignmentList (Base):
         except FileNotFoundError:
             pass
 
-        for alignment_obj in self.alignment_object_list:
+        for alignment_obj in self.alignments.values():
 
             alignment_taxa = alignment_obj.iter_taxa()
 
             # Selected only the alignments with the exact same taxa
             if mode == "strict":
-
                 if set(taxa_list) == set(alignment_taxa):
-
                     selected_alignments.append(alignment_obj)
 
             # Selected alignments that include the specified taxa
             if mode == "inclusive":
-
                 if set(taxa_list) - set(alignment_taxa) == set():
-
                     selected_alignments.append(alignment_obj)
 
             if mode == "relaxed":
-
                 for taxon in taxa_list:
-
                     if taxon in alignment_taxa:
-
                         selected_alignments.append(alignment_obj)
                         continue
 
@@ -1334,7 +1367,7 @@ class AlignmentList (Base):
         Wrapper for the code_gaps method of the Alignment object.
         """
 
-        for alignment_obj in self.alignment_object_list:
+        for alignment_obj in self.alignments.values():
             alignment_obj.code_gaps()
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
@@ -1351,7 +1384,7 @@ class AlignmentList (Base):
         :param haplotype_name: String, Custom name of the haplotypes
         """
 
-        for alignment_obj in self.alignment_object_list:
+        for alignment_obj in self.alignments.values():
             if write_haplotypes:
                 # Set name for haplotypes file
                 output_file = alignment_obj.name.split(".")[0] + haplotypes_file
@@ -1374,8 +1407,8 @@ class AlignmentList (Base):
         :return: AlignmentList object with individual alignments
         """
 
-        if len(self.alignment_object_list) == 1:
-            aln_obj = self.alignment_object_list[0]
+        if len(self.alignments) == 1:
+            aln_obj = self.alignments.values()[0]
             return aln_obj.reverse_concatenate(partition_obj)
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
@@ -1384,7 +1417,7 @@ class AlignmentList (Base):
         """ This method writes a list of alignment objects or a concatenated
          alignment into a file """
 
-        for alignment_obj in self.alignment_object_list:
+        for alignment_obj in self.alignments.values():
             if alignment_obj.input_format in output_format:
                 output_file_name = alignment_obj.name.split(".")[0]\
                                        + output_suffix + "_conv"
