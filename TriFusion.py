@@ -3430,22 +3430,20 @@ class TriFusionApp(App):
         # Changes concerning the files tab
         if parent_obj == self.root.ids.file_sl:
 
-            if self.filename_map[value.id] in self.active_file_list:
+            # When button is normal (unselected) remove from active list
+            if value.state == "normal":
+                self.active_file_list.remove(self.filename_map[value.id])
+                self.active_alignment_list.remove_file(
+                    [self.filename_map[value.id]])
+            # When button is down (selected) add to active list
+            elif value.state == "down":
+                self.active_file_list.append(self.filename_map[value.id])
+                self.active_alignment_list.add_alignment(
+                    self.alignment_list.retrieve_alignment(
+                        self.filename_map[value.id]))
 
-                # When button is normal (unselected) remove from active list
-                if value.state == "normal":
-                    self.active_file_list.remove(self.filename_map[value.id])
-                    self.active_alignment_list.remove_file(
-                        [self.filename_map[value.id]])
-                # When button is down (selected) add to active list
-                elif value.state == "down":
-                    self.active_file_list.append(self.filename_map[value.id])
-                    self.active_alignment_list.add_alignment(
-                        self.alignment_list.retrieve_alignment(
-                            self.filename_map[value.id]))
-
-                # Update label
-                self.update_file_label()
+            # Update label
+            self.update_file_label()
 
         # Changes concerning the taxa tab
         if parent_obj == self.root.ids.taxa_sl:
