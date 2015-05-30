@@ -28,6 +28,8 @@
 ## TODO: __init__ is uncalled for. Replaced with another method and use it
 ## in the children objects. This is used for inheritance
 
+from collections import OrderedDict
+
 
 class MissingFilter ():
     """ Contains several methods used to trim and filter missing data from
@@ -75,7 +77,7 @@ class MissingFilter ():
 
             self.alignment[taxa] = seq
 
-    def filter_columns(self, verbose=False):
+    def filter_columns(self, verbose=True):
         """ Here several missing data metrics are calculated, and based on
          some user defined thresholds, columns with inappropriate missing
          data are removed """
@@ -83,12 +85,13 @@ class MissingFilter ():
         taxa_number = len(self.alignment)
         self.old_locus_length = len(list(self.alignment.values())[0])
 
-        filtered_alignment = dict((taxa, list(seq)) for taxa, seq in
+        filtered_alignment = OrderedDict((taxa, []) for taxa, seq in
                                   self.alignment.items())
 
         # Creating the column list variable
         # The reverse iteration over the sequences is necessary to maintain
         # the column numbers when removing them
+        #for subset in [x for x in filtered_alignment.values]
         for column_position in range(self.old_locus_length - 1, -1, -1):
 
             if verbose is True:
@@ -98,8 +101,8 @@ class MissingFilter ():
                     end="")
 
             # This greatly speeds things up compared to using a string
-            column = [char[column_position] for char in
-                      filtered_alignment.values()]
+            column = tuple(char[column_position] for char in
+                           self.alignment.values())
 
             # Calculating metrics
             gap_proportion = (float(column.count(self.gap)) /
@@ -108,15 +111,15 @@ class MissingFilter ():
                                   float(taxa_number)) * float(100)
             total_missing_proportion = gap_proportion + missing_proportion
 
-            if total_missing_proportion > float(self.gap_threshold):
+            if total_missing_proportion < float(self.gap_threshold):
 
-                list(map((lambda seq: seq.pop(column_position)),
-                         filtered_alignment.values()))
+                for char, (tx, seq) in zip(column, filtered_alignment.items()):
+                    seq.append(char)
 
-            elif missing_proportion > float(self.missing_threshold):
+            elif missing_proportion < float(self.missing_threshold):
 
-                list(map((lambda seq: seq.pop(column_position)),
-                         filtered_alignment.values()))
+                for char, (tx, seq) in zip(column, filtered_alignment.items()):
+                    seq.append(char)
 
         self.alignment = dict((taxa, "".join(seq)) for taxa, seq in
                               filtered_alignment.items())
