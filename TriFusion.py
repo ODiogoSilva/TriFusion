@@ -6379,13 +6379,14 @@ class TriFusionApp(App):
             #####
 
             # Setting the alignment to use. A deepcopy of the alignment list
-            # is used because it may be possible to do changes in the taxa data set
-            # of the AlignmentList object, which should not change the original
-            # self.alignment_list. This is because when taxa are removed from
-            # the alignment list, there is no way to return those taxa to the
-            # object
+            # is used because it may be possible to do changes in the taxa data
+            #  set of the AlignmentList object, which should not change the
+            # original self.alignment_list. This is because when taxa are
+            # removed from the alignment list, there is no way to return those
+            # taxa to the object
             # Update active file set of the alignment object
-            aln_object = self.update_active_fileset(deepcopy(self.alignment_list))
+            aln_object = self.update_active_fileset(deepcopy(
+                self.alignment_list))
             # Update active taxa set of the alignment object
             aln_object = self.update_active_taxaset(aln_object)
             ns.proc_files = len(aln_object.alignments)
@@ -6419,7 +6420,8 @@ class TriFusionApp(App):
                     collapsed_aln_obj = deepcopy(aln_object)
                     collapsed_aln_obj.collapse(haplotype_name=self.hap_prefix,
                                                haplotypes_file="_collapsed")
-                    write_aln[self.output_file + "_collapsed"] = collapsed_aln_obj
+                    write_aln[self.output_file + "_collapsed"] = \
+                        collapsed_aln_obj
                 else:
                     aln_object.collapse(haplotype_name=self.hap_prefix)
 
@@ -6428,8 +6430,8 @@ class TriFusionApp(App):
                 ns.msg = "Filtering alignment(s)"
                 if self.secondary_options["filter_file"]:
                     filtered_aln_obj = deepcopy(aln_object)
-                    filtered_aln_obj.filter_missing_data(self.filter_settings[0],
-                                                     self.filter_settings[1])
+                    filtered_aln_obj.filter_missing_data(
+                        self.filter_settings[0], self.filter_settings[1])
                     write_aln[self.output_file + "_filtered"] = filtered_aln_obj
                 else:
                     aln_object.filter_missing_data(self.filter_settings[0],
@@ -6450,38 +6452,39 @@ class TriFusionApp(App):
             # statement for "concatenation" is that the input alignments must be
             # concatenated before any other additional operations. If the first
             # if statement did not exist, then all additional options would have
-            # to be manually written for both "conversion" and "concatenation". As
-            # it is, when "concatenation", the aln_obj is firstly converted into
-            # the concatenated alignment, and then all additional operations are
-            # conducted in the same aln_obj
+            # to be manually written for both "conversion" and "concatenation".
+            #  As it is, when "concatenation", the aln_obj is firstly converted
+            # into the concatenated alignment, and then all additional
+            # operations are conducted in the same aln_obj
             write_aln[self.output_file] = aln_object
             ns.msg = "Writting output"
             if self.main_operations["concatenation"]:
                 if self.output_file == "":
                     return self.dialog_warning("Output file not selected",
                                                "Use the 'Select...' button of "
-                                               "'Output file' general option to "
-                                               "select an output file name")
+                                               "'Output file' general option to"
+                                               " select an output file name")
                 for name, obj in write_aln.items():
                     obj.write_to_file(self.output_formats, name,
-                                    interleave=self.secondary_options["interleave"],
-                                    partition_file=self.create_partfile,
-                                    use_charset=self.use_nexus_partitions)
+                                interleave=self.secondary_options["interleave"],
+                                partition_file=self.create_partfile,
+                                use_charset=self.use_nexus_partitions)
             else:
                 if self.output_dir == "":
                     return self.dialog_warning("Output directory not specified",
-                                               "use the 'Select...' button of "
-                                               "'Output directory' general option"
-                                               " to specify a destination directory"
-                                               " for the output file(s)")
+                                           "use the 'Select...' button of "
+                                           "'Output directory' general option"
+                                           " to specify a destination directory"
+                                           " for the output file(s)")
                 else:
                     for name, obj in write_aln.items():
                         name = name.replace(self.output_file, "")
-                        obj.write_to_file(self.output_formats, output_suffix=name,
-                                    interleave=self.secondary_options["interleave"],
-                                    partition_file=self.create_partfile,
-                                    output_dir=self.output_dir,
-                                    use_charset=self.use_nexus_partitions)
+                        obj.write_to_file(self.output_formats,
+                                output_suffix=name,
+                                interleave=self.secondary_options["interleave"],
+                                partition_file=self.create_partfile,
+                                output_dir=self.output_dir,
+                                use_charset=self.use_nexus_partitions)
 
         def check_process(p, dt):
 
@@ -6496,10 +6499,12 @@ class TriFusionApp(App):
 
                 if shared_ns.proc_files == 1:
                     self.dialog_floatcheck("All Done! %s file was successfully "
-                                           "processed" % shared_ns.proc_files, t="info")
+                                           "processed" % shared_ns.proc_files,
+                                           t="info")
                 else:
-                    self.dialog_floatcheck("All Done! %s files were successfully "
-                                           "processed" % shared_ns.proc_files, t="info")
+                    self.dialog_floatcheck("All Done! %s files were "
+                                           "successfully processed" %
+                                           shared_ns.proc_files, t="info")
 
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
