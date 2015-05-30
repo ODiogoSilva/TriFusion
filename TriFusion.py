@@ -6376,14 +6376,14 @@ class TriFusionApp(App):
             """
 
             try:
-                exec(ns)
+                execution(ns)
             except Exception:
                 # Log traceback in case any unexpected error occurs. See
                 # self.log_file for whereabouts of the traceback
                 logging.exception("Unexpected exit in Process execution")
                 ns.exception = True
 
-        def exec(ns):
+        def execution(ns):
             """
             Process execution function
             :param ns: Namespace object
