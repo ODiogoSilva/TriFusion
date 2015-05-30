@@ -1267,24 +1267,27 @@ class TriFusionApp(App):
         # General keybindings
         #=======================================================================
 
-        # Keybinding ctrl+o that opens the Filechooser screen
-        if modifier == "ctrl" and key == b'\x0f':
-            self.go_screen(self.screen_names.index("fc"))
+        if not [x for x in self.root_window.children
+                if isinstance(x, CustomPopup)]:
 
-        # Changing main screens between Orthology, Process and Statistics
-        if modifier == "ctrl" and key_code == (49, 10):
-            self.root.ids.h_ortho.dispatch("on_release")
-            self.root.ids.h_ortho.state = "down"
-        if modifier == "ctrl" and key_code == (50, 11):
-            self.root.ids.h_process.dispatch("on_release")
-            self.root.ids.h_process.state = "down"
-        if modifier == "ctrl" and key_code == (51, 12):
-            self.root.ids.h_stat.dispatch("on_release")
-            self.root.ids.h_stat.state = "down"
+            # Keybinding ctrl+o that opens the Filechooser screen
+            if modifier == "ctrl" and key == b'\x0f':
+                self.go_screen(self.screen_names.index("fc"))
 
-        # Toggle side panel (slash)
-        if key_code == (92, 49):
-            self.root.ids.ap.dispatch("on_release")
+            # Changing main screens between Orthology, Process and Statistics
+            if modifier == "ctrl" and key_code == (49, 10):
+                self.root.ids.h_ortho.dispatch("on_release")
+                self.root.ids.h_ortho.state = "down"
+            if modifier == "ctrl" and key_code == (50, 11):
+                self.root.ids.h_process.dispatch("on_release")
+                self.root.ids.h_process.state = "down"
+            if modifier == "ctrl" and key_code == (51, 12):
+                self.root.ids.h_stat.dispatch("on_release")
+                self.root.ids.h_stat.state = "down"
+
+            # Toggle side panel (slash)
+            if key_code == (92, 49):
+                self.root.ids.ap.dispatch("on_release")
 
         #=======================================================================
         # Text input autocompletion
