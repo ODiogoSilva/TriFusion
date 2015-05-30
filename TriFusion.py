@@ -73,6 +73,7 @@ import pickle
 import multiprocessing
 import time
 import re
+import logging
 
 Config.set("kivy", "log_level", "warning")
 Config.set("kivy", "desktop", 1)
@@ -738,6 +739,7 @@ class TriFusionApp(App):
 
     # Create temporary directory for transient files
     temp_dir = StringProperty()
+    log_file = StringProperty()
 
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
@@ -963,6 +965,8 @@ class TriFusionApp(App):
             os.makedirs(join(self.user_data_dir, "tmp"))
 
         self.temp_dir = join(self.user_data_dir, "tmp")
+        self.log_file = join(self.user_data_dir, "log", "error.out")
+        logging.basicConfig(filename=self.log_file, level=logging.DEBUG,)
 
         # Setting available screens
         self.available_screens = ["main", "Orthology", "Process",
@@ -6365,6 +6369,25 @@ class TriFusionApp(App):
         """
 
         def background_process(ns):
+            """
+            Wrapper of the main process execution function for better handling
+            of unexpected errors.
+            :param ns: Namespace object
+            """
+
+            try:
+                exec(ns)
+            except Exception:
+                # Log traceback in case any unexpected error occurs. See
+                # self.log_file for whereabouts of the traceback
+                logging.exception("Unexpected exit in Process execution")
+                ns.exception = True
+
+        def exec(ns):
+            """
+            Process execution function
+            :param ns: Namespace object
+            """
 
             write_aln = {}
 
@@ -6497,14 +6520,21 @@ class TriFusionApp(App):
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
 
-                if shared_ns.proc_files == 1:
-                    self.dialog_floatcheck("All Done! %s file was successfully "
-                                           "processed" % shared_ns.proc_files,
-                                           t="info")
-                else:
-                    self.dialog_floatcheck("All Done! %s files were "
-                                           "successfully processed" %
-                                           shared_ns.proc_files, t="info")
+                # If process execution ended with an error, issue warning.
+                try:
+                    if shared_ns.exception:
+                        return self.dialog_floatcheck("ERROR: Unexpected error"
+                                           " when generating Process output."
+                                           " Check the app logs.", t="error")
+                except:
+                    if shared_ns.proc_files == 1:
+                        self.dialog_floatcheck("All Done! %s file was "
+                                               "successfully processed" %
+                                               shared_ns.proc_files, t="info")
+                    else:
+                        self.dialog_floatcheck("All Done! %s files were "
+                                               "successfully processed" %
+                                               shared_ns.proc_files, t="info")
 
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
