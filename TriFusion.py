@@ -6040,7 +6040,7 @@ class TriFusionApp(App):
                     file_inf[file_name] = {}
 
                     # Get alignment object
-                    aln = self.alignment_list.retrieve_alignment(infile)
+                    aln = self.alignment_list.retrieve_alignment(file_name)
 
                     # Get input format
                     file_inf[file_name]["aln_format"] = aln.input_format
