@@ -2014,11 +2014,15 @@ class TriFusionApp(App):
             :param a: list arguments
             """
 
-            if a:
-                val = f(*a)
-            else:
-                val = f()
-            ns.val = val
+            try:
+                if a:
+                    val = f(*a)
+                else:
+                    val = f()
+                ns.val = val
+            except Exception:
+                logging.exception("Unexpected exit in {}".format(f.__name__))
+                ns.exception = True
 
         def check_process_status(p, second_function, args, dt):
             """
@@ -2028,6 +2032,15 @@ class TriFusionApp(App):
             """
 
             if not p.is_alive():
+
+                try:
+                    if shared_ns.exception:
+                        return self.dialog_floatcheck("An unexpected error "
+                                                      "occurred. Check the app"
+                                                      " logs", t="error")
+                except:
+                    pass
+
                 val = shared_ns.val
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
@@ -4485,7 +4498,12 @@ class TriFusionApp(App):
             :param a: list, with arguments
             """
 
-            f(*a, shared_namespace=nm)
+            try:
+                f(*a, shared_namespace=nm)
+            except:
+                logging.exception("Unexpected error when exporting ortholog "
+                                  "groups")
+                nm.exception = True
 
         def check_process(p, dt):
 
@@ -4503,6 +4521,15 @@ class TriFusionApp(App):
 
             # Check process status
             if not p.is_alive():
+
+                try:
+                    if ns.exception:
+                        return self.dialog_floatcheck("An unexpected error "
+                                        "occurred when exporting orthologs."
+                                        "Check the app logs.", t="error")
+                except:
+                    pass
+
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 if not ns.missed:
@@ -5826,16 +5853,19 @@ class TriFusionApp(App):
 
         def load_proc(nm):
 
-            if self.alignment_list:
-                self.alignment_list.add_alignment_files(file_list,
-                                                        shared_namespace=nm)
-                aln_obj = self.alignment_list
-            else:
-                aln_obj = AlignmentList(file_list, shared_namespace=nm)
+            try:
 
-            nm.alns = aln_obj
+                if self.alignment_list:
+                    self.alignment_list.add_alignment_files(file_list,
+                                                            shared_namespace=nm)
+                    aln_obj = self.alignment_list
+                else:
+                    aln_obj = AlignmentList(file_list, shared_namespace=nm)
 
-            return
+                nm.alns = aln_obj
+            except:
+                logging.exception("Unexpected error when loading input data")
+                nm.exception = True
 
         def check_proc(p, dt):
 
@@ -5846,9 +5876,19 @@ class TriFusionApp(App):
                 pass
 
             if not p.is_alive():
-                alns = ns.alns
+
                 Clock.unschedule(func)
                 self.dismiss_popup()
+
+                try:
+                    if ns.exception:
+                        return self.dialog_floatcheck("Unexpected error when"
+                                            " loading input data. Check app"
+                                            " logs", t="error")
+                except:
+                    pass
+
+                alns = ns.alns
                 self.load_files(file_list, alns)
 
             if content.proc_kill:
@@ -6230,78 +6270,84 @@ class TriFusionApp(App):
             Progess dialog label
             """
 
-            if nm.k:
-                nm.t = "Installing schema"
-                nm.c = 1
-                opipe.install_schema(self.temp_dir)
+            try:
+                if nm.k:
+                    nm.t = "Installing schema"
+                    nm.c = 1
+                    opipe.install_schema(self.temp_dir)
 
-            if nm.k:
-                nm.t = "Adjusting Fasta Files"
-                nm.c = 2
-                opipe.adjust_fasta(self.proteome_files)
+                if nm.k:
+                    nm.t = "Adjusting Fasta Files"
+                    nm.c = 2
+                    opipe.adjust_fasta(self.proteome_files)
 
-            if nm.k:
-                nm.t = "Filtering Fasta Files"
-                nm.c = 3
-                opipe.filter_fasta(self.protein_min_len, self.protein_max_stop)
+                if nm.k:
+                    nm.t = "Filtering Fasta Files"
+                    nm.c = 3
+                    opipe.filter_fasta(self.protein_min_len,
+                                       self.protein_max_stop)
 
-            if nm.k:
-                nm.t = "Running USearch. This may take a while..."
-                nm.c = 4
-                opipe.allvsall_usearch("goodProteins.fasta",
-                                  self.usearch_evalue,
-                                  self.screen.ids.usearch_threads.text,
-                                  self.usearch_output)
+                if nm.k:
+                    nm.t = "Running USearch. This may take a while..."
+                    nm.c = 4
+                    opipe.allvsall_usearch("goodProteins.fasta",
+                                      self.usearch_evalue,
+                                      self.screen.ids.usearch_threads.text,
+                                      self.usearch_output)
 
-            if nm.k:
-                nm.t = "Parsing USEARCH output"
-                nm.c = 5
-                opipe.blast_parser(self.usearch_output)
+                if nm.k:
+                    nm.t = "Parsing USEARCH output"
+                    nm.c = 5
+                    opipe.blast_parser(self.usearch_output)
 
-            if nm.k:
-                opipe.remove_duplicate_entries()
+                if nm.k:
+                    opipe.remove_duplicate_entries()
 
-            if nm.k:
-                nm.t = "Loading USEARCH output to database"
-                nm.c = 6
-                opipe.load_blast(self.temp_dir)
+                if nm.k:
+                    nm.t = "Loading USEARCH output to database"
+                    nm.c = 6
+                    opipe.load_blast(self.temp_dir)
 
-            if nm.k:
-                nm.t = "Obtaining Pairs"
-                nm.c = 7
-                opipe.pairs(self.temp_dir)
+                if nm.k:
+                    nm.t = "Obtaining Pairs"
+                    nm.c = 7
+                    opipe.pairs(self.temp_dir)
 
-            if nm.k:
-                opipe.dump_pairs(self.temp_dir)
+                if nm.k:
+                    opipe.dump_pairs(self.temp_dir)
 
-            if nm.k:
-                nm.t = "Running MCL"
-                nm.c = 8
-                opipe.mcl(self.mcl_inflation)
+                if nm.k:
+                    nm.t = "Running MCL"
+                    nm.c = 8
+                    opipe.mcl(self.mcl_inflation)
 
-            if nm.k:
-                nm.t = "Dumping groups"
-                nm.c = 9
-                opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix,
-                                 "1000", self.group_prefix)
+                if nm.k:
+                    nm.t = "Dumping groups"
+                    nm.c = 9
+                    opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix,
+                                     "1000", self.group_prefix)
 
-            if nm.k:
-                nm.t = "Filtering group files"
-                nm.c = 10
-                stats, groups_obj = opipe.export_filtered_groups(
-                                             self.mcl_inflation,
-                                             self.group_prefix,
-                                             self.orto_max_gene,
-                                             self.orto_min_sp, self.sqldb,
-                                             join(self.ortho_dir,
-                                                  "backstage_files",
-                                                  "goodProteins.fasta"),
-                                             self.temp_dir)
+                if nm.k:
+                    nm.t = "Filtering group files"
+                    nm.c = 10
+                    stats, groups_obj = opipe.export_filtered_groups(
+                                                 self.mcl_inflation,
+                                                 self.group_prefix,
+                                                 self.orto_max_gene,
+                                                 self.orto_min_sp, self.sqldb,
+                                                 join(self.ortho_dir,
+                                                      "backstage_files",
+                                                      "goodProteins.fasta"),
+                                                 self.temp_dir)
 
-                # stats is a dictionary containing the inflation value as key
-                # and a list with the orthologs as value
-                nm.stats = stats
-                nm.groups = groups_obj
+                    # stats is a dictionary containing the inflation value as
+                    #  key and a list with the orthologs as value
+                    nm.stats = stats
+                    nm.groups = groups_obj
+
+            except:
+                logging.exception("Unexpected exit in Orthology search")
+                nm.exception = True
 
         def check_process(p, dt):
             """
@@ -6317,6 +6363,15 @@ class TriFusionApp(App):
             # When the process finishes, close progress dialog and unschedule
             # this callback
             if not p.is_alive():
+
+                try:
+                    if ns.exception:
+                        return self.dialog_floatcheck("Unexpected error when"
+                                                  " searching orthologs."
+                                                  " Check app logs", t="error")
+                except:
+                    pass
+
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 self.dialog_search_report(ns.stats, ns.groups)
@@ -6380,7 +6435,7 @@ class TriFusionApp(App):
 
             try:
                 execution(ns)
-            except Exception:
+            except:
                 # Log traceback in case any unexpected error occurs. See
                 # self.log_file for whereabouts of the traceback
                 logging.exception("Unexpected exit in Process execution")
