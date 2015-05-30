@@ -6364,122 +6364,157 @@ class TriFusionApp(App):
         Main function that executes all queued procedures of the process module
         """
 
-        write_aln = {}
+        def background_process(ns):
 
-        # Perform checks
-        if self.alignment_list is None or not\
-                self.alignment_list.alignments:
-            return self.dialog_warning("No input data", "Use 'Menu > Open "
-                                       "file(s)' to load input data")
+            write_aln = {}
 
-        #####
-        # Perform operations
-        #####
+            # Perform checks
+            if self.alignment_list is None or not\
+                    self.alignment_list.alignments:
+                return self.dialog_warning("No input data", "Use 'Menu > Open "
+                                           "file(s)' to load input data")
 
-        # Setting the alignment to use. A deepcopy of the alignment list
-        # is used because it may be possible to do changes in the taxa data set
-        # of the AlignmentList object, which should not change the original
-        # self.alignment_list. This is because when taxa are removed from
-        # the alignment list, there is no way to return those taxa to the
-        # object
-        # Update active file set of the alignment object
-        aln_object = self.update_active_fileset(deepcopy(self.alignment_list))
-        # Update active taxa set of the alignment object
-        aln_object = self.update_active_taxaset(aln_object)
-        proc_files = len(aln_object.alignments)
+            #####
+            # Perform operations
+            #####
 
-        # Concatenation
-        if self.main_operations["concatenation"]:
-            aln_object = aln_object.concatenate()
+            # Setting the alignment to use. A deepcopy of the alignment list
+            # is used because it may be possible to do changes in the taxa data set
+            # of the AlignmentList object, which should not change the original
+            # self.alignment_list. This is because when taxa are removed from
+            # the alignment list, there is no way to return those taxa to the
+            # object
+            # Update active file set of the alignment object
+            aln_object = self.update_active_fileset(deepcopy(self.alignment_list))
+            # Update active taxa set of the alignment object
+            aln_object = self.update_active_taxaset(aln_object)
+            ns.proc_files = len(aln_object.alignments)
 
-            # Concatenation of ZORRO files
-            if self.secondary_options["zorro"]:
-                zorro_data = data.Zorro(aln_object, self.zorro_suffix)
-                zorro_data.write_to_file(self.output_file)
+            # Concatenation
+            if self.main_operations["concatenation"]:
+                ns.msg = "Concatenating"
+                aln_object = aln_object.concatenate()
 
-        # Reverse concatenation
-        if self.main_operations["reverse_concatenation"]:
-            partition_obj = data.Partitions()
-            # In case the partitions file is badly formatted or invalid, the
-            # exception will be returned by the read_from_file method.
-            er = partition_obj.read_from_file(self.partitions_file)
-            aln_object = aln_object.retrieve_alignment(self.rev_infile)
-            aln_object.set_partitions(partition_obj)
-            aln_object = aln_object.reverse_concatenate()
+                # Concatenation of ZORRO files
+                if self.secondary_options["zorro"]:
+                    ns.msg = "Concatenating ZORRO files"
+                    zorro_data = data.Zorro(aln_object, self.zorro_suffix)
+                    zorro_data.write_to_file(self.output_file)
 
-        # Collapsing
-        if self.secondary_operations["collapse"]:
-            if self.secondary_options["collapse_file"]:
-                collapsed_aln_obj = deepcopy(aln_object)
-                collapsed_aln_obj.collapse(haplotype_name=self.hap_prefix,
-                                           haplotypes_file="_collapsed")
-                write_aln[self.output_file + "_collapsed"] = collapsed_aln_obj
-            else:
-                aln_object.collapse(haplotype_name=self.hap_prefix)
+            # Reverse concatenation
+            if self.main_operations["reverse_concatenation"]:
+                ns.msg = "Reverse concatenating"
+                partition_obj = data.Partitions()
+                # In case the partitions file is badly formatted or invalid, the
+                # exception will be returned by the read_from_file method.
+                er = partition_obj.read_from_file(self.partitions_file)
+                aln_object = aln_object.retrieve_alignment(self.rev_infile)
+                aln_object.set_partitions(partition_obj)
+                aln_object = aln_object.reverse_concatenate()
 
-        # Filtering
-        if self.secondary_operations["filter"]:
-            if self.secondary_options["filter_file"]:
-                filtered_aln_obj = deepcopy(aln_object)
-                filtered_aln_obj.filter_missing_data(self.filter_settings[0],
-                                                 self.filter_settings[1])
-                write_aln[self.output_file + "_filtered"] = filtered_aln_obj
-            else:
-                aln_object.filter_missing_data(self.filter_settings[0],
-                                               self.filter_settings[1])
+            # Collapsing
+            if self.secondary_operations["collapse"]:
+                ns.msg = "Collapsing alignment(s)"
+                if self.secondary_options["collapse_file"]:
+                    collapsed_aln_obj = deepcopy(aln_object)
+                    collapsed_aln_obj.collapse(haplotype_name=self.hap_prefix,
+                                               haplotypes_file="_collapsed")
+                    write_aln[self.output_file + "_collapsed"] = collapsed_aln_obj
+                else:
+                    aln_object.collapse(haplotype_name=self.hap_prefix)
 
-        # Gcoder
-        if self.secondary_operations["gcoder"]:
-            if self.secondary_options["gcoder_file"]:
-                gcoded_aln_obj = deepcopy(aln_object)
-                gcoded_aln_obj.code_gaps()
-                write_aln[self.output_file + "_coded"] = gcoded_aln_obj
-            else:
-                aln_object.code_gaps()
+            # Filtering
+            if self.secondary_operations["filter"]:
+                ns.msg = "Filtering alignment(s)"
+                if self.secondary_options["filter_file"]:
+                    filtered_aln_obj = deepcopy(aln_object)
+                    filtered_aln_obj.filter_missing_data(self.filter_settings[0],
+                                                     self.filter_settings[1])
+                    write_aln[self.output_file + "_filtered"] = filtered_aln_obj
+                else:
+                    aln_object.filter_missing_data(self.filter_settings[0],
+                                                   self.filter_settings[1])
 
-        # The output file(s) will only be written after all the required
-        # operations have been concluded. The reason why there are two "if"
-        # statement for "concatenation" is that the input alignments must be
-        # concatenated before any other additional operations. If the first
-        # if statement did not exist, then all additional options would have
-        # to be manually written for both "conversion" and "concatenation". As
-        # it is, when "concatenation", the aln_obj is firstly converted into
-        # the concatenated alignment, and then all additional operations are
-        # conducted in the same aln_obj
-        write_aln[self.output_file] = aln_object
-        if self.main_operations["concatenation"]:
-            if self.output_file == "":
-                return self.dialog_warning("Output file not selected",
-                                           "Use the 'Select...' button of "
-                                           "'Output file' general option to "
-                                           "select an output file name")
-            for name, obj in write_aln.items():
-                obj.write_to_file(self.output_formats, name,
-                                interleave=self.secondary_options["interleave"],
-                                partition_file=self.create_partfile,
-                                use_charset=self.use_nexus_partitions)
-        else:
-            if self.output_dir == "":
-                return self.dialog_warning("Output directory not specified",
-                                           "use the 'Select...' button of "
-                                           "'Output directory' general option"
-                                           " to specify a destination directory"
-                                           " for the output file(s)")
-            else:
+            # Gcoder
+            if self.secondary_operations["gcoder"]:
+                ns.msg = "Coding gaps"
+                if self.secondary_options["gcoder_file"]:
+                    gcoded_aln_obj = deepcopy(aln_object)
+                    gcoded_aln_obj.code_gaps()
+                    write_aln[self.output_file + "_coded"] = gcoded_aln_obj
+                else:
+                    aln_object.code_gaps()
+
+            # The output file(s) will only be written after all the required
+            # operations have been concluded. The reason why there are two "if"
+            # statement for "concatenation" is that the input alignments must be
+            # concatenated before any other additional operations. If the first
+            # if statement did not exist, then all additional options would have
+            # to be manually written for both "conversion" and "concatenation". As
+            # it is, when "concatenation", the aln_obj is firstly converted into
+            # the concatenated alignment, and then all additional operations are
+            # conducted in the same aln_obj
+            write_aln[self.output_file] = aln_object
+            ns.msg = "Writting output"
+            if self.main_operations["concatenation"]:
+                if self.output_file == "":
+                    return self.dialog_warning("Output file not selected",
+                                               "Use the 'Select...' button of "
+                                               "'Output file' general option to "
+                                               "select an output file name")
                 for name, obj in write_aln.items():
-                    name = name.replace(self.output_file, "")
-                    obj.write_to_file(self.output_formats, output_suffix=name,
-                                interleave=self.secondary_options["interleave"],
-                                partition_file=self.create_partfile,
-                                output_dir=self.output_dir,
-                                use_charset=self.use_nexus_partitions)
+                    obj.write_to_file(self.output_formats, name,
+                                    interleave=self.secondary_options["interleave"],
+                                    partition_file=self.create_partfile,
+                                    use_charset=self.use_nexus_partitions)
+            else:
+                if self.output_dir == "":
+                    return self.dialog_warning("Output directory not specified",
+                                               "use the 'Select...' button of "
+                                               "'Output directory' general option"
+                                               " to specify a destination directory"
+                                               " for the output file(s)")
+                else:
+                    for name, obj in write_aln.items():
+                        name = name.replace(self.output_file, "")
+                        obj.write_to_file(self.output_formats, output_suffix=name,
+                                    interleave=self.secondary_options["interleave"],
+                                    partition_file=self.create_partfile,
+                                    output_dir=self.output_dir,
+                                    use_charset=self.use_nexus_partitions)
 
-        if proc_files == 1:
-            self.dialog_floatcheck("All Done! %s file was successfully "
-                                   "processed" % proc_files, t="info")
-        else:
-            self.dialog_floatcheck("All Done! %s files were successfully "
-                                   "processed" % proc_files, t="info")
+        def check_process(p, dt):
+
+            try:
+                content.ids.msg.text = shared_ns.msg
+            except AttributeError:
+                pass
+
+            if not p.is_alive():
+                Clock.unschedule(check_func)
+                self.dismiss_popup()
+
+                if shared_ns.proc_files == 1:
+                    self.dialog_floatcheck("All Done! %s file was successfully "
+                                           "processed" % shared_ns.proc_files, t="info")
+                else:
+                    self.dialog_floatcheck("All Done! %s files were successfully "
+                                           "processed" % shared_ns.proc_files, t="info")
+
+        manager = multiprocessing.Manager()
+        shared_ns = manager.Namespace()
+
+        p = multiprocessing.Process(target=background_process,
+                                    args=(shared_ns,))
+        p.start()
+
+        self.dismiss_popup()
+        content = CrunchData()
+        self.show_popup(title="Generating output...", content=content,
+                        size=(230, 200))
+
+        check_func = partial(check_process, p)
+        Clock.schedule_interval(check_func, .1)
 
 if __name__ == '__main__':
     TriFusionApp().run()
