@@ -5543,7 +5543,7 @@ class TriFusionApp(App):
         """
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
-        aln_obj = self.update_active_fileset(deepcopy(self.alignment_list))
+        aln_obj = self.update_active_fileset(self.alignment_list)\
 
         # Get main operation
         try:
@@ -6120,23 +6120,22 @@ class TriFusionApp(App):
         update_active_taxaset, but it updates the set of files. It should be
         used before the said method.
         :param aln_obj: The alignment object being used during execution of
-        Process operatios
+        Process operations
         """
 
         # Determine the selected active taxa set from the dropdown menu
         file_set_name = self.process_grid_wgt.ids.active_file_set.text
 
         if file_set_name == "All files":
+            aln_obj.update_active_alignments([basename(x) for x in
+                                              self.file_list])
             return aln_obj
 
         if file_set_name == "Active files":
-            return self.active_alignment_list
+            return aln_obj
 
         else:
-            file_set = [self.filename_map[x] for x in
-                        self.file_groups[file_set_name]]
-            file_set = set(self.file_list) - set(file_set)
-            aln_obj.remove_file(file_set)
+            aln_obj.update_active_alignments(self.file_groups[file_set_name])
             return aln_obj
 
     def update_active_taxaset(self, aln_obj):
