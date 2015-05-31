@@ -2474,7 +2474,7 @@ class TriFusionApp(App):
         except IndexError:
             return
 
-    def load(self, selection, bad_aln):
+    def load(self, selection, bad_aln, non_aln):
         """
         Loads selected input files into the program. This should be switched
         after selecting files in a FileChooser widget. The selected files
@@ -2501,23 +2501,22 @@ class TriFusionApp(App):
 
         else:
             # Checking if there are invalid input alignments
-            if bad_aln:
-                if len(bad_aln) == 1:
-                    self.dialog_warning("Invalid input file detected",
-                                        "The following input file is invalid:"
-                                        "\n\n[b]%s[/b]" %
-                                        basename(bad_aln[0].name))
-                else:
-                    self.dialog_warning("Invalid input files detected",
-                                        "The following input files are invalid:"
-                                        "\n\n[b]%s[/b]" %
-                                        "\n".join(basename(x) for x
-                                                  in bad_aln))
+            if bad_aln or non_aln:
+                msg = ""
+                if bad_aln:
+                    msg += "The following input file(s) could not be open:\n\n"\
+                          "[b]%s[/b]\n\n" % \
+                           "\n".join(basename(x) for x in bad_aln)
+                if non_aln:
+                    msg += "The following input file(s) contain(s) sequences " \
+                           "of unequal length:\n\n[b]%s[/b]" % \
+                           "\n".join(basename(x) for x in non_aln)
+
+                self.dialog_warning("Invalid input file(s) detected", msg)
 
             # removes bad alignment files from selection list
-            selection = [path for path in selection if
-                         basename(path).split(".")[0] not in
-                         [x.name for x in bad_aln]]
+            selection = [path for path in selection if path not in
+                         [x for x in bad_aln + non_aln]]
 
             # If data has been previously loaded, updated these attributes
             if self.file_list:
@@ -2550,8 +2549,9 @@ class TriFusionApp(App):
                 self.original_tx_inf = self.get_taxa_information()
 
                 # Issue float check
-                self.dialog_floatcheck("%s file(s) successfully loaded" %
-                                       len(selection), t="info")
+                if selection:
+                    self.dialog_floatcheck("%s file(s) successfully loaded" %
+                                           len(selection), t="info")
 
     def load_proteomes(self, selection):
         """
@@ -5692,7 +5692,8 @@ class TriFusionApp(App):
         content.ids.warning_l.text = "[b][color=#ff5555ff][size=18]%s[/size]" \
                                      "[/color][/b]\n\n%s" % (msg1, msg2)
 
-        self._subpopup = CustomPopup(title="Error!", content=content,
+        self._subpopup = CustomPopup(title="[b][color=#ff5555ff]Error![/color]"
+                        "[/b]", content=content,
                         separator_color=[255 / 255., 85 / 255., 85 / 255., 1.],
                         size_hint=(None, None), size=(550, 300))
 
@@ -5956,7 +5957,7 @@ class TriFusionApp(App):
         # Updating active alignment list
         self.active_taxa_list = self.alignment_list.taxa_names
 
-        self.load(selection, aln_list.bad_alignments)
+        self.load(selection, aln_list.bad_alignments, aln_list.non_alignments)
 
     def get_taxa_information(self, alt_list=None):
         """
