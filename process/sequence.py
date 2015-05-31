@@ -51,6 +51,10 @@ class AlignmentException(Exception):
     pass
 
 
+class AlignmentUnequalLength(Exception):
+    pass
+
+
 class Alignment (Base):
 
     def __init__(self, input_alignment, input_format=None, alignment_name=None,
@@ -323,6 +327,9 @@ class Alignment (Base):
         if size_check is True:
             self.is_alignment = self.check_sizes(self.alignment,
                                                  input_alignment)
+            if not self.is_alignment:
+                self.alignment = AlignmentUnequalLength()
+                return
 
         # Checks for duplicate taxa
         if len(list(self.alignment)) != len(set(list(self.alignment))):
@@ -993,6 +1000,11 @@ class AlignmentList (Base):
         self.duplicate_alignments = []
 
         """
+        Attribute list that stores sequence sets of unequal lenght
+        """
+        self.non_alignments = []
+
+        """
         List with the name of the taxa included in the AlignmentList object
         """
         self.taxa_names = []
@@ -1017,10 +1029,13 @@ class AlignmentList (Base):
 
                 alignment_object = Alignment(alignment)
                 # Check for badly formatted alignments
-                if isinstance(alignment_object.alignment, Exception):
-                    self.bad_alignments.append(alignment_object.name)
+                if isinstance(alignment_object.alignment, InputError):
+                    self.bad_alignments.append(alignment_object.path)
+                elif isinstance(alignment_object.alignment,
+                                AlignmentUnequalLength):
+                    self.non_alignments.append(alignment_object.path)
                 # Check for duplicate alignments
-                if alignment_object.path in [x.path for x in
+                elif alignment_object.path in [x.path for x in
                                              self.alignments.values()]:
                     self.duplicate_alignments.append(alignment_object.name)
                 else:
