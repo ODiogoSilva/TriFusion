@@ -33,7 +33,7 @@ from process.data import Partitions
 from collections import OrderedDict
 import re
 from os import sep
-from os.path import join, basename
+from os.path import join, basename, splitext
 
 ## TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -122,12 +122,14 @@ class Alignment (Base):
             """
             Sets the alignment object name based on the input alignment file
             name. The name attribute will remove the extension and a preceding
-            path, if it exists. The name_wext attribute will retain the
+            path, if it exists. The name attribute will retain the
             extension
             """
             self.path = input_alignment
-            self.name = basename(input_alignment).split(".")[0]
-            self.name_wext = basename(input_alignment)
+            # Short name - No extension
+            self.sname = basename(splitext(input_alignment)[0])
+            # Full name - with extension
+            self.name = basename(input_alignment)
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -253,7 +255,7 @@ class Alignment (Base):
                     ## TO DO: Read phylip interleave
 
             # Updating partitions object
-            self.partitions.add_partition(self.name_wext, self.locus_length)
+            self.partitions.add_partition(self.name, self.locus_length)
 
         #=======================================================================
         # PARSING FASTA FORMAT
@@ -271,7 +273,7 @@ class Alignment (Base):
             self.partitions.set_length(self.locus_length)
 
             # Updating partitions object
-            self.partitions.add_partition(self.name_wext, self.locus_length)
+            self.partitions.add_partition(self.name, self.locus_length)
 
         #=======================================================================
         # PARSING NEXUS FORMAT
@@ -303,7 +305,7 @@ class Alignment (Base):
                 # section will parse the partitions
                 elif line.strip().startswith("charset"):
                     self.partitions.read_from_nexus_string(line,
-                                                    file_name=self.name_wext)
+                                                    file_name=self.name)
 
                 # If substitution models are specified using the lset or prset
                 # commands, this will parse the model parameters
@@ -314,7 +316,7 @@ class Alignment (Base):
             # If no partitions have been added during the parsing of the nexus
             # file, set a single partition
             if self.partitions.partitions == OrderedDict():
-                self.partitions.add_partition(self.name_wext,
+                self.partitions.add_partition(self.name,
                                                      self.locus_length)
 
         # Checks the size consistency of the alignment
@@ -1122,14 +1124,14 @@ class AlignmentList (Base):
         if not alignment_obj.partitions.is_single():
             for k, v in alignment_obj.partitions:
                 self.partitions.add_partition(k, locus_range=v[0], codon=v[1],
-                            use_counter=True, file_name=alignment_obj.name_wext,
+                            use_counter=True, file_name=alignment_obj.name,
                             model_cls=alignment_obj.partitions.models[k])
         else:
-            self.partitions.add_partition(alignment_obj.name_wext,
+            self.partitions.add_partition(alignment_obj.name,
                                 use_counter=True,
                                 length=alignment_obj.locus_length,
                                 model_cls=alignment_obj.partitions.models[
-                                    alignment_obj.name_wext])
+                                    alignment_obj.name])
 
     def add_alignments(self, alignment_obj_list):
         """
