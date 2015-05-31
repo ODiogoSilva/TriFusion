@@ -3272,8 +3272,15 @@ class TriFusionApp(App):
         rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20, pos[1] + size[1] - 20])
 
         # Set partition object and partition name
+
+        # Since partition names can be changed and I can only get the partition
+        # name from he edition button id (which does not change), this iteration
+        # over all three partition buttons for each partition will retrieve
+        # the correct partition name
+        part_name = [bt.text for ebt, ibt, bt in
+                      zip(*[iter(self.root.ids.partition_sl.children)] * 3)
+                     if ebt.id == btx.id][0]
         part_obj = self.alignment_list.partitions
-        part_name = btx.id[:-1]
         content.ids.partition_name.text = part_name
         content.original_name = part_name
 
