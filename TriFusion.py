@@ -2740,7 +2740,7 @@ class TriFusionApp(App):
                                                "bt_process.png"))
 
         # Setting horizontal text size for shortening
-        bt.text_size[0] = bt.size[0] * 1.3
+        bt.text_size[0] = bt.size[0] * 2
         # Binding functionality to toggle button
         bt.bind(on_release=self.toggle_selection)
 
@@ -3089,7 +3089,7 @@ class TriFusionApp(App):
         bt.bind(on_release=lambda x: self.partition_bt_state())
 
         # Setting horizontal text size for shortening
-        bt.text_size[0] = bt.size[0] * 1.3
+        bt.text_size[0] = bt.size[0] * 2
 
         # Create file counter button. This button will display the number
         # of alignments included in this partition as its text. The
