@@ -786,6 +786,9 @@ class TriFusionApp(App):
                                     ("zorro", False),
                                     ("collapse_file", False),
                                     ("filter_file", False),
+                                    ("taxa_filter", False),
+                                    ("alignment_filter", False),
+                                    ("gap_filter", False),
                                     ("gcoder_file", False)])
 
     # Attributes for the Orthology screen widgets
@@ -5214,10 +5217,12 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-    def save_filter(self, gap_val, mis_val):
+    def save_gapfilter(self, filter_act, gap_val, mis_val):
         """
         Stores the information of the FilterDialog
         """
+
+        self.secondary_options["gap_filter"] = filter_act
 
         self.filter_settings = [gap_val,
                                 mis_val]
@@ -5551,8 +5556,10 @@ class TriFusionApp(App):
             content.ids.gap_sli.value = self.filter_settings[0]
             content.ids.mis_sli.value = self.filter_settings[1]
 
+        content.ids.gap_filter.active = self.secondary_options["gap_filter"]
+
         self.show_popup(title="Set filter thresholds", content=content,
-                        size=(400, 300))
+                        size=(400, 350))
 
     @staticmethod
     def check_filters(value):
@@ -5835,8 +5842,9 @@ class TriFusionApp(App):
             Animation(opacity=1, d=.5, t="in_quad").start(self.process_options)
 
             # Update the height of the GridLayout to allow scrolling
-            self.process_grid_wgt.height = self.process_height + (50 * len(
-                self.process_options.ids.filter_grid.children))
+            self.process_grid_wgt.height = self.process_height + \
+                sum([x.height for x in
+                     self.process_options.ids.filter_grid.children]) + 55
 
             # Change text in the toggle button
             self.process_grid_wgt.ids.opt_bt.text = "Hide additional options"
