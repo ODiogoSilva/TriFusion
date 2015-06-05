@@ -782,7 +782,7 @@ class TriFusionApp(App):
                                     ("filter", False),
                                     ("gcoder", False)])
 
-    secondary_options = OrderedDict([("interleave", False),
+    secondary_options = DictProperty([("interleave", False),
                                     ("zorro", False),
                                     ("collapse_file", False),
                                     ("filter_file", False),
