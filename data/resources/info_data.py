@@ -65,7 +65,7 @@ informative_storage = {
         "determined by the  user using the [b]Haplotype prefix[/b] option, and "
         "the correspondence between haplotype names and taxa names with the "
         "same sequence will be written into an *.haplotypes file."],
-    "filter": ["[b]Filter - Help", "The [b]Filter[/b] option will "
+    "filter": ["[b]Filter - Help", "The [b]Gap/Missing data[/b] option will "
         "perform two tasks:\n\n - Replacement of the gap symbols at the "
         "beginning and end of the alignments created by the "
         "alignment software;\n\n - Removal of alignment columns containing a "
