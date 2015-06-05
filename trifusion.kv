@@ -3290,6 +3290,9 @@
     padding: 20
     spacing: 20
 
+    Switch:
+        id: gap_filter
+
     Label:
         text: "Gap threshold"
         bold: True
@@ -3309,11 +3312,13 @@
             max: 100
             step: 1
             value: 25
+            disabled: False if gap_filter.active else True
         TextInput:
             size_hint_x: .15
             id: gap_ti
             text: "{}".format(round(gap_sli.value))
             multiline: False
+            disabled: False if gap_filter.active else True
             on_text_validate: if app.check_filters(gap_ti.text): gap_sli.value = app.check_filters(gap_ti.text)[1]
 
     Label:
@@ -3335,11 +3340,13 @@
             max: 100
             step: 1
             value: 50
+            disabled: False if gap_filter.active else True
         TextInput:
             size_hint_x: .15
             id: mis_ti
             text: "{}".format(round(mis_sli.value))
             multiline: False
+            disabled: False if gap_filter.active else True
             on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
 
     BoxLayout:
@@ -3353,7 +3360,7 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             bold: True
-            on_release: app.save_filter(gap_sli.value, mis_sli.value)
+            on_release: app.save_gapfilter(gap_filter.active, gap_sli.value, mis_sli.value)
         Button:
             id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
@@ -3742,26 +3749,17 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .77
+                    size_hint_x: .8
                     markup: True
                     text: "[size=15][b]Sequence filter options[/b][/size]"
                     halign: "left"
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
-                InfoBt:
-                    width: 20
-                    height: 20
-                    background_normal: "data/backgrounds/more_info_20px.png"
-                    background_down: "data/backgrounds/more_info_down_20px.png"
-                    on_release:
-                        app.dialog_general_info("filter")
                 Switch:
                     id: filter
                     size_hint_x: .2
                     on_active:
-                        if self.active == True: root.ids.cv_filterbt.disabled = False; root.ids.filter_file.disabled = False
-                        if self.active == False: root.ids.cv_filterbt.disabled = True; root.ids.filter_file.disabled = True
                         app.update_process_switch("filter", self.active)
 
             DarkBox:
@@ -3776,7 +3774,7 @@
                 CheckBox:
                     id: filter_file
                     size_hint_x: .2
-                    disabled: True
+                    disabled: False if filter.active else True
                     on_active:
                         app.update_process_switch("filter_file", self.active)
 
@@ -3787,14 +3785,57 @@
                     size_hint_x: .8
                     markup: True
                     id: test2
-                    text: "[size=18][b]Gap/Missing data filter[/b][/size]\n[size=13] Set filters to remove alignment columns with excessive gap and/or missing data [/size]"
+                    text: "[size=18][b]Taxa filter[/b][/size]\n[size=13] Set advanced filters to excluded/included taxa [/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
                 ProcessBt:
-                    id: cv_filterbt
-                    disabled: True
+                    id: taxa_filter
+                    disabled: False if filter.active else True
                     text: "Set filters"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    size_hint_x: .8
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Alignment filter[/b][/size]\n[size=13] Set advanced filters to excluded/included alignment columns [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                ProcessBt:
+                    id: taxa_filter
+                    disabled: False if filter.active else True
+                    text: "Set filters"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    size_hint_x: .74
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Gap/Missing data filter[/b][/size]\n[size=13] Set filters to remove alignment columns with excessive gap and/or missing data [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("filter")
+                ProcessBt:
+                    id: cv_filterbt
+                    disabled: False if filter.active else True
+                    text: "Set filters"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release: app.dialog_filter()
 
     TabbedPanelItem:
