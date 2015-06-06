@@ -647,6 +647,10 @@ class FormatDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class AlignmentFilterDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class FilterDialog(BoxLayout):
     """
     Class controlling the layout of the gap/missing filtering options in the
@@ -5545,6 +5549,17 @@ class TriFusionApp(App):
 
         self.show_popup(title=title, content=content)
 
+    def dialog_alignmentfilter(self):
+        """
+        Generates dialog for alignment filter in the additional options of the
+        process screen
+        """
+
+        content = AlignmentFilterDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Advanced alignment filter", content=content,
+                        size=(330, 280))
+
     def dialog_filter(self):
         """
         Generates the settings popup for filtering options
@@ -5559,7 +5574,7 @@ class TriFusionApp(App):
         content.ids.gap_filter.active = self.secondary_options["gap_filter"]
 
         self.show_popup(title="Set filter thresholds", content=content,
-                        size=(400, 350))
+                        size=(400, 460))
 
     @staticmethod
     def check_filters(value):
