@@ -3285,69 +3285,217 @@
 # PROCESS FILTER ADDITIONAL OPTIONS
 #===============================================================================
 
-<FilterDialog>:
+<AlignmentFilterDialog>:
     orientation: "vertical"
     padding: 20
     spacing: 20
 
     Switch:
+        id: aln_filter
+
+    Label:
+        size_hint_y: None
+        height: 20
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        bold: True
+        text: "Include codon positions (DNA only):"
+        color: (0.216, 0.67, 0.784, 1)
+
+    BoxLayout:
+        ToggleButton:
+            text: "1st"
+            bold: True
+            state: "down"
+            disabled: False if aln_filter.active else True
+        ToggleButton:
+            text: "2nd"
+            bold: True
+            state: "down"
+            disabled: False if aln_filter.active else True
+        ToggleButton:
+            text: "3rd"
+            bold: True
+            state: "down"
+            disabled: False if aln_filter.active else True
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            bold: True
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            bold: True
+            on_release:
+                root.cancel()
+
+
+<FilterDialog>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+
+    Switch:
         id: gap_filter
 
     Label:
-        text: "Gap threshold"
+        text: "Within alignmnet"
         bold: True
         halign: "left"
         valign: "middle"
         text_size: self.size
+        color: (0.216, 0.67, 0.784, 1)
+        size_hint_y: None
+        height: 20
 
     BoxLayout:
-        orientation: "horizontal"
         size_hint_y: None
-        height: 30
-        spacing: 20
-        Slider:
-            id: gap_sli
-            size_hint_x: .85
-            min: 0
-            max: 100
-            step: 1
-            value: 25
-            disabled: False if gap_filter.active else True
-        TextInput:
-            size_hint_x: .15
-            id: gap_ti
-            text: "{}".format(round(gap_sli.value))
-            multiline: False
-            disabled: False if gap_filter.active else True
-            on_text_validate: if app.check_filters(gap_ti.text): gap_sli.value = app.check_filters(gap_ti.text)[1]
+        height: 140
+        spacing: 5
+        padding: 10
+        orientation: "vertical"
+        id: intra_aln_bx
+        StackLayout:
+            canvas.after:
+                Color:
+                    rgb: (0.216, 0.67, 0.784, 1)
+                Line:
+                    width: 1
+                    cap: "round"
+                    joint: "round"
+                    rectangle: intra_aln_bx.x,intra_aln_bx.y,intra_aln_bx.width,intra_aln_bx.height
+
+        Label:
+            text: "Gap threshold"
+            bold: True
+            size_hint_y: None
+            height: 20
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 30
+            spacing: 20
+            Slider:
+                id: gap_sli
+                size_hint_x: .85
+                min: 0
+                max: 100
+                step: 1
+                value: 25
+                disabled: False if gap_filter.active else True
+            TextInput:
+                size_hint_x: .15
+                id: gap_ti
+                text: "{}".format(round(gap_sli.value))
+                multiline: False
+                disabled: False if gap_filter.active else True
+                on_text_validate: if app.check_filters(gap_ti.text): gap_sli.value = app.check_filters(gap_ti.text)[1]
+
+        Label:
+            text: "Missing data threshold"
+            bold: True
+            size_hint_y: None
+            height: 20
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 30
+            spacing: 20
+            Slider:
+                id: mis_sli
+                size_hint_x: .85
+                min: 0
+                max: 100
+                step: 1
+                value: 50
+                disabled: False if gap_filter.active else True
+            TextInput:
+                size_hint_x: .15
+                id: mis_ti
+                text: "{}".format(round(mis_sli.value))
+                multiline: False
+                disabled: False if gap_filter.active else True
+                on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
 
     Label:
-        text: "Missing data threshold"
+        text: "Bettween alignmnets"
         bold: True
         halign: "left"
         valign: "middle"
         text_size: self.size
+        color: (0.216, 0.67, 0.784, 1)
+        size_hint_y: None
+        height: 20
 
     BoxLayout:
-        orientation: "horizontal"
         size_hint_y: None
-        height: 30
-        spacing: 20
-        Slider:
-            id: mis_sli
-            size_hint_x: .85
-            min: 0
-            max: 100
-            step: 1
-            value: 50
-            disabled: False if gap_filter.active else True
-        TextInput:
-            size_hint_x: .15
-            id: mis_ti
-            text: "{}".format(round(mis_sli.value))
-            multiline: False
-            disabled: False if gap_filter.active else True
-            on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
+        height: 80
+        spacing: 5
+        padding: 10
+        orientation: "vertical"
+        id: intra_aln_bx
+        StackLayout:
+            canvas.after:
+                Color:
+                    rgb: (0.216, 0.67, 0.784, 1)
+                Line:
+                    width: 1
+                    cap: "round"
+                    joint: "round"
+                    rectangle: intra_aln_bx.x,intra_aln_bx.y,intra_aln_bx.width,intra_aln_bx.height
+
+        Label:
+            text: "Maximum taxa representation"
+            bold: True
+            size_hint_y: None
+            height: 20
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 30
+            spacing: 20
+            Slider:
+                id: mis_sli
+                size_hint_x: .85
+                min: 0
+                max: 100
+                step: 1
+                value: 50
+                disabled: False if gap_filter.active else True
+            TextInput:
+                size_hint_x: .15
+                id: mis_ti
+                text: "{}".format(round(mis_sli.value))
+                multiline: False
+                disabled: False if gap_filter.active else True
+                on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
+
 
     BoxLayout:
         orientation: "horizontal"
@@ -3813,6 +3961,8 @@
                     text: "Set filters"
                     background_normal: "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    on_release:
+                        app.dialog_alignmentfilter()
 
             Hseparator
 
