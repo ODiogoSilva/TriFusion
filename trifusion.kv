@@ -3405,6 +3405,7 @@
 
     Switch:
         id: aln_filter
+        active: True if app.secondary_options["alignment_filter"] else False
 
     Label:
         size_hint_y: None
@@ -3418,19 +3419,22 @@
 
     BoxLayout:
         ToggleButton:
+            id: fbt
             text: "1st"
             bold: True
-            state: "down"
+            state: "down" if app.alignment_filter_settings[0] else "normal"
             disabled: False if aln_filter.active else True
         ToggleButton:
+            id: sbt
             text: "2nd"
             bold: True
-            state: "down"
+            state: "down" if app.alignment_filter_settings[1] else "normal"
             disabled: False if aln_filter.active else True
         ToggleButton:
+            id: tbt
             text: "3rd"
             bold: True
-            state: "down"
+            state: "down" if app.alignment_filter_settings[2] else "normal"
             disabled: False if aln_filter.active else True
 
     BoxLayout:
@@ -3444,6 +3448,8 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             bold: True
+            on_release:
+                app.save_alignmentfilter(aln_filter.active, [True if fbt.state == "down" else False, True if sbt.state == "down" else False, True if tbt.state == "down" else False])
         Button:
             id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
@@ -4073,8 +4079,8 @@
                 ProcessBt:
                     id: taxa_filter
                     disabled: False if filter.active else True
-                    text: "Set filters"
-                    background_normal: "data/backgrounds/bt_process_off.png"
+                    text: "Filters ON" if app.secondary_options["alignment_filter"] else "Set filters"
+                    background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["alignment_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release:
                         app.dialog_alignmentfilter()
