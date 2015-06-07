@@ -950,9 +950,10 @@ class TriFusionApp(App):
     use_nexus_partitions = BooleanProperty(True)
 
     # Attribute storing the missing data filter settings. The list should
-    # contain gap threshold as first element and missing data threshold as
-    # second element.
-    missing_filter_settings = ListProperty([25, 50])
+    # contain gap threshold as first element, missing data threshold as
+    # second element and minimum taxa representation proportion as the third
+    # element
+    missing_filter_settings = ListProperty([25, 50, 30])
     # Attribute storing the taxa filter settings. The first element of the list
     # should be the filter mode (either "Contain" or "Exclude") and the second
     # element should be a string with the name of the taxa group (from the
@@ -5286,16 +5287,21 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-    def save_gapfilter(self, filter_act, gap_val, mis_val):
+    def save_gapfilter(self, filter_act, gap_val, mis_val, min_tx_val):
         """
         Stores the information of the FilterDialog
+        :param filter_act: Boolean, whether the filter is active (True) or not
+        (False)
+        :param gap_val: integer, proportion of gap threshold
+        :param mis_val: integer, proportion of missing data threshold
+        :param min_tx_val: integer, proportion of minimum taxa representation
         """
 
         self.secondary_options["gap_filter"] = filter_act
 
         # Save only when the filter is set to active
         if filter_act:
-            self.missing_filter_settings = [gap_val, mis_val]
+            self.missing_filter_settings = [gap_val, mis_val, min_tx_val]
 
         self.dismiss_popup()
 
@@ -5664,6 +5670,7 @@ class TriFusionApp(App):
         if self.missing_filter_settings:
             content.ids.gap_sli.value = self.missing_filter_settings[0]
             content.ids.mis_sli.value = self.missing_filter_settings[1]
+            content.ids.min_taxa.value = self.missing_filter_settings[2]
 
         content.ids.gap_filter.active = self.secondary_options["gap_filter"]
 

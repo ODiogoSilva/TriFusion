@@ -3579,7 +3579,7 @@
                     rectangle: intra_aln_bx.x,intra_aln_bx.y,intra_aln_bx.width,intra_aln_bx.height
 
         Label:
-            text: "Maximum taxa representation"
+            text: "Minimum taxa representation"
             bold: True
             size_hint_y: None
             height: 20
@@ -3594,7 +3594,7 @@
             height: 30
             spacing: 20
             Slider:
-                id: mis_sli
+                id: min_taxa
                 size_hint_x: .85
                 min: 0
                 max: 100
@@ -3603,11 +3603,11 @@
                 disabled: False if gap_filter.active else True
             TextInput:
                 size_hint_x: .15
-                id: mis_ti
-                text: "{}".format(round(mis_sli.value))
+                id: min_tx_ti
+                text: "{}".format(round(min_taxa.value))
                 multiline: False
                 disabled: False if gap_filter.active else True
-                on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
+                on_text_validate: if app.check_filters(self.text): min_taxa.value = app.check_filters(self.text)[1]
 
 
     BoxLayout:
@@ -3621,7 +3621,7 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             bold: True
-            on_release: app.save_gapfilter(gap_filter.active, gap_sli.value, mis_sli.value)
+            on_release: app.save_gapfilter(gap_filter.active, gap_sli.value, mis_sli.value, min_taxa.value)
         Button:
             id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
