@@ -1003,7 +1003,7 @@ class TriFusionApp(App):
         self.go_screen(0)
 
         # Set method for closing side panel when touching outside
-        Window.bind(on_touch_up=self.sidepanel_on_touch)
+        Window.bind(on_touch_up=lambda x, y: self.sidepanel_on_touch())
 
         # Listen to keybindings
         Window.bind(on_key_down=self._on_keyboard_events)
@@ -2216,7 +2216,7 @@ class TriFusionApp(App):
         # Update self.bm_file
         pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
-    ######################## PLOT SCREEN OPERATIONS ############################
+    # ####################### PLOT SCREEN OPERATIONS ###########################
 
     def dialog_export_graphic(self):
         """
@@ -2272,7 +2272,7 @@ class TriFusionApp(App):
 
     # ####################### SIDE PANEL OPERATIONS ############################
 
-    def sidepanel_on_touch(self, *args):
+    def sidepanel_on_touch(self):
         """
         This function is binded to the app Window so that it can handle any
         touch_up events. Once the side panel is open, this allows any mouse
