@@ -550,7 +550,9 @@ class PathText(AutoCompTextInput):
     Dialog for the TextInput for the main file chooser that controls the path
      and inherits from the custom AutoCompTextInput for auto completion
     """
-    pass
+
+    def __init__(self, **kwargs):
+        super(PathText, self).__init__(**kwargs)
 
 
 class ExecutionDialog(BoxLayout):
@@ -1850,7 +1852,7 @@ class TriFusionApp(App):
             self._popup.content.ids.sd_filechooser.path = dir_name
             self.dismiss_subpopup()
 
-    ########################## SCREEN NAVIGATION ###############################
+    # ######################### SCREEN NAVIGATION ##############################
 
     def go_screen(self, idx, direct="left"):
         """
