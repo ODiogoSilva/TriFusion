@@ -3989,8 +3989,10 @@ class TriFusionApp(App):
             grid_layout = self.root.ids.taxa_group_grid
             # Set dropdown widget
             dd_wgt = self.process_grid_wgt.ids.taxa_dropdown
-            # Set the current dataset group as default for taxa filter
-            self.taxa_filter_settings = ["Contain", name]
+            # Set the current dataset group as default for taxa filter if
+            # it has not been defined
+            if not self.taxa_filter_settings:
+                self.taxa_filter_settings = ["Contain", name]
         elif ds_type == "files":
             # Make core changes by populating self.file_groups dictionary
             self.file_groups[name] = []
