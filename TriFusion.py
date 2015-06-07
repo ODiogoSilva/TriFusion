@@ -949,9 +949,15 @@ class TriFusionApp(App):
     # be used in the output file
     use_nexus_partitions = BooleanProperty(True)
 
-    # Attribute storing the filter settings. The list should contain gap
-    # threshold as first element and missing data threshold as second element
-    filter_settings = ListProperty([25, 50])
+    # Attribute storing the missing data filter settings. The list should
+    # contain gap threshold as first element and missing data threshold as
+    # second element.
+    missing_filter_settings = ListProperty([25, 50])
+    # Attribute storing the taxa filter settings. The first element of the list
+    # should be the filter mode (either "Contain" or "Exclude") and the second
+    # element should be a string with the name of the taxa group (from the
+    # taxa_group attribute)
+    taxa_filter_settings = ListProperty()
 
     # Partitions file
     partitions_file = StringProperty("")
@@ -3739,15 +3745,20 @@ class TriFusionApp(App):
             self.update_sp_label()
             self.update_file_label()
 
-    def dialog_taxagroup(self, ds_type):
+    def dialog_taxagroup(self, ds_type, popup_level=1):
         """
         Creates the layout for the taxa group creation popup.
         :param ds_type: string. Data set type. It may be either "taxa" or
         "files"
+        :param popup_level: integer, The level of the dialog popup. Can be
+        either 1 (creates _popup instance) or 2 (creates _subpopup instance)
         """
 
         # Initializing instance for taxa group dialog
-        content = TaxaGroupDialog(cancel=self.dismiss_popup)
+        if popup_level == 1:
+            content = TaxaGroupDialog(cancel=self.dismiss_popup)
+        else:
+            content = TaxaGroupDialog(cancel=self.dismiss_subpopup)
 
         if ds_type == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
@@ -3766,8 +3777,12 @@ class TriFusionApp(App):
         content.ds_type = ds_type
 
         # Show dialog
-        self.show_popup(title=title, content=content,
-                        size=(700, 500))
+        if popup_level == 1:
+            self.show_popup(title=title, content=content, size=(700, 500))
+        else:
+            self._subpopup = Popup(title=title, content=content,
+                           size=(700, 500), size_hint=(None, None))
+            self._subpopup.open()
 
     def add_dataset_bt(self, bt, wgt, ds_type):
         """
@@ -3939,6 +3954,8 @@ class TriFusionApp(App):
             grid_layout = self.root.ids.taxa_group_grid
             # Set dropdown widget
             dd_wgt = self.process_grid_wgt.ids.taxa_dropdown
+            # Set the current dataset group as default for taxa filter
+            self.taxa_filter_settings = ["Contain", name]
         elif ds_type == "files":
             # Make core changes by populating self.file_groups dictionary
             self.file_groups[name] = []
@@ -4166,7 +4183,7 @@ class TriFusionApp(App):
         self.output_formats = ["fasta"]
 
         # Clear filters, haplotype name and zorro suffix
-        self.filter_settings = [25, 50]
+        self.missing_filter_settings = [25, 50]
         self.hap_prefix = "Hap"
         self.zorro_suffix = ""
 
@@ -5239,8 +5256,26 @@ class TriFusionApp(App):
 
         self.secondary_options["gap_filter"] = filter_act
 
-        self.filter_settings = [gap_val,
-                                mis_val]
+        # Save only when the filter is set to active
+        if filter_act:
+            self.missing_filter_settings = [gap_val, mis_val]
+
+        self.dismiss_popup()
+
+    def save_taxafilter(self, filter_act, filter_mode, taxa_group):
+        """
+        Stores the information of the taxa filter dialog of the process screen
+        :param filter_mode: string, determines the taxa filtering mode. Can be
+        either 'Contain' or 'Exclude'
+        :param taxa_group: string, with the name of the taxa group that should
+        be present in the taxa_group attribute
+        """
+
+        self.secondary_options["taxa_filter"] = filter_act
+
+        # Save only when the filter is set to active
+        if filter_act:
+            self.taxa_filter_settings = [filter_mode, taxa_group]
 
         self.dismiss_popup()
 
@@ -5589,9 +5624,9 @@ class TriFusionApp(App):
 
         content = FilterDialog(cancel=self.dismiss_popup)
         # Update filter values if they were changed
-        if self.filter_settings:
-            content.ids.gap_sli.value = self.filter_settings[0]
-            content.ids.mis_sli.value = self.filter_settings[1]
+        if self.missing_filter_settings:
+            content.ids.gap_sli.value = self.missing_filter_settings[0]
+            content.ids.mis_sli.value = self.missing_filter_settings[1]
 
         content.ids.gap_filter.active = self.secondary_options["gap_filter"]
 
@@ -6566,11 +6601,11 @@ class TriFusionApp(App):
                 if self.secondary_options["filter_file"]:
                     filtered_aln_obj = deepcopy(aln_object)
                     filtered_aln_obj.filter_missing_data(
-                        self.filter_settings[0], self.filter_settings[1])
+                        self.missing_filter_settings[0], self.missing_filter_settings[1])
                     write_aln[self.output_file + "_filtered"] = filtered_aln_obj
                 else:
-                    aln_object.filter_missing_data(self.filter_settings[0],
-                                                   self.filter_settings[1])
+                    aln_object.filter_missing_data(self.missing_filter_settings[0],
+                                                   self.missing_filter_settings[1])
 
             # Gcoder
             if self.secondary_operations["gcoder"]:

@@ -3294,6 +3294,8 @@
         id: taxa_filter
         size_hint_y: None
         height: 30
+        disabled: False if app.file_list else True
+        active: True if app.secondary_options["taxa_filter"] else False
 
     Label:
         text: "Filter mode"
@@ -3306,12 +3308,13 @@
         height: 20
 
     Spinner:
+        id: filter_mode
         size_hint_y: None
         height: 40
-        text: "Containing"
+        text: app.taxa_filter_settings[0] if app.taxa_filter_settings else "Containing"
         disabled: False if taxa_filter.active else True
         bold: True
-        values: ("Containing", "Exactly", "Excluding")
+        values: ("Contain", "Exclude")
 
     BoxLayout:
         orientation: "vertical"
@@ -3344,12 +3347,13 @@
             size_hint_y: None
             height: 40
             ProcessBt:
-                text: "No group selected"
+                id: taxa_group_name
+                text: app.taxa_filter_settings[1] if app.taxa_filter_settings else "No group selected"
                 size_hint_x: None
                 width: 200
                 disabled: False if taxa_filter.active else True
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
+                background_normal: "data/backgrounds/bt_process.png" if app.taxa_filter_settings else "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process_off.png" if app.taxa_filter_settings else "data/backgrounds/bt_process.png"
 
         BoxLayout:
             size_hint_y: None
@@ -3360,6 +3364,8 @@
                 size_hint: .5, None
                 height: 30
                 disabled: False if taxa_filter.active else True
+                on_release:
+                    app.dialog_taxagroup("taxa", 2)
 
             ProcessBt:
                 text: "Use taxa group"
@@ -3378,6 +3384,8 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             bold: True
+            on_release:
+                app.save_taxafilter(taxa_filter.active, filter_mode.text, taxa_group_name.text)
         Button:
             id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
