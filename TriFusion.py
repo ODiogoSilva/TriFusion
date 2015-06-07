@@ -4788,9 +4788,9 @@ class TriFusionApp(App):
         else:
             self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
-                                (str(self.active_group.all_compliant),
-                                str(len(self.active_group.species_frequency) -
-                                len(self.active_group.filtered_groups)))
+                            (str(self.active_group.all_compliant),
+                             str(len(self.active_group.species_frequency) -
+                             len(self.active_group.filtered_groups)))
             self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
                             (len(self.active_group.species_list),
@@ -5022,7 +5022,8 @@ class TriFusionApp(App):
             except:
                 pass
 
-        if group_name and not isinstance(group_name, OrthoTool.MultiGroupsLight):
+        if group_name and not isinstance(group_name,
+                                         OrthoTool.MultiGroupsLight):
             pass
 
         elif not [x for x in self.screen.ids.group_gl.children
@@ -5646,7 +5647,7 @@ class TriFusionApp(App):
         if secondary_op:
             content.ids.sec_op.text = "[b][size=18][color=37abc8ff]Secondary " \
                                    "operation(s):[/color][/size][/b] %s" %\
-                                  ", ".join(secondary_op)
+                                   ", ".join(secondary_op)
         else:
             content.ids.sec_op.text = "[b][size=18][color=37abc8ff]Secondary " \
                                       "operation(s):[/color][/size][/b] None"
@@ -5807,7 +5808,7 @@ class TriFusionApp(App):
         self.main_operations = {k: True if k == op else False for k in
                                 self.main_operations}
 
-       # Disables output file button and other conversion/concatenation
+        # Disables output file button and other conversion/concatenation
         # specific buttons
         if op == "conversion":
             if self.output_dir == "":
@@ -5895,11 +5896,11 @@ class TriFusionApp(App):
             # Change text in the toggle button
             self.process_grid_wgt.ids.opt_bt.text = "Show additional options"
 
-    ###################################
+    # ##################################
     #
     # CORE RELATED METHODS AND FUNCTIONS
     #
-    ###################################
+    # ##################################
 
     def load_files_subproc(self, files):
 
@@ -5940,8 +5941,8 @@ class TriFusionApp(App):
                 except:
                     pass
 
-                alns = ns.alns
-                self.load_files(file_list, alns)
+                a = ns.alns
+                self.load_files(file_list, a)
 
             if content.proc_kill:
                 d.terminate()
@@ -6162,8 +6163,8 @@ class TriFusionApp(App):
                     # if aln.model:
                     #     file_inf[file_name]["is_aln"] += " (Concatenated)"
 
-                    # Get length of largest sequence if not aligned, or alignment
-                    # length
+                    # Get length of largest sequence if not aligned, or
+                    # alignment length
                     file_inf[file_name]["aln_len"] = aln.locus_length
 
         elif mode == "proteome":
@@ -6376,8 +6377,9 @@ class TriFusionApp(App):
                 if nm.k:
                     nm.t = "Dumping groups"
                     nm.c = 9
-                    ortho_pipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix,
-                                     "1000", self.group_prefix)
+                    ortho_pipe.mcl_groups(self.mcl_inflation,
+                                          self.ortholog_prefix, "1000",
+                                          self.group_prefix)
 
                 if nm.k:
                     nm.t = "Filtering group files"
@@ -6427,7 +6429,7 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 self.dialog_search_report(ns.stats, ns.groups)
-                #self.load_groups(ns.groups, ns.groups.filters)
+                # self.load_groups(ns.groups, ns.groups.filters)
 
             # Listens for cancel signal
             if content.proc_kill:
@@ -6590,7 +6592,7 @@ class TriFusionApp(App):
             # into the concatenated alignment, and then all additional
             # operations are conducted in the same aln_obj
             write_aln[self.output_file] = aln_object
-            ns.msg = "Writting output"
+            ns.msg = "Writhing output"
             if self.main_operations["concatenation"]:
                 if self.output_file == "":
                     return self.dialog_warning("Output file not selected",
