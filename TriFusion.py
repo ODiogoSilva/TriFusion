@@ -2857,11 +2857,11 @@ class TriFusionApp(App):
 
     def sidepanel_load_more_filebts(self):
 
-        MAX_BUTTONS = self.MAX_FILE_BUTTON + self.count_files
+        max_buttons = self.MAX_FILE_BUTTON + self.count_files
 
         self.root.ids.file_sl.remove_widget(self.root.ids.file_sl.children[0])
 
-        for i in range(self.count_files, MAX_BUTTONS):
+        for i in range(self.count_files, max_buttons):
 
             self.count_files += 1
 
@@ -3256,11 +3256,11 @@ class TriFusionApp(App):
             Creates a flat iterator of tuples. If s is [[(1,2), (2,3)], (4,5)]
             this will yield ((1,2), (2,3), (4,5))
             """
-            for i in s:
-                if isinstance(i, tuple):
-                    yield i
+            for x in s:
+                if isinstance(x, tuple):
+                    yield x
                 else:
-                    for j in i:
+                    for j in x:
                         yield j
 
         partition_model = {"1,2,3": "[color=ff5555ff]1[/color] + "
@@ -3613,7 +3613,7 @@ class TriFusionApp(App):
         value.parent
         """
 
-        ####### APP CHANGES
+        # APP CHANGES
         # Get the parent layout object from where the widget will be removed
         if parent_wgt:
             parent_obj = parent_wgt
@@ -3644,7 +3644,7 @@ class TriFusionApp(App):
         # Remove widgets
         parent_obj.remove_widget(value)
 
-        ####### CORE CHANGES
+        # CORE CHANGES
         # Get the parent tab
         if parent_obj == self.root.ids.file_sl:
             # Update file list
@@ -3716,7 +3716,7 @@ class TriFusionApp(App):
                                                           self.file_list])
             # Update label
 
-        #Core changes to taxa
+        # Core changes to taxa
         if sv_parent == self.root.ids.sv_sp and value.text == "Select All":
             self.active_taxa_list = deepcopy(
                 self.alignment_list.taxa_names)
@@ -4122,7 +4122,7 @@ class TriFusionApp(App):
 
         # Output file
         clear_nodes(self.main_nodes["main_file"])
-        ## for conversion
+        # for conversion
         if self.main_operations["conversion"]:
             add_node("[Based on input] (main)", self.main_nodes["main_file"])
             if self.main_nodes["main_file"].is_open is False:
@@ -4155,7 +4155,7 @@ class TriFusionApp(App):
 
     def process_clear_options(self):
 
-        #### CORE CHANGES
+        # CORE CHANGES
         # Clear main operations
         self.main_operations = dict((op, False) for op in self.main_operations)
 
@@ -4181,7 +4181,7 @@ class TriFusionApp(App):
         self.secondary_options = dict((op, False) for op in
                                       self.secondary_options)
 
-        #### APP CHANGES
+        # APP CHANGES
         # Deselect main operation
         for bt in ["conv", "conc"]:
             self.screen.ids[bt].state = "normal"
@@ -4204,7 +4204,7 @@ class TriFusionApp(App):
         for switch in self.secondary_options:
             self.process_options.ids[switch].active = False
 
-    ############################ PLOT SCREENS ##################################
+    # ########################### PLOT SCREENS #################################
 
     def show_plot_toolbar(self):
         """
@@ -4242,7 +4242,7 @@ class TriFusionApp(App):
         except IndexError:
             pass
 
-    ########################## ORTHOLOGY SCREEN ################################
+    # ######################### ORTHOLOGY SCREEN ###############################
 
     def toggle_orto_soptions(self):
         """
@@ -4876,7 +4876,8 @@ class TriFusionApp(App):
 
     def load_group_files(self, group_files):
 
-        og = OrthoTool.MultiGroupsLight(db_path=self.temp_dir, groups=group_files)
+        og = OrthoTool.MultiGroupsLight(db_path=self.temp_dir,
+                                        groups=group_files)
 
         return [og, og.filters]
 
@@ -5110,7 +5111,7 @@ class TriFusionApp(App):
                                                 t="out_quart").start(cards),
                             .3)
 
-    ########################### POPUP OPS ######################################
+    # ########################## POPUP OPS #####################################
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
                    separator_color=[47 / 255., 167 / 255., 212 / 255., 1.],
