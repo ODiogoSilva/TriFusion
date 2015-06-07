@@ -4053,8 +4053,8 @@
                 ProcessBt:
                     id: taxa_filter
                     disabled: False if filter.active else True
-                    text: "Set filters"
-                    background_normal: "data/backgrounds/bt_process_off.png"
+                    text: "Filters ON" if app.secondary_options["taxa_filter"] else "Set filters"
+                    background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["taxa_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release:
                         app.dialog_taxafilter()
