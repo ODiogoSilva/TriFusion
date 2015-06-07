@@ -269,7 +269,7 @@ class FileChooserM(FileChooserIconView):
                     self.selection.append(entry.path)
         else:
             if _dir and not self.dirselect:
-                self.open_entry
+                self.open_entry(entry)
                 return
             self.selection = [entry.path, ]
 
@@ -459,6 +459,7 @@ class LoadMultipleDialog(BoxLayout):
 
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sd_filechooser)
 
+
 class CloseBox(BoxLayout):
     """
     This is part of the taxa information popup. It contains the closing button
@@ -621,6 +622,7 @@ class LoadDialog(BoxLayout):
 
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.ld_filechooser)
 
+
 class SaveDialog(FloatLayout):
     """
     Class controlling the layout of the save file dialog in the Process screen
@@ -709,9 +711,9 @@ class ZorroDialog(BoxLayout):
     """
     cancel = ObjectProperty(None)
 
-#===============================================================================
+# ==============================================================================
 #                                  EXCEPTIONS
-#===============================================================================
+# ==============================================================================
 
 
 class InputTypeError(Exception):
