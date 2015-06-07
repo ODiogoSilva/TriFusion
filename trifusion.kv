@@ -3285,6 +3285,109 @@
 # PROCESS FILTER ADDITIONAL OPTIONS
 #===============================================================================
 
+<TaxaFilterDialog>:
+    orientation: "vertical"
+    padding: 20
+    spacing: 10
+
+    Switch:
+        id: taxa_filter
+        size_hint_y: None
+        height: 30
+
+    Label:
+        text: "Filter mode"
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (0.216, 0.67, 0.784, 1)
+        size_hint_y: None
+        height: 20
+
+    Spinner:
+        size_hint_y: None
+        height: 40
+        text: "Containing"
+        disabled: False if taxa_filter.active else True
+        bold: True
+        values: ("Containing", "Exactly", "Excluding")
+
+    BoxLayout:
+        orientation: "vertical"
+        id: tx_bx
+        size_hint_y: None
+        height: 140
+        padding: 10
+        spacing: 15
+        StackLayout:
+            canvas.after:
+                Color:
+                    rgb: (0.216, 0.67, 0.784, 1)
+                Line:
+                    width: 1
+                    cap: "round"
+                    joint: "round"
+                    rectangle: tx_bx.x,tx_bx.y,tx_bx.width,tx_bx.height
+
+        Label:
+            text: "Taxa group"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+            size_hint_y: None
+            height: 20
+
+        AnchorLayout:
+            size_hint_y: None
+            height: 40
+            ProcessBt:
+                text: "No group selected"
+                size_hint_x: None
+                width: 200
+                disabled: False if taxa_filter.active else True
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 10
+            ProcessBt:
+                text: "Set taxa group"
+                size_hint: .5, None
+                height: 30
+                disabled: False if taxa_filter.active else True
+
+            ProcessBt:
+                text: "Use taxa group"
+                size_hint: .5, None
+                height: 30
+                disabled: False if taxa_filter.active else True
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        Button:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            bold: True
+        Button:
+            id: cancel_bt
+            background_normal: "data/backgrounds/bt_process_off.png"
+            background_down: "data/backgrounds/bt_process.png"
+            text: "Cancel"
+            bold: True
+            on_release:
+                root.cancel()
+
+
 <AlignmentFilterDialog>:
     orientation: "vertical"
     padding: 20
@@ -3439,7 +3542,7 @@
                 on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
 
     Label:
-        text: "Bettween alignmnets"
+        text: "Multiple alignmnets"
         bold: True
         halign: "left"
         valign: "middle"
@@ -3943,6 +4046,8 @@
                     text: "Set filters"
                     background_normal: "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    on_release:
+                        app.dialog_taxafilter()
 
             Hseparator
 
