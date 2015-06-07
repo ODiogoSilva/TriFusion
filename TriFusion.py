@@ -958,7 +958,15 @@ class TriFusionApp(App):
     # should be the filter mode (either "Contain" or "Exclude") and the second
     # element should be a string with the name of the taxa group (from the
     # taxa_group attribute)
-    taxa_filter_settings = ListProperty()
+    taxa_filter_settings = ListProperty([])
+    # Attribute storing the alignment filter settings. This will determine
+    # which codon positions will be written to the output (only for DNA
+    # sequences), so this will consist of a list containing 3 elements that
+    # correspond to each position. Positions will be saved or filtered depending
+    # on the boolean value of the list position. Ex. [True, True, True] will
+    # save all positions, whereas [True, True, False] will only save the first
+    # two positions
+    alignment_filter_settings = ListProperty([True, True, True])
 
     # Partitions file
     partitions_file = StringProperty("")
@@ -5319,6 +5327,23 @@ class TriFusionApp(App):
         # Save only when the filter is set to active
         if filter_act:
             self.taxa_filter_settings = [filter_mode, taxa_group]
+
+        self.dismiss_popup()
+
+    def save_alignmentfilter(self, filter_act, position_list):
+        """
+        Stores the information of the alignment filter dialog of the process
+        screen
+        :param filter_act: Boolean, whether the filter is active (True) or not
+        (False)
+        :param position_list: A list of three elements, containing which
+        positions should be saved (True) or filtered (False)
+        """
+
+        self.secondary_options["alignment_filter"] = filter_act
+
+        if filter_act:
+            self.alignment_filter_settings = position_list
 
         self.dismiss_popup()
 
