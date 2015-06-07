@@ -647,6 +647,10 @@ class FormatDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class TaxaFilterDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class AlignmentFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
@@ -5549,6 +5553,17 @@ class TriFusionApp(App):
 
         self.show_popup(title=title, content=content)
 
+    def dialog_taxafilter(self):
+        """
+        Generates dialog for taxa filter in the additional options of the
+        process screen
+        """
+
+        content = TaxaFilterDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Advanced taxa filter", content=content,
+                        size=(350, 400))
+
     def dialog_alignmentfilter(self):
         """
         Generates dialog for alignment filter in the additional options of the
@@ -5574,7 +5589,7 @@ class TriFusionApp(App):
         content.ids.gap_filter.active = self.secondary_options["gap_filter"]
 
         self.show_popup(title="Set filter thresholds", content=content,
-                        size=(400, 460))
+                        size=(400, 470))
 
     @staticmethod
     def check_filters(value):
