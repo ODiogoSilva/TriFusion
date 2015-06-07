@@ -1910,7 +1910,8 @@ class TriFusionApp(App):
             if self.available_screens[idx].split("/")[-1] == "fc.kv":
                 self.screen.ids.icon_view_tab.path = self.home_path
                 # Initialize bookmarks
-                self.bookmark_init(self.screen.ids.sv_book, self.screen.ids.icon_view_tab)
+                self.bookmark_init(self.screen.ids.sv_book,
+                                   self.screen.ids.icon_view_tab)
                 self.switch_path_wgt("label")
 
         return self.screen
@@ -1992,7 +1993,7 @@ class TriFusionApp(App):
                         size=(250, 200),
                         separator_color=[255 / 255., 85 / 255., 85 / 255., 1.])
 
-    ########################### GENERAL USE ###################################
+    # ########################## GENERAL USE ###################################
 
     def run_in_background(self, func, second_func, args1, args2=None,
                           no_arg2=False, msg="Crunching data..."):
@@ -2077,7 +2078,7 @@ class TriFusionApp(App):
         self.dismiss_popup()
         # Create waiting dialog
         content = CrunchData()
-        #Set label
+        # Set label
         content.ids.msg.text = msg
         # Create popup with waiting dialog
         self.show_popup(title="", content=content, size=(230, 180))
@@ -2087,7 +2088,7 @@ class TriFusionApp(App):
                              args2)
         Clock.schedule_interval(check_func, .5)
 
-    ####################### BOOKMARKS OPERATIONS ###############################
+    # ###################### BOOKMARKS OPERATIONS ##############################
 
     def bookmark_init(self, wgt, fc_wgt):
         """
@@ -2269,7 +2270,7 @@ class TriFusionApp(App):
 
         self.dialog_floatcheck("Table successfully exported!", t="info")
 
-    ######################## SIDE PANEL OPERATIONS #############################
+    # ####################### SIDE PANEL OPERATIONS ############################
 
     def sidepanel_on_touch(self, *args):
         """
@@ -2297,7 +2298,7 @@ class TriFusionApp(App):
 
         def animate_sidebar():
 
-            ## ANIMATIONS with hierarchy
+            # ANIMATIONS with hierarchy
             # Animation of main BoxLayout containing child ScrollViews
             self.sidepanel_animation(width=0,
                                       wgt=self.root.ids.main_box)
@@ -2374,7 +2375,7 @@ class TriFusionApp(App):
         else:
             sv_panel_width, sv_bts_width = 0, 0
 
-        ## ANIMATIONS with hierarchy
+        # ANIMATIONS with hierarchy
         # Animation of main BoxLayout containing child ScrollViews
         self.sidepanel_animation(width=sv_panel_width * 1.2,
                                   wgt=self.root.ids.main_box)
