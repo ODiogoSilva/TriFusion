@@ -3233,6 +3233,41 @@ class TriFusionApp(App):
         self.show_popup(title="Alignment files in %s" % partition_name,
                         content=content, size_hint=(.6, .8))
 
+    def dialog_select_taxa_group(self):
+        """
+        Shows a subpopup listing the taxa groups that have already been created.
+        Each taxa group will be a Button widget
+        """
+
+        content = BtList(cancel=self.dismiss_subpopup)
+
+        if self.taxa_groups:
+            for nm in self.taxa_groups:
+                bt = TFButton(text=nm)
+                bt.bind(on_release=self.select_taxa_group)
+                content.ids.rev_inlist.add_widget(bt)
+
+        else:
+            bt = TFButton(text="No groups defined", disabled=True)
+            content.ids.rev_inlist.add_widget(bt)
+
+        self._subpopup = Popup(title="Select taxa group", content=content,
+                               size_hint=(.4, .8))
+        self._subpopup.open()
+
+    def select_taxa_group(self, bt):
+        """
+        Gives functionality to the buttons in the dialog_select_taxa_group.
+        Saves the taxa group name and closes subpopup
+        """
+
+        if self.taxa_filter_settings:
+            self.taxa_filter_settings[1] = bt.text
+        else:
+            self.taxa_filter_settings = ["Contain", bt.text]
+
+        self.dismiss_subpopup()
+
     def dialog_import_partitions(self):
         """
         Creates a filechooser dialog to select a partition file and import its

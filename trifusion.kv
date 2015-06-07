@@ -3372,6 +3372,8 @@
                 size_hint: .5, None
                 height: 30
                 disabled: False if taxa_filter.active else True
+                on_release:
+                    app.dialog_select_taxa_group()
 
     BoxLayout:
         orientation: "horizontal"
