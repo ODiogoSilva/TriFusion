@@ -1009,10 +1009,10 @@ class TriFusionApp(App):
         # Execute cleaning function when exiting app
         Window.bind(on_request_close=lambda x: self._exit_clean())
 
-        #### Orthology widgets
+        # Orthology widgets
         self.ortho_search_options = OrthologySearchGrid()
 
-        #### Process widgets
+        # Process widgets
         # Creating GridLayout instance for general options of Process
         self.process_grid_wgt = ProcessGeneral()
         # Create GridLayout instance for additional options of Process.
@@ -1139,9 +1139,9 @@ class TriFusionApp(App):
         # through buttons
         arrow_block = False
 
-        #=======================================================================
+        # ======================================================================
         # Popup keybindings
-        #=======================================================================
+        # ======================================================================
 
         def popup_keys(backn, backd, bt1, bt2, bt3=None):
             """
@@ -1227,9 +1227,9 @@ class TriFusionApp(App):
                 if key_code == (13, 36):
                     self._popup.content.ids.close_bt.dispatch("on_release")
 
-        #=======================================================================
+        # ======================================================================
         # Filechooser keybindings
-        #=======================================================================
+        # ======================================================================
 
         if self.screen.name == "fc":
             # Keybinding ctrl+f that brings focus to the "Find" field in the
@@ -1276,9 +1276,9 @@ class TriFusionApp(App):
             cancel_bt = self.screen.ids.cancel_bt
             popup_keys(bn, bd, open_close_bt, open_bt, cancel_bt)
 
-        #=======================================================================
+        # ======================================================================
         # General keybindings
-        #=======================================================================
+        # ======================================================================
 
         if not [x for x in self.root_window.children
                 if isinstance(x, CustomPopup)]:
@@ -1302,9 +1302,9 @@ class TriFusionApp(App):
             if key_code == (92, 49):
                 self.root.ids.ap.dispatch("on_release")
 
-        #=======================================================================
+        # ======================================================================
         # Text input autocompletion
-        #=======================================================================
+        # ======================================================================
 
         # Use tab for auto completion when textinput is focused
         if key_code == (9, 23):
@@ -1470,9 +1470,6 @@ class TriFusionApp(App):
             :param orientation: string, whether the label will be display in
             the same horizontal or vertical plane of the widget
             :param line_c: tuple/list, color of the border line and arrow
-            :param mouse_pos: For mouse hover with timers, providing the
-            original mouse coordinates will prevent the label from being
-            shown if the mouse position changed.
             """
 
             # If the current mouse position is no longer the same when the
