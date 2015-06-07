@@ -52,8 +52,8 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.scrollview import ScrollView
 
 # Main program imports
-from ortho import orthomcl_pipeline as opipe
-from ortho import OrthomclToolbox as ot
+from ortho import orthomcl_pipeline as ortho_pipe
+from ortho import OrthomclToolbox as OrthoTool
 from ortho import protein2dna
 from process.sequence import AlignmentList
 from process.base import Base
@@ -64,7 +64,7 @@ from data.resources.db_tools import *
 # Other imports
 import os
 from os.path import dirname, join, exists, abspath, pardir, expanduser,\
-    basename, splitext
+    basename
 from os import sep
 from collections import OrderedDict
 from copy import deepcopy
@@ -4874,7 +4874,7 @@ class TriFusionApp(App):
 
     def load_group_files(self, group_files):
 
-        og = ot.MultiGroupsLight(db_path=self.temp_dir, groups=group_files)
+        og = OrthoTool.MultiGroupsLight(db_path=self.temp_dir, groups=group_files)
 
         return [og, og.filters]
 
@@ -5013,13 +5013,13 @@ class TriFusionApp(App):
         """
 
         # If no group button is active, dispatch the first
-        if group_name and isinstance(group_name, ot.MultiGroupsLight):
+        if group_name and isinstance(group_name, OrthoTool.MultiGroupsLight):
             try:
                 self.ortho_groups = group_name
             except:
                 pass
 
-        if group_name and not isinstance(group_name, ot.MultiGroupsLight):
+        if group_name and not isinstance(group_name, OrthoTool.MultiGroupsLight):
             pass
 
         elif not [x for x in self.screen.ids.group_gl.children
@@ -6320,23 +6320,23 @@ class TriFusionApp(App):
                 if nm.k:
                     nm.t = "Installing schema"
                     nm.c = 1
-                    opipe.install_schema(self.temp_dir)
+                    ortho_pipe.install_schema(self.temp_dir)
 
                 if nm.k:
                     nm.t = "Adjusting Fasta Files"
                     nm.c = 2
-                    opipe.adjust_fasta(self.proteome_files)
+                    ortho_pipe.adjust_fasta(self.proteome_files)
 
                 if nm.k:
                     nm.t = "Filtering Fasta Files"
                     nm.c = 3
-                    opipe.filter_fasta(self.protein_min_len,
+                    ortho_pipe.filter_fasta(self.protein_min_len,
                                        self.protein_max_stop)
 
                 if nm.k:
                     nm.t = "Running USearch. This may take a while..."
                     nm.c = 4
-                    opipe.allvsall_usearch("goodProteins.fasta",
+                    ortho_pipe.allvsall_usearch("goodProteins.fasta",
                                       self.usearch_evalue,
                                       self.screen.ids.usearch_threads.text,
                                       self.usearch_output)
@@ -6344,39 +6344,39 @@ class TriFusionApp(App):
                 if nm.k:
                     nm.t = "Parsing USEARCH output"
                     nm.c = 5
-                    opipe.blast_parser(self.usearch_output)
+                    ortho_pipe.blast_parser(self.usearch_output)
 
                 if nm.k:
-                    opipe.remove_duplicate_entries()
+                    ortho_pipe.remove_duplicate_entries()
 
                 if nm.k:
                     nm.t = "Loading USEARCH output to database"
                     nm.c = 6
-                    opipe.load_blast(self.temp_dir)
+                    ortho_pipe.load_blast(self.temp_dir)
 
                 if nm.k:
                     nm.t = "Obtaining Pairs"
                     nm.c = 7
-                    opipe.pairs(self.temp_dir)
+                    ortho_pipe.pairs(self.temp_dir)
 
                 if nm.k:
-                    opipe.dump_pairs(self.temp_dir)
+                    ortho_pipe.dump_pairs(self.temp_dir)
 
                 if nm.k:
                     nm.t = "Running MCL"
                     nm.c = 8
-                    opipe.mcl(self.mcl_inflation)
+                    ortho_pipe.mcl(self.mcl_inflation)
 
                 if nm.k:
                     nm.t = "Dumping groups"
                     nm.c = 9
-                    opipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix,
+                    ortho_pipe.mcl_groups(self.mcl_inflation, self.ortholog_prefix,
                                      "1000", self.group_prefix)
 
                 if nm.k:
                     nm.t = "Filtering group files"
                     nm.c = 10
-                    stats, groups_obj = opipe.export_filtered_groups(
+                    stats, groups_obj = ortho_pipe.export_filtered_groups(
                                                  self.mcl_inflation,
                                                  self.group_prefix,
                                                  self.orto_max_gene,
