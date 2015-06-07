@@ -5114,8 +5114,7 @@ class TriFusionApp(App):
     # ########################## POPUP OPS #####################################
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
-                   separator_color=[47 / 255., 167 / 255., 212 / 255., 1.],
-                   custom_background=None):
+                   separator_color=None, custom_background=None):
         """
         General purpose method to create a popup widget
         :param title: string. Title of the popup
@@ -5126,6 +5125,10 @@ class TriFusionApp(App):
         :param custom_background: string. Provide the path to a custom
         background image for the popup.
         """
+
+        # This prevents defining a mutable argument.
+        if not separator_color:
+            separator_color = [47 / 255., 167 / 255., 212 / 255., 1.]
 
         # Ignore size_hint is absolute size is provided
         if size:
