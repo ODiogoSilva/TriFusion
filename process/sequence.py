@@ -259,7 +259,8 @@ class Alignment (Base):
                     ## TO DO: Read phylip interleave
 
             # Updating partitions object
-            self.partitions.add_partition(self.name, self.locus_length)
+            self.partitions.add_partition(self.name, self.locus_length,
+                                          file_name=self.path)
 
         #=======================================================================
         # PARSING FASTA FORMAT
@@ -277,7 +278,8 @@ class Alignment (Base):
             self.partitions.set_length(self.locus_length)
 
             # Updating partitions object
-            self.partitions.add_partition(self.name, self.locus_length)
+            self.partitions.add_partition(self.name, self.locus_length,
+                                          file_name=self.path)
 
         #=======================================================================
         # PARSING NEXUS FORMAT
@@ -309,7 +311,7 @@ class Alignment (Base):
                 # section will parse the partitions
                 elif line.strip().startswith("charset"):
                     self.partitions.read_from_nexus_string(line,
-                                                    file_name=self.name)
+                                                    file_name=self.path)
 
                 # If substitution models are specified using the lset or prset
                 # commands, this will parse the model parameters
@@ -320,8 +322,8 @@ class Alignment (Base):
             # If no partitions have been added during the parsing of the nexus
             # file, set a single partition
             if self.partitions.partitions == OrderedDict():
-                self.partitions.add_partition(self.name,
-                                                     self.locus_length)
+                self.partitions.add_partition(self.name, self.locus_length,
+                                              file_name=self.path)
 
         # Checks the size consistency of the alignment
         if size_check is True:
@@ -989,11 +991,6 @@ class AlignmentList (Base):
         self.shelve_alignments = OrderedDict()
 
         """
-        Stores filtered alignments
-        """
-        self.filtered_alignments = OrderedDict()
-
-        """
         Attribute list that stores the Alignment.name attribute of badly
         formatted alignments
         """
@@ -1276,16 +1273,22 @@ class AlignmentList (Base):
         """
         Filters Alignment objects based on a minimum taxa representation
         threshold. Alignments with less that the specified minimum taxa
-        percentage will be moved to the filtered_alignments attribute
+        percentage will be moved to the filtered_alignments attribute.
+
+        NOTE: Since this filtering is meant to be performed when executing
+        the process operations it will permanently change the AlignmentList
+        object, which means both self.alignments and self.partitions. Not doing
+        so and removing/adding the partitions would create a great deal of
+        conflicts that can be easily avoided by simply copying the
+        AlignmentList object and modifying this object for the process execution
+
         :param min_taxa: integer, percentage of minimum taxa below which
         alignments are moved to the filtered_alignments attribute
         """
 
         for k, alignment_obj in self.alignments.items():
-
             if len(alignment_obj.alignment) <= \
                             (min_taxa / 100) * len(self.taxa_names):
-                self.filtered_alignments[k] = alignment_obj
                 del self.alignments[k]
 
     def filter_missing_data(self, gap_threshold, missing_threshold):
