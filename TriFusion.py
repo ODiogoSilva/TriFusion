@@ -6618,17 +6618,28 @@ class TriFusionApp(App):
             #####
 
             # Setting the alignment to use. A deepcopy of the alignment list
-            # is used because it may be possible to do changes in the taxa data
-            #  set of the AlignmentList object, which should not change the
-            # original self.alignment_list. This is because when taxa are
-            # removed from the alignment list, there is no way to return those
-            # taxa to the object
+            # is used because it may be possible to do perform permanent
+            # changes to the alignment object.
             # Update active file set of the alignment object
             aln_object = self.update_active_fileset(deepcopy(
                 self.alignment_list))
             # Update active taxa set of the alignment object
             aln_object = self.update_active_taxaset(aln_object)
             ns.proc_files = len(aln_object.alignments)
+
+            # Filtering - This should be the first operation to be performed
+            if self.secondary_operations["filter"]:
+                ns.msg = "Filtering alignment(s)"
+                if self.secondary_options["filter_file"]:
+                    filtered_aln_obj = deepcopy(aln_object)
+                    filtered_aln_obj.filter_missing_data(
+                        self.missing_filter_settings[0],
+                        self.missing_filter_settings[1])
+                    write_aln[self.output_file + "_filtered"] = filtered_aln_obj
+                else:
+                    aln_object.filter_missing_data(
+                        self.missing_filter_settings[0],
+                        self.missing_filter_settings[1])
 
             # Concatenation
             if self.main_operations["concatenation"]:
@@ -6663,18 +6674,6 @@ class TriFusionApp(App):
                         collapsed_aln_obj
                 else:
                     aln_object.collapse(haplotype_name=self.hap_prefix)
-
-            # Filtering
-            if self.secondary_operations["filter"]:
-                ns.msg = "Filtering alignment(s)"
-                if self.secondary_options["filter_file"]:
-                    filtered_aln_obj = deepcopy(aln_object)
-                    filtered_aln_obj.filter_missing_data(
-                        self.missing_filter_settings[0], self.missing_filter_settings[1])
-                    write_aln[self.output_file + "_filtered"] = filtered_aln_obj
-                else:
-                    aln_object.filter_missing_data(self.missing_filter_settings[0],
-                                                   self.missing_filter_settings[1])
 
             # Gcoder
             if self.secondary_operations["gcoder"]:
