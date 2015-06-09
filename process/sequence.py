@@ -1455,24 +1455,49 @@ class AlignmentList (Base):
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
-                      use_charset=True):
-        """ This method writes a list of alignment objects or a concatenated
-         alignment into a file """
+                      use_charset=True, min_taxa=0):
+        """
+        Wrapper of the write_to_file method of the Alignment object for multiple
+        alignments.
+
+        :param output_format: string, format of the output file
+        :param output_suffix: string, optional suffix that is added at the end
+        of the original file name
+        :param interleave: boolean, Whether the output alignment will be in
+        leave (False) or interleave (True) format. Not all output formats
+        respect this option.
+        :param outgroup_list: list, containing the taxa names of the outgroup.
+        (Nexus output format only)
+        :param partition_file: boolean, If true, the auxiliary partitions file
+        will be writen.
+        :param output_dir: string, if provided, the output file will be written
+        on the specified path
+        :param use_charset: boolean, if true, partitions from the Partitions
+        object will be written in the nexus output format
+        :param min_taxa: integer, sets the minimum taxa representation
+        percentage required for the alignment to pass. Alignments with fewer
+        taxa proportion than the specified will be filtered out.
+        """
 
         for alignment_obj in self.alignments.values():
-            if alignment_obj.input_format in output_format:
-                output_file_name = alignment_obj.name.split(".")[0]\
-                                       + output_suffix + "_conv"
-            else:
-                output_file_name = alignment_obj.name.split(".")[0] + \
-                                   output_suffix
-            alignment_obj.write_to_file(output_format,
-                                        output_file=output_file_name,
-                                        interleave=interleave,
-                                        outgroup_list=outgroup_list,
-                                        partition_file=partition_file,
-                                        output_dir=output_dir,
-                                        use_charset=use_charset)
+
+            # Check if alignment_obj passes minimum taxa required
+            if len(alignment_obj.alignment) >= \
+                    (min_taxa / 100) * self.taxa_names:
+
+                if alignment_obj.input_format in output_format:
+                    output_file_name = alignment_obj.name.split(".")[0]\
+                                           + output_suffix + "_conv"
+                else:
+                    output_file_name = alignment_obj.name.split(".")[0] + \
+                                       output_suffix
+                alignment_obj.write_to_file(output_format,
+                                            output_file=output_file_name,
+                                            interleave=interleave,
+                                            outgroup_list=outgroup_list,
+                                            partition_file=partition_file,
+                                            output_dir=output_dir,
+                                            use_charset=use_charset)
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
