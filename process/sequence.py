@@ -1338,11 +1338,11 @@ class AlignmentList (Base):
 
         for alignment_obj in self.alignments.values():
 
-            for taxon, seq in alignment_obj.items():
+            for taxon, seq in alignment_obj:
                 filtered_seq = "".join(list(itertools.compress(seq,
                                             index(alignment_obj.locus_length,
                                                   position_list))))
-                alignment_obj[taxon] = filtered_seq
+                alignment_obj.alignment[taxon] = filtered_seq
 
     def filter_missing_data(self, gap_threshold, missing_threshold):
         """
