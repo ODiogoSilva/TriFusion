@@ -655,7 +655,7 @@ class TaxaFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
-class AlignmentFilterDialog(BoxLayout):
+class CodonFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
@@ -799,7 +799,7 @@ class TriFusionApp(App):
                                     ("collapse_file", False),
                                     ("filter_file", False),
                                     ("taxa_filter", False),
-                                    ("alignment_filter", False),
+                                    ("codon_filter", False),
                                     ("gap_filter", False),
                                     ("gcoder_file", False)])
 
@@ -953,7 +953,7 @@ class TriFusionApp(App):
     # contain gap threshold as first element, missing data threshold as
     # second element and minimum taxa representation proportion as the third
     # element
-    missing_filter_settings = ListProperty([25, 50, 30])
+    missing_filter_settings = ListProperty([25, 50, 0])
     # Attribute storing the taxa filter settings. The first element of the list
     # should be the filter mode (either "Contain" or "Exclude") and the second
     # element should be a string with the name of the taxa group (from the
@@ -966,7 +966,7 @@ class TriFusionApp(App):
     # on the boolean value of the list position. Ex. [True, True, True] will
     # save all positions, whereas [True, True, False] will only save the first
     # two positions
-    alignment_filter_settings = ListProperty([True, True, True])
+    codon_filter_settings = ListProperty([True, True, True])
 
     # Partitions file
     partitions_file = StringProperty("")
@@ -5330,7 +5330,7 @@ class TriFusionApp(App):
 
         self.dismiss_popup()
 
-    def save_alignmentfilter(self, filter_act, position_list):
+    def save_codonfilter(self, filter_act, position_list):
         """
         Stores the information of the alignment filter dialog of the process
         screen
@@ -5340,10 +5340,10 @@ class TriFusionApp(App):
         positions should be saved (True) or filtered (False)
         """
 
-        self.secondary_options["alignment_filter"] = filter_act
+        self.secondary_options["codon_filter"] = filter_act
 
         if filter_act:
-            self.alignment_filter_settings = position_list
+            self.codon_filter_settings = position_list
 
         self.dismiss_popup()
 
@@ -5674,13 +5674,13 @@ class TriFusionApp(App):
         self.show_popup(title="Advanced taxa filter", content=content,
                         size=(350, 400))
 
-    def dialog_alignmentfilter(self):
+    def dialog_codonfilter(self):
         """
         Generates dialog for alignment filter in the additional options of the
         process screen
         """
 
-        content = AlignmentFilterDialog(cancel=self.dismiss_popup)
+        content = CodonFilterDialog(cancel=self.dismiss_popup)
 
         self.show_popup(title="Advanced alignment filter", content=content,
                         size=(330, 280))
@@ -6582,6 +6582,26 @@ class TriFusionApp(App):
     def process_exec(self):
         """
         Main function that executes all queued procedures of the process module
+
+        ORDER OF PROCESS EXECUTION:
+
+        1. Update active file set
+        2. Update active taxa set
+        [Filters]
+        3. Filter alignments by minimum taxa representation
+        4. Filter alignments according to taxa filter
+        5. Filter alignments according to alignment filter
+        6. Filter gaps and missing data
+        [Main operations - only one is executed]
+        7. Concatenation
+        8. Reverse concatenation
+        * If neither 7 nor 8 are selected, the default is Conversion
+        [Additional operations]
+        9. Collapse
+        10. Gap coding
+        [Output generation]
+        11. Write main output to file(s)
+
         """
 
         def background_process(ns):
@@ -6630,16 +6650,55 @@ class TriFusionApp(App):
             # Filtering - This should be the first operation to be performed
             if self.secondary_operations["filter"]:
                 ns.msg = "Filtering alignment(s)"
+
                 if self.secondary_options["filter_file"]:
                     filtered_aln_obj = deepcopy(aln_object)
-                    filtered_aln_obj.filter_missing_data(
+
+                # Check if a minimum taxa representation was specified
+                if self.secondary_options["gap_filter"]:
+                    if self.missing_filter_settings[2]:
+                        try:
+                            filtered_aln_obj.filter_min_taxa(
+                            self.missing_filter_settings[2])
+                        except NameError:
+                            aln_object.filter_min_taxa(
+                                self.missing_filter_settings[2])
+
+                # Filter by taxa
+                if self.secondary_options["taxa_filter"]:
+                    # Get taxa list from taxa groups
+                    taxa_list = self.taxa_groups[self.taxa_filter_settings[1]]
+                    try:
+                        filtered_aln_obj.filter_by_taxa(
+                            self.taxa_filter_settings[0], taxa_list)
+                    except NameError:
+                        aln_object.filter_by_taxa(self.taxa_filter_settings[0],
+                                                  taxa_list)
+
+                # Filter codon positions
+                if self.secondary_options["codon_filter"]:
+                    try:
+                        filtered_aln_obj.filter_codon_positions(
+                        self.codon_filter_settings)
+                    except NameError:
+                        aln_object.filter_codon_positions(
+                            self.codon_filter_settings)
+
+                # Filter missing data
+                if self.secondary_options["gap_filter"]:
+                    try:
+                        filtered_aln_obj.filter_missing_data(
+                            self.missing_filter_settings[0],
+                            self.missing_filter_settings[1])
+                    except NameError:
+                        aln_object.filter_missing_data(
                         self.missing_filter_settings[0],
                         self.missing_filter_settings[1])
+
+                try:
                     write_aln[self.output_file + "_filtered"] = filtered_aln_obj
-                else:
-                    aln_object.filter_missing_data(
-                        self.missing_filter_settings[0],
-                        self.missing_filter_settings[1])
+                except NameError:
+                    pass
 
             # Concatenation
             if self.main_operations["concatenation"]:
