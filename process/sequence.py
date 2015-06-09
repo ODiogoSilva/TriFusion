@@ -989,6 +989,11 @@ class AlignmentList (Base):
         self.shelve_alignments = OrderedDict()
 
         """
+        Stores filtered alignments
+        """
+        self.filtered_alignments = OrderedDict()
+
+        """
         Attribute list that stores the Alignment.name attribute of badly
         formatted alignments
         """
@@ -1276,27 +1281,12 @@ class AlignmentList (Base):
         the alignment column should be filtered
         :param missing_threshold: integer, percentage of missing data (gaps +
         true missing data) below which the alignment column should be fitered
-        :param min_taxa: integer, percentage of minimum taxa representation
-        required for an alignment to pass. If set to 0, all alignment pass,
-        else the alignment will be checked and only those with more taxa
-        representation are filtered.
-
-        NOTE: Alignments will not be removed when they do not pass the min_taxa
-        threshold. This parameter is present to avoid unnecessary data
-        filtering. Alignments that do not pass the min_taxa parameter are only
-        filtered out when writting to the output
         """
 
         for alignment_obj in self.alignments.values():
 
-            # If a minimum taxa representation value was specified, test it for
-            # each alignment
-            if min_taxa:
-                if len(alignment_obj.alignment) >= \
-                                (min_taxa / 100) * self.taxa_names:
-                    alignment_obj.filter_missing_data(
-                        gap_threshold=gap_threshold,
-                        missing_threshold=missing_threshold)
+            alignment_obj.filter_missing_data(gap_threshold=gap_threshold,
+                                        missing_threshold=missing_threshold)
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """
@@ -1475,30 +1465,23 @@ class AlignmentList (Base):
         on the specified path
         :param use_charset: boolean, if true, partitions from the Partitions
         object will be written in the nexus output format
-        :param min_taxa: integer, sets the minimum taxa representation
-        percentage required for the alignment to pass. Alignments with fewer
-        taxa proportion than the specified will be filtered out.
         """
 
         for alignment_obj in self.alignments.values():
 
-            # Check if alignment_obj passes minimum taxa required
-            if len(alignment_obj.alignment) >= \
-                    (min_taxa / 100) * self.taxa_names:
-
-                if alignment_obj.input_format in output_format:
-                    output_file_name = alignment_obj.name.split(".")[0]\
-                                           + output_suffix + "_conv"
-                else:
-                    output_file_name = alignment_obj.name.split(".")[0] + \
-                                       output_suffix
-                alignment_obj.write_to_file(output_format,
-                                            output_file=output_file_name,
-                                            interleave=interleave,
-                                            outgroup_list=outgroup_list,
-                                            partition_file=partition_file,
-                                            output_dir=output_dir,
-                                            use_charset=use_charset)
+            if alignment_obj.input_format in output_format:
+                output_file_name = alignment_obj.name.split(".")[0]\
+                                       + output_suffix + "_conv"
+            else:
+                output_file_name = alignment_obj.name.split(".")[0] + \
+                                   output_suffix
+            alignment_obj.write_to_file(output_format,
+                                        output_file=output_file_name,
+                                        interleave=interleave,
+                                        outgroup_list=outgroup_list,
+                                        partition_file=partition_file,
+                                        output_dir=output_dir,
+                                        use_charset=use_charset)
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
