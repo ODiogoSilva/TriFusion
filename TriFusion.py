@@ -5784,7 +5784,9 @@ class TriFusionApp(App):
             try:
                 # Check for additional files
                 add_files = [nm for nm, bl in
-                             self.secondary_operations.items() if bl]
+                             [x for x in self.secondary_options.items()
+                              if "_file" in x[0]]
+                             if bl]
                 content.ids.out_files.text = "[b][size=18][color=37abc8ff]" \
                             "Output file(s):[/color][/size][/b] %s converted " \
                             "file(s)" % \
