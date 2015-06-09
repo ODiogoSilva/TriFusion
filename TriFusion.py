@@ -6061,7 +6061,8 @@ class TriFusionApp(App):
         file_list = []
         for i in files:
             if os.path.isdir(i):
-                file_list.extend([join(i, x) for x in os.listdir(i)])
+                file_list.extend([join(i, x) for x in os.listdir(i)
+                                  if os.path.isfile(join(i, x))])
             else:
                 file_list.append(i)
 
