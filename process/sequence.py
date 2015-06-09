@@ -1292,7 +1292,8 @@ class AlignmentList (Base):
             # If a minimum taxa representation value was specified, test it for
             # each alignment
             if min_taxa:
-                if len(alignment_obj.alignment) <= min_taxa:
+                if len(alignment_obj.alignment) >= \
+                                (min_taxa / 100) * self.taxa_names:
                     alignment_obj.filter_missing_data(
                         gap_threshold=gap_threshold,
                         missing_threshold=missing_threshold)
