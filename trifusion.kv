@@ -3509,7 +3509,6 @@
             orientation: "horizontal"
             size_hint_y: None
             height: 30
-            spacing: 20
             Slider:
                 id: gap_sli
                 size_hint_x: .85
@@ -3518,13 +3517,24 @@
                 step: 1
                 value: 25
                 disabled: False if gap_filter.active else True
+            Widget:
+                size_hint_x: None
+                width: 5
             TextInput:
-                size_hint_x: .15
+                size_hint_x: .11
                 id: gap_ti
                 text: "{}".format(round(gap_sli.value))
                 multiline: False
                 disabled: False if gap_filter.active else True
                 on_text_validate: if app.check_filters(gap_ti.text): gap_sli.value = app.check_filters(gap_ti.text)[1]
+            Widget:
+                size_hint_x: None
+                width: 5
+            Label:
+                size_hint_x: .04
+                text: "%"
+                bold: True
+                color: (0.216, 0.67, 0.784, 1)
 
         Label:
             text: "Missing data threshold"
@@ -3540,7 +3550,6 @@
             orientation: "horizontal"
             size_hint_y: None
             height: 30
-            spacing: 20
             Slider:
                 id: mis_sli
                 size_hint_x: .85
@@ -3549,13 +3558,24 @@
                 step: 1
                 value: 50
                 disabled: False if gap_filter.active else True
+            Widget:
+                size_hint_x: None
+                width: 5
             TextInput:
-                size_hint_x: .15
+                size_hint_x: .11
                 id: mis_ti
                 text: "{}".format(round(mis_sli.value))
                 multiline: False
                 disabled: False if gap_filter.active else True
                 on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
+            Widget:
+                size_hint_x: None
+                width: 5
+            Label:
+                size_hint_x: .04
+                text: "%"
+                bold: True
+                color: (0.216, 0.67, 0.784, 1)
 
     Label:
         text: "Multiple alignmnets"
@@ -3598,7 +3618,6 @@
             orientation: "horizontal"
             size_hint_y: None
             height: 30
-            spacing: 20
             Slider:
                 id: min_taxa
                 size_hint_x: .85
@@ -3607,14 +3626,24 @@
                 step: 1
                 value: 50
                 disabled: False if gap_filter.active else True
+            Widget:
+                size_hint_x: None
+                width: 5
             TextInput:
-                size_hint_x: .15
+                size_hint_x: .11
                 id: min_tx_ti
                 text: "{}".format(round(min_taxa.value))
                 multiline: False
                 disabled: False if gap_filter.active else True
                 on_text_validate: if app.check_filters(self.text): min_taxa.value = app.check_filters(self.text)[1]
-
+            Widget:
+                size_hint_x: None
+                width: 5
+            Label:
+                size_hint_x: .04
+                text: "%"
+                bold: True
+                color: (0.216, 0.67, 0.784, 1)
 
     BoxLayout:
         orientation: "horizontal"
