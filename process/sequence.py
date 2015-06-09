@@ -1272,8 +1272,23 @@ class AlignmentList (Base):
 
         return concatenated_alignment
 
-    def filter_missing_data(self, gap_threshold, missing_threshold,
-                            min_taxa=0):
+    def filter_min_taxa(self, min_taxa):
+        """
+        Filters Alignment objects based on a minimum taxa representation
+        threshold. Alignments with less that the specified minimum taxa
+        percentage will be moved to the filtered_alignments attribute
+        :param min_taxa: integer, percentage of minimum taxa below which
+        alignments are moved to the filtered_alignments attribute
+        """
+
+        for k, alignment_obj in self.alignments.items():
+
+            if len(alignment_obj.alignment) <= \
+                            (min_taxa / 100) * len(self.taxa_names):
+                self.filtered_alignments[k] = alignment_obj
+                del self.alignments[k]
+
+    def filter_missing_data(self, gap_threshold, missing_threshold):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
         See the method's documentation.
