@@ -31,6 +31,7 @@ from process.data import Partitions
 
 # Other imports
 from collections import OrderedDict
+import itertools
 import re
 from os import sep
 from os.path import join, basename, splitext
@@ -1315,6 +1316,33 @@ class AlignmentList (Base):
                 if any((x for x in taxa_list
                         if x in list(alignment_obj.alignment))):
                     del self.alignments[k]
+
+    def filter_codon_positions(self, position_list):
+        """
+        Filter codon positions from DNA alignments.
+        :param position_list: list containing a boolean value for each codon
+        position. Ex. [True, True, True] will save all positions while
+        [True, True, False] will exclude the third codon position
+        """
+
+        def index(length, pos):
+            """
+            index generator
+            """
+            for _ in range(0, length, 3):
+                for j in pos:
+                    if j:
+                        yield 1
+                    else:
+                        yield 0
+
+        for alignment_obj in self.alignments.values():
+
+            for taxon, seq in alignment_obj.items():
+                filtered_seq = "".join(list(itertools.compress(seq,
+                                            index(alignment_obj.locus_length,
+                                                  position_list))))
+                alignment_obj[taxon] = filtered_seq
 
     def filter_missing_data(self, gap_threshold, missing_threshold):
         """
