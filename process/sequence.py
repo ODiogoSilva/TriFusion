@@ -1292,6 +1292,30 @@ class AlignmentList (Base):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
 
+    def filter_by_taxa(self, filter_mode, taxa_list):
+        """
+        Filters the alignments attribute by taxa list. The filtering may be done
+        to exclude or include a particular set of taxa
+        :param filter_mode: string, determines the filtering mode. Can be either
+        'Contain' or 'Exclude'
+        :param taxa_list: list, contains the list of taxa to be used for
+        filtering
+        """
+
+        for k, alignment_obj in self.alignments.items():
+
+            # Filter alignments that do not contain at least all taxa in
+            # taxa_list
+            if filter_mode == "Contain":
+                if set(taxa_list) - set(list(alignment_obj.alignment)) != set():
+                    del self.alignments[k]
+
+            # Filter alignments that contain the taxa in taxa list
+            if filter_mode == "Exclude":
+                if any((x for x in taxa_list
+                        if x in list(alignment_obj.alignment))):
+                    del self.alignments[k]
+
     def filter_missing_data(self, gap_threshold, missing_threshold):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
@@ -1383,7 +1407,7 @@ class AlignmentList (Base):
         selected_alignments = []
 
         # taxa_list may be a file name (string) or a list containing the name
-        #  of the taxa. If taxa_list is a file name this code will parse the
+        # of the taxa. If taxa_list is a file name this code will parse the
         # csv file and return a list of the taxa. Otherwise, the taxa_list
         # variable remains the same.
         try:
@@ -1394,7 +1418,7 @@ class AlignmentList (Base):
 
         for alignment_obj in self.alignments.values():
 
-            alignment_taxa = alignment_obj.iter_taxa()
+            alignment_taxa = list(alignment_obj.alignment)
 
             # Selected only the alignments with the exact same taxa
             if mode == "strict":
