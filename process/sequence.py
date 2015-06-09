@@ -1267,16 +1267,35 @@ class AlignmentList (Base):
 
         return concatenated_alignment
 
-    def filter_missing_data(self, gap_threshold, missing_threshold):
+    def filter_missing_data(self, gap_threshold, missing_threshold,
+                            min_taxa=0):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
         See the method's documentation.
+        :param gap_threshold: integer, percentage of gap symbols below which
+        the alignment column should be filtered
+        :param missing_threshold: integer, percentage of missing data (gaps +
+        true missing data) below which the alignment column should be fitered
+        :param min_taxa: integer, percentage of minimum taxa representation
+        required for an alignment to pass. If set to 0, all alignment pass,
+        else the alignment will be checked and only those with more taxa
+        representation are filtered.
+
+        NOTE: Alignments will not be removed when they do not pass the min_taxa
+        threshold. This parameter is present to avoid unnecessary data
+        filtering. Alignments that do not pass the min_taxa parameter are only
+        filtered out when writting to the output
         """
 
         for alignment_obj in self.alignments.values():
 
-            alignment_obj.filter_missing_data(gap_threshold=gap_threshold,
-                          missing_threshold=missing_threshold)
+            # If a minimum taxa representation value was specified, test it for
+            # each alignment
+            if min_taxa:
+                if len(alignment_obj.alignment) <= min_taxa:
+                    alignment_obj.filter_missing_data(
+                        gap_threshold=gap_threshold,
+                        missing_threshold=missing_threshold)
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """
