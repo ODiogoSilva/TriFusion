@@ -1336,6 +1336,9 @@ class AlignmentList (Base):
                     else:
                         yield 0
 
+        # Reset partitions
+        self.partitions = Partitions()
+
         for alignment_obj in self.alignments.values():
 
             for taxon, seq in alignment_obj:
@@ -1343,6 +1346,10 @@ class AlignmentList (Base):
                                             index(alignment_obj.locus_length,
                                                   position_list))))
                 alignment_obj.alignment[taxon] = filtered_seq
+
+            alignment_obj.locus_length = len(filtered_seq)
+
+            self.set_partition(alignment_obj)
 
     def filter_missing_data(self, gap_threshold, missing_threshold):
         """
