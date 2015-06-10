@@ -3234,7 +3234,7 @@ class TriFusionApp(App):
             partition_name]
 
         for f in plist:
-            bt = TFButton(text=f, height=40)
+            bt = TFButton(text=basename(f), height=40)
             content.ids.rev_inlist.add_widget(bt)
 
         self.show_popup(title="Alignment files in %s" % partition_name,
