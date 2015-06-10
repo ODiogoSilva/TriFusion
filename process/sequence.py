@@ -807,11 +807,16 @@ class Alignment (Base):
                                    seq.upper()))
 
             # In case there is a concatenated alignment being written
-            if self.partitions.is_single() is False and partition_file:
+            if not self.partitions.is_single() and partition_file:
                 partition_file = open(output_file + "_part.File", "w")
                 for name, lrange in self.partitions:
+                    # Get model from app if it exists and there are no codon
+                    # positions
+                    model = model_phylip if self.partitions.models[name] == \
+                        [None] or len(self.partitions.models[name][1]) > 1 \
+                        else self.partitions.models[name][1][0]
                     partition_file.write("%s, %s = %s\n" % (
-                                         model_phylip,
+                                         model,
                                          name,
                                          "-".join([str(x + 1) for x in
                                                    lrange[0]])))
