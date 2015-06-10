@@ -673,6 +673,13 @@ class Alignment (Base):
         else:
             alignment = self.alignment
 
+        # This will determine the default model value. GTR for nucleotides
+        # and LG for proteins
+        if self.sequence_code[0] == "DNA":
+            model_phylip = "GTR"
+        else:
+            model_phylip = "LG"
+
         # If a specific output directory is provided, the output file will be
         # written there
         if output_dir:
