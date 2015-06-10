@@ -36,14 +36,14 @@ import re
 from os import sep
 from os.path import join, basename, splitext
 
-## TODO: Create a SequenceSet class for sets of sequences that do not conform
+# TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
 # applying methods designed for alignments to sets of sequences with unequal
 # length would allows these sets of sequences to have methods of their own.
 # However, the __init__ of the current Alignment object should apply to both
 # SequenceSet and Alignment classes. So, I'll have to re-structure the code
 # somehow.
-## TODO After creating the SequenceSet class, an additional class should be
+# TODO After creating the SequenceSet class, an additional class should be
 # used to make the triage of files to either the Alignment or SequenceSet
 # classes
 
@@ -235,9 +235,9 @@ class Alignment (Base):
 
         file_handle = open(input_alignment, encoding="latin1")
 
-        #=======================================================================
+        # ======================================================================
         # PARSING PHYLIP FORMAT
-        #=======================================================================
+        # ======================================================================
 
         if alignment_format == "phylip":
             # Get the number of taxa and sequence length from the file header
@@ -257,15 +257,15 @@ class Alignment (Base):
                 except IndexError:
                     pass
 
-                    ## TO DO: Read phylip interleave
+                    # TODO: Read phylip interleave
 
             # Updating partitions object
             self.partitions.add_partition(self.name, self.locus_length,
                                           file_name=self.path)
 
-        #=======================================================================
+        # ======================================================================
         # PARSING FASTA FORMAT
-        #=======================================================================
+        # ======================================================================
         elif alignment_format == "fasta":
             for line in file_handle:
                 if line.strip().startswith(">"):
@@ -282,9 +282,9 @@ class Alignment (Base):
             self.partitions.add_partition(self.name, self.locus_length,
                                           file_name=self.path)
 
-        #=======================================================================
+        # ======================================================================
         # PARSING NEXUS FORMAT
-        #=======================================================================
+        # ======================================================================
         elif alignment_format == "nexus":
             counter = 0
             for line in file_handle:
@@ -317,7 +317,7 @@ class Alignment (Base):
                 # If substitution models are specified using the lset or prset
                 # commands, this will parse the model parameters
                 if line.lower().strip().startswith("lset") or \
-                    line.lower().strip().startswith("prset"):
+                        line.lower().strip().startswith("prset"):
                     self.partitions.parse_nexus_model(line)
 
             # If no partitions have been added during the parsing of the nexus
@@ -772,7 +772,7 @@ class Alignment (Base):
                         out_file.write("%s%s\n" % (taxon, seq))
 
             if self.partitions.is_single():
-                #Write the header for the single
+                # Write the header for the single
                 out_file.write("%s %s %s %s %s\n" % (
                                partition,
                                " ".join(population_storage.values()),
@@ -780,7 +780,7 @@ class Alignment (Base):
                                mutational_model,
                                inheritance_scalar))
 
-                #Write sequence data
+                # Write sequence data
                 for population, taxa_list in population_storage.items():
                     for taxon in taxa_list:
                         seq = self.alignment[taxon].upper()
@@ -930,8 +930,8 @@ class Alignment (Base):
                                        (name, lrange[0][0] + 1,
                                         lrange[0][1] + 1))
 
-                    out_file.write("\tpartition part = %s: %s;\n\tset partition="
-                                   "part;\nend;\n" %
+                    out_file.write("\tpartition part = %s: %s;\n\tset "
+                                   "partition=part;\nend;\n" %
                                    (len(self.partitions.partitions),
                                     ", ".join([name for name in
                                     self.partitions.get_partition_names()])))
@@ -969,8 +969,6 @@ class AlignmentList (Base):
     def __init__(self, alignment_list, shared_namespace=None):
         """
         :param alignment_list: List of Alignment objects
-        :param verbose: Boolean. If True, it prints a progression bar to the
-        terminal when loading data
         :param shared_namespace: Namespace object, used to share information
         between subprocesses
         """
@@ -1232,16 +1230,11 @@ class AlignmentList (Base):
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
         of the concatenated alignment
-        :param progress_stat: Boolean. If True, it will print a progression bar
-        to the terminal
         :return concatenated_alignment: Alignment object
         """
 
         # Initializing alignment dict to store the alignment information
         concatenation = OrderedDict([(key, []) for key in self.taxa_names])
-        # Instantiating a Partitions object to store information on the
-        # partitions and substitution models
-        partitions = Partitions()
 
         for alignment_object in self.alignments.values():
 
@@ -1435,9 +1428,6 @@ class AlignmentList (Base):
         taxa.
             ..:relaxed: At least on of the specified taxa must be in the taxa of
         the alignment.
-
-        :param verbose. Boolean. If True, a progression bar will be printed
-        on the terminal
         """
 
         selected_alignments = []
@@ -1525,7 +1515,7 @@ class AlignmentList (Base):
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
-                      use_charset=True, min_taxa=0):
+                      use_charset=True):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
