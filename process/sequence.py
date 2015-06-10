@@ -611,7 +611,7 @@ class Alignment (Base):
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
                       cut_space_nex=50, cut_space_phy=50, cut_space_ima2=8,
-                      interleave=False, gap="-", model_phylip="LG",
+                      interleave=False, gap="-", model_phylip=None,
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None):
         """ Writes the alignment object into a specified output file,
@@ -675,10 +675,11 @@ class Alignment (Base):
 
         # This will determine the default model value. GTR for nucleotides
         # and LG for proteins
-        if self.sequence_code[0] == "DNA":
-            model_phylip = "GTR"
-        else:
-            model_phylip = "LG"
+        if not model_phylip:
+            if self.sequence_code[0] == "DNA":
+                model_phylip = "GTR"
+            else:
+                model_phylip = "LG"
 
         # If a specific output directory is provided, the output file will be
         # written there
