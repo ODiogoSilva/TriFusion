@@ -4101,13 +4101,13 @@
                     size_hint_x: .8
                     markup: True
                     id: test2
-                    text: "[size=18][b]Codon position filter[/b][/size]\n[size=13] Set advanced filters to excluded/included codon positions [/size]"
+                    text: "[size=18][b]Codon position filter[/b][/size]\n[size=13] Nucleotide alignments only. Set advanced filters to excluded/included codon positions [/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
                 ProcessBt:
                     id: taxa_filter
-                    disabled: False if filter.active else True
+                    disabled: False if filter.active and app.sequence_types == ["DNA"] else True
                     text: "Filters ON" if app.secondary_options["codon_filter"] else "Set filters"
                     background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["codon_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4136,7 +4136,7 @@
                     text: "Filters ON" if app.secondary_options["gap_filter"] else "Set filters"
                     background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["gap_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-                    on_release: app.dialog_filter()
+                    on_release: app.dialog_filter();
 
     TabbedPanelItem:
         id: gcoder_tab
