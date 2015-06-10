@@ -24,6 +24,7 @@
 #  Last update: 11/02/14
 
 import re
+from os.path import basename
 from collections import OrderedDict
 
 
@@ -692,9 +693,10 @@ class Partitions():
                 #  Get original range of alignment file
                 new_range = self.merged_files[aln]
                 # Add new partitions
-                self.partitions[aln] = [new_range, False]
-                self.partitions_alignments[aln] = [aln]
-                self.models[aln] = [[[]], [None], []]
+                aln_name = basename(aln)
+                self.partitions[aln_name] = [new_range, False]
+                self.partitions_alignments[aln_name] = [aln]
+                self.models[aln_name] = [[[]], [None], []]
 
         # Delete original partition
         del self.partitions[name]
