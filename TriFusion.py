@@ -915,6 +915,8 @@ class TriFusionApp(App):
     alignment_list = None
     # List of active alignment object variables.
     active_alignment_list = None
+    # List of active partitions
+    active_partitions = ListProperty()
 
     # Attributes containing the original and active taxa information
     # dictionaries
@@ -3115,6 +3117,7 @@ class TriFusionApp(App):
                           background_normal=join("data", "backgrounds",
                                                  "bt_process_off.png"))
         bt.bind(on_release=lambda x: self.partition_bt_state())
+        bt.bind(on_release=self.toggle_selection)
 
         # Setting horizontal text size for shortening
         bt.text_size[0] = bt.size[0] * 2
@@ -3340,8 +3343,10 @@ class TriFusionApp(App):
         # name from he edition button id (which does not change), this iteration
         # over all three partition buttons for each partition will retrieve
         # the correct partition name
+        displayed_partitions = (x for x in self.root.ids.partition_sl.children
+                                if not isinstance(x, LoadMoreBt))
         part_name = [bt.text for ebt, ibt, bt in
-                      zip(*[iter(self.root.ids.partition_sl.children)] * 3)
+                      zip(*[iter(displayed_partitions)] * 3)
                      if ebt.id == btx.id][0]
         part_obj = self.alignment_list.partitions
         content.ids.partition_name.text = part_name
@@ -3557,7 +3562,7 @@ class TriFusionApp(App):
             self.update_file_label()
 
         # Changes concerning the taxa tab
-        if parent_obj == self.root.ids.taxa_sl:
+        elif parent_obj == self.root.ids.taxa_sl:
 
             # When button is normal (unselected) remove from active list
             if value.state == "normal":
@@ -3568,6 +3573,13 @@ class TriFusionApp(App):
 
             # Update label
             self.update_sp_label()
+
+        elif parent_obj == self.root.ids.partition_sl:
+
+            if value.state == "normal":
+                self.active_partitions.remove(value.text)
+            else:
+                self.active_partitions.append(value.text)
 
     def remove_all(self):
         """
@@ -3780,8 +3792,13 @@ class TriFusionApp(App):
             self.active_taxa_list = []
 
         # Core changes to partitions
-        if sv_parent == self.root.ids.sv_partition:
+        if sv_parent == self.root.ids.sv_partition and \
+                        value.text == "Select All":
+            self.active_partitions = list(
+                self.alignment_list.partitions.partitions)
             self.partition_bt_state()
+        else:
+            self.active_partitions = []
 
         if sv_parent == self.root.ids.sv_sp or sv_parent == \
                 self.root.ids.sv_file:
