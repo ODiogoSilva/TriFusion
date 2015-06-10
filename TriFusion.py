@@ -2978,12 +2978,7 @@ class TriFusionApp(App):
             return self.dialog_floatcheck("ERROR: A partition named %s already"
                                           " exists." % name, t="error")
 
-        # Get active partitions
-        active_partitions = [x.text for x in self.root.ids.partition_sl.children
-                             if isinstance(x, ToggleButton) and
-                             x.state == "down"]
-
-        self.alignment_list.partitions.merge_partitions(active_partitions,
+        self.alignment_list.partitions.merge_partitions(self.active_partitions,
                                                         name)
 
         # Close popup
