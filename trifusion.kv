@@ -2529,8 +2529,8 @@
 
 <ModelSpinner>:
     bold: True
-    text: "JC"
-    values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR")
+    text: "JC" if app.sequence_types == ["DNA"] else "LG"
+    values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == ["DNA"] else ("LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
     #background_normal: "data/backgrounds/model_bt1.png"
 
 <PartitionsDialog>:
