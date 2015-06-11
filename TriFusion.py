@@ -6466,7 +6466,9 @@ class TriFusionApp(App):
                     nm.t = "Filtering Fasta Files"
                     nm.c = 3
                     ortho_pipe.filter_fasta(self.protein_min_len,
-                                       self.protein_max_stop)
+                                       self.protein_max_stop,
+                                       bin_path=join(self.cur_dir, "ortho",
+                                                     "orthomclFilterFasta"))
 
                 if nm.k:
                     nm.t = "Running USearch. This may take a while..."
@@ -6474,12 +6476,17 @@ class TriFusionApp(App):
                     ortho_pipe.allvsall_usearch("goodProteins.fasta",
                                       self.usearch_evalue,
                                       self.screen.ids.usearch_threads.text,
-                                      self.usearch_output)
+                                      self.usearch_output,
+                                      usearch_bin=join(self.cur_dir, "data",
+                                                       "resources",
+                                                       "usearch_linux"))
 
                 if nm.k:
                     nm.t = "Parsing USEARCH output"
                     nm.c = 5
-                    ortho_pipe.blast_parser(self.usearch_output)
+                    ortho_pipe.blast_parser(self.usearch_output,
+                                            bin_path=join(self.cur_dir, "ortho",
+                                                     "orthomclBlastParser"))
 
                 if nm.k:
                     ortho_pipe.remove_duplicate_entries()
@@ -6507,7 +6514,9 @@ class TriFusionApp(App):
                     nm.c = 9
                     ortho_pipe.mcl_groups(self.mcl_inflation,
                                           self.ortholog_prefix, "1000",
-                                          self.group_prefix)
+                                          self.group_prefix,
+                                          bin_path=join(self.cur_dir, "ortho",
+                                                     "orthomclMclToGroups"))
 
                 if nm.k:
                     nm.t = "Filtering group files"
