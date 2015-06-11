@@ -2981,6 +2981,9 @@ class TriFusionApp(App):
         self.alignment_list.partitions.merge_partitions(self.active_partitions,
                                                         name)
 
+        # Resets active partitions
+        self.active_partitions = []
+
         # Close popup
         self.dismiss_popup()
         self.repopulate_partitions()
@@ -3002,6 +3005,9 @@ class TriFusionApp(App):
 
         else:
             self.alignment_list.partitions.split_partition(active_partition)
+
+        # Resets ative partitions
+        self.active_partitions = []
 
         # Close popup
         self.dismiss_popup()
