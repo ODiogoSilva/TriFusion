@@ -59,7 +59,6 @@ from process.sequence import AlignmentList
 from process.base import Base
 from process import data
 from data.resources.info_data import informative_storage
-from data.resources.db_tools import *
 
 # Other imports
 import os
