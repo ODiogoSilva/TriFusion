@@ -2713,19 +2713,6 @@ class TriFusionApp(App):
                                        len(active_lst),
                                        len(lst))
 
-        # Reset the sequence_types list when all files are removed
-        if len(active_lst) == 0 and len(lst) == 0:
-            # Core changes
-            self.sequence_types = []
-
-            # Add disabled no changes button
-            if "species_temp" not in [x.id for x in
-                                      self.root.ids.file_sl.children]:
-                no_bt = Button(id="file_temp", text="No files loaded",
-                               size_hint_y=None, height=40, disabled=True)
-                self.root.ids["file_temp"] = no_bt
-                self.root.ids.file_sl.add_widget(no_bt)
-
     def update_sp_label(self):
         """
         Sets and updates a label on the Taxa tab of the side panel, informing
@@ -3601,22 +3588,38 @@ class TriFusionApp(App):
 
         self.clear_process_input()
 
+        # Add disabled no changes button
+        if "file_temp" not in [x.id for x in
+                                  self.root.ids.file_sl.children]:
+            no_bt = Button(id="file_temp", text="No files loaded",
+                           size_hint_y=None, height=40, disabled=True)
+            self.root.ids["file_temp"] = no_bt
+            self.root.ids.file_sl.add_widget(no_bt)
+
+        # Add disabled no changes button
+        if "species_temp" not in [x.id for x in
+                                  self.root.ids.taxa_sl.children]:
+            no_bt = Button(id="species_temp", text="No files loaded",
+                           size_hint_y=None, height=40, disabled=True)
+            self.root.ids["species_temp"] = no_bt
+            self.root.ids.taxa_sl.add_widget(no_bt)
+
     def clear_process_input(self):
         """
         Clears any input for the process/statistics screen and related variables
         and attributes
         """
 
-        self.sequence_types = []
         self.alignment_list.clear_alignments()
-        self.original_tx_inf = {}
-        self.active_tx_inf = {}
-        self.original_file_inf = {}
-        self.active_file_inf = {}
-        self.active_taxa_list = []
-        self.filename_map = {}
+        self.original_tx_inf.clear()
+        self.active_tx_inf.clear()
+        self.original_file_inf.clear()
+        self.active_file_inf.clear()
+        self.active_taxa_list.clear()
+        self.filename_map.clear()
         self.file_list = []
-        self.active_file_list = []
+        self.active_file_list.clear()
+        self.sequence_types.clear()
 
     def remove_all_groups(self):
         """
