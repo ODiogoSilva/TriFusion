@@ -929,7 +929,7 @@ class Alignment (Base):
 
             if use_charset:
                 # Writing partitions, if any
-                if self.partitions.is_single() is False:
+                if not self.partitions.is_single():
                     out_file.write("\nbegin mrbayes;\n")
                     # Full gene partitions
                     for name, lrange in self.partitions:
@@ -1387,7 +1387,7 @@ class AlignmentList (Base):
 
         # Updates taxa names
         for tx in taxa_list:
-            self.taxa_names.pop(tx)
+            self.taxa_names.remove(tx)
 
     def remove_file(self, filename_list):
         """
