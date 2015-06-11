@@ -4030,6 +4030,8 @@
                     id: hapbt
                     disabled: True
                     text: "Hap"
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release:
                         app.dialog_text("Haplotype prefix", "haplotype")
 
@@ -4181,6 +4183,8 @@
                     id: gcoder_file
                     size_hint_x: .2
                     disabled: True
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_active:
                         app.update_process_switch("gcoder_file", self.active)
 
