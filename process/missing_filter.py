@@ -29,7 +29,7 @@
 ## in the children objects. This is used for inheritance
 
 from collections import OrderedDict
-
+from itertools import compress
 
 class MissingFilter ():
     """ Contains several methods used to trim and filter missing data from
@@ -77,52 +77,39 @@ class MissingFilter ():
 
             self.alignment[taxa] = seq
 
-    def filter_columns(self, verbose=True):
+    def filter_columns(self):
         """ Here several missing data metrics are calculated, and based on
          some user defined thresholds, columns with inappropriate missing
          data are removed """
 
-        taxa_number = len(self.alignment)
+        taxa_number = float(len(self.alignment))
         self.old_locus_length = len(list(self.alignment.values())[0])
 
-        filtered_alignment = OrderedDict((taxa, []) for taxa, seq in
-                                  self.alignment.items())
+        filtered_cols = []
 
         # Creating the column list variable
-        # The reverse iteration over the sequences is necessary to maintain
-        # the column numbers when removing them
-        #for subset in [x for x in filtered_alignment.values]
-        for column_position in range(self.old_locus_length - 1, -1, -1):
+        for column in zip(*self.alignment.values()):
 
-            if verbose is True:
-                print("\rFiltering alignment column %s out of %s" % (
-                    column_position + 1,
-                    self.old_locus_length + 1),
-                    end="")
-
-            # This greatly speeds things up compared to using a string
-            column = tuple(char[column_position] for char in
-                           self.alignment.values())
+            cadd = column.count
 
             # Calculating metrics
-            gap_proportion = (float(column.count(self.gap)) /
-                              float(taxa_number)) * float(100)
-            missing_proportion = (float(column.count(self.missing)) /
-                                  float(taxa_number)) * float(100)
+            gap_proportion = (float(cadd(self.gap)) /
+                              taxa_number) * float(100)
+            missing_proportion = (float(cadd(self.missing)) /
+                                  taxa_number) * float(100)
             total_missing_proportion = gap_proportion + missing_proportion
 
-            if total_missing_proportion < float(self.gap_threshold):
+            if total_missing_proportion < self.gap_threshold or \
+                    missing_proportion < self.missing_threshold:
 
-                for char, (tx, seq) in zip(column, filtered_alignment.items()):
-                    seq.append(char)
+                filtered_cols.append(1)
 
-            elif missing_proportion < float(self.missing_threshold):
+            else:
+                filtered_cols.append(0)
 
-                for char, (tx, seq) in zip(column, filtered_alignment.items()):
-                    seq.append(char)
-
-        self.alignment = dict((taxa, "".join(seq)) for taxa, seq in
-                              filtered_alignment.items())
+        self.alignment = OrderedDict((taxa,
+                            "".join(list(compress(seq, filtered_cols))))
+                            for taxa, seq in self.alignment.items())
         self.locus_length = len(list(self.alignment.values())[0])
 
 __author__ = "Diogo N. Silva"
