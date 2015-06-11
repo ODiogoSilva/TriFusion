@@ -199,32 +199,34 @@ def check_fasta(proteome_list):
                 "Checking proteomes: ", 50, proteome)
 
 
-def filter_fasta(min_len, max_stop, verbose=False):
+def filter_fasta(min_len, max_stop, verbose=False,
+                 bin_path="orthomclFilterFasta"):
 
     if verbose:
         print("Filtering proteome fasta files")
 
-    x = subprocess.Popen(["orthomclFilterFasta", "compliantFasta", str(min_len),
+    x = subprocess.Popen([bin_path, "compliantFasta", str(min_len),
                       str(max_stop)]).wait()
 
 
-def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False):
+def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False,
+                     usearch_bin="usearch"):
 
     if verbose:
         print("Perfoming USEARCH allvsall")
 
-    x = subprocess.Popen(["usearch", "-ublast", goodproteins, "-db",
+    x = subprocess.Popen([usearch_bin, "-ublast", goodproteins, "-db",
                           goodproteins, "-blast6out", usearch_outfile,
                           "-evalue", str(eval), "--maxaccepts", "0",
                           "-threads", str(cpus)]).wait()
 
 
-def blast_parser(usearch_ouput, verbose=False):
+def blast_parser(usearch_ouput, verbose=False, bin_path="orthomclBlastParser"):
 
     if verbose:
         print("Parsing BLAST output")
 
-    x = subprocess.Popen(["orthomclBlastParser " + usearch_ouput +
+    x = subprocess.Popen([bin_path + " " + usearch_ouput +
                       " compliantFasta/ >> similarSequences.txt"],
                       shell=True).wait()
 
@@ -267,9 +269,6 @@ def pairs(db_dir, verbose=False):
     if verbose:
         print("Finding pairs for orthoMCL")
 
-    # x = subprocess.Popen(["orthomclPairs", cfg_file,
-    #                  "pairs.log", "cleanup=no"]).wait()
-
     make_pairs_sqlite.execute(db_dir)
 
 
@@ -278,8 +277,6 @@ def dump_pairs(db_dir, verbose=False):
     if verbose:
         print("Dump files from the database produced by the orthomclPairs "
               "program")
-
-    # x = subprocess.Popen(["orthomclDumpPairsFiles", cfg_file]).wait()
 
     dump_pairs_sqlite.execute(db_dir)
 
@@ -294,7 +291,8 @@ def mcl(inflation_list, verbose=False):
                               + val.replace(".", "")], shell=True).wait()
 
 
-def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
+def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False,
+               bin_path="orthomclMclToGroups"):
 
     if verbose:
         print("Dumping groups")
@@ -305,7 +303,7 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False):
         os.makedirs(results_dir)
 
     for val in inflation_list:
-        x = subprocess.Popen(["orthomclMclToGroups " + mcl_prefix + " " +
+        x = subprocess.Popen([bin_path + " " + mcl_prefix + " " +
                           start_id + " < mclOutput_" + val.replace(".", "")
                           + " > " + os.path.join(results_dir, group_file + "_"
                                                  + str(val) + ".txt")],
