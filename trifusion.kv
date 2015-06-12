@@ -6,6 +6,7 @@
 #:import ObjectProperty kivy.properties.ObjectProperty
 #:import StringProperty kivy.properties.StringProperty
 #:import ListProperty kivy.properties.ListProperty
+#:import load_group_files data.resources.background_tasks.load_group_files
 
 
 <ShowcaseScreen>:
@@ -1993,7 +1994,7 @@
                 bold: True
                 on_release:
                     if sd_filechooser.selection:\
-                    app.run_in_background(app.load_group_files, app.load_groups, [list(sd_filechooser.selection)], None, False, "Loading group files...")
+                    app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir], None, False, "Loading group files...")
                     #root.cancel()
 
             Button:

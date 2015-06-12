@@ -3,7 +3,7 @@ __author__ = 'diogo'
 from process import data
 from process.sequence import AlignmentList
 from ortho import orthomcl_pipeline as ortho_pipe
-
+from ortho import OrthomclToolbox as OrthoTool
 
 from os.path import join, basename
 from copy import deepcopy
@@ -328,3 +328,8 @@ def process_execution(**kwargs):
         # self.log_file for whereabouts of the traceback
         logging.exception("Unexpected exit in Process execution")
         kwargs["ns"].exception = True
+
+def load_group_files(group_files, temp_dir):
+    og = OrthoTool.MultiGroupsLight(db_path=temp_dir,
+                                    groups=group_files)
+    return [og, og.filters]

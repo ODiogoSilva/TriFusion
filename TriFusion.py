@@ -4901,13 +4901,6 @@ class TriFusionApp(App):
         else:
             self.screen.ids.compare_group_bt.disabled = True
 
-    def load_group_files(self, group_files):
-
-        og = OrthoTool.MultiGroupsLight(db_path=self.temp_dir,
-                                        groups=group_files)
-
-        return [og, og.filters]
-
     def orto_update_filters(self, gn_filter, sp_filter, group_names=None,
                             default=False):
 
