@@ -55,10 +55,10 @@ from kivy.uix.scrollview import ScrollView
 from ortho import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
 from ortho import protein2dna
-from process.sequence import AlignmentList
 from process.base import Base
 from process import data
 from data.resources.info_data import informative_storage
+from data.resources.background_tasks import *
 
 # Other imports
 import os
@@ -6011,22 +6011,6 @@ class TriFusionApp(App):
 
     def load_files_subproc(self, files):
 
-        def load_proc(nm):
-
-            try:
-
-                if self.alignment_list:
-                    self.alignment_list.add_alignment_files(file_list,
-                                                            shared_namespace=nm)
-                    aln_obj = self.alignment_list
-                else:
-                    aln_obj = AlignmentList(file_list, shared_namespace=nm)
-
-                nm.alns = aln_obj
-            except:
-                logging.exception("Unexpected error when loading input data")
-                nm.exception = True
-
         def check_proc(p, dt):
 
             try:
@@ -6070,7 +6054,8 @@ class TriFusionApp(App):
         manager = multiprocessing.Manager()
         ns = manager.Namespace()
 
-        d = multiprocessing.Process(target=load_proc, args=(ns, ))
+        d = multiprocessing.Process(target=load_proc, args=(self.alignment_list,
+                                                            file_list, ns, ))
 
         d.start()
 
