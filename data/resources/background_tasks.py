@@ -345,3 +345,10 @@ def orto_update_filters(ortho_groups, gn_filter, sp_filter,
         ortho_groups.update_filters(gn_filter, sp_filter,
                                          default=default)
     return [ortho_groups]
+
+
+def get_active_group(ortho_groups, active_group_name):
+
+    active_group = ortho_groups.get_group(active_group_name)
+
+    return [active_group]
