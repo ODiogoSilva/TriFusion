@@ -135,7 +135,7 @@ class FileChooserL(FileChooserListView):
         else:
             # If entry.path is to jump to previous directory, update path with
             # parent directory
-            if entry.path == "../":
+            if entry.path == "../" or entry.path == "..\\":
                 self.path = abspath(join(self.path, pardir))
                 self.selection = []
             else:
@@ -203,7 +203,7 @@ class FileChooserM(FileChooserIconView):
         else:
             # If entry.path is to jump to previous directory, update path with
             # parent directory
-            if entry.path == "../":
+            if entry.path == "../" or entry.path == "..\\":
                 self.path = abspath(join(self.path, pardir))
                 self.selection = []
             else:
