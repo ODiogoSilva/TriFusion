@@ -336,12 +336,12 @@ def load_group_files(group_files, temp_dir):
     return [og, og.filters]
 
 
-def orto_update_filters(self, gn_filter, sp_filter, group_names=None,
-                        default=False):
+def orto_update_filters(ortho_groups, gn_filter, sp_filter,
+                        group_names=None, default=False):
     if group_names:
-        self.ortho_groups.update_filters(gn_filter, sp_filter, group_names,
+        ortho_groups.update_filters(gn_filter, sp_filter, group_names,
                                          default=default)
     else:
-        self.ortho_groups.update_filters(gn_filter, sp_filter,
+        ortho_groups.update_filters(gn_filter, sp_filter,
                                          default=default)
-    return [self.ortho_groups]
+    return [ortho_groups]

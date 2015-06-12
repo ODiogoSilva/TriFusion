@@ -1166,7 +1166,7 @@
             text: "Ok"
             bold: True
             on_release:
-                app.run_in_background(app.orto_update_filters, app.orthology_card, [str(gene_txt.text), str(sp_txt.text), [str(app.active_group_name)] if not apply_chk.active else None, False], None, False)
+                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, str(gene_txt.text), str(sp_txt.text), [str(app.active_group_name)] if not apply_chk.active else None, False], None, False)
         Button:
             id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
