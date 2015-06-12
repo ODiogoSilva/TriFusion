@@ -52,7 +52,6 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.scrollview import ScrollView
 
 # Main program imports
-from ortho import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
 from ortho import protein2dna
 from process.base import Base
@@ -2033,25 +2032,6 @@ class TriFusionApp(App):
         :param no_arg2: Boolean. Whether func will return something to
         second_func
         """
-
-        def background_process(f, ns, a):
-            """
-            Executes the func in the background and returns its value to the
-            shared namespace
-            :param f: bound method
-            :param ns: shared namespace
-            :param a: list arguments
-            """
-
-            try:
-                if a:
-                    val = f(*a)
-                else:
-                    val = f()
-                ns.val = val
-            except Exception:
-                logging.exception("Unexpected exit in {}".format(f.__name__))
-                ns.exception = True
 
         def check_process_status(p, second_function, args, dt):
             """
@@ -4574,21 +4554,6 @@ class TriFusionApp(App):
         of the output filtered file
         """
 
-        def background_process(f, nm, a):
-            """
-            Calls function f with a arguments
-            :param f: bound method
-            :param nm: shared namespace object to provide to bound method
-            :param a: list, with arguments
-            """
-
-            try:
-                f(*a, shared_namespace=nm)
-            except:
-                logging.exception("Unexpected error when exporting ortholog "
-                                  "groups")
-                nm.exception = True
-
         def check_process(p, dt):
 
             # Update dialog text
@@ -4653,7 +4618,7 @@ class TriFusionApp(App):
         manager = multiprocessing.Manager()
         ns = manager.Namespace()
 
-        d = multiprocessing.Process(target=background_process,
+        d = multiprocessing.Process(target=background_export_groups,
                                     args=(m[0], ns, m[1]))
         d.start()
 
@@ -5733,7 +5698,9 @@ class TriFusionApp(App):
         """
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
-        aln_obj = self.update_active_fileset(self.alignment_list)\
+        aln_obj = update_active_fileset(self.alignment_list,
+                                self.process_grid_wgt.ids.active_file_set.text,
+                                self.file_list, self.file_groups)
 
         # Get main operation
         try:
@@ -6307,61 +6274,6 @@ class TriFusionApp(App):
         else:
             self.secondary_options[switch_id] = state
 
-    def update_active_fileset(self, aln_obj):
-        """
-        This method is similar in purpose and functionality to the
-        update_active_taxaset, but it updates the set of files. It should be
-        used before the said method.
-        :param aln_obj: The alignment object being used during execution of
-        Process operations
-        """
-
-        # Determine the selected active taxa set from the dropdown menu
-        file_set_name = self.process_grid_wgt.ids.active_file_set.text
-
-        if file_set_name == "All files":
-            aln_obj.update_active_alignments([basename(x) for x in
-                                              self.file_list])
-            return aln_obj
-
-        if file_set_name == "Active files":
-            return aln_obj
-
-        else:
-            aln_obj.update_active_alignments(self.file_groups[file_set_name])
-            return aln_obj
-
-    def update_active_taxaset(self, aln_obj):
-        """
-        Do not use this method on the original self.alignment_list or
-        self.active_alignment list, as it may cause unwanted permanent changes
-        to the taxa set.
-
-        This will take the complete taxa set from self.alignment_list.taxa_names
-        and the currently active taxa set from self.active_taxa_list and remove
-        the all taxa that are not present in the active taxa set from the
-        alignment object passed as argument. If the lists are the same, no taxa
-        will be removed
-        """
-
-        # Determine the selected active taxa set from the dropdown menu
-        tx_set_name = self.process_grid_wgt.ids.active_taxa_set.text
-
-        if tx_set_name == "All taxa":
-            return aln_obj
-
-        if tx_set_name == "Active taxa":
-            tx_set = self.active_taxa_list
-
-        else:
-            tx_set = self.taxa_groups[tx_set_name]
-
-        # Remove taxa
-        aln_obj.remove_taxa(list(set(self.alignment_list.taxa_names) -
-                                 set(tx_set)))
-
-        return aln_obj
-
     def dialog_orto_execution(self):
         """
         Creates and populates the pre-execution dialog for orthology search
@@ -6409,101 +6321,6 @@ class TriFusionApp(App):
         Main function that executes all queued procedures of the orthology
         module
         """
-
-        def process_dispatch(nm):
-            """
-            Executes all pipeline subprocesses sequentially and updates the
-            Progess dialog label
-            """
-
-            try:
-                if nm.k:
-                    nm.t = "Installing schema"
-                    nm.c = 1
-                    ortho_pipe.install_schema(self.temp_dir)
-
-                if nm.k:
-                    nm.t = "Adjusting Fasta Files"
-                    nm.c = 2
-                    ortho_pipe.adjust_fasta(self.proteome_files)
-
-                if nm.k:
-                    nm.t = "Filtering Fasta Files"
-                    nm.c = 3
-                    ortho_pipe.filter_fasta(self.protein_min_len,
-                                       self.protein_max_stop,
-                                       bin_path=join(self.cur_dir, "ortho",
-                                                     "orthomclFilterFasta"))
-
-                if nm.k:
-                    nm.t = "Running USearch. This may take a while..."
-                    nm.c = 4
-                    ortho_pipe.allvsall_usearch("goodProteins.fasta",
-                                      self.usearch_evalue,
-                                      self.screen.ids.usearch_threads.text,
-                                      self.usearch_output,
-                                      usearch_bin=join(self.cur_dir, "data",
-                                                       "resources",
-                                                       "usearch_linux"))
-
-                if nm.k:
-                    nm.t = "Parsing USEARCH output"
-                    nm.c = 5
-                    ortho_pipe.blast_parser(self.usearch_output,
-                                            bin_path=join(self.cur_dir, "ortho",
-                                                     "orthomclBlastParser"))
-
-                if nm.k:
-                    ortho_pipe.remove_duplicate_entries()
-
-                if nm.k:
-                    nm.t = "Loading USEARCH output to database"
-                    nm.c = 6
-                    ortho_pipe.load_blast(self.temp_dir)
-
-                if nm.k:
-                    nm.t = "Obtaining Pairs"
-                    nm.c = 7
-                    ortho_pipe.pairs(self.temp_dir)
-
-                if nm.k:
-                    ortho_pipe.dump_pairs(self.temp_dir)
-
-                if nm.k:
-                    nm.t = "Running MCL"
-                    nm.c = 8
-                    ortho_pipe.mcl(self.mcl_inflation)
-
-                if nm.k:
-                    nm.t = "Dumping groups"
-                    nm.c = 9
-                    ortho_pipe.mcl_groups(self.mcl_inflation,
-                                          self.ortholog_prefix, "1000",
-                                          self.group_prefix,
-                                          bin_path=join(self.cur_dir, "ortho",
-                                                     "orthomclMclToGroups"))
-
-                if nm.k:
-                    nm.t = "Filtering group files"
-                    nm.c = 10
-                    stats, groups_obj = ortho_pipe.export_filtered_groups(
-                                                 self.mcl_inflation,
-                                                 self.group_prefix,
-                                                 self.orto_max_gene,
-                                                 self.orto_min_sp, self.sqldb,
-                                                 join(self.ortho_dir,
-                                                      "backstage_files",
-                                                      "goodProteins.fasta"),
-                                                 self.temp_dir)
-
-                    # stats is a dictionary containing the inflation value as
-                    #  key and a list with the orthologs as value
-                    nm.stats = stats
-                    nm.groups = groups_obj
-
-            except:
-                logging.exception("Unexpected exit in Orthology search")
-                nm.exception = True
 
         def check_process(p, dt):
             """
@@ -6554,7 +6371,18 @@ class TriFusionApp(App):
 
         # Create Process instance
         d = multiprocessing.Process(name="daemon", target=process_dispatch,
-                                    args=(ns, ))
+                                    args=(ns, self.temp_dir,
+                                          self.proteome_files,
+                                          self.protein_min_len,
+                                          self.protein_max_stop, self.cur_dir,
+                                          self.usearch_evalue,
+                                          self.screen.ids.usearch_threads.text,
+                                          self.usearch_output,
+                                          self.mcl_inflation,
+                                          self.ortholog_prefix,
+                                          self.group_prefix, self.orto_max_gene,
+                                          self.orto_min_sp, self.sqldb,
+                                          self.ortho_dir))
         # This will make the process run in the background so that the app
         # doesn't freeze
         d.daemon = True
@@ -6602,185 +6430,6 @@ class TriFusionApp(App):
 
         """
 
-        def background_process(ns):
-            """
-            Wrapper of the main process execution function for better handling
-            of unexpected errors.
-            :param ns: Namespace object
-            """
-
-            try:
-                execution(ns)
-            except:
-                # Log traceback in case any unexpected error occurs. See
-                # self.log_file for whereabouts of the traceback
-                logging.exception("Unexpected exit in Process execution")
-                ns.exception = True
-
-        def execution(ns):
-            """
-            Process execution function
-            :param ns: Namespace object
-            """
-
-            write_aln = {}
-
-            # Perform checks
-            if self.alignment_list is None or not\
-                    self.alignment_list.alignments:
-                return self.dialog_warning("No input data", "Use 'Menu > Open "
-                                           "file(s)' to load input data")
-
-            #####
-            # Perform operations
-            #####
-
-            # Setting the alignment to use. A deepcopy of the alignment list
-            # is used because it may be possible to do perform permanent
-            # changes to the alignment object.
-            # Update active file set of the alignment object
-            aln_object = self.update_active_fileset(deepcopy(
-                self.alignment_list))
-            # Update active taxa set of the alignment object
-            aln_object = self.update_active_taxaset(aln_object)
-            ns.proc_files = len(aln_object.alignments)
-
-            # Filtering - This should be the first operation to be performed
-            if self.secondary_operations["filter"]:
-                ns.msg = "Filtering alignment(s)"
-
-                if self.secondary_options["filter_file"]:
-                    filtered_aln_obj = deepcopy(aln_object)
-
-                # Check if a minimum taxa representation was specified
-                if self.secondary_options["gap_filter"]:
-                    if self.missing_filter_settings[2]:
-                        try:
-                            filtered_aln_obj.filter_min_taxa(
-                            self.missing_filter_settings[2])
-                        except NameError:
-                            aln_object.filter_min_taxa(
-                                self.missing_filter_settings[2])
-
-                # Filter by taxa
-                if self.secondary_options["taxa_filter"]:
-                    # Get taxa list from taxa groups
-                    taxa_list = self.taxa_groups[self.taxa_filter_settings[1]]
-                    try:
-                        filtered_aln_obj.filter_by_taxa(
-                            self.taxa_filter_settings[0], taxa_list)
-                    except NameError:
-                        aln_object.filter_by_taxa(self.taxa_filter_settings[0],
-                                                  taxa_list)
-
-                # Filter codon positions
-                if self.secondary_options["codon_filter"]:
-                    try:
-                        filtered_aln_obj.filter_codon_positions(
-                        self.codon_filter_settings)
-                    except NameError:
-                        aln_object.filter_codon_positions(
-                            self.codon_filter_settings)
-
-                # Filter missing data
-                if self.secondary_options["gap_filter"]:
-                    try:
-                        filtered_aln_obj.filter_missing_data(
-                            self.missing_filter_settings[0],
-                            self.missing_filter_settings[1])
-                    except NameError:
-                        aln_object.filter_missing_data(
-                        self.missing_filter_settings[0],
-                        self.missing_filter_settings[1])
-
-                try:
-                    write_aln[self.output_file + "_filtered"] = filtered_aln_obj
-                except NameError:
-                    pass
-
-            # Concatenation
-            if self.main_operations["concatenation"]:
-                ns.msg = "Concatenating"
-                aln_object = aln_object.concatenate()
-
-                # Concatenation of ZORRO files
-                if self.secondary_options["zorro"]:
-                    ns.msg = "Concatenating ZORRO files"
-                    zorro_data = data.Zorro(aln_object, self.zorro_suffix)
-                    zorro_data.write_to_file(self.output_file)
-
-            # Reverse concatenation
-            if self.main_operations["reverse_concatenation"]:
-                ns.msg = "Reverse concatenating"
-                partition_obj = data.Partitions()
-                # In case the partitions file is badly formatted or invalid, the
-                # exception will be returned by the read_from_file method.
-                er = partition_obj.read_from_file(self.partitions_file)
-                aln_object = aln_object.retrieve_alignment(self.rev_infile)
-                aln_object.set_partitions(partition_obj)
-                aln_object = aln_object.reverse_concatenate()
-
-            # Collapsing
-            if self.secondary_operations["collapse"]:
-                ns.msg = "Collapsing alignment(s)"
-                if self.secondary_options["collapse_file"]:
-                    collapsed_aln_obj = deepcopy(aln_object)
-                    collapsed_aln_obj.collapse(haplotype_name=self.hap_prefix,
-                                               haplotypes_file="_collapsed")
-                    write_aln[self.output_file + "_collapsed"] = \
-                        collapsed_aln_obj
-                else:
-                    aln_object.collapse(haplotype_name=self.hap_prefix)
-
-            # Gcoder
-            if self.secondary_operations["gcoder"]:
-                ns.msg = "Coding gaps"
-                if self.secondary_options["gcoder_file"]:
-                    gcoded_aln_obj = deepcopy(aln_object)
-                    gcoded_aln_obj.code_gaps()
-                    write_aln[self.output_file + "_coded"] = gcoded_aln_obj
-                else:
-                    aln_object.code_gaps()
-
-            # The output file(s) will only be written after all the required
-            # operations have been concluded. The reason why there are two "if"
-            # statement for "concatenation" is that the input alignments must be
-            # concatenated before any other additional operations. If the first
-            # if statement did not exist, then all additional options would have
-            # to be manually written for both "conversion" and "concatenation".
-            #  As it is, when "concatenation", the aln_obj is firstly converted
-            # into the concatenated alignment, and then all additional
-            # operations are conducted in the same aln_obj
-            write_aln[self.output_file] = aln_object
-            ns.msg = "Writhing output"
-            if self.main_operations["concatenation"]:
-                if self.output_file == "":
-                    return self.dialog_warning("Output file not selected",
-                                               "Use the 'Select...' button of "
-                                               "'Output file' general option to"
-                                               " select an output file name")
-                for name, obj in write_aln.items():
-                    obj.write_to_file(self.output_formats, name,
-                                interleave=self.secondary_options["interleave"],
-                                partition_file=self.create_partfile,
-                                use_charset=self.use_nexus_partitions)
-            else:
-                if self.output_dir == "":
-                    return self.dialog_warning("Output directory not specified",
-                                           "use the 'Select...' button of "
-                                           "'Output directory' general option"
-                                           " to specify a destination directory"
-                                           " for the output file(s)")
-                else:
-                    for name, obj in write_aln.items():
-                        name = name.replace(self.output_file, "")
-                        obj.write_to_file(self.output_formats,
-                                output_suffix=name,
-                                interleave=self.secondary_options["interleave"],
-                                partition_file=self.create_partfile,
-                                output_dir=self.output_dir,
-                                use_charset=self.use_nexus_partitions)
-
         def check_process(p, dt):
 
             try:
@@ -6811,8 +6460,29 @@ class TriFusionApp(App):
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
 
-        p = multiprocessing.Process(target=background_process,
-                                    args=(shared_ns,))
+        # Packing arguments to background process
+        process_kwargs = {"aln_list": self.alignment_list,
+                "file_set_name": self.process_grid_wgt.ids.active_file_set.text,
+                "file_list": self.file_list, "file_groups": self.file_groups,
+                "taxa_set_name": self.process_grid_wgt.ids.active_taxa_set.text,
+                "active_taxa_list": self.active_taxa_list, "ns": shared_ns,
+                "taxa_groups": self.taxa_groups, "hap_prefix": self.hap_prefix,
+                "secondary_operations": self.secondary_operations,
+                "secondary_options": self.secondary_options,
+                "missing_filter_settings": self.missing_filter_settings,
+                "taxa_filter_settings": self.taxa_filter_settings,
+                "codon_filter_settings": self.codon_filter_settings,
+                "output_file": self.output_file, "rev_infile": self.rev_infile,
+                "main_operations": self.main_operations,
+                "zorro_suffix": self.zorro_suffix,
+                "partitions_file": self.partitions_file,
+                "output_formats": self.output_formats,
+                "create_partfile": self.create_partfile,
+                "use_nexus_partitions": self.use_nexus_partitions,
+                "output_dir": self.output_dir}
+
+        p = multiprocessing.Process(target=process_execution,
+                                    kwargs=process_kwargs)
         p.start()
 
         self.dismiss_popup()
