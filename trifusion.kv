@@ -3669,7 +3669,6 @@
             on_release: root.cancel()
 
 <Sidebt@ToggleButton>:
-    #background_color: [0,0,0,1]
     size_hint_y: None
     height: 50
     background_normal: "data/backgrounds/main_op_bt.png"
@@ -3682,6 +3681,15 @@
     bold: True
     font_size: 18
     padding: (20, 0)
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
 
 # Vertical light grey separator
 <Vseparator@Widget>:
