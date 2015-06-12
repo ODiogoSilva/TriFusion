@@ -34,21 +34,35 @@
     halign: "center"
     valign: "middle"
     text_size: self.size
-    size_hint_y: None
-    height: 30
     background_normal: "data/backgrounds/bt_process.png"
     background_down: "data/backgrounds/bt_process_off.png"
+    opacity: .3 if self.disabled else 1
+    line_clr: (0.216, 0.67, 0.784, 1)
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: root.line_clr
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
 
 <TGToggleButton>:
     bold: True
-    state: "down"
     halign: "center"
-    valign: "middle"
-    text_size: self.size
     size_hint_y: None
-    height: 30
     background_normal: "data/backgrounds/bt_process_off.png"
     background_down: "data/backgrounds/bt_process.png"
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
 
 <TFOKButon@Button>:
     background_normal: "data/backgrounds/bt_process_off.png"
@@ -98,20 +112,16 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 root.action(txt_dlg.text)
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -221,12 +231,9 @@
         size_hint_y: None
         height: 30
         padding: (30, 0, 30, 0)
-        Button:
+        TFOKButon:
             id: close_bt
-            background_normal: "data/backgrounds/bt_process.png"
-            background_down: "data/backgrounds/bt_process_off.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.proc_kill = True
 
@@ -435,14 +442,13 @@
                 size_hint_x: None
                 width: 220
                 spacing: 20
-                Button:
+                TFOKButon:
                     background_normal: "data/backgrounds/bt_process.png"
                     background_down: "data/backgrounds/bt_process_off.png"
                     text: "Export"
                     id: ok_bt
                     size_hint_x: None
                     width: 100
-                    bold: True
                     on_release:
                         if prot_fmt.state == "down" and not app.protein_db: \
                         app.dialog_floatcheck("Please provide a protein database", t="error")
@@ -455,11 +461,8 @@
                         elif nuc_fmt.state == "down": \
                         app.dialog_export_groups_filechooser("nucleotide")
 
-                Button:
-                    background_normal: "data/backgrounds/bt_process_off.png"
-                    background_down: "data/backgrounds/bt_process.png"
+                TFOKButon:
                     id: cancel_bt
-                    bold: True
                     text: "Cancel"
                     size_hint_x: None
                     width: 100
@@ -530,25 +533,21 @@
             size_hint_x: None
             width: 140
             spacing: 20
-            Button:
+            TFOKButon:
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 text: "Save"
                 id: ok_bt
                 size_hint_x: None
                 width: 100
-                bold: True
                 on_release:
                     if text_input.text == "": \
                     app.dialog_floatcheck("Please specify a file name", t="error")
                     else: \
                     app.export_graphic(sd_filechooser.path, text_input.text, ext.text)
                     root.cancel()
-            Button:
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
+            TFOKButon:
                 id: cancel_bt
-                bold: True
                 text: "Cancel"
                 size_hint_x: None
                 width: 100
@@ -583,10 +582,9 @@
         size_hint_y: None
         height: 30
         padding: (100, 0, 100, 0)
-        Button:
+        TFOKButon:
             id: close_bt
             text: "Close"
-            bold: True
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
@@ -642,11 +640,10 @@
         size_hint_y: None
         height: 30
         padding: (100, 0, 100, 0)
-        Button:
+        TFOKButon:
             id: close_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            bold: True
             text: "Close"
             on_release:
                 root.cancel()
@@ -688,11 +685,10 @@
         size_hint_y: None
         height: 30
         padding: (100, 0, 100, 0)
-        Button:
+        TFOKButon:
             id: close_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            bold: True
             text: "Close"
             on_release:
                 root.cancel()
@@ -755,7 +751,7 @@
     size_hint_y: None
     height: 30
     padding: (100, 0, 100, 0)
-    Button:
+    TFOKButon:
         id: close_bt
         background_normal: "data/backgrounds/bt_process.png"
         background_down: "data/backgrounds/bt_process_off.png"
@@ -1185,20 +1181,16 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, str(gene_txt.text), str(sp_txt.text), [str(app.active_group_name)] if not apply_chk.active else None, False], None, False)
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -1247,22 +1239,18 @@
         height: 40
         padding: (50, 0, 50, 0)
         spacing: 20
-        Button:
+        TFOKButon:
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Execute"
             id: ok_bt
-            bold: True
             on_release:
                 root.cancel()
                 app.orthology_search_exec()
 
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -1286,14 +1274,13 @@
         AnchorLayout:
             anchor_x: "center"
             anchor_y: "center"
-            Button:
+            TFOKButon:
                 id: close_bt
                 size_hint_x: None
                 width: 150
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 text: "Cancel"
-                bold: True
                 on_release:
                     root.proc_kill = True
 
@@ -1471,22 +1458,18 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Go to Restuls"
-            bold: True
             on_release:
                 app.screen.ids.explore.dispatch("on_release")
                 app.screen.ids.explore.state = "down"
                 root.cancel()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Close"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -1542,20 +1525,16 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 app.save_ortho_filters(gene_txt.text, sp_txt.text)
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -1599,21 +1578,17 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 app.save_inflation(inflation_bx)
                 root.cancel()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release: root.cancel()
 
 <MySQLDialog>:
@@ -1629,21 +1604,17 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 app.save_mysql_pass(txt_dlg.text)
                 root.cancel()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release: root.cancel()
 
 <ProteinFilterDialog>:
@@ -1675,21 +1646,17 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 app.save_protein_filters(txt_len.text, txt_stop.text)
                 root.cancel()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release: root.cancel()
 
 <OrthologySearchGrid>:
@@ -2013,23 +1980,19 @@
             spacing: 20
             padding: (150, 0, 150, 0)
 
-            Button:
+            TFOKButon:
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 text: "Save"
                 id: ok_bt
-                bold: True
                 on_release:
                     if sd_filechooser.selection:\
                     app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir], None, False, "Loading group files...")
                     #root.cancel()
 
-            Button:
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
+            TFOKButon:
                 id: cancel_bt
                 text: "Cancel"
-                bold: True
                 on_release: root.cancel()
 
 #===============================================================================
@@ -2069,20 +2032,16 @@
         height: 40
         padding: (50, 0, 50, 0)
         spacing: 20
-        Button:
+        TFOKButon:
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Execute"
             id: ok_bt
-            bold: True
             on_release:
                 app.process_exec()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -2107,12 +2066,11 @@
         size_hint_y: None
         height: 30
         padding: (30, 0, 30, 0)
-        Button:
+        TFOKButon:
             id: close_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Close"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -2252,13 +2210,12 @@
             size_hint_y: None
             height: 30
             spacing: 20
-            Button:
+            TFOKButon:
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 id: ok_bt
                 font_size: 16
                 text: "Ok"
-                bold: True
                 on_release:
                     # Check for empty selected group
                     if not select_grid.children: \
@@ -2274,13 +2231,10 @@
                     if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: \
                     app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type); root.cancel()
 
-            Button:
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
+            TFOKButon:
                 id: apply_bt
                 font_size: 16
                 text: "Apply"
-                bold: True
                 on_release:
                     # Check for empty selected group
                     if not select_grid.children: \
@@ -2295,13 +2249,10 @@
                     app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
                     if root.ds_type == "files" and select_grid.children and root.ids.group_name.text not in app.file_groups: \
                     app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
-            Button:
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process_off.png"
+            TFOKButon:
                 id: cancel_bt
                 font_size: 16
                 text: "Cancel"
-                bold: True
                 on_release:
                     root.cancel()
 
@@ -2389,7 +2340,7 @@
                         height: sum([x.height + 10 for x in self.children]) / 2
                         cols: 2
                         orientation: "vertical"
-                        spacing: [5, 10]
+                        spacing: [10, 10]
                         id: bookmark_gl
 
             FileChooserL:
@@ -2417,12 +2368,11 @@
             spacing: 20
             padding: (150, 0, 150, 0)
 
-            Button:
+            TFOKButon:
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 text: "Save"
                 id: ok_bt
-                bold: True
                 text_io: text_input.text if not None else ""
                 on_release:
                     # For save dialogs requiring file name, make this check
@@ -2454,11 +2404,8 @@
                     # Close dialog
                     if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group": root.cancel()
 
-            Button:
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
+            TFOKButon:
                 id: cancel_bt
-                bold: True
                 text: "Cancel"
                 on_release: root.cancel()
 
@@ -2477,18 +2424,6 @@
 # SIDE PANEL WIDGETS
 #===============================================================================
 
-<SelectionBox@BoxLayout>:
-    orientation: "horizontal"
-    size_hint_y: None
-    height: 35
-    spacing: 20
-    Button:
-        text: "Select All"
-        disabled: True
-    Button:
-        text: "Deselect All"
-        disabled: True
-
 <SideButton@ToggleButton>:
     group: "side_buttons"
     size_hint_y: .1
@@ -2502,12 +2437,10 @@
     Widget:
         size_hint_y:None
         height: 50
-    Button:
+    TFOKButon:
         text: "Load next 20"
         size_hint_x: None
         width: 260
-        background_normal: "data/backgrounds/main_op_bt.png"
-        background_down: "data/backgrounds/bt_sideprocess.png"
         on_release:
             app.sidepanel_load_more_filebts()
 
@@ -2636,22 +2569,18 @@
                 spacing: 10
                 size_hint_x: None
                 width: 190
-                Button:
+                TFOKButon:
                     size_hint_x: None
                     width: 90
                     text: "Apply"
-                    bold: True
                     background_normal: "data/backgrounds/bt_process.png"
                     background_down: "data/backgrounds/bt_process_off.png"
                     on_release:
                         app.save_model(root.original_name, root)
-                Button:
+                TFOKButon:
                     size_hint_x: None
                     width: 90
                     text: "Apply All"
-                    bold: True
-                    background_normal: "data/backgrounds/bt_process.png"
-                    background_down: "data/backgrounds/bt_process_off.png"
                     on_release:
                         app.save_model(root.original_name, root, True)
 
@@ -2732,24 +2661,20 @@
             size_hint_x: None
             width: 220
             spacing: 20
-            Button:
+            TFOKButon:
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
                 text: "Split"
                 id: ok_bt
                 size_hint_x: None
                 width: 100
-                bold: True
                 on_release:
                     app.partitions_split([(int(manual_slider.min), int(manual_slider.value)), (int(manual_slider.value + 1), int(manual_slider.max))], [part1.text, part2.text])
-            Button:
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
+            TFOKButon:
                 text: "Cancel"
                 id: cancel_bt
                 size_hint_x: None
                 width: 100
-                bold: True
                 on_release:
                     root.cancel()
 
@@ -2762,13 +2687,13 @@
         size_hint_y: None
         height: 40
         spacing: 10
-        Button:
+        TFOKButon:
             bold: True
             text: "Selected partitions"
             background_normal: "data/backgrounds/bt_process.png"
             on_release:
                 app.dialog_filechooser("import_act_part")
-        Button:
+        TFOKButon:
             bold: True
             text: "All partitions"
             background_normal: "data/backgrounds/bt_process.png"
@@ -2787,12 +2712,6 @@
     background_normal: "data/backgrounds/settings.png"
     background_down: "data/backgrounds/settings_down.png"
     background_disabled_normal: "data/backgrounds/settings_disabled.png"
-    #Image:
-    #    source: "data/backgrounds/settings.png"
-    #    pos: self.parent.x, self.parent.y
-    #    #x: self.parent.x
-    #    size: 40, 40
-    #    allow_stretch: True
 
 <FormatDialog>:
     padding: [30, 20, 30, 20]
@@ -2806,7 +2725,8 @@
             size_hint_y: None
             height: 40
             spacing: 10
-            ToggleButton:
+            TGToggleButton:
+                height: 40
                 background_normal: "data/backgrounds/bt_process_off.png"
                 background_down: "data/backgrounds/bt_process.png"
                 id: fasta
@@ -2817,7 +2737,8 @@
             size_hint_y: None
             height: 40
             spacing: 10
-            ToggleButton:
+            TGToggleButton:
+                height: 40
                 background_normal: "data/backgrounds/bt_process_off.png"
                 background_down: "data/backgrounds/bt_process.png"
                 id: phylip
@@ -2830,7 +2751,8 @@
             size_hint_y: None
             height: 40
             spacing: 10
-            ToggleButton:
+            TGToggleButton:
+                height: 40
                 background_normal: "data/backgrounds/bt_process_off.png"
                 background_down: "data/backgrounds/bt_process.png"
                 id: nexus
@@ -2843,7 +2765,8 @@
             size_hint_y: None
             height: 40
             spacing: 10
-            ToggleButton:
+            TGToggleButton:
+                height: 40
                 background_normal: "data/backgrounds/bt_process_off.png"
                 background_down: "data/backgrounds/bt_process.png"
                 id: mcmctree
@@ -2853,7 +2776,8 @@
             size_hint_y: None
             height: 40
             spacing: 10
-            ToggleButton:
+            TGToggleButton:
+                height: 40
                 background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                 id: ima2
                 text: "IMa2"
@@ -2865,19 +2789,15 @@
         height: 30
         spacing: 10
         padding: (10, 0, 10, 0)
-        Button:
+        TFOKButon:
             id: ok_bt
             text: "Ok"
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            bold: True
             on_release: app.save_format(format_dlg)
-        Button:
+        TFOKButon:
             id: cancel_bt
             text: "Cancel"
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
-            bold: True
             on_release: root.cancel()
 
 <NexusExtra>:
@@ -2896,20 +2816,16 @@
         height: 30
         orientation: "horizontal"
         spacing: 20
-        Button:
+        TFOKButon:
             id: ok_bt
             text: "Ok"
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            bold: True
             on_release:
                 app.use_nexus_partitions = root.ids.nexus_check.active
                 app.dismiss_subpopup()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
-            bold: True
             text: "Cancel"
             on_release: root.cancel()
 
@@ -2929,21 +2845,17 @@
         height: 30
         orientation: "horizontal"
         spacing: 20
-        Button:
+        TFOKButon:
             id: ok_bt
             text: "Ok"
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            bold: True
             on_release:
                 app.create_partfile = root.ids.part_check.active
                 app.dismiss_subpopup()
-        Button:
+        TFOKButon:
             id: cancel_bt
             text: "Cancel"
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
-            bold: True
             on_release: root.cancel()
 
 #===============================================================================
@@ -2975,19 +2887,15 @@
     BoxLayout:
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             text: "Ok"
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            bold: True
             on_release: app.save_zorro_settings(zorro_txt.text)
-        Button:
+        TFOKButon:
             id: cancel_bt
             text: "Cancel"
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
-            bold: True
             on_release: root.cancel()
 
 #===============================================================================
@@ -3007,24 +2915,20 @@
         height: 30
         orientation: "horizontal"
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 if root.text == "new_folder": \
                 app.create_folder(txt_dlg.text)
                 else: \
                 app.save_text(txt_dlg.text, root.text)
                 root.cancel()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release: root.cancel()
 
 #===============================================================================
@@ -3046,14 +2950,11 @@
     AnchorLayout:
         size_hint_y: None
         height: 30
-        Button:
+        TFOKButon:
             size_hint_x: None
             width: 80
             id: cancel_bt
             text: "Close"
-            bold: True
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             on_release:
                 root.cancel()
 
@@ -3076,22 +2977,18 @@
             size_hint_x: None
             width: 180
             spacing: 10
-            Button:
+            TFOKButon:
                 size_hint_x: None
                 width: 80
                 id: ok_bt
                 text: "Ok"
-                bold: True
                 background_normal: "data/backgrounds/bt_process.png"
                 background_down: "data/backgrounds/bt_process_off.png"
-            Button:
+            TFOKButon:
                 size_hint_x: None
                 width: 80
                 id: cancel_bt
                 text: "Cancel"
-                bold: True
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
                 on_release:
                     root.cancel()
 
@@ -3171,7 +3068,7 @@
                     height: sum([x.height + 10 for x in self.children]) / 2
                     cols: 2
                     orientation: "vertical"
-                    spacing: [5, 10]
+                    spacing: [10, 10]
                     id: bookmark_gl
 
         BoxLayout:
@@ -3223,20 +3120,16 @@
         spacing: 20
         padding: (150, 0, 150, 0)
 
-        Button:
+        TFOKButon:
             id: ok_bt
             text: "OK"
-            bold: True
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
                 app.save_reverseconc_partfile(ld_filechooser.selection[0])
                 root.cancel()
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
-            bold: True
             text: "Cancel"
             on_release: root.cancel()
 
@@ -3257,7 +3150,7 @@
                 if self.active == True: app.update_main_operations("reverse_concatenation"); rev_infile.disabled = False; part_file.disabled = False
                 if self.active == False: app.update_main_operations("concatenation"); rev_infile.disabled = True; part_file.disabled = True
 
-        Button:
+        TFOKButon:
             id: part_file
             background_normal: "data/backgrounds/bt_process_off.png"
             background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -3271,7 +3164,7 @@
             on_release:
                 app.dialog_load_partfile()
 
-        Button:
+        TFOKButon:
             id: rev_infile
             background_normal: "data/backgrounds/bt_process_off.png"
             background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -3290,24 +3183,22 @@
         height: 30
         spacing: 10
         padding: (30, 0, 30, 0)
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "OK"
-            bold: True
             on_release:
                 if rev_conc.active: \
                 app.save_reverseconc_settings()
                 else: \
                 root.cancel()
 
-        Button:
+        TFOKButon:
             id: cancel_bt
             background_normal: "data/backgrounds/bt_process_off.png"
             background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release: root.cancel()
 
 #===============================================================================
@@ -3409,20 +3300,16 @@
         size_hint_y: None
         height: 30
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 app.save_taxafilter(taxa_filter.active, filter_mode.text, taxa_group_name.text)
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -3471,20 +3358,16 @@
         size_hint_y: None
         height: 30
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release:
                 app.save_codonfilter(aln_filter.active, [True if fbt.state == "down" else False, True if sbt.state == "down" else False, True if tbt.state == "down" else False])
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release:
                 root.cancel()
 
@@ -3679,19 +3562,15 @@
         size_hint_y: None
         height: 30
         spacing: 10
-        Button:
+        TFOKButon:
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            bold: True
             on_release: app.save_gapfilter(gap_filter.active, gap_sli.value, mis_sli.value, min_taxa.value)
-        Button:
+        TFOKButon:
             id: cancel_bt
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_down: "data/backgrounds/bt_process.png"
             text: "Cancel"
-            bold: True
             on_release: root.cancel()
 
 <Sidebt@ToggleButton>:
@@ -3769,6 +3648,15 @@
     text_size: self.size
     halign: "center"
     valign: "middle"
+    StackLayout:
+        canvas.after:
+            Color:
+                rgba: (0.216, 0.67, 0.784, .5) if root.disabled else (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
 
 #===============================================================================
 # PROCESS GENERAL OPTIONS
@@ -3989,6 +3877,7 @@
                 ProcessBt:
                     id: zorro
                     background_normal: "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     size_hint_x: .2
                     text: "OFF"
                     disabled: False if app.main_operations["concatenation"] else True
@@ -4219,8 +4108,6 @@
                     id: gcoder_file
                     size_hint_x: .2
                     disabled: True
-                    background_normal: "data/backgrounds/bt_process.png"
-                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_active:
                         app.update_process_switch("gcoder_file", self.active)
 
@@ -4237,6 +4124,8 @@
                 ProcessBt:
                     id: gcode_bt
                     disabled: True
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    background_normal: "data/backgrounds/bt_process_off.png"
                     text: "Choose..."
 
 #===============================================================================
@@ -4525,29 +4414,29 @@ FloatLayout:
                                                 color: (.6, .6, .6, 1)
                                             BoxLayout:
                                                 id: bt_bar_file
-                                                spacing: 5
+                                                spacing: 10
                                                 size_hint_y: None
                                                 height: 35
                                                 BoxLayout:
                                                     id: sb_file
                                                     spacing: 5
-                                                    Button:
+                                                    TFButton:
                                                         text: "Select All"
                                                         disabled: True if not app.filename_map and not app.proteome_files else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
-                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                         on_release:
                                                             app.select_bt(self)
-                                                    Button:
+                                                    TFButton:
                                                         text: "Deselect All"
                                                         disabled: True if not app.filename_map and not app.proteome_files else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
-                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                         on_release:
                                                             app.select_bt(self)
-                                                Button:
+                                                TFButton:
                                                     id: file_opt
                                                     text: "+"
                                                     font_size: 30
@@ -4560,10 +4449,11 @@ FloatLayout:
                                                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     on_release:
                                                         file_dd.open(self)
-                                                Button:
+                                                TFButton:
                                                     id: rm_all_File
                                                     size_hint_x: None
                                                     width: 35
+                                                    line_clr: [255 / 255., 85 / 255., 85 / 255., 1.]
                                                     disabled: True if not app.filename_map and not app.proteome_files else False
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
@@ -4673,29 +4563,29 @@ FloatLayout:
                                                 height: 10
                                                 color: (.6, .6, .6, 1)
                                             BoxLayout:
-                                                spacing: 5
+                                                spacing: 10
                                                 size_hint_y: None
                                                 height: 35
                                                 BoxLayout:
                                                     id: sb_taxa
                                                     spacing: 5
-                                                    Button:
+                                                    TFButton:
                                                         text: "Select All"
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
-                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                         on_release:
                                                             app.select_bt(self)
-                                                    Button:
+                                                    TFButton:
                                                         text: "Deselect All"
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
-                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                         on_release:
                                                             app.select_bt(self)
-                                                Button:
+                                                TFButton:
                                                     id: taxa_opt
                                                     text: "+"
                                                     font_size: 30
@@ -4705,13 +4595,14 @@ FloatLayout:
                                                     disabled: True if not app.filename_map else False
                                                     background_normal: "data/backgrounds/bt_process_off.png"
                                                     background_down: "data/backgrounds/bt_process.png"
-                                                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                    background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                     on_release:
                                                         taxa_dd.open(self)
-                                                Button:
+                                                TFButton:
                                                     id: rm_all_Taxa
                                                     size_hint_x: None
                                                     width: 35
+                                                    line_clr: [255 / 255., 85 / 255., 85 / 255., 1.]
                                                     disabled: True if not app.filename_map else False
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"
@@ -4836,41 +4727,41 @@ FloatLayout:
                                                 BoxLayout:
                                                     id: sb_partition
                                                     spacing: 5
-                                                    Button:
+                                                    TFButton:
                                                         text: "Select All"
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
-                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                         on_release:
                                                             app.select_bt(self)
-                                                    Button:
+                                                    TFButton:
                                                         text: "Deselect All"
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
-                                                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                         on_release:
                                                             app.select_bt(self)
-                                                    Button:
+                                                    TFButton:
                                                         id: merge_part
                                                         disabled: True
                                                         size_hint_x: None
                                                         width: 35
                                                         background_normal: "data/backgrounds/group_bt.png"
-                                                        background_disabled_normal: "data/backgrounds/group_bt_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/group_bt.png"
                                                         on_release:
                                                             app.partitions_merge_dialog()
-                                                    Button:
+                                                    TFButton:
                                                         disabled: True
                                                         id: split_part
                                                         size_hint_x: None
                                                         width: 35
                                                         background_normal: "data/backgrounds/split_bt.png"
-                                                        background_disabled_normal: "data/backgrounds/split_bt_disabled.png"
+                                                        background_disabled_normal: "data/backgrounds/split_bt.png"
                                                         on_release:
                                                             app.dialog_partitions_split()
-                                                    Button:
+                                                    TFButton:
                                                         disabled: True if not app.filename_map else False
                                                         id: add_part
                                                         size_hint_x: None

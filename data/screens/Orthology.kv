@@ -240,7 +240,7 @@ ShowcaseScreen:
                                                     size_hint: None, None
                                                     size: 30,30
                                                     id: add_group
-                                                    background_normal: "data/backgrounds/add_group_bt.png"
+                                                    background_normal: "data/backgrounds/add_bt30.png"
                                                     on_release:
                                                         app.dialog_import_groups()
 
@@ -284,12 +284,12 @@ ShowcaseScreen:
                                             height: 42.5
                                             padding: 5
                                             spacing: 10
-                                            Button:
+                                            TFButton:
                                                 id: compare_group_bt
                                                 text: "Compare"
                                                 bold: True
                                                 background_normal: "data/backgrounds/bt_process.png"
-                                                background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                                                background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                 disabled: True
                                                 on_release:
                                                     app.go_screen(5)

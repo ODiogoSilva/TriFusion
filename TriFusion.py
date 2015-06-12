@@ -357,12 +357,15 @@ class CrunchData(BoxLayout):
 
 
 class TFButton(Button):
-    pass
+
+    def __init__(self, **kwargs):
+        super(TFButton, self).__init__(**kwargs)
 
 
 class TGToggleButton(ToggleButton):
-    pass
 
+    def __init__(self, **kwargs):
+        super(TGToggleButton, self).__init__(**kwargs)
 
 class ExportGraphics(BoxLayout):
     cancel = ObjectProperty(None)
@@ -2140,9 +2143,10 @@ class TriFusionApp(App):
         :param wgt: Widget, preferentially a gridlayout where the bookmark
         buttons will be added
         """
-        bookmark_name = bk.split("/")[-1]
+
+        bookmark_name = basename(bk)
         # Define bookmark button
-        bt = Button(text=bookmark_name, id=bk, bold=True,
+        bt = TFButton(text=bookmark_name, id=bk, bold=True,
                     height=30, size_hint=(.8, None),
                     background_normal=join("data", "backgrounds",
                                            "bt_process.png"),
@@ -2727,13 +2731,9 @@ class TriFusionApp(App):
         else:
             state = "down"
 
-        bt = ToggleButton(text=idx, id=idx, state=state, height=30,
-                          size_hint=(.8, None), shorten=True,
-                          shorten_from="right", halign="center", bold=True,
-                          background_normal=join("data", "backgrounds",
-                                                 "bt_process_off.png"),
-                          background_down=join("data", "backgrounds",
-                                               "bt_process.png"))
+        bt = TGToggleButton(text=idx, id=idx, state=state, height=30,
+                          size_hint_x=.8, shorten=True,
+                          shorten_from="right")
 
         # Setting horizontal text size for shortening
         bt.text_size[0] = bt.size[0] * 2
@@ -3075,14 +3075,10 @@ class TriFusionApp(App):
         fl_num = str(len(idx[1]))
 
         # Create main button
-        bt = ToggleButton(text=part_name, state="normal", id=part_name,
-                          height=30, size_hint=(.8, None), shorten=True,
-                          shorten_from="right", halign="center",
-                          bold=True,
-                          background_down=join("data", "backgrounds",
-                                                 "bt_process.png"),
-                          background_normal=join("data", "backgrounds",
-                                                 "bt_process_off.png"))
+        bt = TGToggleButton(text=part_name, state="normal", id=part_name,
+                            size_hint_y=.8, shorten=True, height=30,
+                            shorten_from="right")
+
         bt.bind(on_release=lambda x: self.partition_bt_state())
         bt.bind(on_release=self.toggle_selection)
 
@@ -3093,22 +3089,19 @@ class TriFusionApp(App):
         # of alignments included in this partition as its text. The
         # on_release event will show a popup with a list of the alignment
         # files contained
-        c_bt = Button(size_hint=(None, None), width=30, text=fl_num,
+        c_bt = TFButton(size_hint=(None, None), width=30, text=fl_num,
                       height=30, id="%sC" % part_name, bold=True,
-                      border=(0, 0, 0, 0),
-                      background_normal=join("data", "backgrounds",
-                                             "counter_bt.png"),
-                      background_down=join("data", "backgrounds",
-                                             "counter_bt.png"))
+                      border=(0, 0, 0, 0))
+        c_bt.background_normal = join("data", "backgrounds",
+                                      "bt_process_off.png")
+        c_bt.background_down = join("data", "backgrounds", "bt_process.png")
         c_bt.bind(on_release=lambda x: self.dialog_partition_files(bt.text))
 
         # Create edition button
-        ed_bt = Button(size_hint=(None, None), width=30,
-                        height=30, id="%s?" % part_name,
-                        background_normal=join("data", "backgrounds",
-                                               "edit_bt.png"),
-                        background_down=join("data", "backgrounds",
-                                               "edit_bt_down.png"))
+        ed_bt = TFButton(size_hint=(None, None), width=30,
+                        height=30, id="%s?" % part_name)
+        ed_bt.background_normal = join("data", "backgrounds", "edit_bt.png")
+        ed_bt.background_down = join("data", "backgrounds", "edit_bt_down.png")
         ed_bt.bind(on_release=self.dialog_partitions)
 
         return bt, c_bt, ed_bt
@@ -4849,7 +4842,7 @@ class TriFusionApp(App):
         # Add button for each taxon
         for taxon in sorted(self.active_group.species_list +
                             self.screen.ids.header_content.excluded_taxa):
-            bt = TGToggleButton(text=taxon)
+            bt = TGToggleButton(text=taxon, height=30)
             # deselect button if taxa is excluded
             if taxon in self.screen.ids.header_content.excluded_taxa:
                 bt.state = "normal"
