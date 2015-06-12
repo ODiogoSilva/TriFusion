@@ -1148,9 +1148,7 @@ class TriFusionApp(App):
         # Get modifier (usually ctrl or shift)
         # TODO: The modifier in MacOS is different. Must check on this.
         modifier = "".join(vals[-1])
-        # Get key
-        key = vals[-2].encode("utf-8")
-        key_code = vals[1:3]
+        key_code = vals[1]
 
         # Change this variable to true when the arrow keys should NOT cycle
         # through buttons
@@ -1174,15 +1172,15 @@ class TriFusionApp(App):
                 # This will deal with cases with only two buttons to cycle
                 if not bt3:
                     # if left arrow key
-                    if key_code == (276, 113):
+                    if key_code == 276:
                         bt1.background_normal = backn
                         bt2.background_normal = backd
                     # if right arrow key
-                    if key_code == (275, 114):
+                    if key_code == 275:
                         bt1.background_normal = backd
                         bt2.background_normal = backn
                     # if enter key. Dispatch the events of the focused button
-                    if key_code == (13, 36):
+                    if key_code == 13:
                         if bt1.background_normal == backn:
                             bt1.dispatch("on_release")
                         else:
@@ -1192,9 +1190,9 @@ class TriFusionApp(App):
                 else:
                     bt_list = [bt1, bt2, bt3]
                     idx = [x.background_normal for x in bt_list].index(backn)
-                    if key_code == (276, 113) and idx > 0:
+                    if key_code == 276 and idx > 0:
                         idx -= 1
-                    if key_code == (275, 114) and idx < 2:
+                    if key_code == 275 and idx < 2:
                         idx += 1
 
                     for bt in bt_list:
@@ -1203,7 +1201,7 @@ class TriFusionApp(App):
                         else:
                             bt.background_normal = backd
 
-                    if key_code == (13, 36):
+                    if key_code == 13:
                         bt_on = [x for x in bt_list if
                                  x.background_normal == backn][0]
                         bt_on.dispatch("on_release")
@@ -1241,7 +1239,7 @@ class TriFusionApp(App):
                 popup_keys(bn, bd, ok_bt, cancel_bt)
 
             if "close_bt" in self._popup.content.ids:
-                if key_code == (13, 36):
+                if key_code == 13:
                     self._popup.content.ids.close_bt.dispatch("on_release")
 
         # ======================================================================
@@ -1251,19 +1249,19 @@ class TriFusionApp(App):
         if self.screen.name == "fc":
             # Keybinding ctrl+f that brings focus to the "Find" field in the
             # Filechooser screen
-            if modifier == "ctrl" and key == b'\x06':
+            if modifier == "ctrl" and key_code == 102:
                 self.screen.ids.text_filter.focus = True
 
             # Keybinding ctrl+backspace to clear selection
-            if modifier == "ctrl" and key_code == (8, 22):
+            if modifier == "ctrl" and key_code == 8:
                 self.screen.ids.clear_s.dispatch("on_release")
 
             # Add bookmarks with ctrl+d
-            if modifier == "ctrl" and key_code == (100, 40):
+            if modifier == "ctrl" and key_code == 100:
                 self.screen.ids.add_bk_bt.dispatch("on_release")
 
             # Toggle manual path writing with ctrl+l
-            if modifier == "ctrl" and key_code == (108, 46):
+            if modifier == "ctrl" and key_code == 108:
                 if self.screen.ids.path_toggle.state == "down":
                     self.screen.ids.path_toggle.state = "normal"
                 else:
@@ -1271,7 +1269,7 @@ class TriFusionApp(App):
                 self.screen.ids.path_toggle.dispatch("on_release")
 
             # Select all files with ctrl+a
-            if modifier == "ctrl" and key_code == (97, 38):
+            if modifier == "ctrl" and key_code == 97:
                 self.screen.ids.icon_view_tab.selection = \
                     [x for x in self.screen.ids.icon_view_tab.files if not
                      os.path.isdir(x)]
@@ -1301,22 +1299,22 @@ class TriFusionApp(App):
                 if isinstance(x, CustomPopup)]:
 
             # Keybinding ctrl+o that opens the Filechooser screen
-            if modifier == "ctrl" and key == b'\x0f':
+            if modifier == "ctrl" and key_code == 111:
                 self.go_screen(self.screen_names.index("fc"))
 
             # Changing main screens between Orthology, Process and Statistics
-            if modifier == "ctrl" and key_code == (49, 10):
+            if modifier == "ctrl" and key_code == 49:
                 self.root.ids.h_ortho.dispatch("on_release")
                 self.root.ids.h_ortho.state = "down"
-            if modifier == "ctrl" and key_code == (50, 11):
+            if modifier == "ctrl" and key_code == 50:
                 self.root.ids.h_process.dispatch("on_release")
                 self.root.ids.h_process.state = "down"
-            if modifier == "ctrl" and key_code == (51, 12):
+            if modifier == "ctrl" and key_code == 51:
                 self.root.ids.h_stat.dispatch("on_release")
                 self.root.ids.h_stat.state = "down"
 
             # Toggle side panel (slash)
-            if key_code == (92, 49):
+            if key_code == 92:
                 self.root.ids.ap.dispatch("on_release")
 
         # ======================================================================
@@ -1324,7 +1322,7 @@ class TriFusionApp(App):
         # ======================================================================
 
         # Use tab for auto completion when textinput is focused
-        if key_code == (9, 23):
+        if key_code == 9:
             if "path_bx" in self.screen.ids:
                 if isinstance(self.screen.ids.path_bx.children[0], TextInput):
                     path = self.screen.ids.path_bx.children[0].text
