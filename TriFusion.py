@@ -1209,31 +1209,31 @@ class TriFusionApp(App):
         # Check only when a popup is active
         if self._subpopup in self.root_window.children:
             if "ok_bt" in self._subpopup.content.ids:
-                bn = join("data", "backgrounds", "bt_process.png")
-                bd = join("data", "backgrounds", "bt_process_off.png")
+                bn = "data/backgrounds/bt_process.png"
+                bd = "data/backgrounds/bt_process_off.png"
                 ok_bt = self._subpopup.content.ids["ok_bt"]
                 cancel_bt = self._subpopup.content.ids["cancel_bt"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
 
         elif self._popup in self.root_window.children:
             if "check_ok" in self._popup.content.ids:
-                bn = join("data", "backgrounds", "check_ok.png")
-                bd = join("data", "backgrounds", "check_cancel.png")
+                bn = "data/backgrounds/check_ok.png"
+                bd = "data/backgrounds/check_cancel.png"
                 ok_bt = self._popup.content.ids["check_ok"]
                 cancel_bt = self._popup.content.ids["check_cancel"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
             # In this case there are three buttons to cicle
             elif "apply_bt" in self._popup.content.ids:
-                bn = join("data", "backgrounds", "bt_process.png")
-                bd = join("data", "backgrounds", "bt_process_off.png")
+                bn = "data/backgrounds/bt_process.png"
+                bd = "data/backgrounds/bt_process_off.png"
                 ok_bt = self._popup.content.ids["ok_bt"]
                 cancel_bt = self._popup.content.ids["cancel_bt"]
                 apply_bt = self._popup.content.ids["apply_bt"]
                 popup_keys(bn, bd, ok_bt, apply_bt, cancel_bt)
             # Only two buttons to cicle
             elif "ok_bt" in self._popup.content.ids:
-                bn = join("data", "backgrounds", "bt_process.png")
-                bd = join("data", "backgrounds", "bt_process_off.png")
+                bn = "data/backgrounds/bt_process.png"
+                bd = "data/backgrounds/bt_process_off.png"
                 ok_bt = self._popup.content.ids["ok_bt"]
                 cancel_bt = self._popup.content.ids["cancel_bt"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
@@ -1284,8 +1284,8 @@ class TriFusionApp(App):
 
             # Use arrow keys and enter to navigate through open/cancel buttons
             # and selecting them
-            bn = join("data", "backgrounds", "bt_process.png")
-            bd = join("data", "backgrounds", "bt_process_off.png")
+            bn = "data/backgrounds/bt_process.png"
+            bd = "data/backgrounds/bt_process_off.png"
             open_close_bt = self.screen.ids.open_close_bt
             open_bt = self.screen.ids.open_bt
             cancel_bt = self.screen.ids.cancel_bt
