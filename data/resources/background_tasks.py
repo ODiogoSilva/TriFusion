@@ -329,7 +329,19 @@ def process_execution(**kwargs):
         logging.exception("Unexpected exit in Process execution")
         kwargs["ns"].exception = True
 
+
 def load_group_files(group_files, temp_dir):
     og = OrthoTool.MultiGroupsLight(db_path=temp_dir,
                                     groups=group_files)
     return [og, og.filters]
+
+
+def orto_update_filters(self, gn_filter, sp_filter, group_names=None,
+                        default=False):
+    if group_names:
+        self.ortho_groups.update_filters(gn_filter, sp_filter, group_names,
+                                         default=default)
+    else:
+        self.ortho_groups.update_filters(gn_filter, sp_filter,
+                                         default=default)
+    return [self.ortho_groups]
