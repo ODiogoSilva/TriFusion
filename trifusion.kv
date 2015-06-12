@@ -183,8 +183,10 @@
     bold: True
     background_normal: "data/backgrounds/bt_process_off.png"
     background_down: "data/backgrounds/bt_process.png"
-    background_disabled_down: "data/backgrounds/bt_sideprocess.png"
+    background_disabled_down: "data/backgrounds/bt_process.png"
     disabled_color: (1,1,1,1)
+    size_hint_y: None
+    height: 30
     group: "file_type"
     on_release:
         app.toggle_groups(self)
