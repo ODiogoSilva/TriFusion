@@ -2,7 +2,8 @@
 
 __author__ = 'diogo'
 
-from TriFusion import *
-
 if __name__ == "__main__":
+
+    from TriFusion import TriFusionApp
+
     TriFusionApp().run()
