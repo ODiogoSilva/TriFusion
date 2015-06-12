@@ -4516,25 +4516,6 @@ class TriFusionApp(App):
         self.ortho_search_options.ids.inflation_bt.text = \
             str(sorted(self.mcl_inflation))
 
-    def save_mysql_pass(self, txt):
-        """
-        Saves mysql access for database creation and manipulation
-        """
-
-        # Setup mysql configuration
-        er = sql_setup(txt)
-        if er:
-            return self.dialog_warning("MySQL configuration error", "MySQL "
-                                       "setup exited with the following error:"
-                                       "\n\n%s" % er)
-
-        self.mysql_pass = txt
-
-        if txt != "":
-            self.screen.ids.mysql_bt.text = "Password set"
-        else:
-            self.screen.ids.mysql_bt.text = "Select..."
-
     def save_protein_filters(self, min_len, max_stop):
         """
         Saves protein length and stop percentage filters
@@ -6856,6 +6837,3 @@ class TriFusionApp(App):
 
         check_func = partial(check_process, p)
         Clock.schedule_interval(check_func, .1)
-
-if __name__ == '__main__':
-    TriFusionApp().run()
