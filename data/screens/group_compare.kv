@@ -1,3 +1,5 @@
+#:import orto_update_filters data.resources.background_tasks.orto_update_filters
+
 ShowcaseScreen:
     name: "group_compare"
     group_obj: None
@@ -104,7 +106,7 @@ ShowcaseScreen:
                             multiline: False
                             id: gn_txt
                             on_text_validate:
-                                app.run_in_background(app.orto_update_filters, app.orto_compare_groups, [gn_txt.text, sp_txt.text, None, False], None, False)
+                                app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_txt.text), str(sp_txt.text), None, False], None, False)
 
                     BoxLayout:
                         Label:
@@ -116,7 +118,7 @@ ShowcaseScreen:
                             multiline: False
                             id: sp_txt
                             on_text_validate:
-                                app.run_in_background(app.orto_update_filters, app.orto_compare_groups, [gn_txt.text, sp_txt.text, None, False], None, False)
+                                app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_txt.text), str(sp_txt.text), None, False], None, False)
 
         Hseparator:
             thickness: 1.5
