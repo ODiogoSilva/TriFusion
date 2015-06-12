@@ -50,6 +50,21 @@
     background_normal: "data/backgrounds/bt_process_off.png"
     background_down: "data/backgrounds/bt_process.png"
 
+<TFOKButon@Button>:
+    background_normal: "data/backgrounds/bt_process_off.png"
+    background_down: "data/backgrounds/bt_process.png"
+    bold: True
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
+
+
 <CrunchData>:
     orientation: "vertical"
     AnchorLayout:
@@ -173,6 +188,15 @@
     group: "file_type"
     on_release:
         app.toggle_groups(self)
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
 
 <LoadProgressDialog>:
     padding: 10

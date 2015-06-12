@@ -1084,9 +1084,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35355339"
-     inkscape:cx="732.15888"
-     inkscape:cy="-1320.7752"
+     inkscape:zoom="0.125"
+     inkscape:cx="288.22285"
+     inkscape:cy="1400.9886"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1272,7 +1272,7 @@
        inkscape:export-ydpi="300"
        rx="1.3671875" />
     <rect
-       style="fill:none;fill-opacity:1;stroke:#37abc8;stroke-width:0.50000000000000000;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect3050-2-8"
        width="554.28571"
        height="200"
@@ -2469,7 +2469,7 @@
        inkscape:export-xdpi="16.443333"
        inkscape:export-ydpi="16.443333" />
     <rect
-       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect3050-3-50"
        width="554.28571"
        height="200"
