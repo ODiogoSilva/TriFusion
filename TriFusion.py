@@ -170,8 +170,9 @@ class FileChooserM(FileChooserIconView):
         :param vals: keyboard input
         """
 
-        key_code = vals[1:3]
-        if key_code == (304, 50):
+        key_code = vals[1]
+
+        if key_code == 304:
             self.shift = True
 
     def release_shift(self, *vals):
@@ -182,8 +183,9 @@ class FileChooserM(FileChooserIconView):
         :return:
         """
 
-        key_code = vals[1:3]
-        if key_code == (304, 50):
+        key_code = vals[1]
+
+        if key_code == 304:
             self.shift = False
 
     def open_entry(self, entry):
