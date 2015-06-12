@@ -1993,7 +1993,7 @@
                 bold: True
                 on_release:
                     if sd_filechooser.selection:\
-                    app.run_in_background(app.load_group_files, app.load_groups, [sd_filechooser.selection], None, False, "Loading group files...")
+                    app.run_in_background(app.load_group_files, app.load_groups, [list(sd_filechooser.selection)], None, False, "Loading group files...")
                     #root.cancel()
 
             Button:
