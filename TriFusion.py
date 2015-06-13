@@ -71,6 +71,7 @@ import pickle
 import multiprocessing
 import time
 import re
+import sys
 import logging
 
 Config.set("kivy", "log_level", "warning")
@@ -460,7 +461,8 @@ class LoadMultipleDialog(BoxLayout):
     def __init__(self, **kwargs):
         super(LoadMultipleDialog, self).__init__(**kwargs)
 
-        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sd_filechooser)
+        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
+                                self.ids.sd_filechooser)
 
 
 class CloseBox(BoxLayout):
@@ -625,7 +627,8 @@ class LoadDialog(BoxLayout):
     def __init__(self, **kwargs):
         super(LoadDialog, self).__init__(**kwargs)
 
-        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.ld_filechooser)
+        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
+                                self.ids.ld_filechooser)
 
 
 class SaveDialog(FloatLayout):
@@ -639,7 +642,8 @@ class SaveDialog(FloatLayout):
     def __init__(self, **kwargs):
         super(SaveDialog, self).__init__(**kwargs)
 
-        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sd_filechooser)
+        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
+                                self.ids.sd_filechooser)
 
 
 class SplitPartitions(BoxLayout):
@@ -1930,6 +1934,7 @@ class TriFusionApp(App):
                 self.screen.ids.icon_view_tab.path = self.home_path
                 # Initialize bookmarks
                 self.bookmark_init(self.screen.ids.sv_book,
+                                   self.screen.ids.sv_mycomp,
                                    self.screen.ids.icon_view_tab)
                 self.switch_path_wgt("label")
 
@@ -2090,7 +2095,7 @@ class TriFusionApp(App):
 
     # ###################### BOOKMARKS OPERATIONS ##############################
 
-    def bookmark_init(self, wgt, fc_wgt):
+    def bookmark_init(self, wgt, dev_wgt, fc_wgt):
         """
         This will create a pickle file containing a list with the bookmarks
         for the file chooser menu. If no file exists, it will create an empty
@@ -2108,6 +2113,25 @@ class TriFusionApp(App):
         #     if bitmask & 1:
         #         drives.append(letter)
         #     bitmask >>= 1
+
+        # Get main paths for linux
+        if sys.platform == "linux":
+
+            # System
+            self.add_bookmark_bt("/", dev_wgt, fc_wgt, name="System",
+                                 rm_bt=False)
+            # Home
+            self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt, name="Home",
+                                 rm_bt=False)
+
+        # Get main devicess for windows
+        if sys.platform in ["win32", "cygwin"]:
+
+            devices = re.findall(r"[A-Z]+:.*$", os.popen("mountvol /").read(),
+                                 re.MULTILINE)
+
+            for d in devices:
+                self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False)
 
         if exists(self.bm_file):
             self.bookmarks = pickle.load(open(self.bm_file, "rb"))
@@ -2144,7 +2168,7 @@ class TriFusionApp(App):
             self.add_bookmark_bt(path, wgt, fc_wgt)
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
-    def add_bookmark_bt(self, bk, wgt, fc_wgt):
+    def add_bookmark_bt(self, bk, wgt, fc_wgt, name=None, rm_bt=True):
         """
         This will add a bookmark button, along with its removal button. Only
         a bookmark path will be necessary.
@@ -2155,11 +2179,18 @@ class TriFusionApp(App):
         :param bk: string. bookmark file path
         :param wgt: Widget, preferentially a gridlayout where the bookmark
         buttons will be added
+        :param fc_wgt: FileChooser widget in which bookmark operations will
+        be performed
+        :param name: string, optional name for bookmark button instead of
+        the basename of the path
+        :param rm_bt: Boolean, If True, a removal button will be added with
+        the bookmark, else the removal button will not be added. The latter
+        case is used for System devices bookmarks.
         """
 
         bookmark_name = basename(bk)
         # Define bookmark button
-        bt = TFButton(text=bookmark_name, id=bk, bold=True,
+        bt = TFButton(text=name if name else bookmark_name, id=bk, bold=True,
                     height=30, size_hint=(.8, None),
                     background_normal=join("data", "backgrounds",
                                            "bt_process.png"),
@@ -2169,22 +2200,23 @@ class TriFusionApp(App):
         bt.bind(on_release=lambda x: self.bookmark_load(x, fc_wgt))
         # Add to list for mouse over purposes
         self.bookmarks_bt.append(bt)
-        # Define bookmark removal button
-        xbt = Button(size_hint=(None, None), width=30,
-                     height=30, id="%sX" % bk, border=(0, 0, 0, 0),
-                     background_normal=join("data", "backgrounds",
-                                            "remove_bt.png"),
-                     background_down=join("data", "backgrounds",
-                                            "remove_bt_down.png"))
-        # Bind to function that removes bookmark button as well as the path
-        # from self.bm_file
-        xbt.bind(on_release=partial(self.check_action,
-                                    "Are you sure you want to remove"
-                                    " this bookmark?",
-                                    self.remove_bookmark_bt))
-        # Add widgets
         wgt.add_widget(bt)
-        wgt.add_widget(xbt)
+
+        if rm_bt:
+            # Define bookmark removal button
+            xbt = Button(size_hint=(None, None), width=30,
+                         height=30, id="%sX" % bk, border=(0, 0, 0, 0),
+                         background_normal=join("data", "backgrounds",
+                                                "remove_bt.png"),
+                         background_down=join("data", "backgrounds",
+                                                "remove_bt_down.png"))
+            # Bind to function that removes bookmark button as well as the path
+            # from self.bm_file
+            xbt.bind(on_release=partial(self.check_action,
+                                        "Are you sure you want to remove"
+                                        " this bookmark?",
+                                        self.remove_bookmark_bt))
+            wgt.add_widget(xbt)
 
     def bookmark_load(self, value, wgt):
         """
