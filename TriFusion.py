@@ -2102,17 +2102,15 @@ class TriFusionApp(App):
         one. If a file already exists, it will load the available bookmarks
         """
 
-        # Possible way to get windows devices without dependencies
-        # METHOD1
-        # re.findall(r"[A-Z]+:.*$",os.popen("mountvol /").read(),re.MULTILINE)
-        # METHOD2
-        # from ctypes import windll
-        # bitmask = windll.kernel32.GetLogicalDrives()
-        # drives = []
-        # for letter in string.ascii_uppercase:
-        #     if bitmask & 1:
-        #         drives.append(letter)
-        #     bitmask >>= 1
+        if exists(self.bm_file):
+            self.bookmarks = pickle.load(open(self.bm_file, "rb"))
+            # Retrieving the bookmark path list from the self.bookmarks
+            bk_list = self.bookmarks[0]
+            for bk in bk_list:
+                self.add_bookmark_bt(bk, wgt, fc_wgt)
+
+        else:
+            pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
         # Get main paths for linux
         if sys.platform == "linux":
@@ -2124,6 +2122,14 @@ class TriFusionApp(App):
             self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt, name="Home",
                                  rm_bt=False)
 
+            # Trying to import FM bookmarks in ~/.config/gtk-3.0/bookmarks
+            if exists(join(self.home_path, ".config", "gtk-3.0", "bookmarks")):
+                with open(join(self.home_path, ".config", "gtk-3.0",
+                               "bookmarks")) as bk_file:
+                    for bk_line in bk_file:
+                        bk = bk_line.split()[0].replace("file://", "")
+                        self.save_bookmark(bk, wgt, fc_wgt)
+
         # Get main devicess for windows
         if sys.platform in ["win32", "cygwin"]:
 
@@ -2134,16 +2140,6 @@ class TriFusionApp(App):
                 if exists(d):
                     self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False,
                                          name=os.path.splitdrive(d)[0])
-
-        if exists(self.bm_file):
-            self.bookmarks = pickle.load(open(self.bm_file, "rb"))
-            # Retrieving the bookmark path list from the self.bookmarks
-            bk_list = self.bookmarks[0]
-            for bk in bk_list:
-                self.add_bookmark_bt(bk, wgt, fc_wgt)
-
-        else:
-            pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     def save_bookmark(self, path, wgt, fc_wgt):
         """
