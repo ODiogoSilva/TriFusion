@@ -3136,17 +3136,17 @@ class TriFusionApp(App):
         # of alignments included in this partition as its text. The
         # on_release event will show a popup with a list of the alignment
         # files contained
-        c_bt = TFButton(size_hint=(None, None), width=30, text=fl_num,
+        c_bt = Button(size_hint=(None, None), width=30, text=fl_num,
                       height=30, id="%sC" % part_name, bold=True,
                       border=(0, 0, 0, 0))
         c_bt.background_normal = join("data", "backgrounds",
-                                      "bt_process_off.png")
+                                      "count_bt.png")
         c_bt.background_down = join("data", "backgrounds", "bt_process.png")
         c_bt.bind(on_release=lambda x: self.dialog_partition_files(bt.text))
 
         # Create edition button
-        ed_bt = TFButton(size_hint=(None, None), width=30,
-                        height=30, id="%s?" % part_name)
+        ed_bt = Button(size_hint=(None, None), width=30,
+                        height=30, id="%s?" % part_name, border=(0, 0, 0, 0))
         ed_bt.background_normal = join("data", "backgrounds", "edit_bt.png")
         ed_bt.background_down = join("data", "backgrounds", "edit_bt_down.png")
         ed_bt.bind(on_release=self.dialog_partitions)
