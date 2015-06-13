@@ -4269,7 +4269,9 @@ class TriFusionApp(App):
         self.output_formats = ["fasta"]
 
         # Clear filters, haplotype name and zorro suffix
-        self.missing_filter_settings = [25, 50]
+        self.missing_filter_settings = [25, 50, 0]
+        self.taxa_filter_settings.clear()
+        self.codon_filter_settings = [True, True, True]
         self.hap_prefix = "Hap"
         self.zorro_suffix = ""
 
@@ -4302,10 +4304,16 @@ class TriFusionApp(App):
 
         # Turn switches off
         for switch in self.secondary_operations:
-            self.process_options.ids[switch].active = False
+            try:
+                self.process_options.ids[switch].active = False
+            except KeyError:
+                pass
 
         for switch in self.secondary_options:
-            self.process_options.ids[switch].active = False
+            try:
+                self.process_options.ids[switch].active = False
+            except KeyError:
+                pass
 
     # ########################### PLOT SCREENS #################################
 
