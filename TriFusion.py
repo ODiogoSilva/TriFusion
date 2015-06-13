@@ -1926,7 +1926,7 @@ class TriFusionApp(App):
 
             # If the screen to be loaded is the filechooser, set the home path
             #  as the default
-            if self.available_screens[idx].split("/")[-1] == "fc.kv":
+            if basename(self.available_screens[idx]) == "fc.kv":
                 self.screen.ids.icon_view_tab.path = self.home_path
                 # Initialize bookmarks
                 self.bookmark_init(self.screen.ids.sv_book,
@@ -2096,6 +2096,18 @@ class TriFusionApp(App):
         for the file chooser menu. If no file exists, it will create an empty
         one. If a file already exists, it will load the available bookmarks
         """
+
+        # Possible way to get windows devices without dependencies
+        # METHOD1
+        # re.findall(r"[A-Z]+:.*$",os.popen("mountvol /").read(),re.MULTILINE)
+        # METHOD2
+        # from ctypes import windll
+        # bitmask = windll.kernel32.GetLogicalDrives()
+        # drives = []
+        # for letter in string.ascii_uppercase:
+        #     if bitmask & 1:
+        #         drives.append(letter)
+        #     bitmask >>= 1
 
         if exists(self.bm_file):
             self.bookmarks = pickle.load(open(self.bm_file, "rb"))
