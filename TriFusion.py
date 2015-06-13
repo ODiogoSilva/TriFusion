@@ -2131,7 +2131,9 @@ class TriFusionApp(App):
                                  re.MULTILINE)
 
             for d in devices:
-                self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False)
+                if exists(d):
+                    self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False,
+                                         name=os.path.splitdrive(d)[0])
 
         if exists(self.bm_file):
             self.bookmarks = pickle.load(open(self.bm_file, "rb"))
