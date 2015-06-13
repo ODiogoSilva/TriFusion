@@ -2112,6 +2112,19 @@ class TriFusionApp(App):
         else:
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
+            # Trying to import FM bookmarks in ~/.config/gtk-3.0/bookmarks.
+            # This will happen only the first time the app is executed, when
+            # the bookmarks will be saved. From there on, bookmarks will be
+            # managed in the app
+            if sys.platform == "linux":
+                if exists(join(self.home_path, ".config", "gtk-3.0",
+                               "bookmarks")):
+                    with open(join(self.home_path, ".config", "gtk-3.0",
+                                   "bookmarks")) as bk_file:
+                        for bk_line in bk_file:
+                            bk = bk_line.split()[0].replace("file://", "")
+                            self.save_bookmark(bk, wgt, fc_wgt)
+
         # Get main paths for linux
         if sys.platform == "linux":
 
@@ -2121,14 +2134,6 @@ class TriFusionApp(App):
             # Home
             self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt, name="Home",
                                  rm_bt=False)
-
-            # Trying to import FM bookmarks in ~/.config/gtk-3.0/bookmarks
-            if exists(join(self.home_path, ".config", "gtk-3.0", "bookmarks")):
-                with open(join(self.home_path, ".config", "gtk-3.0",
-                               "bookmarks")) as bk_file:
-                    for bk_line in bk_file:
-                        bk = bk_line.split()[0].replace("file://", "")
-                        self.save_bookmark(bk, wgt, fc_wgt)
 
         # Get main devicess for windows
         if sys.platform in ["win32", "cygwin"]:
