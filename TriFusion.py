@@ -755,6 +755,7 @@ class TriFusionApp(App):
     # Create temporary directory for transient files
     temp_dir = StringProperty()
     log_file = StringProperty()
+    bm_file = StringProperty()
 
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
@@ -780,7 +781,6 @@ class TriFusionApp(App):
     # first element and a dictionary mapping the full path to the bookmark
     # name as the second element
     bookmarks = [[], {}]
-    bm_file = join(cur_dir, "data", "resources", "bookmarks")
     # For mouse over purposes
     bookmarks_bt = []
 
@@ -1001,6 +1001,7 @@ class TriFusionApp(App):
 
         self.temp_dir = join(self.user_data_dir, "tmp")
         self.log_file = join(self.user_data_dir, "log", "error.out")
+        self.bm_file = join(self.user_data_dir, "bookmarks")
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG,)
 
         # Setting available screens
