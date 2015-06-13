@@ -2222,7 +2222,7 @@ class TriFusionApp(App):
         parent_obj.height -= self.root.height * 0.07
 
         # Core changes
-        bk_name = bk_idx.split("/")[-1]
+        bk_name = basename(bk_idx)
         # Remove bookmark path from list and mapping dictionary
         self.bookmarks[0].remove(bk_idx)
         del self.bookmarks[1][bk_name]
