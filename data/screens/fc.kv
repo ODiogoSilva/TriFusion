@@ -10,23 +10,31 @@ ShowcaseScreen:
             orientation: "vertical"
             padding: 10
             spacing: 10
-
-            Label:
-                text: " Bookmarks"
-                bold: True
+            BoxLayout:
                 size_hint_y: None
                 height: 40
-                halign: "center"
-                valign: "middle"
-                text_size: self.size
-                font_size: 18
                 canvas.before:
                     Color:
                         rgba: (0.3, 0.3, 0.3, .8)
                     Rectangle:
                         pos: self.pos
                         size: self.size
+                Label:
+                    text: " Bookmarks"
+                    bold: True
+                    halign: "center"
+                    valign: "middle"
+                    text_size: self.size
+                    font_size: 18
 
+                AnchorLayout:
+                    size_hint: None, None
+                    size: 40, 40
+                    Button:
+                        size_hint: None, None
+                        size: 30, 30
+                        background_normal: "data/backgrounds/add_bt30.png"
+                        on_release: app.save_bookmark(icon_view_tab.path, sv_book, icon_view_tab)
             ScrollView:
                 GridLayout:
                     size_hint_y: None
@@ -34,19 +42,8 @@ ShowcaseScreen:
                     cols: 2
                     id: sv_book
                     orientation: "vertical"
+                    padding: 5
                     spacing: [10, 10]
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                AnchorLayout:
-                    Button:
-                        id: add_bk_bt
-                        bold: True
-                        width: 100
-                        text: "Add Bookmark"
-                        background_normal: "data/backgrounds/bt_process.png"
-                        on_release: app.save_bookmark(icon_view_tab.path, sv_book, icon_view_tab)
 
         Vseparator:
             thickness: 1.5
