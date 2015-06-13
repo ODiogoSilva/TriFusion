@@ -27,15 +27,16 @@ ShowcaseScreen:
                     valign: "middle"
                     text_size: self.size
                     font_size: 18
-
-            GridLayout:
-                size_hint_y: None
-                height: sum([x.height + 10 for x in self.children])
-                cols: 1
-                id: sv_mycomp
-                orientation: "vertical"
-                padding: 5
-                spacing: [10, 10]
+            ScrollView:
+                size_hint_y: .6
+                GridLayout:
+                    size_hint_y: None
+                    height: sum([x.height + 10 for x in self.children])
+                    cols: 1
+                    id: sv_mycomp
+                    orientation: "vertical"
+                    padding: 5
+                    spacing: [10, 10]
 
             BoxLayout:
                 size_hint_y: None
@@ -202,4 +203,3 @@ ShowcaseScreen:
                     id: cancel_bt
                     text: "Cancel"
                     on_release: app.go_previous_screen()
-
