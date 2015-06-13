@@ -1084,9 +1084,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="440.38323"
-     inkscape:cy="-1671.0201"
+     inkscape:zoom="0.35355339"
+     inkscape:cx="111.91457"
+     inkscape:cy="-1588.0772"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -2797,10 +2797,10 @@
        d="m 698.17085,1330.7821 c 6.98751,0 12.65165,5.664 12.65165,12.6516 0,2.8479 -0.94128,5.4768 -2.53033,7.591 l -5.06066,5.0607 -17.7123,-17.7124 5.06065,-5.0607 c 2.11409,-1.589 4.74311,-2.5302 7.59099,-2.5302 z m -63.25824,58.1976 -5.06067,22.7729 22.77297,-5.0607 46.81111,-46.811 -17.71231,-17.7124 -46.8111,46.8112 z m 51.52257,-29.448 -35.42461,35.4246 -4.36103,-4.3611 35.42461,-35.4245 4.36103,4.361 z"
        inkscape:connector-curvature="0"
        style="fill:#ffffff"
-       inkscape:export-xdpi="18.949738"
-       inkscape:export-ydpi="18.949738" />
+       inkscape:export-xdpi="20.048847"
+       inkscape:export-ydpi="20.048847" />
     <rect
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect3050-2-7-3-0-0-0"
        width="134.67111"
        height="134.67111"
@@ -2808,8 +2808,8 @@
        y="1304.6389"
        ry="20.867188"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
-       inkscape:export-xdpi="18.949738"
-       inkscape:export-ydpi="18.949738"
+       inkscape:export-xdpi="20.048847"
+       inkscape:export-ydpi="20.048847"
        rx="20.867188" />
     <rect
        style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
@@ -3111,16 +3111,16 @@
        y="2117.0266"
        ry="0"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
-       inkscape:export-xdpi="22.108028"
-       inkscape:export-ydpi="22.108028"
+       inkscape:export-xdpi="18.949738"
+       inkscape:export-ydpi="18.949738"
        rx="0" />
     <path
        id="path5042"
        d="m 818.24743,2176.4492 -22.19377,0 0,-22.1937 c 0,-1.1148 -0.90288,-2.0177 -2.01762,-2.0177 l -12.1057,0 c -1.11473,0 -2.01761,0.9029 -2.01761,2.0177 l 0,22.1937 -22.19377,0 c -1.11474,0 -2.01762,0.9029 -2.01762,2.0176 l 0,12.1057 c 0,1.1148 0.90288,2.0176 2.01762,2.0176 l 22.19377,0 0,22.1938 c 0,1.1147 0.90288,2.0176 2.01761,2.0176 l 12.1057,0 c 1.11474,0 2.01762,-0.9029 2.01762,-2.0176 l 0,-22.1938 22.19377,0 c 1.11473,0 2.01762,-0.9028 2.01762,-2.0176 l 0,-12.1057 c 0,-1.1147 -0.90289,-2.0176 -2.01762,-2.0176 z"
        inkscape:connector-curvature="0"
        style="fill:#ffffff"
-       inkscape:export-xdpi="22.108028"
-       inkscape:export-ydpi="22.108028" />
+       inkscape:export-xdpi="18.949738"
+       inkscape:export-ydpi="18.949738" />
     <rect
        style="opacity:0.3;fill:#ff5555;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect3050-2-7-3-0-0-8-6"

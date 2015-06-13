@@ -46,7 +46,7 @@
                 width: 1.1
                 cap: "round"
                 joint: "round"
-                rectangle: root.x,root.y,root.width,root.height
+                rectangle: root.x+2,root.y+2,root.width-4,root.height-4
 
 <TGToggleButton>:
     bold: True
@@ -4397,7 +4397,7 @@ FloatLayout:
                                                     size_hint_y: None
                                                     id: file_sl
                                                     padding: (10, 0, 10, 0)
-                                                    spacing: 5
+                                                    spacing: [10, 5]
                                                     height: sum([x.height + 5 for x in self.children]) / 3
 
                                                     Button:
@@ -4549,7 +4549,7 @@ FloatLayout:
                                                     size_hint_y: None
                                                     id: taxa_sl
                                                     padding: (10, 0, 10, 0)
-                                                    spacing: 5
+                                                    spacing: [10, 5]
                                                     height: sum([x.height + 5 for x in self.children]) / 3
                                                     Button:
                                                         id: species_temp
@@ -4704,7 +4704,7 @@ FloatLayout:
                                                     size_hint_y: None
                                                     id: partition_sl
                                                     padding: (10, 0, 10, 0)
-                                                    spacing: 5
+                                                    spacing: [10, 5]
                                                     height: sum([x.height + 5 for x in self.children]) / 3
 
                                                     Button:
