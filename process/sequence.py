@@ -302,11 +302,11 @@ class Alignment (Base):
                     taxa = self.rm_illegal(taxa)
                     # This accommodates for the interleave format
                     if taxa in self.alignment:
-                        self.alignment[taxa] += "".join(
-                            line.strip().split()[1:]).lower()
+                        self.alignment[taxa].append("".join(
+                            line.strip().split()[1:]).lower())
                     else:
-                        self.alignment[taxa] = "".join(
-                            line.strip().split()[1:]).lower()
+                        self.alignment[taxa] = ["".join(
+                            line.strip().split()[1:]).lower()]
 
                 # If partitions are specified using the charset command, this
                 # section will parse the partitions
@@ -319,6 +319,9 @@ class Alignment (Base):
                 if line.lower().strip().startswith("lset") or \
                         line.lower().strip().startswith("prset"):
                     self.partitions.parse_nexus_model(line)
+
+            for taxon, seq in self.alignment.items():
+                self.alignment[taxon] = "".join(seq)
 
             # If no partitions have been added during the parsing of the nexus
             # file, set a single partition
