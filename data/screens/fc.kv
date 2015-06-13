@@ -10,6 +10,33 @@ ShowcaseScreen:
             orientation: "vertical"
             padding: 10
             spacing: 10
+
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                canvas.before:
+                    Color:
+                        rgba: (0.3, 0.3, 0.3, .8)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    text: " My Computer"
+                    bold: True
+                    halign: "center"
+                    valign: "middle"
+                    text_size: self.size
+                    font_size: 18
+
+            GridLayout:
+                size_hint_y: None
+                height: sum([x.height + 10 for x in self.children])
+                cols: 1
+                id: sv_mycomp
+                orientation: "vertical"
+                padding: 5
+                spacing: [10, 10]
+
             BoxLayout:
                 size_hint_y: None
                 height: 40
