@@ -28,7 +28,8 @@ ShowcaseScreen:
                     text_size: self.size
                     font_size: 18
             ScrollView:
-                size_hint_y: .6
+                size_hint_y: None
+                height: sum([x.height + 10 for x in sv_mycomp.children]) if sum([x.height + 10 for x in sv_mycomp.children]) < 350 else 350
                 GridLayout:
                     size_hint_y: None
                     height: sum([x.height + 10 for x in self.children])
