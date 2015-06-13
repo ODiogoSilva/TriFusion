@@ -128,6 +128,13 @@ ShowcaseScreen:
                     id: path_bx
                     PathLabel
                 Button:
+                    size_hint_x: None
+                    width: 30
+                    background_normal: "data/backgrounds/up_dir_bt.png"
+                    background_down: "data/backgrounds/up_dir_bt.png"
+                    on_release:
+                        icon_view_tab.path = os.path.abspath(os.path.join(icon_view_tab.path, os.path.pardir))
+                Button:
                     id: clear_s
                     text: "Clear Selection"
                     size_hint_x: None
