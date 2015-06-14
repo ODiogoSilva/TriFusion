@@ -820,7 +820,8 @@ class Alignment (Base):
                         [None] or len(self.partitions.models[name][1]) > 1 \
                         else self.partitions.models[name][1][0]
                     partition_file.write("%s, %s = %s\n" % (
-                                         model,
+                                         model if model else
+                                             self.sequence_code[0],
                                          name,
                                          "-".join([str(x + 1) for x in
                                                    lrange[0]])))
