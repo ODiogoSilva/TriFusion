@@ -65,9 +65,9 @@ informative_storage = {
         "determined by the  user using the [b]Haplotype prefix[/b] option, and "
         "the correspondence between haplotype names and taxa names with the "
         "same sequence will be written into an *.haplotypes file."],
-    "filter": ["[b]Filter - Help", "The [b]Gap/Missing data[/b] option will "
-        "perform two tasks:\n\n - Replacement of the gap symbols at the "
-        "beginning and end of the alignments created by the "
+    "filter": ["[b]Gap/Missing Filter - Help", "The [b]Gap/Missing data[/b] "
+        "option will perform two tasks:\n\n - Replacement of the gap symbols at"
+        " the beginning and end of the alignments created by the "
         "alignment software;\n\n - Removal of alignment columns containing a "
         "proportion of gaps and/or missing data higher than the thresholds "
         "specified using the [b]Gap/Missing data filter[/b] option.\n\nThe "
@@ -75,7 +75,14 @@ informative_storage = {
         " of the alignment. The [b]missing data threshold[/b] refers to the"
         " combination of gap and missing data characters found in any column of"
         "the alignment.\n\nIf only the first task is desired, both filter "
-        "thresholds should be set to '100'."]
+        "thresholds should be set to '100'."],
+    "taxa_filter": ["Taxa Filter - Help", "The [b]Taxa Filter[/b] option allows"
+        " alignments to be filtered depending on whether they contain or"
+        " exclude a given set of taxa. When choosing the filter mode "
+        " '[b]Contain[/b]', only those alignments containing at least the"
+        " specified taxa in the taxa group will be saved. When choosing the "
+        "'[b]Exclude[/b]' filter mode, alignments that contain [i]all[/i] the "
+        "taxa specified in the taxa group will [i]not[/i] be saved."]
 }
 
 orthology_storage = {
