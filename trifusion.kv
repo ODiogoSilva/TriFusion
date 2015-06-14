@@ -4118,13 +4118,18 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
+                    size_hint_x: .74
                     markup: True
                     id: test2
                     text: "[size=18][b]Codon position filter[/b][/size]\n[size=13] Nucleotide alignments only. Set advanced filters to excluded/included codon positions [/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("codon_filter")
                 ProcessBt:
                     id: taxa_filter
                     disabled: False if filter.active and app.sequence_types == ["DNA"] else True
