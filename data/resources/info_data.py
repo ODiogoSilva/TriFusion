@@ -82,7 +82,12 @@ informative_storage = {
         " '[b]Contain[/b]', only those alignments containing at least the"
         " specified taxa in the taxa group will be saved. When choosing the "
         "'[b]Exclude[/b]' filter mode, alignments that contain [i]all[/i] the "
-        "taxa specified in the taxa group will [i]not[/i] be saved."]
+        "taxa specified in the taxa group will [i]not[/i] be saved."],
+    "codon_filter": ["Codon Filter - Help", "The [b]Codon filter[/b] option"
+        " is only available for nucleotide sequences, where it allows the "
+        "filtering of codon positions in the alignments. By default, all "
+        "positions are set to be saved but any combination can be specified to "
+        "be filtered out."]
 }
 
 orthology_storage = {
