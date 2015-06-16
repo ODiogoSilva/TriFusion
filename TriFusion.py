@@ -363,6 +363,12 @@ class TFButton(Button):
         super(TFButton, self).__init__(**kwargs)
 
 
+class TFButtonOff(Button):
+
+    def __init__(self, **kwargs):
+        super(TFButtonOff, self).__init__(**kwargs)
+
+
 class TGToggleButton(ToggleButton):
 
     def __init__(self, **kwargs):
@@ -449,6 +455,22 @@ class InflationDialog(BoxLayout):
 
 
 class SidepanelToggle(ToggleButton):
+    pass
+
+
+class Test(TFButtonOff):
+    pass
+
+
+class OptsGrid(GridLayout):
+    pass
+
+
+class MissingData(TFButtonOff):
+    pass
+
+
+class MissingOrto(TFButtonOff):
     pass
 
 
@@ -5994,6 +6016,60 @@ class TriFusionApp(App):
 
             # Change text in the toggle button
             self.process_grid_wgt.ids.opt_bt.text = "Show additional options"
+
+    # ######################### STATISTICS SCREEN ##############################
+
+    def toggle_stats_panel(self):
+        """
+        Controls the animation of the statistics panel
+        """
+
+        expanded_width = 300
+
+        if self.screen.ids.stats_panel.width == expanded_width:
+            self.sidepanel_animation(width=0,
+                                     wgt=self.screen.ids.stats_panel)
+            self.sidepanel_animation(width=40,
+                                     wgt=self.screen.ids.sidepanel_container)
+
+        else:
+            self.sidepanel_animation(width=expanded_width,
+                                     wgt=self.screen.ids.stats_panel)
+            self.sidepanel_animation(width=expanded_width + 40,
+                                     wgt=self.screen.ids.sidepanel_container)
+
+    def toggle_data_options(self, idx):
+        """
+        Toggles the main data exploration analyses options in the Statistics
+        screen
+        """
+
+        def transfer_wgts(source_wgts, sink_gl):
+
+            for wgt in source_wgts:
+                sink_gl.add_widget(wgt)
+
+            sink_gl.active_grid = True
+
+        # Storage of Options buttons separated by major analysis types
+        wgts = {"Missing Data": [self.screen.ids.missing_data_opts,
+                                 [MissingOrto(), MissingData()]],
+                "Polymorphism and Variation":
+                    [self.screen.ids.polymorphism_data_opts, [Test()]]}
+
+        # Get active type
+        main_gl = self.screen.ids.main_stats_opts
+        for gl in [x for x in main_gl.children if isinstance(x, OptsGrid)]:
+            if gl.active_grid:
+                active_gl = gl
+
+                if active_gl.grid_name == idx:
+                    return
+                else:
+                    active_gl.clear_widgets()
+                    active_gl.active_grid = False
+
+        transfer_wgts(wgts[idx][1], wgts[idx][0])
 
     # ##################################
     #

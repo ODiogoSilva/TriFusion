@@ -29,6 +29,25 @@
     bold: True
     background_normal: "data/backgrounds/spinner_opt.png"
 
+<TFButtonOff>:
+    bold: True
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+    background_normal: "data/backgrounds/bt_process_off.png"
+    background_down: "data/backgrounds/bt_process.png"
+    opacity: .3 if self.disabled else 1
+    line_clr: (0.216, 0.67, 0.784, 1)
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: root.line_clr
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x+2,root.y+2,root.width-4,root.height-4
+
 <TFButton>:
     bold: True
     halign: "center"
@@ -4227,6 +4246,42 @@
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     background_normal: "data/backgrounds/bt_process_off.png"
                     text: "Choose..."
+
+#===============================================================================
+# STATISTICS SCREEN
+#===============================================================================
+
+<OptsGrid>:
+    cols: 1
+    padding: 5
+    spacing: 5
+    size_hint_y: None
+    active_grid: False
+    height: sum([x.height + 5 for x in self.children]) + 5
+
+##
+## STATS Options Buttons
+##
+
+## Polymorphism and Variation
+<Test>:
+    size_hint_y: None
+    height: 30
+    text: "A testing button"
+    on_release: print(self.text)
+
+## Missing data
+<MissingOrto>:
+    size_hint_y: None
+    height: 30
+    text: "Distribution of missing orthologs"
+    on_release: print(self.text)
+
+<MissingData>:
+    size_hint_y: None
+    height: 30
+    text: "Distribution of missing data"
+    on_release: print(self.text)
 
 #===============================================================================
 # ROOT SCREEN
