@@ -3,7 +3,7 @@ ShowcaseScreen:
 
     BoxLayout:
         AnchorLayout:
-            id: test
+            id: sidepanel_container
             anchor_x: "left"
             size_hint_x: None
             width: 330
@@ -12,11 +12,11 @@ ShowcaseScreen:
                 width: 300
                 size_hint_y: .9
                 id: stats_panel
-                GridLayout:
-                    cols: 1
+                BoxLayout:
                     id: stat_bx
                     orientation: "vertical"
                     padding: 10
+                    spacing: 5
                     canvas.before:
                         Color:
                             rgb: (.2, .2, .2)
@@ -35,8 +35,52 @@ ShowcaseScreen:
                     Label:
                         size_hint_y: None
                         height: 30
-                        text: "GRAPHICS"
-                    Widget
+                        text: "Data exploration analyses"
+                        bold: True
+                        font_size: 18
+                        color: (0.216, 0.67, 0.784, 1)
+                    Widget:
+                        size_hint_y: None
+                        height: 5
+                    ScrollView:
+                        GridLayout:
+                            id: main_stats_opts
+                            padding: 5
+                            spacing: 5
+                            cols: 1
+                            size_hint_y: None
+                            height: sum([x.height + 5 for x in self.children])
+                            TFButton:
+                                text: "Polymorphism and Variation"
+                                height: 45
+                                size_hint_y: None
+                                on_release:
+                                    app.toggle_data_options(self.text)
+
+                            OptsGrid:
+                                id: polymorphism_data_opts
+                                grid_name: "Polymorphism and Variation"
+
+
+                            TFButton:
+                                text: "Missing Data"
+                                height: 45
+                                size_hint_y: None
+                                on_release:
+                                    app.toggle_data_options(self.text)
+
+                            OptsGrid:
+                                id: missing_data_opts
+                                grid_name: "Missing Data"
+
+                            TFButton:
+                                text: "Phylogenetic Tree Annotation"
+                                height: 45
+                                size_hint_y: None
+
+                            OptsGrid:
+                                id: tree_data_opts
+                                grid_name: "Phylogenetic Tree Annotation"
         FloatLayout:
             size_hint_x: None
             Button:
@@ -45,12 +89,9 @@ ShowcaseScreen:
                 border: 0,0,0,0
                 pos_x_exp: 300
                 pos: stats_panel.width, stats_panel.height * .9 + self.height - 2.5
-                background_normal: "data/backgrounds/tg_add.png" if self.pos[0] == self.pos_x_exp else "data/backgrounds/tg_remove.png"
+                background_normal: "data/backgrounds/tg_add_down.png" if self.pos[0] == self.pos_x_exp else "data/backgrounds/tg_remove_down.png"
                 on_release:
-                    if stats_panel.width == self.pos_x_exp: \
-                    stats_panel.width = 0; test.width = 40
-                    else: \
-                    stats_panel.width = self.pos_x_exp; test.width = 330
+                    app.toggle_stats_panel()
 
         ScrollView:
             ScatterLayout:
