@@ -1,6 +1,59 @@
 ShowcaseScreen:
     name: "Statistics"
 
-    FloatLayout:
-        Label:
-            text: "Statistics screen\nPlaceholder"
+    BoxLayout:
+        AnchorLayout:
+            id: test
+            anchor_x: "left"
+            size_hint_x: None
+            width: 330
+            ScrollView:
+                size_hint_x: None
+                width: 300
+                size_hint_y: .9
+                id: stats_panel
+                GridLayout:
+                    cols: 1
+                    id: stat_bx
+                    orientation: "vertical"
+                    padding: 10
+                    canvas.before:
+                        Color:
+                            rgb: (.2, .2, .2)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    StackLayout:
+                        size_hint_y: None
+                        height: 2
+                        canvas.after:
+                            Color:
+                                rgb: (0.216, 0.67, 0.784, 1)
+                            Rectangle:
+                                pos: 0, stats_panel.height - 2
+                                size: stats_panel.width, 2
+                    Label:
+                        size_hint_y: None
+                        height: 30
+                        text: "GRAPHICS"
+                    Widget
+        FloatLayout:
+            size_hint_x: None
+            Button:
+                size_hint: None, None
+                size: 40, 40
+                border: 0,0,0,0
+                pos_x_exp: 300
+                pos: stats_panel.width, stats_panel.height * .9 + self.height - 2.5
+                background_normal: "data/backgrounds/tg_add.png" if self.pos[0] == self.pos_x_exp else "data/backgrounds/tg_remove.png"
+                on_release:
+                    if stats_panel.width == self.pos_x_exp: \
+                    stats_panel.width = 0; test.width = 40
+                    else: \
+                    stats_panel.width = self.pos_x_exp; test.width = 330
+
+        ScrollView:
+            ScatterLayout:
+                auto_bring_to_front: False
+                Label:
+                    text: "Some text verrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrry long text"
