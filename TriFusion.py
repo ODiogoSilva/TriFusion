@@ -1908,9 +1908,10 @@ class TriFusionApp(App):
         """
 
         if self.screen:
-            screen_path = join(self.cur_dir, "data", "screens", "{}.kv".format(
-                self.screen.name))
-            self.loaded_screens[screen_path] = self.screen
+            if self.screen.name not in self.plot_screens:
+                screen_path = join(self.cur_dir, "data", "screens",
+                                   "{}.kv".format(self.screen.name))
+                self.loaded_screens[screen_path] = self.screen
 
             # Automatic removal of plot toolbar when not in a plot screen
             if self.screen_names[idx] not in self.plot_screens:
@@ -4767,7 +4768,8 @@ class TriFusionApp(App):
         """
 
         # Set active group
-        self.active_group = active_group
+        if active_group:
+            self.active_group = active_group
 
         # Exclude taxa, if any
         if exclude_taxa:
@@ -4930,7 +4932,7 @@ class TriFusionApp(App):
         # Add bindings to Ok button
         content.ids.ok_bt.bind(on_release=lambda x:
             self.run_in_background(get_active_group, self.orto_show_plot,
-                                   [self.ortho_groups,
+                                   [self.ortho_groups, self.active_group,
                                     str(self.active_group_name)],
                                    [str(plt_idx),
                                     [int(self.screen.ids.gn_spin.value),

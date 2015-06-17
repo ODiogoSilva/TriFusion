@@ -397,7 +397,7 @@ ShowcaseScreen:
                                                             disabled: True if not app.ortho_group_files else False
                                                             on_release:
                                                                 app.go_screen(7)
-                                                                app.run_in_background(get_active_group, app.orto_show_plot, [app.ortho_groups, str(app.active_group_name)], [sp_plot.text], False)
+                                                                app.run_in_background(get_active_group, app.orto_show_plot, [app.ortho_groups, app.active_group, str(app.active_group_name)], [sp_plot.text], False)
                                                                 app.show_plot_toolbar()
 
                                                 BoxLayout:
@@ -446,7 +446,7 @@ ShowcaseScreen:
                                                             text: "Compute that shit!"
                                                             on_release:
                                                                 app.go_screen(7)
-                                                                app.run_in_background(get_active_group, app.orto_show_plot, [app.ortho_groups, str(app.active_group_name)], [gn_plot.text], False)
+                                                                app.run_in_background(get_active_group, app.orto_show_plot, [app.ortho_groups, app.active_group, str(app.active_group_name)], [gn_plot.text], False)
                                                                 app.show_plot_toolbar()
                                 BoxLayout:
                                     padding: 10
