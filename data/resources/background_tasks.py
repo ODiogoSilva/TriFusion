@@ -347,8 +347,14 @@ def orto_update_filters(ortho_groups, gn_filter, sp_filter,
     return [ortho_groups]
 
 
-def get_active_group(ortho_groups, active_group_name):
+def get_active_group(ortho_groups, old_active_group, active_group_name):
 
-    active_group = ortho_groups.get_group(active_group_name)
+    if not old_active_group:
+        active_group = ortho_groups.get_group(active_group_name)
+    else:
+        if active_group_name == old_active_group.name:
+            return [old_active_group]
+        else:
+            active_group = ortho_groups.get_group(active_group_name)
 
     return [active_group]
