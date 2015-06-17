@@ -353,7 +353,7 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
         active_group = ortho_groups.get_group(active_group_name)
     else:
         if active_group_name == old_active_group.name:
-            return [old_active_group]
+            return [None]
         else:
             active_group = ortho_groups.get_group(active_group_name)
 
