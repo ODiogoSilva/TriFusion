@@ -87,6 +87,13 @@ Config.set("graphics", "fullscreen", 0)
 # left-clicking in the generate ball would crash the app with a KeyError
 # exception. The fix on lines 595-598 handles this exception by not deleting
 # a touch from _last_touch_pos dictionary, since the key is not there anymore.
+# MEMO 2
+# scrollview.py _change_touch_mode function was modified to prevent a bug from
+# crashing the app. Before the fix, sometimes the app would crash due to a
+# KeyError exception on line 920. I did not detect any specific pattern for this
+# error and I could never replicate the bug, but every now and then the app
+# would crash. The fix on lines 920-923 handles the KeyError exception by
+# returning the function.
 
 
 class ShowcaseScreen(Screen):
