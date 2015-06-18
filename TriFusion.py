@@ -4902,6 +4902,8 @@ class TriFusionApp(App):
         # Load plot
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]))
 
+        self.active_group = None
+
     def load_plot(self, file_path):
         """
         Loads a new plot into the ScatterLayout. This will clear all previous
