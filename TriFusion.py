@@ -473,6 +473,10 @@ class OptsGrid(GridLayout):
     pass
 
 
+class GeneOccupancy(TFButtonOff):
+    pass
+
+
 class MissingData(TFButtonOff):
     pass
 
@@ -6064,7 +6068,8 @@ class TriFusionApp(App):
 
         # Storage of Options buttons separated by major analysis types
         wgts = {"Missing Data": [self.screen.ids.missing_data_opts,
-                                 [MissingOrto(), MissingData()]],
+                                 [GeneOccupancy(), MissingOrto(),
+                                  MissingData()]],
                 "Polymorphism and Variation":
                     [self.screen.ids.polymorphism_data_opts, [Test()]]}
 
