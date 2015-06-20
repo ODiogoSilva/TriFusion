@@ -4748,7 +4748,7 @@ class TriFusionApp(App):
                                                 stats=stats)
 
             # Load plot
-            self.load_plot(join(self.temp_dir, "Final_orthologs.png"))
+            self.orto_load_plot(join(self.temp_dir, "Final_orthologs.png"))
 
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
@@ -4904,11 +4904,11 @@ class TriFusionApp(App):
                              len(self.active_group.species_list))
 
         # Load plot
-        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]))
+        self.orto_load_plot(join(self.temp_dir, plt_method[plt_idx][1]))
 
         self.active_group = None
 
-    def load_plot(self, file_path):
+    def orto_load_plot(self, file_path):
         """
         Loads a new plot into the ScatterLayout. This will clear all previous
         content and load a new image based on the file_path argument.
