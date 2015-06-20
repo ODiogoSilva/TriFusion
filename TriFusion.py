@@ -4748,7 +4748,8 @@ class TriFusionApp(App):
                                                 stats=stats)
 
             # Load plot
-            self.orto_load_plot(join(self.temp_dir, "Final_orthologs.png"))
+            self.load_plot(join(self.temp_dir, "Final_orthologs.png"),
+                           self.screen.ids.plot_content)
 
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
@@ -4904,29 +4905,32 @@ class TriFusionApp(App):
                              len(self.active_group.species_list))
 
         # Load plot
-        self.orto_load_plot(join(self.temp_dir, plt_method[plt_idx][1]))
+        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
+                       self.screen.ids.plot_content.children[0])
 
         self.active_group = None
 
-    def orto_load_plot(self, file_path):
+    def load_plot(self, file_path, scatter_wgt):
         """
-        Loads a new plot into the ScatterLayout. This will clear all previous
+        Loads a new plot into a ScatterLayout. This will clear all previous
         content and load a new image based on the file_path argument.
         This assumes that the current screen is a plot related screen.
         :param file_path: string. Path to the image to be loaded
+        :param scatter_wgt: ScatterLayout object, where the plot is to be
+        loaded
         :return:
         """
 
         # Clear previous content
-        self.screen.ids.plot_content.children[0].clear_widgets()
+        scatter_wgt.children[0].clear_widgets()
 
         # Add content
         img_wgt = Image(source=file_path, nocache=True)
-        self.screen.ids.plot_content.children[0].add_widget(img_wgt)
+        scatter_wgt.children[0].add_widget(img_wgt)
 
         # Reset position and scale of Scatter
-        self.screen.ids.plot_content.scale = 1
-        self.screen.ids.plot_content.pos = (0, 0)
+        scatter_wgt.scale = 1
+        scatter_wgt.pos = (0, 0)
 
     def dialog_exclude_orto_taxa(self, plt_idx):
 
@@ -6086,6 +6090,24 @@ class TriFusionApp(App):
                     active_gl.active_grid = False
 
         transfer_wgts(wgts[idx][1], wgts[idx][0])
+
+    def stats_show_plot(self, plt_idx):
+        """
+        Loads a plot into the Statistics screen.
+
+        :param plt_idx: string, id of the plot in the plt_method to issue the
+        appropriate method.
+        :return:
+        """
+
+        plt_method = {"Gene occupancy": [self.alignment_list.gene_occupancy,
+                                        "gene_occupancy.png"]}
+
+        self.stats_plot = plt_method[plt_idx][0](dest=self.temp_dir)
+
+        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
+                       self.screen.ids.stats_scatter)
+
 
     # ##################################
     #

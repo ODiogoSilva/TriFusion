@@ -115,7 +115,7 @@ class UniReport(Alignment):
         return species_gene_length
 
 
-class MultiReport():
+class MultiReport:
     """ This will create a report object for multiple alignments. Its most
      basic instance will be a list of UniReport objects
     """

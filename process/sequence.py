@@ -33,6 +33,7 @@ from process.data import Partitions
 from collections import OrderedDict
 import itertools
 import re
+from base.plotter import *
 from os import sep
 from os.path import join, basename, splitext
 
@@ -975,7 +976,7 @@ class Alignment (Base):
             out_file.close()
 
 
-class AlignmentList (Base):
+class AlignmentList(Base):
     """
     At the most basic instance, this class contains a list of Alignment
     objects upon which several methods can be applied. It only requires either
@@ -1567,6 +1568,29 @@ class AlignmentList (Base):
                                         partition_file=partition_file,
                                         output_dir=output_dir,
                                         use_charset=use_charset)
+
+    # Stats methods
+    def gene_occupancy(self, output_file_name="gene_occupancy", dest="./"):
+        """
+        Creates an interpolation plot to visualize the amount of missing
+        genes in a phylogenomics data set
+        """
+
+        data = []
+
+        for alignment in self.alignments.values():
+            data.append([1 if x in alignment.alignment.keys() else 0
+                         for x in self.taxa_names])
+
+        data = np.transpose(data)
+
+        iplt = interpolation_plot(data)
+
+        iplt.savefig(join(dest, output_file_name), bbox_inches="tight",
+                     dpi=300)
+
+        return iplt
+
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
