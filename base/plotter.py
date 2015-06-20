@@ -211,4 +211,29 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
 
     return plt, lgd
 
+
+def interpolation_plot(data):
+    """
+    Creates a black and white interpolation plot from data, which must consist
+    of a 0/1 matrix for absence/presence of taxa in genes
+    :param data: numpy array of variable shape.
+    """
+
+    plt.rcParams["figure.figsize"] = (6, 8)
+
+    # Use ggpot style
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    ax.yaxis.grid([])
+    ax.xaxis.grid([])
+    plt.yticks([])
+    plt.xticks([])
+
+    ax.imshow(data, interpolation="none", cmap="Greys")
+
+    return plt
+
+
 __author__ = 'diogo'

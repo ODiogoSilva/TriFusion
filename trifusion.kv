@@ -4276,7 +4276,8 @@
     size_hint_y: None
     height: 30
     text: "Gene occupancy"
-    on_release: print(self.text)
+    on_release:
+        app.stats_show_plot(self.text)
 
 <MissingOrto>:
     size_hint_y: None
