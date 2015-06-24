@@ -1060,10 +1060,9 @@ class AlignmentList(Base):
                 else:
                     self.alignments[alignment_object.name] = alignment_object
                     self.set_partition(alignment_object)
-                    self.taxa_names.extend((x for x in
-                                            alignment_object.alignment if x
-                                            not in self.taxa_names))
                     self.filename_list.append(alignment_object.name)
+
+        self.taxa_names = self._get_taxa_list()
 
     def __iter__(self):
         """
@@ -1184,6 +1183,7 @@ class AlignmentList(Base):
             else:
                 self.alignments[alignment_obj.name] = alignment_obj
                 self.set_partition(alignment_obj)
+                self.filename_list.append(alignment_obj.name)
 
         self.taxa_names = self._get_taxa_list()
 
