@@ -221,9 +221,10 @@
             Color:
                 rgb: (0.216, 0.67, 0.784, 1)
             Line:
-                width: 1.1
-                cap: "round"
-                joint: "round"
+                joint: "miter"
+                cap: "square"
+                close: True
+                width: 1.05
                 rectangle: root.x,root.y,root.width,root.height
 
 <LoadProgressDialog>:
@@ -393,7 +394,7 @@
     BoxLayout:
         orientation: "vertical"
         size_hint_y: None
-        height: 40
+        height: 50
         BoxLayout:
             spacing: 10
             FileTypeBt:
@@ -429,7 +430,7 @@
                 app.dialog_filechooser("protein_db")
 
     Hseparator:
-        thickness: .5
+        thickness: 1
 
     DarkBox:
         height: 70
