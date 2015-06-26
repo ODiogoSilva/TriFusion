@@ -52,7 +52,7 @@ two_clr_list = [[0, .53, .66],
 
 
 def bar_plot(data_list, labels=None, title=None, ax_names=None,
-             lgd_list=None, reverse_x=True):
+             lgd_list=None, reverse_x=False):
     """
     Builds simple bar plot from a data_list
     :param data_list: list with data to be plotted.
