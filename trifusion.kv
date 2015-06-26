@@ -44,9 +44,7 @@
                 rgb: root.line_clr
             Line:
                 width: 1.1
-                cap: "round"
-                joint: "round"
-                rectangle: root.x+2,root.y+2,root.width-4,root.height-4
+                rectangle: root.x,root.y,root.width,root.height
 
 <TFButton>:
     bold: True
@@ -62,9 +60,10 @@
             Color:
                 rgb: root.line_clr
             Line:
-                width: 1.1
-                cap: "round"
-                joint: "round"
+                joint: "miter"
+                cap: "square"
+                close: True
+                width: 1.05
                 rectangle: root.x+2,root.y+2,root.width-4,root.height-4
 
 <TGToggleButton>:
@@ -79,9 +78,7 @@
                 rgb: (0.216, 0.67, 0.784, 1)
             Line:
                 width: 1.1
-                cap: "round"
-                joint: "round"
-                rectangle: root.x,root.y,root.width,root.height
+                rectangle: root.x+2,root.y+2,root.width-4,root.height-4
 
 <TFOKButon@Button>:
     background_normal: "data/backgrounds/bt_process_off.png"
@@ -3702,8 +3699,9 @@
                 rgb: (0.216, 0.67, 0.784, 1)
             Line:
                 width: 1.1
-                cap: "round"
-                joint: "round"
+                cap: "square"
+                joint: "miter"
+                close: True
                 rectangle: root.x,root.y,root.width,root.height
 
 # Vertical light grey separator
