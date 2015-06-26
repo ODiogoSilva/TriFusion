@@ -4779,8 +4779,6 @@ class TriFusionApp(App):
         excluded from the plot
         """
 
-        print(active_group, self.active_group)
-
         # Set active group
         if active_group:
             self.active_group = active_group
@@ -4939,7 +4937,7 @@ class TriFusionApp(App):
         # Add button for each taxon
         for taxon in sorted(self.active_group.species_list +
                             self.screen.ids.header_content.excluded_taxa):
-            bt = TGToggleButton(text=taxon, height=30)
+            bt = TGToggleButton(text=taxon, height=30, state="down")
             # deselect button if taxa is excluded
             if taxon in self.screen.ids.header_content.excluded_taxa:
                 bt.state = "normal"
