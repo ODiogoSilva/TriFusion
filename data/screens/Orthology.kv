@@ -246,6 +246,7 @@ ShowcaseScreen:
 
                                         Hseparator:
                                             thickness: 1.5
+
                                         ScrollView:
                                             BoxLayout:
                                                 id: orto_group_glbx
@@ -277,19 +278,21 @@ ShowcaseScreen:
                                                     padding: (5,5)
                                                     spacing: 5
                                                     #size_hint_y: None
+
                                         Hseparator:
                                             thickness: 1.5
+
                                         BoxLayout:
                                             size_hint_y: None
-                                            height: 42.5
+                                            height: 45
                                             padding: 5
                                             spacing: 10
-                                            TFButton:
+                                            Button:
                                                 id: compare_group_bt
                                                 text: "Compare"
                                                 bold: True
                                                 background_normal: "data/backgrounds/bt_process.png"
-                                                background_disabled_normal: "data/backgrounds/bt_process_off.png"
+                                                background_disabled_normal: "data/backgrounds/bt_process_full_disabled.png"
                                                 disabled: True
                                                 on_release:
                                                     app.go_screen(5)
@@ -298,9 +301,9 @@ ShowcaseScreen:
                                             Button:
                                                 size_hint_x: None
                                                 width: 35
-                                                background_normal: "data/backgrounds/remove_bt_35.png"
-                                                background_down: "data/backgrounds/remove_bt_down_35.png"
-                                                background_disabled_normal: "data/backgrounds/remove_bt_disabled_35.png"
+                                                background_normal: "data/backgrounds/remove_bt35.png"
+                                                background_down: "data/backgrounds/remove_bt35_down.png"
+                                                background_disabled_normal: "data/backgrounds/remove_bt35_disabled.png"
                                                 disabled: True if not app.ortho_group_files else False
                                                 on_release:
                                                     app.check_action(text="Are you sure you want to remove all group files?", func=app.remove_all_groups)

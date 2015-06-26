@@ -4576,7 +4576,7 @@ FloatLayout:
                                                 color: (.6, .6, .6, 1)
                                             BoxLayout:
                                                 id: bt_bar_file
-                                                spacing: 10
+                                                spacing: 5
                                                 size_hint_y: None
                                                 height: 35
                                                 BoxLayout:
@@ -4725,7 +4725,7 @@ FloatLayout:
                                                 height: 10
                                                 color: (.6, .6, .6, 1)
                                             BoxLayout:
-                                                spacing: 10
+                                                spacing: 5
                                                 size_hint_y: None
                                                 height: 35
                                                 BoxLayout:
@@ -4911,7 +4911,7 @@ FloatLayout:
                                                         size_hint_x: None
                                                         width: 35
                                                         background_normal: "data/backgrounds/group_bt.png"
-                                                        background_disabled_normal: "data/backgrounds/group_bt.png"
+                                                        background_disabled_normal: "data/backgrounds/group_bt_disabled.png"
                                                         on_release:
                                                             app.partitions_merge_dialog()
                                                     TFButton:
@@ -4920,7 +4920,7 @@ FloatLayout:
                                                         size_hint_x: None
                                                         width: 35
                                                         background_normal: "data/backgrounds/split_bt.png"
-                                                        background_disabled_normal: "data/backgrounds/split_bt.png"
+                                                        background_disabled_normal: "data/backgrounds/split_bt_disabled.png"
                                                         on_release:
                                                             app.dialog_partitions_split()
                                                     TFButton:
