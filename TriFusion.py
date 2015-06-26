@@ -952,7 +952,7 @@ class TriFusionApp(App):
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
-    alignment_list = None
+    alignment_list = AlignmentList([])
     # List of active alignment object variables.
     active_alignment_list = None
     # List of active partitions
