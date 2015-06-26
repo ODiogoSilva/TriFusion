@@ -4906,7 +4906,7 @@ class TriFusionApp(App):
 
         # Load plot
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
-                       self.screen.ids.plot_content.children[0])
+                       self.screen.ids.plot_content)
 
         self.active_group = None
 
