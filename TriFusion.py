@@ -4779,6 +4779,8 @@ class TriFusionApp(App):
         excluded from the plot
         """
 
+        print(active_group, self.active_group)
+
         # Set active group
         if active_group:
             self.active_group = active_group
@@ -4907,8 +4909,6 @@ class TriFusionApp(App):
         # Load plot
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
                        self.screen.ids.plot_content)
-
-        self.active_group = None
 
     def load_plot(self, file_path, scatter_wgt):
         """
