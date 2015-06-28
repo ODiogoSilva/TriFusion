@@ -157,20 +157,16 @@ ShowcaseScreen:
                 spacing: 5
 
                 Label:
-                    canvas.before:
-                        Color:
-                            rgba: (.2,.2,.2,1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                    size_hint_x: .15
+                    size_hint_x: None
+                    width: 50
                     text: "Find:"
                     bold: True
-                ToggleButton:
+                TGToggleButton:
                     id: case_bt
                     text: "Aa"
                     bold:True
-                    size_hint_x: .1
+                    size_hint_x: None
+                    size: 40, 30
                     state: "down"
 
                 TextInput:
