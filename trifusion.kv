@@ -793,7 +793,16 @@
     text_size: self.size
     halign: "center"
     valign: "middle"
-
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: (1, .33, .33, 1)
+            Line:
+                joint: "miter"
+                cap: "square"
+                close: True
+                width: 1.05
+                rectangle: root.x,root.y,root.width,root.height
 
 <CheckDialog>:
     orientation: "vertical"
@@ -819,7 +828,7 @@
             id: check_ok
             on_release:
                 root.cancel()
-        Button:
+        CheckBt:
             id: check_cancel
             background_normal: "data/backgrounds/check_cancel.png"
             background_down: "data/backgrounds/check_ok.png"
