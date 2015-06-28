@@ -4474,6 +4474,7 @@ FloatLayout:
                         Carousel:
                             id: carousel
                             direction: "bottom"
+                            scroll_timeout: 0
                             BoxLayout:
                                 orientation: "vertical"
                                 padding: 10
@@ -4567,6 +4568,8 @@ FloatLayout:
                                                                 file_search.text = ""
                                             ScrollView:
                                                 id: sv_file
+                                                bar_width: 8
+                                                scroll_type: ["bars"]
                                                 GridLayout:
                                                     cols: 3
                                                     size_hint_y: None
@@ -4719,6 +4722,8 @@ FloatLayout:
                                                                 taxa_search.text = ""
                                             ScrollView:
                                                 id: sv_sp
+                                                bar_width: 8
+                                                scroll_type: ["bars"]
                                                 GridLayout:
                                                     cols: 3
                                                     size_hint_y: None
@@ -4874,6 +4879,8 @@ FloatLayout:
 
                                             ScrollView:
                                                 id: sv_partition
+                                                bar_width: 8
+                                                scroll_type: ["bars"]
                                                 GridLayout:
                                                     cols: 3
                                                     size_hint_y: None
