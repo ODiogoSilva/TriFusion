@@ -2438,6 +2438,11 @@ class TriFusionApp(App):
         Method controlling the animation toggling of the side panel
         """
 
+        # Do not toggle when the following conditions are met
+        if self.screen.name == "fc":
+            if self.screen.ids.text_filter.focus:
+                return
+
         # Toggling the state of the panel. This attribute is the main
         # controller of the side panel state. When its True, the side panel is
         # extended, otherwise the side panel is hidden
