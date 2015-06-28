@@ -6155,6 +6155,8 @@ class TriFusionApp(App):
             else:
                 file_list.append(i)
 
+        file_list = sorted(file_list)
+
         manager = multiprocessing.Manager()
         ns = manager.Namespace()
 
