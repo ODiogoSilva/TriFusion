@@ -1325,14 +1325,15 @@ class TriFusionApp(App):
             except AttributeError:
                 pass
 
-            # Use arrow keys and enter to navigate through open/cancel buttons
-            # and selecting them
-            bn = "data/backgrounds/bt_process.png"
-            bd = "data/backgrounds/bt_process_off.png"
-            open_close_bt = self.screen.ids.open_close_bt
-            open_bt = self.screen.ids.open_bt
-            cancel_bt = self.screen.ids.cancel_bt
-            popup_keys(bn, bd, open_close_bt, open_bt, cancel_bt)
+            if self._popup not in self.root_window.children:
+                # Use arrow keys and enter to navigate through open/cancel
+                # buttons and selecting them
+                bn = "data/backgrounds/bt_process.png"
+                bd = "data/backgrounds/bt_process_off.png"
+                open_close_bt = self.screen.ids.open_close_bt
+                open_bt = self.screen.ids.open_bt
+                cancel_bt = self.screen.ids.cancel_bt
+                popup_keys(bn, bd, open_close_bt, open_bt, cancel_bt)
 
         # ======================================================================
         # General keybindings
@@ -1488,7 +1489,7 @@ class TriFusionApp(App):
             window_pos = wgt.to_window(wgt.pos[0], wgt.pos[1])
             # Creating dummy widget to determine collision
             dummy_wgt = Widget(pos=window_pos, size_hint=(None, None),
-                                 size=wgt.size)
+                               size=wgt.size)
 
             return dummy_wgt.collide_point(mp[0], mp[1])
 
