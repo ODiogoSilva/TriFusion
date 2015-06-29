@@ -196,12 +196,17 @@
     shorten_from: "left"
     halign: "left"
     valign: "middle"
+    markup: True
+    #color: (0.2, 0.2, 0.2, 1)
+    bold: True
     canvas.before:
         Color:
-            rgba: .35, .35, .35, 1
+            rgba: (0.3, 0.3, 0.3, .8)
         Rectangle:
             pos: self.pos
             size: self.size
+    on_ref_press:
+        app._update_path(args[1])
 
 <PathText>:
     size_hint_x: .93

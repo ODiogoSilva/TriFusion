@@ -42,6 +42,9 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
+from kivy.core.text import Label as CoreLabel
+from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
+from kivy.utils import get_hex_from_color
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ListProperty, ObjectProperty, DictProperty
 from kivy.uix.screenmanager import Screen
@@ -116,6 +119,70 @@ class StringInput(TextInput):
 
         return super(StringInput, self).insert_text(s, from_undo=from_undo)
 
+
+class LinkedLabel(Label):
+    """
+    Modification of label to reformat label for path linking
+    """
+
+    def __init__(self, **kwargs):
+        super(LinkedLabel, self).__init__(**kwargs)
+
+    def create_ref_label(self, text):
+        """
+        Modifies the original label by adding references to each directory in
+        the path
+        """
+
+        s = p = sep
+        path_list = text.split(sep)
+
+        for d in path_list:
+            p = join(p, d)
+            if p != sep:
+                s = join(s, "[ref={}]{}[/ref]".format(p, d))
+
+        return s
+
+    def texture_update(self, *largs):
+        """Force texture recreation with the current Label properties.
+
+        After this function call, the :attr:`texture` and :attr:`texture_size`
+        will be updated in this order.
+        """
+        mrkup = self._label.__class__ is CoreMarkupLabel
+        self.texture = None
+
+        if (not self._label.text or (self.halign[-1] == 'y' or self.strip) and
+            not self._label.text.strip()):
+            self.texture_size = (0, 0)
+            if mrkup:
+                self.refs, self._label._refs = {}, {}
+                self.anchors, self._label._anchors = {}, {}
+        else:
+            if mrkup:
+                text = self.text
+                text = self.create_ref_label(text)
+                # we must strip here, otherwise, if the last line is empty,
+                # markup will retain the last empty line since it only strips
+                # line by line within markup
+                if self.halign[-1] == 'y' or self.strip:
+                    text = text.strip()
+                self._label.text = ''.join(('[color=',
+                                            get_hex_from_color(self.color),
+                                            ']', text, '[/color]'))
+                self._label.refresh()
+                # force the rendering to get the references
+                if self._label.texture:
+                    self._label.texture.bind()
+                self.refs = self._label.refs
+                self.anchors = self._label.anchors
+            else:
+                self._label.refresh()
+            texture = self._label.texture
+            if texture is not None:
+                self.texture = self._label.texture
+                self.texture_size = list(self.texture.size)
 
 class FileChooserL(FileChooserListView):
     """
@@ -576,7 +643,7 @@ class LoadMoreBt(AnchorLayout):
     pass
 
 
-class PathLabel(Label):
+class PathLabel(LinkedLabel):
     """
     Dialog for the Label with the path for the main file chooser
     """
@@ -1180,6 +1247,16 @@ class TriFusionApp(App):
 
         for i in os.listdir(self.temp_dir):
             os.remove(join(self.temp_dir, i))
+
+    def _update_path(self, path):
+        """
+        This method updates the filechooser path when clicking on the path label
+        :param path: string, with destination path
+        :return:
+        """
+
+        self.screen.ids.path_bx.children[0].text = path
+        self.screen.ids.icon_view_tab.path = path
 
     def _on_keyboard_events(self, *vals):
         """
