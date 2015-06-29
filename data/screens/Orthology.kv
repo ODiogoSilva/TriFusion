@@ -463,9 +463,11 @@ ShowcaseScreen:
                                             halign: "center"
                                             valign: "middle"
                                             text_size: self.size
-                                            text: "Explore and transform the output of OrthoMCL by searching orthologs with the [color=37abc8ff]Search operation[/color] or importing group files"
+                                            text: "Explore and transform the output of OrthoMCL by searching orthologs with the Search operation or [i][color=37abc8ff][ref=import_group]importing group files[/ref][/color][/i]"
                                             bold: True
                                             markup: True
+                                            on_ref_press:
+                                                app.dialog_import_groups()
 
                 BoxLayout:
                     Label:
