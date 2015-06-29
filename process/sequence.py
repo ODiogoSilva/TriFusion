@@ -295,7 +295,7 @@ class Alignment (Base):
                 # Stop sequence parser here
                 elif line.strip() == ";" and counter == 1:
                     counter = 2
-                    self.locus_length = len(list(self.alignment.values())[0])
+                    self.locus_length = len(list(self.alignment.values())[0][0])
                     self.partitions.set_length(self.locus_length)
                 # Start parsing here
                 elif line.strip() != "" and counter == 1:
