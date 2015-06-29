@@ -5116,7 +5116,7 @@ class TriFusionApp(App):
 
                 # Removes "No groups loaded" button if it still exists
                 try:
-                    self.screen.ids.group_gl.remove_widget(
+                    self.screen.ids.group_check.remove_widget(
                         self.screen.ids.no_bt)
                 except ReferenceError:
                     pass
