@@ -42,7 +42,6 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
-from kivy.core.text import Label as CoreLabel
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
 from kivy.utils import get_hex_from_color
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
