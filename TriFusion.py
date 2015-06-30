@@ -2342,6 +2342,7 @@ class TriFusionApp(App):
         path = value.id
         if os.path.exists(path):
             wgt.path = path
+            wgt.selection = []
         else:
             self.dialog_floatcheck("The path to the selected bookmark no longer"
                                    " exists.", t="error")
