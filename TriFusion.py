@@ -5366,6 +5366,7 @@ class TriFusionApp(App):
             if self.main_operations["concatenation"]:
                 # Adds output file to storage
                 self.output_file = join(path, file_name)
+                self.output_dir = path
                 # Renames the output file button text
                 self.process_grid_wgt.ids.conv.text = file_name
 
