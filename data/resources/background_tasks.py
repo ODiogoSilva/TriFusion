@@ -207,6 +207,7 @@ def process_execution(**kwargs):
                                            kwargs["taxa_groups"])
 
         kwargs["ns"].proc_files = len(aln_object.alignments)
+
         # Filtering - This should be the first operation to be performed
         if kwargs["secondary_operations"]["filter"]:
             kwargs["ns"].msg = "Filtering alignment(s)"
@@ -255,15 +256,22 @@ def process_execution(**kwargs):
                     filtered_aln_obj
             except NameError:
                 pass
+
         # Concatenation
         if kwargs["main_operations"]["concatenation"]:
             kwargs["ns"].msg = "Concatenating"
             aln_object = aln_object.concatenate()
+            # In case filtered alignments are going to be saved in a different
+            # file, concatenate them as well
+            if write_aln:
+                for name, aln in write_aln.items():
+                    write_aln[name] = aln.concatenate()
             # Concatenation of ZORRO files
             if kwargs["secondary_options"]["zorro"]:
                 kwargs["ns"].msg = "Concatenating ZORRO files"
                 zorro_data = data.Zorro(aln_object, kwargs["zorro_suffix"])
                 zorro_data.write_to_file(kwargs["output_file"])
+
         # Reverse concatenation
         if kwargs["main_operations"]["reverse_concatenation"]:
             kwargs["ns"].msg = "Reverse concatenating"
@@ -274,6 +282,7 @@ def process_execution(**kwargs):
             aln_object = aln_object.retrieve_alignment(kwargs["rev_infile"])
             aln_object.set_partitions(partition_obj)
             aln_object = aln_object.reverse_concatenate()
+
         # Collapsing
         if kwargs["secondary_operations"]["collapse"]:
             kwargs["ns"].msg = "Collapsing alignment(s)"
@@ -285,6 +294,7 @@ def process_execution(**kwargs):
                     collapsed_aln_obj
             else:
                 aln_object.collapse(haplotype_name=kwargs["hap_prefix"])
+
         # Gcoder
         if kwargs["secondary_operations"]["gcoder"]:
             kwargs["ns"].msg = "Coding gaps"
@@ -298,9 +308,9 @@ def process_execution(**kwargs):
         # The output file(s) will only be written after all the required
         # operations have been concluded. The reason why there are two "if"
         # statement for "concatenation" is that the input alignments must be
-        # concatenated before any other additional operatiokwargs["ns"]. If the first
-        # if statement did not exist, then all additional options would have
-        # to be manually written for both "conversion" and "concatenation".
+        # concatenated before any other additional operatiokwargs["ns"]. If the
+        # first if statement did not exist, then all additional options would
+        # have to be manually written for both "conversion" and "concatenation".
         #  As it is, when "concatenation", the aln_obj is firstly converted
         # into the concatenated alignment, and then all additional
         # operations are conducted in the same aln_obj
