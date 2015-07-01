@@ -2515,6 +2515,8 @@
                     app.orto_export_groups(sd_filechooser.text, output_dir=sd_filechooser.path)
                     elif sd_filechooser.text == "import_partitions" and txt_box.height == 0: \
                     app.partitions_import_scheme(sd_filechooser.selection[0])
+                    elif sd_filechooser.text == "select_from_file" and txt_box.height == 0: \
+                    app.select_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
                     # Close dialog
                     if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group": root.cancel()
 
@@ -4777,6 +4779,7 @@ FloatLayout:
                                                         text: "  Select file names from .txt"
                                                         bold: True
                                                         on_release:
+                                                            app.dialog_select_from_file()
                                                             file_dd.dismiss()
 
                                                     Label:
@@ -5005,6 +5008,7 @@ FloatLayout:
                                                         text: "  Select taxa names from .txt"
                                                         bold: True
                                                         on_release:
+                                                            app.dialog_select_from_file()
                                                             file_dd.dismiss()
 
                                                     Label:

@@ -3411,6 +3411,23 @@ class TriFusionApp(App):
 
         self.dismiss_subpopup()
 
+    def dialog_select_from_file(self):
+        """
+        Creates a filechooser dialog to select a text file containing a list
+        of files or taxa names to be selected in the side panel
+        :param idx: string, can be either 'file' or 'taxa'
+        """
+
+        content = SaveDialog(cancel=self.dismiss_popup,
+                             bookmark_init=self.bookmark_init)
+
+        content.ids.txt_box.clear_widgets()
+        content.ids.txt_box.height = 0
+        title = "Choose text file to import"
+        content.ids.sd_filechooser.text = "select_from_file"
+
+        self.show_popup(title=title, content=content)
+
     def dialog_import_partitions(self):
         """
         Creates a filechooser dialog to select a partition file and import its
@@ -3893,6 +3910,55 @@ class TriFusionApp(App):
 
         if not self.file_list:
             self.clear_process_input()
+
+    def select_bt_from_file(self, idx, txt_file):
+        """
+        Adds functionality to the dropdown button options for selecting file or
+        taxa buttons from a text file
+        :param idx: string, either 'Files' or 'Taxa'.
+        :param txt_file: string, path to txt file containing the files/taxa
+        names to be selected
+        """
+
+        selection = []
+
+        with open(txt_file) as fh:
+
+            for line in fh:
+                if line.strip() != "":
+                    selection.append(line.strip())
+
+        if idx == "Taxa":
+
+            for bt in [x for x in self.root.ids.taxa_sl.children if
+                       isinstance(x, ToggleButton)]:
+                if bt.text in selection:
+                    bt.state = "down"
+                else:
+                    bt.state = "normal"
+
+            self.active_taxa_list = [x for x in selection if x in
+                                     self.alignment_list.taxa_names]
+
+            self.update_sp_label()
+
+        elif idx == "Files":
+
+            for bt in [x for x in self.root.ids.file_sl.children if
+                       isinstance(x, ToggleButton)]:
+                if bt.text in selection:
+                    bt.state = "down"
+                else:
+                    bt.state = "normal"
+
+                self.active_file_list = [self.filename_map[x] for x in
+                                         selection]
+                self.alignment_list.update_active_alignments([x for x in
+                                                        selection if x in
+                                                        self.filename_map[x]])
+
+                self.update_file_label()
+
 
     def select_bt(self, value):
         """
