@@ -1779,7 +1779,8 @@ class TriFusionApp(App):
             # Iterate over buttons of active tab
             for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt:
                 # Determine if there is a collision with mouse position
-                if determine_collision(bt):
+                if determine_collision(bt) and self._popup not in \
+                                self.root_window.children:
                     if bt in self.mouse_over_bts[active_tab]:
                         if determine_collision(self.root.ids.sv_file) or \
                                 determine_collision(self.root.ids.sv_sp):
