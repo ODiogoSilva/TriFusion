@@ -5151,6 +5151,7 @@ FloatLayout:
                                                     spacing: 5
                                                     TFButton:
                                                         text: "Select All"
+                                                        font_size: 13
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
@@ -5159,6 +5160,7 @@ FloatLayout:
                                                             app.select_bt(self)
                                                     TFButton:
                                                         text: "Deselect All"
+                                                        font_size: 13
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
