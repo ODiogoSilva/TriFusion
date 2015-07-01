@@ -4166,7 +4166,7 @@ class TriFusionApp(App):
             # it has not been defined
             if not self.taxa_filter_settings:
                 self.taxa_filter_settings = ["Contain", name]
-        elif ds_type == "files":
+        else:
             # Make core changes by populating self.file_groups dictionary
             self.file_groups[name] = []
             group_list = self.file_groups[name]
@@ -4187,9 +4187,9 @@ class TriFusionApp(App):
         bt.bind(on_release=self.taxagroups_show_taxa)
         # Removal button
         x_bt = Button(size_hint=(None, None), width=30, border=(0, 0, 0, 0),
-                        height=30, id="%sX" % name,
-                        background_normal=join("data", "backgrounds",
-                                               "remove_bt.png"))
+                      height=30, id="%sX" % name,
+                      background_normal=join("data", "backgrounds",
+                                             "remove_bt.png"))
         x_bt.bind(on_release=partial(self.check_action,
                                      "Are you sure you want to remove this"
                                      " group?",
@@ -4200,13 +4200,10 @@ class TriFusionApp(App):
             grid_layout.add_widget(i)
 
         # Create separator between dropdown items
-        separator = Widget(size_hint_y=None, height=3)
-        dd_bt = Button(text=name, size_hint_y=None, height=40,
-                       background_normal="data/backgrounds/bt_process.png",
-                       background_color=(1, 1, 1, .3), bold=True)
-        dd_bt.bind(on_release=lambda x:
-                   dd_wgt.select(name))
-        dd_wgt.add_widget(separator)
+        dd_bt = Button(text=name, size_hint_y=None, height=40, bold=True,
+                       background_normal=join("data", "backgrounds",
+                                              "spinner_opt.png"))
+        dd_bt.bind(on_release=lambda x: dd_wgt.select(name))
         dd_wgt.add_widget(dd_bt)
 
         # Update gridlayout height
