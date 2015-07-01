@@ -4039,7 +4039,6 @@ class TriFusionApp(App):
 
                 self.update_file_label()
 
-
     def select_bt(self, value):
         """
         Functionality to the Select All/Deselect All buttons of the side
