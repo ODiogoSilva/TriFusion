@@ -49,11 +49,10 @@ def merger(ranges):
         yield last_start, en
 
 
-class Base ():
+class Base:
 
     def autofinder(self, reference_file):
         """ Autodetect the type of file to be parsed. Based on headers """
-        autofind = "unknown"
         sequence = ""
         file_handle = open(reference_file, 'r')
 
@@ -78,15 +77,21 @@ class Base ():
                         .strip()
                     break
 
-        # Recognition of FASTA files is based on the existence of a ">"
+        # Recognition of FASTA or .loci files is based on the existence of a ">"
         # character as the first character of a non-empty line
         elif header.strip().startswith(">"):
-            autofind = "fasta"
-            for line in file_handle:
-                if line.strip() != "" and line.strip()[0] != ">":
-                    sequence += line.strip()
-                elif line.strip() != "" and line.strip()[0] == ">":
-                    break
+            next_line = next(file_handle)
+            if next_line.strip().startswith(">"):
+                autofind = "loci"
+                sequence = header.split()[-1].strip()
+            else:
+                autofind = "fasta"
+                sequence = next_line.strip()
+                for line in file_handle:
+                    if line.strip() != "" and line.strip()[0] != ">":
+                        sequence += line.strip()
+                    elif line.strip() != "" and line.strip()[0] == ">":
+                        break
 
         # Recognition of Phylip files is based on the existence of two
         # integers separated by whitespace on the first non-empy line
@@ -109,6 +114,25 @@ class Base ():
         code = self.guess_code(sequence)
 
         return autofind, code
+
+    def get_loci_taxa(self, loci_file):
+        """
+        Gets a taxa list from a loci file. This is required prior to parsing
+        the alignment in order to correctly add missing data when certain
+        taxa are not present in a locus
+        :param loci_file: string, path to loci file
+        """
+
+        file_handle = open(loci_file)
+        taxa_list = []
+
+        for line in file_handle:
+            if line.strip().startswith(">"):
+                taxon = line.strip().split()[0][1:]
+                if taxon not in taxa_list:
+                    taxa_list.append(taxon)
+
+        return taxa_list
 
     def partition_format(self, partition_file):
         """ Tries to guess the format of the partition file (Whether it is
@@ -228,8 +252,9 @@ class Base ():
                         key=[v for v in alignment_dic.values()].count)
         # Creates a dictionary with the sequences, and respective length,
         # of different length
-        diflength = dict((key, value) for key, value in alignment_dic.items()
+        diflength = dict((key, len(value)) for key, value in alignment_dic.items()
                          if len(commonseq) != len(value))
+        print(diflength)
 
         if diflength != {}:
             return False
