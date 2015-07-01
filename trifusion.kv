@@ -2903,7 +2903,12 @@
     spacing: 10
     orientation: "vertical"
     BoxLayout:
+        size_hint_y: None
+        height: 40
         Label:
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
             text: "Write the partitions block, if any."
         CheckBox:
             id: nexus_check
@@ -2932,10 +2937,29 @@
     spacing: 10
     orientation: "vertical"
     BoxLayout:
+        size_hint_y: None
+        height: 40
         Label:
             text: "Create partition file when concatenating"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
         CheckBox:
             id: part_check
+            size_hint_x: .2
+
+    Hseparator
+
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        Label:
+            text: "Truncate taxa names at 10 characters"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        CheckBox:
+            id: trunc_names_check
             size_hint_x: .2
 
     BoxLayout:
