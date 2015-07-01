@@ -2925,7 +2925,7 @@
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
-                app.use_nexus_partitions = root.ids.nexus_check.active
+                app.use_nexus_partitions = nexus_check.active
                 app.dismiss_subpopup()
         TFOKButon:
             id: cancel_bt
@@ -2973,7 +2973,8 @@
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
-                app.create_partfile = root.ids.part_check.active
+                app.create_partfile = part_check.active
+                app.phylip_truncate_name = trunc_names_check.active
                 app.dismiss_subpopup()
         TFOKButon:
             id: cancel_bt

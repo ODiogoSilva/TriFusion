@@ -1056,6 +1056,9 @@ class TriFusionApp(App):
     # Determines whether the charset partitions in Nexus input files are to
     # be used in the output file
     use_nexus_partitions = BooleanProperty(True)
+    # Determines whether taxa names should be truncated to 10 characters in a
+    # phylip file
+    phylip_truncate_name = BooleanProperty(False)
 
     # Attribute storing the missing data filter settings. The list should
     # contain gap threshold as first element, missing data threshold as
@@ -5477,6 +5480,7 @@ class TriFusionApp(App):
         content = PhylipExtra(cancel=self.dismiss_subpopup)
 
         content.ids.part_check.active = self.create_partfile
+        content.ids.trunc_names_check.active = self.phylip_truncate_name
 
         self._subpopup = Popup(title="Phylip extra options", content=content,
                            size=(400, 230), size_hint=(None, None))
@@ -6706,6 +6710,7 @@ class TriFusionApp(App):
                 "output_formats": list(self.output_formats),
                 "create_partfile": bool(self.create_partfile),
                 "use_nexus_partitions": bool(self.use_nexus_partitions),
+                "phylip_truncate_name": bool(self.phylip_truncate_name),
                 "output_dir": str(self.output_dir)
                 }
 

@@ -614,10 +614,11 @@ class Alignment (Base):
 
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
-                      cut_space_nex=50, cut_space_phy=50, cut_space_ima2=8,
+                      cut_space_nex=50, cut_space_phy=258, cut_space_ima2=8,
                       interleave=False, gap="-", model_phylip=None,
                       outgroup_list=None, ima2_params=None, use_charset=True,
-                      partition_file=True, output_dir=None):
+                      partition_file=True, output_dir=None,
+                      phy_truncate_names=False):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -667,6 +668,9 @@ class Alignment (Base):
 
         :param output_dir: String. If provided, the output file will be written
         on the specified path
+
+        :param phy_truncate_names: Boolean. Whether names in phylip output
+        format should be truncated to 10 characters or not.
         """
 
         # If this function is called in the AlignmentList class, there may
@@ -804,6 +808,10 @@ class Alignment (Base):
         # Writes file in phylip format
         if "phylip" in output_format:
 
+            # Change taxa space if phy_truncate_names option is set to True
+            if phy_truncate_names:
+                cut_space_phy = 10
+
             out_file = open(output_file + ".phy", "w")
             out_file.write("%s %s\n" % (len(alignment), self.locus_length))
             for key, seq in alignment.items():
@@ -822,8 +830,7 @@ class Alignment (Base):
                         else self.partitions.models[name][1][0]
                     partition_file.write("%s, %s = %s\n" % (
                                          model if model else
-                                             self.sequence_code[0],
-                                         name,
+                                         self.sequence_code[0], name,
                                          "-".join([str(x + 1) for x in
                                                    lrange[0]])))
                 partition_file.close()
@@ -1532,7 +1539,7 @@ class AlignmentList(Base):
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
-                      use_charset=True):
+                      use_charset=True, phy_truncate_names=False):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -1551,23 +1558,26 @@ class AlignmentList(Base):
         on the specified path
         :param use_charset: boolean, if true, partitions from the Partitions
         object will be written in the nexus output format
+        :param phy_truncate_names: Boolean. Whether names in phylip output
+        format should be truncated to 10 characters or not.
         """
 
         for alignment_obj in self.alignments.values():
 
             if alignment_obj.input_format in output_format:
-                output_file_name = alignment_obj.name.split(".")[0]\
-                                       + output_suffix + "_conv"
+                output_file_name = alignment_obj.name.split(".")[0] \
+                    + output_suffix + "_conv"
             else:
                 output_file_name = alignment_obj.name.split(".")[0] + \
-                                   output_suffix
+                    output_suffix
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
                                         interleave=interleave,
                                         outgroup_list=outgroup_list,
                                         partition_file=partition_file,
                                         output_dir=output_dir,
-                                        use_charset=use_charset)
+                                        use_charset=use_charset,
+                                        phy_truncate_names=phy_truncate_names)
 
     # Stats methods
     def gene_occupancy(self, output_file_name="gene_occupancy", dest="./"):
