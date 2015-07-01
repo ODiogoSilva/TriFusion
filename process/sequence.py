@@ -122,6 +122,10 @@ class Alignment (Base):
         """
         self.is_alignment = None
 
+        # Storage taxa names and corresponding sequences in an ordered
+        # Dictionary
+        self.alignment = OrderedDict()
+
         # If the object is initialized with a string
         if isinstance(input_alignment, str):
 
@@ -229,10 +233,6 @@ class Alignment (Base):
         :param size_check: Boolean. If True it will check the size consistency
         of the sequences in the alignment
         """
-
-        # Storage taxa names and corresponding sequences in an ordered
-        # Dictionary
-        self.alignment = OrderedDict()
 
         file_handle = open(input_alignment, encoding="latin1")
 
