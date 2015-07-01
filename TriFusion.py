@@ -5468,7 +5468,7 @@ class TriFusionApp(App):
         content.ids.nexus_check.active = self.use_nexus_partitions
 
         self._subpopup = Popup(title="Nexus extra options", content=content,
-                           size=(500, 200), size_hint=(None, None))
+                           size=(500, 160), size_hint=(None, None))
 
         self._subpopup.open()
 
@@ -5479,7 +5479,7 @@ class TriFusionApp(App):
         content.ids.part_check.active = self.create_partfile
 
         self._subpopup = Popup(title="Phylip extra options", content=content,
-                           size=(400, 200), size_hint=(None, None))
+                           size=(400, 230), size_hint=(None, None))
 
         self._subpopup.open()
 
