@@ -83,6 +83,22 @@
                 width: .9
                 rectangle: root.x+2,root.y+2,root.width-4,root.height-4
 
+<TGOKToggleButton@ToggleButton>:
+    bold: True
+    halign: "center"
+    size_hint_y: None
+    background_normal: "data/backgrounds/bt_process_off.png"
+    background_down: "data/backgrounds/bt_process.png"
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
+
 <TFOKButon@Button>:
     background_normal: "data/backgrounds/bt_process_off.png"
     background_down: "data/backgrounds/bt_process.png"
@@ -3302,36 +3318,66 @@
         Switch:
             id: rev_conc
             on_active:
-                if self.active == True: app.update_main_operations("reverse_concatenation"); rev_infile.disabled = False; part_file.disabled = False
-                if self.active == False: app.update_main_operations("concatenation"); rev_infile.disabled = True; part_file.disabled = True
+                if self.active == True: app.update_main_operations("reverse_concatenation")
+                if self.active == False: app.update_main_operations("concatenation")
 
-        TFOKButon:
-            id: part_file
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-            halign: "center"
-            valign: "middle"
-            shorten: True
-            shorten_from: "left"
-            text_size: self.size
-            text: "Select partition file"
-            disabled: True
-            on_release:
-                app.dialog_load_partfile()
+        BoxLayout:
+            spacing: 10
+            size_hint_y: None
+            height: 175
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 10
+                TFOKButon:
+                    id: part_file
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    halign: "center"
+                    valign: "middle"
+                    shorten: True
+                    shorten_from: "left"
+                    text_size: self.size
+                    text: "Select partition file"
+                    disabled: False if rev_conc.active else True
+                    size_hint_y: None
+                    height: 80
+                    on_release:
+                        app.dialog_load_partfile()
+                TFOKButon:
+                    id: rev_infile
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    text: "Select file to reverse concatenate"
+                    halign: "center"
+                    valign: "middle"
+                    text_size: self.size
+                    disabled: False if rev_conc.active else True
+                    size_hint_y: None
+                    height: 80
+                    on_release:
+                        app.dialog_reverse_inlist()
+            Label:
+                size_hint_x: None
+                width: 30
+                text: "OR"
+                bold: True
+                color: (0.216, 0.67, 0.784, 1)
+            AnchorLayout:
+                TGOKToggleButton:
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    halign: "center"
+                    valign: "middle"
+                    shorten: True
+                    shorten_from: "left"
+                    text_size: self.size
+                    text: "Use defined partitions"
+                    size_hint_y: None
+                    height: 80
+                    disabled: False if rev_conc.active else True
 
-        TFOKButon:
-            id: rev_infile
-            background_normal: "data/backgrounds/bt_process_off.png"
-            background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-            text: "Select file to reverse concatenate"
-            halign: "center"
-            valign: "middle"
-            shorten: True
-            shorten_from: "left"
-            text_size: self.size
-            disabled: True
-            on_release:
-                app.dialog_reverse_inlist()
+
+
 
     BoxLayout:
         size_hint_y: None

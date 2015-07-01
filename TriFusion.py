@@ -5708,7 +5708,7 @@ class TriFusionApp(App):
                 "data/backgrounds/bt_process.png"
             content.ids.rev_infile.text = basename(self.rev_infile)
 
-        self.show_popup(title=title, content=content, size=(300, 350))
+        self.show_popup(title=title, content=content, size=(450, 360))
 
     def dialog_load_partfile(self):
 
