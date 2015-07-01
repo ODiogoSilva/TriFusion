@@ -1357,8 +1357,8 @@ class AlignmentList(Base):
         """
 
         for k, alignment_obj in self.alignments.items():
-            if len(alignment_obj.alignment) <= \
-                            (min_taxa / 100) * len(self.taxa_names):
+            if len(alignment_obj.alignment) < \
+                    (min_taxa / 100) * len(self.taxa_names):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
 
