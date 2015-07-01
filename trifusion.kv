@@ -3477,13 +3477,15 @@
         size_hint_y: None
         height: 20
 
-    Spinner:
+    PlotSpinner:
         id: filter_mode
-        size_hint_y: None
+        size_hint: 1, None
+        border: (16, 16, 16, 16)
         height: 40
         text: app.taxa_filter_settings[0] if app.taxa_filter_settings else "Containing"
         disabled: False if taxa_filter.active else True
         bold: True
+        option_cls: Factory.get("PlotOpt")
         values: ("Contain", "Exclude")
 
     BoxLayout:
