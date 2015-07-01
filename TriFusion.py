@@ -3415,7 +3415,6 @@ class TriFusionApp(App):
         """
         Creates a filechooser dialog to select a text file containing a list
         of files or taxa names to be selected in the side panel
-        :param idx: string, can be either 'file' or 'taxa'
         """
 
         content = SaveDialog(cancel=self.dismiss_popup,
@@ -3425,6 +3424,22 @@ class TriFusionApp(App):
         content.ids.txt_box.height = 0
         title = "Choose text file to import"
         content.ids.sd_filechooser.text = "select_from_file"
+
+        self.show_popup(title=title, content=content)
+
+    def dialog_remove_from_file(self):
+        """
+        Creates a filechooser dialog to select a text file containing a list
+        of files or taxa names to be removed in the side panel
+        """
+
+        content = SaveDialog(cancel=self.dismiss_popup,
+                             bookmark_init=self.bookmark_init)
+
+        content.ids.txt_box.clear_widgets()
+        content.ids.txt_box.height = 0
+        title = "Choose text file to import"
+        content.ids.sd_filechooser.text = "remove_from_file"
 
         self.show_popup(title=title, content=content)
 
@@ -3911,10 +3926,74 @@ class TriFusionApp(App):
         if not self.file_list:
             self.clear_process_input()
 
+    def remove_bt_from_file(self, idx, txt_file):
+        """
+        Adds functionality to the dropdown button options for removing file
+        or taxa buttons contained in a text file
+        :param idx: string, either 'Files' or 'Taxa'.
+        :param txt_file: string, path to txt file containing the files/taxa
+        names to be selected
+        """
+
+        selection = []
+        selection_idx = []
+
+        with open(txt_file) as fh:
+
+            for line in fh:
+                if line.strip() != "":
+                    selection.append(line.strip())
+                    selection_idx.append(line.strip() + "X")
+
+        if idx == "Taxa":
+
+            it = iter([(x, x.id) for x in self.root.ids.taxa_sl.children])
+
+            for bt, idx in it:
+                if idx in selection_idx:
+                    self.remove_bt(bt, parent_wgt=self.root.ids.taxa_sl)
+
+        else:
+            parent_obj = self.root.ids.file_sl
+
+            for f in selection:
+                # Remove buttons from side panel
+                try:
+                    bt = [x for x in parent_obj.children if f == x.id][0]
+                    parent_obj.remove_widget(bt)
+                except IndexError:
+                    pass
+                try:
+                    inf_bt = [x for x in parent_obj.children if
+                              f + "?" == x.id][0]
+                    parent_obj.remove_widget(inf_bt)
+                except IndexError:
+                    pass
+                try:
+                    cbt = [x for x in parent_obj.children if f + "X" == x.id][0]
+                    parent_obj.remove_widget(cbt)
+                except IndexError:
+                    pass
+
+                self.file_list.remove(self.filename_map[f])
+
+                try:
+                    self.active_file_list.remove(self.filename_map[f])
+                except ValueError:
+                    pass
+
+            self.alignment_list.remove_file([self.filename_map[x] for x in
+                                            selection])
+
+            self.update_taxa()
+            self.update_partitions()
+            self.update_file_label()
+            self.update_sp_label()
+
     def select_bt_from_file(self, idx, txt_file):
         """
         Adds functionality to the dropdown button options for selecting file or
-        taxa buttons from a text file
+        taxa buttons contained in a text file
         :param idx: string, either 'Files' or 'Taxa'.
         :param txt_file: string, path to txt file containing the files/taxa
         names to be selected
