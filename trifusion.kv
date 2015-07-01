@@ -2160,6 +2160,50 @@
 # TAXA GROUP CREATION
 #===============================================================================
 
+<DataSetTriageDialog>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 20
+    ds_type: ""
+    BoxLayout:
+        spacing: 20
+        TFOKButon:
+            halign: "center"
+            valign: "middle"
+            shorten: True
+            shorten_from: "left"
+            text_size: self.size
+            text: "Set from file"
+            size_hint_y: None
+            height: 60
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+        TFOKButon:
+            halign: "center"
+            valign: "middle"
+            shorten: True
+            shorten_from: "left"
+            text_size: self.size
+            text: "Set manually"
+            size_hint_y: None
+            height: 60
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                root.cancel()
+                app.dialog_taxagroup(root.ds_type)
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        padding: (30, 0, 30, 0)
+        TFOKButon:
+            id: close_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Close"
+            on_release:
+                root.cancel()
+
 <TaxaGroupDialog>:
     orientation: "vertical"
     padding: 10
@@ -5257,7 +5301,7 @@ FloatLayout:
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
-                                                        app.dialog_taxagroup("files")
+                                                        app.dialog_dataset_creator("files")
 
                                     TabbedPanelItem:
                                         id: taxa_ds_tp
@@ -5288,7 +5332,7 @@ FloatLayout:
                                                     background_normal: "data/backgrounds/bt_process.png"
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
-                                                        app.dialog_taxagroup("taxa")
+                                                        app.dialog_dataset_creator("taxa")
 
                             BoxLayout:
                                 orientation: "vertical"

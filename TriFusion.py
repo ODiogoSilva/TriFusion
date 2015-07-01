@@ -579,6 +579,10 @@ class RemoveFloat(Button):
     pass
 
 
+class DataSetTriageDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class WarningFloat(Label):
     """
     The general purpose unintruside warning float for errors and informations.
@@ -4097,6 +4101,18 @@ class TriFusionApp(App):
             # Updates labels
             self.update_sp_label()
             self.update_file_label()
+
+    def dialog_dataset_creator(self, ds_type):
+        """
+        Creates a dialog to choose between creating a data set from a file
+        or manually
+        """
+
+        content = DataSetTriageDialog(cancel=self.dismiss_popup)
+        content.ds_type = ds_type
+
+        self.show_popup(title="Choose data set group creation method",
+                        content=content, size=(360, 200))
 
     def dialog_taxagroup(self, ds_type, popup_level=1):
         """
