@@ -284,6 +284,49 @@ class Alignment (Base):
                                           file_name=self.path)
 
         # ======================================================================
+        # PARSING LOCI FORMAT
+        # ======================================================================
+        elif alignment_format == "loci":
+            taxa_list = self.get_loci_taxa(self.path)
+            # Add a counter to name each locus
+            locus_c = 1
+            present_taxa = []
+            for line in file_handle:
+                if line.strip().startswith(">"):
+                    fields = line.strip().split()
+                    taxon = fields[0][1:]
+                    present_taxa.append(taxon)
+                    if taxon in self.alignment:
+                        self.alignment[taxon].append(fields[1].lower())
+                    else:
+                        self.alignment[taxon] = [fields[1].lower()]
+                elif line.strip().startswith("//"):
+
+                    locus_len = len(fields[1])
+                    self.locus_length += locus_len
+
+                    for tx in taxa_list:
+                        if tx not in present_taxa:
+                            if tx in self.alignment:
+                                self.alignment[tx].append(self.sequence_code[1]
+                                                          * locus_len)
+                            else:
+                                self.alignment[tx] = [self.sequence_code[1] *
+                                                      locus_len]
+
+                    present_taxa = []
+
+                    self.partitions.add_partition("locus_{}".format(locus_c),
+                                                  locus_len,
+                                                  file_name=self.path)
+                    locus_c += 1
+
+            self.partitions.set_length(self.locus_length)
+
+            for taxon, seq in self.alignment.items():
+                self.alignment[taxon] = "".join(seq)
+
+        # ======================================================================
         # PARSING NEXUS FORMAT
         # ======================================================================
         elif alignment_format == "nexus":
