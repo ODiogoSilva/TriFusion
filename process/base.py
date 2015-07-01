@@ -254,7 +254,6 @@ class Base:
         # of different length
         diflength = dict((key, len(value)) for key, value in alignment_dic.items()
                          if len(commonseq) != len(value))
-        print(diflength)
 
         if diflength != {}:
             return False
