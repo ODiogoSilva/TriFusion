@@ -191,6 +191,7 @@ class Partitions():
         """
         The class iterator will iterate over a list containing the partition
         names and a modified version of their ranges that is compatible with
+        names and a modified version of their ranges that is compatible with
         other software (unlike the 0 offset of python)
         :return:
         """
@@ -493,6 +494,7 @@ class Partitions():
                     self.partitions[name] = [(self.counter + locus_range[0],
                                              self.counter + locus_range[1]),
                                              codon]
+
                 else:
                     self.partitions[name] = [(locus_range[0], locus_range[1]),
                                              codon]

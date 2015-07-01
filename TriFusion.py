@@ -1079,6 +1079,9 @@ class TriFusionApp(App):
     # two positions
     codon_filter_settings = ListProperty([True, True, True])
 
+    # Attribute determining whether reverse concatenation will use a partition
+    # file or the partitions defined in the app
+    use_app_partitions = BooleanProperty(False)
     # Partitions file
     partitions_file = StringProperty("")
     # Input file for reverse concatenation
@@ -5607,21 +5610,18 @@ class TriFusionApp(App):
         else:
             return True
 
-    def save_reverseconc_settings(self):
+    def save_reverseconc_settings(self, use_parts=False):
         """
         Handles the information provided by the LoadDialog with settings for the
         reverse concatenation
         """
 
         # Check if a partition file has been selected
-        if self.partitions_file == "":
+        if self.partitions_file == "" and not use_parts:
             return self.dialog_floatcheck("Please provide a partitions file",
                                           t="error")
 
-        # Check for the validity of the partitions file
-        er = self.check_partitions_file()
-
-        if er is True:
+        if use_parts:
 
             if self.main_operations["reverse_concatenation"]:
                 self.screen.ids.rev_conc.background_normal = \
@@ -5634,6 +5634,25 @@ class TriFusionApp(App):
                 self.screen.ids.rev_conc.text = "OFF"
 
             self.dismiss_popup()
+
+        else:
+
+            # Check for the validity of the partitions file
+            er = self.check_partitions_file()
+
+            if er is True:
+
+                if self.main_operations["reverse_concatenation"]:
+                    self.screen.ids.rev_conc.background_normal = \
+                        "data/backgrounds/bt_process.png"
+                    self.screen.ids.rev_conc.text = "Active"
+
+                else:
+                    self.screen.ids.rev_conc.background_normal = \
+                        "data/backgrounds/bt_process_off.png"
+                    self.screen.ids.rev_conc.text = "OFF"
+
+                self.dismiss_popup()
 
     def dialog_format(self):
         """
@@ -5693,6 +5712,10 @@ class TriFusionApp(App):
         content = RevConcDialog(cancel=self.dismiss_popup)
         content.ids.rev_conc.active = \
             self.main_operations["reverse_concatenation"]
+
+        # Check if use app partitions button has been selected
+        if self.use_app_partitions:
+            content.ids.use_parts.state = "down"
 
         # Check if partitions file was already selected. If so, update the
         # corresponding button
@@ -6711,7 +6734,8 @@ class TriFusionApp(App):
                 "create_partfile": bool(self.create_partfile),
                 "use_nexus_partitions": bool(self.use_nexus_partitions),
                 "phylip_truncate_name": bool(self.phylip_truncate_name),
-                "output_dir": str(self.output_dir)
+                "output_dir": str(self.output_dir),
+                "use_app_partitions": bool(self.use_app_partitions)
                 }
 
         p = multiprocessing.Process(target=process_execution,

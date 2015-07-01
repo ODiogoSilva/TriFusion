@@ -126,6 +126,8 @@ class Alignment (Base):
         # Dictionary
         self.alignment = OrderedDict()
 
+        self.path = None
+
         # If the object is initialized with a string
         if isinstance(input_alignment, str):
 
@@ -540,25 +542,29 @@ class Alignment (Base):
         """
 
         concatenated_aln = AlignmentList([])
+        alns = []
 
         for name, part_range in self.partitions:
 
             current_dic = OrderedDict()
             for taxon, seq in self.alignment.items():
-                sub_seq = seq[part_range[0]:part_range[1]]
+                sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
                 # If sub_seq is not empty (only gaps or missing data)
                 if sub_seq.replace(self.sequence_code[1], "") != "":
                     current_dic[taxon] = sub_seq
 
             current_partition = Partitions()
-            current_partition.add_partition(name, part_range[1] -
-                                                   part_range[0])
+            current_partition.add_partition(name, part_range[0][1] -
+                                            part_range[0][0])
+
             current_aln = Alignment(current_dic, input_format=self.input_format,
                                     partitions=current_partition,
                                     alignment_name=name)
 
-            concatenated_aln.add_alignment(current_aln)
+            alns.append(current_aln)
+
+        concatenated_aln.add_alignments(alns, ignore_paths=True)
 
         return concatenated_aln
 
@@ -1207,7 +1213,7 @@ class AlignmentList(Base):
         if not alignment_obj.partitions.is_single():
             for k, v in alignment_obj.partitions:
                 self.partitions.add_partition(k, locus_range=v[0], codon=v[1],
-                            use_counter=True, file_name=alignment_obj.path,
+                            use_counter=False, file_name=alignment_obj.path,
                             model_cls=alignment_obj.partitions.models[k])
         else:
             self.partitions.add_partition(alignment_obj.name,
@@ -1217,7 +1223,7 @@ class AlignmentList(Base):
                                 model_cls=alignment_obj.partitions.models[
                                     alignment_obj.name])
 
-    def add_alignments(self, alignment_obj_list):
+    def add_alignments(self, alignment_obj_list, ignore_paths=False):
         """
         Adds a new Alignment object
         :param alignment_obj_list: list with Alignment objects
@@ -1227,9 +1233,10 @@ class AlignmentList(Base):
 
             if isinstance(alignment_obj.alignment, Exception):
                 self.bad_alignments.append(alignment_obj.name)
-            if alignment_obj.path in [x.path for x in
-                                         self.alignments.values()]:
-                self.duplicate_alignments.append(alignment_obj.name)
+            if not ignore_paths:
+                if alignment_obj.path in [x.path for x in
+                                          self.alignments.values()]:
+                    self.duplicate_alignments.append(alignment_obj.name)
             else:
                 self.alignments[alignment_obj.name] = alignment_obj
                 self.set_partition(alignment_obj)
@@ -1563,22 +1570,24 @@ class AlignmentList(Base):
                 alignment_obj.collapse(write_haplotypes=False,
                                        haplotype_name=haplotype_name)
 
-    def _reverse_concatenate(self, partition_obj):
+    def reverse_concatenate(self):
         """
         Internal function to reverse concatenate an alignment according to
         defined partitions in a Partitions object
 
         This will only work if alignment_object_list has one alignment, as it
-         is intended to be a wrapper of sorts for the Alignment object method
+        is intended to be a wrapper of sorts for the Alignment object method
 
         :param partition_obj: Partitions object, containing the partitions of
         the input file
         :return: AlignmentList object with individual alignments
         """
 
-        if len(self.alignments) == 1:
-            aln_obj = self.alignments.values()[0]
-            return aln_obj.reverse_concatenate(partition_obj)
+        concatenated_aln = self.concatenate()
+
+        reverted_alns = concatenated_aln.reverse_concatenate()
+
+        return reverted_alns
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,

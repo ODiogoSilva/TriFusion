@@ -3324,7 +3324,7 @@
         BoxLayout:
             spacing: 10
             size_hint_y: None
-            height: 175
+            height: 155
             BoxLayout:
                 orientation: "vertical"
                 spacing: 10
@@ -3340,7 +3340,7 @@
                     text: "Select partition file"
                     disabled: False if rev_conc.active else True
                     size_hint_y: None
-                    height: 80
+                    height: 70
                     on_release:
                         app.dialog_load_partfile()
                 TFOKButon:
@@ -3353,7 +3353,7 @@
                     text_size: self.size
                     disabled: False if rev_conc.active else True
                     size_hint_y: None
-                    height: 80
+                    height: 70
                     on_release:
                         app.dialog_reverse_inlist()
             Label:
@@ -3364,6 +3364,7 @@
                 color: (0.216, 0.67, 0.784, 1)
             AnchorLayout:
                 TGOKToggleButton:
+                    id: use_parts
                     background_normal: "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     halign: "center"
@@ -3373,11 +3374,10 @@
                     text_size: self.size
                     text: "Use defined partitions"
                     size_hint_y: None
-                    height: 80
+                    height: 70
                     disabled: False if rev_conc.active else True
-
-
-
+                    on_release:
+                        app.use_app_partitions = True if self.state == "down" else False
 
     BoxLayout:
         size_hint_y: None
@@ -3391,7 +3391,7 @@
             text: "OK"
             on_release:
                 if rev_conc.active: \
-                app.save_reverseconc_settings()
+                app.save_reverseconc_settings(True if use_parts.state == "down" else False)
                 else: \
                 root.cancel()
 
