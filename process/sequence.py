@@ -1459,12 +1459,14 @@ class AlignmentList(Base):
         """
 
         for nm_path in filename_list:
-            nm = nm_path.split(sep)[-1].split(".")[0]
+            nm = nm_path.split(sep)[-1]
             if nm in self.alignments:
                 del self.alignments[nm]
             elif nm in self.shelve_alignments:
                 del self.shelve_alignments[nm]
             self.partitions.remove_partition(file_name=nm_path)
+
+        print(self.alignments)
 
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
