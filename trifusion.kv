@@ -3922,23 +3922,21 @@
                     Rectangle:
                         pos: self.pos
                         size: self.size
-                Widget:
-                    size_hint_y: None
-                    height: 3
-                ProcessBt:
-                    background_color: (1,1,1,.3)
+
+                Button:
+                    background_normal: "data/backgrounds/spinner_opt.png"
                     text: 'All taxa'
                     size_hint_y: None
                     height: 40
+                    bold: True
                     on_release: taxa_dropdown.select(self.text)
-                Widget:
-                    size_hint_y: None
-                    height: 3
-                ProcessBt:
-                    background_color: (1,1,1,.3)
+
+                Button:
+                    background_normal: "data/backgrounds/spinner_opt.png"
                     text: 'Active taxa'
                     size_hint_y: None
                     height: 40
+                    bold: True
                     on_release: taxa_dropdown.select(self.text)
 
             DropDown:
@@ -3953,23 +3951,21 @@
                     Rectangle:
                         pos: self.pos
                         size: self.size
-                Widget:
-                    size_hint_y: None
-                    height: 3
-                ProcessBt:
-                    background_color: (1,1,1,.3)
+
+                Button:
+                    background_normal: "data/backgrounds/spinner_opt.png"
                     text: 'All files'
                     size_hint_y: None
                     height: 40
+                    bold: True
                     on_release: file_dropdown.select(self.text)
-                Widget:
-                    size_hint_y: None
-                    height: 3
-                ProcessBt:
-                    background_color: (1,1,1,.3)
+
+                Button:
+                    background_normal: "data/backgrounds/spinner_opt.png"
                     text: 'Active files'
                     size_hint_y: None
                     height: 40
+                    bold: True
                     on_release: file_dropdown.select(self.text)
 
     Hseparator
