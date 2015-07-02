@@ -2178,6 +2178,9 @@
             height: 60
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                root.cancel()
+                app.dialog_create_group_from_file(root.ds_type)
         TFOKButon:
             halign: "center"
             valign: "middle"
@@ -2564,8 +2567,10 @@
                     app.select_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
                     elif sd_filechooser.text == "remove_from_file" and txt_box.height == 0: \
                     app.remove_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
+                    elif sd_filechooser.text == "files" or sd_filechooser.text == "taxa" and txt_box.height == 0: \
+                    root.cancel(); app.dataset_file = sd_filechooser.selection[0]; app.dialog_text("Name of the data set group", sd_filechooser.text)
                     # Close dialog
-                    if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group": root.cancel()
+                    if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group" and sd_filechooser.text != "taxa" and sd_filechooser.text != "files" : root.cancel()
 
             TFOKButon:
                 id: cancel_bt
@@ -3111,6 +3116,8 @@
             on_release:
                 if root.text == "new_folder": \
                 app.create_folder(txt_dlg.text)
+                elif root.text == "files" or root.text == "taxa": \
+                app.save_dataset_group(None, txt_dlg.text, root.text, True)
                 else: \
                 app.save_text(txt_dlg.text, root.text)
                 root.cancel()
