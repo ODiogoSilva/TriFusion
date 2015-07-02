@@ -1046,6 +1046,7 @@ class TriFusionApp(App):
     # Attribute for taxa and file groups
     taxa_groups = DictProperty()
     file_groups = DictProperty()
+    dataset_file = None
 
     # Attribute containing the objects for the several possible output files.
     output_file = StringProperty("")
@@ -3416,6 +3417,22 @@ class TriFusionApp(App):
 
         self.dismiss_subpopup()
 
+    def dialog_create_group_from_file(self, ds_type):
+        """
+        Creates a filechooser dialog  to select a file containing a taxa/file
+        list that will be used to generate a data set group
+        """
+
+        content = SaveDialog(cancel=self.dismiss_popup,
+                             bookmark_init=self.bookmark_init)
+
+        content.ids.txt_box.clear_widgets()
+        content.ids.txt_box.height = 0
+        title = "Choose text file to import"
+        content.ids.sd_filechooser.text = ds_type
+
+        self.show_popup(title=title, content=content)
+
     def dialog_select_from_file(self):
         """
         Creates a filechooser dialog to select a text file containing a list
@@ -4305,7 +4322,7 @@ class TriFusionApp(App):
         if parent_wgt == self.root.ids.file_group_grid:
             del self.file_groups[bt_idx]
 
-    def save_dataset_group(self, source_wgt, name, ds_type):
+    def save_dataset_group(self, source_wgt, name, ds_type, group_file=False):
         """
         Adds a taxa group declared using the taxa group creator popup to the
         list of taxa groups in the side panel
@@ -4313,6 +4330,8 @@ class TriFusionApp(App):
         :param name: string, name of the group
         :param ds_type: string. Data set type. It may be either "taxa" or
         "files"
+        :param group_file: boolean, If True get the group items from the
+        self.dataset_file file.
         """
 
         if ds_type == "taxa":
@@ -4336,8 +4355,13 @@ class TriFusionApp(App):
             # Set dropdown widget
             dd_wgt = self.process_grid_wgt.ids.file_dropdown
 
-        for bt in source_wgt.children:
-            group_list.append(bt.text)
+        if group_file:
+            with open(self.dataset_file) as fh:
+                for line in fh:
+                    group_list.append(line.strip())
+        else:
+            for bt in source_wgt.children:
+                group_list.append(bt.text)
 
         # App changes by adding two buttons for the taxa group
         # Taxa button itself
