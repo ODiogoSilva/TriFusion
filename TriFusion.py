@@ -2862,16 +2862,12 @@ class TriFusionApp(App):
         """
 
         # Determine which list is used to populate
-        if mode == "alignment":
-            lst = self.file_list
-            active_lst = self.active_file_list
-        else:
-            lst = self.proteome_files
-            active_lst = self.active_proteome_files
+        lst = self.file_list if self.file_list else self.proteome_files
+        active_lst = self.active_file_list if self.active_file_list else \
+            self.active_proteome_files
 
         self.root.ids.file_lab.text = "%s of %s files selected" % (
-                                       len(active_lst),
-                                       len(lst))
+            len(active_lst), len(lst))
 
     def update_sp_label(self):
         """
@@ -2894,14 +2890,18 @@ class TriFusionApp(App):
                 self.root.ids["species_temp"] = no_bt
                 self.root.ids.taxa_sl.add_widget(no_bt)
 
-    def sidepanel_create_bts(self, idx):
+    def sidepanel_create_bts(self, idx, mode="alignment"):
 
         # Determine state based on active_file_list
         if self.filename_map:
             # For files
             if idx in self.filename_map:
-                state = "down" if self.filename_map[idx] in \
-                                  self.active_file_list else "normal"
+                if self.active_file_list:
+                    state = "down" if self.filename_map[idx] in \
+                        self.active_file_list else "normal"
+                elif self.active_proteome_files:
+                    state = "down" if self.filename_map[idx] in \
+                        self.active_proteome_files else "normal"
             # For taxa
             else:
                 state = "down" if idx in self.active_taxa_list else "normal"
@@ -2974,13 +2974,13 @@ class TriFusionApp(App):
 
                 self.count_files += 1
                 file_name = basename(infile)
-                self.sidepanel_add_bts(file_name, "Files")
+                self.sidepanel_add_bts(file_name, "Files", mode=mode)
 
             else:
                 self.root.ids.file_sl.add_widget(LoadMoreBt())
                 return
 
-    def sidepanel_add_bts(self, idx, tab_name):
+    def sidepanel_add_bts(self, idx, tab_name, mode="alignment"):
 
         # Set attributes to be added
         if tab_name == "Files":
@@ -3002,7 +3002,7 @@ class TriFusionApp(App):
             if tab_name == "Partitions":
                 bt, inf_bt, x_bt = self.sidepanel_create_part_bts(idx)
             else:
-                bt, inf_bt, x_bt = self.sidepanel_create_bts(idx)
+                bt, inf_bt, x_bt = self.sidepanel_create_bts(idx, mode)
 
             # Add button to storage for mouse over events
             self.mouse_over_bts[tab_name].append(bt)
@@ -3731,17 +3731,25 @@ class TriFusionApp(App):
         # Get the parent layout object
         parent_obj = value.parent
 
+        # determine active file list
+        act_lst = self.active_file_list if self.active_file_list else \
+            self.active_proteome_files
+
         # Changes concerning the files tab
         if parent_obj == self.root.ids.file_sl:
 
             # When button is normal (unselected) remove from active list
             if value.state == "normal":
-                self.active_file_list.remove(self.filename_map[value.id])
-                self.alignment_list.update_active_alignment(value.id, "shelve")
+                act_lst.remove(self.filename_map[value.id])
+                if self.active_file_list:
+                    self.alignment_list.update_active_alignment(value.id,
+                                                                "shelve")
             # When button is down (selected) add to active list
             elif value.state == "down":
-                self.active_file_list.append(self.filename_map[value.id])
-                self.alignment_list.update_active_alignment(value.id, "active")
+                act_lst.append(self.filename_map[value.id])
+                if self.active_file_list:
+                    self.alignment_list.update_active_alignment(value.id,
+                                                                "active")
 
             # Update label
             self.update_file_label()
