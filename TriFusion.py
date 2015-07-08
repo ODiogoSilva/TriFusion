@@ -152,7 +152,7 @@ class LinkedLabel(Label):
         self.texture = None
 
         if (not self._label.text or (self.halign[-1] == 'y' or self.strip) and
-            not self._label.text.strip()):
+                not self._label.text.strip()):
             self.texture_size = (0, 0)
             if mrkup:
                 self.refs, self._label._refs = {}, {}
@@ -1664,12 +1664,11 @@ class TriFusionApp(App):
                         self.root.width:
                     # Determine position of arrow widget
                     point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + \
-                                wgt_size[1] / 2 - 6
+                        wgt_size[1] / 2 - 6
 
                     # Determine label position
                     self.fancy_bt.pos = point_pos[0] + 7, wgt_pos[1] + \
-                                        wgt_size[1] / 2 - self.fancy_bt.height\
-                                        / 2
+                        wgt_size[1] / 2 - self.fancy_bt.height / 2
 
                     # Create arrow widget with left arrow
                     point_wgt = FancyMarker(background_normal=join("data",
@@ -1682,12 +1681,11 @@ class TriFusionApp(App):
 
                     # Determine position of arrow widget
                     point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt_size[1] / \
-                                2 - 6
+                        2 - 6
 
                     # Determine label position
                     self.fancy_bt.pos = point_pos[0] - self.fancy_bt.width,\
-                            wgt_pos[1] + wgt_size[1] / 2 - \
-                            self.fancy_bt.height / 2
+                        wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
 
                     # Create arrow widget with left arrow
                     point_wgt = FancyMarker(background_normal=join("data",
@@ -1726,7 +1724,7 @@ class TriFusionApp(App):
 
             for i in [x for x in self.root_window.children
                       if isinstance(x, FancyButton) or
-                         isinstance(x, FancyMarker)]:
+                      isinstance(x, FancyMarker)]:
                 self.root_window.remove_widget(i)
 
         # Only do this routine when the filechooser screen is on
@@ -1764,8 +1762,7 @@ class TriFusionApp(App):
                         Clock.schedule_once(lambda x: create_fancy_label(txt,
                                                         bt, adjust_pos=True,
                                                         wgt_pos=pos,
-                                                        wgt_size=size),
-                                            .8)
+                                                        wgt_size=size), .8)
                         self.mouse_over_ready = False
             else:
                 # If no collision is detected, remove any remaining label widget
@@ -1784,7 +1781,7 @@ class TriFusionApp(App):
             for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt:
                 # Determine if there is a collision with mouse position
                 if determine_collision(bt) and self._popup not in \
-                                self.root_window.children:
+                        self.root_window.children:
                     if bt in self.mouse_over_bts[active_tab]:
                         if determine_collision(self.root.ids.sv_file) or \
                                 determine_collision(self.root.ids.sv_sp):
@@ -1917,7 +1914,7 @@ class TriFusionApp(App):
             elif determine_collision(toolbar_wgt.ids.export_group):
                 collision = True
                 if "Export group" not in [x.id for x in
-                                             self.root_window.children]:
+                                          self.root_window.children]:
                     # Create fancy label
                     create_fancy_label("Export group",
                                        toolbar_wgt.ids.export_group,
@@ -2257,7 +2254,7 @@ class TriFusionApp(App):
             self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt, name="Home",
                                  rm_bt=False)
 
-        # Get main devicess for windows
+        # Get main devices for windows
         if sys.platform in ["win32", "cygwin"]:
 
             devices = re.findall(r"[A-Z]+:.*$", os.popen("mountvol /").read(),
@@ -2334,7 +2331,7 @@ class TriFusionApp(App):
                          background_normal=join("data", "backgrounds",
                                                 "remove_bt.png"),
                          background_down=join("data", "backgrounds",
-                                                "remove_bt_down.png"))
+                                              "remove_bt_down.png"))
             # Bind to function that removes bookmark button as well as the path
             # from self.bm_file
             xbt.bind(on_release=partial(self.check_action,
@@ -2431,7 +2428,7 @@ class TriFusionApp(App):
         # Create table file object handle
         table_handle = open(join(path, file_name + ".csv"), "w")
 
-        # Writting table. Each entry in self.current_table should represent a
+        # Writing table. Each entry in self.current_table should represent a
         # line in the table
         for l in self.current_table:
             table_handle.write(";".join([str(x) for x in l]) + "\n")
@@ -2471,13 +2468,10 @@ class TriFusionApp(App):
 
             # ANIMATIONS with hierarchy
             # Animation of main BoxLayout containing child ScrollViews
-            self.sidepanel_animation(width=0,
-                                      wgt=self.root.ids.main_box)
+            self.sidepanel_animation(width=0, wgt=self.root.ids.main_box)
             # Animation of both scrollviews
-            self.sidepanel_animation(width=0,
-                                      wgt=self.root.ids.sp)
-            self.sidepanel_animation(width=0,
-                                      wgt=self.root.ids.sp_bts)
+            self.sidepanel_animation(width=0, wgt=self.root.ids.sp)
+            self.sidepanel_animation(width=0, wgt=self.root.ids.sp_bts)
 
             self.show_side_panel = not self.show_side_panel
 
@@ -2554,12 +2548,12 @@ class TriFusionApp(App):
         # ANIMATIONS with hierarchy
         # Animation of main BoxLayout containing child ScrollViews
         self.sidepanel_animation(width=sv_panel_width * 1.2,
-                                  wgt=self.root.ids.main_box)
+                                 wgt=self.root.ids.main_box)
         # Animation of both scrollviews
         self.sidepanel_animation(width=sv_panel_width,
-                                  wgt=self.root.ids.sp)
+                                 wgt=self.root.ids.sp)
         self.sidepanel_animation(width=sv_bts_width,
-                                  wgt=self.root.ids.sp_bts)
+                                 wgt=self.root.ids.sp_bts)
 
     @staticmethod
     def sidepanel_animation(width, wgt):
@@ -2694,7 +2688,7 @@ class TriFusionApp(App):
                 msg = ""
                 if bad_aln:
                     msg += "The following input file(s) could not be open:\n\n"\
-                          "[b]%s[/b]\n\n" % \
+                           "[b]%s[/b]\n\n" % \
                            "\n".join(basename(x) for x in bad_aln)
                 if non_aln:
                     msg += "The following input file(s) contain(s) sequences " \
@@ -2810,10 +2804,10 @@ class TriFusionApp(App):
             msg = ""
             if bad_proteomes["invalid"]:
                 msg += "The following files are in invalid format:\n%s\n\n" % \
-                        ", ".join(bad_proteomes["invalid"])
+                    ", ".join(bad_proteomes["invalid"])
             if bad_proteomes["no_fasta"]:
                 msg += "The following files are not in FASTA format:\n%s\n\n" \
-                        % ", ".join(bad_proteomes["no_fasta"])
+                    % ", ".join(bad_proteomes["no_fasta"])
             if bad_proteomes["no_protein"]:
                 msg += "The following files do not contain protein sequences:" \
                        "\n%s\n\n" % ", ".join(bad_proteomes["no_protein"])
@@ -2858,14 +2852,10 @@ class TriFusionApp(App):
             if bt.id not in self.alignment_list.partitions.partitions:
                 self.remove_bt(x_bt, parent_wgt=self.root.ids.partition_sl)
 
-    def update_file_label(self, mode="alignment"):
+    def update_file_label(self):
         """
         Sets and updates a label on the Files tab of the side panel, informing
         how many files are selected out of the total files
-
-        :param mode: string. Determines which list will be used to populate.
-        If alignment, it will use file_list; If proteome, it will use
-        proteome_list
         """
 
         # Determine which list is used to populate
@@ -2884,8 +2874,7 @@ class TriFusionApp(App):
         """
 
         self.root.ids.sp_lab.text = "%s of %s taxa selected" % (
-                                       len(self.active_taxa_list),
-                                       len(self.alignment_list.taxa_names))
+            len(self.active_taxa_list), len(self.alignment_list.taxa_names))
 
         # Add disabled no taxa button when empty
         if len(self.active_taxa_list) == 0 and \
@@ -2897,18 +2886,14 @@ class TriFusionApp(App):
                 self.root.ids["species_temp"] = no_bt
                 self.root.ids.taxa_sl.add_widget(no_bt)
 
-    def sidepanel_create_bts(self, idx, mode="alignment"):
+    def sidepanel_create_bts(self, idx):
 
         # Determine state based on active_file_list
         if self.filename_map:
             # For files
             if idx in self.filename_map:
-                if self.active_file_list:
-                    state = "down" if self.filename_map[idx] in \
-                        self.active_file_list else "normal"
-                elif self.active_proteome_files:
-                    state = "down" if self.filename_map[idx] in \
-                        self.active_proteome_files else "normal"
+                state = "down" if self.filename_map[idx] in \
+                    self.active_file_list else "normal"
             # For taxa
             else:
                 state = "down" if idx in self.active_taxa_list else "normal"
@@ -2930,7 +2915,7 @@ class TriFusionApp(App):
                         background_normal=join("data", "backgrounds",
                                                "info_bt.png"),
                         background_down=join("data", "backgrounds",
-                                               "info_bt_down.png"))
+                                             "info_bt_down.png"))
         inf_bt.bind(on_release=self.popup_info)
 
         # Set remove button with event binded and add the widget
@@ -2940,7 +2925,7 @@ class TriFusionApp(App):
                       background_normal=join("data", "backgrounds",
                                              "remove_bt.png"),
                       background_down=join("data", "backgrounds",
-                                             "remove_bt_down.png"))
+                                           "remove_bt_down.png"))
         x_bt.bind(on_release=partial(self.check_action,
                                      "Are you sure you want to remove"
                                      " this item?",
@@ -3283,7 +3268,7 @@ class TriFusionApp(App):
 
         # Create edition button
         ed_bt = Button(size_hint=(None, None), width=30,
-                        height=30, id="%s?" % part_name, border=(0, 0, 0, 0))
+                       height=30, id="%s?" % part_name, border=(0, 0, 0, 0))
         ed_bt.background_normal = join("data", "backgrounds", "edit_bt.png")
         ed_bt.background_down = join("data", "backgrounds", "edit_bt_down.png")
         ed_bt.bind(on_release=self.dialog_partitions)
@@ -3304,19 +3289,16 @@ class TriFusionApp(App):
                 [ModelSpinner(background_normal=first_background, id="1"),
                 ModelSpinner(background_normal=second_background, id="2"),
                 ModelSpinner(background_normal=third_background, id="3")],
-                           "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]"
-                           "3[/color]":
+            "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]3[/color]":
                 [ModelSpinner(background_normal=first_background, id="12"),
                  ModelSpinner(background_normal=second_background, id="3")],
-                           "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + "
-                           "3)[/color]":
+            "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + 3)[/color]":
                 [ModelSpinner(background_normal=first_background, id="1"),
                  ModelSpinner(background_normal=second_background, id="23")],
-                           "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]"
-                           "2[/color]":
+            "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]2[/color]":
                 [ModelSpinner(background_normal=first_background, id="13"),
                  ModelSpinner(background_normal=second_background, id="2")],
-                           "No partitions": [ModelSpinner(id="0")]}
+            "No partitions": [ModelSpinner(id="0")]}
 
         if wgt:
             partitions_wgt = wgt
@@ -3509,14 +3491,14 @@ class TriFusionApp(App):
                         yield j
 
         partition_model = {"1,2,3": "[color=ff5555ff]1[/color] + "
-                                "[color=37abc8ff]2[/color] + [color=71c837ff]"
-                                "3[/color]",
+                           "[color=37abc8ff]2[/color] + [color=71c837ff]"
+                           "3[/color]",
                            "12,2": "[color=ff5555ff](1 + 2)[/color] + "
-                                "[color=37abc8ff]3[/color]",
+                           "[color=37abc8ff]3[/color]",
                            "1,23": "[color=ff5555ff]1[/color] + [color=3"
-                                "7abc8ff](2 + 3)[/color]",
+                           "7abc8ff](2 + 3)[/color]",
                            "13,2": "[color=ff5555ff](1 + 3)[/color] + ["
-                                "color=37abc8ff]2[/color]"}
+                           "color=37abc8ff]2[/color]"}
 
         # Get position of partition edit button:
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
@@ -3538,7 +3520,7 @@ class TriFusionApp(App):
         displayed_partitions = (x for x in self.root.ids.partition_sl.children
                                 if not isinstance(x, LoadMoreBt))
         part_name = [bt.text for ebt, ibt, bt in
-                      zip(*[iter(displayed_partitions)] * 3)
+                     zip(*[iter(displayed_partitions)] * 3)
                      if ebt.id == btx.id][0]
         part_obj = self.alignment_list.partitions
         content.ids.partition_name.text = part_name
@@ -3665,15 +3647,15 @@ class TriFusionApp(App):
                 self.active_file_inf = self.get_file_information()
 
                 content.ids.in_format.text = "%s" % \
-                                self.active_file_inf[file_name]["aln_format"]
+                    self.active_file_inf[file_name]["aln_format"]
                 content.ids.seq_type.text = "%s" % \
-                                self.active_file_inf[file_name]["seq_type"]
+                    self.active_file_inf[file_name]["seq_type"]
                 content.ids.is_aln.text = "%s" % \
-                                self.active_file_inf[file_name]["is_aln"]
+                    self.active_file_inf[file_name]["is_aln"]
                 content.ids.seq_size.text = "%s" % \
-                                self.active_file_inf[file_name]["aln_len"]
+                    self.active_file_inf[file_name]["aln_len"]
                 content.ids.n_taxa.text = "%s" % \
-                                self.active_file_inf[file_name]["n_taxa"]
+                    self.active_file_inf[file_name]["n_taxa"]
 
                 self.show_popup(title="File: %s" % value.id[:-1],
                                 content=content, size=(400, 320))
@@ -3683,9 +3665,9 @@ class TriFusionApp(App):
                 content = ProteomePopup(cancel=self.dismiss_popup)
 
                 content.ids.n_seq.text = "%s" % \
-                                self.original_file_inf[file_name]["n_seq"]
+                    self.original_file_inf[file_name]["n_seq"]
                 content.ids.n_res.text = "%s" % \
-                                self.original_file_inf[file_name]["n_res"]
+                    self.original_file_inf[file_name]["n_res"]
 
                 self.show_popup(title="File %s" % value.id[:-1],
                                 content=content, size=(400, 200))
@@ -3802,7 +3784,7 @@ class TriFusionApp(App):
 
         # Add disabled no changes button
         if "file_temp" not in [x.id for x in
-                                  self.root.ids.file_sl.children]:
+                               self.root.ids.file_sl.children]:
             no_bt = Button(id="file_temp", text="No files loaded",
                            size_hint_y=None, height=40, disabled=True)
             self.root.ids["file_temp"] = no_bt
@@ -4167,7 +4149,7 @@ class TriFusionApp(App):
         if ds_type == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
             title = "Create taxa groups"
-        elif ds_type == "files":
+        else:
             bt_list = sorted([basename(x) for x in self.file_list],
                              reverse=True)
             title = "Create file groups"
@@ -4201,7 +4183,7 @@ class TriFusionApp(App):
 
         if ds_type == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
-        elif ds_type == "files":
+        else:
             bt_list = sorted([basename(x) for x in self.file_list],
                              reverse=True)
 
@@ -4235,7 +4217,7 @@ class TriFusionApp(App):
 
         if ds_type == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
-        elif ds_type == "files":
+        else:
             bt_list = sorted([basename(x) for x in self.file_list],
                              reverse=True)
 
@@ -4299,7 +4281,7 @@ class TriFusionApp(App):
         # If its taxa data set
         if parent_wgt == self.root.ids.taxa_group_grid:
             bt_list = self.taxa_groups[name_wgt.text]
-        if parent_wgt == self.root.ids.file_group_grid:
+        else:
             bt_list = self.file_groups[name_wgt.text]
 
         # Create buttons
@@ -4574,7 +4556,7 @@ class TriFusionApp(App):
                     if self.secondary_options["%s_file" % op]:
                         add_node("%s_%s (%s)" % (
                             basename(self.output_file), op, op),
-                                 self.main_nodes["main_file"])
+                            self.main_nodes["main_file"])
             if self.main_nodes["main_file"].is_open is False:
                 self.operation_tv.toggle_node(self.main_nodes["main_file"])
         else:
@@ -4623,7 +4605,7 @@ class TriFusionApp(App):
         self.process_grid_wgt.ids.conv.text = "Select..."
         # Zorro settings
         self.process_options.ids.zorro.background_normal = \
-                "data/backgrounds/bt_process_off.png"
+            "data/backgrounds/bt_process_off.png"
         self.process_options.ids.zorro.text = "Off"
 
         # Turn switches off
@@ -4737,17 +4719,17 @@ class TriFusionApp(App):
             # Setting gene compliant
             report_wgt.ids.gf_txt.text = str(stats[2])
             report_wgt.ids.gf_box.size_hint_x = float(stats[2]) / \
-                                                float(stats[0])
+                float(stats[0])
 
             # Setting species compliant
             report_wgt.ids.sf_txt.text = str(stats[3])
             report_wgt.ids.sf_box.size_hint_x = float(stats[3]) / \
-                                                float(stats[0])
+                float(stats[0])
 
             # Setting final orthologs
             report_wgt.ids.final_txt.text = str(stats[4])
             report_wgt.ids.final_box.size_hint_x = float(stats[4]) / \
-                                                float(stats[0])
+                float(stats[0])
 
             # Adding widget to carousel
             content.ids.report_car.add_widget(report_wgt)
@@ -4900,7 +4882,7 @@ class TriFusionApp(App):
 
         # Set the path from previously imported groups, if any
         content.ids.sd_filechooser.path = self.orto_export_dir if \
-                self.orto_export_dir else self.home_path
+            self.orto_export_dir else self.home_path
 
         if idx == "nucleotide" or idx == "protein":
             content.ids.txt_box.clear_widgets()
@@ -4970,7 +4952,7 @@ class TriFusionApp(App):
 
         if not self.active_group:
             group_id = [x.id for x in self.screen.ids.group_gl.children
-                          if x.state == "down"][0]
+                        if x.state == "down"][0]
             self.active_group = self.ortho_groups.get_group(group_id)
 
         # Update filter values
@@ -5033,8 +5015,7 @@ class TriFusionApp(App):
         if stats:
             # Create first comparison plot of total orthologs
             self.current_plot, self.current_lgd, self.current_table = \
-                groups_objs.bar_orthologs(dest=self.temp_dir,
-                                                stats=stats)
+                groups_objs.bar_orthologs(dest=self.temp_dir, stats=stats)
 
             # Load plot
             self.load_plot(join(self.temp_dir, "Final_orthologs.png"),
@@ -5152,13 +5133,13 @@ class TriFusionApp(App):
         plt_method = {"Taxa distribution": [
             self.active_group.bar_species_distribution,
             "Species_distribution.png"],
-                      "Taxa coverage": [
+            "Taxa coverage": [
             self.active_group.bar_species_coverage,
             "Species_coverage.png"],
-                      "Gene copy distribution": [
+            "Gene copy distribution": [
             self.active_group.bar_genecopy_distribution,
             "Gene_copy_distribution.png"],
-                      "Taxa gene copies": [
+            "Taxa gene copies": [
             self.active_group.bar_genecopy_per_species,
             "Species_copy_number.png"]}
 
@@ -5184,20 +5165,21 @@ class TriFusionApp(App):
         else:
             self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
-                            (str(self.active_group.all_compliant),
-                             str(len(self.active_group.species_frequency) -
-                             len(self.active_group.filtered_groups)))
+                (str(self.active_group.all_compliant),
+                str(len(self.active_group.species_frequency) -
+                len(self.active_group.filtered_groups)))
             self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
                 "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
-                            (len(self.active_group.species_list),
-                            len(self.screen.ids.header_content.excluded_taxa) +
-                             len(self.active_group.species_list))
+                (len(self.active_group.species_list),
+                len(self.screen.ids.header_content.excluded_taxa) +
+                len(self.active_group.species_list))
 
         # Load plot
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
                        self.screen.ids.plot_content)
 
-    def load_plot(self, file_path, scatter_wgt):
+    @staticmethod
+    def load_plot(file_path, scatter_wgt):
         """
         Loads a new plot into a ScatterLayout. This will clear all previous
         content and load a new image based on the file_path argument.
@@ -5463,14 +5445,6 @@ class TriFusionApp(App):
             final_ortholog_plot.ortholog_num = str(stats[4])
             cards.ids.gauge_bx.add_widget(final_ortholog_plot)
 
-        # If no filters have been specified, show this label
-        # elif not self.active_group.filtered_groups \
-        #         and not self.active_group.species_threshold\
-        #         and not self.active_group.gene_threshold:
-        #     lb = Label(text="Please specify gene and species filters",
-        #                bold=True, color=(0.216, 0.67, 0.784, 1))
-        #     cards.ids.gauge_bx.add_widget(lb)
-
         # Add button to generate full report
         full_rep_bt = Button(text="Generate full report", bold=True,
                              background_normal=join("data", "backgrounds",
@@ -5491,8 +5465,7 @@ class TriFusionApp(App):
         Clock.schedule_once(lambda x: self.screen.ids.card_gl.add_widget(cards),
                             .3)
         Clock.schedule_once(lambda x: Animation(opacity=1, d=.3,
-                                                t="out_quart").start(cards),
-                            .3)
+                                                t="out_quart").start(cards), .3)
 
     # ########################## POPUP OPS #####################################
 
@@ -5551,7 +5524,7 @@ class TriFusionApp(App):
         """
         self._subpopup.dismiss()
 
-    ########################### PROCESS SCREEN #################################
+    # ########################## PROCESS SCREEN ################################
 
     def save_file(self, path, file_name=None, idx=None):
         """
@@ -5987,15 +5960,10 @@ class TriFusionApp(App):
         elif idx == "export_table":
             title = "Export as table..."
 
-        elif idx == "protein_db":
+        else:
             content.ids.txt_box.clear_widgets()
             content.ids.txt_box.height = 0
             title = "Choose protein sequence database file"
-
-        # elif idx == "import_act_part" or idx == "import_all_part":
-        #     content.ids.txt_box.clear_widgets()
-        #     content.ids.txt_box.height = 0
-        #     title = "Choose partition scheme file"
 
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
@@ -6093,16 +6061,14 @@ class TriFusionApp(App):
                        if bl is True]
         if secondary_op:
             content.ids.sec_op.text = "[b][size=18][color=37abc8ff]Secondary " \
-                                   "operation(s):[/color][/size][/b] %s" %\
-                                   ", ".join(secondary_op)
+                "operation(s):[/color][/size][/b] %s" % ", ".join(secondary_op)
         else:
             content.ids.sec_op.text = "[b][size=18][color=37abc8ff]Secondary " \
                                       "operation(s):[/color][/size][/b] None"
 
         # Get output formats
         content.ids.out_form.text = "[b][size=18][color=37abc8ff]Output " \
-                                   "format(s):[/color][/size][/b] %s" %\
-                                  ", ".join(self.output_formats)
+            "format(s):[/color][/size][/b] %s" % ", ".join(self.output_formats)
 
         # Get output files
         # In case concatenation
@@ -6115,9 +6081,9 @@ class TriFusionApp(App):
             add_files = [out_file + "_" + nm for nm, bl in
                          self.secondary_operations.items() if bl]
             content.ids.out_files.text = "[b][size=18][color=37abc8ff]Output " \
-                                       "file(s):[/color][/size][/b] (%s) %s"\
-                                       ", %s" % (len(add_files) + 1, out_file,
-                                       ", ".join(add_files))
+                "file(s):[/color][/size][/b] (%s) %s"\
+                ", %s" % (len(add_files) + 1, out_file,
+                ", ".join(add_files))
         # In case conversion
         if main_op == "conversion":
             # Check if an output file has been selected
@@ -6131,9 +6097,8 @@ class TriFusionApp(App):
                               if "_file" in x[0]]
                              if bl]
                 content.ids.out_files.text = "[b][size=18][color=37abc8ff]" \
-                            "Output file(s):[/color][/size][/b] %s converted " \
-                            "file(s)" % \
-                    (len(aln_obj.alignments) +
+                    "Output file(s):[/color][/size][/b] %s converted " \
+                    "file(s)" % (len(aln_obj.alignments) +
                     len(aln_obj.alignments) * len(add_files))
             # In case aln_obj has not being defined, probably because there
             # are no input files
@@ -6152,7 +6117,7 @@ class TriFusionApp(App):
                             content=content, size=(550, 350))
         except AttributeError:
             return self.dialog_floatcheck("ERROR: No input files have"
-                                              "been selected", t="error")
+                                          "been selected", t="error")
 
     def dialog_text(self, title, idx):
         """
@@ -6254,10 +6219,9 @@ class TriFusionApp(App):
         the main operation is a concatenation or a conversion
         """
         file_text = "[size=18][b]Output file[/b][/size]\n[size=13]Save "\
-                          "output file to the selected file.[/size]"
+            "output file to the selected file.[/size]"
         dir_text = "[size=18][b]Output directory[/b][/size]\n[size=13]" \
-                          "Save output file(s) to the selected directory." \
-                          "[/size]"
+            "Save output file(s) to the selected directory.[/size]"
 
         self.main_operations = {k: True if k == op else False for k in
                                 self.main_operations}
@@ -6313,7 +6277,7 @@ class TriFusionApp(App):
             # Animate the appearance of the general options via changes in
             # opacity to give a fade in effect
             Animation(opacity=1, d=.32, t="in_quad").start(
-               self.process_grid_wgt)
+                self.process_grid_wgt)
 
         # Store the active main operation
         self.update_main_operations(op)
@@ -6421,7 +6385,6 @@ class TriFusionApp(App):
 
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
                        self.screen.ids.stats_scatter)
-
 
     # ##################################
     #
@@ -6594,7 +6557,7 @@ class TriFusionApp(App):
 
                 # Get effective sequence length in absolute and percentage
                 tx_inf[tx]["effective_len"] = seq_len - (tx_inf[tx]["indel"] +
-                                                          tx_inf[tx]["missing"])
+                                                         tx_inf[tx]["missing"])
                 tx_inf[tx]["effective_len_per"] = round(
                     (tx_inf[tx]["effective_len"] * 100) / seq_len, 2)
 
@@ -6663,20 +6626,12 @@ class TriFusionApp(App):
                     # Get sequence type
                     file_inf[file_name]["seq_type"] = aln.sequence_code[0]
 
-                    # Get sequence model
-                    # if aln.model:
-                    #     file_inf[file_name]["model"] = " ".join(aln.model)
-                    # else:
-                    #     file_inf[file_name]["model"] = "NA"
-
                     # Get number of species
                     file_inf[file_name]["n_taxa"] = len([x for x in
                         aln.iter_taxa() if x in self.active_taxa_list])
 
                     # Get if is alignment
                     file_inf[file_name]["is_aln"] = str(aln.is_alignment)
-                    # if aln.model:
-                    #     file_inf[file_name]["is_aln"] += " (Concatenated)"
 
                     # Get length of largest sequence if not aligned, or
                     # alignment length
@@ -6752,8 +6707,8 @@ class TriFusionApp(App):
                                        self.orto_max_gene
 
         content.ids.sp_filter.text = "[b][size=18][color=37abc8ff]Minimum" \
-                                       " number of taxa per cluster:[/color]" \
-                                       "[/size][/b] %s" % self.orto_min_sp
+                                     " number of taxa per cluster:[/color]" \
+                                     "[/size][/b] %s" % self.orto_min_sp
 
         content.ids.eval.text = "[b][size=18][color=37abc8ff]USEARCH e-value" \
                                 " threshold:[/color][/size][/b] %s" % \
