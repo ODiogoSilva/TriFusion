@@ -2958,7 +2958,7 @@ class TriFusionApp(App):
 
         # Add a label at the end of the file list informing how many files are
         # currently selected out of the total files
-        self.update_file_label(mode=mode)
+        self.update_file_label()
 
         for infile in lst:
 
@@ -2983,7 +2983,7 @@ class TriFusionApp(App):
             grid_wgt = self.root.ids.taxa_sl
             bt_list = self.sp_taxa_bts
 
-        elif tab_name == "Partitions":
+        else:
             grid_wgt = self.root.ids.partition_sl
             bt_list = self.sp_partition_bts
 
@@ -2994,7 +2994,7 @@ class TriFusionApp(App):
             if tab_name == "Partitions":
                 bt, inf_bt, x_bt = self.sidepanel_create_part_bts(idx)
             else:
-                bt, inf_bt, x_bt = self.sidepanel_create_bts(idx, mode)
+                bt, inf_bt, x_bt = self.sidepanel_create_bts(idx)
 
             # Add button to storage for mouse over events
             self.mouse_over_bts[tab_name].append(bt)
