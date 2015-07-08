@@ -2755,7 +2755,15 @@ class TriFusionApp(App):
         good_proteomes = []
 
         # Check input proteomes
+        file_list = []
         for f in selection:
+            if os.path.isdir(f):
+                file_list.extend([join(f, x) for x in os.listdir(f)
+                                  if os.path.isfile(join(f, x))])
+            else:
+                file_list.append(f)
+
+        for f in file_list:
             b = Base()
             er = b.autofinder(f)
             f_short = basename(f)
