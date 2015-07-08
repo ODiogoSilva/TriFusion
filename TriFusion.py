@@ -1776,9 +1776,12 @@ class TriFusionApp(App):
             active_tab = self.root.ids.main_tp.current_tab.text
             # Get remove all button
             rm_bt = [self.root.ids.rm_all_File, self.root.ids.rm_all_Taxa]
+            part_bts = [self.root.ids.merge_part, self.root.ids.split_part,
+                        self.root.ids.add_part]
 
             # Iterate over buttons of active tab
-            for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt:
+            for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt + \
+                    part_bts:
                 # Determine if there is a collision with mouse position
                 if determine_collision(bt) and self._popup not in \
                         self.root_window.children:
@@ -1854,6 +1857,18 @@ class TriFusionApp(App):
                                                        "taxa", rm_bt[0],
                                                        adjust_pos=True,
                                                        c=(1, .33, .33, 1))
+
+                    elif bt in part_bts:
+                        bt_text = {"data/backgrounds/group_bt.png":
+                                   "Merge selected partitions",
+                                   "data/backgrounds/split_bt.png":
+                                   "Split selected partitions",
+                                   "data/backgrounds/add_bt35.png":
+                                   "Import partition scheme"}
+                        if active_tab == "Partitions":
+                            create_fancy_label(bt_text[bt.background_normal],
+                                               bt, adjust_pos=True,
+                                               orientation="vertical")
 
             else:
                 # If no collision is detected, remove any remaining label widget
