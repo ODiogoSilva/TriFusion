@@ -6126,6 +6126,11 @@ class TriFusionApp(App):
                 return self.dialog_floatcheck("ERROR: No input files have"
                                               "been selected", t="error")
 
+        if main_op == "reverse_concatenation":
+            if self.output_dir == "":
+                return self.dialog_floatcheck("ERROR: No output directory has"
+                                       " been selected", t="error")
+
         try:
             self.show_popup(title="Process execution summary - Processing %s "
                 "file(s)" % len(aln_obj.alignments),
