@@ -125,7 +125,8 @@ class LinkedLabel(Label):
     def __init__(self, **kwargs):
         super(LinkedLabel, self).__init__(**kwargs)
 
-    def create_ref_label(self, text):
+    @staticmethod
+    def create_ref_label(text):
         """
         Modifies the original label by adding references to each directory in
         the path
