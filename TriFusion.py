@@ -4983,7 +4983,7 @@ class TriFusionApp(App):
         self.dismiss_all_popups()
 
         content = LoadProgressDialog()
-        content.ids.pb.max = len(self.active_group.all_compliant)
+        content.ids.pb.max = self.active_group.all_compliant
         self.show_popup(title="Exporting...", content=content, size=(400, 250))
 
         func = partial(check_process, d)
