@@ -2574,12 +2574,15 @@ class TriFusionApp(App):
             bt_list = self.file_list
             # Setting which sink grid layout
             gl_wgt = self.root.ids.file_sl
+            create_bts_mtd = self.sidepanel_create_bts
         elif panel == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names)
             gl_wgt = self.root.ids.taxa_sl
+            create_bts_mtd = self.sidepanel_create_bts
         else:
             bt_list = list(self.alignment_list.partitions.partitions.keys())
             gl_wgt = self.root.ids.partition_sl
+            create_bts_mtd = self.sidepanel_create_part_bts
 
         # Find buttons that match the txt string
         if panel == "files":
@@ -2592,7 +2595,12 @@ class TriFusionApp(App):
         gl_wgt.clear_widgets()
         mouse_bts = []
         for txt in found_bts:
-            bt, inf_bt, x_bt = self.sidepanel_create_bts(txt)
+            if panel == "partitions":
+                # Get number of alignment for partition
+                fls = self.alignment_list.partitions.partitions_alignments[txt]
+                bt, inf_bt, x_bt = create_bts_mtd([txt, fls])
+            else:
+                bt, inf_bt, x_bt = create_bts_mtd(txt)
             gl_wgt.add_widget(bt)
             gl_wgt.add_widget(inf_bt)
             gl_wgt.add_widget(x_bt)
