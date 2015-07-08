@@ -216,7 +216,8 @@ def process_execution(**kwargs):
                 # In case the partitions file is badly formatted or invalid, the
                 # exception will be returned by the read_from_file method.
                 er = partition_obj.read_from_file(kwargs["partitions_file"])
-                aln_object = aln_object.retrieve_alignment(kwargs["rev_infile"])
+                aln_object = aln_object.retrieve_alignment(basename(
+                    kwargs["rev_infile"]))
                 aln_object.set_partitions(partition_obj)
             aln_object = aln_object.reverse_concatenate()
 

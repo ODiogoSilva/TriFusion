@@ -5766,7 +5766,8 @@ class TriFusionApp(App):
         part_obj = data.Partitions()
         er = part_obj.read_from_file(self.partitions_file)
 
-        aln_obj = self.alignment_list.retrieve_alignment(self.rev_infile)
+        aln_obj = self.alignment_list.retrieve_alignment(basename(
+            self.rev_infile))
         aln_er = aln_obj.set_partitions(part_obj)
 
         # Check for the validity of the partitions file
