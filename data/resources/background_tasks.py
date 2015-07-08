@@ -324,7 +324,7 @@ def process_execution(**kwargs):
                         interleave=kwargs["secondary_options"]["interleave"],
                         partition_file=kwargs["create_partfile"],
                         use_charset=kwargs["use_nexus_partitions"],
-                        phy_truncate_names=kwargs["use_nexus_partitions"])
+                        phy_truncate_names=kwargs["phylip_truncate_name"])
         else:
             for name, obj in write_aln.items():
                 name = name.replace(kwargs["output_file"], "")
@@ -334,7 +334,7 @@ def process_execution(**kwargs):
                         partition_file=kwargs["create_partfile"],
                         output_dir=kwargs["output_dir"],
                         use_charset=kwargs["use_nexus_partitions"],
-                        phy_truncate_names=kwargs["use_nexus_partitions"])
+                        phy_truncate_names=kwargs["phylip_truncate_name"])
 
     except:
         # Log traceback in case any unexpected error occurs. See
