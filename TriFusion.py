@@ -3883,6 +3883,9 @@ class TriFusionApp(App):
         else:
             parent_obj = value.parent
 
+        if len(parent_obj.children) == 3:
+            return self.remove_all()
+
         # Get button widgets to be removed
         bt_idx = value.id[:-1]
         inf_idx = value.id[:-1] + "?"
