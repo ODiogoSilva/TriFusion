@@ -54,10 +54,8 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.scrollview import ScrollView
 
 # Main program imports
-from ortho import OrthomclToolbox as OrthoTool
 from ortho import protein2dna
 from process.base import Base
-from process import data
 from data.resources.info_data import informative_storage
 from data.resources.background_tasks import *
 
