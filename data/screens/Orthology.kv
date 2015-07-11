@@ -207,7 +207,7 @@ ShowcaseScreen:
                                     BoxLayout
                                         orientation: "vertical"
                                         size_hint_y: None
-                                        height: 250
+                                        height: 300
                                         BoxLayout:
                                             size_hint_y: None
                                             height: 40
@@ -396,6 +396,8 @@ ShowcaseScreen:
                                                             halign: "justify"
                                                             valign: "top"
                                                         TFButton:
+                                                            size_hint_y: None
+                                                            height: 40
                                                             text: "Compute that shit!"
                                                             disabled: True if not app.ortho_group_files else False
                                                             on_release:
@@ -445,6 +447,8 @@ ShowcaseScreen:
                                                             halign: "justify"
                                                             valign: "top"
                                                         TFButton:
+                                                            size_hint_y: None
+                                                            height: 40
                                                             disabled: True if not app.ortho_group_files else False
                                                             text: "Compute that shit!"
                                                             on_release:

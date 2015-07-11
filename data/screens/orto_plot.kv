@@ -40,8 +40,6 @@ ShowcaseScreen:
                     spacing: 5
                     BoxLayout:
                         orientation: "vertical"
-                        size_hint_x: None
-                        width: 420
                         Label:
                             size_hint_y: None
                             height: 20
@@ -59,7 +57,7 @@ ShowcaseScreen:
                                     size_hint_y: None
                                     height: 20
                                     font_size: 13
-                                    halign: "left"
+                                    halign: "center"
                                     valign: "middle"
                                     text_size: self.size
                                     text: "  Maximum gene copies"
@@ -79,7 +77,7 @@ ShowcaseScreen:
                                     size_hint_y: None
                                     height: 20
                                     font_size: 13
-                                    halign: "left"
+                                    halign: "center"
                                     valign: "middle"
                                     text_size: self.size
                                     text: "  Minimum taxa"
@@ -95,7 +93,6 @@ ShowcaseScreen:
 
                     Vseparator:
                         thickness: 1.5
-
 
                     AnchorLayout:
                         anchor_x: "center"
@@ -135,6 +132,8 @@ ShowcaseScreen:
 
                     BoxLayout:
                         orientation: "vertical"
+                        size_hint_x: None
+                        width: 250
                         Label:
                             size_hint_y: None
                             height: 20
