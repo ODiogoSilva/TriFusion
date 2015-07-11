@@ -971,6 +971,14 @@ class TriFusionApp(App):
     old_mouse_over = None
     fancy_bt = ObjectProperty(FancyButton())
 
+    # Attribute that stores information on whether the control key is being
+    # pressed
+    is_control_pressed = BooleanProperty(False)
+
+    # Attribute that stores information on whether the shift key is being
+    # pressed
+    is_shift_pressed = BooleanProperty(False)
+
     mouse_position = ListProperty()
 
     ################################
@@ -1144,8 +1152,12 @@ class TriFusionApp(App):
         # Listen to keybindings
         Window.bind(on_key_down=self._on_keyboard_events)
 
+        Window.bind(on_key_up=self._release_events)
+
         # Execute cleaning function when exiting app
         Window.bind(on_request_close=lambda x: self._exit_clean())
+
+        Window.bind(on_motion=self.mouse_zoom)
 
         # Orthology widgets
         self.ortho_search_options = OrthologySearchGrid()
@@ -1241,6 +1253,30 @@ class TriFusionApp(App):
         prefix the name of the method.
         """
 
+    def mouse_zoom(self, *vals):
+        """
+        :return:
+        """
+
+        # Only perform any actions in plot screens
+        if self.screen.name in self.plot_screens:
+
+            motion = vals[2]
+
+            # Check if motion is mouse scroll
+            if motion.is_mouse_scrolling:
+
+                # Only perform an action at the begining of the motion
+                if vals[1] == "begin" and self.is_control_pressed:
+
+                    if motion.button == "scrollup":
+
+                        self.screen.ids.plot_content.scale -= .1
+
+                    elif motion.button == "scrolldown":
+
+                        self.screen.ids.plot_content.scale += .1
+
     def _start_clean(self):
         """
         In the event of unexpected exits, clean the tmp directory on app start
@@ -1269,6 +1305,21 @@ class TriFusionApp(App):
         self.screen.ids.path_bx.children[0].text = path
         self.screen.ids.icon_view_tab.path = path
 
+    def _release_events(self, *vals):
+        """
+        Method that releases keyboard events that are triggered in
+        _on_keyboard_events when the key is released
+        :param vals: input list from on_key_up
+        """
+
+        key_code = vals[1]
+
+        if key_code == 305:
+            self.is_control_pressed = False
+
+        if key_code == 304:
+            self.is_shift_pressed = False
+
     def _on_keyboard_events(self, *vals):
         """
         Methods that listens to keyboard input and triggers events or changes
@@ -1280,6 +1331,12 @@ class TriFusionApp(App):
         # TODO: The modifier in MacOS is different. Must check on this.
         modifier = "".join(vals[-1])
         key_code = vals[1]
+
+        if key_code == 305:
+            self.is_control_pressed = True
+
+        if key_code == 304:
+            self.is_shift_pressed = True
 
         # Change this variable to true when the arrow keys should NOT cycle
         # through buttons
