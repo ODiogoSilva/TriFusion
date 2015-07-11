@@ -1340,6 +1340,15 @@ class MultiGroupsLight:
         # something like {"groupA": (1, 10)}
         self.filters = {}
 
+        # This attribute will contain a dictionary with the maximum extra copies
+        # for each group object
+        self.max_extra_copy = {}
+        # This attribute will contain a list with the number of species for
+        # each group object, excluding replicates. If a MultiGroupLight object
+        # contains Group objects with different taxa numbers, this attribute
+        # can be used to issue a warning
+        self.species_number = []
+
         self.prefix = project_prefix
 
         if groups:
@@ -1360,15 +1369,7 @@ class MultiGroupsLight:
                 if group_object.name in self.groups:
                     self.duplicate_groups.append(group_file.name)
                 else:
-
-                    gpath = os.path.join(self.db_path,
-                        "".join(random.choice(string.ascii_uppercase) for _ in
-                                range(15)))
-                    pickle.dump(group_object, open(gpath, "wb"))
-                    self.groups[group_object.name] = gpath
-                    # Setting starting string filters
-                    self.filters[group_object.name] = (1,
-                                                len(group_object.species_list))
+                    self.add_group(group_object)
 
     def __iter__(self):
         for k, val in self.groups.items():
@@ -1386,6 +1387,8 @@ class MultiGroupsLight:
         self.groups = {}
         self.groups_stats = {}
         self.filters = {}
+        self.max_extra_copy = {}
+        self.species_number = []
 
     def add_group(self, group_obj):
         """
@@ -1401,6 +1404,9 @@ class MultiGroupsLight:
             pickle.dump(group_obj, open(gpath, "wb"))
             self.groups[group_obj.name] = gpath
             self.filters[group_obj.name] = (1, len(group_obj.species_list))
+            self.max_extra_copy[group_obj.name] = group_obj.max_extra_copy
+            if len(group_obj.species_list) not in self.species_number:
+                self.species_number.append(len(group_obj.species_list))
         else:
             self.duplicate_groups.append(group_obj.name)
 
