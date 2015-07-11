@@ -121,15 +121,15 @@ def process_dispatch(nm, temp_dir, proteome_files, protein_min_len,
         if nm.k:
             nm.t = "Filtering group files"
             nm.c = 10
-            stats, groups_obj = ortho_pipe.export_filtered_groups(
-                                                    mcl_inflation,
-                                                    group_prefix,
-                                                    orto_max_gene,
-                                                    orto_min_sp, sqldb,
-                                                    join(ortho_dir,
+            stats, groups_obj = ortho_pipe.export_filtered_groups(mcl_inflation,
+                                                                  group_prefix,
+                                                                  orto_max_gene,
+                                                                  orto_min_sp,
+                                                                  sqldb,
+                                                                join(ortho_dir,
                                                          "backstage_files",
                                                          "goodProteins.fasta"),
-                                                    temp_dir)
+                                                                  temp_dir)
             # stats is a dictionary containing the inflation value as
             #  key and a list with the orthologs as value
             nm.stats = stats
@@ -231,15 +231,15 @@ def process_execution(**kwargs):
                 if kwargs["missing_filter_settings"][2]:
                     try:
                         filtered_aln_obj.filter_min_taxa(
-                        kwargs["missing_filter_settings"][2])
+                            kwargs["missing_filter_settings"][2])
                     except NameError:
                         aln_object.filter_min_taxa(
                             kwargs["missing_filter_settings"][2])
             # Filter by taxa
             if kwargs["secondary_options"]["taxa_filter"]:
                 # Get taxa list from taxa groups
-                taxa_list = kwargs["taxa_groups"]\
-                    [kwargs["taxa_filter_settings"][1]]
+                taxa_list = kwargs["taxa_groups"][kwargs[
+                    "taxa_filter_settings"][1]]
                 try:
                     filtered_aln_obj.filter_by_taxa(
                         kwargs["taxa_filter_settings"][0], taxa_list)
@@ -250,7 +250,7 @@ def process_execution(**kwargs):
             if kwargs["secondary_options"]["codon_filter"]:
                 try:
                     filtered_aln_obj.filter_codon_positions(
-                    kwargs["codon_filter_settings"])
+                        kwargs["codon_filter_settings"])
                 except NameError:
                     aln_object.filter_codon_positions(
                         kwargs["codon_filter_settings"])
@@ -262,8 +262,8 @@ def process_execution(**kwargs):
                         kwargs["missing_filter_settings"][1])
                 except NameError:
                     aln_object.filter_missing_data(
-                    kwargs["missing_filter_settings"][0],
-                    kwargs["missing_filter_settings"][1])
+                        kwargs["missing_filter_settings"][0],
+                        kwargs["missing_filter_settings"][1])
             try:
                 write_aln[kwargs["output_file"] + "_filtered"] = \
                     filtered_aln_obj
@@ -354,10 +354,10 @@ def orto_update_filters(ortho_groups, gn_filter, sp_filter,
                         group_names=None, default=False):
     if group_names:
         ortho_groups.update_filters(gn_filter, sp_filter, group_names,
-                                         default=default)
+                                    default=default)
     else:
         ortho_groups.update_filters(gn_filter, sp_filter,
-                                         default=default)
+                                    default=default)
     return [ortho_groups]
 
 
