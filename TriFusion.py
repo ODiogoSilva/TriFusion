@@ -22,6 +22,16 @@
 #  Version:
 #  Last update:
 
+from kivy.config import Config
+
+Config.set("kivy", "log_level", "warning")
+Config.set("kivy", "desktop", 1)
+Config.set("kivy", "exit_on_escape", 0)
+Config.set("graphics", "resizable", 0)
+Config.set("graphics", "fullscreen", 0)
+Config.set("graphics", "height", 700)
+Config.set("graphics", "width", 1000)
+
 # Kivy imports
 from kivy.app import App
 from kivy.uix.togglebutton import ToggleButton
@@ -47,7 +57,6 @@ from kivy.utils import get_hex_from_color
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ListProperty, ObjectProperty, DictProperty
 from kivy.uix.screenmanager import Screen
-from kivy.config import Config
 from kivy.clock import Clock
 from kivy.uix.treeview import TreeView, TreeViewLabel
 from kivy.graphics import Color, Rectangle
@@ -73,13 +82,6 @@ import time
 import re
 import sys
 import logging
-
-Config.set("kivy", "log_level", "warning")
-Config.set("kivy", "desktop", 1)
-Config.set("kivy", "exit_on_escape", 0)
-Config.set("graphics", "resizable", 0)
-Config.set("graphics", "fullscreen", 0)
-
 
 # MEMO
 # scatter.py on_touch_up function was modified to prevent a bug from crashing
@@ -5027,6 +5029,19 @@ class TriFusionApp(App):
         else:
             groups_objs = self.ortho_groups
 
+        # Update slider max values
+        self.screen.ids.gn_spin.max = max(groups_objs.max_extra_copy.values())
+        self.screen.ids.sp_spin.max = groups_objs.species_number[0]
+
+        # Update initial slider values
+        if not self.screen.ids.header_content.original_filt:
+            self.screen.ids.gn_spin.value = self.orto_max_gene
+            self.screen.ids.sp_spin.value = self.orto_min_sp if \
+                self.orto_min_sp != 3 else groups_objs.species_number[0]
+
+        self.screen.ids.header_content.original_filt = \
+            [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
+
         # Set group object for screen. This property will be used when changing
         # which filters should be displayed in the compare plot screen
         self.screen.group_obj = groups_objs
@@ -5391,7 +5406,7 @@ class TriFusionApp(App):
                 self.run_in_background(orto_update_filters,
                                 self.orthology_card,
                                 [self.ortho_groups, None, None,
-                                 [x for x in groups_obj.groups], True],
+                                [x for x in groups_obj.groups], True],
                                 None, False, msg="Setting up filters...")
 
     def orthology_card(self, group_name=None, bt=None):
