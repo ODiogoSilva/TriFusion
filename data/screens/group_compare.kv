@@ -28,7 +28,104 @@ ShowcaseScreen:
 
             BoxLayout:
                 orientation: "vertical"
+                id: header_content
+                original_filt: None
+                excluded_taxa: []
                 padding: 5
+                Label:
+                    text: "Filter settings:"
+                    size_hint_y: None
+                    height: 25
+                    bold: True
+                    color: (0.216, 0.67, 0.784, 1)
+                BoxLayout:
+                    spacing: 5
+                    BoxLayout:
+                        orientation: "vertical"
+                        Label:
+                            size_hint_y: None
+                            height: 20
+                            font_size: 13
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            text: "  Maximum gene copies"
+                            bold: True
+                            color: (.8, .8, .8, 1)
+                        BoxLayout:
+                            orientation: "vertical"
+                            padding: 5
+                            MySlider:
+                                step: 1
+                                min: 1
+                                id: gn_spin
+
+                    BoxLayout:
+                        orientation: "vertical"
+                        Label:
+                            size_hint_y: None
+                            height: 20
+                            font_size: 13
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            text: "  Minimum taxa"
+                            bold: True
+                            color: (.8, .8, .8, 1)
+                        BoxLayout:
+                            orientation: "vertical"
+                            padding: 5
+                            MySlider:
+                                step: 1
+                                min: 1
+                                id: sp_spin
+
+            Vseparator:
+                thickness: 1.5
+
+            AnchorLayout:
+                anchor_x: "center"
+                anchor_y: "center"
+                size_hint_x: None
+                width: 40
+
+                Button:
+                    size_hint: None, None
+                    size: 30, 30
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
+                    bold: True
+                    background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt.png"
+                    on_release:
+                        if header_content.original_filt and header_content.original_filt != [int(gn_spin.value), int(sp_spin.value)]:\
+                        app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_spin.value), str(sp_spin.value), None, False], None, False)
+
+
+#                        StringInput:
+#                            text: str(app.ortho_groups.filters[app.active_group_name][0])
+#                            size_hint_x: .2
+#                            multiline: False
+#                            id: gn_txt
+#                            on_text_validate:
+#                                app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_txt.text), str(sp_txt.text), None, False], None, False)
+
+#                        StringInput:
+#                            text: str(app.ortho_groups.filters[app.active_group_name][1])
+#                            size_hint_x: .2
+#                            multiline: False
+#                            id: sp_txt
+#                            on_text_validate:
+#                                app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_txt.text), str(sp_txt.text), None, False], None, False)
+
+            Vseparator:
+                thickness: 1.5
+
+            BoxLayout:
+                orientation: "vertical"
+                padding: 5
+                size_hint_x: None
+                width: 300
                 Label:
                     text: "Display:"
                     size_hint_y: None
@@ -82,43 +179,7 @@ ShowcaseScreen:
                                 on_active:
                                     app.orto_compare_groups(root.group_obj)
 
-            Vseparator:
-                thickness: 1.5
 
-            BoxLayout:
-                orientation: "vertical"
-                padding: 5
-                Label:
-                    text: "Filter settings:"
-                    size_hint_y: None
-                    height: 25
-                    bold: True
-                    color: (0.216, 0.67, 0.784, 1)
-                BoxLayout:
-                    orientation: "vertical"
-                    BoxLayout:
-                        Label:
-                            text: "Maximum gene copies:"
-                            size_hint_x: 0.8
-                        StringInput:
-                            text: str(app.ortho_groups.filters[app.active_group_name][0])
-                            size_hint_x: .2
-                            multiline: False
-                            id: gn_txt
-                            on_text_validate:
-                                app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_txt.text), str(sp_txt.text), None, False], None, False)
-
-                    BoxLayout:
-                        Label:
-                            text: "Minimum species represented:"
-                            size_hint_x: 0.8
-                        StringInput:
-                            text: str(app.ortho_groups.filters[app.active_group_name][1])
-                            size_hint_x: .2
-                            multiline: False
-                            id: sp_txt
-                            on_text_validate:
-                                app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_txt.text), str(sp_txt.text), None, False], None, False)
 
         Hseparator:
             thickness: 1.5
