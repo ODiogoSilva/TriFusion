@@ -2178,7 +2178,7 @@ class TriFusionApp(App):
 
         wgt.disabled = True
 
-    def check_action(self, text, func, bt_wgt=None):
+    def check_action(self, text, func, bt_wgt=None, popup_level=1):
         """
         General purpose method that pops a dialog checking if the user wants to
         perform a certain action. This method should be passed as a function on
@@ -2199,16 +2199,31 @@ class TriFusionApp(App):
         By default, the last argument is the bt_wgt.
         """
 
-        check_content = CheckDialog(cancel=self.dismiss_popup)
+        if popup_level == 1:
+            check_content = CheckDialog(cancel=self.dismiss_popup)
+        else:
+            check_content = CheckDialog(cancel=self.dismiss_subpopup)
+
         check_content.ids.check_text.text = text
         if bt_wgt:
             check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
         else:
             check_content.ids.check_ok.bind(on_release=lambda val: func())
 
-        self.show_popup(title="Warning!", content=check_content,
-                        size=(250, 200),
-                        separator_color=[255 / 255., 85 / 255., 85 / 255., 1.])
+        if popup_level == 1:
+            self.show_popup(title="Warning!", content=check_content,
+                            size=(250, 200),
+                            separator_color=[255 / 255., 85 / 255., 85 /
+                                             255., 1.])
+        else:
+            self._subpopup = CustomPopup(title="Warning!",
+                                         content=check_content,
+                                         size=(250, 200),
+                                         size_hint=(None, None),
+                                         separator_color=[255 / 255.,
+                                                          85 / 255.,
+                                                          85 / 255., 1.])
+            self._subpopup.open()
 
     # ########################## GENERAL USE ###################################
 
@@ -4231,10 +4246,12 @@ class TriFusionApp(App):
         if ds_type == "taxa":
             bt_list = sorted(self.alignment_list.taxa_names, reverse=True)
             title = "Create taxa groups"
+            group_list = sorted(self.taxa_groups.keys())
         else:
             bt_list = sorted([basename(x) for x in self.file_list],
                              reverse=True)
             title = "Create file groups"
+            group_list = sorted(self.file_groups.keys())
 
         # Populate the gridlayout for all entries
         for i in bt_list:
@@ -4242,11 +4259,19 @@ class TriFusionApp(App):
             bt = ToggleButton(text=i, size_hint_y=None, height=30)
             self.add_dataset_bt(bt, content.ids.all_grid, ds_type)
 
+        # Populate created groups, if any
+        if group_list:
+            content.ids.group_list.clear_widgets()
+
+        for i in group_list:
+
+            self.taxagroups_add_group(i, content.ids.group_list, ds_type)
+
         content.ds_type = ds_type
 
         # Show dialog
         if popup_level == 1:
-            self.show_popup(title=title, content=content, size=(700, 500))
+            self.show_popup(title=title, content=content, size=(900, 600))
         else:
             self._subpopup = Popup(title=title, content=content,
                            size=(700, 500), size_hint=(None, None))
@@ -4393,7 +4418,10 @@ class TriFusionApp(App):
         parent_wgt = rm_wgt.parent
 
         bt_idx = rm_wgt.id[:-1]
-        bt = [x for x in parent_wgt.children if bt_idx == x.id][0]
+        try:
+            bt = [x for x in parent_wgt.children if bt_idx == x.id][0]
+        except IndexError:
+            bt = [x for x in parent_wgt.children if bt_idx == x.text][0]
 
         parent_wgt.remove_widget(bt)
         parent_wgt.remove_widget(rm_wgt)
@@ -4403,6 +4431,81 @@ class TriFusionApp(App):
             del self.taxa_groups[bt_idx]
         if parent_wgt == self.root.ids.file_group_grid:
             del self.file_groups[bt_idx]
+
+    def taxagroups_add_group(self, name, wgt, ds_type):
+        """
+        Adds a dataset button, and corresponding removal button, to the group
+        list gridlayut of the Dataset dialog.
+        :param name: string, name of the group
+        :param wgt: GridLayout widget where the buttons will be added
+        :param ds_type: string, dataset type, whether 'taxa' or 'files'
+        """
+
+        bt = TGToggleButton(text=name, size_hint_y=None, height=30,
+                            state="normal",
+                            background_disabled_down=join("data",
+                                                          "backgrounds",
+                                                          "bt_process.png"),
+                            disabled_color=(1, 1, 1, 1))
+
+        bt.bind(on_release=self.toggle_groups)
+        bt.bind(on_release=lambda x: self.taxagroups_display_group(name,
+                                                                   ds_type))
+        rm_bt = Button(size_hint=(None, None), width=30,
+                       height=30, id="{}X".format(name), border=(0, 0, 0, 0),
+                       background_normal=join("data", "backgrounds",
+                                              "remove_bt.png"),
+                       background_down=join("data", "backgrounds",
+                                            "remove_bt_down.png"))
+        rm_bt.bind(on_release=partial(self.check_action,
+                                      "Are you sure you want to remove this"
+                                      " group?",
+                                      self.remove_taxa_group,
+                                      popup_level=2))
+        wgt.add_widget(bt)
+        wgt.add_widget(rm_bt)
+
+    def taxagroups_display_group(self, name, ds_type):
+        """
+        Gives functionality to the group buttons in the dataset dialog. It
+        displays the group constitution in the dialog
+        :param name:
+        :param ds_type:
+        """
+
+        # Get dataset dialog
+        root_wgts = self.root_window.children
+        if [x for x in root_wgts if isinstance(x, Popup)]:
+            dataset_wgt = [x for x in root_wgts if
+                           isinstance(x, Popup)][0].content
+        elif [x for x in root_wgts if isinstance(x, CustomPopup)]:
+            dataset_wgt = [x for x in root_wgts if
+                           isinstance(x, CustomPopup)][0].content
+        else:
+            dataset_wgt = None
+
+        # Reset dataset creator source and sink gridlayouts
+        self.taxagroup_move_taxa(dataset_wgt.ids.select_grid,
+                                 dataset_wgt.ids.all_grid,
+                                 True,
+                                 dataset_wgt.ds_type)
+
+        # Get group names list
+        if ds_type == "taxa":
+            group_lst = self.taxa_groups[name]
+        else:
+            group_lst = self.file_groups[name]
+
+        # Display group in the selected gridlayout
+        for i in group_lst:
+            bt = [x for x in dataset_wgt.ids.all_grid.children
+                  if i == x.text][0]
+            self.remove_taxa_bt(bt, dataset_wgt.ids.all_grid)
+            bt.state = "normal"
+            self.add_dataset_bt(bt, dataset_wgt.ids.select_grid, ds_type)
+
+        # Change dataset group name in the dialog
+        dataset_wgt.ids.group_name.text = name
 
     def save_dataset_group(self, source_wgt, name, ds_type, group_file=False):
         """
@@ -4416,6 +4519,17 @@ class TriFusionApp(App):
         self.dataset_file file.
         """
 
+        # Determine if the Dataset dialog is still active
+        root_wgts = self.root_window.children
+        if [x for x in root_wgts if isinstance(x, Popup)]:
+            dataset_wgt = [x for x in root_wgts if
+                           isinstance(x, Popup)][0].content
+        elif [x for x in root_wgts if isinstance(x, CustomPopup)]:
+            dataset_wgt = [x for x in root_wgts if
+                           isinstance(x, CustomPopup)][0].content
+        else:
+            dataset_wgt = None
+
         if ds_type == "taxa":
             # Make core changes by populating self.taxa_groups dictionary
             self.taxa_groups[name] = []
@@ -4428,6 +4542,7 @@ class TriFusionApp(App):
             # it has not been defined
             if not self.taxa_filter_settings:
                 self.taxa_filter_settings = ["Contain", name]
+
         else:
             # Make core changes by populating self.file_groups dictionary
             self.file_groups[name] = []
@@ -4444,6 +4559,30 @@ class TriFusionApp(App):
         else:
             for bt in source_wgt.children:
                 group_list.append(bt.text)
+
+        # If dataset dialog is still active, add the new group
+        if dataset_wgt:
+
+            # Remove original button when not groups have been previously added
+            if len(dataset_wgt.ids.group_list.children) == 1:
+                dataset_wgt.ids.group_list.clear_widgets()
+
+            # Add group button to layout
+            if name not in [x.text for x in
+                            dataset_wgt.ids.group_list.children]:
+                self.taxagroups_add_group(name, dataset_wgt.ids.group_list,
+                                          ds_type)
+
+            # Reset dataset creator source and sink gridlayouts
+            self.taxagroup_move_taxa(dataset_wgt.ids.select_grid,
+                                     dataset_wgt.ids.all_grid,
+                                     True,
+                                     dataset_wgt.ds_type)
+
+            for bt in [x for x in dataset_wgt.ids.group_list.children
+                       if isinstance(x, TGToggleButton)]:
+                bt.state = "normal"
+                bt.disabled = False
 
         # App changes by adding two buttons for the taxa group
         # Taxa button itself
