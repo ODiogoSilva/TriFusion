@@ -4216,7 +4216,7 @@ class TriFusionApp(App):
             self.update_sp_label()
             self.update_file_label()
 
-    def dialog_dataset_creator(self, ds_type):
+    def dialog_dataset_creator(self, ds_type, popup_level=1):
         """
         Creates a dialog to choose between creating a data set from a file
         or manually
@@ -4224,6 +4224,7 @@ class TriFusionApp(App):
 
         content = DataSetTriageDialog(cancel=self.dismiss_popup)
         content.ds_type = ds_type
+        content.popup_level = popup_level
 
         self.show_popup(title="Choose data set group creation method",
                         content=content, size=(360, 200))
@@ -4274,7 +4275,7 @@ class TriFusionApp(App):
             self.show_popup(title=title, content=content, size=(900, 600))
         else:
             self._subpopup = Popup(title=title, content=content,
-                           size=(700, 500), size_hint=(None, None))
+                           size=(900, 600), size_hint=(None, None))
             self._subpopup.open()
 
     def add_dataset_bt(self, bt, wgt, ds_type):
@@ -5855,7 +5856,7 @@ class TriFusionApp(App):
         if filter_act:
             self.taxa_filter_settings = [filter_mode, taxa_group]
 
-        self.dismiss_popup()
+        self.dismiss_all_popups()
 
     def save_codonfilter(self, filter_act, position_list):
         """
@@ -6213,7 +6214,7 @@ class TriFusionApp(App):
         process screen
         """
 
-        content = TaxaFilterDialog(cancel=self.dismiss_popup)
+        content = TaxaFilterDialog(cancel=self.dismiss_all_popups)
 
         self.show_popup(title="Advanced taxa filter", content=content,
                         size=(350, 400))

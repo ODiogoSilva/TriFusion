@@ -2165,6 +2165,7 @@
     padding: 10
     spacing: 20
     ds_type: ""
+    popup_level: 1
     BoxLayout:
         spacing: 20
         TFOKButon:
@@ -2194,7 +2195,7 @@
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
                 root.cancel()
-                app.dialog_taxagroup(root.ds_type)
+                app.dialog_taxagroup(root.ds_type, root.popup_level)
     BoxLayout:
         size_hint_y: None
         height: 30
@@ -3592,7 +3593,7 @@
                 height: 30
                 disabled: False if taxa_filter.active else True
                 on_release:
-                    app.dialog_taxagroup("taxa", 2)
+                    app.dialog_dataset_creator("taxa", popup_level=2)
 
             ProcessBt:
                 text: "Use taxa group"
