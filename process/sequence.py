@@ -1263,6 +1263,7 @@ class AlignmentList(Base):
             else:
                 self.alignments[aln.name] = aln
                 self.set_partition(aln)
+                self.filename_list.append(aln.name)
 
         self.taxa_names = self._get_taxa_list()
 
