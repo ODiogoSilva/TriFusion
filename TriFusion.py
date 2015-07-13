@@ -3818,7 +3818,7 @@ class TriFusionApp(App):
         parent_obj = value.parent
 
         # determine active file list
-        act_lst = self.active_file_list if self.active_file_list else \
+        act_lst = self.active_file_list if self.file_list else \
             self.active_proteome_files
 
         # Changes concerning the files tab
@@ -3833,6 +3833,7 @@ class TriFusionApp(App):
             # When button is down (selected) add to active list
             elif value.state == "down":
                 act_lst.append(self.filename_map[value.id])
+                print(self.active_file_list)
                 if self.active_file_list:
                     self.alignment_list.update_active_alignment(value.id,
                                                                 "active")
