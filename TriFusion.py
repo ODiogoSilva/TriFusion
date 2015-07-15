@@ -536,7 +536,7 @@ class SidepanelToggle(ToggleButton):
     pass
 
 
-class Test(TFButtonOff):
+class SequenceSimilarity(TFButtonOff):
     pass
 
 
@@ -6608,7 +6608,8 @@ class TriFusionApp(App):
                                  [GeneOccupancy(), MissingOrto(),
                                   MissingData()]],
                 "Polymorphism and Variation":
-                    [self.screen.ids.polymorphism_data_opts, [Test()]]}
+                    [self.screen.ids.polymorphism_data_opts,
+                     [SequenceSimilarity()]]}
 
         # Get active type
         main_gl = self.screen.ids.main_stats_opts
