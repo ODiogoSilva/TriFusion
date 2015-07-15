@@ -4427,26 +4427,54 @@ class TriFusionApp(App):
         Removes the data set group button from the app list and corresponding
         data set group attribute
         :param rm_wgt: widget, widget of the removal button
-        :return:
         """
 
         # Remove from app
         parent_wgt = rm_wgt.parent
 
         bt_idx = rm_wgt.id[:-1]
+
         try:
             bt = [x for x in parent_wgt.children if bt_idx == x.id][0]
+            parent_wgt.remove_widget(bt)
+            parent_wgt.remove_widget(rm_wgt)
         except IndexError:
             bt = [x for x in parent_wgt.children if bt_idx == x.text][0]
-
-        parent_wgt.remove_widget(bt)
-        parent_wgt.remove_widget(rm_wgt)
+            # Remove from the dataset dialog
+            parent_wgt.remove_widget(bt)
+            parent_wgt.remove_widget(rm_wgt)
+            # Remove from the sidepanel
+            if parent_wgt.ds == "taxa":
+                for i in [x for x in self.root.ids.taxa_group_grid.children if
+                          x.id == rm_wgt.id or x.id == bt_idx]:
+                    self.root.ids.taxa_group_grid.remove_widget(i)
+            else:
+                for i in [x for x in self.root.ids.file_group_grid.children if
+                          x.id == rm_wgt.id or x.id == bt_idx]:
+                    self.root.ids.file_group_grid.remove_widget(i)
 
         # Remove from program attribute
-        if parent_wgt == self.root.ids.taxa_group_grid:
+        if parent_wgt == self.root.ids.taxa_group_grid or \
+                parent_wgt.ds == "taxa":
+            # Remove group from core attribute
             del self.taxa_groups[bt_idx]
-        if parent_wgt == self.root.ids.file_group_grid:
+            # Remove button from dropdown menu
+            # Since the children of a dropdown widget are a gridlayout and not
+            # the actual buttons contained in the dropdown menu, this will
+            # search for the children of the gridlayout
+            for i in [x for x in
+                    self.process_grid_wgt.ids.taxa_dropdown.children[0].children
+                      if x.text == bt_idx]:
+                self.process_grid_wgt.ids.taxa_dropdown.remove_widget(i)
+        if parent_wgt == self.root.ids.file_group_grid or \
+                parent_wgt.ds == "files":
+            # Remove group from core attribute
             del self.file_groups[bt_idx]
+            # Remove button from dropdown menu
+            for i in [x for x in
+                    self.process_grid_wgt.ids.file_dropdown.children[0].children
+                      if x.text == bt_idx]:
+                self.process_grid_wgt.ids.file_dropdown.remove_widget(i)
 
     def taxagroups_add_group(self, name, wgt, ds_type):
         """
