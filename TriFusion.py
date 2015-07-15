@@ -4659,6 +4659,42 @@ class TriFusionApp(App):
         # Update gridlayout height
         grid_layout.height += 40
 
+    def statistics_populate_groups(self, ds_type):
+        """
+        This method is called when the dataset selection buttons in the
+        Statistics sidepanel are pressed. They populate the respective
+        dropdown menu with the currently set groups
+        :param ds_type: string, data set type. Can be either 'taxa' or 'files'
+        """
+
+        if ds_type == "taxa":
+            dd_wgt = self.screen.ids.taxa_dropdown
+            grid_children = self.screen.ids.taxa_dropdown.children[0].children
+            group_atr = self.taxa_groups
+        else:
+            dd_wgt = self.screen.ids.file_dropdown
+            grid_children = self.screen.ids.file_dropdown.children[0].children
+            group_atr = self.file_groups
+
+        # Remove discarded groups
+        for bt in grid_children:
+            if bt.text in ["All taxa", "Active taxa", "All files",
+                           "Active files"]:
+                pass
+            elif bt.text not in group_atr:
+                dd_wgt.remove_widget(bt)
+
+        # Add new groups
+        current_groups = [x.text for x in grid_children]
+        for g in group_atr:
+            if g not in current_groups:
+                dd_bt = Button(text=g, size_hint_y=None, height=40, bold=True,
+                               background_normal=join("data", "backgrounds",
+                                                      "spinner_opt.png"))
+                dd_bt.bind(on_release=lambda x: dd_wgt.select(g))
+                dd_wgt.add_widget(dd_bt)
+
+
     def dialog_general_info(self, idx):
         """
         Generates the popup with information for several components of the
