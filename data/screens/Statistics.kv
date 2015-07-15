@@ -99,12 +99,12 @@ ShowcaseScreen:
                             ProcessBt:
                                 id: active_file_set
                                 text: "All files"
-                                on_release: file_dropdown.open(self)
+                                on_release: app.statistics_populate_groups("files"); file_dropdown.open(self)
 
                             ProcessBt:
                                 id: active_taxa_set
                                 text: "All taxa"
-                                on_release: taxa_dropdown.open(self)
+                                on_release: app.statistics_populate_groups("taxa"); taxa_dropdown.open(self)
 
                             DropDown:
                                 id: taxa_dropdown
