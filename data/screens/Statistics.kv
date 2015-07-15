@@ -94,8 +94,10 @@ ShowcaseScreen:
                     app.toggle_stats_panel()
 
         ScrollView:
+            scroll_timeout: 0
             ScatterLayout:
-                id: stats_scatter
+                id: plot_content
                 auto_bring_to_front: False
+                do_rotation: False
                 Label:
                     text: "Some text verrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrry long text"
