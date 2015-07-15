@@ -1648,11 +1648,12 @@ class AlignmentList(Base):
                          for x in self.taxa_names])
 
         data = np.transpose(data)
+        data = np.sort(data)
 
         iplt = interpolation_plot(data)
 
         iplt.savefig(join(dest, output_file_name), bbox_inches="tight",
-                     dpi=300)
+                     dpi=600)
 
         return iplt
 
