@@ -4,7 +4,18 @@ ShowcaseScreen:
     # The initial home screen could be a FloatLayout that contains drawn
     # arrows and text (images) with information on what each button does
 
-    # For now this is just a place Holder
-    FloatLayout:
-        Label:
-            text: "Main screen\nPlaceholder"
+    FloatLayout
+        BoxLayout:
+            pos: 0, 510
+            padding: 30
+            Label:
+                markup: True
+                color: .7, .7, .7, .7
+                bold: True
+                valign: "bottom"
+                halign: "left"
+                text_size: self.size
+                text: "[size=40]Welcome to TriFusion[/size]\n[size=20]Streamlining phylogenomic analysis[/size]"
+
+
+

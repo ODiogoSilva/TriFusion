@@ -2096,7 +2096,7 @@ class TriFusionApp(App):
             if self.screen_names[idx] not in self.plot_screens:
                 self.dismiss_plot_wgt()
 
-            # Romves old toolbar when switching directly from orto plot widget
+            # Removes old toolbar when switching directly from orto plot widget
             # to Statistics
             if self.screen_names[idx] == "Statistics":
                 self.dismiss_plot_wgt()
