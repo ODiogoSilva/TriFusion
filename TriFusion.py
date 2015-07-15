@@ -6576,7 +6576,7 @@ class TriFusionApp(App):
         Controls the animation of the statistics panel
         """
 
-        expanded_width = 300
+        expanded_width = 400
 
         if self.screen.ids.stats_panel.width == expanded_width:
             self.sidepanel_animation(width=0,

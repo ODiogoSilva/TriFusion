@@ -6,10 +6,10 @@ ShowcaseScreen:
             id: sidepanel_container
             anchor_x: "left"
             size_hint_x: None
-            width: 330
+            width: 430
             ScrollView:
                 size_hint_x: None
-                width: 300
+                width: 400
                 size_hint_y: .9
                 id: stats_panel
                 BoxLayout:
@@ -86,7 +86,7 @@ ShowcaseScreen:
                 size_hint: None, None
                 size: 40, 40
                 border: 0,0,0,0
-                pos_x_exp: 300
+                pos_x_exp: 400
                 pos: stats_panel.width, stats_panel.height * .9 + self.height + 11
                 background_normal: "data/backgrounds/tg_add_down.png" if self.pos[0] == self.pos_x_exp else "data/backgrounds/tg_remove_down.png"
                 on_release:
