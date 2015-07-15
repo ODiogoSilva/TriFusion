@@ -2142,6 +2142,8 @@ class TriFusionApp(App):
 
             if basename(self.available_screens[idx]) == "Statistics.kv":
                 self.show_plot_toolbar(toolbar_type="stats")
+                self.screen.ids.taxa_dropdown.dismiss()
+                self.screen.ids.file_dropdown.dismiss()
 
         return self.screen
 

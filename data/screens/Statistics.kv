@@ -1,5 +1,6 @@
 ShowcaseScreen:
     name: "Statistics"
+    __safe_id: [taxa_dropdown.__self__, file_dropdown.__self__]
 
     BoxLayout:
         AnchorLayout:
@@ -80,6 +81,83 @@ ShowcaseScreen:
                             OptsGrid:
                                 id: tree_data_opts
                                 grid_name: "Phylogenetic Tree Annotation"
+                    Hseparator
+                    BoxLayout:
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: 65
+                        spacing: 5
+                        Label:
+                            bold: True
+                            text: "Select data set"
+                            size_hint_y: None
+                            height: 30
+                        BoxLayout:
+                            size_hint_y: None
+                            height: 30
+                            spacing: 10
+                            ProcessBt:
+                                id: active_file_set
+                                text: "All files"
+                                on_release: file_dropdown.open(self)
+
+                            ProcessBt:
+                                id: active_taxa_set
+                                text: "All taxa"
+                                on_release: taxa_dropdown.open(self)
+
+                            DropDown:
+                                id: taxa_dropdown
+                                on_select: active_taxa_set.text = args[1]
+                                canvas.before:
+                                    Color:
+                                        rgba: (0,0,0,1)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+
+                                Button:
+                                    background_normal: "data/backgrounds/spinner_opt.png"
+                                    text: 'All taxa'
+                                    size_hint_y: None
+                                    height: 40
+                                    bold: True
+                                    on_release: taxa_dropdown.select(self.text)
+
+                                Button:
+                                    background_normal: "data/backgrounds/spinner_opt.png"
+                                    text: 'Active taxa'
+                                    size_hint_y: None
+                                    height: 40
+                                    bold: True
+                                    on_release: taxa_dropdown.select(self.text)
+
+                            DropDown:
+                                id: file_dropdown
+                                on_select: active_file_set.text = args[1]
+                                canvas.before:
+                                    Color:
+                                        rgba: (0,0,0,1)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+
+                                Button:
+                                    background_normal: "data/backgrounds/spinner_opt.png"
+                                    text: 'All files'
+                                    size_hint_y: None
+                                    height: 40
+                                    bold: True
+                                    on_release: file_dropdown.select(self.text)
+
+                                Button:
+                                    background_normal: "data/backgrounds/spinner_opt.png"
+                                    text: 'Active files'
+                                    size_hint_y: None
+                                    height: 40
+                                    bold: True
+                                    on_release: file_dropdown.select(self.text)
+
         FloatLayout:
             size_hint_x: None
             Button:
