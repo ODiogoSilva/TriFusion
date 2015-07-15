@@ -4459,6 +4459,47 @@
 ## STATS Options Buttons
 ##
 
+<StatsPlotToolbar>
+    orientation: "vertical"
+    size_hint: None, None
+    size: 50, 130
+    opacity: .2
+    canvas.before:
+        Color:
+            rgba: (.2,.2,.2,1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
+        BoxLayout:
+            orientation: "vertical"
+            size_hint: None, None
+            size: 40, 130
+            spacing: 5
+            id: content
+            Button
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/zoom_in.png"
+                on_release:
+                    app.screen.ids.plot_content.scale += .1
+            Button
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/zoom_out.png"
+                on_release:
+                    app.screen.ids.plot_content.scale -= .1 if app.screen.ids.plot_content.scale > 0.5 else 0
+            Button:
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/fit_plot.png"
+                on_release:
+                    app.screen.ids.plot_content.scale = 1
+                    app.screen.ids.plot_content.pos = (0, 0)
+
 ## Polymorphism and Variation
 <Test>:
     size_hint_y: None
