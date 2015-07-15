@@ -219,8 +219,6 @@ def interpolation_plot(data):
     :param data: numpy array of variable shape.
     """
 
-    plt.rcParams["figure.figsize"] = (6, 8)
-
     # Use ggpot style
     plt.style.use("ggplot")
 
