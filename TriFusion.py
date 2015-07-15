@@ -465,6 +465,10 @@ class BackButton(Button):
     pass
 
 
+class StatsPlotToolbar(BoxLayout):
+    pass
+
+
 class OrtoPlotToolbar(BoxLayout):
     pass
 
@@ -1139,7 +1143,7 @@ class TriFusionApp(App):
                                   self.available_screens]
 
         # Store screen names specifically designed for plot display
-        self.plot_screens = ["group_compare", "plot", "orto_plot"]
+        self.plot_screens = ["group_compare", "plot", "orto_plot", "Statistics"]
 
         self.loaded_screens = dict((sc, None) for sc in self.available_screens)
 
@@ -1940,8 +1944,12 @@ class TriFusionApp(App):
                 self.root_window.children:
 
             # Get PlotToolbar object
-            toolbar_wgt = [x for x in self.root_window.children
-                           if isinstance(x, OrtoPlotToolbar)][0]
+            try:
+                toolbar_wgt = [x for x in self.root_window.children
+                               if isinstance(x, OrtoPlotToolbar)][0]
+            except IndexError:
+                toolbar_wgt = [x for x in self.root_window.children
+                               if isinstance(x, StatsPlotToolbar)][0]
 
             # For headless plot screens a back button is added to root_window
             if self.screen.name == "plot":
@@ -1967,32 +1975,33 @@ class TriFusionApp(App):
                         toolbar_wgt)
 
             # Check for collision with export figure or export table buttons
-            if determine_collision(toolbar_wgt.ids.export_fig):
-                collision = True
-                if "Export as graphics" not in [x.id for x in
-                                                self.root_window.children]:
-                    # Create fancy label
-                    create_fancy_label("Export as graphics",
-                                       toolbar_wgt.ids.export_fig,
-                                       line_c=(0.216, 0.67, 0.784, 1))
+            if self.screen.name != "Statistics":
+                if determine_collision(toolbar_wgt.ids.export_fig):
+                    collision = True
+                    if "Export as graphics" not in [x.id for x in
+                                                    self.root_window.children]:
+                        # Create fancy label
+                        create_fancy_label("Export as graphics",
+                                           toolbar_wgt.ids.export_fig,
+                                           line_c=(0.216, 0.67, 0.784, 1))
 
-            elif determine_collision(toolbar_wgt.ids.export_table):
-                collision = True
-                if "Export as table" not in [x.id for x in
-                                             self.root_window.children]:
-                    # Create fancy label
-                    create_fancy_label("Export as table",
-                                       toolbar_wgt.ids.export_table,
-                                       line_c=(0.216, 0.67, 0.784, 1))
+                elif determine_collision(toolbar_wgt.ids.export_table):
+                    collision = True
+                    if "Export as table" not in [x.id for x in
+                                                 self.root_window.children]:
+                        # Create fancy label
+                        create_fancy_label("Export as table",
+                                           toolbar_wgt.ids.export_table,
+                                           line_c=(0.216, 0.67, 0.784, 1))
 
-            elif determine_collision(toolbar_wgt.ids.export_group):
-                collision = True
-                if "Export group" not in [x.id for x in
-                                          self.root_window.children]:
-                    # Create fancy label
-                    create_fancy_label("Export group",
-                                       toolbar_wgt.ids.export_group,
-                                       line_c=(0.216, 0.67, 0.784, 1))
+                elif determine_collision(toolbar_wgt.ids.export_group):
+                    collision = True
+                    if "Export group" not in [x.id for x in
+                                              self.root_window.children]:
+                        # Create fancy label
+                        create_fancy_label("Export group",
+                                           toolbar_wgt.ids.export_group,
+                                           line_c=(0.216, 0.67, 0.784, 1))
 
         # Only do this in Orthology screen
         if self.screen.name == "Orthology" and self.show_side_panel is False\
@@ -2130,6 +2139,9 @@ class TriFusionApp(App):
                                    self.screen.ids.sv_mycomp,
                                    self.screen.ids.icon_view_tab)
                 self.switch_path_wgt("label")
+
+            if basename(self.available_screens[idx]) == "Statistics.kv":
+                self.show_plot_toolbar(toolbar_type="stats")
 
         return self.screen
 
@@ -4846,15 +4858,21 @@ class TriFusionApp(App):
 
     # ########################### PLOT SCREENS #################################
 
-    def show_plot_toolbar(self):
+    def show_plot_toolbar(self, toolbar_type="orto"):
         """
         Adds a PlotToolbar BoxLayout to self.root_window. This is meant to be an
         auxiliary toolbar for specific operations related to plots.
+        :param toolbar_type: string, determines whether an orto plot toolbar
+        is displayed ('orto') or a stats plot toolbar ('stats')
         """
 
-        # Determine position
-        pos = self.root.width - 50, self.root.height - 500
-        content = OrtoPlotToolbar(pos=pos)
+        if toolbar_type == "orto":
+            # Determine position
+            pos = self.root.width - 50, self.root.height - 500
+            content = OrtoPlotToolbar(pos=pos)
+        else:
+            pos = self.root.width - 50, self.root.height - 450
+            content = StatsPlotToolbar(pos=pos)
 
         self.root_window.add_widget(content)
 
@@ -6621,7 +6639,7 @@ class TriFusionApp(App):
         self.stats_plot = plt_method[plt_idx][0](dest=self.temp_dir)
 
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
-                       self.screen.ids.stats_scatter)
+                            self.screen.ids.plot_content)
 
     # ##################################
     #
