@@ -2096,6 +2096,11 @@ class TriFusionApp(App):
             if self.screen_names[idx] not in self.plot_screens:
                 self.dismiss_plot_wgt()
 
+            # Romves old toolbar when switching directly from orto plot widget
+            # to Statistics
+            if self.screen_names[idx] == "Statistics":
+                self.dismiss_plot_wgt()
+
         self.index = idx
 
         # Precludes a transition if the current screen is the same as the
@@ -4961,7 +4966,9 @@ class TriFusionApp(App):
 
         try:
             for wgt in [x for x in self.root_window.children if
-                   isinstance(x, OrtoPlotToolbar) or isinstance(x, BackButton)]:
+                        isinstance(x, OrtoPlotToolbar) or
+                        isinstance(x, BackButton) or
+                        isinstance(x, StatsPlotToolbar)]:
                 self.root_window.remove_widget(wgt)
         except IndexError:
             pass
