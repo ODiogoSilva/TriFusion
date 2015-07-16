@@ -465,6 +465,14 @@ class BackButton(Button):
     pass
 
 
+class ProjectOrtoBt(Button):
+    pass
+
+
+class ProjectProcBt(Button):
+    pass
+
+
 class StatsPlotToolbar(BoxLayout):
     pass
 
@@ -868,6 +876,7 @@ class TriFusionApp(App):
     temp_dir = StringProperty()
     log_file = StringProperty()
     bm_file = StringProperty()
+    projects_file = StringProperty()
 
     # Getting current directory to fetch the screen kv files
     cur_dir = dirname(__file__)
@@ -1129,6 +1138,8 @@ class TriFusionApp(App):
         self.temp_dir = join(self.user_data_dir, "tmp")
         self.log_file = join(self.user_data_dir, "log", "error.out")
         self.bm_file = join(self.user_data_dir, "bookmarks")
+        self.projects_file = join(self.user_data_dir, "projects")
+
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG,)
 
         # Setting available screens
@@ -1174,6 +1185,9 @@ class TriFusionApp(App):
 
         # Initialize operation queue treeview in side panel
         self.operation_queue_init()
+
+        # Initialize projects
+        self.projects_init()
 
         # Set schedule for mouse over events on side panel
         Clock.schedule_interval(lambda x: self._on_mouseover_tabs(), .1)
@@ -2848,7 +2862,7 @@ class TriFusionApp(App):
                 self.original_tx_inf = self.get_taxa_information()
 
                 # Issue float check
-                if selection:
+                if selection and self.root_window:
                     self.dialog_floatcheck("%s file(s) successfully loaded" %
                                            len(selection), t="info")
 
@@ -3191,9 +3205,12 @@ class TriFusionApp(App):
 
         # Remove initial disabled button, if it's still there
         if "partition_temp" in self.root.ids.keys():
-            self.root.ids.partition_sl.remove_widget(
-                self.root.ids.partition_temp)
-            del self.root.ids["partition_temp"]
+            try:
+                self.root.ids.partition_sl.remove_widget(
+                    self.root.ids.partition_temp)
+                del self.root.ids["partition_temp"]
+            except ReferenceError:
+                pass
 
         for partition, fls in self.alignment_list.partitions.iter_files():
 
@@ -3931,6 +3948,11 @@ class TriFusionApp(App):
         self.file_list = []
         self.active_file_list.clear()
         self.sequence_types.clear()
+        self.MAX_FILE_BUTTON = 20
+        self.MAX_PARTITION_BUTTON = 20
+        self.mouse_over_bts.clear()
+        self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
+        self.previous_mouse_over = ""
 
     def remove_all_groups(self):
         """
@@ -4664,6 +4686,161 @@ class TriFusionApp(App):
         # Update gridlayout height
         grid_layout.height += 40
 
+    def projects_init(self):
+        """
+        Initializes the projects attribute
+        """
+
+        if os.path.exists(self.projects_file):
+
+            with open(self.projects_file, "rb") as projects_fh:
+                projects_dic = pickle.load(projects_fh)
+
+                # Populate sidepanel
+                for name, p in projects_dic.items():
+                    project_grid = self.root.ids.project_grid
+                    self.add_project_bt(name, p[1], project_grid)
+
+                    if "home_projects_grid" in self.screen.ids:
+                        project_grid = self.screen.ids.home_projects_grid
+                        self.add_project_bt(name, p[1], project_grid)
+
+        # This handles cases where the projects file has
+        # not been populated yet
+        else:
+            projects_dic = {}
+            with open(self.projects_file, "wb") as projects_fh:
+                pickle.dump(projects_dic, projects_fh)
+
+    def save_project(self, name):
+        """
+        Saves the current alignment_list or proteome_list for quick access to
+        the data sets. It automatically detects whether the current data set
+        is from the orthology or process modules.
+
+        :param name: string, name of the project
+        """
+
+        # Get projects var
+        with open(self.projects_file, "rb") as projects_fh:
+            projects_dic = pickle.load(projects_fh)
+
+        # Check for project name duplicates
+        if name in projects_dic:
+            return self.dialog_floatcheck("WARNING: Project with the same name"
+                                          "is already present", t="error")
+
+        with open(self.projects_file, "wb") as projects_fh:
+            if self.file_list:
+                projects_dic[name] = [self.file_list, "process"]
+                pickle.dump(projects_dic, projects_fh)
+                ds_type = "process"
+
+            else:
+                projects_dic[name] = [self.proteome_files, "orthology"]
+                pickle.dump(projects_dic, projects_fh)
+                ds_type = "orthology"
+
+        project_grid = self.root.ids.project_grid
+        self.add_project_bt(name, ds_type, project_grid)
+
+        if "home_projects_grid" in self.screen.ids:
+            project_grid = self.screen.ids.home_projects_grid
+            self.add_project_bt(name, ds_type, project_grid)
+
+    def add_project_bt(self, name, ds_type, grid_wgt):
+        """
+        Wrapper that adds a project button to the sidepanel
+        :param name: string, name of the project
+        :param ds_type: string, type of dataset. Can be either 'orthology'
+        or 'process'
+        """
+
+        if len(grid_wgt.children) == 1:
+            grid_wgt.clear_widgets()
+
+        if ds_type == "orthology":
+            ds_bt = ProjectOrtoBt(id=name)
+        else:
+            ds_bt = ProjectProcBt(id=name)
+
+        bt = TFButton(text=name, size_hint_y=None, height=35, bold=True,
+                      id=name)
+
+        if ds_bt == "orthology":
+            pass
+        else:
+            bt.bind(on_release=lambda x: self.open_project(name))
+
+        rm_bt = Button(size_hint=(None, None), size=(35, 35),
+                       id=name, border=(0, 0, 0, 0),
+                       background_normal=join("data", "backgrounds",
+                                              "remove_bt35.png"),
+                       background_down=join("data", "backgrounds",
+                                            "remove_bt35_down.png"))
+        rm_bt.bind(on_release=partial(self.check_action,
+                                      "Are you sure you want to remove this"
+                                      " project?",
+                                      self.remove_project))
+
+        for i in [ds_bt, bt, rm_bt]:
+            grid_wgt.add_widget(i)
+
+    def remove_project(self, wgt):
+        """
+        Gives functionality to the remove project button
+        :param wgt: remove button
+        """
+
+        # Remove from projects file
+        with open(self.projects_file, "rb") as project_fh:
+            project_dic = pickle.load(project_fh)
+
+        del project_dic[wgt.id]
+
+        with open(self.projects_file, "wb") as project_fh:
+            pickle.dump(project_dic, project_fh)
+
+        # Remove from sidepanel
+        for i in [bt for bt in self.root.ids.project_grid.children
+                  if bt.id == wgt.id]:
+            self.root.ids.project_grid.remove_widget(i)
+
+        if len(self.root.ids.project_grid.children) == 0:
+            self.root.ids.project_grid.add_widget(Button(
+                text="No Saved Projects", disabled=True, size_hint_y=None,
+                height=35))
+
+        # Remove from home screen, if present
+        if "home_projects_grid" in self.screen.ids:
+            for i in [bt for bt in self.screen.ids.home_projects_grid.children
+                      if bt.id == wgt.id]:
+                self.screen.ids.home_projects_grid.remove_widget(i)
+
+            if len(self.screen.ids.home_projects_grid.children) == 0:
+                self.screen.ids.home_projects_grid.add_widget(Button(
+                    text="No Saved Projects", disabled=True, size_hint_y=None,
+                    height=35))
+
+    def open_project(self, name):
+        """
+        Closes the current data set and opens the project identified by name
+        :param name: string, name of the project
+        """
+
+        with open(self.projects_file, "rb") as projects_fh:
+            project_dic = pickle.load(projects_fh)
+
+        if name in project_dic:
+            if project_dic[name][1] == "process":
+                # Closes current data set
+                self.remove_all()
+                # Opens new dataset
+                self.load_files_subproc(project_dic[name][0])
+
+            if project_dic[name][1] == "orthology":
+                pass
+
     def statistics_populate_groups(self, ds_type):
         """
         This method is called when the dataset selection buttons in the
@@ -4698,7 +4875,6 @@ class TriFusionApp(App):
                                                       "spinner_opt.png"))
                 dd_bt.bind(on_release=lambda x: dd_wgt.select(g))
                 dd_wgt.add_widget(dd_bt)
-
 
     def dialog_general_info(self, idx):
         """
@@ -6456,6 +6632,7 @@ class TriFusionApp(App):
             content = TextDialog(cancel=self.dismiss_subpopup)
         else:
             content = TextDialog(cancel=self.dismiss_popup)
+
         content.text = idx
 
         if idx == "haplotype":
@@ -6787,7 +6964,7 @@ class TriFusionApp(App):
         func = partial(check_proc, d)
         Clock.schedule_interval(func, .1)
 
-    def load_files(self, selection, aln_list):
+    def load_files(self, selection=None, aln_list=None):
         """
         Loads the selected input files into the program using the
         AlignmentList object. If there are invalid alignment objects in the

@@ -114,6 +114,25 @@
                 rectangle: root.x,root.y,root.width,root.height
 
 
+<ProjectOrtoBt>:
+    size_hint: None, None
+    size: 35, 35
+    text: "O"
+    bold: True
+    disabled: True
+    disabled_color: 1,1,1,1
+    background_disabled_normal: "data/backgrounds/check_ok.png"
+
+<ProjectProcBt>:
+    size_hint: None, None
+    size: 35, 35
+    text: "P"
+    bold: True
+    disabled: True
+    disabled_color: 1,1,1,1
+    background_disabled_normal: "data/backgrounds/bt_process.png"
+
+
 <CrunchData>:
     orientation: "vertical"
     AnchorLayout:
@@ -3168,6 +3187,8 @@
                 app.create_folder(txt_dlg.text)
                 elif root.text == "files" or root.text == "taxa": \
                 app.save_dataset_group(None, txt_dlg.text, root.text, True)
+                elif root.text == "project": \
+                app.save_project(txt_dlg.text)
                 else: \
                 app.save_text(txt_dlg.text, root.text)
                 root.cancel()
@@ -4676,6 +4697,18 @@ FloatLayout:
                                 height: 60
                                 width: 60
                                 text: " "
+                                background_down: "data/backgrounds/side_bt_project_down.png"
+                                background_normal: "data/backgrounds/side_bt_project.png"
+                                background_disabled_down: "data/backgrounds/side_bt_project_down.png"
+                                att: "Project Management"
+                                on_release:
+                                    carousel.load_slide(carousel.slides[2])
+                                    app.toggle_groups(self)
+                            SideButton:
+                                size_hint: (None, None)
+                                height: 60
+                                width: 60
+                                text: " "
                                 background_down: "data/backgrounds/side_bt_queue_down.png"
                                 background_normal: "data/backgrounds/side_bt_queue.png"
                                 background_disabled_down: "data/backgrounds/side_bt_queue_down.png"
@@ -4683,7 +4716,7 @@ FloatLayout:
                                 att: "Operations Queue"
                                 on_release:
                                     app.save_operation_queue()
-                                    carousel.load_slide(carousel.slides[2])
+                                    carousel.load_slide(carousel.slides[3])
                                     app.toggle_groups(self)
                             Widget:
                                 size_hint_y: .8
@@ -5434,6 +5467,75 @@ FloatLayout:
                                                     background_down: "data/backgrounds/bt_process_off.png"
                                                     on_release:
                                                         app.dialog_dataset_creator("taxa")
+
+                            BoxLayout:
+                                orientation: "vertical"
+                                padding: 10
+                                spacing: 5
+                                canvas.before:
+                                    Color:
+                                        rgba: (0.180, 0.180, 0.180, .8)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+                                Label:
+                                    size_hint_y: .1
+                                    text: "Project Management"
+                                    font_size: 18
+                                    halign: "center"
+                                    valign: "middle"
+                                    text_size: self.size
+                                    bold: True
+                                    canvas.before:
+                                        Color:
+                                            rgba: .35, .35, .35, 1
+                                        Rectangle:
+                                            pos: self.pos
+                                            size: self.size
+                                Hseparator
+
+                                BoxLayout:
+                                    size_hint_y: None
+                                    height: 45
+                                    padding: 5
+
+                                    ProjectOrtoBt
+
+                                    Label:
+                                        bold: True
+                                        font_size: 12
+                                        text: "Orthology project"
+
+                                    ProjectProcBt
+
+                                    Label:
+                                        bold: True
+                                        font_size: 12
+                                        text: "Process project"
+
+                                Hseparator
+
+                                GridLayout:
+                                    cols: 3
+                                    spacing: 5, 5
+                                    id: project_grid
+                                    Button:
+                                        text: "No Saved Projects"
+                                        bold: True
+                                        disabled: True
+                                        size_hint_y: None
+                                        height: 35
+
+                                Button:
+                                    size_hint_y: None
+                                    height: 40
+                                    text: "Save current project"
+                                    bold: True
+                                    disabled: True if not app.filename_map else False
+                                    background_normal: "data/backgrounds/bt_process.png"
+                                    background_down: "data/backgrounds/bt_process_off.png"
+                                    on_release:
+                                        app.dialog_text("Project name", "project")
 
                             BoxLayout:
                                 orientation: "vertical"
