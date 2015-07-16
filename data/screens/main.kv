@@ -4,10 +4,13 @@ ShowcaseScreen:
     # The initial home screen could be a FloatLayout that contains drawn
     # arrows and text (images) with information on what each button does
 
-    FloatLayout
+    BoxLayout:
+        orientation: "vertical"
+        padding: 30
+        spacing: 10
         BoxLayout:
-            pos: 0, 510
-            padding: 30
+            size_hint_y: None
+            height: 80
             Label:
                 markup: True
                 color: .7, .7, .7, .7
@@ -15,7 +18,102 @@ ShowcaseScreen:
                 valign: "bottom"
                 halign: "left"
                 text_size: self.size
-                text: "[size=40]Welcome to TriFusion[/size]\n[size=20]Streamlining phylogenomic analysis[/size]"
+                text: "[size=40]Welcome to TriFusion[/size]\n[size=20]Streamlining phylogenomic analyses[/size]"
 
+        AnchorLayout:
+            anchor_x: "center"
+            anchor_y: "center"
+            BoxLayout:
+                size_hint: None, None
+                size: 450,350
+                orientation: "vertical"
+                id: project_bx
+                StackLayout:
+                    size_hint_y: None
+                    height: 0
+                    canvas.after:
+                        Color:
+                            rgba: (0.216, 0.67, 0.784, 1)
+                        Line:
+                            width: 1.1
+                            cap: "round"
+                            joint: "round"
+                            rectangle: project_bx.x,project_bx.y,project_bx.width,project_bx.height
+                BoxLayout:
+                    size_hint_y: None
+                    height: 40
+                    canvas.before:
+                        Color:
+                            rgba: (0.216, 0.67, 0.784, 1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    Label:
+                        markup: True
+                        text: "Quick Open Project"
+                        bold: True
+                        font_size: 20
+
+                GridLayout:
+                    cols: 2
+                    padding: 10
+                    Button:
+                        disabled: True
+                        text: "No saved projects"
+                        bold: True
+                        size_hint_y: None
+                        height: 50
+
+#        BoxLayout:
+#            BoxLayout:
+#                padding: 10
+#                id: orto_overview
+#                orientation: "vertical"
+#                size_hint_y: .7
+#                StackLayout:
+#                    size_hint_y: None
+#                    height: 0
+#                    canvas.after:
+#                        Color:
+#                            rgb: (211/255, 70/255, 70/255, 1)
+#                        Line:
+#                            width: 0.8
+#                            cap: "round"
+#                            joint: "round"
+#                            rectangle: orto_overview.x,orto_overview.y,orto_overview.width,orto_overview.height
+#                Label:
+#                    markup: True
+#                    bold: True
+#                    size_hint_y: None
+#                    height: 35
+#                    text: "[size=30]Orthology[/size]"
+#                    halign: "left"
+#                    valign: "middle"
+#                    text_size: self.size
+#                    color: (211/255, 70/255, 70/255, 1)
+#                Widget
+#            BoxLayout:
+#        BoxLayout:
+#            id: process_overview
+#            StackLayout:
+#                canvas.after:
+#                    Color:
+#                        rgb: (0, 84/255, 210/255, 1)
+#                    Line:
+#                        width: 0.8
+#                        cap: "round"
+#                        joint: "round"
+#                        rectangle: process_overview.x,process_overview.y,process_overview.width,process_overview.height
+#        BoxLayout:
+#            id: stats_overview
+#            StackLayout:
+#                canvas.after:
+#                    Color:
+#                        rgb: (111/255, 179/255, 49/255, 1)
+#                    Line:
+#                        width: 0.8
+#                        cap: "round"
+#                        joint: "round"
+#                        rectangle: stats_overview.x,stats_overview.y,stats_overview.width,stats_overview.height
 
 
