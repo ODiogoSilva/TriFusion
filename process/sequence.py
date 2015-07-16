@@ -1139,6 +1139,7 @@ class AlignmentList(Base):
         self.partitions = Partitions()
         self.filename_list = []
         self.taxa_names = []
+        self.non_alignments = []
 
     def update_active_alignments(self, aln_list):
         """
