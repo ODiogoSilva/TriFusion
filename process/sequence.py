@@ -454,7 +454,7 @@ class Alignment (Base):
             inverse(taxa_list)
 
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
-                 haplotype_name="Hap"):
+                 haplotype_name="Hap", dest="./"):
         """
         Collapses equal sequences into haplotypes. This method changes
         the alignment variable and only returns a dictionary with the
@@ -486,20 +486,21 @@ class Alignment (Base):
 
         if write_haplotypes is True:
             # If no output file for the haplotype correspondence is provided,
-            #  use the input alignment name as reference
+            # use the input alignment name as reference
             if haplotypes_file is None:
                 haplotypes_file = self.name.split(".")[0]
-            self.write_loci_correspondence(correspondence_dic, haplotypes_file)
+            self.write_loci_correspondence(correspondence_dic, haplotypes_file,
+                                           dest)
 
     @staticmethod
-    def write_loci_correspondence(dic_obj, output_file):
+    def write_loci_correspondence(dic_obj, output_file, dest="./"):
         """
         This function supports the collapse method by writing the
         correspondence between the unique haplotypes and the loci into a
         new file
         """
 
-        output_handle = open(output_file + ".haplotypes", "w")
+        output_handle = open(join(dest, output_file + ".haplotypes"), "w")
 
         for haplotype, taxa_list in dic_obj.items():
             output_handle.write("%s: %s\n" % (haplotype, "; ".join(taxa_list)))
