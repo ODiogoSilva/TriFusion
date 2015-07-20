@@ -291,7 +291,8 @@ def process_execution(**kwargs):
             if kwargs["secondary_options"]["collapse_file"]:
                 collapsed_aln_obj = deepcopy(aln_object)
                 collapsed_aln_obj.collapse(haplotype_name=kwargs["hap_prefix"],
-                                           haplotypes_file="_collapsed")
+                                           haplotypes_file="_collapsed",
+                                           dest=kwargs["output_dir"])
                 write_aln[kwargs["output_file"] + "_collapsed"] = \
                     collapsed_aln_obj
             else:
