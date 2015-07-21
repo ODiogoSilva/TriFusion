@@ -98,12 +98,12 @@ ShowcaseScreen:
                             spacing: 10
                             ProcessBt:
                                 id: active_file_set
-                                text: "All files"
+                                text: "Active files"
                                 on_release: app.statistics_populate_groups("files"); file_dropdown.open(self)
 
                             ProcessBt:
                                 id: active_taxa_set
-                                text: "All taxa"
+                                text: "Active taxa"
                                 on_release: app.statistics_populate_groups("taxa"); taxa_dropdown.open(self)
 
                             DropDown:
