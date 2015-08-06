@@ -943,9 +943,9 @@ class TriFusionApp(App):
     main_nodes = DictProperty()
 
     # Attributes containing plot related elements
-    current_plot = ObjectProperty(None)
+    current_plot = None
     current_lgd = None
-    current_table = ObjectProperty(None)
+    current_table = None
 
     # Attributes for storing taxa and file buttons for side panel. These will
     # be used when search for files/taxa and for loading only button subsets
@@ -2283,7 +2283,7 @@ class TriFusionApp(App):
         second_func
         """
 
-        def check_process_status(p, second_function, args, dt):
+        def check_process_status(p, second_function, args, manager, dt):
             """
             This scheduled function will check the status of the second process.
             When finished, it will dismiss the waiting popup, get the value
@@ -2303,6 +2303,10 @@ class TriFusionApp(App):
                 val = shared_ns.val
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
+
+                manager.shutdown()
+                p.terminate()
+
                 # Checks if there is a second function to run and whether there
                 # are additional arguments for secondary function
                 if not no_arg2:
@@ -2331,7 +2335,7 @@ class TriFusionApp(App):
 
         # Schedule function that checks the process' pulse
         check_func = partial(check_process_status, second_process, second_func,
-                             args2)
+                             args2, manager)
         Clock.schedule_interval(check_func, .5)
 
     # ###################### BOOKMARKS OPERATIONS ##############################
