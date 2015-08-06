@@ -156,8 +156,6 @@ def main_parser(alignment_list):
     """ Function with the main operations of TriSeq """
 
     # Defining main variables
-    #gap = arg.gap
-    #missing_sym = arg.missing
     conversion = arg.conversion
     output_format = arg.output_format
     outfile = arg.outfile
