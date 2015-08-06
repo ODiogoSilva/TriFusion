@@ -743,6 +743,8 @@ class Alignment (Base):
         # written there
         if output_dir:
             output_file = join(output_dir, output_file)
+        else:
+            output_file = join("./", output_file)
 
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
@@ -1104,6 +1106,7 @@ class AlignmentList(Base):
                     c += 1
 
                 alignment_object = Alignment(alignment)
+
                 # Check for badly formatted alignments
                 if isinstance(alignment_object.alignment, InputError):
                     self.bad_alignments.append(alignment_object.path)
