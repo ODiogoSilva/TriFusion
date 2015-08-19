@@ -223,18 +223,17 @@ def main_parser(alignment_list):
             # In case multiple files are to be converted and an alignment
             # filter is to be carried out
             if arg.filter is not None:
-                alignments.filter_missing_data(arg.filter[0], arg.filter[1],
-                                               verbose=True)
+                alignments.filter_missing_data(arg.filter[0], arg.filter[1])
 
             # In case taxa are to be removed while converting
             if arg.remove is not None:
                 if arg.quiet is False:
-                    alignments.remove_taxa(arg.remove, verbose=True)
+                    alignments.remove_taxa(arg.remove)
                 else:
                     alignments.remove_taxa(arg.remove)
             if arg.grep is not None:
                 if arg.quiet is False:
-                    alignments.remove_taxa(arg.grep, verbose=True,
+                    alignments.remove_taxa(arg.grep,
                                            mode="inverse")
                 else:
                     alignments.remove_taxa(arg.grep, mode="inverse")
