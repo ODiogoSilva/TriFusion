@@ -159,13 +159,6 @@ class GroupLight:
         self.name = os.path.abspath(groups_file)
         self.table = groups_file.split(os.sep)[-1].split(".")[0]
 
-        # if os.path.exists(sql_db):
-        #     os.remove(sql_db)
-        #
-        # self.c = sqlite3.connect(sql_db).cursor()
-        # self.c.execute("CREATE TABLE {}(cl_name, seq, sp_freq)".
-        #                format(self.table))
-
         # Initialize atribute containing the groups filtered using the gene and
         # species threshold. This attribute can be updated at any time using
         # the update_filtered_group method
