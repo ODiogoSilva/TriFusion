@@ -445,7 +445,7 @@ class Alignment (Base):
             taxa_list = self.read_basic_csv(file_handle)
 
         # If not, then the method's argument is already the final list
-        except (FileNotFoundError, IndexError):
+        except (NameError, IndexError):
             taxa_list = taxa_list_file
 
         if mode == "remove":
