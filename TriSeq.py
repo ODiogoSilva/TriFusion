@@ -218,7 +218,7 @@ def main_parser(alignment_list):
             alignments.write_taxa_to_file()
             return 0
 
-        if conversion is not None:
+        if conversion:
 
             # In case multiple files are to be converted and an alignment
             # filter is to be carried out
@@ -227,22 +227,16 @@ def main_parser(alignment_list):
 
             # In case taxa are to be removed while converting
             if arg.remove is not None:
-                if arg.quiet is False:
-                    alignments.remove_taxa(arg.remove)
-                else:
-                    alignments.remove_taxa(arg.remove)
+                alignments.remove_taxa(arg.remove)
+
             if arg.grep is not None:
-                if arg.quiet is False:
-                    alignments.remove_taxa(arg.grep,
-                                           mode="inverse")
-                else:
-                    alignments.remove_taxa(arg.grep, mode="inverse")
+                alignments.remove_taxa(arg.grep, mode="inverse")
 
             alignments.write_to_file(output_format, interleave=interleave,
                                      outgroup_list=outgroup_taxa)
             return 0
 
-        elif arg.select is not None:
+        elif arg.select:
             print("\rSelecting alignments", end="")
 
             if not os.path.exists("Taxa_selection"):
