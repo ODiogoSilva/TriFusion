@@ -1113,6 +1113,8 @@ class AlignmentList(Base):
                 elif isinstance(alignment_object.alignment,
                                 AlignmentUnequalLength):
                     self.non_alignments.append(alignment_object.path)
+                    print("Warning: Sequences of unequal length detected")
+
                 # Check for duplicate alignments
                 elif alignment_object.path in [x.path for x in
                                              self.alignments.values()]:
@@ -1455,7 +1457,11 @@ class AlignmentList(Base):
 
         # Updates taxa names
         for tx in taxa_list:
-            self.taxa_names.remove(tx)
+            try:
+                self.taxa_names.remove(tx)
+            except ValueError:
+                # TODO: log a warning
+                pass
 
     def remove_file(self, filename_list):
         """
@@ -1626,10 +1632,11 @@ class AlignmentList(Base):
 
             if alignment_obj.input_format in output_format:
                 output_file_name = alignment_obj.name.split(".")[0] \
-                    + output_suffix + "_conv"
+                                   + output_suffix + "_conv"
             else:
                 output_file_name = alignment_obj.name.split(".")[0] + \
-                    output_suffix
+                                   output_suffix
+
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
                                         interleave=interleave,
