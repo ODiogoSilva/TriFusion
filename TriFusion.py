@@ -6548,6 +6548,10 @@ class TriFusionApp(App):
         Generates the dialog for Process execution
         """
 
+        if not self.active_file_list:
+            return self.dialog_floatcheck("ERROR: No input files were loaded"
+                                          " or are active", t="error")
+
         content = ExecutionDialog(cancel=self.dismiss_popup)
         aln_obj = update_active_fileset(self.alignment_list,
                                 self.process_grid_wgt.ids.active_file_set.text,
