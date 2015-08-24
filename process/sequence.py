@@ -1478,8 +1478,6 @@ class AlignmentList(Base):
                 del self.shelve_alignments[nm]
             self.partitions.remove_partition(file_name=nm_path)
 
-        print(self.alignments)
-
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
 
