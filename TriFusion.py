@@ -6915,13 +6915,18 @@ class TriFusionApp(App):
 
         :param plt_idx: string, identification string of the plot. Usually is
         the text property of the issuing button.
-
         """
+
+        if not self.active_file_list:
+            return self.dialog_floatcheck("ERROR: No input files were loaded"
+                                          " or are active", t="error")
 
         self.run_in_background(func=get_stats_data,
                                second_func=self.stats_write_plot,
                                args1=[self.alignment_list, plt_idx],
                                args2=[plt_idx])
+
+        self.toggle_stats_panel()
 
     # ##################################
     #
