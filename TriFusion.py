@@ -6879,9 +6879,15 @@ class TriFusionApp(App):
                     return
                 else:
                     active_gl.clear_widgets()
+                    Animation(height=5, d=.32, t="in_quad").start(active_gl)
                     active_gl.active_grid = False
 
-        transfer_wgts(wgts[idx][1], wgts[idx][0])
+        # Update sink grid height
+        gl_height = sum(x.height + 10 for x in wgts[idx][1]) + 5
+        Animation(height=gl_height, d=.32, t="in_quad").start(wgts[idx][0])
+
+        Clock.schedule_once(lambda x: transfer_wgts(wgts[idx][1], wgts[idx][0]),
+                            .32)
 
     def stats_write_plot(self, data, plt_idx):
         """
