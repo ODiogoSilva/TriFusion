@@ -375,6 +375,14 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
 
 
 def get_stats_data(aln_obj, stats_idx):
+    """
+    Given an aln_obj, this function will execute the according method to
+    generate plot data
+
+    :param aln_obj: AlignmentObject
+    :param stats_idx: string, identifier that maps to an AlignmentObject method
+    :return: data for plot production
+    """
 
     if stats_idx == "Gene occupancy":
         plot_data = aln_obj.gene_occupancy()

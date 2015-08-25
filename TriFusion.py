@@ -6884,6 +6884,16 @@ class TriFusionApp(App):
         transfer_wgts(wgts[idx][1], wgts[idx][0])
 
     def stats_write_plot(self, data, plt_idx):
+        """
+        Provided with the data structure and a plt_idx string identifier, this
+        function will create the plot file and app variable, and load it into
+        the Statistics screen.
+
+        :param data: list/np array, data structure to be used in plot
+        construction
+        :param plt_idx: string, identification string of the plot. Usually is
+        the text property of the issuing button.
+        """
 
         plt_method = {"Gene occupancy": [interpolation_plot,
                                          "gene_occupancy.png"]}
@@ -6898,11 +6908,14 @@ class TriFusionApp(App):
 
     def stats_show_plot(self, plt_idx):
         """
-        Loads a plot into the Statistics screen.
+        Wrapper that executes plot data gathering and execution. The method
+        that gathers the data for plot production runs in the background. Once
+        it's finished, that data is feeded to the stats_write_plot method that
+        will create the plot file and load it into the program.
 
-        :param plt_idx: string, id of the plot in the plt_method to issue the
-        appropriate method.
-        :return:
+        :param plt_idx: string, identification string of the plot. Usually is
+        the text property of the issuing button.
+
         """
 
         self.run_in_background(func=get_stats_data,
