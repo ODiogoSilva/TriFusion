@@ -1660,12 +1660,12 @@ class AlignmentList(Base):
         data = np.transpose(data)
         data = np.sort(data)
 
-        iplt = interpolation_plot(data)
+        # iplt = interpolation_plot(data)
+        #
+        # iplt.savefig(join(dest, output_file_name), bbox_inches="tight",
+        #              dpi=600)
 
-        iplt.savefig(join(dest, output_file_name), bbox_inches="tight",
-                     dpi=600)
-
-        return iplt
+        return data
 
 
 __author__ = "Diogo N. Silva"

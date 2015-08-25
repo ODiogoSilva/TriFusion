@@ -67,6 +67,7 @@ from ortho import protein2dna
 from process.base import Base
 from data.resources.info_data import informative_storage
 from data.resources.background_tasks import *
+from base.plotter import *
 
 # Other imports
 import os
@@ -6882,6 +6883,19 @@ class TriFusionApp(App):
 
         transfer_wgts(wgts[idx][1], wgts[idx][0])
 
+    def stats_write_plot(self, data, plt_idx):
+
+        plt_method = {"Gene occupancy": [interpolation_plot,
+                                         "gene_occupancy.png"]}
+
+        self.stats_plot = plt_method[plt_idx][0](data)
+
+        self.stats_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
+                                bbox_inches="tight", dpi=600)
+
+        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
+                       self.screen.ids.plot_content)
+
     def stats_show_plot(self, plt_idx):
         """
         Loads a plot into the Statistics screen.
@@ -6891,13 +6905,10 @@ class TriFusionApp(App):
         :return:
         """
 
-        plt_method = {"Gene occupancy": [self.alignment_list.gene_occupancy,
-                                        "gene_occupancy.png"]}
-
-        self.stats_plot = plt_method[plt_idx][0](dest=self.temp_dir)
-
-        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
-                            self.screen.ids.plot_content)
+        self.run_in_background(func=get_stats_data,
+                               second_func=self.stats_write_plot,
+                               args1=[self.alignment_list, plt_idx],
+                               args2=[plt_idx])
 
     # ##################################
     #
