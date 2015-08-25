@@ -372,3 +372,11 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
             active_group = ortho_groups.get_group(active_group_name)
 
     return [active_group]
+
+
+def get_stats_data(aln_obj, stats_idx):
+
+    if stats_idx == "Gene occupancy":
+        plot_data = aln_obj.gene_occupancy()
+
+    return [plot_data]
