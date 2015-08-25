@@ -224,12 +224,10 @@ def interpolation_plot(data):
 
     fig, ax = plt.subplots()
 
-    ax.yaxis.grid([])
-    ax.xaxis.grid([])
-    plt.yticks([])
-    plt.xticks([])
+    # Setting the aspect ratio proportional to the data
+    ar = len(data[0]) / 300
 
-    ax.imshow(data, interpolation="none", cmap="Greys")
+    ax.imshow(data, interpolation="none", cmap="Greys", aspect=ar)
 
     return plt
 
