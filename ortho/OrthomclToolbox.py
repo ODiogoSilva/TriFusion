@@ -240,22 +240,6 @@ class GroupLight:
             # Update species frequency list
             sp_freq = Counter((x.split("|")[0] for x in
                                                    sequence_field.split()))
-            #
-            # self.species_list.extend([x for x in sp_freq if x not in
-            #                           self.species_list])
-            #
-            # self.c.execute("INSERT INTO {} VALUES(?, ?, ?)".
-            #                format(self.table), (cl_name, sequence_field,
-            #                                     str(sp_freq)))
-            #
-            # if self.species_threshold and self.gene_threshold:
-            #     filt = self._get_compliance(sp_freq)
-            #     if filt == (1, 1):
-            #         self.all_compliant += 1
-            #     elif filt == (1, 0):
-            #         self.num_gene_compliant += 1
-            #     elif filt == (0, 1):
-            #         self.num_species_compliant += 1
 
             self.species_frequency.append(sp_freq)
 
