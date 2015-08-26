@@ -474,6 +474,11 @@ class ProjectProcBt(Button):
     pass
 
 
+class StatsToggleWgt(BoxLayout):
+    avg_func = ObjectProperty(None)
+    sp_func = ObjectProperty(None)
+
+
 class StatsPlotToolbar(BoxLayout):
     pass
 
@@ -1992,6 +1997,23 @@ class TriFusionApp(App):
                 if toolbar_wgt.opacity == 1:
                     Animation(opacity=.2, d=.3, t="out_quart").start(
                         toolbar_wgt)
+
+            if self.screen.name == "Statistics":
+
+                try:
+                    toggle_wgt = [x for x in self.root_window.children
+                                  if isinstance(x, StatsToggleWgt)][0]
+                    if determine_collision(toggle_wgt):
+                        if toggle_wgt.opacity != 1:
+                            Animation(opacity=1, d=.3, t="out_quart").\
+                                start(toggle_wgt)
+                    else:
+                        if toggle_wgt.opacity == 1:
+                            Animation(opacity=.2, d=.3, t="out_quart").\
+                                start(toggle_wgt)
+                except IndexError:
+                    pass
+
 
             # Check for collision with export figure or export table buttons
             if self.screen.name != "Statistics":
@@ -5113,6 +5135,20 @@ class TriFusionApp(App):
 
     # ########################### PLOT SCREENS #################################
 
+    def show_stats_toggle(self, avg_func, args1, sp_func, args2):
+        """
+        Adds a toggle widget to some Statistics plots that allow the user to
+        toggle plots between the whole data set and species perspectives
+        """
+
+        pos = self.root.width - 250, self.root.height - 120
+
+        content = StatsToggleWgt(pos=pos, avg_func=avg_func, sp_func=sp_func)
+        content.args1 = args1
+        content.args2 = args2
+
+        self.root_window.add_widget(content)
+
     def show_plot_toolbar(self, toolbar_type="orto"):
         """
         Adds a PlotToolbar BoxLayout to self.root_window. This is meant to be an
@@ -5143,6 +5179,18 @@ class TriFusionApp(App):
 
         self.root_window.add_widget(bt)
 
+    def dismiss_stats_toggle(self):
+        """
+        Removes the stats toggle widget
+        """
+
+        try:
+            wgt = [x for x in self.root_window.children if
+                   isinstance(x, StatsToggleWgt)][0]
+            self.root_window.remove_widget(wgt)
+        except IndexError:
+            pass
+
     def dismiss_plot_wgt(self):
         """
         Removes plot widgets from the root window
@@ -5152,7 +5200,8 @@ class TriFusionApp(App):
             for wgt in [x for x in self.root_window.children if
                         isinstance(x, OrtoPlotToolbar) or
                         isinstance(x, BackButton) or
-                        isinstance(x, StatsPlotToolbar)]:
+                        isinstance(x, StatsPlotToolbar) or
+                        isinstance(x, StatsToggleWgt)]:
                 self.root_window.remove_widget(wgt)
         except IndexError:
             pass
@@ -6834,20 +6883,21 @@ class TriFusionApp(App):
 
     # ######################### STATISTICS SCREEN ##############################
 
-    def toggle_stats_panel(self):
+    def toggle_stats_panel(self, force_close=None, force_open=None):
         """
         Controls the animation of the statistics panel
         """
 
         expanded_width = 400
 
-        if self.screen.ids.stats_panel.width == expanded_width:
+        if self.screen.ids.stats_panel.width == expanded_width and \
+                not force_open:
             self.sidepanel_animation(width=0,
                                      wgt=self.screen.ids.stats_panel)
             self.sidepanel_animation(width=40,
                                      wgt=self.screen.ids.sidepanel_container)
 
-        else:
+        elif self.screen.ids.stats_panel.width == 0 and not force_close:
             self.sidepanel_animation(width=expanded_width,
                                      wgt=self.screen.ids.stats_panel)
             self.sidepanel_animation(width=expanded_width + 40,
@@ -6908,12 +6958,21 @@ class TriFusionApp(App):
         the text property of the issuing button.
         """
 
+        # Dismiss stats toggle widget, if present
+        self.dismiss_stats_toggle()
+
         plt_method = {"Gene occupancy": [interpolation_plot,
                                          "gene_occupancy.png"],
                       "Distribution of missing data": [stacked_bar_plot,
                                          "missing_data_distribution.png"],
                       "Distribution of missing orthologs": [bar_plot,
                                          "missing_gene_distribution.png"]}
+
+        # Dict of plt_idx identifiers that will trigger the stats toggle widget
+        stats_compliant = {}
+
+        if plt_idx in stats_compliant:
+            self.show_stats_toggle(**stats_compliant[plt_idx])
 
         self.stats_plot, self.current_lgd = plt_method[plt_idx][0](**plot_data)
 
@@ -6943,7 +7002,7 @@ class TriFusionApp(App):
                                args1=[self.alignment_list, plt_idx],
                                args2=[plt_idx])
 
-        self.toggle_stats_panel()
+        self.toggle_stats_panel(force_close=True)
 
     # ##################################
     #
