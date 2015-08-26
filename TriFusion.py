@@ -553,6 +553,10 @@ class OptsGrid(GridLayout):
     pass
 
 
+class SizeDistribution(TFButtonOff):
+    pass
+
+
 class GeneOccupancy(TFButtonOff):
     pass
 
@@ -6863,7 +6867,9 @@ class TriFusionApp(App):
             sink_gl.active_grid = True
 
         # Storage of Options buttons separated by major analysis types
-        wgts = {"Missing Data": [self.screen.ids.missing_data_opts,
+        wgts = {"General information": [self.screen.ids.general_information,
+                                        [SizeDistribution()]],
+                "Missing Data": [self.screen.ids.missing_data_opts,
                                  [GeneOccupancy(), MissingOrto(),
                                   MissingData()]],
                 "Polymorphism and Variation":
