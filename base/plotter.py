@@ -229,6 +229,10 @@ def interpolation_plot(data):
 
     ax.imshow(data, interpolation="none", cmap="Greys", aspect=ar)
 
+    ax.set_xlabel("Genes")
+    ax.set_ylabel("Taxa")
+    ax.grid(False)
+
     return plt
 
 
