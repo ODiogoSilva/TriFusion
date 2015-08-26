@@ -387,10 +387,13 @@ def get_stats_data(aln_obj, stats_idx):
     if stats_idx == "Gene occupancy":
         plot_data = aln_obj.gene_occupancy()
 
-    if stats_idx == "Distribution of missing data":
+    elif stats_idx == "Distribution of missing data":
         plot_data = aln_obj.missing_data_per_species()
 
-    if stats_idx == "Distribution of missing orthologs":
+    elif stats_idx == "Distribution of missing orthologs":
         plot_data = aln_obj.missing_genes_per_species()
+
+    elif stats_idx == "Distribution of sequence size":
+        plot_data = aln_obj.average_seqsize_per_species()
 
     return [plot_data]

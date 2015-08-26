@@ -1714,7 +1714,7 @@ class AlignmentList(Base):
     def missing_genes_per_species(self):
         """
         Creates data for the distribution of missing genes per species
-        :return: dictionary with arguments for ploting functions
+        :return: dictionary with arguments for plotting functions
         """
 
         data_storage = OrderedDict((taxon, 0) for taxon in self.taxa_names)
@@ -1733,6 +1733,27 @@ class AlignmentList(Base):
                 "title": "Distribution of missing genes",
                 "ax_names": [None, "Frequency"],
                 }
+
+    def average_seqsize_per_species(self):
+        """
+        Creates data for the average sequence size for each taxa
+        :return: dictionary with arguments for plotting functions
+        """
+
+        data_storage = OrderedDict((taxon, []) for taxon in self.taxa_names)
+
+        for aln in self.alignments.values():
+            for sp, seq in aln:
+                data_storage[sp].append(len(seq.replace("-", "").
+                                        replace(aln.sequence_code[1], "")))
+
+        data_storage = OrderedDict(sorted(data_storage.items(), reverse=True,
+                                   key=lambda t: np.mean(t[1])))
+
+        return {"data": list(data_storage.values()),
+                "labels": list(data_storage.keys()),
+                "title": "Sequence size distribution per species",
+                "ax_names": [None, "Size (bp)"]}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

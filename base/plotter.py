@@ -279,4 +279,64 @@ def stacked_bar_plot(data, labels, legend=None):
 
     return plt, None
 
+
+def box_plot(data, labels=None, title=None, ax_names=None):
+    """
+    Creates a boxplot from a data series
+    :param data: list, data to be plotted
+    :param labels: list, x-axis labels
+    :param title: string, plot title
+    :param ax_names: list, first element for x-axis, second for y-axis
+    """
+
+    if len(labels) > 10:
+        plt.rcParams["figure.figsize"] = (len(labels) / 3, 6)
+    else:
+        plt.rcParams["figure.figsize"] = (8, 6)
+
+    # Use ggpot style
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    plt.xticks()
+
+    bplot = ax.boxplot(data, patch_artist=True)
+
+    # Change outline color, fill color and line width of the boxes
+    for box in bplot["boxes"]:
+        box.set(color="#7570b3", linewidth=2)
+        box.set(facecolor="#1b9e77")
+
+    # Change the color and line width of the whiskers
+    for whisker in bplot["whiskers"]:
+        whisker.set(color="#7570b3", linewidth=2)
+
+    # Change color and line width of the caps
+    for cap in bplot["caps"]:
+        cap.set(color="#7570b3", linewidth=2)
+
+    # Change color and line width of the medias
+    for media in bplot["medians"]:
+        media.set(color="#b2df8a", linewidth=2)
+
+    # Change the style of the fliers and their fill
+    for flier in bplot["fliers"]:
+        flier.set(marker="o", color="#e7298a", alpha=0.5)
+
+    if labels:
+        ax.set_xticklabels(labels, rotation=45, ha="right")
+
+    if title:
+        plt.title(title)
+
+    if ax_names:
+        if ax_names[0]:
+            plt.xlabel(ax_names[0])
+        if ax_names[1]:
+            plt.ylabel(ax_names[1])
+
+    return plt, None
+
+
 __author__ = 'diogo'
