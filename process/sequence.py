@@ -1645,10 +1645,10 @@ class AlignmentList(Base):
                                         phy_truncate_names=phy_truncate_names)
 
     # Stats methods
-    def gene_occupancy(self, output_file_name="gene_occupancy", dest="./"):
+    def gene_occupancy(self):
         """
-        Creates an interpolation plot to visualize the amount of missing
-        genes in a phylogenomics data set
+        Creates data for an interpolation plot to visualize the amount of
+        missing genes in a phylogenomics data set
         """
 
         data = []
@@ -1665,8 +1665,45 @@ class AlignmentList(Base):
         # iplt.savefig(join(dest, output_file_name), bbox_inches="tight",
         #              dpi=600)
 
-        return data
+        return [data, None]
 
+    def missing_data_per_species(self):
+        """
+        Creates data for a distribution of missing data per species
+        """
+
+        # Data for a stacked bar plot. First element for gaps, second for
+        # missing, third for actual data
+        data_storage = OrderedDict((taxon, [0, 0, 0]) for taxon in
+                                   self.taxa_names)
+        total_len = 0
+
+        legend = ["Gaps", "Missing", "Data"]
+
+        for aln in self.alignments.values():
+            total_len += aln.locus_length
+            for key in data_storage:
+                if key in aln.alignment:
+                    # Get gaps
+                    gaps = aln.alignment[key].count("-")
+                    data_storage[key][0] += gaps
+                    # Get missing
+                    missing = aln.alignment[key].count(aln.sequence_code[1])
+                    data_storage[key][1] += missing
+                    # Get actual data
+                    actual_data = aln.locus_length - gaps - missing
+                    data_storage[key][2] += actual_data
+                else:
+                    data_storage[key][1] += aln.locus_length
+
+        data = np.array([[float(x[0]) / float(total_len) for x in
+                          data_storage.values()],
+                         [float(x[1]) / float(total_len) for x in
+                          data_storage.values()],
+                         [float(x[2]) / float(total_len) for x in
+                          data_storage.values()]])
+
+        return [data, list(data_storage.keys()), legend]
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

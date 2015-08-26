@@ -6023,7 +6023,8 @@ class TriFusionApp(App):
         """
         General purpose method to close popups from the screen
         """
-        self._popup.dismiss()
+        if self._popup:
+            self._popup.dismiss()
 
     def dismiss_subpopup(self, *args):
         """
@@ -6889,7 +6890,7 @@ class TriFusionApp(App):
         Clock.schedule_once(lambda x: transfer_wgts(wgts[idx][1], wgts[idx][0]),
                             .32)
 
-    def stats_write_plot(self, data, plt_idx):
+    def stats_write_plot(self, plot_data, plt_idx):
         """
         Provided with the data structure and a plt_idx string identifier, this
         function will create the plot file and app variable, and load it into
@@ -6902,12 +6903,14 @@ class TriFusionApp(App):
         """
 
         plt_method = {"Gene occupancy": [interpolation_plot,
-                                         "gene_occupancy.png"]}
+                                         "gene_occupancy.png"],
+                      "Distribution of missing data": [stacked_bar_plot,
+                                         "missing_data_distribution.png"]}
 
-        self.stats_plot = plt_method[plt_idx][0](data)
+        self.stats_plot = plt_method[plt_idx][0](*plot_data)
 
         self.stats_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
-                                bbox_inches="tight", dpi=600)
+                                bbox_inches="tight", dpi=200)
 
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
                        self.screen.ids.plot_content)
