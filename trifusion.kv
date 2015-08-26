@@ -4511,9 +4511,10 @@
         disabled: True
         text: "Per species"
         bold: True
+        id: sp
         on_release:
             app.toggle_groups(self)
-            root.sp_func(**root.args2)
+            app.stats_show_plot(**root.args2)
     ToggleButton:
         background_normal: "data/backgrounds/bt_process_off.png"
         background_down: "data/backgrounds/bt_process.png"
@@ -4521,9 +4522,10 @@
         disabled_color: (1,1,1,1)
         bold: True
         text: "Average"
+        id: avg
         on_release:
             app.toggle_groups(self)
-            root.avg_func(**root.args1)
+            app.stats_show_plot(**root.args1)
 
 <StatsPlotToolbar>
     orientation: "vertical"

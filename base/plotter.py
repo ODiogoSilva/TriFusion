@@ -299,8 +299,6 @@ def box_plot(data, labels=None, title=None, ax_names=None):
 
     fig, ax = plt.subplots()
 
-    plt.xticks()
-
     bplot = ax.boxplot(data, patch_artist=True)
 
     # Change outline color, fill color and line width of the boxes
@@ -338,5 +336,39 @@ def box_plot(data, labels=None, title=None, ax_names=None):
 
     return plt, None
 
+
+def histogram_plot(data, title=None, ax_names=None):
+    """
+    Creates an histogram from data
+    :param data: list
+    :param title: string
+    :param ax_names: list, first element for x-axis, second for y-axis
+    """
+
+    # Use ggpot style
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    if len(data) > 50:
+        bins = len(data) / 10
+    else:
+        bins = 10
+
+    hist_plot = plt.hist(data, bins, histtype="stepfilled")
+
+    plt.axvline(np.mean(data), linewidth=2, color="b", alpha=.8,
+                linestyle="--")
+
+    if title:
+        plt.title(title)
+
+    if ax_names:
+        if ax_names[0]:
+            plt.xlabel(ax_names[0])
+        if ax_names[1]:
+            plt.ylabel(ax_names[1])
+
+    return plt, None
 
 __author__ = 'diogo'
