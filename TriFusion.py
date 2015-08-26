@@ -6905,9 +6905,11 @@ class TriFusionApp(App):
         plt_method = {"Gene occupancy": [interpolation_plot,
                                          "gene_occupancy.png"],
                       "Distribution of missing data": [stacked_bar_plot,
-                                         "missing_data_distribution.png"]}
+                                         "missing_data_distribution.png"],
+                      "Distribution of missing orthologs": [bar_plot,
+                                         "missing_gene_distribution.png"]}
 
-        self.stats_plot = plt_method[plt_idx][0](*plot_data)
+        self.stats_plot, self.current_lgd = plt_method[plt_idx][0](**plot_data)
 
         self.stats_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
                                 bbox_inches="tight", dpi=200)

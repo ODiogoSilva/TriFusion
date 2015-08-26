@@ -4542,7 +4542,8 @@
     size_hint_y: None
     height: 30
     text: "Distribution of missing orthologs"
-    on_release: print(self.text)
+    on_release:
+        app.stats_show_plot(self.text)
 
 <MissingData>:
     size_hint_y: None

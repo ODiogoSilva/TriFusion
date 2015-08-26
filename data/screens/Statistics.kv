@@ -51,6 +51,19 @@ ShowcaseScreen:
                             cols: 1
                             size_hint_y: None
                             height: sum([x.height + 5 for x in self.children])
+
+                            TFButton:
+                                text: "General information"
+                                height: 45
+                                background_down: "data/backgrounds/bt_process.png"
+                                size_hint_y: None
+                                on_release:
+                                    app.toggle_data_options(self.text)
+
+                            OptsGrid:
+                                id: general_information
+                                grid_name: "General information"
+
                             TFButton:
                                 text: "Polymorphism and Variation"
                                 height: 45

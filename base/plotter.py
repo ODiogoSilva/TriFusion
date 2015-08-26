@@ -51,11 +51,11 @@ two_clr_list = [[0, .53, .66],
                 [.62, .80, .85]]
 
 
-def bar_plot(data_list, labels=None, title=None, ax_names=None,
+def bar_plot(data, labels=None, title=None, ax_names=None,
              lgd_list=None, reverse_x=False):
     """
     Builds simple bar plot from a data_list
-    :param data_list: list with data to be plotted.
+    :param data: list with data to be plotted.
     :param labels: list with x axis labels
     :param title: string, plot title
     :param ax_names: list. Names of the axis [yaxis_name, xaxis_name]
@@ -63,7 +63,7 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None,
     """
 
     if len(labels) > 10:
-        plt.rcParams["figure.figsize"] = (8 * len(labels) / 10, 6)
+        plt.rcParams["figure.figsize"] = (len(labels) / 3, 6)
     else:
         plt.rcParams["figure.figsize"] = (8, 6)
 
@@ -73,10 +73,10 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None,
     fig, ax = plt.subplots()
 
     # Create plot
-    for i, d in enumerate(data_list):
+    for i, d in enumerate(data):
         # Get color from 10 color list. If more than 10 colors are required,
         # randomly generate new ones
-        if len(data_list) > 2:
+        if len(data) > 2:
             try:
                 clr = clr_list[i]
             except IndexError:
@@ -85,13 +85,13 @@ def bar_plot(data_list, labels=None, title=None, ax_names=None,
             clr = two_clr_list[i]
 
         # Create plot for first entry
-        if d == data_list[0]:
+        if d == data[0]:
             ax.bar(np.arange(len(d)), d, align="center", color=clr,
                    label=lgd_list[i] if lgd_list else None)
         # Add plots on top
         else:
             ax.bar(np.arange(len(d)), d, align="center", color=clr,
-                   bottom=data_list[i - 1],
+                   bottom=data[i - 1],
                    label=lgd_list[i] if lgd_list else None)
 
     # Set legend
@@ -212,7 +212,7 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
     return plt, lgd
 
 
-def interpolation_plot(data, xlabels=None):
+def interpolation_plot(data):
     """
     Creates a black and white interpolation plot from data, which must consist
     of a 0/1 matrix for absence/presence of taxa in genes
@@ -233,18 +233,18 @@ def interpolation_plot(data, xlabels=None):
     ax.set_ylabel("Taxa")
     ax.grid(False)
 
-    return plt
+    return plt, None
 
 
-def stacked_bar_plot(data, xlabels, legend=None):
+def stacked_bar_plot(data, labels, legend=None):
     """
     Creates a tight stacked bar plot
     :param data: list, data for 2 groups should be like [[1,2], [2,3]]
     :param xlabels: list, should match the number of items in data.
     """
 
-    if len(xlabels) > 10:
-        plt.rcParams["figure.figsize"] = (len(xlabels) / 3, 6)
+    if len(labels) > 10:
+        plt.rcParams["figure.figsize"] = (len(labels) / 3, 6)
     else:
         plt.rcParams["figure.figsize"] = (8, 6)
 
@@ -260,7 +260,7 @@ def stacked_bar_plot(data, xlabels, legend=None):
     w = .8
 
     # Get x positions
-    xpos = [x + (w / 2) for x in range(len(xlabels))]
+    xpos = [x + (w / 2) for x in range(len(labels))]
 
     for c, d in enumerate(data):
         if c == 0:
@@ -270,13 +270,13 @@ def stacked_bar_plot(data, xlabels, legend=None):
                            bottom=bottoms[c])
 
     # Set x labels
-    plt.xticks([x + (w / 2) for x in xpos], xlabels, ha="right", rotation=45)
+    plt.xticks([x + (w / 2) for x in xpos], labels, ha="right", rotation=45)
 
     # Set legend
     if legend:
         lgd = plt.legend(bbox_to_anchor=(0.5, 1.02), loc=8, fancybox=True,
                          shadow=True, framealpha=.8, ncol=3)
 
-    return plt
+    return plt, None
 
 __author__ = 'diogo'

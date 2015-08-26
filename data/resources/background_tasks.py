@@ -390,4 +390,7 @@ def get_stats_data(aln_obj, stats_idx):
     if stats_idx == "Distribution of missing data":
         plot_data = aln_obj.missing_data_per_species()
 
+    if stats_idx == "Distribution of missing orthologs":
+        plot_data = aln_obj.missing_genes_per_species()
+
     return [plot_data]
