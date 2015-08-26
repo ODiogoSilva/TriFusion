@@ -1665,7 +1665,7 @@ class AlignmentList(Base):
         # iplt.savefig(join(dest, output_file_name), bbox_inches="tight",
         #              dpi=600)
 
-        return [data, None]
+        return {"data": data}
 
     def missing_data_per_species(self):
         """
@@ -1696,6 +1696,10 @@ class AlignmentList(Base):
                 else:
                     data_storage[key][1] += aln.locus_length
 
+        data_storage = OrderedDict(sorted(data_storage.items(),
+                                          key=lambda x: x[1][1] + x[1][0],
+                                          reverse=True))
+
         data = np.array([[float(x[0]) / float(total_len) for x in
                           data_storage.values()],
                          [float(x[1]) / float(total_len) for x in
@@ -1703,7 +1707,32 @@ class AlignmentList(Base):
                          [float(x[2]) / float(total_len) for x in
                           data_storage.values()]])
 
-        return [data, list(data_storage.keys()), legend]
+        return {"data": data,
+                "labels": list(data_storage.keys()),
+                "legend": legend}
+
+    def missing_genes_per_species(self):
+        """
+        Creates data for the distribution of missing genes per species
+        :return: dictionary with arguments for ploting functions
+        """
+
+        data_storage = OrderedDict((taxon, 0) for taxon in self.taxa_names)
+
+        for aln in self.alignments.values():
+            for key in data_storage:
+                if key not in aln.alignment:
+                    data_storage[key] += 1
+
+        # Sort data in descending order of missing genes
+        data_storage = OrderedDict(sorted(data_storage.items(), reverse=True,
+                                          key=lambda t: t[1]))
+
+        return {"data": [list(data_storage.values())],
+                "labels": list(data_storage.keys()),
+                "title": "Distribution of missing genes",
+                "ax_names": [None, "Frequency"],
+                }
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
