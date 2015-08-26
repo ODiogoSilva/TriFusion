@@ -449,8 +449,15 @@ class TGToggleButton(ToggleButton):
     def __init__(self, **kwargs):
         super(TGToggleButton, self).__init__(**kwargs)
 
+
 class ExportGraphics(BoxLayout):
     cancel = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(ExportGraphics, self).__init__(**kwargs)
+
+        kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
+                                self.ids.sd_filechooser)
 
 
 class ExportGroupDialog(BoxLayout):
@@ -2547,7 +2554,8 @@ class TriFusionApp(App):
         :return:
         """
 
-        content = ExportGraphics(cancel=self.dismiss_popup)
+        content = ExportGraphics(cancel=self.dismiss_popup,
+                                 bookmark_init=self.bookmark_init)
 
         self.show_popup(title="Export as graphic...", content=content,
                         size_hint=(.9, .9))
@@ -5169,7 +5177,7 @@ class TriFusionApp(App):
             pos = self.root.width - 50, self.root.height - 500
             content = OrtoPlotToolbar(pos=pos)
         else:
-            pos = self.root.width - 50, self.root.height - 450
+            pos = self.root.width - 50, self.root.height - 500
             content = StatsPlotToolbar(pos=pos)
 
         self.root_window.add_widget(content)
@@ -6992,9 +7000,10 @@ class TriFusionApp(App):
         if plt_idx in stats_compliant:
             self.show_stats_toggle(**stats_compliant[plt_idx])
 
-        self.stats_plot, self.current_lgd = plt_method[plt_idx][0](**plot_data)
+        self.current_plot, self.current_lgd = \
+            plt_method[plt_idx][0](**plot_data)
 
-        self.stats_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
+        self.current_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
                                 bbox_inches="tight", dpi=200)
 
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
