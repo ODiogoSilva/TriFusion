@@ -355,10 +355,17 @@ def histogram_plot(data, title=None, ax_names=None):
     else:
         bins = 10
 
-    hist_plot = plt.hist(data, bins, histtype="stepfilled")
+    hist_plot = plt.hist(data, bins, histtype="stepfilled", color=clr_list[0])
 
-    plt.axvline(np.mean(data), linewidth=2, color="b", alpha=.8,
+    plt.axvline(np.mean(data), linewidth=2, color="r", alpha=.8,
                 linestyle="--")
+
+    # Add cutom artist for legend
+    meanArtist = plt.Line2D((0, 1), (0, 1), color="r", linestyle="--")
+
+    lgd = ax.legend([meanArtist], ["Mean size"], fancybox=True, shadow=True,
+                    framealpha=.8, fontsize="large")
+    lgd.get_frame().set_facecolor("white")
 
     if title:
         plt.title(title)
@@ -369,6 +376,6 @@ def histogram_plot(data, title=None, ax_names=None):
         if ax_names[1]:
             plt.ylabel(ax_names[1])
 
-    return plt, None
+    return plt, lgd
 
 __author__ = 'diogo'
