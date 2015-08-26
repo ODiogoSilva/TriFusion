@@ -6966,7 +6966,9 @@ class TriFusionApp(App):
                       "Distribution of missing data": [stacked_bar_plot,
                                          "missing_data_distribution.png"],
                       "Distribution of missing orthologs": [bar_plot,
-                                         "missing_gene_distribution.png"]}
+                                         "missing_gene_distribution.png"],
+                      "Distribution of sequence size": [box_plot,
+                                         "avg_seqsize_species.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {}
