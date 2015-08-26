@@ -4481,6 +4481,50 @@
 ## STATS Options Buttons
 ##
 
+<StatsToggleWgt>:
+    size_hint: None, None
+    size: 230, 50
+    opacity: .2
+    args1: None
+    args2: None
+    canvas.before:
+        Color:
+            rgba: (.2,.2,.2,1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    StackLayout:
+        size_hint_x: None
+        width: 0
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                rectangle: root.x,root.y,root.width,root.height
+    ToggleButton
+        background_normal: "data/backgrounds/bt_process_off.png"
+        background_down: "data/backgrounds/bt_process.png"
+        background_disabled_down: "data/backgrounds/bt_process.png"
+        disabled_color: (1,1,1,1)
+        state: "down"
+        disabled: True
+        text: "Per species"
+        bold: True
+        on_release:
+            app.toggle_groups(self)
+            root.sp_func(**root.args2)
+    ToggleButton:
+        background_normal: "data/backgrounds/bt_process_off.png"
+        background_down: "data/backgrounds/bt_process.png"
+        background_disabled_down: "data/backgrounds/bt_process.png"
+        disabled_color: (1,1,1,1)
+        bold: True
+        text: "Average"
+        on_release:
+            app.toggle_groups(self)
+            root.avg_func(**root.args1)
+
 <StatsPlotToolbar>
     orientation: "vertical"
     size_hint: None, None
