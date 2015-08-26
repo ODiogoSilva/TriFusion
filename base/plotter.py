@@ -212,7 +212,7 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
     return plt, lgd
 
 
-def interpolation_plot(data):
+def interpolation_plot(data, xlabels=None):
     """
     Creates a black and white interpolation plot from data, which must consist
     of a 0/1 matrix for absence/presence of taxa in genes
@@ -235,5 +235,48 @@ def interpolation_plot(data):
 
     return plt
 
+
+def stacked_bar_plot(data, xlabels, legend=None):
+    """
+    Creates a tight stacked bar plot
+    :param data: list, data for 2 groups should be like [[1,2], [2,3]]
+    :param xlabels: list, should match the number of items in data.
+    """
+
+    if len(xlabels) > 10:
+        plt.rcParams["figure.figsize"] = (len(xlabels) / 3, 6)
+    else:
+        plt.rcParams["figure.figsize"] = (8, 6)
+
+    # Use ggpot style
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    # Get bottom positions for stacked bar
+    bottoms = np.cumsum(np.vstack((np.zeros(data.shape[1]), data)),
+                        axis=0)[:-1]
+
+    w = .8
+
+    # Get x positions
+    xpos = [x + (w / 2) for x in range(len(xlabels))]
+
+    for c, d in enumerate(data):
+        if c == 0:
+            bplot = ax.bar(xpos, d, w, color=clr_list[c], label=legend[c])
+        else:
+            bplot = ax.bar(xpos, d, w, color=clr_list[c], label=legend[c],
+                           bottom=bottoms[c])
+
+    # Set x labels
+    plt.xticks([x + (w / 2) for x in xpos], xlabels, ha="right", rotation=45)
+
+    # Set legend
+    if legend:
+        lgd = plt.legend(bbox_to_anchor=(0.5, 1.02), loc=8, fancybox=True,
+                         shadow=True, framealpha=.8, ncol=3)
+
+    return plt
 
 __author__ = 'diogo'
