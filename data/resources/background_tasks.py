@@ -396,4 +396,7 @@ def get_stats_data(aln_obj, stats_idx):
     elif stats_idx == "Distribution of sequence size":
         plot_data = aln_obj.average_seqsize_per_species()
 
+    elif stats_idx == "Distribution of sequence size all":
+        plot_data = aln_obj.average_seqsize()
+
     return [plot_data]

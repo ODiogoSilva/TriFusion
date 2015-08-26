@@ -5135,7 +5135,7 @@ class TriFusionApp(App):
 
     # ########################### PLOT SCREENS #################################
 
-    def show_stats_toggle(self, avg_func, args1, sp_func, args2):
+    def show_stats_toggle(self, args, active_bt):
         """
         Adds a toggle widget to some Statistics plots that allow the user to
         toggle plots between the whole data set and species perspectives
@@ -5143,9 +5143,16 @@ class TriFusionApp(App):
 
         pos = self.root.width - 250, self.root.height - 120
 
-        content = StatsToggleWgt(pos=pos, avg_func=avg_func, sp_func=sp_func)
-        content.args1 = args1
-        content.args2 = args2
+        content = StatsToggleWgt(pos=pos)
+        if active_bt == "avg":
+            content.args2 = args
+        else:
+            content.args1 = args
+
+        content.ids.avg.state = "down" if active_bt == "avg" else "normal"
+        content.ids.avg.disabled = True if active_bt == "avg" else False
+        content.ids.sp.state = "normal" if active_bt == "avg" else "down"
+        content.ids.sp.disabled = False if active_bt == "avg" else True
 
         self.root_window.add_widget(content)
 
@@ -6968,10 +6975,19 @@ class TriFusionApp(App):
                       "Distribution of missing orthologs": [bar_plot,
                                          "missing_gene_distribution.png"],
                       "Distribution of sequence size": [box_plot,
-                                         "avg_seqsize_species.png"]}
+                                         "avg_seqsize_species.png"],
+                      "Distribution of sequence size all": [histogram_plot,
+                                         "avg_seqsize.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
-        stats_compliant = {}
+        stats_compliant = {"Distribution of sequence size":
+                               {"args": {"plt_idx": "Distribution of sequence "
+                                                     "size all"},
+                                "active_bt": "sp"},
+                           "Distribution of sequence size all":
+                               {"args": {"plt_idx": "Distribution of sequence "
+                                                     "size"},
+                                "active_bt": "avg"}}
 
         if plt_idx in stats_compliant:
             self.show_stats_toggle(**stats_compliant[plt_idx])

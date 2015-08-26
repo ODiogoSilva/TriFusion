@@ -1658,12 +1658,6 @@ class AlignmentList(Base):
                          for x in self.taxa_names])
 
         data = np.transpose(data)
-        data = np.sort(data)
-
-        # iplt = interpolation_plot(data)
-        #
-        # iplt.savefig(join(dest, output_file_name), bbox_inches="tight",
-        #              dpi=600)
 
         return {"data": data}
 
@@ -1753,6 +1747,21 @@ class AlignmentList(Base):
         return {"data": list(data_storage.values()),
                 "labels": list(data_storage.keys()),
                 "title": "Sequence size distribution per species",
+                "ax_names": [None, "Size (bp)"]}
+
+    def average_seqsize(self):
+        """
+        Creates data for the average sequence size for the entire data set
+        :return:
+        """
+
+        data_storage = []
+
+        for aln in self.alignments.values():
+            data_storage.append(aln.locus_length)
+
+        return {"data": data_storage,
+                "title": "Average sequence size distribution",
                 "ax_names": [None, "Size (bp)"]}
 
 __author__ = "Diogo N. Silva"
