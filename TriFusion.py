@@ -7020,13 +7020,33 @@ class TriFusionApp(App):
         the text property of the issuing button.
         """
 
+        # Set active file and taxa sets
+        file_set_name = self.screen.ids.active_file_set.text
+        taxa_set_name = self.screen.ids.active_taxa_set.text
+
+        if file_set_name == "All files":
+            file_set = [basename(x) for x in self.file_list]
+        elif file_set_name == "Active files":
+            print(self.active_file_list)
+            file_set = [basename(x) for x in self.active_file_list]
+        else:
+            file_set = self.file_groups[file_set_name]
+
+        if taxa_set_name == "Active taxa":
+            taxa_set = self.active_taxa_list
+        elif taxa_set_name == "All taxa":
+            taxa_set = self.alignment_list.taxa_names
+        else:
+            taxa_set = self.taxa_groups[taxa_set_name]
+
         if not self.active_file_list:
-            return self.dialog_floatcheck("ERROR: No input files were loaded"
-                                          " or are active", t="error")
+            return self.dialog_floatcheck("ERROR: No input files were loaded",
+                                          t="error")
 
         self.run_in_background(func=get_stats_data,
                                second_func=self.stats_write_plot,
-                               args1=[self.alignment_list, plt_idx],
+                               args1=[self.alignment_list, plt_idx, file_set,
+                                      taxa_set],
                                args2=[plt_idx])
 
         self.toggle_stats_panel(force_close=True)

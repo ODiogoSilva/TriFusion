@@ -374,7 +374,7 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
     return [active_group]
 
 
-def get_stats_data(aln_obj, stats_idx):
+def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     """
     Given an aln_obj, this function will execute the according method to
     generate plot data
@@ -383,6 +383,10 @@ def get_stats_data(aln_obj, stats_idx):
     :param stats_idx: string, identifier that maps to an AlignmentObject method
     :return: data for plot production
     """
+
+    # Update alignment object according to active file and taxa sets
+    aln_obj.update_active_alignments(active_file_set)
+    aln_obj.remove_taxa(list(set(aln_obj.taxa_names) - set(active_taxa_set)))
 
     if stats_idx == "Gene occupancy":
         plot_data = aln_obj.gene_occupancy()
