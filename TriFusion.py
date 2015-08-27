@@ -3992,6 +3992,10 @@ class TriFusionApp(App):
         self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
         self.previous_mouse_over = ""
 
+        # Clear Statistics screen scatter, if screen is active
+        if self.screen.name == "Statistics":
+            self.screen.ids.plot_content.clear_widgets()
+
     def remove_all_groups(self):
         """
         Removes all loaded orthology groups
