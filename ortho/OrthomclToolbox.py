@@ -412,17 +412,15 @@ class GroupLight:
         x_labels = [str(x) for x in x_labels]
 
         # Create plot
-        b_plt, lgd = bar_plot([data], x_labels,
+        b_plt, lgd, table = bar_plot([data], x_labels,
                         title="Taxa frequency distribution",
-                        ax_names=["Number of taxa", "Ortholog frequency"])
+                        ax_names=["Number of taxa", "Ortholog frequency"],
+                        table_header=["Number of species",
+                                      "Ortholog frequency"])
+
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
-        # Create table
-        table_list = [["Number of species", "Ortholog frequency"]]
-        for x, y in zip(x_labels, data):
-            table_list.append([x, y])
-
-        return b_plt, lgd, table_list
+        return b_plt, lgd, table
 
     def bar_genecopy_distribution(self, dest="./", filt=False,
                                 output_file_name="Gene_copy_distribution.png"):
@@ -449,19 +447,18 @@ class GroupLight:
         x_labels = [str(x) for x in x_labels]
 
         # Create plot
-        b_plt, lgd = bar_plot([data], x_labels,
-                    title="Gene copy distribution",
-                    ax_names=["Number of gene copies", "Ortholog frequency"],
-                    reverse_x=False)
+        b_plt, lgd, table = bar_plot([data], x_labels,
+                                title="Gene copy distribution",
+                                ax_names=["Number of gene copies",
+                                          "Ortholog frequency"],
+                                reverse_x=False,
+                                table_header=["Number of gene copies",
+                                              "Ortholog frequency"])
+
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
                       figsize=(8 * len(x_labels) / 4, 6))
 
-        # Create table
-        table_list = [["Number of gene copies", "Ortholog frequency"]]
-        for x, y in zip(x_labels, data):
-            table_list.append([x, y])
-
-        return b_plt, lgd, table_list
+        return b_plt, lgd, table
 
     def bar_species_coverage(self, dest="./", filt=False,
                             output_file_name="Species_coverage"):
@@ -492,16 +489,16 @@ class GroupLight:
 
         lgd_list = ["Available data", "Missing data"]
 
-        b_plt, lgd = bar_plot(data, x_labels, lgd_list=lgd_list,
-                              ax_names=[None, "Ortholog frequency"],
-                              reverse_x=False)
+        b_plt, lgd, table = bar_plot(data, x_labels, lgd_list=lgd_list,
+                                     ax_names=[None, "Ortholog frequency"],
+                                     reverse_x=False)
 
         mean_data = np.array(data[0]).mean()
         b_plt.axhline(y=mean_data, ls="--", c="red")
 
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
-        return b_plt, lgd, ""
+        return b_plt, lgd, None
 
     def bar_genecopy_per_species(self, dest="./", filt=False,
                             output_file_name="Species_copy_number"):
@@ -524,11 +521,11 @@ class GroupLight:
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data]]
 
-        b_plt, lgd = bar_plot(data, x_labels, reverse_x=False,
-                              ax_names=[None, "Gene copies"])
+        b_plt, lgd, table = bar_plot(data, x_labels, reverse_x=False,
+                                     ax_names=[None, "Gene copies"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
 
-        return b_plt, lgd, ""
+        return b_plt, lgd, None
 
 
 class Group ():
