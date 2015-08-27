@@ -963,6 +963,10 @@ class TriFusionApp(App):
     current_plot = ObjectProperty(None, allownone=True)
     current_lgd = None
     current_table = ObjectProperty(None, allownone=True)
+    # This attribute will store the StatsToggleWgt when changing the screen
+    # from Statistics. When the Statistics screen is back on active, the widget
+    # can be restored with this var
+    previous_stats_toggle = None
 
     # Attributes for storing taxa and file buttons for side panel. These will
     # be used when search for files/taxa and for loading only button subsets
@@ -2134,7 +2138,8 @@ class TriFusionApp(App):
         """
 
         if self.screen:
-            if self.screen.name not in self.plot_screens:
+            if self.screen.name not in self.plot_screens or \
+                    self.screen.name == "Statistics":
                 screen_path = join(self.cur_dir, "data", "screens",
                                    "{}.kv".format(self.screen.name))
                 self.loaded_screens[screen_path] = self.screen
@@ -2192,10 +2197,13 @@ class TriFusionApp(App):
                                    self.screen.ids.icon_view_tab)
                 self.switch_path_wgt("label")
 
-            if basename(self.available_screens[idx]) == "Statistics.kv":
-                self.show_plot_toolbar(toolbar_type="stats")
-                self.screen.ids.taxa_dropdown.dismiss()
-                self.screen.ids.file_dropdown.dismiss()
+        if basename(self.available_screens[idx]) == "Statistics.kv":
+            self.show_plot_toolbar(toolbar_type="stats")
+            self.screen.ids.taxa_dropdown.dismiss()
+            self.screen.ids.file_dropdown.dismiss()
+            # Add StatsToggleWidget, if present
+            if self.previous_stats_toggle:
+                self.root_window.add_widget(self.previous_stats_toggle)
 
         return self.screen
 
@@ -5167,6 +5175,8 @@ class TriFusionApp(App):
         content.ids.sp.state = "normal" if active_bt == "avg" else "down"
         content.ids.sp.disabled = False if active_bt == "avg" else True
 
+        self.previous_stats_toggle = content
+
         self.root_window.add_widget(content)
 
     def show_plot_toolbar(self, toolbar_type="orto"):
@@ -7008,6 +7018,8 @@ class TriFusionApp(App):
 
         if plt_idx in stats_compliant:
             self.show_stats_toggle(**stats_compliant[plt_idx])
+        else:
+            self.previous_stats_toggle = None
 
         self.current_plot, self.current_lgd, self.current_table = \
             plt_method[plt_idx][0](**plot_data)
