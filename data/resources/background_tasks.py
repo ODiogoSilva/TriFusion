@@ -1,11 +1,13 @@
 __author__ = 'diogo'
 
 from process import data
+from process.error_handling import *
 from process.sequence import AlignmentList
 from ortho import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
 
 from os.path import join, basename
+from collections import OrderedDict
 from copy import deepcopy
 import logging
 
@@ -387,6 +389,10 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     # Update alignment object according to active file and taxa sets
     aln_obj.update_active_alignments(active_file_set)
     aln_obj.remove_taxa(list(set(aln_obj.taxa_names) - set(active_taxa_set)))
+
+    # Check if active data sets are not empty. If so, raise an exception
+    if aln_obj.alignments == OrderedDict() or not aln_obj.taxa_names:
+        return [EmptyAlignment("Active alignment is empty")]
 
     if stats_idx == "Gene occupancy":
         plot_data = aln_obj.gene_occupancy()
