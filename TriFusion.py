@@ -960,9 +960,9 @@ class TriFusionApp(App):
     main_nodes = DictProperty()
 
     # Attributes containing plot related elements
-    current_plot = None
+    current_plot = ObjectProperty(None, allownone=True)
     current_lgd = None
-    current_table = None
+    current_table = ObjectProperty(None, allownone=True)
 
     # Attributes for storing taxa and file buttons for side panel. These will
     # be used when search for files/taxa and for loading only button subsets
@@ -2021,28 +2021,27 @@ class TriFusionApp(App):
                 except IndexError:
                     pass
 
-
             # Check for collision with export figure or export table buttons
+            if determine_collision(toolbar_wgt.ids.export_fig):
+                collision = True
+                if "Export as graphics" not in [x.id for x in
+                                                self.root_window.children]:
+                    # Create fancy label
+                    create_fancy_label("Export as graphics",
+                                       toolbar_wgt.ids.export_fig,
+                                       line_c=(0.216, 0.67, 0.784, 1))
+
+            elif determine_collision(toolbar_wgt.ids.export_table):
+                collision = True
+                if "Export as table" not in [x.id for x in
+                                             self.root_window.children]:
+                    # Create fancy label
+                    create_fancy_label("Export as table",
+                                       toolbar_wgt.ids.export_table,
+                                       line_c=(0.216, 0.67, 0.784, 1))
+
             if self.screen.name != "Statistics":
-                if determine_collision(toolbar_wgt.ids.export_fig):
-                    collision = True
-                    if "Export as graphics" not in [x.id for x in
-                                                    self.root_window.children]:
-                        # Create fancy label
-                        create_fancy_label("Export as graphics",
-                                           toolbar_wgt.ids.export_fig,
-                                           line_c=(0.216, 0.67, 0.784, 1))
-
-                elif determine_collision(toolbar_wgt.ids.export_table):
-                    collision = True
-                    if "Export as table" not in [x.id for x in
-                                                 self.root_window.children]:
-                        # Create fancy label
-                        create_fancy_label("Export as table",
-                                           toolbar_wgt.ids.export_table,
-                                           line_c=(0.216, 0.67, 0.784, 1))
-
-                elif determine_collision(toolbar_wgt.ids.export_group):
+                if determine_collision(toolbar_wgt.ids.export_group):
                     collision = True
                     if "Export group" not in [x.id for x in
                                               self.root_window.children]:
@@ -3991,6 +3990,8 @@ class TriFusionApp(App):
         self.mouse_over_bts.clear()
         self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
         self.previous_mouse_over = ""
+        self.current_plot = None
+        self.current_table = None
 
         # Clear Statistics screen scatter, if screen is active
         if self.screen.name == "Statistics":
