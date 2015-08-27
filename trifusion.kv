@@ -419,6 +419,7 @@
                 size: 40, 40
                 id: export_fig
                 background_normal: "data/backgrounds/export_fig.png"
+                background_disabled_normal: "data/backgrounds/export_fig_disabled.png"
                 on_release:
                     app.dialog_export_graphic()
             Button:
@@ -426,6 +427,7 @@
                 size: 40, 40
                 id: export_table
                 background_normal: "data/backgrounds/export_table.png"
+                background_disabled_normal: "data/backgrounds/export_table_disabled.png"
                 on_release:
                     app.dialog_filechooser("export_table")
 
@@ -4634,18 +4636,21 @@
                 size_hint: None, None
                 size: 40, 40
                 background_normal: "data/backgrounds/zoom_in.png"
+                background_down: "data/backgrounds/zoom_in.png"
                 on_release:
                     app.screen.ids.plot_content.scale += .1
             Button
                 size_hint: None, None
                 size: 40, 40
                 background_normal: "data/backgrounds/zoom_out.png"
+                background_down: "data/backgrounds/zoom_out.png"
                 on_release:
                     app.screen.ids.plot_content.scale -= .1 if app.screen.ids.plot_content.scale > 0.5 else 0
             Button:
                 size_hint: None, None
                 size: 40, 40
                 background_normal: "data/backgrounds/fit_plot.png"
+                background_down: "data/backgrounds/fit_plot.png"
                 on_release:
                     app.screen.ids.plot_content.scale = 1
                     app.screen.ids.plot_content.pos = (0, 0)
@@ -4654,6 +4659,8 @@
                 size: 40, 40
                 id: export_fig
                 background_normal: "data/backgrounds/export_fig.png"
+                background_disabled_normal: "data/backgrounds/export_fig_disabled.png"
+                disabled: False if app.current_plot else True
                 on_release:
                     app.dialog_export_graphic()
             Button:
@@ -4661,6 +4668,8 @@
                 size: 40, 40
                 id: export_table
                 background_normal: "data/backgrounds/export_table.png"
+                background_disabled_normal: "data/backgrounds/export_table_disabled.png"
+                disabled: True if not app.current_table else False
                 on_release:
                     app.dialog_filechooser("export_table")
 
