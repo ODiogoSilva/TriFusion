@@ -7000,7 +7000,7 @@ class TriFusionApp(App):
         if plt_idx in stats_compliant:
             self.show_stats_toggle(**stats_compliant[plt_idx])
 
-        self.current_plot, self.current_lgd = \
+        self.current_plot, self.current_lgd, self.current_table = \
             plt_method[plt_idx][0](**plot_data)
 
         self.current_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),

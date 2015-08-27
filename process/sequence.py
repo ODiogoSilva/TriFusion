@@ -1703,7 +1703,8 @@ class AlignmentList(Base):
 
         return {"data": data,
                 "labels": list(data_storage.keys()),
-                "legend": legend}
+                "legend": legend,
+                "table_header": ["Taxon", "Gaps", "Missing", "Data"]}
 
     def missing_genes_per_species(self):
         """
@@ -1726,6 +1727,7 @@ class AlignmentList(Base):
                 "labels": list(data_storage.keys()),
                 "title": "Distribution of missing genes",
                 "ax_names": [None, "Frequency"],
+                "table_header": ["Taxon", "Missing genes"]
                 }
 
     def average_seqsize_per_species(self):
@@ -1762,7 +1764,8 @@ class AlignmentList(Base):
 
         return {"data": data_storage,
                 "title": "Average sequence size distribution",
-                "ax_names": [None, "Size (bp)"]}
+                "ax_names": [None, "Size (bp)"],
+                "table_header": ["Size", "Frequency"]}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
