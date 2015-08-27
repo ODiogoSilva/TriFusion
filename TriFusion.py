@@ -6973,6 +6973,10 @@ class TriFusionApp(App):
         the text property of the issuing button.
         """
 
+        if isinstance(plot_data, EmptyAlignment):
+            return self.dialog_floatcheck("ERROR: Active alignment is empty",
+                                          t="error")
+
         # Dismiss stats toggle widget, if present
         self.dismiss_stats_toggle()
 
@@ -7027,7 +7031,6 @@ class TriFusionApp(App):
         if file_set_name == "All files":
             file_set = [basename(x) for x in self.file_list]
         elif file_set_name == "Active files":
-            print(self.active_file_list)
             file_set = [basename(x) for x in self.active_file_list]
         else:
             file_set = self.file_groups[file_set_name]
