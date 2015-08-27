@@ -52,7 +52,7 @@ two_clr_list = [[0, .53, .66],
 
 
 def bar_plot(data, labels=None, title=None, ax_names=None,
-             lgd_list=None, reverse_x=False):
+             lgd_list=None, reverse_x=False, table_header=None):
     """
     Builds simple bar plot from a data_list
     :param data: list with data to be plotted.
@@ -128,7 +128,16 @@ def bar_plot(data, labels=None, title=None, ax_names=None,
     if reverse_x:
         plt.gca().invert_xaxis()
 
-    return plt, lgd
+    # Generating table structure
+    if table_header:
+        table = [table_header]
+    else:
+        table = []
+
+    for l, x in zip(labels, data[0]):
+        table.append([l, x])
+
+    return plt, lgd, table
 
 
 def multi_bar_plot(data_list, labels=None, lgd_list=None):
@@ -233,10 +242,10 @@ def interpolation_plot(data):
     ax.set_ylabel("Taxa")
     ax.grid(False)
 
-    return plt, None
+    return plt, None, None
 
 
-def stacked_bar_plot(data, labels, legend=None):
+def stacked_bar_plot(data, labels, legend=None, table_header=None):
     """
     Creates a tight stacked bar plot
     :param data: list, data for 2 groups should be like [[1,2], [2,3]]
@@ -277,7 +286,15 @@ def stacked_bar_plot(data, labels, legend=None):
         lgd = plt.legend(bbox_to_anchor=(0.5, 1.02), loc=8, fancybox=True,
                          shadow=True, framealpha=.8, ncol=3)
 
-    return plt, None
+    # Generate table structure
+    if table_header:
+        table = [table_header]
+    else:
+        table = []
+    for i, lbl in enumerate(labels):
+        table.append([lbl] + [x[i] for x in data])
+
+    return plt, None, table
 
 
 def box_plot(data, labels=None, title=None, ax_names=None):
@@ -334,10 +351,17 @@ def box_plot(data, labels=None, title=None, ax_names=None):
         if ax_names[1]:
             plt.ylabel(ax_names[1])
 
-    return plt, None
+    # Generate table structure
+    table = [["", "1st Quartile", "Median", "3rd Quartile"]]
+
+    for x, d in zip(labels, data):
+        table.append([x, np.percentile(d, 25), np.median(d),
+                      np.percentile(d, 75)])
+
+    return plt, None, table
 
 
-def histogram_plot(data, title=None, ax_names=None):
+def histogram_plot(data, title=None, ax_names=None, table_header=None):
     """
     Creates an histogram from data
     :param data: list
@@ -355,7 +379,8 @@ def histogram_plot(data, title=None, ax_names=None):
     else:
         bins = 10
 
-    hist_plot = plt.hist(data, bins, histtype="stepfilled", color=clr_list[0])
+    vals, bins, patches = plt.hist(data, bins, histtype="stepfilled",
+                                        color=clr_list[0])
 
     plt.axvline(np.mean(data), linewidth=2, color="r", alpha=.8,
                 linestyle="--")
@@ -376,6 +401,15 @@ def histogram_plot(data, title=None, ax_names=None):
         if ax_names[1]:
             plt.ylabel(ax_names[1])
 
-    return plt, lgd
+    # Generate table structure
+    if table_header:
+        table = [table_header]
+    else:
+        table = []
+
+    for p, val in zip(bins, vals):
+        table.append([p, val])
+
+    return plt, lgd, table
 
 __author__ = 'diogo'
