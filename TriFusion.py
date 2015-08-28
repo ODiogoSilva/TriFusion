@@ -5195,8 +5195,7 @@ class TriFusionApp(App):
 
         if toolbar_type == "orto":
             # Determine position
-            pos = self.root.width - 50, self.root.height - 500
-            content = OrtoPlotToolbar(pos=pos)
+            content = OrtoPlotToolbar()
         else:
             content = StatsPlotToolbar()
 
@@ -6047,8 +6046,8 @@ class TriFusionApp(App):
                              size=(180, 40), size_hint= (None, None),
                              font_size=17)
         # Anchor layout that will hold full report button
-        anc = AnchorLayout(anchor_y="center",
-                           achor_x="center")
+        anc = AnchorLayout(anchor_y="center", achor_x="center",
+                           size_hint_y=None, height=100)
         anc.add_widget(full_rep_bt)
         cards.add_widget(anc)
 
