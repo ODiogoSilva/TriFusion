@@ -30,7 +30,7 @@ from process.missing_filter import MissingFilter
 from process.data import Partitions
 
 # Other imports
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 import itertools
 import re
 from base.plotter import *
@@ -1092,6 +1092,12 @@ class AlignmentList(Base):
         """
         self.filename_list = []
 
+        """
+        Tuple with the AlignmentList sequence code. Either ("DNA", "n") or
+        ("Protein", "x")
+        """
+        self.sequence_code = None
+
         # Set partitions object
         self.partitions = Partitions()
 
@@ -1120,6 +1126,10 @@ class AlignmentList(Base):
                                              self.alignments.values()]:
                     self.duplicate_alignments.append(alignment_object.name)
                 else:
+                    # Get seq code
+                    if not self.sequence_code:
+                        self.sequence_code = alignment_object.sequence_code
+
                     self.alignments[alignment_object.name] = alignment_object
                     self.set_partition(alignment_object)
                     self.filename_list.append(alignment_object.name)
@@ -1245,6 +1255,10 @@ class AlignmentList(Base):
                                           self.alignments.values()]:
                     self.duplicate_alignments.append(alignment_obj.name)
             else:
+                # Get seq code
+                if not self.sequence_code:
+                    self.sequence_code = alignment_obj.sequence_code
+
                 self.alignments[alignment_obj.name] = alignment_obj
                 self.set_partition(alignment_obj)
                 self.filename_list.append(alignment_obj.name)
@@ -1268,6 +1282,10 @@ class AlignmentList(Base):
             if isinstance(aln.alignment, Exception):
                 self.bad_alignments.append(aln.name)
             else:
+                # Get seq code
+                if not self.sequence_code:
+                    self.sequence_code = aln.sequence_code
+
                 self.alignments[aln.name] = aln
                 self.set_partition(aln)
                 self.filename_list.append(aln.name)
@@ -1772,8 +1790,41 @@ class AlignmentList(Base):
 
         return {"data": data_storage,
                 "title": "Average sequence size distribution",
-                "ax_names": [ax_xlabel, ["Frequency"]],
+                "ax_names": [ax_xlabel, "Frequency"],
                 "table_header": [ax_xlabel, "Frequency"]}
+
+    def characters_proportion(self):
+        """
+        Creates data for the proportion of nucleotides/residues for the data set
+        """
+
+        data_storage = Counter()
+
+        for aln in self.alignments.values():
+            for seq in aln.alignment.values():
+                data_storage += Counter(seq.replace("-", "").
+                                        replace(self.sequence_code[1], ""))
+
+        # Determine total number of characters
+        chars = float(sum(data_storage.values()))
+
+        # Valid characters list
+        valid_chars = dna_chars if self.sequence_code[0] == "DNA" else \
+            list(aminoacid_table.keys())
+
+        data, xlabels = zip(*[(float(x) / chars, y.upper()) for y, x in
+                              data_storage.items() if y.upper() in valid_chars])
+
+        title = "Nucleotide proportions" if self.sequence_code[0] == "DNA" \
+            else "Amino acid proportions"
+        ax_xlabel = "Nucleotide" if self.sequence_code[0] == "DNA" \
+            else "Amino acid"
+
+        return {"data": [data],
+                "labels": xlabels,
+                "title": title,
+                "ax_names": [ax_xlabel, "Proportion"],
+                "table_header": [ax_xlabel, "Proportion"]}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

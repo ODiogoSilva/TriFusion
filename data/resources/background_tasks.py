@@ -409,4 +409,7 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     elif stats_idx == "Distribution of sequence size all":
         plot_data = aln_obj.average_seqsize()
 
+    elif stats_idx == "Proportion of nucleotides/residues":
+        plot_data = aln_obj.characters_proportion()
+
     return [plot_data]
