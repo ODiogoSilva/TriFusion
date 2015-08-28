@@ -7009,7 +7009,10 @@ class TriFusionApp(App):
                       "Distribution of sequence size all": [histogram_plot,
                                          "avg_seqsize.png"],
                       "Proportion of nucleotides/residues": [bar_plot,
-                                         "char_proportions.png"]}
+                                         "char_proportions.png"],
+                      "Proportion of nucleotides/residues sp":
+                                         [stacked_bar_plot,
+                                         "char_proportions_sp.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {"Distribution of sequence size":
@@ -7019,7 +7022,15 @@ class TriFusionApp(App):
                            "Distribution of sequence size all":
                                {"args": {"plt_idx": "Distribution of sequence "
                                                     "size"},
-                                "active_bt": "avg"}}
+                                "active_bt": "avg"},
+                           "Proportion of nucleotides/residues":
+                               {"args": {"plt_idx": "Proportion of "
+                                                    "nucleotides/residues sp"},
+                                "active_bt": "avg"},
+                           "Proportion of nucleotides/residues sp":
+                               {"args": {"plt_idx": "Proportion of "
+                                                    "nucleotides/residues"},
+                                "active_bt": "sp"}}
 
         # To allow fast switching between plots with species/average toggles,
         # If the temporary plot file already exists, load it instead of creating
