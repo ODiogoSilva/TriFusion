@@ -25,32 +25,34 @@
 
 import sys
 from process.error_handling import *
+from collections import OrderedDict
 
-dna_chars = ["A", "T", "G", "C"]
+dna_chars = ["a", "t", "g", "c"]
 
-aminoacid_table = {"A": ["Alanine", "nonpolar", "neutral"],
-                   "R": ["Arginine", "polar", "positive"],
-                   "N": ["Asparagine", "polar", "neutral"],
-                   "D": ["Aspartate", "polar", "negative"],
-                   "C": ["Cysteine", "nonpolar", "neutral"],
-                   "E": ["Glutamate", "polar", "negative"],
-                   "Q": ["Glutamine", "polar", "neutral"],
-                   "G": ["Glycine", "nonpolar", "neutral"],
-                   "H": ["Histidine", "polar", "neutral"],
-                   "I": ["Isoleucine", "nonpolar", "neutral"],
-                   "L": ["Leucine", "nonpolar", "neutral"],
-                   "K": ["Lysine", "polar", "positive"],
-                   "M": ["Methionine", "nonpolar", "neutral"],
-                   "F": ["Phenylalanine", "nonpolar", "neutral"],
-                   "P": ["Proline", "nonpolar", "neutral"],
-                   "S": ["Serine", "polar", "neutral"],
-                   "T": ["Threonine", "polar", "neutral"],
-                   "W": ["Tryptophan", "nonpolar", "neutral"],
-                   "Y": ["Tyrosine", "polar", "neutral"],
-                   "V": ["Valine", "nonpolar", "neutral"],
-                   "U": ["Selenocysteine", "", ""],
-                   "O": ["Pyrrolysine", "", ""],
-                   "X": ["Missing", "" , ""]}
+aminoacid_table = OrderedDict({"a": ["Alanine", "nonpolar", "neutral"],
+                               "r": ["Arginine", "polar", "positive"],
+                               "n": ["Asparagine", "polar", "neutral"],
+                               "d": ["Aspartate", "polar", "negative"],
+                               "c": ["Cysteine", "nonpolar", "neutral"],
+                               "e": ["Glutamate", "polar", "negative"],
+                               "q": ["Glutamine", "polar", "neutral"],
+                               "g": ["Glycine", "nonpolar", "neutral"],
+                               "h": ["Histidine", "polar", "neutral"],
+                               "i": ["Isoleucine", "nonpolar", "neutral"],
+                               "l": ["Leucine", "nonpolar", "neutral"],
+                               "k": ["Lysine", "polar", "positive"],
+                               "m": ["Methionine", "nonpolar", "neutral"],
+                               "f": ["Phenylalanine", "nonpolar", "neutral"],
+                               "p": ["Proline", "nonpolar", "neutral"],
+                               "s": ["Serine", "polar", "neutral"],
+                               "t": ["Threonine", "polar", "neutral"],
+                               "w": ["Tryptophan", "nonpolar", "neutral"],
+                               "y": ["Tyrosine", "polar", "neutral"],
+                               "v": ["Valine", "nonpolar", "neutral"],
+                               "u": ["Selenocysteine", "", ""],
+                               "o": ["Pyrrolysine", "", ""],
+                               "x": ["Missing", "", ""]})
+
 
 def merger(ranges):
     """

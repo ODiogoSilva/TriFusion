@@ -1813,7 +1813,7 @@ class AlignmentList(Base):
             list(aminoacid_table.keys())
 
         data, xlabels = zip(*[(float(x) / chars, y.upper()) for y, x in
-                              data_storage.items() if y.upper() in valid_chars])
+                              data_storage.items() if y in valid_chars])
 
         title = "Nucleotide proportions" if self.sequence_code[0] == "DNA" \
             else "Amino acid proportions"
@@ -1825,6 +1825,39 @@ class AlignmentList(Base):
                 "title": title,
                 "ax_names": [ax_xlabel, "Proportion"],
                 "table_header": [ax_xlabel, "Proportion"]}
+
+    def characters_proportion_per_species(self):
+        """
+        Creates data for the proportion of nucleotides/residures per species
+        """
+
+        data_storage = OrderedDict((x, Counter()) for x in self.taxa_names)
+
+        for aln in self.alignments.values():
+            for sp, seq in aln:
+                data_storage[sp] += Counter(seq.replace("-", "").
+                                            replace(self.sequence_code[1], ""))
+
+        legend = dna_chars if self.sequence_code[0] == "DNA" else \
+            list(aminoacid_table.keys())
+
+        data = [[] for _ in legend]
+
+        for p, char in enumerate(legend):
+            for c in data_storage.values():
+                chars = float(sum([x for y, x in c.items() if y in legend]))
+                data[p].append(float(c[char]) / chars)
+
+        data = np.array(data)
+
+        ax_ylabel = "Nucleotide" if self.sequence_code[0] == "DNA" \
+            else "Amino acid"
+
+        return {"data": data,
+                "labels": list(data_storage.keys()),
+                "legend": legend,
+                "ax_names": ["Taxa", ax_ylabel],
+                "table_header": ["Taxon"] + legend}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

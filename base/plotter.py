@@ -245,7 +245,8 @@ def interpolation_plot(data):
     return plt, None, None
 
 
-def stacked_bar_plot(data, labels, legend=None, table_header=None):
+def stacked_bar_plot(data, labels, legend=None, table_header=None,
+                     ax_names=None):
     """
     Creates a tight stacked bar plot
     :param data: list, data for 2 groups should be like [[1,2], [2,3]]
@@ -272,10 +273,16 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None):
     xpos = [x + (w / 2) for x in range(len(labels))]
 
     for c, d in enumerate(data):
+
+        try:
+            clr = clr_list[c]
+        except IndexError:
+            clr = np.random.rand(3, 1)
+
         if c == 0:
-            bplot = ax.bar(xpos, d, w, color=clr_list[c], label=legend[c])
+            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c])
         else:
-            bplot = ax.bar(xpos, d, w, color=clr_list[c], label=legend[c],
+            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c],
                            bottom=bottoms[c])
 
     # Set x labels
@@ -283,8 +290,15 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None):
 
     # Set legend
     if legend:
+        cols = len(legend) if len(legend) < 6 else 6
         lgd = plt.legend(bbox_to_anchor=(0.5, 1.02), loc=8, fancybox=True,
-                         shadow=True, framealpha=.8, ncol=3)
+                         shadow=True, framealpha=.8, ncol=cols)
+
+    if ax_names:
+        if ax_names[0]:
+            plt.xlabel(ax_names[0])
+        if ax_names[1]:
+            plt.ylabel(ax_names[1])
 
     # Generate table structure
     if table_header:
@@ -294,7 +308,7 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None):
     for i, lbl in enumerate(labels):
         table.append([lbl] + [x[i] for x in data])
 
-    return plt, None, table
+    return plt, lgd, table
 
 
 def box_plot(data, labels=None, title=None, ax_names=None):
