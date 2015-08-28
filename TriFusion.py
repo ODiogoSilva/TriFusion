@@ -6982,7 +6982,7 @@ class TriFusionApp(App):
         function will create the plot file and app variable, and load it into
         the Statistics screen.
 
-        :param data: list/np array, data structure to be used in plot
+        :param plot_data: list/np array, data structure to be used in plot
         construction
         :param plt_idx: string, identification string of the plot. Usually is
         the text property of the issuing button.
