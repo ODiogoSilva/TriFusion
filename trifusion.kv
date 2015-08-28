@@ -372,6 +372,7 @@
     orientation: "vertical"
     size_hint: None, None
     size: 50, 285
+    pos: app.root.width - 50, (app.root.height / 2) - (self.height / 2)
     opacity: .2
     canvas.before:
         Color:
@@ -1022,8 +1023,8 @@
 
 <DescriptionBox>:
     orientation: "vertical"
-    size_hint_y: None
-    height: 520
+    size_hint_y: 1
+    #height: 520
     spacing: 10
     # Setting custom attributes
     prot_txt: ""
@@ -1106,9 +1107,9 @@
     BoxLayout:
         id: filt_bx
         orientation: "vertical"
-        size_hint_y: None
+        #size_hint_y: None
         #cols: 1
-        height: 320
+        #height: 320
         padding: 10
         canvas.before:
             Color:
@@ -1117,6 +1118,8 @@
                 pos: self.pos
                 size: self.size
         StackLayout:
+            size_hint_y: None
+            height: 0
             canvas.after:
                 Color:
                     rgb: (0.216, 0.67, 0.784, 1)
@@ -1143,8 +1146,8 @@
                     app.dialog_export_groups()
 
         BoxLayout:
-            size_hint_y: None
-            height: 180
+            #size_hint_y: None
+            #height: 180
             id: gauge_bx
             #GaugePlot:
             #    proportion: 0.7
@@ -1228,7 +1231,7 @@
         anchor_x: "center"
         BoxLayout:
             size_hint: (None, None)
-            size: 100,100
+            size: 200,200
             canvas.before:
                 Color:
                     rgba: (113/255, 200/255, 55/255, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
@@ -1240,8 +1243,8 @@
                     rgba: root.inner_color[gauge_txt.text] if gauge_txt.text in root.inner_color else (0,0,0,0)
                     #rgba: (0.15, 0.15, 0.15, 1)
                 Ellipse:
-                    size: 80, 80
-                    pos: self.center_x - 40, self.center_y - 40
+                    size: 160, 160
+                    pos: self.center_x - 80, self.center_y - 80
             BoxLayout:
                 orientation: "vertical"
                 Label:
@@ -1819,6 +1822,7 @@
 <OrthologySearchGrid>:
     do_default_tab: False
     tab_pos: "top_left"
+    bt_wdt: 250
     background_color: (0,0,0,0)
     opacity: 0
 
@@ -1843,7 +1847,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Filter protein sequences[/b][/size]\n[size=13]Set filters to remove poor quality sequences based on sequence length and stop codon percentage.[/size]"
                     halign: "left"
@@ -1852,7 +1855,8 @@
 
                 BoxLayout:
                     #padding: (0, 7.5, 0, 7.5)
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.bt_wdt
                     ProcessBt:
                         text: "Set filters"
                         on_release:
@@ -1880,7 +1884,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Database name[/b][/size]\n[size=13]Name of the database against which USEARCH will run.[/size]"
                     halign: "left"
@@ -1888,7 +1891,8 @@
                     text_size: self.size
 
                 ProcessBt:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.bt_wdt
                     text: app.usearch_db
                     id: db_bt
                     on_release:
@@ -1898,7 +1902,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]USEARCH output file[/b][/size]\n[size=13]Name of the file containing the search results of USEARCH.[/size]"
                     halign: "left"
@@ -1906,7 +1909,8 @@
                     text_size: self.size
 
                 ProcessBt:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.bt_wdt
                     text: app.usearch_output
                     id: out_bt
                     on_release:
@@ -1916,7 +1920,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]E-value cutoff[/b][/size]\n[size=13](default: AllVsAll.out)Set minimum necessary e-value cutoff to retain USEARCH hits.[/size]"
                     halign: "left"
@@ -1924,7 +1927,8 @@
                     text_size: self.size
 
                 ProcessBt:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.bt_wdt
                     text: app.usearch_evalue
                     id: eval
                     on_release:
@@ -1952,7 +1956,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Inflation[/b][/size]\n[size=13]Set one or more inflation values for MCL run.[/size]"
                     halign: "left"
@@ -1960,7 +1963,8 @@
                     text_size: self.size
 
                 ProcessBt:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.bt_wdt
                     id: inflation_bt
                     text: "['3']"
                     on_release:
@@ -1970,7 +1974,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Ortholog group prefix[/b][/size]\n[size=13]Set a prefix name for the ortholog groups detected by OrthoMCL.[/size]"
                     halign: "left"
@@ -1978,7 +1981,8 @@
                     text_size: self.size
 
                 ProcessBt:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.bt_wdt
                     text: app.ortholog_prefix
                     id: orto_group
                     on_release:
@@ -1989,7 +1993,6 @@
             DarkBox:
                 height: 70
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Groups file[/b][/size]\n[size=13]Set the name for the final output of OrthoMCL containing the ortholog groups. If more than one inflation values were specified, this name will be used as a prefix[/size]"
                     halign: "left"
@@ -1997,7 +2000,8 @@
                     text_size: self.size
 
                 BoxLayout:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.bt_wdt
                     padding: (0, 7.5, 0, 7.5)
                     ProcessBt:
                         text: app.group_prefix
@@ -2142,14 +2146,16 @@
                             Rectangle:
                                 pos: self.pos
                                 size: self.size
-                        size_hint_x: .15
+                        size_hint_x: None
+                        width: 100
                         text: "Find:"
                         bold: True
                     ToggleButton:
                         id: case_bt
                         text: "Aa"
                         bold:True
-                        size_hint_x: .1
+                        size_hint_x: None
+                        width: 40
                         state: "down"
 
                     TextInput:
@@ -2163,26 +2169,28 @@
                         on_text_validate:
                             focus = True
 
-        BoxLayout:
+        AnchorLayout:
             size_hint_y: None
             height: 30
-            spacing: 20
-            padding: (150, 0, 150, 0)
+            BoxLayout:
+                spacing: 20
+                size_hint_x: None
+                width: 420
 
-            TFOKButon:
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
-                text: "Save"
-                id: ok_bt
-                on_release:
-                    if sd_filechooser.selection:\
-                    app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir], None, False, "Loading group files...")
-                    #root.cancel()
+                TFOKButon:
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_down: "data/backgrounds/bt_process_off.png"
+                    text: "Save"
+                    id: ok_bt
+                    on_release:
+                        if sd_filechooser.selection:\
+                        app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir], None, False, "Loading group files...")
+                        #root.cancel()
 
-            TFOKButon:
-                id: cancel_bt
-                text: "Cancel"
-                on_release: root.cancel()
+                TFOKButon:
+                    id: cancel_bt
+                    text: "Cancel"
+                    on_release: root.cancel()
 
 #===============================================================================
 # PROCESS EXECUTION SUMMARY
