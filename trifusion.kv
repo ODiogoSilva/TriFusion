@@ -723,17 +723,19 @@
                 line_height: 1
                 halign: "justify"
 
-    BoxLayout:
+    AnchorLayout:
         size_hint_y: None
         height: 30
-        padding: (100, 0, 100, 0)
-        TFOKButon:
-            id: close_bt
-            text: "Close"
-            background_normal: "data/backgrounds/bt_process.png"
-            background_down: "data/backgrounds/bt_process_off.png"
-            on_release:
-                root.cancel()
+        BoxLayout:
+            size_hint_x: None
+            width: 200
+            TFOKButon:
+                id: close_bt
+                text: "Close"
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                on_release:
+                    root.cancel()
 
 <InfoBt@Button>:
     size_hint: (None, None)
@@ -2673,63 +2675,66 @@
             Label:
                 size_hint_x: None
                 width: 100
+                bold: True
                 text: "File name:"
             TextInput:
                 id: text_input
                 multiline: False
 
-        BoxLayout:
+        AnchorLayout:
             size_hint_y: None
             height: 30
-            spacing: 20
-            padding: (150, 0, 150, 0)
+            BoxLayout:
+                size_hint_x: None
+                width: 420
+                spacing: 20
 
-            TFOKButon:
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
-                text: "Save"
-                id: ok_bt
-                text_io: text_input.text if not None else ""
-                on_release:
-                    # For save dialogs requiring file name, make this check
-                    if self.text_io == "" and txt_box.height == 30: \
-                    app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
-                    # For save dialogs requiring a file name, save the file name
-                    elif self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
-                    app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
-                    elif self.text_io != "" and sd_filechooser.text == "export": \
-                    app.export_names(sd_filechooser.path, file_name = text_input.text)
-                    elif self.text_io != "" and sd_filechooser.text == "export_table": \
-                    app.export_table(sd_filechooser.path, text_input.text)
-                    elif self.text_io != "" and sd_filechooser.text == "group": \
-                    app.orto_export_groups("group", output_dir=sd_filechooser.path, output_name=text_input.text)
+                TFOKButon:
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_down: "data/backgrounds/bt_process_off.png"
+                    text: "Save"
+                    id: ok_bt
+                    text_io: text_input.text if not None else ""
+                    on_release:
+                        # For save dialogs requiring file name, make this check
+                        if self.text_io == "" and txt_box.height == 30: \
+                        app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
+                        # For save dialogs requiring a file name, save the file name
+                        elif self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
+                        app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
+                        elif self.text_io != "" and sd_filechooser.text == "export": \
+                        app.export_names(sd_filechooser.path, file_name = text_input.text)
+                        elif self.text_io != "" and sd_filechooser.text == "export_table": \
+                        app.export_table(sd_filechooser.path, text_input.text)
+                        elif self.text_io != "" and sd_filechooser.text == "group": \
+                        app.orto_export_groups("group", output_dir=sd_filechooser.path, output_name=text_input.text)
 
-                    # For save dialogs that do not require file names
-                    elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
-                    app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
-                    elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
-                    app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
-                    elif sd_filechooser.text == "protein_db" and txt_box.height == 0: \
-                    app.save_file(sd_filechooser.selection, idx=sd_filechooser.text)
-                    elif sd_filechooser.text == "orto_export_dir" and txt_box.height == 0: \
-                    app.save_file(sd_filechooser.path, idx=sd_filechooser.text)
-                    elif sd_filechooser.text == "protein" or sd_filechooser.text == "nucleotide": \
-                    app.orto_export_groups(sd_filechooser.text, output_dir=sd_filechooser.path)
-                    elif sd_filechooser.text == "import_partitions" and txt_box.height == 0: \
-                    app.partitions_import_scheme(sd_filechooser.selection[0])
-                    elif sd_filechooser.text == "select_from_file" and txt_box.height == 0: \
-                    app.select_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
-                    elif sd_filechooser.text == "remove_from_file" and txt_box.height == 0: \
-                    app.remove_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
-                    elif sd_filechooser.text == "files" or sd_filechooser.text == "taxa" and txt_box.height == 0: \
-                    root.cancel(); app.dataset_file = sd_filechooser.selection[0]; app.dialog_text("Name of the data set group", sd_filechooser.text)
-                    # Close dialog
-                    if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group" and sd_filechooser.text != "taxa" and sd_filechooser.text != "files" : root.cancel()
+                        # For save dialogs that do not require file names
+                        elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
+                        app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
+                        elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
+                        app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
+                        elif sd_filechooser.text == "protein_db" and txt_box.height == 0: \
+                        app.save_file(sd_filechooser.selection, idx=sd_filechooser.text)
+                        elif sd_filechooser.text == "orto_export_dir" and txt_box.height == 0: \
+                        app.save_file(sd_filechooser.path, idx=sd_filechooser.text)
+                        elif sd_filechooser.text == "protein" or sd_filechooser.text == "nucleotide": \
+                        app.orto_export_groups(sd_filechooser.text, output_dir=sd_filechooser.path)
+                        elif sd_filechooser.text == "import_partitions" and txt_box.height == 0: \
+                        app.partitions_import_scheme(sd_filechooser.selection[0])
+                        elif sd_filechooser.text == "select_from_file" and txt_box.height == 0: \
+                        app.select_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
+                        elif sd_filechooser.text == "remove_from_file" and txt_box.height == 0: \
+                        app.remove_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
+                        elif sd_filechooser.text == "files" or sd_filechooser.text == "taxa" and txt_box.height == 0: \
+                        root.cancel(); app.dataset_file = sd_filechooser.selection[0]; app.dialog_text("Name of the data set group", sd_filechooser.text)
+                        # Close dialog
+                        if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group" and sd_filechooser.text != "taxa" and sd_filechooser.text != "files" : root.cancel()
 
-            TFOKButon:
-                id: cancel_bt
-                text: "Cancel"
-                on_release: root.cancel()
+                TFOKButon:
+                    id: cancel_bt
+                    text: "Cancel"
+                    on_release: root.cancel()
 
 #===============================================================================
 # ACTION BAR HEADERS
@@ -4078,8 +4083,11 @@
 # PROCESS GENERAL OPTIONS
 #===============================================================================
 
+
+
 <ProcessGeneral>:
     id: main_grid
+    process_bt_wdt: 250
     padding: (5,5)
     cols: 1
     size_hint_y: None
@@ -4097,7 +4105,7 @@
 
     DarkBox:
         Label:
-            size_hint_x: .74
+            #size_hint_x: .74
             markup: True
             text: "[size=18][b]Data set[/b][/size]\n[size=13]Select the active taxa data set to perform operations[/size]"
             halign: "left"
@@ -4112,7 +4120,8 @@
 
         BoxLayout:
             spacing: 10
-            size_hint_x: .2
+            size_hint_x: None
+            width: root.process_bt_wdt
 
             ProcessBt:
                 id: active_file_set
@@ -4186,13 +4195,14 @@
 
     DarkBox:
         Label:
-            size_hint_x: .8
             markup: True
             text: "[size=18][b]Output Format[/b][/size]\n[size=13]Choose the format of the output file(s). Multiple formats may be chosen[/size]"
             halign: "left"
             valign: "middle"
             text_size: self.size
         ProcessBt:
+            size_hint_x: None
+            width: root.process_bt_wdt
             id: conv_formatbt
             text: "%s" % app.output_formats[0].title() if len(app.output_formats) == 1 else "%s selected" % len(app.output_formats)
             on_release: app.dialog_format()
@@ -4209,6 +4219,8 @@
             valign: "middle"
             text_size: self.size
         ProcessBt:
+            size_hint_x: None
+            width: root.process_bt_wdt
             id: conv
             text: "Select..."
             on_release: app.dialog_filechooser("main_output")
@@ -4234,6 +4246,7 @@
 <AdditionalProcessContents>:
     do_default_tab: False
     tab_pos: "top_left"
+    process_bt_wdt: 250
     background_color: (0,0,0,0)
     opacity: 0
 
@@ -4259,7 +4272,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Interleave[/b][/size]\n[size=13]If sequences should be in interleave format or leave"
                     halign: "left"
@@ -4267,7 +4279,8 @@
                     text_size: self.size
                 Switch:
                     id: interleave
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     on_active:
                         app.update_process_switch("interleave", self.active)
 
@@ -4275,7 +4288,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .74
                     markup: True
                     text: "[size=18][b]ZORRO weights support[/b][/size]\n[size=13]Concatenation only. Concatenates auxiliary Zorro weight files into a single *_zorro.out file."
                     halign: "left"
@@ -4290,7 +4302,8 @@
                     id: zorro
                     background_normal: "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     text: "OFF"
                     disabled: False if app.main_operations["concatenation"] else True
                     on_release:
@@ -4312,7 +4325,6 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .77
                     markup: True
                     text: "[size=15][b]Sequence collapsing options[/b][/size]"
                     halign: "left"
@@ -4327,7 +4339,8 @@
                     on_release:
                         app.dialog_general_info("collapse")
                 Switch:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     id: collapse
                     on_active:
                         if self.active == True: root.ids.hapbt.disabled = False; root.ids.collapse_file.disabled = False
@@ -4337,7 +4350,6 @@
             DarkBox:
                 height: 70
                 Label:
-                    size_hint_x: .8
                     markup: True
                     id: test2
                     text: "[size=18][b]Save in new output file[/b][/size]\n[size=13] If checked, the collapsed alignments will be saved in a file with an '_haplotype' suffix in addition to the main output file[/size]"
@@ -4346,7 +4358,8 @@
                     text_size: self.size
                 CheckBox:
                     id: collapse_file
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     disabled: True
                     on_active:
                         app.update_process_switch("collapse_file", self.active)
@@ -4355,7 +4368,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     id: test2
                     text: "[size=18][b]Haplotype prefix[/b][/size]\n[size=13] Select the prefix name for the haplotypes [/size]"
@@ -4363,7 +4375,8 @@
                     valign: "middle"
                     text_size: self.size
                 ProcessBt:
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     id: hapbt
                     disabled: True
                     text: "Hap"
@@ -4385,7 +4398,6 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=15][b]Sequence filter options[/b][/size]"
                     halign: "left"
@@ -4394,14 +4406,14 @@
                     text_size: self.size
                 Switch:
                     id: filter
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     on_active:
                         app.update_process_switch("filter", self.active)
 
             DarkBox:
                 height: 70
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Save in new output file[/b][/size]\n[size=13] If checked, the filtered alignments will be saved in a file with an '_filtered' suffix in addition to the main output file[/size]"
                     halign: "left"
@@ -4409,7 +4421,8 @@
                     text_size: self.size
                 CheckBox:
                     id: filter_file
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     disabled: False if filter.active else True
                     on_active:
                         app.update_process_switch("filter_file", self.active)
@@ -4418,7 +4431,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .74
                     markup: True
                     id: test2
                     text: "[size=18][b]Taxa filter[/b][/size]\n[size=13] Set advanced filters to excluded/included taxa [/size]"
@@ -4433,6 +4445,8 @@
                 ProcessBt:
                     id: taxa_filter
                     disabled: False if filter.active else True
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     text: "Filters ON" if app.secondary_options["taxa_filter"] else "Set filters"
                     background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["taxa_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4443,7 +4457,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .74
                     markup: True
                     id: test2
                     text: "[size=18][b]Codon position filter[/b][/size]\n[size=13] Nucleotide alignments only. Set advanced filters to excluded/included codon positions [/size]"
@@ -4458,6 +4471,8 @@
                 ProcessBt:
                     id: taxa_filter
                     disabled: False if filter.active and app.sequence_types == ["DNA"] else True
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     text: "Filters ON" if app.secondary_options["codon_filter"] else "Set filters"
                     background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["codon_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
@@ -4468,7 +4483,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .74
                     markup: True
                     id: test2
                     text: "[size=18][b]Gap/Missing data filter[/b][/size]\n[size=13] Set filters to remove alignment columns with excessive gap and/or missing data [/size]"
@@ -4484,6 +4498,8 @@
                     id: cv_filterbt
                     disabled: False if filter.active else True
                     text: "Filters ON" if app.secondary_options["gap_filter"] else "Set filters"
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["gap_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release: app.dialog_filter();
@@ -4501,7 +4517,6 @@
 
             LightBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=15][b]Gap coding options[/b][/size]"
                     halign: "left"
@@ -4510,7 +4525,8 @@
                     text_size: self.size
                 Switch:
                     id: gcoder
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     disabled: True if app.output_formats != ["nexus"] else False
                     on_active:
                         if self.active == True: root.ids.gcoder_file.disabled = False
@@ -4520,7 +4536,6 @@
             DarkBox:
                 height: 70
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Save in new output file[/b][/size]\n[size=13] If checked, the coded alignments will be saved in a file with an '_coded' suffix in addition to the main output file[/size]"
                     halign: "left"
@@ -4528,7 +4543,8 @@
                     text_size: self.size
                 CheckBox:
                     id: gcoder_file
-                    size_hint_x: .2
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     disabled: True
                     on_active:
                         app.update_process_switch("gcoder_file", self.active)
@@ -4537,7 +4553,6 @@
 
             DarkBox:
                 Label:
-                    size_hint_x: .8
                     markup: True
                     text: "[size=18][b]Gap coding method[/b][/size]\n[size=13] Choose the coding method [/size]"
                     halign: "left"
@@ -4546,6 +4561,8 @@
                 ProcessBt:
                     id: gcode_bt
                     disabled: True
+                    size_hint_x: None
+                    width: root.process_bt_wdt
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     background_normal: "data/backgrounds/bt_process_off.png"
                     text: "Choose..."
