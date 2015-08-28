@@ -963,6 +963,10 @@ class TriFusionApp(App):
     current_plot = ObjectProperty(None, allownone=True)
     current_lgd = None
     current_table = ObjectProperty(None, allownone=True)
+    # Alternate version for rapid plot switch. Only available for certain plots
+    alternative_plot = ObjectProperty(None, allownone=True)
+    alternative_lgd = None
+    alternative_table = ObjectProperty(None, allownone=True)
     # This attribute will store the StatsToggleWgt when changing the screen
     # from Statistics. When the Statistics screen is back on active, the widget
     # can be restored with this var
@@ -2377,7 +2381,7 @@ class TriFusionApp(App):
         # Schedule function that checks the process' pulse
         check_func = partial(check_process_status, second_process, second_func,
                              args2, manager)
-        Clock.schedule_interval(check_func, .5)
+        Clock.schedule_interval(check_func, .1)
 
     # ###################### BOOKMARKS OPERATIONS ##############################
 
@@ -7016,16 +7020,50 @@ class TriFusionApp(App):
                                                      "size"},
                                 "active_bt": "avg"}}
 
+        # To allow fast switching between plots with species/average toggles,
+        # If the temporary plot file already exists, load it instead of creating
+        # a new one.
+        # Alternate versions of current_plot, current_lgd and current_table
+        # are also created to allow fast switching, though the original
+        # attributes ALWAYS refer to the plot being shown.
         if plt_idx in stats_compliant:
+
+            # Show toggle widget
             self.show_stats_toggle(**stats_compliant[plt_idx])
+
+            # Check if temporary plot already exists. If so, load it instead.
+            if os.path.exists(join(self.temp_dir, plt_method[plt_idx][1])):
+                pass
+            else:
+                # Set alternate plot attributes
+                self.alternative_plot = self.current_plot
+                self.alternative_lgd = self.current_lgd
+                self.alternative_table = self.current_table
+
+                # Set new plot attributes
+                self.current_plot, self.current_lgd, self.current_table = \
+                    plt_method[plt_idx][0](**plot_data)
+
+                self.current_plot.savefig(join(self.temp_dir,
+                                               plt_method[plt_idx][1]),
+                                          bbox_inches="tight", dpi=200)
         else:
             self.previous_stats_toggle = None
 
-        self.current_plot, self.current_lgd, self.current_table = \
-            plt_method[plt_idx][0](**plot_data)
+            # Remove previous temporary plot
+            [os.remove(join(self.temp_dir, x)) for x in
+             os.listdir(self.temp_dir) if x.endswith(".png")]
 
-        self.current_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
-                                bbox_inches="tight", dpi=200)
+            # Reset alternate plot attributes
+            self.alternative_plot, self.alternative_lgd, alternative_table = \
+                None, None, None
+
+            # Set new plot attributes
+            self.current_plot, self.current_lgd, self.current_table = \
+                plt_method[plt_idx][0](**plot_data)
+
+            self.current_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
+                                    bbox_inches="tight", dpi=200)
 
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
                        self.screen.ids.plot_content)
