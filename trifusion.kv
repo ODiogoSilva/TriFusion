@@ -13,10 +13,10 @@
 <ShowcaseScreen>:
     ScrollView:
         do_scroll_x: False
-        do_scroll_y: False if root.fullscreen else (content.height > root.height - dp(16))
+        do_scroll_y: False# if root.fullscreen else (content.height > root.height - dp(16))
         AnchorLayout:
             size_hint_y: None
-            height: root.height if root.fullscreen else max(root.height, content.height)
+            height: root.height# if root.fullscreen else max(root.height, content.height)
             GridLayout:
                 id: content
                 cols: 1
@@ -360,6 +360,7 @@
 <BackButton>:
     size_hint: None, None
     size: 80,30
+    pos: 0, app.root.height - 100
     text: "  Back"
     bold: True
     opacity: .2
@@ -4568,6 +4569,7 @@
 <StatsToggleWgt>:
     size_hint: None, None
     size: 230, 50
+    pos: app.root.width - 250, app.root.height - 120
     opacity: .2
     args1: None
     args2: None
@@ -4614,6 +4616,7 @@
 <StatsPlotToolbar>
     orientation: "vertical"
     size_hint: None, None
+    pos: app.root.width - 50, (app.root.height / 2) - (self.height / 2)
     size: 50, 230
     opacity: .2
     canvas.before:

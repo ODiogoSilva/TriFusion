@@ -27,7 +27,7 @@ from kivy.config import Config
 Config.set("kivy", "log_level", "warning")
 Config.set("kivy", "desktop", 1)
 Config.set("kivy", "exit_on_escape", 0)
-Config.set("graphics", "resizable", 0)
+Config.set("graphics", "resizable", 1)
 Config.set("graphics", "fullscreen", 0)
 Config.set("graphics", "height", 700)
 Config.set("graphics", "width", 1000)
@@ -5170,9 +5170,7 @@ class TriFusionApp(App):
         toggle plots between the whole data set and species perspectives
         """
 
-        pos = self.root.width - 250, self.root.height - 120
-
-        content = StatsToggleWgt(pos=pos)
+        content = StatsToggleWgt()
         if active_bt == "avg":
             content.args2 = args
         else:
@@ -5200,8 +5198,7 @@ class TriFusionApp(App):
             pos = self.root.width - 50, self.root.height - 500
             content = OrtoPlotToolbar(pos=pos)
         else:
-            pos = self.root.width - 50, self.root.height - 500
-            content = StatsPlotToolbar(pos=pos)
+            content = StatsPlotToolbar()
 
         self.root_window.add_widget(content)
 
@@ -5211,9 +5208,7 @@ class TriFusionApp(App):
         previous screen. This is meant for headless plot screens
         """
 
-        # Determine position
-        pos = 0, self.root.height - 100
-        bt = BackButton(pos=pos)
+        bt = BackButton()
 
         self.root_window.add_widget(bt)
 
