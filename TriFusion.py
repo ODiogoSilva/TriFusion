@@ -569,6 +569,10 @@ class SizeDistribution(TFButtonOff):
     pass
 
 
+class NucAAProportions(TFButtonOff):
+    pass
+
+
 class GeneOccupancy(TFButtonOff):
     pass
 
@@ -6952,7 +6956,8 @@ class TriFusionApp(App):
 
         # Storage of Options buttons separated by major analysis types
         wgts = {"General information": [self.screen.ids.general_information,
-                                        [SizeDistribution()]],
+                                        [SizeDistribution(),
+                                         NucAAProportions()]],
                 "Missing Data": [self.screen.ids.missing_data_opts,
                                  [GeneOccupancy(), MissingOrto(),
                                   MissingData()]],
@@ -7008,16 +7013,18 @@ class TriFusionApp(App):
                       "Distribution of sequence size": [box_plot,
                                          "avg_seqsize_species.png"],
                       "Distribution of sequence size all": [histogram_plot,
-                                         "avg_seqsize.png"]}
+                                         "avg_seqsize.png"],
+                      "Proportion of nucleotides/residues": [bar_plot,
+                                         "char_proportions.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {"Distribution of sequence size":
                                {"args": {"plt_idx": "Distribution of sequence "
-                                                     "size all"},
+                                                    "size all"},
                                 "active_bt": "sp"},
                            "Distribution of sequence size all":
                                {"args": {"plt_idx": "Distribution of sequence "
-                                                     "size"},
+                                                    "size"},
                                 "active_bt": "avg"}}
 
         # To allow fast switching between plots with species/average toggles,

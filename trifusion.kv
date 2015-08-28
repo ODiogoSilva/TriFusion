@@ -4675,13 +4675,20 @@
 
 
 ## General information
-
 <SizeDistribution>:
     size_hint_y: None
     height: 30
     text: "Distribution of sequence size"
     on_release:
         app.stats_show_plot(self.text)
+
+<NucAAProportions>:
+    size_hint_y: None
+    height: 30
+    text: "Proportion of nucleotides/residues"
+    on_release:
+        app.stats_show_plot(self.text)
+
 
 ## Polymorphism and Variation
 <SequenceSimilarity>:
