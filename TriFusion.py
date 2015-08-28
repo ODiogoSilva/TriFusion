@@ -4952,7 +4952,7 @@ class TriFusionApp(App):
         # Add text body
         content.ids.content.text = body_str
 
-        self.show_popup(title=title_str, content=content, size=(400, 300))
+        self.show_popup(title=title_str, content=content, size_hint=(.5, .5))
 
     def operation_queue_init(self):
         """
@@ -6750,11 +6750,11 @@ class TriFusionApp(App):
 
         if idx == "new_folder":
             self._subpopup = Popup(title=title, content=content,
-                                   size=(200, 150), size_hint=(None, None))
+                                   size=(400, 150), size_hint=(None, None))
             self._subpopup.open()
         else:
             self.show_popup(title=title, content=content,
-                            size=(200, 150))
+                            size=(400, 150))
 
     def dialog_warning(self, msg1, msg2):
 
