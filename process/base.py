@@ -26,6 +26,31 @@
 import sys
 from process.error_handling import *
 
+dna_chars = ["A", "T", "G", "C"]
+
+aminoacid_table = {"A": ["Alanine", "nonpolar", "neutral"],
+                   "R": ["Arginine", "polar", "positive"],
+                   "N": ["Asparagine", "polar", "neutral"],
+                   "D": ["Aspartate", "polar", "negative"],
+                   "C": ["Cysteine", "nonpolar", "neutral"],
+                   "E": ["Glutamate", "polar", "negative"],
+                   "Q": ["Glutamine", "polar", "neutral"],
+                   "G": ["Glycine", "nonpolar", "neutral"],
+                   "H": ["Histidine", "polar", "neutral"],
+                   "I": ["Isoleucine", "nonpolar", "neutral"],
+                   "L": ["Leucine", "nonpolar", "neutral"],
+                   "K": ["Lysine", "polar", "positive"],
+                   "M": ["Methionine", "nonpolar", "neutral"],
+                   "F": ["Phenylalanine", "nonpolar", "neutral"],
+                   "P": ["Proline", "nonpolar", "neutral"],
+                   "S": ["Serine", "polar", "neutral"],
+                   "T": ["Threonine", "polar", "neutral"],
+                   "W": ["Tryptophan", "nonpolar", "neutral"],
+                   "Y": ["Tyrosine", "polar", "neutral"],
+                   "V": ["Valine", "nonpolar", "neutral"],
+                   "U": ["Selenocysteine", "", ""],
+                   "O": ["Pyrrolysine", "", ""],
+                   "X": ["Missing", "" , ""]}
 
 def merger(ranges):
     """
