@@ -1122,15 +1122,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="577.26749"
-     inkscape:cy="65.420168"
+     inkscape:zoom="1"
+     inkscape:cx="1332.6578"
+     inkscape:cy="-1004.4128"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1366"
-     inkscape:window-height="709"
-     inkscape:window-x="0"
+     inkscape:window-height="710"
+     inkscape:window-x="1920"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
      showguides="false"
@@ -4396,5 +4396,57 @@
        d="m 821.39103,747.5306 -10.9168,-10.9168 -5.45841,0 0,5.4584 10.9168,10.9168 z m 5.4584,-16.3752 5.45841,0 0,10.9168 -5.45841,0 z m 21.83361,27.292 10.9168,0 0,5.4584 -10.9168,0 z m 5.4584,-16.3752 0,-5.4584 -5.4584,0 -10.9168,10.9168 5.45839,5.4584 z m -54.58402,16.3752 10.91681,0 0,5.4584 -10.91681,0 z m 27.29201,21.8336 5.45841,0 0,10.9168 -5.45841,0 z m -21.83361,0 0,5.4584 5.45841,0 10.9168,-10.9168 -5.45841,-5.4584 z m 80.682,26.098 -54.25242,-54.2524 c -1.59249,-1.5925 -4.19751,-1.5925 -5.79,0 l -5.1268,5.1269 c -1.59248,1.5923 -1.59248,4.1974 0,5.7899 l 54.25242,54.2524 c 1.59249,1.5925 4.1975,1.5925 5.79,0 l 5.1268,-5.1268 c 1.59248,-1.5925 1.59248,-4.1975 0,-5.79 z m -45.20238,-28.8272 -16.37521,-16.3751 5.4584,-5.4584 16.3752,16.3752 -5.45839,5.4583 z"
        inkscape:connector-curvature="0"
        style="fill:#ffffff" />
+    <rect
+       style="opacity:0;fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3050-2-7-3-0-0-0-2-8-9-1-7-3"
+       width="134.67111"
+       height="134.67111"
+       x="1509.6644"
+       y="1850.0266"
+       ry="20.867188"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="26.731785"
+       inkscape:export-ydpi="26.731785"
+       rx="20.867188" />
+    <path
+       id="path9058-0"
+       d="m 1527.9588,1955.0298 90,0 0,9.5384 -90,0 z m 11.2499,-19.077 11.2501,0 0,14.3079 -11.2501,0 z m 16.8749,-19.0771 11.2501,0 0,33.385 -11.2501,0 z m 16.8755,14.3079 11.2499,0 0,19.0771 -11.2499,0 z m 16.8745,-28.6154 11.2501,0 0,47.6925 -11.2501,0 z"
+       inkscape:connector-curvature="0"
+       style="fill:#37abc8;fill-opacity:1;stroke:none;stroke-width:1.77690005;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;opacity:0.3;marker-end:"
+       inkscape:export-xdpi="26.731785"
+       inkscape:export-ydpi="26.731785" />
+    <path
+       id="path9637-9"
+       d="m 1597.6613,1872.3127 0,-11.6158 24.5661,17.9591 -24.5661,17.9591 0,-11.8709 c -28.5805,-0.4901 -27.3544,14.2079 -20.0785,23.8437 -17.958,-14.19 -14.1451,-36.9269 20.0785,-36.2752 z"
+       inkscape:connector-curvature="0"
+       style="fill:#37abc8;fill-opacity:1;opacity:0.3;marker-end:"
+       inkscape:export-xdpi="26.731785"
+       inkscape:export-ydpi="26.731785" />
+    <rect
+       style="opacity:0;fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3050-2-7-3-0-0-0-2-8-9-1-7-0-88"
+       width="134.67111"
+       height="134.67111"
+       x="1509.6644"
+       y="2017.0266"
+       ry="20.867188"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="26.731785"
+       inkscape:export-ydpi="26.731785"
+       rx="20.867188" />
+    <path
+       id="path9129-7"
+       d="m 1532.775,2071.1994 0,62.074 90.2894,0 0,-62.074 -90.2894,0 z m 33.8585,39.5016 0,-11.2861 22.5724,0 0,11.2861 -22.5724,0 z m 22.5724,5.6432 0,11.2861 -22.5724,0 0,-11.2861 22.5724,0 z m 0,-33.8586 0,11.2862 -22.5724,0 0,-11.2862 22.5724,0 z m -28.2155,0 0,11.2862 -22.5723,0 0,-11.2862 22.5723,0 z m -22.5723,16.9293 22.5723,0 0,11.2861 -22.5723,0 0,-11.2861 z m 56.4309,0 22.5724,0 0,11.2861 -22.5724,0 0,-11.2861 z m 0,-5.6431 0,-11.2862 22.5724,0 0,11.2862 -22.5724,0 z m -56.4309,22.5724 22.5723,0 0,11.2861 -22.5723,0 0,-11.2861 z m 56.4309,11.2861 0,-11.2861 22.5724,0 0,11.2861 -22.5724,0 z"
+       inkscape:connector-curvature="0"
+       style="fill:#37abc8;fill-opacity:1;stroke:none;stroke-width:0.8923077;stroke-opacity:1;opacity:0.3"
+       inkscape:export-xdpi="26.731785"
+       inkscape:export-ydpi="26.731785" />
+    <path
+       id="path9637-1-6"
+       d="m 1596.2033,2036.6389 0,-11.6158 24.5661,17.9591 -24.5661,17.9591 0,-11.8709 c -28.5805,-0.4901 -27.3544,14.2079 -20.0785,23.8437 -17.958,-14.19 -14.1451,-36.9269 20.0785,-36.2752 z"
+       inkscape:connector-curvature="0"
+       style="fill:#37abc8;fill-opacity:1;opacity:0.3"
+       inkscape:export-xdpi="26.731785"
+       inkscape:export-ydpi="26.731785" />
   </g>
 </svg>

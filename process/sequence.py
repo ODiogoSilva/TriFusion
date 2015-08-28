@@ -1743,13 +1743,17 @@ class AlignmentList(Base):
                 data_storage[sp].append(len(seq.replace("-", "").
                                         replace(aln.sequence_code[1], "")))
 
+        # Adapt y-axis label according to sequence code
+        seq_code = aln.sequence_code[0]
+        ax_ylabel = "Size (bp)" if seq_code == "DNA" else "Size (residues)"
+
         data_storage = OrderedDict(sorted(data_storage.items(), reverse=True,
                                    key=lambda t: np.mean(t[1])))
 
         return {"data": list(data_storage.values()),
                 "labels": list(data_storage.keys()),
                 "title": "Sequence size distribution per species",
-                "ax_names": [None, "Size (bp)"]}
+                "ax_names": [None, ax_ylabel]}
 
     def average_seqsize(self):
         """
@@ -1762,10 +1766,14 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
             data_storage.append(aln.locus_length)
 
+        # Adapt y-axis label according to sequence code
+        seq_code = aln.sequence_code[0]
+        ax_xlabel = "Size (bp)" if seq_code == "DNA" else "Size (residues)"
+
         return {"data": data_storage,
                 "title": "Average sequence size distribution",
-                "ax_names": [None, "Size (bp)"],
-                "table_header": ["Size", "Frequency"]}
+                "ax_names": [ax_xlabel, ["Frequency"]],
+                "table_header": [ax_xlabel, "Frequency"]}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
