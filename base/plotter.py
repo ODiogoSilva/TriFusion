@@ -28,6 +28,8 @@ import matplotlib
 matplotlib.use("agg")
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+from matplotlib.collections import PatchCollection
 import numpy as np
 
 
@@ -425,5 +427,28 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
         table.append([p, val])
 
     return plt, lgd, table
+
+
+def punchcard_plot(data, labels=None, legend=None, ax_names=None,
+                   table_header=None):
+
+    patches = []
+
+    for x in range(data.shape[0]):
+        for y in range(data.shape[1]):
+            print(data[x][y])
+            print(data[x][y] * 100 / (float(data.shape[1]) * data.shape[0]))
+            c = Circle((x, y), data[x][y] * 4)
+            patches.append(c)
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlim(-1, (data.shape[0] - .5))
+    ax.set_ylim(-1, data.shape[1])
+
+    p = PatchCollection(patches)
+    ax.add_collection(p)
+
+    return plt, None, None
 
 __author__ = 'diogo'
