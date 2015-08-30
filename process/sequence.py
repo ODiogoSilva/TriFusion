@@ -1156,6 +1156,7 @@ class AlignmentList(Base):
         self.filename_list = []
         self.taxa_names = []
         self.non_alignments = []
+        self.sequence_code = None
 
     def update_active_alignments(self, aln_list):
         """
