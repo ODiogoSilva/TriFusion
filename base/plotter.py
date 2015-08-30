@@ -28,6 +28,7 @@ import matplotlib
 matplotlib.use("agg")
 
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from matplotlib.patches import Circle
 from matplotlib.collections import PatchCollection
 import numpy as np
@@ -276,10 +277,9 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None,
 
     for c, d in enumerate(data):
 
-        try:
-            clr = clr_list[c]
-        except IndexError:
-            clr = np.random.rand(3, 1)
+        c1 = c if c < 14 else c - 14.5
+
+        clr = cm.Set1(c1 / 14., 1)
 
         if c == 0:
             bplot = ax.bar(xpos, d, w, color=clr, label=legend[c])
