@@ -415,4 +415,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     elif stats_idx == "Proportion of nucleotides/residues sp":
         plot_data = aln_obj.characters_proportion_per_species()
 
+    elif stats_idx == "Distribution of sequence similarity":
+        plot_data = aln_obj.sequence_similarity()
+
     return [plot_data]
+

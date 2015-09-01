@@ -1119,7 +1119,8 @@ class AlignmentList(Base):
                 elif isinstance(alignment_object.alignment,
                                 AlignmentUnequalLength):
                     self.non_alignments.append(alignment_object.path)
-                    print("Warning: Sequences of unequal length detected")
+                    print("Warning: Sequences of unequal length detected"
+                          " in file {}".format(alignment_object.name))
 
                 # Check for duplicate alignments
                 elif alignment_object.path in [x.path for x in
@@ -1859,6 +1860,43 @@ class AlignmentList(Base):
                 "legend": legend,
                 "ax_names": ["Taxa", ax_ylabel],
                 "table_header": ["Taxon"] + legend}
+
+    def sequence_similarity(self):
+        """
+        Creates average sequence similarity data
+        """
+
+        def get_similarity(seq1, seq2):
+            """
+            Gets the similarity between two sequences
+            :param seq1: string
+            :param seq2: string
+            """
+
+            similarity = 0.0
+
+            for c1, c2 in zip(*[seq1, seq2]):
+                if c1 == c2:
+                    similarity += 1.0
+
+            return similarity
+
+        data = []
+
+        for aln in self.alignments.values():
+
+            aln_similarities = []
+
+            for seq1, seq2 in itertools.combinations(aln.alignment.values(), 2):
+
+                x = get_similarity(seq1, seq2)
+
+                aln_similarities.append(x / float(aln.locus_length))
+
+            data.append(np.mean(aln_similarities) * 100)
+
+        return {"data": data,
+                "ax_names": ["Similarity (%)", "Frequency"]}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
