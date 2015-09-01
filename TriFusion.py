@@ -7012,7 +7012,9 @@ class TriFusionApp(App):
                                          "char_proportions.png"],
                       "Proportion of nucleotides/residues sp":
                                          [stacked_bar_plot,
-                                         "char_proportions_sp.png"]}
+                                         "char_proportions_sp.png"],
+                      "Distribution of sequence similarity": [histogram_plot,
+                                         "similarity_distribution.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {"Distribution of sequence size":
