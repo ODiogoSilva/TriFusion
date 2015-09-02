@@ -1877,6 +1877,20 @@ class AlignmentList(Base):
 
         return similarity
 
+    @staticmethod
+    def _get_differences(seq1, seq2):
+        """
+        Returns the number of differences between two sequences
+        """
+
+        s = 0
+
+        for c1, c2 in zip(*[seq1, seq2]):
+            if c1 != c2:
+                s += 1
+
+        return s
+
     def sequence_similarity(self):
         """
         Creates average sequence similarity data
