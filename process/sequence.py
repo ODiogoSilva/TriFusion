@@ -1861,25 +1861,26 @@ class AlignmentList(Base):
                 "ax_names": ["Taxa", ax_ylabel],
                 "table_header": ["Taxon"] + legend}
 
+    @staticmethod
+    def _get_similarity(seq1, seq2):
+        """
+        Gets the similarity between two sequences
+        :param seq1: string
+        :param seq2: string
+        """
+
+        similarity = 0.0
+
+        for c1, c2 in zip(*[seq1, seq2]):
+            if c1 == c2:
+                similarity += 1.0
+
+        return similarity
+
     def sequence_similarity(self):
         """
         Creates average sequence similarity data
         """
-
-        def get_similarity(seq1, seq2):
-            """
-            Gets the similarity between two sequences
-            :param seq1: string
-            :param seq2: string
-            """
-
-            similarity = 0.0
-
-            for c1, c2 in zip(*[seq1, seq2]):
-                if c1 == c2:
-                    similarity += 1.0
-
-            return similarity
 
         data = []
 
@@ -1889,14 +1890,48 @@ class AlignmentList(Base):
 
             for seq1, seq2 in itertools.combinations(aln.alignment.values(), 2):
 
-                x = get_similarity(seq1, seq2)
+                x = self._get_similarity(seq1, seq2)
 
                 aln_similarities.append(x / float(aln.locus_length))
 
-            data.append(np.mean(aln_similarities) * 100)
+            if aln_similarities:
+                data.append(np.mean(aln_similarities) * 100)
 
         return {"data": data,
                 "ax_names": ["Similarity (%)", "Frequency"]}
+
+    def sequence_similarity_per_species(self):
+        """
+        Creates data for a triangular matrix of sequence similarity for pairs
+        of taxa
+        """
+
+        # Create matrix for parwise comparisons
+        data = [np.empty((len(self.taxa_names), 0)).tolist() for _ in
+                range(len(self.taxa_names))]
+
+        taxa_pos = OrderedDict((x, y) for y, x in enumerate(self.taxa_names))
+
+        for aln in self.alignments.values():
+
+            for tx1, tx2 in itertools.combinations(taxa_pos.keys(), 2):
+
+                try:
+                    seq1, seq2 = aln.alignment[tx1], aln.alignment[tx2]
+                except KeyError:
+                    continue
+
+                similarity = self._get_similarity(seq1, seq2) / \
+                                 float(aln.locus_length)
+                data[taxa_pos[tx1]][taxa_pos[tx2]].append(similarity)
+
+        data = np.array([[np.mean(y) if y else 0. for y in x] for x in data])
+        mask = np.tri(data.shape[0], k=0)
+        data = np.ma.array(data, mask=mask)
+
+        return {"data": data,
+                "labels": list(taxa_pos)}
+
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

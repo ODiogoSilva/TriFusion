@@ -7014,7 +7014,10 @@ class TriFusionApp(App):
                                          [stacked_bar_plot,
                                          "char_proportions_sp.png"],
                       "Distribution of sequence similarity": [histogram_plot,
-                                         "similarity_distribution.png"]}
+                                         "similarity_distribution.png"],
+                      "Distribution of sequence similarity sp":
+                                         [triangular_heat,
+                                         "similarity_distribution_sp.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {"Distribution of sequence size":
@@ -7032,6 +7035,14 @@ class TriFusionApp(App):
                            "Proportion of nucleotides/residues sp":
                                {"args": {"plt_idx": "Proportion of "
                                                     "nucleotides/residues"},
+                                "active_bt": "sp"},
+                           "Distribution of sequence similarity":
+                               {"args": {"plt_idx": "Distribution of sequence "
+                                                    "similarity sp"},
+                                "active_bt": "avg"},
+                           "Distribution of sequence similarity sp":
+                               {"args": {"plt_idx": "Distribution of sequence"
+                                                    " similarity"},
                                 "active_bt": "sp"}}
 
         # To allow fast switching between plots with species/average toggles,
