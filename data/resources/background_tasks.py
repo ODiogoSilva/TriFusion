@@ -418,5 +418,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     elif stats_idx == "Distribution of sequence similarity":
         plot_data = aln_obj.sequence_similarity()
 
+    elif stats_idx == "Distribution of sequence similarity sp":
+        plot_data = aln_obj.sequence_similarity_per_species()
+
     return [plot_data]
 
