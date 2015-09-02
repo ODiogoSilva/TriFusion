@@ -404,7 +404,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
     # Add cutom artist for legend
     meanArtist = plt.Line2D((0, 1), (0, 1), color="r", linestyle="--")
 
-    lgd = ax.legend([meanArtist], ["Mean size"], fancybox=True, shadow=True,
+    lgd = ax.legend([meanArtist], ["Mean"], fancybox=True, shadow=True,
                     framealpha=.8, fontsize="large")
     lgd.get_frame().set_facecolor("white")
 
