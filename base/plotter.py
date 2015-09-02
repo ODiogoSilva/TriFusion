@@ -429,6 +429,56 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
     return plt, lgd, table
 
 
+def triangular_heat(data, labels=None):
+    """
+    Creates a triangular heatmap plot based on an array of triangular shape,
+    or with a masked triangle
+    :return:
+    """
+
+    #plt.style.use("ggplot")
+    #plt.rcParams.update({"font.size": 5})
+
+    fig, ax = plt.subplots()
+
+    cmap = cm.get_cmap("jet", 100)
+    cmap.set_bad("w")
+
+    heat = ax.imshow(data, interpolation="nearest", cmap=cmap)
+
+    if labels:
+        # Set ticks for label positioning
+        ax.set_xticks(np.arange(data.shape[1]), minor=False)
+        ax.set_yticks(np.arange(data.shape[0]), minor=False)
+        # Set minor ticks that will make the grid
+        ax.set_xticks(np.arange(data.shape[1]) + .5, minor=True)
+        ax.set_yticks(np.arange(data.shape[0]) - .5, minor=True)
+        # Set x axis labels on top and y axis labels on right
+        ax.xaxis.tick_top()
+        ax.yaxis.tick_right()
+        # Set axis labels
+        # Remove first entry of xlabel
+        xlabel = ["" if x == 0 else labels[x] for x in range(len(labels))]
+        ax.set_xticklabels(xlabel, rotation=45, ha="left")
+        # Remove last entry of ylabel
+        ylabel = ["" if x == len(labels) - 1 else labels[x] for x in
+                  range(len(labels))]
+        ax.set_yticklabels(ylabel)
+        # Remove major ticks
+        plt.tick_params(axis="both", which="major", top="off", right="off",
+                        labelsize=5)
+
+    plt.grid(True, which="minor")
+    plt.grid(False, which="major")
+
+    cbaxes = fig.add_axes([.18, 0.1, 0.03, 0.8])
+    cbar = plt.colorbar(heat, cax=cbaxes)
+    cbar.ax.yaxis.set_ticks_position("left")
+    cbar.set_label("Similarity proportion")
+
+    return plt, None, None
+
+
 def punchcard_plot(data, labels=None, legend=None, ax_names=None,
                    table_header=None):
 
