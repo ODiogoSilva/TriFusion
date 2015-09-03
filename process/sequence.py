@@ -1283,6 +1283,9 @@ class AlignmentList(Base):
 
             if isinstance(aln.alignment, Exception):
                 self.bad_alignments.append(aln.name)
+                # Check for duplicate alignments
+            elif aln.path in [x.path for x in self.alignments.values()]:
+                self.duplicate_alignments.append(aln.name)
             else:
                 # Get seq code
                 if not self.sequence_code:
