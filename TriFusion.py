@@ -1236,11 +1236,6 @@ class TriFusionApp(App):
         # Set schedule for mouse over events on side panel
         Clock.schedule_interval(lambda x: self._on_mouseover_tabs(), .1)
 
-        # This corrects a weird bug where the buttons in the dropdown of the
-        # taxa tab in the side panel are open by default.
-        #self.root.ids.taxa_dd.dismiss()
-        #self.root.ids.file_dd.dismiss()
-
         # Set path to sqlite database
         self.sqldb = join(self.temp_dir, "trifusion.sql3")
 
