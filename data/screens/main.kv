@@ -54,17 +54,52 @@ ShowcaseScreen:
                         bold: True
                         font_size: 20
 
-                GridLayout:
-                    cols: 3
-                    padding: 10
-                    spacing: 5, 5
-                    id: home_projects_grid
-                    Button:
-                        disabled: True
-                        text: "No saved projects"
-                        bold: True
+                ScrollView
+                    GridLayout:
+                        cols: 3
+                        padding: 10
+                        spacing: 5, 5
                         size_hint_y: None
-                        height: 50
+                        height: sum((x.height for x in self.children))
+                        id: home_projects_grid
+                        Button:
+                            disabled: True
+                            text: "No saved projects"
+                            bold: True
+                            size_hint_y: None
+                            height: 50
+
+                Hseparator:
+                    thickness: 1.5
+
+                Widget:
+                    size_hint_y: None
+                    height: 5
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: 45
+                    padding: 10
+
+                    ProjectOrtoBt
+
+                    Label:
+                        bold: True
+                        font_size: 16
+                        halign: "center"
+                        valign: "top"
+                        text_size: self.size
+                        text: "Orthology project"
+
+                    ProjectProcBt
+
+                    Label:
+                        bold: True
+                        font_size: 16
+                        halign: "center"
+                        valign: "top"
+                        text_size: self.size
+                        text: "Process project"
 
 #        BoxLayout:
 #            BoxLayout:
