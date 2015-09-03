@@ -3184,9 +3184,9 @@ class TriFusionApp(App):
         inf_bt = Button(size_hint=(None, None), width=30,
                         height=30, id="%s?" % idx,
                         background_normal=join("data", "backgrounds",
-                                               "info_bt.png"),
+                                               "info_bt_down.png"),
                         background_down=join("data", "backgrounds",
-                                             "info_bt_down.png"))
+                                             "info_bt.png"))
         inf_bt.bind(on_release=self.popup_info)
 
         # Set remove button with event binded and add the widget
@@ -3536,15 +3536,16 @@ class TriFusionApp(App):
                       height=30, id="%sC" % part_name, bold=True,
                       border=(0, 0, 0, 0))
         c_bt.background_normal = join("data", "backgrounds",
-                                      "count_bt.png")
-        c_bt.background_down = join("data", "backgrounds", "bt_process.png")
+                                      "bt_process.png")
+        c_bt.background_down = join("data", "backgrounds", "count_bt.png")
         c_bt.bind(on_release=lambda x: self.dialog_partition_files(bt.text))
 
         # Create edition button
         ed_bt = Button(size_hint=(None, None), width=30,
                        height=30, id="%s?" % part_name, border=(0, 0, 0, 0))
-        ed_bt.background_normal = join("data", "backgrounds", "edit_bt.png")
-        ed_bt.background_down = join("data", "backgrounds", "edit_bt_down.png")
+        ed_bt.background_normal = join("data", "backgrounds",
+                                       "edit_bt_down.png")
+        ed_bt.background_down = join("data", "backgrounds", "edit_bt.png")
         ed_bt.bind(on_release=self.dialog_partitions)
 
         return bt, c_bt, ed_bt
