@@ -389,7 +389,8 @@ class Partitions():
                 return part
 
     def add_partition(self, name, length=None, locus_range=None, codon=False,
-                      use_counter=False, file_name=None, model_cls=None):
+                      use_counter=False, file_name=None, model_cls=None,
+                      auto_correct_name=True):
         """
         Adds a new partition providing the length or the range of current
         alignment. If both are provided, the length takes precedence.The range
@@ -403,6 +404,9 @@ class Partitions():
         :param file_name: string. If the file name is not provided by the name
         argument (which is instead the name of a partition), use this argument.
         :param model_cls: list. A model value from another partition object
+        :param auto_correct_name: bool. If True, when a duplicate partition
+        appears, a counter will be appended to the original name until the name
+        is unique. If False, raises an exception.
 
         IMPORTANT NOTE on self.model: The self.model attribute was designed
         in a way that allows the storage of different substitution models
@@ -417,8 +421,13 @@ class Partitions():
         """
 
         if name in self.partitions:
-            raise PartitionException("Partition name %s is already in partition"
-                                     "table" % name)
+            if auto_correct_name:
+                c = 1
+                while "{}_{}".format(name, c) in self.partitions:
+                    c += 1
+            else:
+                raise PartitionException("Partition name %s is already in partition"
+                                         "table" % name)
 
         # When length is provided
         if length:
