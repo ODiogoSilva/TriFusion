@@ -52,47 +52,35 @@ ShowcaseScreen:
                             size_hint_y: None
                             height: sum([x.height for x in self.children])
 
-                            TFButton:
+                            TFStatsButton:
                                 text: "General information"
-                                height: 45
-                                background_down: "data/backgrounds/bt_process.png"
-                                size_hint_y: None
                                 on_release:
-                                    app.toggle_data_options(self.text)
+                                    app.toggle_data_options(self, self.text)
 
                             OptsGrid:
                                 id: general_information
                                 grid_name: "General information"
 
-                            TFButton:
+                            TFStatsButton:
                                 text: "Polymorphism and Variation"
-                                height: 45
-                                background_down: "data/backgrounds/bt_process.png"
-                                size_hint_y: None
                                 on_release:
-                                    app.toggle_data_options(self.text)
+                                    app.toggle_data_options(self, self.text)
 
                             OptsGrid:
                                 id: polymorphism_data_opts
                                 grid_name: "Polymorphism and Variation"
 
-                            TFButton:
+                            TFStatsButton:
                                 text: "Missing Data"
-                                height: 45
-                                background_down: "data/backgrounds/bt_process.png"
-                                size_hint_y: None
                                 on_release:
-                                    app.toggle_data_options(self.text)
+                                    app.toggle_data_options(self, self.text)
 
                             OptsGrid:
                                 id: missing_data_opts
                                 grid_name: "Missing Data"
 
-                            TFButton:
+                            TFStatsButton:
                                 text: "Phylogenetic Tree Annotation"
-                                height: 45
-                                background_down: "data/backgrounds/bt_process.png"
-                                size_hint_y: None
 
                             OptsGrid:
                                 id: tree_data_opts
