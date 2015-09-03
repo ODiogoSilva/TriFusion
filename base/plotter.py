@@ -436,9 +436,6 @@ def triangular_heat(data, labels=None):
     :return:
     """
 
-    #plt.style.use("ggplot")
-    #plt.rcParams.update({"font.size": 5})
-
     fig, ax = plt.subplots()
 
     cmap = cm.get_cmap("jet", 100)
@@ -455,7 +452,6 @@ def triangular_heat(data, labels=None):
         ax.set_yticks(np.arange(data.shape[0]) - .5, minor=True)
         # Set x axis labels on top and y axis labels on right
         ax.xaxis.tick_top()
-        ax.yaxis.tick_right()
         # Set axis labels
         # Remove first entry of xlabel
         xlabel = ["" if x == 0 else labels[x] for x in range(len(labels))]
@@ -466,14 +462,16 @@ def triangular_heat(data, labels=None):
         ax.set_yticklabels(ylabel)
         # Remove major ticks
         plt.tick_params(axis="both", which="major", top="off", right="off",
-                        labelsize=5)
+                        left="off", labelsize=5)
+        # Remove minor ticks
+        plt.tick_params(axis="y", which="minor", right="off")
 
     plt.grid(True, which="minor")
     plt.grid(False, which="major")
 
-    cbaxes = fig.add_axes([.18, 0.1, 0.03, 0.8])
-    cbar = plt.colorbar(heat, cax=cbaxes)
-    cbar.ax.yaxis.set_ticks_position("left")
+    plt.gca().invert_xaxis()
+
+    cbar = plt.colorbar(heat)
     cbar.set_label("Similarity proportion")
 
     return plt, None, None
