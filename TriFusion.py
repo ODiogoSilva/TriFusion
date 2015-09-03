@@ -3235,7 +3235,10 @@ class TriFusionApp(App):
                 self.sidepanel_add_bts(file_name, "Files", mode=mode)
 
             else:
-                self.root.ids.file_sl.add_widget(LoadMoreBt())
+                # Check if morebt is already present
+                if not [x for x in self.root.ids.file_sl.children if
+                        isinstance(x, LoadMoreBt)]:
+                    self.root.ids.file_sl.add_widget(LoadMoreBt())
                 return
 
     def sidepanel_add_bts(self, idx, tab_name, mode="alignment"):
