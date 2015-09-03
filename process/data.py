@@ -426,8 +426,8 @@ class Partitions():
                 while "{}_{}".format(name, c) in self.partitions:
                     c += 1
             else:
-                raise PartitionException("Partition name %s is already in partition"
-                                         "table" % name)
+                raise PartitionException("Partition name %s is already in "
+                                         "partition table" % name)
 
         # When length is provided
         if length:
