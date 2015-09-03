@@ -189,6 +189,123 @@
             on_release:
                 root.cancel()
 
+#===============================================================================
+# SIDE PANEL
+#===============================================================================
+
+<SP_MoreOpts_Dialog>:
+    id: sd_moreopts_format_dlg
+    orientation: "vertical"
+    ds_type: ""
+    size_hint: None, None
+    height: 250
+    width: 270
+
+    canvas.before:
+        Color:
+            rgb: (.2, .2, .2)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    StackLayout:
+        size_hint_y: None
+        height: 0
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                rectangle: root.x, root.y, root.width, root.height
+
+    ScrollView:
+        GridLayout:
+            id: grid_wgt
+            cols: 1
+            padding: 10
+            spacing: 5
+            size_hint_y: None
+            height: 250
+            Label:
+                size_hint_y: None
+                height: 25
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                text: "Remove options"
+                bold: True
+                color: (0.216, 0.67, 0.784, 1)
+
+            TFButton:
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                size_hint_y: None
+                height: 30
+                text: "Remove file names from .txt"
+                bold: True
+                on_release:
+                    app.sidepanel_remove_moreopts()
+                    app.dialog_remove_from_file()
+
+            Label:
+                size_hint_y: None
+                height: 25
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                text: "Select options"
+                bold: True
+                color: (0.216, 0.67, 0.784, 1)
+
+            TFButton:
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                size_hint_y: None
+                height: 30
+                text: "Select file names from .txt"
+                bold: True
+                on_release:
+                    app.sidepanel_remove_moreopts()
+                    app.dialog_select_from_file()
+
+            Label:
+                size_hint_y: None
+                height: 25
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                text: "Export options"
+                bold: True
+                color: (0.216, 0.67, 0.784, 1)
+
+            TFButton:
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                size_hint_y: None
+                height: 30
+                text: "Select file names from .txt"
+                bold: True
+                on_release:
+                    app.sidepanel_remove_moreopts()
+                    app.dialog_filechooser()
+                    app.export_mode = ("file", "all")
+
+            TFButton:
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                size_hint_y: None
+                height: 30
+                text: "Select file names from .txt"
+                bold: True
+                on_release:
+                    app.sidepanel_remove_moreopts()
+                    app.dialog_filechooser("export")
+                    app.export_mode = ("file", "selected")
+
 
 #===============================================================================
 # ROOT WINDOW
@@ -330,6 +447,10 @@
                 rectangle: root.x,root.y,root.width,root.height
 
 <FancyMarker>:
+    size_hint: None, None
+    border: 0,0,0,0
+
+<FancyMarkerPersist>:
     size_hint: None, None
     border: 0,0,0,0
 
@@ -5095,7 +5216,8 @@ FloatLayout:
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     on_release:
-                                                        file_dd.open(self)
+                                                        #file_dd.open(self)
+                                                        app.sidepanel_moreopts_dialog(self)
                                                 TFButton:
                                                     id: rm_all_File
                                                     size_hint_x: None
@@ -5140,8 +5262,9 @@ FloatLayout:
                                                         text: "  Remove file names from .txt"
                                                         bold: True
                                                         on_release:
-                                                            app.dialog_remove_from_file()
-                                                            file_dd.dismiss()
+                                                            #app.dialog_remove_from_file()
+                                                            #file_dd.dismiss()
+                                                            print(file_dd.width, file_dd.height)
 
                                                     Label:
                                                         size_hint_y: None

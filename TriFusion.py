@@ -48,6 +48,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.dropdown import DropDown
 from kivy.uix.spinner import Spinner
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
@@ -406,6 +407,13 @@ class AutoCompTextInput(TextInput):
                                                           from_undo=from_undo)
 
 
+class SP_MoreOpts_Dialog(BoxLayout):
+    def __init__(self, **kwargs):
+        super(SP_MoreOpts_Dialog, self).__init__(**kwargs)
+
+        self.ds_type = kwargs["ds_type"]
+
+
 class PartitionsDialog(BoxLayout):
     """
     Custom layout for partition box when editing partitions
@@ -638,6 +646,10 @@ class FancyButton(Button):
 
 
 class FancyMarker(Button):
+    pass
+
+
+class FancyMarkerPersist(Button):
     pass
 
 
@@ -1012,6 +1024,9 @@ class TriFusionApp(App):
     # Stores the previous mouse over label button so that it can be removed
     old_mouse_over = None
     fancy_bt = ObjectProperty(FancyButton())
+
+    # Whether SidePanel's More options dialog is active or not
+    sp_moreopts = BooleanProperty(False)
 
     # Attribute that stores information on whether the control key is being
     # pressed
@@ -1625,6 +1640,23 @@ class TriFusionApp(App):
                                    t="error")
             return original_path
 
+    @staticmethod
+    def _determine_collision(wgt, mp):
+        """
+        Provided a widget, this function determines whether the mouse is
+        colliding with its window coordinates
+        :param wgt: ToggleButton widget inside a relative layout
+        :return: Boolean. True is mouse position collides with wgt
+        """
+
+        # Retrieving window widget coordinates
+        window_pos = wgt.to_window(wgt.pos[0], wgt.pos[1])
+        # Creating dummy widget to determine collision
+        dummy_wgt = Widget(pos=window_pos, size_hint=(None, None),
+                           size=wgt.size)
+
+        return dummy_wgt.collide_point(mp[0], mp[1])
+
     def _on_mouseover_tabs(self):
         """
         Provides mouse over events throughout the app. In order to reduce
@@ -1838,7 +1870,7 @@ class TriFusionApp(App):
                 self.show_side_panel is False:
             case_bt = self.screen.ids.case_bt
             for bt in self.bookmarks_bt + [case_bt]:
-                if determine_collision(bt):
+                if self._determine_collision(bt, mp):
                     collision = True
                     if bt == case_bt:
                         if "Case sensitive" not in self.previous_mouse_over:
@@ -1877,7 +1909,8 @@ class TriFusionApp(App):
                     self.root_window.remove_widget(self.old_mouse_over)
 
         # Only do this routine if the side panel is open
-        if self.show_side_panel and self.mouse_over_ready:
+        if self.show_side_panel and self.mouse_over_ready \
+                and not self.sp_moreopts:
             # Get active tab in side panel
             active_tab = self.root.ids.main_tp.current_tab.text
             # Get remove all button
@@ -1889,11 +1922,12 @@ class TriFusionApp(App):
             for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt + \
                     part_bts:
                 # Determine if there is a collision with mouse position
-                if determine_collision(bt) and self._popup not in \
+                if self._determine_collision(bt, mp) and self._popup not in \
                         self.root_window.children:
                     if bt in self.mouse_over_bts[active_tab]:
-                        if determine_collision(self.root.ids.sv_file) or \
-                                determine_collision(self.root.ids.sv_sp):
+                        if self._determine_collision(self.root.ids.sv_file, mp)\
+                                or self._determine_collision(
+                                    self.root.ids.sv_sp, mp):
                             collision = True
                         else:
                             continue
@@ -1999,7 +2033,7 @@ class TriFusionApp(App):
                 # Get back bt
                 back_bt = [x for x in self.root_window.children
                            if isinstance(x, BackButton)][0]
-                if determine_collision(back_bt):
+                if self._determine_collision(back_bt, mp):
                     if back_bt.opacity != 1:
                         Animation(opacity=1, d=.3, t="out_quart").start(back_bt)
                 else:
@@ -2008,7 +2042,7 @@ class TriFusionApp(App):
                             back_bt)
 
             # Change toolbar opacity to become visible when collision is true
-            if determine_collision(toolbar_wgt):
+            if self._determine_collision(toolbar_wgt, mp):
                 if toolbar_wgt.opacity != 1:
                     Animation(opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
 
@@ -2022,7 +2056,7 @@ class TriFusionApp(App):
                 try:
                     toggle_wgt = [x for x in self.root_window.children
                                   if isinstance(x, StatsToggleWgt)][0]
-                    if determine_collision(toggle_wgt):
+                    if self._determine_collision(toggle_wgt, mp):
                         if toggle_wgt.opacity != 1:
                             Animation(opacity=1, d=.3, t="out_quart").\
                                 start(toggle_wgt)
@@ -2034,7 +2068,7 @@ class TriFusionApp(App):
                     pass
 
             # Check for collision with export figure or export table buttons
-            if determine_collision(toolbar_wgt.ids.export_fig):
+            if self._determine_collision(toolbar_wgt.ids.export_fig, mp):
                 collision = True
                 if "Export as graphics" not in [x.id for x in
                                                 self.root_window.children]:
@@ -2043,7 +2077,7 @@ class TriFusionApp(App):
                                        toolbar_wgt.ids.export_fig,
                                        line_c=(0.216, 0.67, 0.784, 1))
 
-            elif determine_collision(toolbar_wgt.ids.export_table):
+            elif self._determine_collision(toolbar_wgt.ids.export_table, mp):
                 collision = True
                 if "Export as table" not in [x.id for x in
                                              self.root_window.children]:
@@ -2053,7 +2087,7 @@ class TriFusionApp(App):
                                        line_c=(0.216, 0.67, 0.784, 1))
 
             if self.screen.name != "Statistics":
-                if determine_collision(toolbar_wgt.ids.export_group):
+                if self._determine_collision(toolbar_wgt.ids.export_group, mp):
                     collision = True
                     if "Export group" not in [x.id for x in
                                               self.root_window.children]:
@@ -2069,7 +2103,7 @@ class TriFusionApp(App):
                          "gn_vis": "Ortholog focused exploration"}
 
             # Determine collision with add groups button
-            if determine_collision(self.screen.ids.add_group):
+            if self._determine_collision(self.screen.ids.add_group, mp):
                 collision = True
                 if "Add group files" not in [x.id for x in
                                              self.root_window.children]:
@@ -2082,7 +2116,7 @@ class TriFusionApp(App):
             for bt, bt_id in zip([self.screen.ids.sp_vis,
                                   self.screen.ids.gn_vis],
                                  ["sp_vis", "gn_vis"]):
-                if determine_collision(bt):
+                if self._determine_collision(bt, mp):
                     collision = True
                     if id_to_txt[bt_id] not in [x.id for x in
                                                 self.root_window.children]:
@@ -2657,6 +2691,16 @@ class TriFusionApp(App):
         side_panel_wgt = self.root.ids.main_box
         ap = self.root.ids.ap
 
+        # If sidepanel's more options widget is active, check if touch is
+        # outside. If so, remove widget
+        if self.sp_moreopts:
+            wgt = [x for x in self.root_window.children if
+                   isinstance(x, SP_MoreOpts_Dialog)][0]
+
+            if not wgt.collide_point(mp[0], mp[1]) and not \
+                    self._determine_collision(self.root.ids.file_opt, mp):
+                self.sidepanel_remove_moreopts()
+
         # Check for existence of a partition dialog box
         partition_box = [x for x in self.root_window.children if
                          isinstance(x, PartitionsDialog)]
@@ -2682,7 +2726,8 @@ class TriFusionApp(App):
                 and self.show_side_panel \
                 and ap.collide_point(mp[0], mp[1]) is False \
                 and self._popup not in self.root_window.children \
-                and not partition_box:
+                and not partition_box\
+                and not self.sp_moreopts:
 
             if self.screen.name == "Process":
                 queue_bt = self.screen.ids.queue_bt
@@ -2840,6 +2885,48 @@ class TriFusionApp(App):
             gl_wgt.add_widget(LoadMoreBt())
         except IndexError:
             return
+
+    def sidepanel_remove_moreopts(self):
+        """
+        Removes widgets from the moreoptions dialog
+        """
+
+        for wgt in [x for x in self.root_window.children if
+                    isinstance(x, SP_MoreOpts_Dialog) or
+                    isinstance(x, FancyMarkerPersist)]:
+            self.root_window.remove_widget(wgt)
+
+        self.sp_moreopts = False
+
+    def sidepanel_moreopts_dialog(self, bt):
+        """
+        """
+
+        if self.sp_moreopts:
+            return self.sidepanel_remove_moreopts()
+
+        # Get active tab
+        active_tab = self.root.ids.main_tp.current_tab.text
+
+        # Get position
+        wgt_x = bt.x + (bt.width * 2) - 135
+        wgt_y = bt.y + bt.height + 12
+
+        # Generate fancy marker
+        point_wgt = FancyMarkerPersist(background_normal=join("data",
+                                                       "backgrounds",
+                                                       "box_arrow_down.png"),
+                                       pos=(bt.x + (bt.width * 2),
+                                           (bt.y + bt.height + 5)),
+                                       size=(12, 7),
+                                       background_color=(0.216, 0.67, 0.784, 1))
+
+        dlg_wgt = SP_MoreOpts_Dialog(ds_type=active_tab, pos=(wgt_x, wgt_y))
+
+        self.root_window.add_widget(dlg_wgt)
+        self.root_window.add_widget(point_wgt)
+
+        self.sp_moreopts = True
 
     def load(self, selection, bad_aln, non_aln):
         """
