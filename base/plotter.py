@@ -39,6 +39,7 @@ Set of 10 easily distinguishable colors that will be used when generating plots
 to ensure consistency in color usage. In case more than 10 colors are required
 (ugh...) they will be randomly generated henceforth.
 """
+
 clr_list = [[0, .53, .66],  # light blue
             [1, .16, .16],     # light red
             [.21, .78, .22],  # light green

@@ -242,7 +242,7 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Remove file names from .txt"
+                text: "Remove file names from .txt" if root.ds_type == "Files" else "Remove taxa names from .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
@@ -264,7 +264,7 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Select file names from .txt"
+                text: "Select file names from .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
@@ -286,12 +286,15 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Select file names from .txt"
+                text: "Select file names from .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
-                    app.dialog_filechooser()
+                    app.dialog_filechooser("export")
+                    if root.ds_type: \
                     app.export_mode = ("file", "all")
+                    else:\
+                    app.export_mode = ("taxa", "all")
 
             TFButton:
                 text_size: self.size
@@ -299,12 +302,15 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Select file names from .txt"
+                text: "Select file names from .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
                     app.dialog_filechooser("export")
+                    if root.ds_type:\
                     app.export_mode = ("file", "selected")
+                    else:\
+                    app.export_mode = ("taxa", "selected")
 
 
 #===============================================================================
@@ -4886,7 +4892,7 @@
 #===============================================================================
 
 FloatLayout:
-    __safe_id: [file_dd.__self__, taxa_dd.__self__]
+    #__safe_id: [file_dd.__self__, taxa_dd.__self__]
     BoxLayout:
         orientation: "vertical"
         canvas.before:
@@ -5216,7 +5222,6 @@ FloatLayout:
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                                                     on_release:
-                                                        #file_dd.open(self)
                                                         app.sidepanel_moreopts_dialog(self)
                                                 TFButton:
                                                     id: rm_all_File
@@ -5229,116 +5234,7 @@ FloatLayout:
                                                     background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
                                                     on_release:
                                                         app.check_action(text="Are you sure you want to remove all files and taxa?", func=app.remove_all)
-                                                DropDown:
-                                                    id: file_dd
-                                                    auto_width: False
-                                                    size_hint_x: None
-                                                    width: 270
 
-                                                    Label:
-                                                        size_hint_y: None
-                                                        height: 25
-                                                        halign: "center"
-                                                        valign: "middle"
-                                                        text_size: self.size
-                                                        italic: True
-                                                        text: "Remove options"
-                                                        bold: True
-                                                        canvas.before:
-                                                            Color:
-                                                                rgba: (0.216, 0.67, 0.784, 1)
-                                                            Rectangle:
-                                                                pos: self.pos
-                                                                size: self.size
-
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: "  Remove file names from .txt"
-                                                        bold: True
-                                                        on_release:
-                                                            #app.dialog_remove_from_file()
-                                                            #file_dd.dismiss()
-                                                            print(file_dd.width, file_dd.height)
-
-                                                    Label:
-                                                        size_hint_y: None
-                                                        height: 25
-                                                        halign: "center"
-                                                        valign: "middle"
-                                                        text_size: self.size
-                                                        italic: True
-                                                        text: "Select options"
-                                                        bold: True
-                                                        canvas.before:
-                                                            Color:
-                                                                rgba: (0.216, 0.67, 0.784, 1)
-                                                            Rectangle:
-                                                                pos: self.pos
-                                                                size: self.size
-
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: "  Select file names from .txt"
-                                                        bold: True
-                                                        on_release:
-                                                            app.dialog_select_from_file()
-                                                            file_dd.dismiss()
-
-                                                    Label:
-                                                        size_hint_y: None
-                                                        height: 25
-                                                        halign: "center"
-                                                        valign: "middle"
-                                                        text_size: self.size
-                                                        italic: True
-                                                        text: "Export options"
-                                                        bold: True
-                                                        canvas.before:
-                                                            Color:
-                                                                rgba: (0.216, 0.67, 0.784, 1)
-                                                            Rectangle:
-                                                                pos: self.pos
-                                                                size: self.size
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: "  Export all file names as .txt"
-                                                        bold: True
-                                                        on_release:
-                                                            app.dialog_filechooser("export")
-                                                            app.export_mode = ("file", "all")
-                                                            file_dd.dismiss()
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: "  Export selected file names as .txt"
-                                                        bold: True
-                                                        on_release:
-                                                            app.dialog_filechooser("export")
-                                                            app.export_mode = ("file", "selected")
-                                                            file_dd.dismiss()
                                     TabbedPanelItem:
                                         id: taxa_tp
                                         text: "Taxa"
@@ -5449,7 +5345,7 @@ FloatLayout:
                                                     background_down: "data/backgrounds/bt_process.png"
                                                     background_disabled_normal: "data/backgrounds/bt_process_off.png"
                                                     on_release:
-                                                        taxa_dd.open(self)
+                                                        app.sidepanel_moreopts_dialog(self)
                                                 TFButton:
                                                     id: rm_all_Taxa
                                                     size_hint_x: None
@@ -5461,114 +5357,6 @@ FloatLayout:
                                                     background_disabled_normal: "data/backgrounds/remove_all_disabled.png"
                                                     on_release:
                                                         app.check_action("Are you sure you want to remove all files and taxa?", app.remove_all)
-                                                DropDown:
-                                                    id: taxa_dd
-                                                    auto_width: False
-                                                    size_hint_x: None
-                                                    width: 270
-                                                    Label:
-                                                        size_hint_y: None
-                                                        height: 25
-                                                        halign: "center"
-                                                        valign: "middle"
-                                                        text_size: self.size
-                                                        italic: True
-                                                        text: "Remove options"
-                                                        bold: True
-                                                        canvas.before:
-                                                            Color:
-                                                                rgba: (0.216, 0.67, 0.784, 1)
-                                                            Rectangle:
-                                                                pos: self.pos
-                                                                size: self.size
-
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: "  Remove taxa names from .txt"
-                                                        bold: True
-                                                        on_release:
-                                                            app.dialog_remove_from_file()
-                                                            taxa_dd.dismiss()
-
-                                                    Label:
-                                                        size_hint_y: None
-                                                        height: 25
-                                                        halign: "center"
-                                                        valign: "middle"
-                                                        text_size: self.size
-                                                        italic: True
-                                                        text: "Select options"
-                                                        bold: True
-                                                        canvas.before:
-                                                            Color:
-                                                                rgba: (0.216, 0.67, 0.784, 1)
-                                                            Rectangle:
-                                                                pos: self.pos
-                                                                size: self.size
-
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: "  Select taxa names from .txt"
-                                                        bold: True
-                                                        on_release:
-                                                            app.dialog_select_from_file()
-                                                            taxa_dd.dismiss()
-
-                                                    Label:
-                                                        size_hint_y: None
-                                                        height: 25
-                                                        halign: "center"
-                                                        valign: "middle"
-                                                        text_size: self.size
-                                                        italic: True
-                                                        text: "Export options"
-                                                        bold: True
-                                                        canvas.before:
-                                                            Color:
-                                                                rgba: (0.216, 0.67, 0.784, 1)
-                                                            Rectangle:
-                                                                pos: self.pos
-                                                                size: self.size
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        bold: True
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: " Export all taxa names as text"
-                                                        on_release:
-                                                            app.dialog_filechooser("export")
-                                                            app.export_mode = ("taxa", "all")
-                                                            taxa_dd.dismiss()
-                                                    TFButtonOff:
-                                                        background_normal: "data/backgrounds/spinner_opt.png"
-                                                        bold: True
-                                                        text_size: self.size
-                                                        halign: "left"
-                                                        valign: "middle"
-                                                        size_hint: (None, None)
-                                                        width: 270
-                                                        height: 30
-                                                        text: " Export selected taxa names as text"
-                                                        on_release:
-                                                            app.dialog_filechooser("export")
-                                                            app.export_mode = ("taxa", "selected")
-                                                            taxa_dd.dismiss()
 
                                     TabbedPanelItem:
                                         id: partitions_tp
