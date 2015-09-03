@@ -1077,7 +1077,7 @@ class TriFusionApp(App):
     cds_db = StringProperty("")
 
     # Attribute containing the path to the proteome files
-    proteome_files = ListProperty()
+    proteome_files = []
     active_proteome_files = ListProperty()
 
     # Attribute containing the orthology group files
@@ -4051,6 +4051,7 @@ class TriFusionApp(App):
         self.count_partitions = 0
 
         self.clear_process_input()
+        self.clear_orto_input()
 
         # Add disabled no changes button
         if "file_temp" not in [x.id for x in
@@ -4067,6 +4068,16 @@ class TriFusionApp(App):
                            size_hint_y=None, height=40, disabled=True)
             self.root.ids["species_temp"] = no_bt
             self.root.ids.taxa_sl.add_widget(no_bt)
+
+    def clear_orto_input(self):
+        """
+        Clears any input for the orthology screen and related variables and
+        attributes
+        """
+
+        self.proteome_files = []
+        self.active_proteome_files.clear()
+        self.orto_min_sp = 3
 
     def clear_process_input(self):
         """
@@ -4836,13 +4847,24 @@ class TriFusionApp(App):
         if os.path.exists(self.projects_file):
 
             with open(self.projects_file, "rb") as projects_fh:
-                projects_dic = pickle.load(projects_fh)
+                # Attempts to read the projects file. If the file is somewhat
+                # corrupted, remove it and issue a warning
+                try:
+                    projects_dic = pickle.load(projects_fh)
+                except EOFError:
+                    os.remove(self.projects_file)
+                    self.projects_init()
+                # Get ordered dict
+                projects_dic = OrderedDict(sorted(projects_dic.items(),
+                                                  key=lambda x: (x[1][1],
+                                                                 x[0])))
 
                 # Populate sidepanel
                 for name, p in projects_dic.items():
                     project_grid = self.root.ids.project_grid
                     self.add_project_bt(name, p[1], project_grid)
 
+                    # Populates main screen if active
                     if "home_projects_grid" in self.screen.ids:
                         project_grid = self.screen.ids.home_projects_grid
                         self.add_project_bt(name, p[1], project_grid)
@@ -4850,7 +4872,7 @@ class TriFusionApp(App):
         # This handles cases where the projects file has
         # not been populated yet
         else:
-            projects_dic = {}
+            projects_dic = OrderedDict()
             with open(self.projects_file, "wb") as projects_fh:
                 pickle.dump(projects_dic, projects_fh)
 
@@ -6829,6 +6851,20 @@ class TriFusionApp(App):
 
         elif idx == "groups":
             content.ids.txt_dlg.text = self.group_prefix
+
+        elif idx == "project":
+
+            # This will generate a default name for the project, based on
+            # untitled and a number. To avoid duplications, this increases
+            # the counter c while there are untitled_[0-9] projects
+            c = 1
+            with open(self.projects_file, "rb") as project_fh:
+                project_dic = pickle.load(project_fh)
+                while "untitled_{}".format(c) in project_dic:
+                    c += 1
+
+            content.ids.txt_dlg.text = "untitled_{}".format(c)
+            content.ids.txt_dlg.select_all()
 
         if idx == "new_folder":
             self._subpopup = Popup(title=title, content=content,
