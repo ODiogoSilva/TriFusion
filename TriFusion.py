@@ -6002,7 +6002,7 @@ class TriFusionApp(App):
                               height=30, shorten=True, shorten_from="right",
                               halign="center", bold=True,
                               background_down=join("data", "backgrounds",
-                                                     "bt_process.png"),
+                                                   "bt_process.png"),
                               background_normal=join("data", "backgrounds",
                                                      "bt_process_off.png"),
                               background_disabled_down=join("data",
