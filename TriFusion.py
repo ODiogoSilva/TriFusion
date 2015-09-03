@@ -1238,8 +1238,8 @@ class TriFusionApp(App):
 
         # This corrects a weird bug where the buttons in the dropdown of the
         # taxa tab in the side panel are open by default.
-        self.root.ids.taxa_dd.dismiss()
-        self.root.ids.file_dd.dismiss()
+        #self.root.ids.taxa_dd.dismiss()
+        #self.root.ids.file_dd.dismiss()
 
         # Set path to sqlite database
         self.sqldb = join(self.temp_dir, "trifusion.sql3")
