@@ -7662,7 +7662,7 @@ class TriFusionApp(App):
                 self.load_groups(ns.groups, ns.groups.filters)
 
                 manager.shutdown()
-                kill_proc_tree(p.pid)
+                p.terminate()
 
             # Listens for cancel signal
             if content.proc_kill:
