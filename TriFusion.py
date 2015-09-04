@@ -78,6 +78,7 @@ from os import sep
 from collections import OrderedDict
 from copy import deepcopy
 from functools import partial
+import psutil
 import pickle
 import multiprocessing
 import time
@@ -98,6 +99,25 @@ import logging
 # error and I could never replicate the bug, but every now and then the app
 # would crash. The fix on lines 920-923 handles the KeyError exception by
 # returning the function.
+
+
+def kill_proc_tree(pid, include_parent=True):
+    """
+    Some multiprocessing child process may spawn aditional processes using
+    subprocess. This function terminates all processes in a tree when the
+    user cancels an action
+    :param pid: process id
+    :param include_parent: bool. Whether or not to kill the parent process
+    along with its child processes
+    :return:
+    """
+
+    parent = psutil.Process(pid)
+    for child in parent.children(recursive=True):
+        print(child.pid)
+        child.kill()
+    if include_parent:
+        parent.kill()
 
 
 class ShowcaseScreen(Screen):
@@ -7281,6 +7301,9 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
                 self.dismiss_popup()
 
+                manager.shutdown()
+                p.terminate()
+
                 try:
                     if ns.exception:
                         return self.dialog_floatcheck("Unexpected error when"
@@ -7293,6 +7316,7 @@ class TriFusionApp(App):
                 self.load_files(file_list, a)
 
             if content.proc_kill:
+                manager.shutdown()
                 d.terminate()
                 self.dismiss_popup()
                 Clock.unschedule(func)
@@ -7632,13 +7656,21 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 self.dialog_search_report(ns.stats, ns.groups)
-                # self.load_groups(ns.groups, ns.groups.filters)
+                self.load_groups(ns.groups, ns.groups.filters)
+
+                manager.shutdown()
+                kill_proc_tree(p.pid)
 
             # Listens for cancel signal
             if content.proc_kill:
                 ns.k = False
+                manager.shutdown()
+                kill_proc_tree(p.pid)
                 self.dismiss_popup()
                 Clock.unschedule(func)
+
+                # Clear sqlitedb
+                os.remove(join(self.temp_dir, "orthoDB.db"))
 
         # Create Progression dialog
         content = OrtoProgressDialog()
@@ -7654,7 +7686,7 @@ class TriFusionApp(App):
         ns.k = True
 
         # Create Process instance
-        d = multiprocessing.Process(name="daemon", target=process_dispatch,
+        d = multiprocessing.Process(name="daemon", target=orto_execution,
                                     args=(ns, self.temp_dir,
                                           self.proteome_files,
                                           self.protein_min_len,

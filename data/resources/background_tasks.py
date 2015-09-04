@@ -59,11 +59,11 @@ def background_export_groups(f, nm, a):
         nm.exception = True
 
 
-def process_dispatch(nm, temp_dir, proteome_files, protein_min_len, 
-                     protein_max_stop, cur_dir, usearch_evalue,
-                     usearch_threads, usearch_output, mcl_inflation,
-                     ortholog_prefix, group_prefix, orto_max_gene,
-                     orto_min_sp, sqldb, ortho_dir):
+def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
+                   protein_max_stop, cur_dir, usearch_evalue,
+                   usearch_threads, usearch_output, mcl_inflation,
+                   ortholog_prefix, group_prefix, orto_max_gene,
+                   orto_min_sp, sqldb, ortho_dir):
     """
     Executes all pipeline subprocesses sequentially and updates the
     Progess dialog label
