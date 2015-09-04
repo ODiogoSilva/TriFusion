@@ -5020,13 +5020,16 @@ class TriFusionApp(App):
 
         if name in project_dic:
             if project_dic[name][1] == "process":
-                # Closes current data set
+                # Closes current data sets
                 self.remove_all()
                 # Opens new dataset
                 self.load_files_subproc(project_dic[name][0])
 
             if project_dic[name][1] == "orthology":
-                pass
+                # Closes current data sets
+                self.remove_all()
+                # Opens new data set
+                self.load_proteomes(project_dic[name][0])
 
     def statistics_populate_groups(self, ds_type):
         """
