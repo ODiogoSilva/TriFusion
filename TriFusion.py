@@ -7327,9 +7327,6 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
                 self.dismiss_popup()
 
-                manager.shutdown()
-                p.terminate()
-
                 try:
                     if ns.exception:
                         return self.dialog_floatcheck("Unexpected error when"
@@ -7340,6 +7337,9 @@ class TriFusionApp(App):
 
                 a = ns.alns
                 self.load_files(file_list, a)
+
+                manager.shutdown()
+                p.terminate()
 
             if content.proc_kill:
                 manager.shutdown()
