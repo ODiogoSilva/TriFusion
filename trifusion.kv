@@ -2319,7 +2319,7 @@
                 TFOKButon:
                     background_normal: "data/backgrounds/bt_process.png"
                     background_down: "data/backgrounds/bt_process_off.png"
-                    text: "Save"
+                    text: "Load"
                     id: ok_bt
                     on_release:
                         if sd_filechooser.selection:\
@@ -2695,6 +2695,9 @@
 #===============================================================================
 
 <SaveDialog>:
+    # Tracks the load dialogs. Id's on this list will change the default Save
+    # button to Load
+    load_dlgs: ["import_partitions", "partition_file", "select_from_file", "remove_from_file"]
     BoxLayout:
         size: root.size
         pos: root.pos
@@ -2842,7 +2845,7 @@
                 TFOKButon:
                     background_normal: "data/backgrounds/bt_process.png"
                     background_down: "data/backgrounds/bt_process_off.png"
-                    text: "Save"
+                    text: "Load" if sd_filechooser.text in root.load_dlgs else "Save"
                     id: ok_bt
                     text_io: text_input.text if not None else ""
                     on_release:
