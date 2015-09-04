@@ -7659,7 +7659,6 @@ class TriFusionApp(App):
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 self.dialog_search_report(ns.stats, ns.groups)
-                self.load_groups(ns.groups, ns.groups.filters)
 
                 manager.shutdown()
                 p.terminate()
