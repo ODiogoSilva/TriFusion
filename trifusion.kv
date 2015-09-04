@@ -8,6 +8,7 @@
 #:import ListProperty kivy.properties.ListProperty
 #:import load_group_files data.resources.background_tasks.load_group_files
 #:import orto_update_filters data.resources.background_tasks.orto_update_filters
+#:import Clock kivy.clock.Clock
 
 
 <ShowcaseScreen>:
@@ -2158,20 +2159,21 @@
             size_hint_y: None
             height: 30
             spacing: 5
-            Label:
-                padding: (5, 0)
-                canvas.before:
-                    Color:
-                        rgba: .35, .35, .35, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                text: sd_filechooser.path
-                halign: "left"
-                valign: "middle"
-                shorten_from: "left"
-                shorten: True
-                text_size: self.size
+            ToggleButton:
+                id: path_toggle
+                border: (0,0,0,0)
+                background_normal: "data/backgrounds/path_off.png"
+                background_down: "data/backgrounds/path_on.png"
+                size_hint_x: None
+                width: 30
+                on_release:
+                    if self.state == "down": app.switch_path_wgt("text", path_bx, sd_filechooser)
+                    if self.state == "normal": app.switch_path_wgt("label", path_bx, sd_filechooser)
+            BoxLayout:
+                id: path_bx
+                PathLabel:
+                    text: sd_filechooser.path
+
             Button:
                 size_hint_x: None
                 width: 30
@@ -2704,20 +2706,21 @@
             size_hint_y: None
             height: 30
             spacing: 5
-            Label:
-                padding: (5, 0)
-                canvas.before:
-                    Color:
-                        rgba: .35, .35, .35, 1
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                text: sd_filechooser.path
-                halign: "left"
-                valign: "middle"
-                shorten_from: "left"
-                shorten: True
-                text_size: self.size
+            ToggleButton:
+                id: path_toggle
+                border: (0,0,0,0)
+                background_normal: "data/backgrounds/path_off.png"
+                background_down: "data/backgrounds/path_on.png"
+                size_hint_x: None
+                width: 30
+                on_release:
+                    if self.state == "down": app.switch_path_wgt("text", path_bx, sd_filechooser)
+                    if self.state == "normal": app.switch_path_wgt("label", path_bx, sd_filechooser)
+            BoxLayout:
+                id: path_bx
+                PathLabel:
+                    text: sd_filechooser.path
+
             Button:
                 size_hint_x: None
                 width: 30
@@ -2811,7 +2814,8 @@
                 id: sd_filechooser
                 text: "master"
                 path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
-                #on_selection: text_input.text = self.selection
+                on_selection:
+                    text_input.text = self.selection[0].split(os.sep)[-1]
 
         BoxLayout:
             id: txt_box
@@ -2868,6 +2872,8 @@
                         app.orto_export_groups(sd_filechooser.text, output_dir=sd_filechooser.path)
                         elif sd_filechooser.text == "import_partitions" and txt_box.height == 0: \
                         app.partitions_import_scheme(sd_filechooser.selection[0])
+                        elif sd_filechooser.text == "partition_file" and txt_box.height == 0: \
+                        app.save_reverseconc_partfile(sd_filechooser.selection[0])
                         elif sd_filechooser.text == "select_from_file" and txt_box.height == 0: \
                         app.select_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
                         elif sd_filechooser.text == "remove_from_file" and txt_box.height == 0: \
@@ -3493,179 +3499,6 @@
                 text: "Cancel"
                 on_release:
                     root.cancel()
-
-<LoadDialog>
-    orientation: "vertical"
-    spacing: 10
-    padding: 10
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        spacing: 5
-        Label:
-            padding: (5, 0)
-            canvas.before:
-                Color:
-                    rgba: .35, .35, .35, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            text: ld_filechooser.path
-            halign: "left"
-            valign: "middle"
-            shorten_from: "left"
-            shorten: True
-            text_size: self.size
-        Button:
-            size_hint_x: None
-            width: 30
-            background_normal: "data/backgrounds/up_dir_bt.png"
-            background_down: "data/backgrounds/up_dir_bt.png"
-            on_release:
-                ld_filechooser.path = os.path.abspath(os.path.join(ld_filechooser.path, os.path.pardir))
-        Button:
-            bold: True
-            size_hint_x: None
-            width: 30
-            background_normal: "data/backgrounds/create_dir.png"
-            background_down: "data/backgrounds/create_dir.png"
-            on_release:
-                app.dialog_text("New folder", "new_folder")
-
-    BoxLayout:
-        spacing: 10
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 10
-            size_hint_x: None
-            width: 200
-
-            BoxLayout:
-                size_hint_y: None
-                height: 40
-                canvas.before:
-                    Color:
-                        rgba: (0.3, 0.3, 0.3, .8)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                Label:
-                    text: " My Computer"
-                    bold: True
-                    halign: "center"
-                    valign: "middle"
-                    text_size: self.size
-                    font_size: 18
-
-            ScrollView:
-                size_hint_y: None
-                height: sum([x.height + 10 for x in sv_mycomp.children]) if sum([x.height + 10 for x in sv_mycomp.children]) < 200 else 200
-                GridLayout:
-                    size_hint_y: None
-                    height: sum([x.height + 10 for x in self.children])
-                    cols: 1
-                    id: sv_mycomp
-                    orientation: "vertical"
-                    padding: 5
-                    spacing: [10, 10]
-
-            BoxLayout:
-                size_hint_y: None
-                height: 40
-                canvas.before:
-                    Color:
-                        rgba: (0.3, 0.3, 0.3, .8)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                Label:
-                    text: " Bookmarks"
-                    bold: True
-                    halign: "center"
-                    valign: "middle"
-                    text_size: self.size
-                    font_size: 18
-
-                AnchorLayout:
-                    size_hint: None, None
-                    size: 40, 40
-                    Button:
-                        size_hint: None, None
-                        size: 30, 30
-                        background_normal: "data/backgrounds/add_bt30.png"
-                        on_release:
-                            app.save_bookmark(ld_filechooser.path, bookmark_gl, ld_filechooser)
-
-            ScrollView:
-                GridLayout:
-                    size_hint_y: None
-                    height: sum([x.height + 10 for x in self.children]) / 2
-                    cols: 2
-                    orientation: "vertical"
-                    spacing: [10, 10]
-                    id: bookmark_gl
-
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 5
-
-            FileChooserListView:
-                id: ld_filechooser
-                f: "/*"
-                filters: [self.path+self.f]
-                filter_dirs: True
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                spacing: 5
-
-                Label:
-                    canvas.before:
-                        Color:
-                            rgba: (.2,.2,.2,1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                    size_hint_x: .15
-                    text: "Find:"
-                    bold: True
-                ToggleButton:
-                    id: case_bt
-                    text: "Aa"
-                    bold:True
-                    size_hint_x: .1
-                    state: "down"
-
-                TextInput:
-                    id: text_filter
-                    multiline: False
-                    focus: True
-                    on_text:
-                        if case_bt.state == "down": ld_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
-                        if case_bt.state == "normal": ld_filechooser.f = "*"+self.text+"*"
-
-                    on_text_validate:
-                        focus = True
-
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        spacing: 20
-        padding: (150, 0, 150, 0)
-
-        TFOKButon:
-            id: ok_bt
-            text: "OK"
-            background_normal: "data/backgrounds/bt_process.png"
-            background_down: "data/backgrounds/bt_process_off.png"
-            on_release:
-                app.save_reverseconc_partfile(ld_filechooser.selection[0])
-                root.cancel()
-        TFOKButon:
-            id: cancel_bt
-            text: "Cancel"
-            on_release: root.cancel()
 
 <RevConcDialog>:
     orientation: "vertical"

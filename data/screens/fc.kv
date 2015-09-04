@@ -122,11 +122,12 @@ ShowcaseScreen:
                     size_hint_x: None
                     width: 30
                     on_release:
-                        if self.state == "down": app.switch_path_wgt("text")
-                        if self.state == "normal": app.switch_path_wgt("label")
+                        if self.state == "down": app.switch_path_wgt("text", path_bx, icon_view_tab)
+                        if self.state == "normal": app.switch_path_wgt("label", path_bx, icon_view_tab)
                 BoxLayout:
                     id: path_bx
-                    PathLabel
+                    PathLabel:
+                        text: icon_view_tab.path
                 Button:
                     size_hint_x: None
                     width: 30

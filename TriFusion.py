@@ -1376,11 +1376,16 @@ class TriFusionApp(App):
         """
         This method updates the filechooser path when clicking on the path label
         :param path: string, with destination path
-        :return:
         """
 
-        self.screen.ids.path_bx.children[0].text = path
-        self.screen.ids.icon_view_tab.path = path
+        # If in filechooser, do this
+        try:
+            self.screen.ids.path_bx.children[0].text = path
+            self.screen.ids.icon_view_tab.path = path
+        # When in popup, do this
+        except AttributeError:
+            self._popup.content.ids.path_bx.children[0].text = path
+            self._popup.content.ids.sd_filechooser.path = path
 
     def _release_events(self, *vals):
         """
@@ -1471,7 +1476,18 @@ class TriFusionApp(App):
                                  x.background_normal == backn][0]
                         bt_on.dispatch("on_release")
 
-        # Check only when a popup is active
+        # ======================================================================
+        # Popup keybindings
+        # ======================================================================
+
+        # When the path editing text input is focused, the arrows should
+        # not be used to cycle through buttons.
+        try:
+            if self._popup.content.ids.path_bx.children[0].focus:
+                arrow_block = True
+        except AttributeError:
+            pass
+
         if self._subpopup in self.root_window.children:
             if "ok_bt" in self._subpopup.content.ids:
                 bn = "data/backgrounds/bt_process.png"
@@ -1590,10 +1606,14 @@ class TriFusionApp(App):
         # Use tab for auto completion when textinput is focused
         if key_code == 9:
             if "path_bx" in self.screen.ids:
-                if isinstance(self.screen.ids.path_bx.children[0], TextInput):
-                    path = self.screen.ids.path_bx.children[0].text
-                    s = self._auto_completion(path)
-                    self.screen.ids.path_bx.children[0].text = s
+                path_wgt = self.screen.ids.path_bx.children[0]
+            elif "path_bx" in self._popup.content.ids:
+                path_wgt = self._popup.content.ids.path_bx.children[0]
+
+            if isinstance(path_wgt, TextInput):
+                path = path_wgt.text
+                s = self._auto_completion(path)
+                path_wgt.text = s
 
     def _common_path(self):
         """
@@ -2144,11 +2164,11 @@ class TriFusionApp(App):
             self.previous_mouse_over = ""
             clear_mouse_overs()
 
-    def switch_path_wgt(self, wgt_id):
+    def switch_path_wgt(self, wgt_id, path_bx, fc_wgt):
 
         def path_updater():
             if os.path.exists(txt.text):
-                self.screen.ids.icon_view_tab.path = txt.text
+                fc_wgt.path = txt.text
             else:
                 return self.dialog_floatcheck("ERROR: Directory does not exist",
                                               t="error")
@@ -2156,20 +2176,19 @@ class TriFusionApp(App):
         label = PathLabel()
         txt = PathText()
 
-        fc_wgt = self.screen.ids.icon_view_tab
         fc_wgt.bind(path=txt.setter("text"))
         fc_wgt.bind(path=label.setter("text"))
 
-        self.screen.ids.path_bx.clear_widgets()
+        path_bx.clear_widgets()
 
         if wgt_id == "label":
             label.text = fc_wgt.path
-            self.screen.ids.path_bx.add_widget(label)
+            path_bx.add_widget(label)
         else:
             txt.text = fc_wgt.path
             txt.bind(on_text_validate=lambda x: path_updater())
-            self.screen.ids.path_bx.add_widget(txt)
-            self.screen.ids.path_bx.children[0].focus = True
+            path_bx.add_widget(txt)
+            path_bx.children[0].focus = True
 
     def create_folder(self, text):
 
@@ -2252,7 +2271,7 @@ class TriFusionApp(App):
                 self.bookmark_init(self.screen.ids.sv_book,
                                    self.screen.ids.sv_mycomp,
                                    self.screen.ids.icon_view_tab)
-                self.switch_path_wgt("label")
+                #self.switch_path_wgt("label", )
 
         if basename(self.available_screens[idx]) == "Statistics.kv":
             self.show_plot_toolbar(toolbar_type="stats")
@@ -6633,16 +6652,20 @@ class TriFusionApp(App):
 
     def dialog_load_partfile(self):
 
-        content = LoadDialog(cancel=self.dismiss_subpopup,
+        content = SaveDialog(cancel=self.dismiss_subpopup,
                              bookmark_init=self.bookmark_init)
 
         # If input files have already been provided, use their directory as a
         # starting point for the partition file chooser. Otherwise, use the
         # home path
         if self.file_list:
-            content.ids.ld_filechooser.path = dirname(self.file_list[0])
+            content.ids.sd_filechooser.path = dirname(self.file_list[0])
         else:
-            content.ids.ld_filechooser.path = self.home_path
+            content.ids.sd_filechooser.path = self.home_path
+
+        content.ids.sd_filechooser.text = "partition_file"
+        content.ids.txt_box.height = 0
+        content.ids.txt_box.clear_widgets()
 
         self._subpopup = Popup(title="Choose partition file", content=content,
                                size_hint=(.9, .9))
