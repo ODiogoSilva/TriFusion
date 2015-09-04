@@ -418,7 +418,8 @@ class GroupLight:
                         table_header=["Number of species",
                                       "Ortholog frequency"])
 
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
+                      dpi=200)
 
         return b_plt, lgd, table
 
@@ -456,7 +457,7 @@ class GroupLight:
                                               "Ortholog frequency"])
 
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
-                      figsize=(8 * len(x_labels) / 4, 6))
+                      figsize=(8 * len(x_labels) / 4, 6), dpi=200)
 
         return b_plt, lgd, table
 
@@ -496,7 +497,8 @@ class GroupLight:
         mean_data = np.array(data[0]).mean()
         b_plt.axhline(y=mean_data, ls="--", c="red")
 
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
+                      dpi=200)
 
         return b_plt, lgd, None
 
@@ -523,7 +525,8 @@ class GroupLight:
 
         b_plt, lgd, table = bar_plot(data, x_labels, reverse_x=False,
                                      ax_names=[None, "Gene copies"])
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
+                      dpi=200)
 
         return b_plt, lgd, None
 
@@ -930,7 +933,9 @@ class Group ():
         b_plt, lgd = bar_plot([y_vals], x_labels,
                         title="Taxa frequency distribution",
                         ax_names=["Number of taxa", "Ortholog frequency"])
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
+                      dpi=400)
+        print("here")
 
         # Create table
         table_list = [["Number of species", "Ortholog frequency"]]
@@ -980,7 +985,7 @@ class Group ():
                     ax_names=["Number of gene copies", "Ortholog frequency"],
                     reverse_x=False)
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
-                      figsize=(8 * len(x_labels) / 4, 6))
+                      figsize=(8 * len(x_labels) / 4, 6), dpi=200)
 
         # Create table
         table_list = [["Number of gene copies", "Ortholog frequency"]]
@@ -1018,7 +1023,8 @@ class Group ():
 
         b_plt, lgd = bar_plot(data, xlabels, lgd_list=lgd_list,
                               ax_names=[None, "Ortholog frequency"])
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight")
+        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
+                      dpi=200)
 
         return b_plt, lgd, ""
 
@@ -1505,7 +1511,7 @@ class MultiGroupsLight:
         # Create plot
         b_plt, lgd = multi_bar_plot(vals, x_labels, lgd_list=lgd_list)
         b_plt.savefig(os.path.join(dest, output_file_name),
-                      bbox_extra_artists=(lgd,), bbox_inches="tight")
+                      bbox_extra_artists=(lgd,), bbox_inches="tight", dpi=200)
 
         # Create table list object
         table_list = []
