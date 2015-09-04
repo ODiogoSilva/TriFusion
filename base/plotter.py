@@ -32,6 +32,7 @@ import matplotlib.cm as cm
 from matplotlib.patches import Circle
 from matplotlib.collections import PatchCollection
 import numpy as np
+import itertools
 
 
 """
@@ -430,7 +431,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
     return plt, lgd, table
 
 
-def triangular_heat(data, labels=None):
+def triangular_heat(data, labels):
     """
     Creates a triangular heatmap plot based on an array of triangular shape,
     or with a masked triangle
@@ -444,28 +445,27 @@ def triangular_heat(data, labels=None):
 
     heat = ax.imshow(data, interpolation="nearest", cmap=cmap)
 
-    if labels:
-        # Set ticks for label positioning
-        ax.set_xticks(np.arange(data.shape[1]), minor=False)
-        ax.set_yticks(np.arange(data.shape[0]), minor=False)
-        # Set minor ticks that will make the grid
-        ax.set_xticks(np.arange(data.shape[1]) + .5, minor=True)
-        ax.set_yticks(np.arange(data.shape[0]) - .5, minor=True)
-        # Set x axis labels on top and y axis labels on right
-        ax.xaxis.tick_top()
-        # Set axis labels
-        # Remove first entry of xlabel
-        xlabel = ["" if x == 0 else labels[x] for x in range(len(labels))]
-        ax.set_xticklabels(xlabel, rotation=45, ha="left")
-        # Remove last entry of ylabel
-        ylabel = ["" if x == len(labels) - 1 else labels[x] for x in
-                  range(len(labels))]
-        ax.set_yticklabels(ylabel)
-        # Remove major ticks
-        plt.tick_params(axis="both", which="major", top="off", right="off",
-                        left="off", labelsize=5)
-        # Remove minor ticks
-        plt.tick_params(axis="y", which="minor", right="off")
+    # Set ticks for label positioning
+    ax.set_xticks(np.arange(data.shape[1]), minor=False)
+    ax.set_yticks(np.arange(data.shape[0]), minor=False)
+    # Set minor ticks that will make the grid
+    ax.set_xticks(np.arange(data.shape[1]) + .5, minor=True)
+    ax.set_yticks(np.arange(data.shape[0]) - .5, minor=True)
+    # Set x axis labels on top and y axis labels on right
+    ax.xaxis.tick_top()
+    # Set axis labels
+    # Remove first entry of xlabel
+    xlabel = ["" if x == 0 else labels[x] for x in range(len(labels))]
+    ax.set_xticklabels(xlabel, rotation=45, ha="left")
+    # Remove last entry of ylabel
+    ylabel = ["" if x == len(labels) - 1 else labels[x] for x in
+              range(len(labels))]
+    ax.set_yticklabels(ylabel)
+    # Remove major ticks
+    plt.tick_params(axis="both", which="major", top="off", right="off",
+                    left="off", labelsize=5)
+    # Remove minor ticks
+    plt.tick_params(axis="y", which="minor", right="off")
 
     plt.grid(True, which="minor")
     plt.grid(False, which="major")
@@ -475,7 +475,12 @@ def triangular_heat(data, labels=None):
     cbar = plt.colorbar(heat)
     cbar.set_label("Similarity proportion")
 
-    return plt, None, None
+    # Generate table
+    table = [[""] + [x for x in labels[::-1]]]
+    for p, sp in enumerate(labels):
+        table.append([sp] + list(data[p])[::-1])
+
+    return plt, None, table
 
 
 def punchcard_plot(data, labels=None, legend=None, ax_names=None,
