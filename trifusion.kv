@@ -4889,13 +4889,29 @@ FloatLayout:
                                     carousel.load_slide(carousel.slides[3])
                                     app.toggle_groups(self)
                             Widget:
-                                size_hint_y: .8
                                 canvas.before:
                                     Color:
                                         rgba: (0.180, 0.180, 0.180, .8)
                                     Rectangle:
                                         pos: self.pos
                                         size: self.size
+                            BoxLayout:
+                                padding: 10
+                                canvas.before:
+                                    Color:
+                                        rgba: (0.180, 0.180, 0.180, .8)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+                                Button:
+                                    size_hint: None, None
+                                    size: 40, 40
+                                    background_down: "data/backgrounds/quit.png"
+                                    background_normal: "data/backgrounds/quit.png"
+                                    id: quit_bt_bar_file
+                                    on_release:
+                                        app.check_action(text="Are you sure you want to quit?", func=app.stop)
+                                        #app.stop()
 
                     BoxLayout:
                         id: sp
