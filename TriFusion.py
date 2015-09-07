@@ -509,6 +509,10 @@ class ProjectProcBt(Button):
     pass
 
 
+class SelectGeneDialog(BoxLayout):
+    cancel = ObjectProperty()
+
+
 class StatsToggleWgt(BoxLayout):
     avg_func = ObjectProperty(None)
     sp_func = ObjectProperty(None)
@@ -7151,7 +7155,7 @@ class TriFusionApp(App):
         Clock.schedule_once(lambda x: transfer_wgts(wgts[idx][1], wgts[idx][0]),
                             .32)
 
-    def stats_write_plot(self, plot_data, plt_idx):
+    def stats_write_plot(self, plot_data, footer, plt_idx):
         """
         Provided with the data structure and a plt_idx string identifier, this
         function will create the plot file and app variable, and load it into
@@ -7265,7 +7269,23 @@ class TriFusionApp(App):
         self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
                        self.screen.ids.plot_content)
 
-    def stats_show_plot(self, plt_idx):
+        self.populate_stats_footer(footer)
+
+    def populate_stats_footer(self, footer):
+        """
+        Populates the footer of the Statistics screen with information on the
+        active number of genes and taxa
+        :param footer: list, first element contains the number of genes, the
+        second element contains the number of taxa
+        """
+
+        self.screen.ids.gene_num.text = "Genes: [color=37abc8ff]{}[/color]".\
+            format(footer[0])
+
+        self.screen.ids.taxa_num.text = "Taxa: [color=37abc8ff]{}[/color]".\
+            format(footer[1])
+
+    def stats_show_plot(self, plt_idx, single_gene=None):
         """
         Wrapper that executes plot data gathering and execution. The method
         that gathers the data for plot production runs in the background. Once
@@ -7274,18 +7294,23 @@ class TriFusionApp(App):
 
         :param plt_idx: string, identification string of the plot. Usually is
         the text property of the issuing button.
+        :param single_gene: string. Creates a single gene plot for the gene
+        name provided in the argument.
         """
 
         # Set active file and taxa sets
         file_set_name = self.screen.ids.active_file_set.text
         taxa_set_name = self.screen.ids.active_taxa_set.text
 
-        if file_set_name == "All files":
-            file_set = [basename(x) for x in self.file_list]
-        elif file_set_name == "Active files":
-            file_set = [basename(x) for x in self.active_file_list]
+        if single_gene:
+            file_set = [single_gene]
         else:
-            file_set = self.file_groups[file_set_name]
+            if file_set_name == "All files":
+                file_set = [basename(x) for x in self.file_list]
+            elif file_set_name == "Active files":
+                file_set = [basename(x) for x in self.active_file_list]
+            else:
+                file_set = self.file_groups[file_set_name]
 
         if taxa_set_name == "Active taxa":
             taxa_set = self.active_taxa_list
@@ -7305,6 +7330,16 @@ class TriFusionApp(App):
                                args2=[plt_idx])
 
         self.toggle_stats_panel(force_close=True)
+
+    def dialog_select_gene(self, plt_idx):
+        """
+        Generates dialog for selecting gene for single gene plot creation
+        """
+
+        content = SelectGeneDialog(cancel=self.dismiss_popup)
+
+        self.show_popup(title="Select gene...", content=content,
+                        size_hint=(.4, .9))
 
     # ##################################
     #
