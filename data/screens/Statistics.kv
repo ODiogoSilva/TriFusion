@@ -1,6 +1,7 @@
 ShowcaseScreen:
     name: "Statistics"
     __safe_id: [taxa_dropdown.__self__, file_dropdown.__self__]
+    orientation: "vertical"
 
     BoxLayout:
         AnchorLayout:
@@ -188,3 +189,35 @@ ShowcaseScreen:
                     bold: True
                     color: .7, .7, .7, .7
                     text: "[size=34]No data to display[/size]\nPlease select an analysis from the left panel"
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 5
+        canvas.before:
+            Color:
+                rgba: .2, .2, .2, .5
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Widget:
+            size_hint_x: None
+            width: 20
+        Label:
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            markup: True
+            text: "Genes: [color=37abc8ff]N/A[/color]"
+            bold: True
+            id: gene_num
+        Label:
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            markup: True
+            text: "Taxa: [color=37abc8ff]N/A[/color]"
+            bold: True
+            id: taxa_num
+
+

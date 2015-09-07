@@ -394,6 +394,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     if aln_obj.alignments == OrderedDict() or not aln_obj.taxa_names:
         return [EmptyAlignment("Active alignment is empty")]
 
+    footer = [len(aln_obj.alignments), len(aln_obj.taxa_names)]
+
     if stats_idx == "Gene occupancy":
         plot_data = aln_obj.gene_occupancy()
 
@@ -421,5 +423,5 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     elif stats_idx == "Distribution of sequence similarity sp":
         plot_data = aln_obj.sequence_similarity_per_species()
 
-    return [plot_data]
+    return [plot_data, footer]
 
