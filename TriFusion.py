@@ -2338,12 +2338,13 @@ class TriFusionApp(App):
 
         wgt.disabled = True
 
-    def check_action(self, text, func, bt_wgt=None, popup_level=1):
+    def check_action(self, text, func, args=None, bt_wgt=None, popup_level=1):
         """
         General purpose method that pops a dialog checking if the user wants to
         perform a certain action. This method should be passed as a function on
         the 'on_*' with the final function and original widget triggering the
         event as arguments
+        :param text: string, text to appear in the dialog
         :param func: final function if the users chooses to process
         :param bt_wgt: widget where the initial 'on_' event occurred
 
@@ -2368,7 +2369,11 @@ class TriFusionApp(App):
         if bt_wgt:
             check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
         else:
-            check_content.ids.check_ok.bind(on_release=lambda val: func())
+            if args:
+                check_content.ids.check_ok.bind(on_release=lambda val:
+                    func(*args))
+            else:
+                check_content.ids.check_ok.bind(on_release=lambda val: func())
 
         if popup_level == 1:
             self.show_popup(title="Warning!", content=check_content,
@@ -2384,6 +2389,34 @@ class TriFusionApp(App):
                                                           85 / 255.,
                                                           85 / 255., 1.])
             self._subpopup.open()
+
+    def check_file(self, path, file_name, idx):
+        """
+        Method used by some filechooser dialogs. Checks whether the provided
+        file name already exists. If so, issues a check_action popup. If not,
+        proceeds as normal
+        """
+
+        # Stores methods. key: idx; first value element, method to apply;
+        # second value element, list of arguments; third value element the
+        # file_name extension
+        methods = {"main_output": [self.save_file, [path, file_name, idx], ""],
+                   "export": [self.export_names, [path, file_name], ".txt"],
+                   "export_table": [self.export_table, [path, file_name],
+                                    ".csv"],
+                   "group": [self.orto_export_groups, ["group", path,
+                                                       file_name], ""]}
+
+        # Check if files exists.
+        if os.path.exists(join(path, file_name + methods[idx][2])):
+
+            self.check_action("The file {} already exists."
+                              " Overwrite?".format(file_name), methods[idx][0],
+                              methods[idx][1], popup_level=2)
+
+        else:
+            methods[idx][0](*methods[idx][1])
+            self.dismiss_popup()
 
     # ########################## GENERAL USE ###################################
 
