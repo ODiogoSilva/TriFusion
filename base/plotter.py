@@ -255,7 +255,7 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None,
     """
     Creates a tight stacked bar plot
     :param data: list, data for 2 groups should be like [[1,2], [2,3]]
-    :param xlabels: list, should match the number of items in data.
+    :param labels: list, should match the number of items in data.
     """
 
     if normalize:
