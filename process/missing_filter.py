@@ -62,6 +62,11 @@ class MissingFilter ():
 
         for taxa, seq in self.alignment.items():
 
+            if not seq.strip(self.gap):
+                seq = self.missing * len(seq)
+                self.alignment[taxa] = seq
+                continue
+
             trim_seq = list(seq)
             counter, reverse_counter = 0, -1
 
@@ -99,8 +104,8 @@ class MissingFilter ():
                                   taxa_number) * float(100)
             total_missing_proportion = gap_proportion + missing_proportion
 
-            if total_missing_proportion < self.gap_threshold or \
-                    missing_proportion < self.missing_threshold:
+            if total_missing_proportion <= self.gap_threshold or \
+                    missing_proportion <= self.missing_threshold:
 
                 filtered_cols.append(1)
 
