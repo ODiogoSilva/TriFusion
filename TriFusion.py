@@ -1492,6 +1492,12 @@ class TriFusionApp(App):
         except AttributeError:
             pass
 
+        try:
+            if self._popup.content.ids.text_input.focus:
+                arrow_block = True
+        except AttributeError:
+            pass
+
         if self._subpopup in self.root_window.children:
             if "ok_bt" in self._subpopup.content.ids:
                 bn = "data/backgrounds/bt_process.png"
