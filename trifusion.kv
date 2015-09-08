@@ -2698,6 +2698,7 @@
     # Tracks the load dialogs. Id's on this list will change the default Save
     # button to Load
     load_dlgs: ["import_partitions", "partition_file", "select_from_file", "remove_from_file"]
+    no_auto_close: ["protein", "nucleotide", "group", "taxa", "files", "main_output", "export", "export_table", "group"]
     BoxLayout:
         size: root.size
         pos: root.pos
@@ -2852,15 +2853,17 @@
                         # For save dialogs requiring file name, make this check
                         if self.text_io == "" and txt_box.height == 30: \
                         app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
-                        # For save dialogs requiring a file name, save the file name
-                        elif self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
-                        app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
-                        elif self.text_io != "" and sd_filechooser.text == "export": \
-                        app.export_names(sd_filechooser.path, file_name = text_input.text)
-                        elif self.text_io != "" and sd_filechooser.text == "export_table": \
-                        app.export_table(sd_filechooser.path, text_input.text)
-                        elif self.text_io != "" and sd_filechooser.text == "group": \
-                        app.orto_export_groups("group", output_dir=sd_filechooser.path, output_name=text_input.text)
+#                        # For save dialogs requiring a file name, save the file name
+#                        elif self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
+#                        app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
+#                        elif self.text_io != "" and sd_filechooser.text == "export": \
+#                        app.export_names(sd_filechooser.path, file_name = text_input.text)
+#                        elif self.text_io != "" and sd_filechooser.text == "export_table": \
+#                        app.export_table(sd_filechooser.path, text_input.text)
+#                        elif self.text_io != "" and sd_filechooser.text == "group": \
+#                        app.orto_export_groups("group", output_dir=sd_filechooser.path, output_name=text_input.text)
+                        elif txt_box.height != 0: \
+                        app.check_file(sd_filechooser.path, text_input.text, sd_filechooser.text)
 
                         # For save dialogs that do not require file names
                         elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
@@ -2884,7 +2887,7 @@
                         elif sd_filechooser.text == "files" or sd_filechooser.text == "taxa" and txt_box.height == 0: \
                         root.cancel(); app.dataset_file = sd_filechooser.selection[0]; app.dialog_text("Name of the data set group", sd_filechooser.text)
                         # Close dialog
-                        if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text != "protein" and sd_filechooser.text != "nucleotide" and sd_filechooser.text != "group" and sd_filechooser.text != "taxa" and sd_filechooser.text != "files" : root.cancel()
+                        if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text not in root.no_auto_close : root.cancel()
 
                 TFOKButon:
                     id: cancel_bt
