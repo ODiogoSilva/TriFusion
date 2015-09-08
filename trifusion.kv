@@ -4565,6 +4565,39 @@
 ## STATS Options Buttons
 ##
 
+<SelectGeneDialog>:
+    orientation: "vertical"
+    spacing: 5
+    TextInput
+        size_hint_y: None
+        height: 30
+        background_color: (1, 1, 1, 0)
+        foreground_color: (.1, .1, .1, .51)
+        hint_text: "Search files..."
+        multiline: False
+
+    Hseparator
+
+    ScrollView:
+        GridLayout:
+            id: gn_grid
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        TFOKButon:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
+        TFOKButon:
+            id: cancel_bt
+            text: "Cancel"
+            on_release: root.cancel()
+
 <StatsToggleWgt>:
     size_hint: None, None
     size: 230, 50

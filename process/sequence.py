@@ -1717,17 +1717,20 @@ class AlignmentList(Base):
                                           key=lambda x: x[1][1] + x[1][0],
                                           reverse=True))
 
-        data = np.array([[float(x[0]) / float(total_len) for x in
+        data = np.array([[float(x[0]) for x in
                           data_storage.values()],
-                         [float(x[1]) / float(total_len) for x in
+                         [float(x[1]) for x in
                           data_storage.values()],
-                         [float(x[2]) / float(total_len) for x in
+                         [float(x[2]) for x in
                           data_storage.values()]])
 
         return {"data": data,
                 "labels": list(data_storage.keys()),
                 "legend": legend,
-                "table_header": ["Taxon", "Gaps", "Missing", "Data"]}
+                "table_header": ["Taxon", "Gaps", "%", "Missing", "%", "Data",
+                                 "%"],
+                "normalize": True,
+                "normalize_factor": total_len}
 
     def missing_genes_per_species(self):
         """
