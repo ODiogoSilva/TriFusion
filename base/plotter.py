@@ -32,7 +32,7 @@ import matplotlib.cm as cm
 from matplotlib.patches import Circle
 from matplotlib.collections import PatchCollection
 import numpy as np
-import itertools
+from itertools import chain
 
 
 """
@@ -251,12 +251,17 @@ def interpolation_plot(data):
 
 
 def stacked_bar_plot(data, labels, legend=None, table_header=None,
-                     ax_names=None):
+                     ax_names=None, normalize=False, normalize_factor=None):
     """
     Creates a tight stacked bar plot
     :param data: list, data for 2 groups should be like [[1,2], [2,3]]
     :param xlabels: list, should match the number of items in data.
     """
+
+    if normalize:
+
+        data_original = np.copy(data)
+        data = np.array([[y / normalize_factor for y in x] for x in data])
 
     if len(labels) > 10:
         plt.rcParams["figure.figsize"] = (len(labels) / 3, 6)
@@ -309,8 +314,13 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None,
         table = [table_header]
     else:
         table = []
-    for i, lbl in enumerate(labels):
-        table.append([lbl] + [x[i] for x in data])
+    if normalize:
+        for i, lbl in enumerate(labels):
+            table.append([lbl] + list(chain.from_iterable((int(x[i]), y[i])
+                                      for x, y in zip(*[data_original, data]))))
+    else:
+        for i, lbl in enumerate(labels):
+            table.append([lbl] + [int(x[i]) for x in data])
 
     return plt, lgd, table
 
