@@ -4570,20 +4570,57 @@
 
 <SelectGeneDialog>:
     orientation: "vertical"
-    spacing: 5
-    TextInput
+    spacing: 10
+    padding: 10
+    plt_idx: None
+
+    BoxLayout:
         size_hint_y: None
         height: 30
-        background_color: (1, 1, 1, 0)
-        foreground_color: (.1, .1, .1, .51)
-        hint_text: "Search files..."
-        multiline: False
+        Label:
+            text: "Sliding window size"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        TextInput:
+            size_hint_x: .15
+            text: "10"
+
+    Hseparator
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: 0.8, 0.8, 0.8, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        TextInput:
+            background_color: (1, 1, 1, 0)
+            foreground_color: (.1, .1, .1, .51)
+            hint_text: "Search files..."
+            multiline: False
+            id: gn_txt
+            on_text_validate:
+                app.stats_search_genes(gn_txt.text)
+        Button:
+            size_hint_x: None
+            width: 30
+            background_normal: "data/backgrounds/search_bt.png"
+            background_down: "data/backgrounds/search_bt.png"
+            on_release:
+                app.stats_search_genes(gn_txt.text)
 
     Hseparator
 
     ScrollView:
         GridLayout:
             id: gn_grid
+            cols: 1
+            spacing: 5
 
     BoxLayout:
         orientation: "horizontal"
@@ -4594,8 +4631,12 @@
             id: ok_bt
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            text: "Ok"
+            text: "Select"
             on_release:
+                if [x.text for x in gn_grid.children if x.state == "down"]: \
+                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if x.state == "down"][0], "window_size": 20})
+                else: \
+                app.dialog_floatcheck("ERROR: Please select a gene.", t="error")
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
@@ -4603,11 +4644,14 @@
 
 <StatsToggleWgt>:
     size_hint: None, None
-    size: 230, 50
-    pos: app.root.width - 250, app.root.height - 120
+    size: 350, 50
+    pos: app.root.width - 370, app.root.height - 120
     opacity: .2
+    padding: 5
+    spacing: 5
     args1: None
     args2: None
+    gene_args: None
     canvas.before:
         Color:
             rgba: (.2,.2,.2,1)
@@ -4623,6 +4667,18 @@
             Line:
                 width: 1.1
                 rectangle: root.x,root.y,root.width,root.height
+    Button:
+        background_normal: "data/backgrounds/bt_process_off.png"
+        background_down: "data/backgrounds/bt_process.png"
+        background_disabled_down: "data/backgrounds/bt_process.png"
+        disabled_color: (1,1,1,1)
+        bold: True
+        text: "Single gene"
+        id: gene
+        on_release:
+            app.dialog_select_gene(**root.gene_args)
+    Vseparator:
+        id: gene_sep
     ToggleButton
         background_normal: "data/backgrounds/bt_process_off.png"
         background_down: "data/backgrounds/bt_process.png"
@@ -4635,7 +4691,8 @@
         id: sp
         on_release:
             app.toggle_groups(self)
-            app.stats_show_plot(**root.args2)
+            app.stats_show_plot(**root.args1)
+    Vseparator
     ToggleButton:
         background_normal: "data/backgrounds/bt_process_off.png"
         background_down: "data/backgrounds/bt_process.png"
@@ -4646,7 +4703,7 @@
         id: avg
         on_release:
             app.toggle_groups(self)
-            app.stats_show_plot(**root.args1)
+            app.stats_show_plot(**root.args2)
 
 <StatsPlotToolbar>
     orientation: "vertical"
@@ -4732,7 +4789,7 @@
 <SequenceSimilarity>:
     size_hint_y: None
     height: 30
-    text: "Distribution of sequence similarity"
+    text: "Pairwise sequence similarity"
     on_release:
         app.stats_show_plot(self.text)
 

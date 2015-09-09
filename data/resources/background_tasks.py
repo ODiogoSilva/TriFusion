@@ -376,7 +376,8 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
     return [active_group]
 
 
-def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
+def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
+                   additional_args):
     """
     Given an aln_obj, this function will execute the according method to
     generate plot data
@@ -394,7 +395,13 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     if aln_obj.alignments == OrderedDict() or not aln_obj.taxa_names:
         return [EmptyAlignment("Active alignment is empty")]
 
-    footer = [len(aln_obj.alignments), len(aln_obj.taxa_names)]
+    # List of gene specific idx. These plots only have one gene for the footer
+    gene_specific = ["Pairwise sequence similarity gn"]
+
+    if stats_idx in gene_specific:
+        footer = [1, len(aln_obj.taxa_names)]
+    else:
+        footer = [len(aln_obj.alignments), len(aln_obj.taxa_names)]
 
     if stats_idx == "Gene occupancy":
         plot_data = aln_obj.gene_occupancy()
@@ -417,11 +424,14 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set):
     elif stats_idx == "Proportion of nucleotides/residues sp":
         plot_data = aln_obj.characters_proportion_per_species()
 
-    elif stats_idx == "Distribution of sequence similarity":
+    elif stats_idx == "Pairwise sequence similarity":
         plot_data = aln_obj.sequence_similarity()
 
-    elif stats_idx == "Distribution of sequence similarity sp":
+    elif stats_idx == "Pairwise sequence similarity sp":
         plot_data = aln_obj.sequence_similarity_per_species()
+        
+    elif stats_idx == "Pairwise sequence similarity gn":
+        plot_data = aln_obj.sequence_similarity_gene(**additional_args)
 
     return [plot_data, footer]
 
