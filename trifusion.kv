@@ -4586,6 +4586,7 @@
         TextInput:
             size_hint_x: .15
             text: "10"
+            id: window
 
     Hseparator
 
@@ -4634,7 +4635,7 @@
             text: "Select"
             on_release:
                 if [x.text for x in gn_grid.children if x.state == "down"]: \
-                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if x.state == "down"][0], "window_size": 20})
+                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if x.state == "down"][0], "window_size": int(window.text)})
                 else: \
                 app.dialog_floatcheck("ERROR: Please select a gene.", t="error")
         TFOKButon:
