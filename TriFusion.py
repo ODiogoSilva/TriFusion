@@ -1498,6 +1498,12 @@ class TriFusionApp(App):
         except AttributeError:
             pass
 
+        try:
+            if self._popup.content.ids.gn_txt.focus:
+                arrow_block = True
+        except AttributeError:
+            pass
+
         if self._subpopup in self.root_window.children:
             if "ok_bt" in self._subpopup.content.ids:
                 bn = "data/backgrounds/bt_process.png"
@@ -5363,22 +5369,36 @@ class TriFusionApp(App):
 
     # ########################### PLOT SCREENS #################################
 
-    def show_stats_toggle(self, args, active_bt):
+    def show_stats_toggle(self, args1, args2, active_bt, single_gene=None):
         """
         Adds a toggle widget to some Statistics plots that allow the user to
         toggle plots between the whole data set and species perspectives
         """
 
         content = StatsToggleWgt()
-        if active_bt == "avg":
-            content.args2 = args
-        else:
-            content.args1 = args
 
-        content.ids.avg.state = "down" if active_bt == "avg" else "normal"
-        content.ids.avg.disabled = True if active_bt == "avg" else False
-        content.ids.sp.state = "normal" if active_bt == "avg" else "down"
-        content.ids.sp.disabled = False if active_bt == "avg" else True
+        if not single_gene and active_bt != "gene":
+            content.remove_widget(content.ids.gene)
+            content.remove_widget(content.ids.gene_sep)
+        else:
+            content.gene_args = single_gene
+            if active_bt == "gene":
+                content.ids.gene.background_normal = "data/backgrounds/" \
+                                                     "bt_focus.png"
+
+        if args2:
+            content.args2 = args2
+
+        if args1:
+            content.args1 = args1
+
+        for wgt_name in ["avg", "sp"]:
+            if wgt_name == active_bt:
+                content.ids[wgt_name].state = "down"
+                content.ids[wgt_name].disabled = True
+            else:
+                content.ids[wgt_name].state = "normal"
+                content.ids[wgt_name].disabled = False
 
         self.previous_stats_toggle = content
 
@@ -7234,37 +7254,66 @@ class TriFusionApp(App):
                       "Proportion of nucleotides/residues sp":
                                          [stacked_bar_plot,
                                          "char_proportions_sp.png"],
-                      "Distribution of sequence similarity": [histogram_plot,
+                      "Pairwise sequence similarity": [histogram_plot,
                                          "similarity_distribution.png"],
-                      "Distribution of sequence similarity sp":
+                      "Pairwise sequence similarity sp":
                                          [triangular_heat,
-                                         "similarity_distribution_sp.png"]}
+                                         "similarity_distribution_sp.png"],
+                      "Pairwise sequence similarity gn":
+                                         [sliding_window,
+                                          "similarity_distribution_gn.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {"Distribution of sequence size":
-                               {"args": {"plt_idx": "Distribution of sequence "
-                                                    "size all"},
-                                "active_bt": "sp"},
+                               {"args1": None,
+                                "args2": {"plt_idx": "Distribution of sequence "
+                                                     "size all"},
+                                "active_bt": "sp",
+                                "single_gene": None},
                            "Distribution of sequence size all":
-                               {"args": {"plt_idx": "Distribution of sequence "
-                                                    "size"},
-                                "active_bt": "avg"},
+                               {"args1": {"plt_idx": "Distribution of sequence "
+                                                     "size"},
+                                "args2": None,
+                                "active_bt": "avg",
+                                "single_gene": None},
                            "Proportion of nucleotides/residues":
-                               {"args": {"plt_idx": "Proportion of "
-                                                    "nucleotides/residues sp"},
-                                "active_bt": "avg"},
+                               {"args1": {"plt_idx": "Proportion of "
+                                                     "nucleotides/residues sp"},
+                                "args2": None,
+                                "active_bt": "avg",
+                                "single_gene": None},
                            "Proportion of nucleotides/residues sp":
-                               {"args": {"plt_idx": "Proportion of "
-                                                    "nucleotides/residues"},
-                                "active_bt": "sp"},
-                           "Distribution of sequence similarity":
-                               {"args": {"plt_idx": "Distribution of sequence "
-                                                    "similarity sp"},
-                                "active_bt": "avg"},
-                           "Distribution of sequence similarity sp":
-                               {"args": {"plt_idx": "Distribution of sequence"
-                                                    " similarity"},
-                                "active_bt": "sp"}}
+                               {"args1": None,
+                                "args2": {"plt_idx": "Proportion of "
+                                                     "nucleotides/residues"},
+                                "active_bt": "sp",
+                                "single_gene": None},
+                           "Pairwise sequence similarity":
+                               {"args1": {"plt_idx": "Pairwise sequence "
+                                                     "similarity sp"},
+                                "args2": None,
+                                "active_bt": "avg",
+                                "single_gene": {"plt_idx": "Pairwise "
+                                                "sequence similarity gn"}},
+                           "Pairwise sequence similarity sp":
+                               {"args1": None,
+                                "args2": {"plt_idx": "Pairwise sequence"
+                                                     " similarity"},
+                                "active_bt": "sp",
+                                "single_gene": {"plt_idx": "Pairwise sequence"
+                                                " similarity gn"}},
+                           "Pairwise sequence similarity gn":
+                               {"args1": {"plt_idx": "Pairwise sequence "
+                                                     "similarity sp"},
+                                "args2": {"plt_idx": "Pairwise sequence"
+                                                     " similarity"},
+                                "active_bt": "gene",
+                                "single_gene": {"plt_idx": "Pairwise sequence "
+                                                "similarity gn"}}}
+
+        # List of gene specific plots. These are always removed
+        gene_specific = {"Pairwise sequence similarity gn":
+            "similarity_distribution_gn.png"}
 
         # To allow fast switching between plots with species/average toggles,
         # If the temporary plot file already exists, load it instead of creating
@@ -7273,6 +7322,12 @@ class TriFusionApp(App):
         # are also created to allow fast switching, though the original
         # attributes ALWAYS refer to the plot being shown.
         if plt_idx in stats_compliant:
+
+            if plt_idx in gene_specific:
+                try:
+                    os.remove(join(self.temp_dir, gene_specific[plt_idx]))
+                except FileNotFoundError:
+                    pass
 
             # Show toggle widget
             self.show_stats_toggle(**stats_compliant[plt_idx])
@@ -7330,7 +7385,7 @@ class TriFusionApp(App):
         self.screen.ids.taxa_num.text = "Taxa: [color=37abc8ff]{}[/color]".\
             format(footer[1])
 
-    def stats_show_plot(self, plt_idx, single_gene=None):
+    def stats_show_plot(self, plt_idx, additional_args=None):
         """
         Wrapper that executes plot data gathering and execution. The method
         that gathers the data for plot production runs in the background. Once
@@ -7347,15 +7402,12 @@ class TriFusionApp(App):
         file_set_name = self.screen.ids.active_file_set.text
         taxa_set_name = self.screen.ids.active_taxa_set.text
 
-        if single_gene:
-            file_set = [single_gene]
+        if file_set_name == "All files":
+            file_set = [basename(x) for x in self.file_list]
+        elif file_set_name == "Active files":
+            file_set = [basename(x) for x in self.active_file_list]
         else:
-            if file_set_name == "All files":
-                file_set = [basename(x) for x in self.file_list]
-            elif file_set_name == "Active files":
-                file_set = [basename(x) for x in self.active_file_list]
-            else:
-                file_set = self.file_groups[file_set_name]
+            file_set = self.file_groups[file_set_name]
 
         if taxa_set_name == "Active taxa":
             taxa_set = self.active_taxa_list
@@ -7371,7 +7423,7 @@ class TriFusionApp(App):
         self.run_in_background(func=get_stats_data,
                                second_func=self.stats_write_plot,
                                args1=[self.alignment_list, plt_idx, file_set,
-                                      taxa_set],
+                                      taxa_set, additional_args],
                                args2=[plt_idx])
 
         self.toggle_stats_panel(force_close=True)
@@ -7382,9 +7434,35 @@ class TriFusionApp(App):
         """
 
         content = SelectGeneDialog(cancel=self.dismiss_popup)
+        content.plt_idx = plt_idx
 
-        self.show_popup(title="Select gene...", content=content,
-                        size_hint=(.4, .9))
+        self.show_popup(title="Select gene for sliding window analysis...",
+                        content=content, size_hint=(.4, .9))
+
+    def stats_search_genes(self, txt):
+        """
+        Searches loaded genes for the single gene display of the Statistics
+        screen
+        """
+
+        # When empty search, clear grid layout
+        if txt == "":
+            return self._popup.content.ids.gn_grid.clear_widgets()
+
+        found_bts = [basename(x) for x in self.file_list if
+                     txt.lower() in basename(x).lower()]
+
+        for f in found_bts:
+
+            bt = TGToggleButton(text=f, id=f, state="normal", height=30,
+                                shorten=True, shorten_from="right",
+                                disabled_color=(1, 1, 1, 1),
+                                background_disabled_down=join("data",
+                                                              "backgrounds",
+                                                              "bt_process.png"))
+            bt.text_size[0] = bt.size[0] * 3
+            bt.bind(on_release=self.toggle_groups)
+            self._popup.content.ids.gn_grid.add_widget(bt)
 
     # ##################################
     #

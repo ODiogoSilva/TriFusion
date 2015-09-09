@@ -1952,6 +1952,29 @@ class AlignmentList(Base):
         return {"data": data,
                 "labels": list(taxa_pos)}
 
+    def sequence_similarity_gene(self, gene_name, window_size):
+
+        aln_obj = self.alignments[gene_name]
+
+        data = []
+
+        for i in range(0, aln_obj.locus_length, window_size):
+
+            window_similarities = []
+
+            seqs = np.array([[y for y in x[i:i + window_size]] for x in
+                             aln_obj.alignment.values()])
+
+            for seq1, seq2 in itertools.combinations(seqs, 2):
+                window_similarities.append((self._get_similarity(seq1, seq2) /
+                                           window_size) * 100)
+
+            if window_similarities:
+                data.append(np.mean(window_similarities))
+
+        return {"data": data,
+                "window_size": window_size}
+
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

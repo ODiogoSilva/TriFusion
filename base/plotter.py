@@ -515,4 +515,40 @@ def punchcard_plot(data, labels=None, legend=None, ax_names=None,
 
     return plt, None, None
 
+
+def sliding_window(data, window_size):
+    """
+    Creates a sliding window plot
+    :param data:
+    :param window_size:
+    :return:
+    """
+
+    data = np.array(data)
+    x = np.arange(0, len(data) * window_size, window_size)
+
+    fig, ax = plt.subplots()
+
+    for i in range(0, len(data)):
+        ax.plot(x[i:i + 2], data[i:i + 2], color=cm.jet(data[i] / 100., 1),
+                linewidth=2.)
+
+    return plt, None, None
+
+    # segments_x = np.r_[x[0], x[1:-1].repeat(2), x[-1]].reshape(-1, 2)
+    # segments_y = np.r_[data[0], data[1:-1].repeat(2), data[-1]].reshape(-1, 2)
+    #
+    # linecolors = [cm.jet(y / 100, 1) for y in data]
+    # print(linecolors)
+    #
+    # segments = [zip(x_, y_) for x_, y_ in zip(segments_x, segments_y)]
+    # print(segments)
+    #
+    # fig, ax = plt.subplots()
+    #
+    # ax.add_collection(LineCollection(segments, colors=linecolors))
+    #
+    # ax.set_xlim(0, x + 1)
+    # ax.set_ylim(0, max(data))
+
 __author__ = 'diogo'
