@@ -4191,6 +4191,10 @@ class TriFusionApp(App):
         # Clear Statistics screen scatter, if screen is active
         if self.screen.name == "Statistics":
             self.screen.ids.plot_content.clear_widgets()
+            self.screen.ids.gene_num.text = "Genes: [color=37abc8ff]N/A[/color]"
+            self.screen.ids.taxa_num.text = "Taxa: [color=37abc8ff]N/A[/color]"
+        else:
+            self.loaded_screens[self.available_screens[3]] = None
 
     def remove_all_groups(self):
         """
