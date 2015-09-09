@@ -4189,6 +4189,8 @@ class TriFusionApp(App):
         self.current_table = None
 
         # Clear Statistics screen scatter, if screen is active
+        self.dismiss_stats_toggle()
+        self.previous_stats_toggle = None
         if self.screen.name == "Statistics":
             self.screen.ids.plot_content.clear_widgets()
             self.screen.ids.gene_num.text = "Genes: [color=37abc8ff]N/A[/color]"
