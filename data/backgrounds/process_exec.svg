@@ -1122,9 +1122,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="435.94897"
-     inkscape:cy="-84.111588"
+     inkscape:zoom="0.7071068"
+     inkscape:cx="121.33153"
+     inkscape:cy="-1790.6058"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -4465,5 +4465,24 @@
        style="fill:#ffffff;fill-opacity:1"
        inkscape:export-xdpi="34"
        inkscape:export-ydpi="34" />
+    <rect
+       style="fill:#333333;fill-opacity:0.98823529;fill-rule:nonzero;stroke:none;stroke-width:0.26059851;stroke-miterlimit:4;stroke-dasharray:none;opacity:0"
+       id="rect3050-2-7-65"
+       width="288.89206"
+       height="104.2394"
+       x="158.73746"
+       y="2924.2424"
+       ry="0"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/bt_process_off.png"
+       inkscape:export-xdpi="62.303974"
+       inkscape:export-ydpi="62.303974"
+       rx="0" />
+    <path
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#37abc8;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 158.72337,3026.4938 288.87456,0"
+       id="path4842"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="62.303974"
+       inkscape:export-ydpi="62.303974" />
   </g>
 </svg>

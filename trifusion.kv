@@ -4,6 +4,7 @@
 #:import os os
 #:import multiprocessing multiprocessing
 #:import ObjectProperty kivy.properties.ObjectProperty
+#:import ToggleButton kivy.uix.togglebutton.ToggleButton
 #:import StringProperty kivy.properties.StringProperty
 #:import ListProperty kivy.properties.ListProperty
 #:import load_group_files data.resources.background_tasks.load_group_files
@@ -4573,6 +4574,7 @@
     spacing: 10
     padding: 10
     plt_idx: None
+    gene_counter: 0
 
     BoxLayout:
         size_hint_y: None
@@ -4599,6 +4601,13 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
+        Button:
+            size_hint_x: None
+            width: 30
+            background_normal: "data/backgrounds/search_bt.png"
+            background_down: "data/backgrounds/search_bt.png"
+            on_release:
+                app.stats_search_genes(gn_txt.text)
         TextInput:
             background_color: (1, 1, 1, 0)
             foreground_color: (.1, .1, .1, .51)
@@ -4610,18 +4619,23 @@
         Button:
             size_hint_x: None
             width: 30
-            background_normal: "data/backgrounds/search_bt.png"
-            background_down: "data/backgrounds/search_bt.png"
+            background_normal: "data/backgrounds/clear_bt.png"
+            background_down: "data/backgrounds/clear_bt.png"
             on_release:
-                app.stats_search_genes(gn_txt.text)
+                app.stats_clear_search()
 
     Hseparator
 
     ScrollView:
+        bar_width: 8
+        scroll_type: ["bars"]
         GridLayout:
+            size_hint_y: None
+            height: sum([x.height + 5 for x in self.children]) + 20
             id: gn_grid
             cols: 1
             spacing: 5
+            padding: 10
 
     BoxLayout:
         orientation: "horizontal"
@@ -4634,14 +4648,23 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Select"
             on_release:
-                if [x.text for x in gn_grid.children if x.state == "down"]: \
-                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if x.state == "down"][0], "window_size": int(window.text)})
+                if [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"]: \
+                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0], "window_size": int(window.text)})
                 else: \
                 app.dialog_floatcheck("ERROR: Please select a gene.", t="error")
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
             on_release: root.cancel()
+
+<StatsMoreBt>:
+    anchor_x: "left"
+    size_hint_y: None
+    height: 30
+    TFOKButon:
+        text: "Load next 20"
+        on_release:
+            app.stats_load_more_genes()
 
 <StatsToggleWgt>:
     size_hint: None, None
