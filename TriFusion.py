@@ -48,7 +48,6 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.dropdown import DropDown
 from kivy.uix.spinner import Spinner
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
@@ -713,6 +712,10 @@ class LoadMoreBt(AnchorLayout):
     """
     Custom button widget for for the "load more button" in the side panel
     """
+    pass
+
+
+class StatsMoreBt(AnchorLayout):
     pass
 
 
@@ -5385,6 +5388,9 @@ class TriFusionApp(App):
             if active_bt == "gene":
                 content.ids.gene.background_normal = "data/backgrounds/" \
                                                      "bt_focus.png"
+                content.ids.gene.text = "Change gene"
+            else:
+                content.ids.gene.text = "Single gene"
 
         if args2:
             content.args2 = args2
@@ -7436,6 +7442,31 @@ class TriFusionApp(App):
         content = SelectGeneDialog(cancel=self.dismiss_popup)
         content.plt_idx = plt_idx
 
+        # By default show up to 20 files at first
+        for i in range(20):
+            try:
+                f = basename(self.file_list[i])
+
+                bt = TGToggleButton(text=f, id=f, state="normal", height=30,
+                                    shorten=True, shorten_from="right",
+                                    disabled_color=(1, 1, 1, 1),
+                                    background_disabled_down=join("data",
+                                                             "backgrounds",
+                                                             "bt_process.png"))
+                bt.text_size[0] = bt.size[0] * 3
+                bt.bind(on_release=self.toggle_groups)
+                content.ids.gn_grid.add_widget(bt)
+                content.gene_counter += 1
+
+            except IndexError:
+                break
+
+        try:
+            if self.file_list[content.gene_counter + 1]:
+                content.ids.gn_grid.add_widget(StatsMoreBt())
+        except IndexError:
+            pass
+
         self.show_popup(title="Select gene for sliding window analysis...",
                         content=content, size_hint=(.4, .9))
 
@@ -7448,6 +7479,8 @@ class TriFusionApp(App):
         # When empty search, clear grid layout
         if txt == "":
             return self._popup.content.ids.gn_grid.clear_widgets()
+
+        self._popup.content.ids.gn_grid.clear_widgets()
 
         found_bts = [basename(x) for x in self.file_list if
                      txt.lower() in basename(x).lower()]
@@ -7463,6 +7496,66 @@ class TriFusionApp(App):
             bt.text_size[0] = bt.size[0] * 3
             bt.bind(on_release=self.toggle_groups)
             self._popup.content.ids.gn_grid.add_widget(bt)
+
+    def stats_load_more_genes(self):
+        """
+        Functionality to the load next 20 genes in the stats gene selection
+        dialog
+        """
+
+        # Remove previous StatsMorebt
+        self._popup.content.ids.gn_grid.remove_widget(
+            self._popup.content.ids.gn_grid.children[0])
+
+        for i in range(self._popup.content.gene_counter,
+                       self._popup.content.gene_counter + 20):
+
+            try:
+                f = basename(self.file_list[i])
+
+                bt = TGToggleButton(text=f, id=f, state="normal", height=30,
+                                    shorten=True, shorten_from="right",
+                                    disabled_color=(1, 1, 1, 1),
+                                    background_disabled_down=join("data",
+                                                             "backgrounds",
+                                                             "bt_process.png"))
+                bt.text_size[0] = bt.size[0] * 3
+                bt.bind(on_release=self.toggle_groups)
+                self._popup.content.ids.gn_grid.add_widget(bt)
+
+            except IndexError:
+                break
+
+        try:
+            if self.file_list[self._popup.content.gene_counter + 1]:
+                self._popup.content.ids.gn_grid.add_widget(StatsMoreBt())
+        except IndexError:
+            pass
+
+    def stats_clear_search(self):
+        """
+        Clears stats gene search to default buttons
+        """
+
+        self._popup.content.ids.gn_grid.clear_widgets()
+
+        for i in range(20):
+            try:
+                f = basename(self.file_list[i])
+
+                bt = TGToggleButton(text=f, id=f, state="normal", height=30,
+                                    shorten=True, shorten_from="right",
+                                    disabled_color=(1, 1, 1, 1),
+                                    background_disabled_down=join("data",
+                                                             "backgrounds",
+                                                             "bt_process.png"))
+                bt.text_size[0] = bt.size[0] * 3
+                bt.bind(on_release=self.toggle_groups)
+                self._popup.content.ids.gn_grid.add_widget(bt)
+
+            except IndexError:
+                break
+
 
     # ##################################
     #
