@@ -7412,8 +7412,6 @@ class TriFusionApp(App):
         self.current_plot.axhline(val, linewidth=2, color="r", alpha=.8,
                 linestyle="--")
 
-        print(self.current_plot.Axes.hlines())
-
         self.current_plot.savefig(join(self.temp_dir, plt_file),
                                   bbox_inches="tight", dpi=200)
 
