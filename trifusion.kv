@@ -4657,6 +4657,28 @@
             text: "Cancel"
             on_release: root.cancel()
 
+<HseparatorFooter>:
+    plt_file: ""
+    spacing: 15
+    Label:
+        size_hint_x: None
+        width: 150
+        bold: True
+        text: "Horizontal threshold:"
+    MySlider:
+        id: slider
+        on_touch_up:
+            app.stats_sethline(self.value, root.plt_file)
+    Label:
+        size_hint_x: None
+        width: 130
+        bold: True
+        text: "Inverse threshold?"
+    CheckBox:
+        size_hint_x: None
+        width: 40
+
+
 <StatsMoreBt>:
     anchor_x: "left"
     size_hint_y: None
@@ -4733,7 +4755,7 @@
     orientation: "vertical"
     size_hint: None, None
     pos: app.root.width - 50, (app.root.height / 2) - (self.height / 2)
-    size: 50, 230
+    size: 50, 270
     opacity: .2
     canvas.before:
         Color:
@@ -4748,7 +4770,7 @@
         BoxLayout:
             orientation: "vertical"
             size_hint: None, None
-            size: 40, 220
+            size: 40, 260
             spacing: 5
             id: content
             Button
@@ -4774,6 +4796,16 @@
                     app.screen.ids.plot_content.scale = 1
                     app.screen.ids.plot_content.pos = (0, 0)
             Button:
+                id: hthreshold
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "data/backgrounds/hthreshold_bt.png"
+                background_down: "data/backgrounds/hthreshold_bt.png"
+                background_disabled_normal: "data/backgrounds/hthreshold_bt_disabled.png"
+                #disabled: True
+                on_release:
+                    app.dialog_hthreshold(self)
+            Button:
                 size_hint: None, None
                 size: 40, 40
                 id: export_fig
@@ -4792,6 +4824,35 @@
                 on_release:
                     app.dialog_filechooser("export_table")
 
+<HthresholdDialog>:
+    orientation: "vertical"
+    spacing: 5
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            text: "Set horizontal threshold value"
+            bold: True
+        BoxLayout:
+            Label:
+                size_hint_x: .9
+                text: "Inverted threshold?"
+                bold: True
+            CheckBox:
+                size_hint_x: .1
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        MySlider
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        AnchorLayout:
+            TFButton:
+                size_hint_x: None
+                width: 100
+                text: "Apply"
+                bold: True
 
 ## General information
 <SizeDistribution>:
