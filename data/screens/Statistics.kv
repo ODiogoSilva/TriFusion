@@ -192,8 +192,8 @@ ShowcaseScreen:
 
     BoxLayout:
         size_hint_y: None
-        height: 30
-        spacing: 5
+        height: 35
+        spacing: 15
         canvas.before:
             Color:
                 rgba: .2, .2, .2, .5
@@ -202,8 +202,10 @@ ShowcaseScreen:
                 size: self.size
         Widget:
             size_hint_x: None
-            width: 20
+            width: 5
         Label:
+            size_hint_x: None
+            width: 120
             halign: "left"
             valign: "middle"
             text_size: self.size
@@ -211,7 +213,10 @@ ShowcaseScreen:
             text: "Genes: [color=37abc8ff]N/A[/color]"
             bold: True
             id: gene_num
+        Vseparator:
         Label:
+            size_hint_x: None
+            width: 120
             halign: "left"
             valign: "middle"
             text_size: self.size
@@ -219,5 +224,8 @@ ShowcaseScreen:
             text: "Taxa: [color=37abc8ff]N/A[/color]"
             bold: True
             id: taxa_num
+        Vseparator
+        BoxLayout:
+            id: footer_box
 
 
