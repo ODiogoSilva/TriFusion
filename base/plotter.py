@@ -415,8 +415,8 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
 
     fig, ax = plt.subplots()
 
-    if len(data) > 50:
-        bins = len(data) / 10
+    if max(data) - min(data) > 50:
+        bins = (max(data) - min(data)) / 10
     else:
         bins = 10
 
