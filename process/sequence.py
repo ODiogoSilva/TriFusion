@@ -2019,6 +2019,37 @@ class AlignmentList(Base):
                 "title": "Distribution of segregating sites",
                 "table_header": ["Segregating sites", "Frequency"]}
 
+    def sequence_segregation_gene(self, gene_name, window_size):
+        """
+        Generates data for a sliding window analysis of segregating sites
+        :param gene_name: string, name of gene in self.alignments
+        :param window_size: size of the sliding window
+        """
+
+        aln_obj = self.alignments[gene_name]
+
+        data = []
+
+        for i in range(0, aln_obj.locus_length, window_size):
+
+            segregating_sites = 0
+
+            seqs = np.array([[y for y in x[i:i + window_size]] for x in
+                             aln_obj.alignment.values()])
+
+            for column in zip(*seqs):
+                column = set([x for x in column if x != aln_obj.sequence_code[1]
+                              and x != "-"])
+
+                if len(column) > 1:
+                    segregating_sites += 1
+
+            data.append(segregating_sites)
+
+        return {"data": data,
+                "window_size": window_size,
+                "ax_names": ["Sequence (bp)", "Segregating sites"],
+                "table_header": ["Sequence (bp)", "Segregating sites"]}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
