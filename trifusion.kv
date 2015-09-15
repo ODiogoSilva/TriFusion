@@ -481,7 +481,7 @@
 # PLOT SCREEN
 #===============================================================================
 
-<MySlider@Slider>:
+<MySlider>:
     FancyMarker:
         pos: (root.value_pos[0] - 6, root.center_y + 15)
         background_normal: "data/backgrounds/box_arrow_down.png"
@@ -4667,7 +4667,7 @@
         text: "Horizontal threshold:"
     MySlider:
         id: slider
-        on_touch_up:
+        on_release:
             app.stats_sethline(self.value, root.plt_file, inverted.active)
     Label:
         size_hint_x: None
