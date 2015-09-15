@@ -7302,7 +7302,9 @@ class TriFusionApp(App):
                       "Pairwise sequence similarity gn": [sliding_window,
                                           "similarity_distribution_gn.png"],
                       "Segregating sites": [histogram_plot,
-                                          "segregating_sites.png"]}
+                                          "segregating_sites.png"],
+                      "Segregating sites gn": [sliding_window,
+                                          "segregating_sites_gn.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {"Distribution of sequence size":
@@ -7362,11 +7364,24 @@ class TriFusionApp(App):
                                                      "orthologs"},
                                 "args2": None,
                                 "active_bt": "avg",
-                                "single_gene": None}}
+                                "single_gene": None},
+                           "Segregating sites":
+                               {"args1": None,
+                                "args2": None,
+                                "active_bt": "avg",
+                                "single_gene": {"plt_idx": "Segregating "
+                                                           "sites gn"}},
+                           "Segregating sites gn":
+                               {"args1": None,
+                                "args2": {"plt_idx": "Segregating sites"},
+                                "active_bt": "gene",
+                                "single_gene": {"plt_idx": "Segregating "
+                                                           "sites gn"}}}
 
         # List of gene specific plots. These are always removed
         gene_specific = {"Pairwise sequence similarity gn":
-            "similarity_distribution_gn.png"}
+            "similarity_distribution_gn.png",
+                         "Segregating sites gn": "segregating_sites_gn.png"}
 
         # List of plots for which an horizontal separator is available:
         hseparator_plots = ["Pairwise sequence similarity gn"]

@@ -421,7 +421,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                    aln_obj.sequence_similarity_per_species,
                "Pairwise sequence similarity gn":
                    aln_obj.sequence_similarity_gene,
-               "Segregating sites": aln_obj.sequence_segregation}
+               "Segregating sites": aln_obj.sequence_segregation,
+               "Segregating sites gn": aln_obj.sequence_segregation_gene}
 
     if additional_args:
         plot_data = methods[stats_idx](**additional_args)
