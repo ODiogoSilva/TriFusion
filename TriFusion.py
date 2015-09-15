@@ -49,6 +49,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
+from kivy.uix.slider import  Slider
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
@@ -205,6 +206,7 @@ class LinkedLabel(Label):
             if texture is not None:
                 self.texture = self._label.texture
                 self.texture_size = list(self.texture.size)
+
 
 class FileChooserL(FileChooserListView):
     """
@@ -454,6 +456,22 @@ class ModelSpinner(Spinner):
             self.background_normal = kwargs["background_normal"]
         except KeyError:
             pass
+
+
+class MySlider(Slider):
+
+    def __init__(self, **kwargs):
+        super(MySlider, self).__init__(**kwargs)
+        self.register_event_type("on_release")
+
+    def on_release(self):
+        pass
+
+    def on_touch_up(self, touch):
+        super(MySlider, self).on_touch_up(touch)
+        if touch.grab_current == self:
+            self.dispatch("on_release")
+            return True
 
 
 class CrunchData(BoxLayout):
@@ -7407,8 +7425,6 @@ class TriFusionApp(App):
         """
         Sets an horizontal threshold bar to the current plot object
         """
-
-        print("here")
 
         # Get plot limits for patch position and size
         xlim = self.current_plot.xlim()
