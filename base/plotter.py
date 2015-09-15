@@ -56,6 +56,19 @@ two_clr_list = [[0, .53, .66],
                 [.62, .80, .85]]
 
 
+def _add_labels(ax_names):
+    """
+    Wrapper to the add labels routine
+    :param ax_names: List of two items. [x-axis name, y-axis name]
+    """
+
+    if ax_names[0]:
+        plt.xlabel(ax_names[0])
+
+    if ax_names[1]:
+        plt.ylabel(ax_names[1])
+
+
 def bar_plot(data, labels=None, title=None, ax_names=None,
              lgd_list=None, reverse_x=False, table_header=None):
     """
@@ -448,6 +461,8 @@ def triangular_heat(data, labels):
     :return:
     """
 
+    plt.style.use("ggplot")
+
     fig, ax = plt.subplots()
 
     cmap = cm.get_cmap("jet", 100)
@@ -516,39 +531,38 @@ def punchcard_plot(data, labels=None, legend=None, ax_names=None,
     return plt, None, None
 
 
-def sliding_window(data, window_size):
+def sliding_window(data, window_size, ax_names=None, table_header=None):
     """
     Creates a sliding window plot
     :param data:
     :param window_size:
-    :return:
+    :param ax_names:
+    :param table_header:
     """
+
+    plt.style.use("ggplot")
 
     data = np.array(data)
     x = np.arange(0, len(data) * window_size, window_size)
+
+    table_data = []
 
     fig, ax = plt.subplots()
 
     for i in range(0, len(data)):
         ax.plot(x[i:i + 2], data[i:i + 2], color=cm.jet(data[i] / 100., 1),
                 linewidth=2.)
+        table_data.append([x[i], data[i]])
 
-    return plt, None, None
+    if ax_names:
+        _add_labels(ax_names)
 
-    # segments_x = np.r_[x[0], x[1:-1].repeat(2), x[-1]].reshape(-1, 2)
-    # segments_y = np.r_[data[0], data[1:-1].repeat(2), data[-1]].reshape(-1, 2)
-    #
-    # linecolors = [cm.jet(y / 100, 1) for y in data]
-    # print(linecolors)
-    #
-    # segments = [zip(x_, y_) for x_, y_ in zip(segments_x, segments_y)]
-    # print(segments)
-    #
-    # fig, ax = plt.subplots()
-    #
-    # ax.add_collection(LineCollection(segments, colors=linecolors))
-    #
-    # ax.set_xlim(0, x + 1)
-    # ax.set_ylim(0, max(data))
+    if table_header:
+        table = [table_header] + table_data
+
+    else:
+        table = table_data
+
+    return plt, None, table
 
 __author__ = 'diogo'

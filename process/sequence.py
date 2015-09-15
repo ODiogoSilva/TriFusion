@@ -1973,7 +1973,9 @@ class AlignmentList(Base):
                 data.append(np.mean(window_similarities))
 
         return {"data": data,
-                "window_size": window_size}
+                "window_size": window_size,
+                "ax_names": ["Sequence (bp)", "Similarity (%)"],
+                "table_header": ["Sequence (bp)", "Similarity (%)"]}
 
 
 __author__ = "Diogo N. Silva"
