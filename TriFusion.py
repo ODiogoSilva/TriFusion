@@ -7408,6 +7408,8 @@ class TriFusionApp(App):
         Sets an horizontal threshold bar to the current plot object
         """
 
+        print("here")
+
         # Get plot limits for patch position and size
         xlim = self.current_plot.xlim()
         ylim = self.current_plot.ylim()

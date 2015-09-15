@@ -4852,36 +4852,6 @@
                 on_release:
                     app.dialog_filechooser("export_table")
 
-<HthresholdDialog>:
-    orientation: "vertical"
-    spacing: 5
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        Label:
-            text: "Set horizontal threshold value"
-            bold: True
-        BoxLayout:
-            Label:
-                size_hint_x: .9
-                text: "Inverted threshold?"
-                bold: True
-            CheckBox:
-                size_hint_x: .1
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        MySlider
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        AnchorLayout:
-            TFButton:
-                size_hint_x: None
-                width: 100
-                text: "Apply"
-                bold: True
-
 ## General information
 <SizeDistribution>:
     size_hint_y: None
