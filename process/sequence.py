@@ -1751,10 +1751,25 @@ class AlignmentList(Base):
 
         return {"data": [list(data_storage.values())],
                 "labels": list(data_storage.keys()),
-                "title": "Distribution of missing genes",
+                "title": "Distribution of missing genes per species",
                 "ax_names": [None, "Frequency"],
                 "table_header": ["Taxon", "Missing genes"]
                 }
+
+    def missing_genes_average(self):
+        """
+        Creates histogram data for average mssing genes
+        """
+
+        data = []
+
+        for aln in self.alignments.values():
+            data.append(len(set(self.taxa_names) - set(aln.alignment.keys())))
+
+        return {"data": data,
+                "title": "Distribution of missing genes",
+                "ax_names": ["Number of missing genes", "Frequency"],
+                "table_header": ["Number of missing genes", "Frequency"]}
 
     def average_seqsize_per_species(self):
         """

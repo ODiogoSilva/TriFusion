@@ -7280,6 +7280,8 @@ class TriFusionApp(App):
                                          "missing_data_distribution.png"],
                       "Distribution of missing orthologs": [bar_plot,
                                          "missing_gene_distribution.png"],
+                      "Distribution of missing orthologs avg": [histogram_plot,
+                                         "missing_gene_distribution_avg.png"],
                       "Distribution of sequence size": [box_plot,
                                          "avg_seqsize_species.png"],
                       "Distribution of sequence size all": [histogram_plot,
@@ -7344,7 +7346,19 @@ class TriFusionApp(App):
                                                      " similarity"},
                                 "active_bt": "gene",
                                 "single_gene": {"plt_idx": "Pairwise sequence "
-                                                "similarity gn"}}}
+                                                "similarity gn"}},
+                           "Distribution of missing orthologs":
+                               {"args1": None,
+                                "args2": {"plt_idx": "Distribution of missing "
+                                                     "orthologs avg"},
+                                "active_bt": "sp",
+                                "single_gene": None},
+                           "Distribution of missing orthologs avg":
+                               {"args1": {"plt_idx": "Distribution of missing "
+                                                     "orthologs"},
+                                "args2": None,
+                                "active_bt": "avg",
+                                "single_gene": None}}
 
         # List of gene specific plots. These are always removed
         gene_specific = {"Pairwise sequence similarity gn":
