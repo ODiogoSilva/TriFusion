@@ -77,6 +77,7 @@ from os import sep
 from collections import OrderedDict
 from copy import deepcopy
 from functools import partial
+import matplotlib.patches as patches
 import psutil
 import pickle
 import multiprocessing
@@ -1014,6 +1015,8 @@ class TriFusionApp(App):
     alternative_plot = ObjectProperty(None, allownone=True)
     alternative_lgd = None
     alternative_table = ObjectProperty(None, allownone=True)
+    # Patch attribute
+    plt_patch = None
     # This attribute will store the StatsToggleWgt when changing the screen
     # from Statistics. When the Statistics screen is back on active, the widget
     # can be restored with this var
@@ -2152,15 +2155,6 @@ class TriFusionApp(App):
                         # Create fancy label
                         create_fancy_label("Export group",
                                            toolbar_wgt.ids.export_group,
-                                           line_c=(0.216, 0.67, 0.784, 1))
-            elif self.screen.name == "Statistics":
-                if self._determine_collision(toolbar_wgt.ids.hthreshold, mp):
-                    collision = True
-                    if "Apply horizontal threshold" not in [x.id for x in
-                            self.root_window.children]:
-                        # Create fancy label
-                        create_fancy_label("Apply hozitonal threshold",
-                                           toolbar_wgt.ids.hthreshold,
                                            line_c=(0.216, 0.67, 0.784, 1))
 
         # Only do this in Orthology screen
@@ -7391,6 +7385,7 @@ class TriFusionApp(App):
         # Adds or removes the horizontal threshold option slider from the
         # Screen footer
         if plt_idx in hseparator_plots:
+            self.screen.ids.footer_box.clear_widgets()
             hwgt = HseparatorFooter()
             ylims = self.current_plot.ylim()
             hwgt.ids.slider.min, hwgt.ids.slider.max = [int(x) for x in ylims]
@@ -7404,13 +7399,34 @@ class TriFusionApp(App):
 
         self.populate_stats_footer(footer)
 
-    def stats_sethline(self, val, plt_file):
+    def stats_sethline(self, val, plt_file, inverted=False):
         """
         Sets an horizontal threshold bar to the current plot object
         """
 
-        self.current_plot.axhline(val, linewidth=2, color="r", alpha=.8,
-                linestyle="--")
+        # Get plot limits for patch position and size
+        xlim = self.current_plot.xlim()
+        ylim = self.current_plot.ylim()
+
+        # Removes previous patch, if present
+        try:
+            self.plt_patch.remove()
+        except AttributeError:
+            pass
+
+        # Get position and size
+        if inverted:
+            xy = (xlim[0], val)
+            height = ylim[1] - val
+        else:
+            xy = (xlim[0], ylim[0])
+            height = val - ylim[0]
+
+        self.plt_patch = patches.Rectangle(xy, xlim[1], height,
+                                           edgecolor="grey", fc="#dcdcdc",
+                                           alpha=.7, zorder=10)
+
+        self.current_plot.gca().add_patch(self.plt_patch)
 
         self.current_plot.savefig(join(self.temp_dir, plt_file),
                                   bbox_inches="tight", dpi=200)

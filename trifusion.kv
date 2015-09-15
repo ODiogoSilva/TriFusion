@@ -4668,13 +4668,14 @@
     MySlider:
         id: slider
         on_touch_up:
-            app.stats_sethline(self.value, root.plt_file)
+            app.stats_sethline(self.value, root.plt_file, inverted.active)
     Label:
         size_hint_x: None
         width: 130
         bold: True
         text: "Inverse threshold?"
     CheckBox:
+        id: inverted
         size_hint_x: None
         width: 40
 
@@ -4795,16 +4796,6 @@
                 on_release:
                     app.screen.ids.plot_content.scale = 1
                     app.screen.ids.plot_content.pos = (0, 0)
-            Button:
-                id: hthreshold
-                size_hint: None, None
-                size: 40, 40
-                background_normal: "data/backgrounds/hthreshold_bt.png"
-                background_down: "data/backgrounds/hthreshold_bt.png"
-                background_disabled_normal: "data/backgrounds/hthreshold_bt_disabled.png"
-                #disabled: True
-                on_release:
-                    app.dialog_hthreshold(self)
             Button:
                 size_hint: None, None
                 size: 40, 40
