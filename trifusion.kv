@@ -4879,6 +4879,13 @@
         #app.stats_show_plot(self.text)
         app.stats_select_plot("Pairwise sequence similarity gn", "Pairwise sequence similarity sp", "Pairwise sequence similarity")
 
+<SegregatingSites>:
+    size_hint_y: None
+    height: 30
+    text: "Segregating sites"
+    on_release:
+        app.stats_select_plot(None, None, "Segregating sites")
+
 ## Missing data
 
 <GeneOccupancy>:
