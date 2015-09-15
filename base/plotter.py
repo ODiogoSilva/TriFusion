@@ -421,7 +421,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
         bins = 10
 
     vals, bins, patches = plt.hist(data, bins, histtype="stepfilled",
-                                        color=clr_list[0])
+                                   color=clr_list[0])
 
     plt.axvline(np.mean(data), linewidth=2, color="r", alpha=.8,
                 linestyle="--")
