@@ -7487,7 +7487,7 @@ class TriFusionApp(App):
                 content.ids[w].plt_idx = f
 
         self.show_popup(title="Select plot type", content=content,
-                        size=(400, 160))
+                        size=(400, 180))
 
     def populate_stats_footer(self, footer):
         """
