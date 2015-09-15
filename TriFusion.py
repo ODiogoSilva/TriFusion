@@ -615,6 +615,10 @@ class SequenceSimilarity(TFButtonOff):
     pass
 
 
+class SegregatingSites(TFButtonOff):
+    pass
+
+
 class OptsGrid(GridLayout):
     pass
 
@@ -7232,7 +7236,7 @@ class TriFusionApp(App):
                                   MissingData()]],
                 "Polymorphism and Variation":
                     [self.screen.ids.polymorphism_data_opts,
-                     [SequenceSimilarity()]]}
+                     [SequenceSimilarity(), SegregatingSites()]]}
 
         # Get active type
         main_gl = self.screen.ids.main_stats_opts
@@ -7293,12 +7297,12 @@ class TriFusionApp(App):
                                          "char_proportions_sp.png"],
                       "Pairwise sequence similarity": [histogram_plot,
                                          "similarity_distribution.png"],
-                      "Pairwise sequence similarity sp":
-                                         [triangular_heat,
+                      "Pairwise sequence similarity sp": [triangular_heat,
                                          "similarity_distribution_sp.png"],
-                      "Pairwise sequence similarity gn":
-                                         [sliding_window,
-                                          "similarity_distribution_gn.png"]}
+                      "Pairwise sequence similarity gn": [sliding_window,
+                                          "similarity_distribution_gn.png"],
+                      "Segregating sites": [histogram_plot,
+                                          "segregating_sites.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
         stats_compliant = {"Distribution of sequence size":

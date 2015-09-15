@@ -1992,6 +1992,33 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
 
+    def sequence_segregation(self):
+        """
+        Generates data for distribution of segregating sites
+        """
+
+        data = []
+
+        for aln in self.alignments.values():
+
+            segregating_sites = 0
+
+            for column in zip(*aln.alignment.values()):
+
+                # Remove gaps and missing characters
+                column = set([x for x in column if x != aln.sequence_code[1]
+                              and x != "-"])
+
+                if len(column) > 1:
+                    segregating_sites += 1
+
+            data.append(segregating_sites)
+
+        return {"data": data,
+                "ax_names": ["Segregating sites", "Frequency"],
+                "title": "Distribution of segregating sites",
+                "table_header": ["Segregating sites", "Frequency"]}
+
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

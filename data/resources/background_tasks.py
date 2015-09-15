@@ -403,38 +403,30 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
     else:
         footer = [len(aln_obj.alignments), len(aln_obj.taxa_names)]
 
-    if stats_idx == "Gene occupancy":
-        plot_data = aln_obj.gene_occupancy()
+    methods = {"Gene occupancy": aln_obj.gene_occupancy,
+               "Distribution of missing data": aln_obj.missing_data_per_species,
+               "Distribution of missing orthologs":
+                   aln_obj.missing_genes_per_species,
+               "Distribution of missing orthologs avg":
+                   aln_obj.missing_genes_average,
+               "Distribution of sequence size":
+                   aln_obj.average_seqsize_per_species,
+               "Distribution of sequence size all": aln_obj.average_seqsize,
+               "Proportion of nucleotides/residues":
+                   aln_obj.characters_proportion,
+               "Proportion of nucleotides/residues sp":
+                   aln_obj.characters_proportion_per_species,
+               "Pairwise sequence similarity": aln_obj.sequence_similarity,
+               "Pairwise sequence similarity sp":
+                   aln_obj.sequence_similarity_per_species,
+               "Pairwise sequence similarity gn":
+                   aln_obj.sequence_similarity_gene,
+               "Segregating sites": aln_obj.sequence_segregation}
 
-    elif stats_idx == "Distribution of missing data":
-        plot_data = aln_obj.missing_data_per_species()
-
-    elif stats_idx == "Distribution of missing orthologs":
-        plot_data = aln_obj.missing_genes_per_species()
-
-    elif stats_idx == "Distribution of missing orthologs avg":
-        plot_data = aln_obj.missing_genes_average()
-
-    elif stats_idx == "Distribution of sequence size":
-        plot_data = aln_obj.average_seqsize_per_species()
-
-    elif stats_idx == "Distribution of sequence size all":
-        plot_data = aln_obj.average_seqsize()
-
-    elif stats_idx == "Proportion of nucleotides/residues":
-        plot_data = aln_obj.characters_proportion()
-
-    elif stats_idx == "Proportion of nucleotides/residues sp":
-        plot_data = aln_obj.characters_proportion_per_species()
-
-    elif stats_idx == "Pairwise sequence similarity":
-        plot_data = aln_obj.sequence_similarity()
-
-    elif stats_idx == "Pairwise sequence similarity sp":
-        plot_data = aln_obj.sequence_similarity_per_species()
-        
-    elif stats_idx == "Pairwise sequence similarity gn":
-        plot_data = aln_obj.sequence_similarity_gene(**additional_args)
+    if additional_args:
+        plot_data = methods[stats_idx](**additional_args)
+    else:
+        plot_data = methods[stats_idx]()
 
     return [plot_data, footer]
 
