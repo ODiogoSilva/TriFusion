@@ -522,6 +522,10 @@ class StatsPlotToolbar(BoxLayout):
     pass
 
 
+class PlotTriageDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class OrtoPlotToolbar(BoxLayout):
     pass
 
@@ -7434,6 +7438,25 @@ class TriFusionApp(App):
         self.load_plot(join(self.temp_dir, plt_file),
                        self.screen.ids.plot_content)
 
+    def stats_select_plot(self, gn_idx, sp_idx, avg_idx):
+        """
+        Dialog used for plot type selection when choosing an option from the
+        stats panel
+        """
+
+        wgts = ["gene", "sp", "avg"]
+
+        content = PlotTriageDialog(cancel=self.dismiss_popup)
+
+        for w, f in zip(wgts, [gn_idx, sp_idx, avg_idx]):
+            if not f:
+                content.ids[w].disabled = True
+            else:
+                content.ids[w].plt_idx = f
+
+        self.show_popup(title="Select plot type", content=content,
+                        size=(400, 160))
+
     def populate_stats_footer(self, footer):
         """
         Populates the footer of the Statistics screen with information on the
@@ -7452,13 +7475,12 @@ class TriFusionApp(App):
         """
         Wrapper that executes plot data gathering and execution. The method
         that gathers the data for plot production runs in the background. Once
-        it's finished, that data is feeded to the stats_write_plot method that
+        it's finished, that data is fed to the stats_write_plot method that
         will create the plot file and load it into the program.
 
         :param plt_idx: string, identification string of the plot. Usually is
         the text property of the issuing button.
-        :param single_gene: string. Creates a single gene plot for the gene
-        name provided in the argument.
+        :param additional_args:
         """
 
         # Set active file and taxa sets

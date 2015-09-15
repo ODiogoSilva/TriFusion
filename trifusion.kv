@@ -4752,11 +4752,48 @@
             app.toggle_groups(self)
             app.stats_show_plot(**root.args2)
 
+<PlotTriageDialog>:
+    orientation: "vertical"
+    spacing: 10
+    BoxLayout:
+        padding: 5
+        spacing: 10
+        TFButton:
+            id: gene
+            plt_idx: ""
+            text: "Single gene"
+            on_release:
+                root.cancel()
+                app.dialog_select_gene(self.plt_idx)
+        TFButton:
+            id: sp
+            plt_idx: ""
+            text: "Per species"
+            on_release:
+                app.stats_show_plot(self.plt_idx)
+        TFButton:
+            id: avg
+            plt_idx: ""
+            text: "Average"
+            on_release:
+                app.stats_show_plot(self.plt_idx)
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        AnchorLayout:
+            TFOKButon:
+                size_hint_x: None
+                width: 100
+                id: cancel_bt
+                text: "Cancel"
+                on_release:
+                    root.cancel()
+
 <StatsPlotToolbar>
     orientation: "vertical"
     size_hint: None, None
     pos: app.root.width - 50, (app.root.height / 2) - (self.height / 2)
-    size: 50, 270
+    size: 50, 230
     opacity: .2
     canvas.before:
         Color:
@@ -4771,7 +4808,7 @@
         BoxLayout:
             orientation: "vertical"
             size_hint: None, None
-            size: 40, 260
+            size: 40, 220
             spacing: 5
             id: content
             Button
@@ -4851,15 +4888,16 @@
     height: 30
     text: "Distribution of sequence size"
     on_release:
-        app.stats_show_plot(self.text)
+        #app.stats_show_plot(self.text)
+        app.stats_select_plot(None, "Distribution of sequence size", "Distribution of sequence size all")
 
 <NucAAProportions>:
     size_hint_y: None
     height: 30
     text: "Proportion of nucleotides/residues"
     on_release:
-        app.stats_show_plot(self.text)
-
+        #app.stats_show_plot(self.text)
+        app.stats_select_plot(None, "Proportion of nucleotides/residues sp", "Proportion of nucleotides/residues")
 
 ## Polymorphism and Variation
 <SequenceSimilarity>:
@@ -4867,7 +4905,8 @@
     height: 30
     text: "Pairwise sequence similarity"
     on_release:
-        app.stats_show_plot(self.text)
+        #app.stats_show_plot(self.text)
+        app.stats_select_plot("Pairwise sequence similarity gn", "Pairwise sequence similarity sp", "Pairwise sequence similarity")
 
 ## Missing data
 
