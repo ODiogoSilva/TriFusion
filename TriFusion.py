@@ -2380,7 +2380,7 @@ class TriFusionApp(App):
 
         wgt.disabled = True
 
-    def check_action(self, text, func, args=None, bt_wgt=None, popup_level=1):
+    def check_action(self, text, func, bt_wgt=None, args=None, popup_level=1):
         """
         General purpose method that pops a dialog checking if the user wants to
         perform a certain action. This method should be passed as a function on
