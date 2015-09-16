@@ -2999,11 +2999,12 @@ class TriFusionApp(App):
         else:
             self.mouse_over_bts["Partitions"] = mouse_bts
 
-        try:
-            d = self.file_list[self.count_files + 1]
-            gl_wgt.add_widget(LoadMoreBt())
-        except IndexError:
-            return
+        if panel != "taxa":
+            try:
+                d = self.file_list[self.count_files + 1]
+                gl_wgt.add_widget(LoadMoreBt())
+            except IndexError:
+                return
 
     def sidepanel_remove_moreopts(self):
         """
