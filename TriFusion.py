@@ -4226,6 +4226,8 @@ class TriFusionApp(App):
         self.MAX_PARTITION_BUTTON = 20
         self.mouse_over_bts.clear()
         self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
+        self.sp_taxa_bts.clear()
+        self.sp_file_bts.clear()
         self.previous_mouse_over = ""
         self.current_plot = None
         self.current_table = None
