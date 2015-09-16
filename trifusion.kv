@@ -6,6 +6,7 @@
 #:import ObjectProperty kivy.properties.ObjectProperty
 #:import ToggleButton kivy.uix.togglebutton.ToggleButton
 #:import StringProperty kivy.properties.StringProperty
+#:import AnchorLayout kivy.uix.anchorlayout.AnchorLayout
 #:import ListProperty kivy.properties.ListProperty
 #:import load_group_files data.resources.background_tasks.load_group_files
 #:import orto_update_filters data.resources.background_tasks.orto_update_filters
@@ -2921,9 +2922,8 @@
 
 <LoadMoreBt>:
     anchor_x: "left"
-    Widget:
-        size_hint_y:None
-        height: 50
+    size_hint_y:None
+    height: 30
     TFOKButon:
         text: "Load next 20"
         size_hint_x: None
@@ -5211,7 +5211,7 @@ FloatLayout:
                                                     id: file_sl
                                                     padding: (10, 0, 10, 0)
                                                     spacing: [10, 5]
-                                                    height: sum([x.height + 5 for x in self.children]) / 3
+                                                    height: sum([x.height + 5 for x in self.children if isinstance(x, ToggleButton) or isinstance(x, AnchorLayout)])
 
                                                     Button:
                                                         id: file_temp
@@ -5337,7 +5337,7 @@ FloatLayout:
                                                     id: taxa_sl
                                                     padding: (10, 0, 10, 0)
                                                     spacing: [10, 5]
-                                                    height: sum([x.height + 5 for x in self.children]) / 3
+                                                    height: sum([x.height + 5 for x in self.children if isinstance(x, ToggleButton) or isinstance(x, AnchorLayout)])
                                                     Button:
                                                         id: species_temp
                                                         height: 40
@@ -5465,7 +5465,7 @@ FloatLayout:
                                                     id: partition_sl
                                                     padding: (10, 0, 10, 0)
                                                     spacing: [10, 5]
-                                                    height: sum([x.height + 5 for x in self.children]) / 3
+                                                    height: sum([x.height + 5 for x in self.children if isinstance(x, ToggleButton) or isinstance(x, AnchorLayout)])
 
                                                     Button:
                                                         id: partition_temp
