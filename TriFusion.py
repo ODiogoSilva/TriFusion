@@ -7581,7 +7581,7 @@ class TriFusionApp(App):
         # List of gene specific plots. These are always removed
         gene_specific = {"Pairwise sequence similarity gn":
                              "similarity_distribution_gn.png",
-                         "Segsregating sites gn": "segregating_sites_gn.png"}
+                         "Segregating sites gn": "segregating_sites_gn.png"}
 
         if plt_idx in gene_specific:
             try:
