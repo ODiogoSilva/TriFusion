@@ -1525,19 +1525,19 @@ class TriFusionApp(App):
         try:
             if self._popup.content.ids.path_bx.children[0].focus:
                 arrow_block = True
-        except AttributeError:
+        except (AttributeError, ReferenceError):
             pass
 
         try:
             if self._popup.content.ids.text_input.focus:
                 arrow_block = True
-        except AttributeError:
+        except (AttributeError, ReferenceError):
             pass
 
         try:
             if self._popup.content.ids.gn_txt.focus:
                 arrow_block = True
-        except AttributeError:
+        except (AttributeError, ReferenceError):
             pass
 
         if self._subpopup in self.root_window.children:
@@ -2419,13 +2419,13 @@ class TriFusionApp(App):
 
         if popup_level == 1:
             self.show_popup(title="Warning!", content=check_content,
-                            size=(250, 200),
+                            size=(300, 200),
                             separator_color=[255 / 255., 85 / 255., 85 /
                                              255., 1.])
         else:
             self._subpopup = CustomPopup(title="Warning!",
                                          content=check_content,
-                                         size=(250, 200),
+                                         size=(300, 200),
                                          size_hint=(None, None),
                                          separator_color=[255 / 255.,
                                                           85 / 255.,
@@ -2454,7 +2454,7 @@ class TriFusionApp(App):
 
             self.check_action("The file {} already exists."
                               " Overwrite?".format(file_name), methods[idx][0],
-                              methods[idx][1], popup_level=2)
+                              **{"args": methods[idx][1], "popup_level": 2})
 
         else:
             methods[idx][0](*methods[idx][1])
