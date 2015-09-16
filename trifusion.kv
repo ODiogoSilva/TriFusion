@@ -4772,12 +4772,14 @@
             plt_idx: ""
             text: "Per species"
             on_release:
+                root.cancel()
                 app.stats_show_plot(self.plt_idx)
         TFButton:
             id: avg
             plt_idx: ""
             text: "Average"
             on_release:
+                root.cancel()
                 app.stats_show_plot(self.plt_idx)
     BoxLayout:
         size_hint_y: None
