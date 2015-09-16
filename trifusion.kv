@@ -288,7 +288,7 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Select file names from .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
+                text: "Export all file names to .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
@@ -304,7 +304,7 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Select file names from .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
+                text: "Export selected file names to .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
@@ -2820,6 +2820,7 @@
                 text: "master"
                 path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
                 on_selection:
+                    if txt_box.height == 30: \
                     text_input.text = self.selection[0].split(os.sep)[-1]
 
         BoxLayout:
