@@ -4305,17 +4305,35 @@ class TriFusionApp(App):
         else:
             parent_obj = value.parent
 
-        if len(parent_obj.children) == 3:
-            return self.remove_all()
+        # If the button is the last file or taxa element, issue a remove_all
+        if parent_obj == self.root.ids.file_sl:
+            if len(parent_obj.children) == 3 and len(self.file_list) == 1:
+                return self.remove_all()
+        elif parent_obj == self.root.ids.taxa_sl:
+            if len(parent_obj.children) == 3 and \
+                    len(self.alignment_list.taxa_names) == 1:
+                return self.remove_all()
 
         # Get button widgets to be removed
         bt_idx = value.id[:-1]
         inf_idx = value.id[:-1] + "?"
         c_idx = value.id[:-1] + "C"
 
+        # Remove button widgets (name button, info button and remove button)
         try:
             bt = [x for x in parent_obj.children if bt_idx == x.id][0]
             parent_obj.remove_widget(bt)
+
+            # Removes reference to this file/taxa in button and mouse over vars
+            if parent_obj == self.root.ids.file_sl:
+                self.sp_file_bts = [x for x in self.sp_file_bts if x[0].text
+                                    != bt.text]
+                self.mouse_over_bts["Files"].remove(bt)
+            elif parent_obj == self.root.ids.taxa_sl:
+                self.sp_taxa_bts = [x for x in self.sp_taxa_bts if x[0].text
+                                    != bt.text]
+                self.mouse_over_bts["Taxa"].remove(bt)
+
         except IndexError:
             pass
         try:
