@@ -2408,7 +2408,7 @@ class TriFusionApp(App):
             check_content = CheckDialog(cancel=self.dismiss_subpopup)
 
         check_content.ids.check_text.text = text
-        if bt_wgt:
+        if bt_wgt and not args:
             check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
         else:
             if args:
@@ -5088,7 +5088,13 @@ class TriFusionApp(App):
         if ds_bt == "orthology":
             pass
         else:
-            bt.bind(on_release=lambda x: self.open_project(name))
+            #bt.bind(on_release=lambda x: self.open_project(name))
+            bt.bind(on_release=partial(self.check_action,
+                                       "Are you sure you want to load a new "
+                                       "project? Any previously loaded data "
+                                       "will be removed.",
+                                       self.open_project,
+                                       **{"args": [name]}))
 
         rm_bt = Button(size_hint=(None, None), size=(35, 35),
                        id=name, border=(0, 0, 0, 0),
@@ -7706,7 +7712,6 @@ class TriFusionApp(App):
 
             except IndexError:
                 break
-
 
     # ##################################
     #
