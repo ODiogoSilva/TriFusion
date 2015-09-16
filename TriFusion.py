@@ -1043,6 +1043,11 @@ class TriFusionApp(App):
     alternative_table = ObjectProperty(None, allownone=True)
     # Patch attribute
     plt_patch = None
+    # Dictionary with the plot methods and file names for each stats_idx
+    stats_plt_method = {}
+    # Storage of previous data sets. This is used to evaluate whether the
+    # plot methods should be run, or if they should be ignored
+    previous_sets = {"Files": [], "Taxa": []}
     # This attribute will store the StatsToggleWgt when changing the screen
     # from Statistics. When the Statistics screen is back on active, the widget
     # can be restored with this var
@@ -7305,7 +7310,7 @@ class TriFusionApp(App):
         # Dismiss stats toggle widget, if present
         self.dismiss_stats_toggle()
 
-        plt_method = {"Gene occupancy": [interpolation_plot,
+        self.stats_plt_method = {"Gene occupancy": [interpolation_plot,
                                          "gene_occupancy.png"],
                       "Distribution of missing data": [stacked_bar_plot,
                                          "missing_data_distribution.png"],
@@ -7334,6 +7339,8 @@ class TriFusionApp(App):
                                           "segregating_sites_gn.png"]}
 
         # Dict of plt_idx identifiers that will trigger the stats toggle widget
+        # with the information needed to give functionality to the widget's
+        # buttons
         stats_compliant = {"Distribution of sequence size":
                                {"args1": None,
                                 "args2": {"plt_idx": "Distribution of sequence "
@@ -7405,11 +7412,6 @@ class TriFusionApp(App):
                                 "single_gene": {"plt_idx": "Segregating "
                                                            "sites gn"}}}
 
-        # List of gene specific plots. These are always removed
-        gene_specific = {"Pairwise sequence similarity gn":
-            "similarity_distribution_gn.png",
-                         "Segregating sites gn": "segregating_sites_gn.png"}
-
         # List of plots for which an horizontal separator is available:
         hseparator_plots = ["Pairwise sequence similarity gn"]
 
@@ -7421,17 +7423,12 @@ class TriFusionApp(App):
         # attributes ALWAYS refer to the plot being shown.
         if plt_idx in stats_compliant:
 
-            if plt_idx in gene_specific:
-                try:
-                    os.remove(join(self.temp_dir, gene_specific[plt_idx]))
-                except FileNotFoundError:
-                    pass
-
             # Show toggle widget
             self.show_stats_toggle(**stats_compliant[plt_idx])
 
             # Check if temporary plot already exists. If so, load it instead.
-            if os.path.exists(join(self.temp_dir, plt_method[plt_idx][1])):
+            if os.path.exists(join(self.temp_dir,
+                                   self.stats_plt_method[plt_idx][1])):
                 pass
             else:
                 # Set alternate plot attributes
@@ -7441,10 +7438,10 @@ class TriFusionApp(App):
 
                 # Set new plot attributes
                 self.current_plot, self.current_lgd, self.current_table = \
-                    plt_method[plt_idx][0](**plot_data)
+                    self.stats_plt_method[plt_idx][0](**plot_data)
 
                 self.current_plot.savefig(join(self.temp_dir,
-                                               plt_method[plt_idx][1]),
+                                          self.stats_plt_method[plt_idx][1]),
                                           bbox_inches="tight", dpi=200)
         else:
             self.previous_stats_toggle = None
@@ -7459,10 +7456,11 @@ class TriFusionApp(App):
 
             # Set new plot attributes
             self.current_plot, self.current_lgd, self.current_table = \
-                plt_method[plt_idx][0](**plot_data)
+                self.stats_plt_method[plt_idx][0](**plot_data)
 
-            self.current_plot.savefig(join(self.temp_dir, plt_method[plt_idx][1]),
-                                    bbox_inches="tight", dpi=200)
+            self.current_plot.savefig(join(self.temp_dir,
+                                           self.stats_plt_method[plt_idx][1]),
+                                      bbox_inches="tight", dpi=200)
 
         # Adds or removes the horizontal threshold option slider from the
         # Screen footer
@@ -7471,15 +7469,16 @@ class TriFusionApp(App):
             hwgt = HseparatorFooter()
             ylims = self.current_plot.ylim()
             hwgt.ids.slider.min, hwgt.ids.slider.max = [int(x) for x in ylims]
-            hwgt.plt_file = plt_method[plt_idx][1]
+            hwgt.plt_file = self.stats_plt_method[plt_idx][1]
             self.screen.ids.footer_box.add_widget(hwgt)
         else:
             self.screen.ids.footer_box.clear_widgets()
 
-        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
+        self.load_plot(join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
                        self.screen.ids.plot_content)
 
-        self.populate_stats_footer(footer)
+        if footer:
+            self.populate_stats_footer(footer)
 
     def stats_sethline(self, val, plt_file, inverted=False):
         """
@@ -7578,6 +7577,32 @@ class TriFusionApp(App):
             taxa_set = self.alignment_list.taxa_names
         else:
             taxa_set = self.taxa_groups[taxa_set_name]
+
+        # List of gene specific plots. These are always removed
+        gene_specific = {"Pairwise sequence similarity gn":
+                             "similarity_distribution_gn.png",
+                         "Segsregating sites gn": "segregating_sites_gn.png"}
+
+        if plt_idx in gene_specific:
+            try:
+                os.remove(join(self.temp_dir, gene_specific[plt_idx]))
+            except FileNotFoundError:
+                pass
+
+        # This will check if the current data sets are different from the
+        # previous. If so, it will then check if there is a temporary plot file
+        # for the current plt_idx. If so, do not run get_stats_data and
+        # show the previous plot instead.
+        if file_set == self.previous_sets["Files"] and \
+                taxa_set == self.previous_sets["Taxa"]:
+            if os.path.exists(join(self.temp_dir,
+                                   self.stats_plt_method[plt_idx][1])):
+                self.toggle_stats_panel(force_close=True)
+                return self.stats_write_plot(None, None, plt_idx)
+        else:
+            # Update previous sets
+            self.previous_sets["Files"] = file_set
+            self.previous_sets["Taxa"] = taxa_set
 
         if not self.active_file_list:
             return self.dialog_floatcheck("ERROR: No input files were loaded",
