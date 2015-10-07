@@ -2870,7 +2870,7 @@
 
                         # For save dialogs that do not require file names
                         elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
-                        app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
+                        app.save_file(sd_filechooser.path, idx = sd_filechooser.text); root.cancel()
                         elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
                         app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
                         elif sd_filechooser.text == "protein_db" and txt_box.height == 0: \

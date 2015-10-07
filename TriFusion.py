@@ -2444,6 +2444,8 @@ class TriFusionApp(App):
         proceeds as normal
         """
 
+        print("here")
+
         # Stores methods. key: idx; first value element, method to apply;
         # second value element, list of arguments; third value element the
         # file_name extension
