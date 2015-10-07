@@ -4807,6 +4807,10 @@ class TriFusionApp(App):
                     self.process_grid_wgt.ids.taxa_dropdown.children[0].children
                       if x.text == bt_idx]:
                 self.process_grid_wgt.ids.taxa_dropdown.remove_widget(i)
+            # Remove button from sidepanel
+            for i in [x for x in self.root.ids.taxa_group_grid.children
+                      if x.text == bt_idx]:
+                self.root.ids.taxa_group_grid.remove_widget(i)
         if parent_wgt == self.root.ids.file_group_grid or \
                 parent_wgt.ds == "files":
             # Remove group from core attribute
@@ -4816,6 +4820,10 @@ class TriFusionApp(App):
                     self.process_grid_wgt.ids.file_dropdown.children[0].children
                       if x.text == bt_idx]:
                 self.process_grid_wgt.ids.file_dropdown.remove_widget(i)
+            # Remove button from sidepanel
+            for i in [x for x in self.root.ids.file_group_grid.children
+                      if x.text == bt_idx]:
+                self.root.ids.file_group_grid.remove_widget(i)
 
     def taxagroups_add_group(self, name, wgt, ds_type):
         """
