@@ -1387,7 +1387,7 @@ class AlignmentList(Base):
         alignments are moved to the filtered_alignments attribute
         """
 
-        for k, alignment_obj in self.alignments.items():
+        for k, alignment_obj in list(self.alignments.items()):
             if len(alignment_obj.alignment) < \
                     (min_taxa / 100) * len(self.taxa_names):
                 del self.alignments[k]
@@ -1403,7 +1403,7 @@ class AlignmentList(Base):
         filtering
         """
 
-        for k, alignment_obj in self.alignments.items():
+        for k, alignment_obj in list(self.alignments.items()):
 
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
@@ -1439,7 +1439,7 @@ class AlignmentList(Base):
         # Reset partitions
         self.partitions = Partitions()
 
-        for alignment_obj in self.alignments.values():
+        for alignment_obj in list(self.alignments.values()):
 
             for taxon, seq in alignment_obj:
                 filtered_seq = "".join(list(itertools.compress(seq,
@@ -1461,7 +1461,7 @@ class AlignmentList(Base):
         true missing data) below which the alignment column should be fitered
         """
 
-        for alignment_obj in self.alignments.values():
+        for alignment_obj in list(self.alignments.values()):
 
             alignment_obj.filter_missing_data(gap_threshold=gap_threshold,
                                         missing_threshold=missing_threshold)
@@ -1475,7 +1475,7 @@ class AlignmentList(Base):
             ..:inverse: removes all but the specified taxa
         """
 
-        for alignment_obj in self.alignments.values():
+        for alignment_obj in list(self.alignments.values()):
             alignment_obj.remove_taxa(taxa_list, mode=mode)
 
         # Updates taxa names
