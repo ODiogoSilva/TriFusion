@@ -292,7 +292,7 @@ ShowcaseScreen:
                                                 disabled: True
                                                 on_release:
                                                     app.go_screen(5)
-                                                    app.orto_compare_groups()
+                                                    app.orto_compare_groups(selected_groups=[y.id for x, y in zip(group_check.children, group_gl.children) if x.active])
                                                     app.show_plot_toolbar()
                                             Button:
                                                 size_hint_x: None

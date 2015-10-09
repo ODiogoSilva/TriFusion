@@ -5867,12 +5867,14 @@ class TriFusionApp(App):
         func = partial(check_process, d)
         Clock.schedule_interval(func, .1)
 
-    def orto_compare_groups(self, groups_objs=None):
+    def orto_compare_groups(self, groups_objs=None, selected_groups=None):
         """
         Switches to the orthology group comparison screen and presents the
         initial plot comparing total orthologs across group files
         :param groups_objs: MultiGroupLight object. Provide only when
         updating filters in the plot screen
+        :param selected_groups: list. If provided, should contain the name
+        of the groups that should be plotted.
         """
 
         # Displays correspondence
@@ -5909,7 +5911,8 @@ class TriFusionApp(App):
         if stats:
             # Create first comparison plot of total orthologs
             self.current_plot, self.current_lgd, self.current_table = \
-                groups_objs.bar_orthologs(dest=self.temp_dir, stats=stats)
+                groups_objs.bar_orthologs(group_names=selected_groups,
+                                          dest=self.temp_dir, stats=stats)
 
             # Load plot
             self.load_plot(join(self.temp_dir, "Final_orthologs.png"),
