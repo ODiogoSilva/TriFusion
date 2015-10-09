@@ -4679,7 +4679,8 @@
         id: inverted
         size_hint_x: None
         width: 40
-
+        on_active:
+            app.stats_sethline(slider.value, root.plt_file, self.active)
 
 <StatsMoreBt>:
     anchor_x: "left"
