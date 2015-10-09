@@ -5394,7 +5394,8 @@ class TriFusionApp(App):
         self.main_operations = dict((op, False) for op in self.main_operations)
 
         # Clear active data set
-        self.process_grid_wgt.ids.active_taxa_set.text = "All taxa"
+        self.process_grid_wgt.ids.active_taxa_set.text = "Active taxa"
+        self.process_grid_wgt.ids.active_file_set.text = "Active files"
 
         # Clear output formats
         self.output_formats = ["fasta"]
