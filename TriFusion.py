@@ -1034,6 +1034,7 @@ class TriFusionApp(App):
     main_nodes = DictProperty()
 
     # Attributes containing plot related elements
+    plot_backups = {}
     current_plot = ObjectProperty(None, allownone=True)
     current_lgd = None
     current_table = ObjectProperty(None, allownone=True)
@@ -7422,62 +7423,38 @@ class TriFusionApp(App):
                                 "single_gene": {"plt_idx": "Segregating "
                                                            "sites gn"}}}
 
-        # List of plots for which an horizontal separator is available:
-        hseparator_plots = ["Pairwise sequence similarity gn"]
+        if plot_data:
+            # Set new plot attributes
+            self.current_plot, self.current_lgd, self.current_table = \
+                self.stats_plt_method[plt_idx][0](**plot_data)
 
-        # To allow fast switching between plots with species/average toggles,
-        # If the temporary plot file already exists, load it instead of creating
-        # a new one.
-        # Alternate versions of current_plot, current_lgd and current_table
-        # are also created to allow fast switching, though the original
-        # attributes ALWAYS refer to the plot being shown.
+            # Save plot elements in a backup. This backup can then be accessed
+            # when fast switching plots.
+            self.plot_backups[plt_idx] = self.current_table
+
+            pickle.dump(self.current_plot, open(plt_idx, "wb"))
+
+            self.current_plot.savefig(join(self.temp_dir,
+                                      self.stats_plt_method[plt_idx][1]),
+                                      bbox_inches="tight", dpi=200)
+
         if plt_idx in stats_compliant:
 
             # Show toggle widget
             self.show_stats_toggle(**stats_compliant[plt_idx])
 
-            # Check if temporary plot already exists. If so, load it instead.
-            if os.path.exists(join(self.temp_dir,
-                                   self.stats_plt_method[plt_idx][1])):
-                pass
-            else:
-                # Set alternate plot attributes
-                self.alternative_plot = self.current_plot
-                self.alternative_lgd = self.current_lgd
-                self.alternative_table = self.current_table
-
-                # Set new plot attributes
-                self.current_plot, self.current_lgd, self.current_table = \
-                    self.stats_plt_method[plt_idx][0](**plot_data)
-
-                self.current_plot.savefig(join(self.temp_dir,
-                                          self.stats_plt_method[plt_idx][1]),
-                                          bbox_inches="tight", dpi=200)
         else:
             self.previous_stats_toggle = None
 
-            # Remove previous temporary plot
-            [os.remove(join(self.temp_dir, x)) for x in
-             os.listdir(self.temp_dir) if x.endswith(".png")]
-
-            # Reset alternate plot attributes
-            self.alternative_plot, self.alternative_lgd, alternative_table = \
-                None, None, None
-
-            # Set new plot attributes
-            self.current_plot, self.current_lgd, self.current_table = \
-                self.stats_plt_method[plt_idx][0](**plot_data)
-
-            self.current_plot.savefig(join(self.temp_dir,
-                                           self.stats_plt_method[plt_idx][1]),
-                                      bbox_inches="tight", dpi=200)
+        # List of plots for which an horizontal separator is available:
+        hseparator_plots = ["Pairwise sequence similarity gn"]
 
         # Adds or removes the horizontal threshold option slider from the
         # Screen footer
         if plt_idx in hseparator_plots:
             self.screen.ids.footer_box.clear_widgets()
             hwgt = HseparatorFooter()
-            ylims = self.current_plot.ylim()
+            ylims = self.current_plot.gca().get_ylim()
             hwgt.ids.slider.min, hwgt.ids.slider.max = [int(x) for x in ylims]
             hwgt.plt_file = self.stats_plt_method[plt_idx][1]
             self.screen.ids.footer_box.add_widget(hwgt)
@@ -7496,8 +7473,8 @@ class TriFusionApp(App):
         """
 
         # Get plot limits for patch position and size
-        xlim = self.current_plot.xlim()
-        ylim = self.current_plot.ylim()
+        xlim = self.current_plot.gca().get_xlim()
+        ylim = self.current_plot.gca().get_ylim()
 
         # Removes previous patch, if present
         try:
@@ -7593,6 +7570,7 @@ class TriFusionApp(App):
                              "similarity_distribution_gn.png",
                          "Segregating sites gn": "segregating_sites_gn.png"}
 
+        # Remove gene specific plots if they exist
         if plt_idx in gene_specific:
             try:
                 os.remove(join(self.temp_dir, gene_specific[plt_idx]))
@@ -7605,15 +7583,24 @@ class TriFusionApp(App):
         # show the previous plot instead.
         if file_set == self.previous_sets["Files"] and \
                 taxa_set == self.previous_sets["Taxa"]:
+
+            # Checks if the figure file for the selected plot already exists
             if os.path.exists(join(self.temp_dir,
                                    self.stats_plt_method[plt_idx][1])):
+
                 self.toggle_stats_panel(force_close=True)
+
+                # Get the current plot from the backup
+                self.current_table = self.plot_backups[plt_idx]
+                self.current_plot = pickle.load(open(plt_idx, "rb"))
+
                 return self.stats_write_plot(None, None, plt_idx)
         else:
             # Update previous sets
             self.previous_sets["Files"] = file_set
             self.previous_sets["Taxa"] = taxa_set
 
+        # Check if there are input files loaded
         if not self.active_file_list:
             return self.dialog_floatcheck("ERROR: No input files were loaded",
                                           t="error")
