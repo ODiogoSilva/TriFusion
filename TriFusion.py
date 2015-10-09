@@ -8112,6 +8112,10 @@ class TriFusionApp(App):
                 except:
                     pass
 
+                # Set the protein database file
+                self.protein_db = join(self.ortho_dir, "backstage_files",
+                                       "goodProteins.fasta")
+
                 Clock.unschedule(func)
                 self.dismiss_popup()
                 self.dialog_search_report(ns.stats, ns.groups)
