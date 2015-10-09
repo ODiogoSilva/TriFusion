@@ -155,7 +155,7 @@ def bar_plot(data, labels=None, title=None, ax_names=None,
     for l, x in zip(labels, data[0]):
         table.append([l, x])
 
-    return plt, lgd, table
+    return fig, lgd, table
 
 
 def multi_bar_plot(data_list, labels=None, lgd_list=None):
@@ -236,7 +236,7 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
     # Automatically adjust figure size to accommodate all labels
     # plt.tight_layout()
 
-    return plt, lgd
+    return fig, lgd
 
 
 def interpolation_plot(data):
@@ -260,7 +260,7 @@ def interpolation_plot(data):
     ax.set_ylabel("Taxa")
     ax.grid(False)
 
-    return plt, None, None
+    return fig, None, None
 
 
 def stacked_bar_plot(data, labels, legend=None, table_header=None,
@@ -335,7 +335,7 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None,
         for i, lbl in enumerate(labels):
             table.append([lbl] + [int(x[i]) for x in data])
 
-    return plt, lgd, table
+    return fig, lgd, table
 
 
 def box_plot(data, labels=None, title=None, ax_names=None):
@@ -399,7 +399,9 @@ def box_plot(data, labels=None, title=None, ax_names=None):
         table.append([x, np.percentile(d, 25), np.median(d),
                       np.percentile(d, 75)])
 
-    return plt, None, table
+    print("here")
+
+    return fig, None, table
 
 
 def histogram_plot(data, title=None, ax_names=None, table_header=None):
@@ -451,7 +453,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
     for p, val in zip(bins, vals):
         table.append([p, val])
 
-    return plt, lgd, table
+    return fig, lgd, table
 
 
 def triangular_heat(data, labels):
@@ -505,7 +507,7 @@ def triangular_heat(data, labels):
     for p, sp in enumerate(labels):
         table.append([sp] + list(data[p])[::-1])
 
-    return plt, None, table
+    return fig, None, table
 
 
 def punchcard_plot(data, labels=None, legend=None, ax_names=None,
@@ -528,7 +530,7 @@ def punchcard_plot(data, labels=None, legend=None, ax_names=None,
     p = PatchCollection(patches)
     ax.add_collection(p)
 
-    return plt, None, None
+    return fig, None, None
 
 
 def sliding_window(data, window_size, ax_names=None, table_header=None):
@@ -563,6 +565,6 @@ def sliding_window(data, window_size, ax_names=None, table_header=None):
     else:
         table = table_data
 
-    return plt, None, table
+    return fig, None, table
 
 __author__ = 'diogo'
