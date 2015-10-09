@@ -1463,10 +1463,13 @@ class MultiGroupsLight:
                                         "species": group_obj.species_list,
                                         "max_copies": group_obj.max_extra_copy}
 
-    def bar_orthologs(self, output_file_name="Final_orthologs",
+    def bar_orthologs(self, group_names=None, output_file_name="Final_orthologs",
                              dest="./", stats="total"):
         """
         Creates a bar plot with the final ortholog values for each group file
+        :param group_names: list. If None, all groups in self.group_stats will
+        be used to generate the plot. Else, only the groups with the names in
+        the list will be plotted.
         :param output_file_name: string. Name of output file
         :param dest: string. output directory
         :param stats: string. The statistics that should be used to generate
@@ -1487,8 +1490,15 @@ class MultiGroupsLight:
         lgd = ["Total orthologs", "After species filter", "After gene filter",
                "Final orthologs"]
 
-        # Get final ortholog values
-        for gname, gstats in self.groups_stats.items():
+        # Determine which groups will be plotted
+        if group_names:
+            groups_lst = group_names
+        else:
+            groups_lst = self.groups_stats.keys()
+
+        for gname in groups_lst:
+
+            gstats = self.groups_stats[gname]
 
             x_labels.append(gname.split(os.sep)[-1])
             # Populate total orthologs
