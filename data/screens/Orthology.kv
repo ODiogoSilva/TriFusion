@@ -136,7 +136,7 @@ ShowcaseScreen:
                                     text_size: self.size
                                 ProcessBt:
                                     id: orto_dir
-                                    text: "Select..."
+                                    text: "Select..." if not app.ortho_dir else app.ortho_dir
                                     size_hint_x: None
                                     width: gl_orto_search.bt_wdt
                                     on_release:
@@ -183,6 +183,7 @@ ShowcaseScreen:
                             ExecutionBt:
                                 text: "Clear Options"
                                 on_release:
+                                    app.check_action("Are you sure you want to clear all options?", app.orthology_clear_options, None)
 
                 BoxLayout:
                     orientation: "vertical"
