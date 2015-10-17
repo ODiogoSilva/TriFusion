@@ -5447,6 +5447,30 @@ class TriFusionApp(App):
             except KeyError:
                 pass
 
+    def orthology_clear_options(self):
+        """
+        Resets orthology search options to default values
+        """
+
+        self.ortho_dir = ""
+        self.orto_export_dir = ""
+
+        self.usearch_db = "goodProteins_db"
+        self.usearch_output = "AllVsAll.out"
+        self.usearch_evalue = "0.00001"
+
+        self.ortholog_prefix = "MyGroup"
+        self.group_prefix = "group"
+        self.mcl_inflation = ["3"]
+
+        self.orto_max_gene = 1
+        self.orto_min_sp = 3
+
+        self.screen.ids.usearch_threads.text = "1"
+
+        self.ortho_search_options.ids.inflation_bt.text = "['3']"
+
+
     # ########################### PLOT SCREENS #################################
 
     def show_stats_toggle(self, args1, args2, active_bt, single_gene=None):
