@@ -1937,7 +1937,7 @@
         Label:
             size_hint_x: .7
             text: "Maximum codon stops (%):"
-        TextInput
+        TextInput:
             size_hint_x: .3
             id: txt_stop
             text: str(app.protein_max_stop)
@@ -1953,7 +1953,6 @@
             text: "Ok"
             on_release:
                 app.save_protein_filters(txt_len.text, txt_stop.text)
-                root.cancel()
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
