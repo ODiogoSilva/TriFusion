@@ -7158,7 +7158,12 @@ class TriFusionApp(App):
             self.usearch_output = text
 
         elif idx == "evalue":
-            self.usearch_evalue = text
+            try:
+                float(text)
+                self.usearch_evalue = text
+            except ValueError:
+                return self.dialog_floatcheck("ERROR: e-value must be a number",
+                                              t="error")
 
         elif idx == "orto_group":
             self.ortholog_prefix = text
