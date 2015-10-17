@@ -5760,8 +5760,22 @@ class TriFusionApp(App):
         Saves protein length and stop percentage filters
         """
 
-        self.protein_min_len = min_len
-        self.protein_max_stop = max_stop
+        # Check arguments for compliance. Must be int
+
+        try:
+            # Check if max_stop value is between 0 and 100
+            if 0 < int(max_stop) > 100:
+                return self.dialog_floatcheck("ERROR: Maximum codon stops value"
+                                              " must be between 0 and 100",
+                                              t="error")
+
+            self.protein_min_len = abs(int(min_len))
+            self.protein_max_stop = abs(int(max_stop))
+            self.dismiss_popup()
+        except ValueError:
+            return self.dialog_floatcheck("ERROR: {} and {} must be "
+                                          "numbers".format(min_len, max_stop),
+                                          t="error")
 
     def dialog_export_groups(self):
         """
