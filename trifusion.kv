@@ -3588,6 +3588,8 @@
                     disabled: False if rev_conc.active else True
                     on_release:
                         app.use_app_partitions = True if self.state == "down" else False
+                        part_file.background_normal = "data/backgrounds/bt_process_off.png"
+                        rev_infile.background_normal = "data/backgrounds/bt_process_off.png"
 
     BoxLayout:
         size_hint_y: None
