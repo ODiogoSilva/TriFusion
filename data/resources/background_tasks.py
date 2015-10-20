@@ -184,7 +184,14 @@ def update_active_taxaset(aln_obj, set_name, active_taxa_list, taxa_groups):
     return aln_obj
 
 
-def process_execution(**kwargs):
+def process_execution(aln_list, file_set_name, file_list, file_groups, 
+                      taxa_set_name, active_taxa_list, ns, taxa_groups,
+                      hap_prefix, secondary_operations, secondary_options,
+                      missing_filter_settings, taxa_filter_settings,
+                      codon_filter_settings, output_file, rev_infile, 
+                      main_operations, zorro_suffix, partitions_file,
+                      output_formats, create_partfile, use_nexus_partitions,
+                      phylip_truncate_name, output_dir, use_app_partitions):
     """
     Process execution function
     :param ns: Namespace object
@@ -198,83 +205,82 @@ def process_execution(**kwargs):
         #####
         # Setting the alignment to use.
         # Update active file set of the alignment object
-        aln_object = update_active_fileset(kwargs["aln_list"],
-                                           kwargs["file_set_name"],
-                                           kwargs["file_list"],
-                                           kwargs["file_groups"])
+        aln_object = update_active_fileset(aln_list,
+                                           file_set_name,
+                                           file_list,
+                                           file_groups)
 
         # Update active taxa set of the alignment object
-        aln_object = update_active_taxaset(aln_object, kwargs["taxa_set_name"],
-                                           kwargs["active_taxa_list"],
-                                           kwargs["taxa_groups"])
+        aln_object = update_active_taxaset(aln_object, taxa_set_name,
+                                           active_taxa_list,
+                                           taxa_groups)
 
-        kwargs["ns"].proc_files = len(aln_object.alignments)
+        ns.proc_files = len(aln_object.alignments)
 
         # Reverse concatenation
-        if kwargs["main_operations"]["reverse_concatenation"]:
-            kwargs["ns"].msg = "Reverse concatenating"
-            if not kwargs["use_app_partitions"]:
+        if main_operations["reverse_concatenation"]:
+            ns.msg = "Reverse concatenating"
+            if not use_app_partitions:
                 partition_obj = data.Partitions()
                 # In case the partitions file is badly formatted or invalid, the
                 # exception will be returned by the read_from_file method.
-                er = partition_obj.read_from_file(kwargs["partitions_file"])
+                er = partition_obj.read_from_file(partitions_file)
                 aln_object = aln_object.retrieve_alignment(basename(
-                    kwargs["rev_infile"]))
+                    rev_infile))
                 aln_object.set_partitions(partition_obj)
             aln_object = aln_object.reverse_concatenate()
 
         # Filtering - This should be the first operation to be performed
-        if kwargs["secondary_operations"]["filter"]:
-            kwargs["ns"].msg = "Filtering alignment(s)"
-            if kwargs["secondary_options"]["filter_file"]:
+        if secondary_operations["filter"]:
+            ns.msg = "Filtering alignment(s)"
+            if secondary_options["filter_file"]:
                 filtered_aln_obj = deepcopy(aln_object)
             # Check if a minimum taxa representation was specified
-            if kwargs["secondary_options"]["gap_filter"]:
-                if kwargs["missing_filter_settings"][2]:
+            if secondary_options["gap_filter"]:
+                if missing_filter_settings[2]:
                     try:
                         filtered_aln_obj.filter_min_taxa(
-                            kwargs["missing_filter_settings"][2])
+                            missing_filter_settings[2])
                     except NameError:
                         aln_object.filter_min_taxa(
-                            kwargs["missing_filter_settings"][2])
+                            missing_filter_settings[2])
             # Filter by taxa
-            if kwargs["secondary_options"]["taxa_filter"]:
+            if secondary_options["taxa_filter"]:
                 # Get taxa list from taxa groups
-                taxa_list = kwargs["taxa_groups"][kwargs[
-                    "taxa_filter_settings"][1]]
+                taxa_list = taxa_groups[taxa_filter_settings[1]]
                 try:
                     filtered_aln_obj.filter_by_taxa(
-                        kwargs["taxa_filter_settings"][0], taxa_list)
+                        taxa_filter_settings[0], taxa_list)
                 except NameError:
-                    aln_object.filter_by_taxa(kwargs["taxa_filter_settings"][0],
+                    aln_object.filter_by_taxa(taxa_filter_settings[0],
                                               taxa_list)
             # Filter codon positions
-            if kwargs["secondary_options"]["codon_filter"]:
+            if secondary_options["codon_filter"]:
                 try:
                     filtered_aln_obj.filter_codon_positions(
-                        kwargs["codon_filter_settings"])
+                        codon_filter_settings)
                 except NameError:
                     aln_object.filter_codon_positions(
-                        kwargs["codon_filter_settings"])
+                        codon_filter_settings)
             # Filter missing data
-            if kwargs["secondary_options"]["gap_filter"]:
+            if secondary_options["gap_filter"]:
                 try:
                     filtered_aln_obj.filter_missing_data(
-                        kwargs["missing_filter_settings"][0],
-                        kwargs["missing_filter_settings"][1])
+                        missing_filter_settings[0],
+                        missing_filter_settings[1])
                 except NameError:
                     aln_object.filter_missing_data(
-                        kwargs["missing_filter_settings"][0],
-                        kwargs["missing_filter_settings"][1])
+                        missing_filter_settings[0],
+                        missing_filter_settings[1])
             try:
-                write_aln[kwargs["output_file"] + "_filtered"] = \
+                write_aln[output_file + "_filtered"] = \
                     filtered_aln_obj
             except NameError:
                 pass
 
         # Concatenation
-        if kwargs["main_operations"]["concatenation"]:
-            kwargs["ns"].msg = "Concatenating"
+        if main_operations["concatenation"]:
+            ns.msg = "Concatenating"
             aln_object = aln_object.concatenate()
             # In case filtered alignments are going to be saved in a different
             # file, concatenate them as well
@@ -282,68 +288,68 @@ def process_execution(**kwargs):
                 for name, aln in write_aln.items():
                     write_aln[name] = aln.concatenate()
             # Concatenation of ZORRO files
-            if kwargs["secondary_options"]["zorro"]:
-                kwargs["ns"].msg = "Concatenating ZORRO files"
-                zorro_data = data.Zorro(aln_object, kwargs["zorro_suffix"])
-                zorro_data.write_to_file(kwargs["output_file"])
+            if secondary_options["zorro"]:
+                ns.msg = "Concatenating ZORRO files"
+                zorro_data = data.Zorro(aln_object, zorro_suffix)
+                zorro_data.write_to_file(output_file)
 
         # Collapsing
-        if kwargs["secondary_operations"]["collapse"]:
-            kwargs["ns"].msg = "Collapsing alignment(s)"
-            if kwargs["secondary_options"]["collapse_file"]:
+        if secondary_operations["collapse"]:
+            ns.msg = "Collapsing alignment(s)"
+            if secondary_options["collapse_file"]:
                 collapsed_aln_obj = deepcopy(aln_object)
-                collapsed_aln_obj.collapse(haplotype_name=kwargs["hap_prefix"],
-                                           dest=kwargs["output_dir"])
-                write_aln[kwargs["output_file"] + "_collapsed"] = \
+                collapsed_aln_obj.collapse(haplotype_name=hap_prefix,
+                                           dest=output_dir)
+                write_aln[output_file + "_collapsed"] = \
                     collapsed_aln_obj
             else:
-                aln_object.collapse(haplotype_name=kwargs["hap_prefix"])
+                aln_object.collapse(haplotype_name=hap_prefix)
 
         # Gcoder
-        if kwargs["secondary_operations"]["gcoder"]:
-            kwargs["ns"].msg = "Coding gaps"
-            if kwargs["secondary_options"]["gcoder_file"]:
+        if secondary_operations["gcoder"]:
+            ns.msg = "Coding gaps"
+            if secondary_options["gcoder_file"]:
                 gcoded_aln_obj = deepcopy(aln_object)
                 gcoded_aln_obj.code_gaps()
-                write_aln[kwargs["output_file"] + "_coded"] = gcoded_aln_obj
+                write_aln[output_file + "_coded"] = gcoded_aln_obj
             else:
                 aln_object.code_gaps()
                 
         # The output file(s) will only be written after all the required
         # operations have been concluded. The reason why there are two "if"
         # statement for "concatenation" is that the input alignments must be
-        # concatenated before any other additional operatiokwargs["ns"]. If the
+        # concatenated before any other additional operations. If the
         # first if statement did not exist, then all additional options would
         # have to be manually written for both "conversion" and "concatenation".
         #  As it is, when "concatenation", the aln_obj is firstly converted
         # into the concatenated alignment, and then all additional
         # operations are conducted in the same aln_obj
-        write_aln[kwargs["output_file"]] = aln_object
-        kwargs["ns"].msg = "Writhing output"
+        write_aln[output_file] = aln_object
+        ns.msg = "Writhing output"
         
-        if kwargs["main_operations"]["concatenation"]:
+        if main_operations["concatenation"]:
             for name, obj in write_aln.items():
-                obj.write_to_file(kwargs["output_formats"], name,
-                        interleave=kwargs["secondary_options"]["interleave"],
-                        partition_file=kwargs["create_partfile"],
-                        use_charset=kwargs["use_nexus_partitions"],
-                        phy_truncate_names=kwargs["phylip_truncate_name"])
+                obj.write_to_file(output_formats, name,
+                        interleave=secondary_options["interleave"],
+                        partition_file=create_partfile,
+                        use_charset=use_nexus_partitions,
+                        phy_truncate_names=phylip_truncate_name)
         else:
             for name, obj in write_aln.items():
-                name = name.replace(kwargs["output_file"], "")
-                obj.write_to_file(kwargs["output_formats"],
+                name = name.replace(output_file, "")
+                obj.write_to_file(output_formats,
                         output_suffix=name,
-                        interleave=kwargs["secondary_options"]["interleave"],
-                        partition_file=kwargs["create_partfile"],
-                        output_dir=kwargs["output_dir"],
-                        use_charset=kwargs["use_nexus_partitions"],
-                        phy_truncate_names=kwargs["phylip_truncate_name"])
+                        interleave=secondary_options["interleave"],
+                        partition_file=create_partfile,
+                        output_dir=output_dir,
+                        use_charset=use_nexus_partitions,
+                        phy_truncate_names=phylip_truncate_name)
 
     except:
         # Log traceback in case any unexpected error occurs. See
         # self.log_file for whereabouts of the traceback
         logging.exception("Unexpected exit in Process execution")
-        kwargs["ns"].exception = True
+        ns.exception = True
 
 
 def load_group_files(group_files, temp_dir):
