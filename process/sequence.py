@@ -1588,7 +1588,7 @@ class AlignmentList(Base):
             alignment_obj.code_gaps()
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
-                 haplotype_name="Hap"):
+                 haplotype_name="Hap", dest="./"):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
@@ -1599,6 +1599,8 @@ class AlignmentList(Base):
         input alignment.
 
         :param haplotype_name: String, Custom name of the haplotypes
+
+        :param dest: string. Path to write the .haplotypes file
         """
 
         for alignment_obj in self.alignments.values():
@@ -1606,10 +1608,10 @@ class AlignmentList(Base):
                 # Set name for haplotypes file
                 output_file = alignment_obj.name.split(".")[0] + haplotypes_file
                 alignment_obj.collapse(haplotypes_file=output_file,
-                                       haplotype_name=haplotype_name)
+                                       haplotype_name=haplotype_name, dest=dest)
             else:
                 alignment_obj.collapse(write_haplotypes=False,
-                                       haplotype_name=haplotype_name)
+                                       haplotype_name=haplotype_name, dest=dest)
 
     def reverse_concatenate(self):
         """
