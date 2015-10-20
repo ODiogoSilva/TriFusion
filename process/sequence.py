@@ -492,6 +492,79 @@ class Alignment (Base):
             self.write_loci_correspondence(correspondence_dic, haplotypes_file,
                                            dest)
 
+    def consensus(self, consensus_type):
+        """
+        Converts the current Alignment object dictionary into a single consensus
+         sequence. The consensus_type argument determines how variation in the
+        original alignment is handled for the generation of the consensus
+        sequence. The options are:
+            ..:iupac: Converts variable sites according to the corresponding
+            IUPAC symbols
+            ..:soft mask: Converts variable sites into missing data
+            ..:remove: Removes variable sites
+            ..:first sequence: Uses the first sequence in the dictionary
+        :param consensus_type: string, from the list above.
+        """
+
+        from process.base import iupac
+
+        # If sequence type is first sequence
+        if consensus_type == "First sequence":
+            self.alignment = OrderedDict([("consensus",
+                                           list(self.alignment.values())[0])])
+            return
+
+        # If sequence type is any other than first sequence, do this first
+        # Get sequence list
+        seq_list = list(self.alignment.values())
+
+        # Empty consensus sequence
+        consensus_seq = []
+
+        for column in zip(*seq_list):
+
+            column = list(set(column))
+
+            # If invariable, include in consensus and skip. Increases speed
+            # when there are no missing or gap characters
+            if len(column) == 1:
+                consensus_seq.append(column[0])
+                continue
+
+            # Remove missing data and gaps
+            column = sorted([x for x in column if x != self.sequence_code[1]
+                             and x != "-"])
+
+            # In case there is only missing/gap characters
+            if not column:
+                consensus_seq.append(self.sequence_code[1])
+                continue
+
+            # Check for invariable without missing data
+            if len(column) == 1:
+                consensus_seq.append(column[0])
+                continue
+
+            if consensus_type == "IUPAC":
+                # Convert variation into IUPAC code
+                try:
+                    consensus_seq.append(iupac["".join(column)])
+                except KeyError:
+                    iupac_code = sorted(set(list(itertools.chain.from_iterable(
+                        [x if x in dna_chars else iupac_rev[x]
+                         for x in column]))))
+                    consensus_seq.append(iupac["".join(iupac_code)])
+
+            elif consensus_type == "Soft mask":
+                consensus_seq.append(self.sequence_code[1])
+                continue
+
+            elif consensus_type == "Remove":
+                continue
+
+        # Replace alignment atribute with consensus sequence
+        self.alignment = OrderedDict([("consensus", "".join(consensus_seq))])
+
     @staticmethod
     def write_loci_correspondence(dic_obj, output_file, dest="./"):
         """
@@ -1612,6 +1685,27 @@ class AlignmentList(Base):
             else:
                 alignment_obj.collapse(write_haplotypes=False,
                                        haplotype_name=haplotype_name, dest=dest)
+
+    def consensus(self, consensus_type, single_file=False):
+        """
+        Wrapper for the consensus method of the Alignment object.
+        :param consensus_type: string. How variation is handled when creating
+        the consensus. See the Alignment method for more information
+        """
+
+        if single_file:
+            single_consensus = OrderedDict()
+
+        for alignment_obj in self.alignments.values():
+            alignment_obj.consensus(consensus_type)
+
+            if single_file:
+                single_consensus[alignment_obj.name] = \
+                    list(alignment_obj.alignment.values())[0]
+
+        if single_file:
+            consensus_aln = Alignment(single_consensus)
+            return consensus_aln
 
     def reverse_concatenate(self):
         """

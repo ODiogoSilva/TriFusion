@@ -53,6 +53,12 @@ aminoacid_table = OrderedDict({"a": ["Alanine", "nonpolar", "neutral"],
                                "o": ["Pyrrolysine", "", ""],
                                "x": ["Missing", "", ""]})
 
+iupac = {"ag": "r", "ct": "y", "cg": "s", "at": "w", "gt": "k", "ac": "m",
+         "cgt": "b", "agt": "d", "act": "h", "acg": "v", "acgt": "n"}
+
+iupac_rev = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
+             "b": "cgt", "n": "acgt", "h": "act", "y": "ct", "w": "at",
+             "k": "gt"}
 
 def merger(ranges):
     """
@@ -81,9 +87,9 @@ class Base:
     def autofinder(self, reference_file):
         """ Autodetect the type of file to be parsed. Based on headers """
         sequence = ""
-        file_handle = open(reference_file, 'r')
+        file_handle = open(reference_file, "r")
 
-        # If input file is not a simple text file, which means it's invalid,
+        # If input file is not a simple text file, which means it"s invalid,
         # handle this exception
         try:
             header = file_handle.readline()
@@ -95,7 +101,7 @@ class Base:
             header = next(file_handle)
 
         # Recognition of NEXUS files is based on the existence of the string
-        # '#NEXUS' in the first non-empty line
+        # "#NEXUS" in the first non-empty line
         if header.upper().strip().startswith("#NEXUS"):
             autofind = "nexus"
             for line in file_handle:
@@ -163,7 +169,7 @@ class Base:
 
     def partition_format(self, partition_file):
         """ Tries to guess the format of the partition file (Whether it is
-        Nexus of RAxML's) """
+        Nexus of RAxML"s) """
         file_handle = open(partition_file)
 
         # Skips first empty lines, if any
@@ -200,7 +206,7 @@ class Base:
         """ Function that removes illegal characters from taxa names """
 
         # Additional illegal characters are added here
-        illegal_chars = [":", ",", ")", "(", ";", "[", "]", "'", '"']
+        illegal_chars = [":", ",", ")", "(", ";", "[", "]", """, """]
 
         clean_name = "".join([char for char in string if char not in
                               illegal_chars])
@@ -226,7 +232,7 @@ class Base:
         if alignment_format == "fasta":
             if line.strip()[0] != ">":
                 print("File not in Fasta format. First non-empty line of the"
-                      " input file %s does not start with '>'. Please verify "
+                      " input file %s does not start with ">". Please verify "
                       "the file, or the input format settings\nExiting..." %
                       input_alignment)
                 raise SystemExit
@@ -234,7 +240,7 @@ class Base:
         elif alignment_format == "nexus":
             if line.strip().lower() != "#nexus":
                 print("File not in Nexus format. First non-empty line of the"
-                      " input file %s does not start with '#NEXUS'. Please "
+                      " input file %s does not start with "#NEXUS". Please "
                       "verify the file, or the input format settings\n"
                       "Exiting..." % input_alignment)
                 raise SystemExit
@@ -320,7 +326,7 @@ class Progression():
         # If there is a previous message in the output, erase it
         try:
             self.msg
-            sys.stdout.write('\r' + ' ' * len(self.msg))
+            sys.stdout.write("\r" + " " * len(self.msg))
         except AttributeError:
             pass
 
@@ -336,7 +342,7 @@ class Progression():
 
         # Erase the last message
         if int((position_proportion / self.width) * 100) == 100:
-            sys.stdout.write('\r' + ' ' * len(msg))
+            sys.stdout.write("\r" + " " * len(msg))
 
     def write(self, msg):
         """ This will simply write a provided string to the terminal """

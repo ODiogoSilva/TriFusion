@@ -1504,6 +1504,7 @@
     bold: True
     border: 0,0,0,0
     background_normal: "data/backgrounds/plot_spinner.png"
+    background_down: "data/backgrounds/plot_spinner_down.png"
     size_hint: None, None
     size: 180, 33
 #===============================================================================
@@ -4370,6 +4371,102 @@
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release:
                         app.dialog_text("Haplotype prefix", "haplotype")
+
+    TabbedPanelItem:
+        id: collapse_tab
+        text: "Consensus"
+
+        GridLayout:
+            id: collapse_grid
+            cols: 1
+            padding: 5
+            spacing: 5
+            opacity: 1
+
+            LightBox:
+                Label:
+                    markup: True
+                    text: "[size=15][b]Alignment consensus options[/b][/size]"
+                    halign: "left"
+                    valign: "middle"
+                    color: [.85, .85, .85, 1]
+                    text_size: self.size
+                InfoBt:
+                    width: 20
+                    height: 20
+                    background_normal: "data/backgrounds/more_info_20px.png"
+                    background_down: "data/backgrounds/more_info_down_20px.png"
+                    on_release:
+                        app.dialog_general_info("consensus")
+                Switch:
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    id: consensus
+                    on_active:
+                        if self.active == True: consensus_file.disabled = False; consensus_single.disabled = False; consensus_mode.disabled = False
+                        if self.active == False: consensus_file.disabled = True; consensus_single.disabled = True; consensus_mode.disabled = True
+                        app.update_process_switch("consensus", self.active)
+
+            DarkBox:
+                height: 70
+                Label:
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Save in new output file[/b][/size]\n[size=13] If checked, the consensus alignments will be saved in a file with an '_consensus' suffix in addition to the main output file[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                CheckBox:
+                    id: consensus_file
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    disabled: True
+                    on_active:
+                        app.update_process_switch("consensus_file", self.active)
+
+            Hseparator
+
+            DarkBox:
+                height: 70
+                Label:
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Save consensus sequences in a single file[/b][/size]\n[size=13] If checked, the consensus sequences of multiple files will be saved in a single file with each file name as the sequence name[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                CheckBox:
+                    id: consensus_single
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    disabled: True
+                    on_active:
+                        app.update_process_switch("consensus_single", self.active)
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Consensus variation handling[/b][/size]\n[size=13] Select how variation in alignment columns will be handled to produce a consensus sequence [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("consensus_mode")
+                PlotSpinner:
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    id: consensus_mode
+                    disabled: True
+                    text: "IUPAC"
+                    option_cls: Factory.get("PlotOpt")
+                    values: ("IUPAC", "Soft mask", "Remove", "First sequence")
+
 
     TabbedPanelItem:
         id: filter_tab

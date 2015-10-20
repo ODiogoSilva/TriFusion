@@ -87,7 +87,19 @@ informative_storage = {
         " is only available for nucleotide sequences, where it allows the "
         "filtering of codon positions in the alignments. By default, all "
         "positions are set to be saved but any combination can be specified to "
-        "be filtered out."]
+        "be filtered out."],
+    "consensus": ["Alignment consensus - Help", "The alignment consensus "
+        "option will merge all sequences in an alignment into a single "
+        "consensus sequence. Variation in alignment columns can be either "
+        "converted into the corresponding IUPAC symbols, soft masked or "
+        "removed from the final consensus"],
+    "consensus_mode": ["Consensus variation handling - Help", "The consensus "
+        "mode option determines how variation in an alignment will be handled "
+        "to create a consensus sequence. The options are:\n\n[b]IUPAC:[/b] "
+        "Converts variable sites using the IUPAC ambiguity code.\n\n[b]Soft"
+        " mask:[/b] Replaces variable sites with missing data symbol.\n\n[b]"
+        "Remove:[/b] Removes variable sites.\n\n[b]First sequence:[/b] Uses"
+        " the first sequence in each alignment"]
 }
 
 orthology_storage = {

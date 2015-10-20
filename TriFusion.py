@@ -1006,17 +1006,20 @@ class TriFusionApp(App):
     # Dictionary containing all values of the switches and checkboxes in the
     # process screen
     secondary_operations = OrderedDict([("collapse", False),
-                                    ("filter", False),
-                                    ("gcoder", False)])
+                                        ("filter", False),
+                                        ("gcoder", False),
+                                        ("consensus", False)])
 
     secondary_options = DictProperty([("interleave", False),
-                                    ("zorro", False),
-                                    ("collapse_file", False),
-                                    ("filter_file", False),
-                                    ("taxa_filter", False),
-                                    ("codon_filter", False),
-                                    ("gap_filter", False),
-                                    ("gcoder_file", False)])
+                                      ("zorro", False),
+                                      ("collapse_file", False),
+                                      ("filter_file", False),
+                                      ("taxa_filter", False),
+                                      ("codon_filter", False),
+                                      ("gap_filter", False),
+                                      ("gcoder_file", False),
+                                      ("consensus_file", False),
+                                      ("consensus_single", False)])
 
     # Attributes for the Orthology screen widgets
     ortho_search_options = None
@@ -8261,9 +8264,10 @@ class TriFusionApp(App):
         * If neither 7 nor 8 are selected, the default is Conversion
         [Additional operations]
         9. Collapse
-        10. Gap coding
+        10. Consensus
+        11. Gap coding
         [Output generation]
-        11. Write main output to file(s)
+        12. Write main output to file(s)
 
         """
 
@@ -8322,8 +8326,8 @@ class TriFusionApp(App):
                 "use_nexus_partitions": bool(self.use_nexus_partitions),
                 "phylip_truncate_name": bool(self.phylip_truncate_name),
                 "output_dir": str(self.output_dir),
-                "use_app_partitions": bool(self.use_app_partitions)
-                }
+                "use_app_partitions": bool(self.use_app_partitions),
+                "consensus_type": self.process_options.ids.consensus_mode.text}
 
         p = multiprocessing.Process(target=process_execution,
                                     kwargs=process_kwargs)

@@ -7,6 +7,7 @@ from ortho import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
 
 from os.path import join, basename
+from os import sep
 from collections import OrderedDict
 from copy import deepcopy
 import logging
@@ -191,7 +192,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                       codon_filter_settings, output_file, rev_infile, 
                       main_operations, zorro_suffix, partitions_file,
                       output_formats, create_partfile, use_nexus_partitions,
-                      phylip_truncate_name, output_dir, use_app_partitions):
+                      phylip_truncate_name, output_dir, use_app_partitions,
+                      consensus_type):
     """
     Process execution function
     :param ns: Namespace object
@@ -300,10 +302,27 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 collapsed_aln_obj = deepcopy(aln_object)
                 collapsed_aln_obj.collapse(haplotype_name=hap_prefix,
                                            dest=output_dir)
-                write_aln[output_file + "_collapsed"] = \
-                    collapsed_aln_obj
+                write_aln[output_file + "_collapsed"] = collapsed_aln_obj
             else:
-                aln_object.collapse(haplotype_name=hap_prefix)
+                aln_object.collapse(haplotype_name=hap_prefix, dest=output_dir)
+
+        # Consensus
+        if secondary_operations["consensus"]:
+            ns.msg = "Creating consensus sequence(s)"
+            if secondary_options["consensus_file"]:
+                consensus_aln_obj = deepcopy(aln_object)
+                if secondary_options["consensus_single"]:
+                    consensus_aln_obj = consensus_aln_obj.consensus(
+                        consensus_type=consensus_type, single_file=True)
+                else:
+                    consensus_aln_obj.consensus(consensus_type=consensus_type)
+                write_aln[output_file + "_consensus"] = consensus_aln_obj
+            else:
+                if secondary_options["consensus_single"]:
+                    aln_object = aln_object.consensus(
+                        consensus_type=consensus_type, single_file=True)
+                else:
+                    aln_object.consensus(consensus_type=consensus_type)
 
         # Gcoder
         if secondary_operations["gcoder"]:
@@ -327,9 +346,11 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         write_aln[output_file] = aln_object
         ns.msg = "Writhing output"
         
-        if main_operations["concatenation"]:
+        if main_operations["concatenation"] or \
+                secondary_options["consensus_single"]:
             for name, obj in write_aln.items():
-                obj.write_to_file(output_formats, name,
+                obj.write_to_file(output_formats,
+                        name if name else join(output_dir, "consensus"),
                         interleave=secondary_options["interleave"],
                         partition_file=create_partfile,
                         use_charset=use_nexus_partitions,
