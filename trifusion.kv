@@ -2701,6 +2701,7 @@
     # button to Load
     load_dlgs: ["import_partitions", "partition_file", "select_from_file", "remove_from_file"]
     no_auto_close: ["protein", "nucleotide", "group", "taxa", "files", "main_output", "export", "export_table", "group"]
+    file_required: ["protein_db", "import_partitions", "partition_file", "select_from_file", "remove_from_file", "files"]
     BoxLayout:
         size: root.size
         pos: root.pos
@@ -2868,6 +2869,10 @@
                         elif txt_box.height != 0: \
                         app.check_file(sd_filechooser.path, text_input.text, sd_filechooser.text)
 
+                        # For save dialogs that do not require file names but require a file to be selected
+                        elif sd_filechooser.text in root.file_required and not sd_filechooser.selection: \
+                        app.dialog_floatcheck(text="WARNING: Please select a file", t="error");
+
                         # For save dialogs that do not require file names
                         elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
                         app.save_file(sd_filechooser.path, idx = sd_filechooser.text); root.cancel()
@@ -2890,7 +2895,8 @@
                         elif sd_filechooser.text == "files" or sd_filechooser.text == "taxa" and txt_box.height == 0: \
                         root.cancel(); app.dataset_file = sd_filechooser.selection[0]; app.dialog_text("Name of the data set group", sd_filechooser.text)
                         # Close dialog
-                        if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text not in root.no_auto_close : root.cancel()
+#                        if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text not in root.no_auto_close: \
+#                        root.cancel()
 
                 TFOKButon:
                     id: cancel_bt
