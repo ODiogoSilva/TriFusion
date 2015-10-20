@@ -6660,6 +6660,8 @@ class TriFusionApp(App):
         self._popup.content.ids.part_file.background_normal = \
             "data/backgrounds/bt_process.png"
 
+        # Change background of used defined partition button
+        self._popup.content.ids.use_parts.state = "normal"
 
     def dialog_floatcheck(self, text, t):
         """
