@@ -6978,7 +6978,8 @@ class TriFusionApp(App):
 
     def dialog_execution(self):
         """
-        Generates the dialog for Process execution
+        Generates the dialog for Process execution. It also preforms several
+        sanity checks before issuing the dialog
         """
 
         if not self.active_file_list:
@@ -6989,6 +6990,8 @@ class TriFusionApp(App):
         aln_obj = update_active_fileset(self.alignment_list,
                                 self.process_grid_wgt.ids.active_file_set.text,
                                 self.file_list, self.file_groups)
+
+        # Perform pre-execution checks
 
         # Get main operation
         try:
@@ -7063,6 +7066,19 @@ class TriFusionApp(App):
         except AttributeError:
             return self.dialog_floatcheck("ERROR: No input files have"
                                           "been selected", t="error")
+
+        # Check if main operation is reverse concatenation and if the active
+        # taxa set smaller than the complete set. If so, issue a warning
+        # that individual partitions that do not contain any of the selected
+        # taxa will not be written
+        if main_op == "reverse_concatenation" and self.active_taxa_list != \
+                self.alignment_list.taxa_names:
+            self.dialog_warning("Reverse concatenation warning",
+                                "A data set is being reverse "
+                                "concatenated with a taxa subset "
+                                "specified. Individual alignments that"
+                                " do not contain the selected/active"
+                                " taxa will not be written")
 
     def dialog_text(self, title, idx):
         """

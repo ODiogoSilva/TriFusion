@@ -559,6 +559,12 @@ class Alignment (Base):
             current_partition.add_partition(name, part_range[0][1] -
                                             part_range[0][0])
 
+            # Check if current alignment object is not empty. This may occur
+            # when reverse concatenating an alignment with a taxa subset
+            # selected.
+            if current_dic == OrderedDict():
+                continue
+
             current_aln = Alignment(current_dic, input_format=self.input_format,
                                     partitions=current_partition,
                                     alignment_name=name)
