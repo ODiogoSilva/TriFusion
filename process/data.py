@@ -532,7 +532,7 @@ class Partitions():
 
             new_dic = OrderedDict()
 
-            counter = 1
+            counter = 0
             for nm, vals in self.partitions.items():
                 # Check if the starting position of the next partition is the
                 # same as the counter. If so, add the vals to the new dict.
