@@ -151,6 +151,8 @@ ShowcaseScreen:
                 f: "/*"
                 filters: [self.path+self.f]
                 filter_dirs: True
+                on_dir_entry:
+                    text_filter.text = ""
 
             BoxLayout:
                 size_hint_y: None
