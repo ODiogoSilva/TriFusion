@@ -1450,6 +1450,10 @@ class AlignmentList(Base):
             else:
                 del concatenation[taxa]
 
+        # Removes partitions that are currently in the shelve
+        for aln_obj in self.shelve_alignments.values():
+            self.partitions.remove_partition(file_name=aln_obj.path)
+
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
                                            partitions=self.partitions)
