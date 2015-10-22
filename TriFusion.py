@@ -259,8 +259,12 @@ class FileChooserM(FileChooserIconView):
 
     def __init__(self, **kwargs):
         super(FileChooserM, self).__init__(**kwargs)
+        self.register_event_type("on_dir_entry")
         Window.bind(on_key_down=self.keyboard_listen)
         Window.bind(on_key_up=self.release_shift)
+
+    def on_dir_entry(self):
+        pass
 
     def keyboard_listen(self, *vals):
         """
@@ -293,6 +297,7 @@ class FileChooserM(FileChooserIconView):
         "../", the path is updated to the parent directory, instead of
         appending the entry.path
         """
+        self.dispatch("on_dir_entry")
         try:
             # Just check if we can list the directory. This is also what
             # _add_file does, so if it fails here, it would also fail later
