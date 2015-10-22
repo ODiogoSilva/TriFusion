@@ -259,11 +259,15 @@ class FileChooserM(FileChooserIconView):
 
     def __init__(self, **kwargs):
         super(FileChooserM, self).__init__(**kwargs)
+        # Register new event that is triggered when entering a directory
         self.register_event_type("on_dir_entry")
         Window.bind(on_key_down=self.keyboard_listen)
         Window.bind(on_key_up=self.release_shift)
 
     def on_dir_entry(self):
+        """
+        Event triggered when entering a directory
+        """
         pass
 
     def keyboard_listen(self, *vals):
