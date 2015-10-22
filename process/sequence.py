@@ -1440,8 +1440,15 @@ class AlignmentList(Base):
 
         # Each taxa is a list of strings for each alignment object, so here
         # the list is being converted into a string
-        for taxa, seq in concatenation.items():
-            concatenation[taxa] = "".join(seq)
+        for taxa, seq in list(concatenation.items()):
+            # Check if new sequence has any data. When a subset of files are
+            # concatenated, some taxa may end up with no data. This prevents
+            # those taxa from being written
+            seq = "".join(seq)
+            if set(seq) != {self.sequence_code[1]}:
+                concatenation[taxa] = seq
+            else:
+                del concatenation[taxa]
 
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
