@@ -2175,7 +2175,14 @@
                 id: path_bx
                 PathLabel:
                     text: sd_filechooser.path
-
+            Button:
+                size_hint_x: None
+                width: 30
+                background_normal: "data/backgrounds/prev_dir.png"
+                background_down: "data/backgrounds/prev_dir.png"
+                on_release:
+                    if icon_view_tab.previous_dir:\
+                    icon_view_tab.path = icon_view_tab.previous_dir[-1]; icon_view_tab.previous_dir.pop(-1)
             Button:
                 size_hint_x: None
                 width: 30
@@ -2271,6 +2278,7 @@
 
                 FileChooserM:
                     id: sd_filechooser
+                    previous_dir: []
                     text: "master"
                     multiselect: True
                     path: app.home_path
@@ -2727,7 +2735,14 @@
                 id: path_bx
                 PathLabel:
                     text: sd_filechooser.path
-
+            Button:
+                size_hint_x: None
+                width: 30
+                background_normal: "data/backgrounds/prev_dir.png"
+                background_down: "data/backgrounds/prev_dir.png"
+                on_release:
+                    if sd_filechooser.previous_dir:\
+                    sd_filechooser.path = sd_filechooser.previous_dir[-1]; sd_filechooser.previous_dir.pop(-1)
             Button:
                 size_hint_x: None
                 width: 30
@@ -2819,6 +2834,7 @@
 
             FileChooserL:
                 id: sd_filechooser
+                previous_dir: []
                 text: "master"
                 path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
                 on_selection:

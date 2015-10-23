@@ -131,6 +131,14 @@ ShowcaseScreen:
                 Button:
                     size_hint_x: None
                     width: 30
+                    background_normal: "data/backgrounds/prev_dir.png"
+                    background_down: "data/backgrounds/prev_dir.png"
+                    on_release:
+                        if icon_view_tab.previous_dir:\
+                        icon_view_tab.path = icon_view_tab.previous_dir[-1]; icon_view_tab.previous_dir.pop(-1)
+                Button:
+                    size_hint_x: None
+                    width: 30
                     background_normal: "data/backgrounds/up_dir_bt.png"
                     background_down: "data/backgrounds/up_dir_bt.png"
                     on_release:
@@ -148,11 +156,13 @@ ShowcaseScreen:
                 id: icon_view_tab
                 dirselect: True
                 multiselect: True
+                previous_dir: []
                 f: "/*"
                 filters: [self.path+self.f]
                 filter_dirs: True
                 on_dir_entry:
                     text_filter.text = ""
+                    self.previous_dir.append(self.path)
 
             BoxLayout:
                 size_hint_y: None

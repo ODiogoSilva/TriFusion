@@ -2697,6 +2697,10 @@ class TriFusionApp(App):
 
         path = value.id
         if os.path.exists(path):
+            try:
+                wgt.previous_dir.append(wgt.path)
+            except KeyError:
+                pass
             wgt.path = path
             wgt.selection = []
         else:
