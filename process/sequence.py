@@ -453,6 +453,12 @@ class Alignment (Base):
         if mode == "inverse":
             inverse(taxa_list)
 
+    def change_taxon_name(self, old_name, new_name):
+
+        self.alignment = OrderedDict([(new_name, seq) if taxon == old_name
+                                      else (taxon, seq) for taxon, seq in
+                                      list(self.alignment.items())])
+
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
                  haplotype_name="Hap", dest="./"):
         """
@@ -1575,6 +1581,18 @@ class AlignmentList(Base):
             except ValueError:
                 # TODO: log a warning
                 pass
+
+    def change_taxon_name(self, old_name, new_name):
+        """
+        Changes the name of a taxon
+        """
+
+        for alignment_obj in list(self.alignments.values()):
+            alignment_obj.change_taxon_name(old_name, new_name)
+
+        # update taxa names
+        self.taxa_names = [new_name if x == old_name else x
+                           for x in self.taxa_names]
 
     def remove_file(self, filename_list):
         """
