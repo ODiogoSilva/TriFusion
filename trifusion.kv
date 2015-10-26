@@ -981,6 +981,24 @@
             on_release:
                 root.cancel()
 
+<TaxaEdit>:
+    orientation: "vertical"
+    padding: 15
+    TFButton:
+        text: "Change taxon name"
+        on_touch_down:
+            app.change_taxa_name()
+
+
+#    PopupBox:
+#        PopupLabel:
+#            size_hint_x: .6
+#            text: "Taxon name"
+#        TextInput:
+#            size_hint_x: .4
+#            id: taxa_txt
+#            multiline: False
+
 <TaxaPopup>
     orientation: "vertical"
     size_hint_y: None
@@ -3441,6 +3459,7 @@
     padding: 10
     spacing: 10
     idx: None
+    old_name: None
     TextInput:
         id: txt_dlg
         focus: True
@@ -3461,6 +3480,8 @@
                 app.save_dataset_group(None, txt_dlg.text, root.text, True)
                 elif root.text == "project": \
                 app.save_project(txt_dlg.text)
+                elif root.text == "change_taxon": \
+                app.change_taxa_name(root.old_name, txt_dlg.text)
                 else: \
                 app.save_text(txt_dlg.text, root.text)
                 root.cancel()

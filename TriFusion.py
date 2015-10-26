@@ -806,6 +806,10 @@ class FilePopup(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class TaxaEdit(BoxLayout):
+    pass
+
+
 class TaxaPopup(BoxLayout):
     """
     Class with a custom BoxLayout controlling the informative popup for the
@@ -1284,7 +1288,7 @@ class TriFusionApp(App):
         self.go_screen(0)
 
         # Set method for closing side panel when touching outside
-        Window.bind(on_touch_up=lambda x, y: self.sidepanel_on_touch())
+        Window.bind(on_touch_up=lambda x, y: self.sidepanel_on_touch(y))
 
         # Listen to keybindings
         Window.bind(on_key_down=self._on_keyboard_events)
@@ -1674,11 +1678,13 @@ class TriFusionApp(App):
         # ======================================================================
 
         # Use tab for auto completion when textinput is focused
+        path_wgt = None
         if key_code == 9:
             if "path_bx" in self.screen.ids:
                 path_wgt = self.screen.ids.path_bx.children[0]
-            elif "path_bx" in self._popup.content.ids:
-                path_wgt = self._popup.content.ids.path_bx.children[0]
+            elif self._popup:
+                if "path_bx" in self._popup.content.ids:
+                    path_wgt = self._popup.content.ids.path_bx.children[0]
 
             if isinstance(path_wgt, TextInput):
                 path = path_wgt.text
@@ -2793,7 +2799,7 @@ class TriFusionApp(App):
 
     # ####################### SIDE PANEL OPERATIONS ############################
 
-    def sidepanel_on_touch(self):
+    def sidepanel_on_touch(self, touch):
         """
         This function is binded to the app Window so that it can handle any
         touch_up events. Once the side panel is open, this allows any mouse
@@ -2816,6 +2822,9 @@ class TriFusionApp(App):
         must remain open. However, clicks outside the partition box will close
         it.
         """
+
+        # Set touch as a app attribute
+        self.touch = touch
 
         def animate_sidebar():
 
@@ -3008,7 +3017,7 @@ class TriFusionApp(App):
                 if self.filename_map[bt.id] not in self.active_file_list:
                     state = "normal"
             # For taxa
-            elif bt.id not in self.active_taxa_list:
+            elif bt.text not in self.active_taxa_list:
                 state = "normal"
             bt.state = state
             gl_wgt.add_widget(bt)
@@ -3999,6 +4008,7 @@ class TriFusionApp(App):
 
             # Get taxa name
             tx = value.id[:-1]
+            print(value.id)
 
             if tx in self.active_taxa_list:
 
@@ -4096,6 +4106,40 @@ class TriFusionApp(App):
                 self.show_popup(title="File %s" % value.id[:-1],
                                 content=content, size=(400, 200))
 
+    def change_taxa_name(self, old_name, new_name):
+        """
+        Changes the taxa name on a double tap
+        :param name: string, original taxon name
+        """
+
+        self.alignment_list.change_taxon_name(old_name, new_name)
+
+        # Change active taxa list
+        self.active_taxa_list = [new_name if x == old_name else x for x
+                                 in self.active_taxa_list]
+
+        # Change sp_taxa_bts attribute
+        for taxa, inf, rm in self.sp_taxa_bts:
+            if taxa.text == old_name:
+                taxa.text = new_name
+                taxa.id = new_name
+                inf.id = "{}?".format(new_name)
+                rm.id = "{}X".format(new_name)
+
+
+        # Change tx_info attributes
+        self.original_tx_inf = dict((new_name, y) if x == old_name else (x, y)
+                                    for x, y in self.original_tx_inf.items())
+
+        # Change mouser_over_bts attribute
+        for taxa in [x for x in self.mouse_over_bts["Taxa"]
+                     if isinstance(x, ToggleButton)]:
+            if taxa.text == old_name:
+                taxa.text = new_name
+
+        self.sidepanel_clear_search("taxa")
+
+
     def export_names(self, path, file_name):
         """
         Export the names of buttons in the corresponding tab in the side panel
@@ -4141,6 +4185,9 @@ class TriFusionApp(App):
         panel. It adds or removes the selected taxa from the active lists
         """
 
+        if self.touch.is_double_tap:
+            self.dialog_text("Change taxon name", "change_taxon", value.text)
+
         # Get the parent layout object
         parent_obj = value.parent
 
@@ -4172,10 +4219,10 @@ class TriFusionApp(App):
 
             # When button is normal (unselected) remove from active list
             if value.state == "normal":
-                self.active_taxa_list.remove(value.id)
+                self.active_taxa_list.remove(value.text)
             # When button is down (selected) add to active
             elif value.state == "down":
-                self.active_taxa_list.append(value.id)
+                self.active_taxa_list.append(value.text)
 
             # Update label
             self.update_sp_label()
@@ -7112,7 +7159,7 @@ class TriFusionApp(App):
                                 " do not contain the selected/active"
                                 " taxa will not be written")
 
-    def dialog_text(self, title, idx):
+    def dialog_text(self, title, idx, msg=None):
         """
         Generates a simple text dialog to capture text input
         """
@@ -7141,6 +7188,10 @@ class TriFusionApp(App):
 
         elif idx == "groups":
             content.ids.txt_dlg.text = self.group_prefix
+
+        elif idx == "change_taxon":
+            content.ids.txt_dlg.text = msg
+            content.old_name = msg
 
         elif idx == "project":
 
