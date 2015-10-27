@@ -34,33 +34,14 @@ Config.set("graphics", "width", 1000)
 
 # Kivy imports
 from kivy.app import App
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.uix.image import Image
-from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
-from kivy.uix.label import Label
-from kivy.core.window import Window
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.tabbedpanel import TabbedPanel
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.textinput import TextInput
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.spinner import Spinner
-from kivy.uix.slider import Slider
-from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
-from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
-from kivy.utils import get_hex_from_color
-from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
-    ListProperty, ObjectProperty, DictProperty
-from kivy.uix.screenmanager import Screen
+from kivy.properties import ListProperty, DictProperty
 from kivy.clock import Clock
 from kivy.uix.treeview import TreeView, TreeViewLabel
-from kivy.graphics import Color, Rectangle
 from kivy.uix.scrollview import ScrollView
 
 # Main program imports
@@ -73,8 +54,7 @@ from base.plotter import *
 
 # Other imports
 import os
-from os.path import dirname, join, exists, abspath, pardir, expanduser,\
-    basename
+from os.path import dirname, join, exists, expanduser, basename
 from os import sep
 from collections import OrderedDict
 from copy import deepcopy
