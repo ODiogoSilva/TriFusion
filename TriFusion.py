@@ -4139,7 +4139,6 @@ class TriFusionApp(App):
 
         self.sidepanel_clear_search("taxa")
 
-
     def export_names(self, path, file_name):
         """
         Export the names of buttons in the corresponding tab in the side panel
@@ -4185,20 +4184,21 @@ class TriFusionApp(App):
         panel. It adds or removes the selected taxa from the active lists
         """
 
-        if self.touch.is_double_tap:
-            self.dialog_text("Change taxon name", "change_taxon", value.text)
-
-        # Get the parent layout object
         parent_obj = value.parent
+
+        if self.touch.is_double_tap and parent_obj == self.root.ids.taxa_sl:
+            self.dialog_text("Change taxon name", "change_taxon", value.text)
+        # Get the parent layout object
 
         # determine active file list
         act_lst = self.active_file_list if self.file_list else \
             self.active_proteome_files
 
         # Changes concerning the files tab
-        if parent_obj == self.root.ids.file_sl:
 
+        if parent_obj == self.root.ids.file_sl:
             # When button is normal (unselected) remove from active list
+
             if value.state == "normal":
                 act_lst.remove(self.filename_map[value.id])
                 if self.active_file_list:
