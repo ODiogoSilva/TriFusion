@@ -1048,15 +1048,27 @@ class TriFusionApp(App):
             # Set border line color
             self.fancy_bt.line_clr = line_c
 
-            # Determine label size. Add horizontal margin space (10)
-            self.fancy_bt.size = (self.fancy_bt.texture_size[0] + 10,
-                                  lbl_height)
+            if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.texture_size[0]\
+                    + 50 > self.root.width:
+                self.fancy_bt.width = self.root.width * .7
+                self.fancy_bt.text_size = self.fancy_bt.size
+                self.fancy_bt.halign = "center"
+                self.fancy_bt.valign = "middle"
+                self.fancy_bt.texture_update()
+                self.fancy_bt.height = self.fancy_bt.texture_size[1] + 16
+
+            else:
+                # Determine label size. Add horizontal margin space (10)
+                self.fancy_bt.size = (self.fancy_bt.texture_size[0] + 10,
+                                      lbl_height)
 
             if orientation == "horizontal":
                 # Determine if the label has space to the right. If not, flip
                 # the orientation
                 if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.width < \
-                        self.root.width:
+                        self.root.width or \
+                        self.root.width - (wgt_pos[0] + wgt_size[0] + 5 +
+                                           self.fancy_bt.width):
                     # Determine position of arrow widget
                     point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + \
                         wgt_size[1] / 2 - 6
@@ -1073,7 +1085,6 @@ class TriFusionApp(App):
                                             background_color=line_c)
 
                 else:
-
                     # Determine position of arrow widget
                     point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt_size[1] / \
                         2 - 6
