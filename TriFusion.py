@@ -49,7 +49,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
-from kivy.uix.slider import  Slider
+from kivy.uix.slider import Slider
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.uix.checkbox import CheckBox
 from kivy.lang import Builder
@@ -1811,22 +1811,6 @@ class TriFusionApp(App):
 
             # Unlocking mouse over
             self.mouse_over_ready = True
-
-        def determine_collision(wgt):
-            """
-            Provided a widget, this function determines whether the mouse is
-            colliding with its window coordinates
-            :param wgt: ToggleButton widget inside a relative layout
-            :return: Boolean. True is mouse position collides with wgt
-            """
-
-            # Retrieving window widget coordinates
-            window_pos = wgt.to_window(wgt.pos[0], wgt.pos[1])
-            # Creating dummy widget to determine collision
-            dummy_wgt = Widget(pos=window_pos, size_hint=(None, None),
-                               size=wgt.size)
-
-            return dummy_wgt.collide_point(mp[0], mp[1])
 
         def create_sidebt_wgt(text, p, s):
             """
