@@ -6565,7 +6565,7 @@ class TriFusionApp(App):
             self.sidepanel_animation(width=expanded_width + 40,
                                      wgt=self.screen.ids.sidepanel_container)
 
-    def toggle_data_options(self, bt, idx):
+    def toggle_stats_options(self, bt, idx):
         """
         Toggles the main data exploration analyses options in the Statistics
         screen
