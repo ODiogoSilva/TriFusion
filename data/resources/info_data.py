@@ -99,7 +99,15 @@ informative_storage = {
         "Converts variable sites using the IUPAC ambiguity code.\n\n[b]Soft"
         " mask:[/b] Replaces variable sites with missing data symbol.\n\n[b]"
         "Remove:[/b] Removes variable sites.\n\n[b]First sequence:[/b] Uses"
-        " the first sequence in each alignment"]
+        " the first sequence in each alignment"],
+    "info_sequence_size": ["Distribution of sequence size - Help",
+        "Plots the distribution of the average sequence size"
+        " either for each species or for the entire active"
+        " data set."],
+    "info_nucleotide_proportion": ["Nucleotide or residue proportion - Help",
+        "Plots the proportion of nucleotides (for DNA data) or residues (for"
+        " amino acid data) either for each species of for the entire active "
+        "data set."]
 }
 
 orthology_storage = {

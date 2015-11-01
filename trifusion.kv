@@ -5002,57 +5002,115 @@
 <SizeDistribution>:
     size_hint_y: None
     height: 30
-    text: "Distribution of sequence size"
-    on_release:
-        #app.stats_show_plot(self.text)
-        app.stats_select_plot(None, "Distribution of sequence size", "Distribution of sequence size all")
+    spacing: 10
+    TFButtonOff:
+        text: "Distribution of sequence size"
+        on_release:
+            app.stats_select_plot(None, "Distribution of sequence size", "Distribution of sequence size all")
+    Button:
+        size_hint: None, None
+        size: 30, 30
+        id: info_seq_size
+        background_normal: "data/backgrounds/info_bt_down.png"
+        background_down: "data/backgrounds/info_bt.png"
+        on_release:
+            app.dialog_general_info("info_sequence_size")
 
 <NucAAProportions>:
     size_hint_y: None
     height: 30
-    text: "Proportion of nucleotides/residues"
-    on_release:
-        #app.stats_show_plot(self.text)
-        app.stats_select_plot(None, "Proportion of nucleotides/residues sp", "Proportion of nucleotides/residues")
+    spacing: 10
+    TFButtonOff:
+        text: "Proportion of nucleotides or residues"
+        on_release:
+            app.stats_select_plot(None, "Proportion of nucleotides or residues sp", "Proportion of nucleotides or residues")
+    Button:
+        size_hint: None, None
+        size: 30, 30
+        id: info_nuc_proportion
+        background_normal: "data/backgrounds/info_bt_down.png"
+        background_down: "data/backgrounds/info_bt.png"
+        on_release:
+            app.dialog_general_info("info_nucleotide_proportion")
 
 ## Polymorphism and Variation
 <SequenceSimilarity>:
     size_hint_y: None
     height: 30
-    text: "Pairwise sequence similarity"
-    on_release:
-        #app.stats_show_plot(self.text)
-        app.stats_select_plot("Pairwise sequence similarity gn", "Pairwise sequence similarity sp", "Pairwise sequence similarity")
+    spacing: 10
+    TFButtonOff:
+        text: "Pairwise sequence similarity"
+        on_release:
+            app.stats_select_plot("Pairwise sequence similarity gn", "Pairwise sequence similarity sp", "Pairwise sequence similarity")
+    Button:
+        size_hint: None, None
+        size: 30, 30
+        id: info_seq_similarity
+        background_normal: "data/backgrounds/info_bt_down.png"
+        background_down: "data/backgrounds/info_bt.png"
+
 
 <SegregatingSites>:
     size_hint_y: None
     height: 30
-    text: "Segregating sites"
-    on_release:
-        app.stats_select_plot("Segregating sites gn", None, "Segregating sites")
+    spacing: 10
+    TFButtonOff:
+        text: "Segregating sites"
+        on_release:
+            app.stats_select_plot("Segregating sites gn", None, "Segregating sites")
+    Button:
+        size_hint: None, None
+        size: 30, 30
+        id: info_segregating_sites
+        background_normal: "data/backgrounds/info_bt_down.png"
+        background_down: "data/backgrounds/info_bt.png"
 
 ## Missing data
 
 <GeneOccupancy>:
     size_hint_y: None
     height: 30
-    text: "Gene occupancy"
-    on_release:
-        app.stats_show_plot(self.text)
+    spacing: 10
+    TFButtonOff:
+        text: "Gene occupancy"
+        on_release:
+            app.stats_show_plot(self.text)
+    Button:
+        size_hint: None, None
+        size: 30, 30
+        id: info_gene_occupancy
+        background_normal: "data/backgrounds/info_bt_down.png"
+        background_down: "data/backgrounds/info_bt.png"
 
 <MissingOrto>:
     size_hint_y: None
     height: 30
-    text: "Distribution of missing orthologs"
-    on_release:
-        app.stats_select_plot(None, "Distribution of missing orthologs", "Distribution of missing orthologs avg")
+    spacing: 10
+    TFButtonOff:
+        text: "Distribution of missing genes"
+        on_release:
+            app.stats_select_plot(None, "Distribution of missing orthologs", "Distribution of missing orthologs avg")
+    Button:
+        size_hint: None, None
+        size: 30, 30
+        id: info_missing_genes
+        background_normal: "data/backgrounds/info_bt_down.png"
+        background_down: "data/backgrounds/info_bt.png"
 
 <MissingData>:
     size_hint_y: None
     height: 30
-    text: "Distribution of missing data"
-    on_release:
-        app.stats_show_plot(self.text)
+    spacing: 10
+    TFButtonOff:
+        text: "Distribution of missing data"
+        on_release:
+            app.stats_show_plot(self.text)
+    Button:
+        size_hint: None, None
+        size: 30, 30
+        id: info_missing_data
+        background_normal: "data/backgrounds/info_bt_down.png"
+        background_down: "data/backgrounds/info_bt.png"
 
 #===============================================================================
 # ROOT SCREEN
