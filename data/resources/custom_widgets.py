@@ -546,35 +546,35 @@ class SidepanelToggle(ToggleButton):
     pass
 
 
-class SequenceSimilarity(TFButtonOff):
-    pass
-
-
-class SegregatingSites(TFButtonOff):
-    pass
-
-
 class OptsGrid(GridLayout):
     pass
 
 
-class SizeDistribution(TFButtonOff):
+class SequenceSimilarity(BoxLayout):
     pass
 
 
-class NucAAProportions(TFButtonOff):
+class SegregatingSites(BoxLayout):
     pass
 
 
-class GeneOccupancy(TFButtonOff):
+class SizeDistribution(BoxLayout):
     pass
 
 
-class MissingData(TFButtonOff):
+class NucAAProportions(BoxLayout):
     pass
 
 
-class MissingOrto(TFButtonOff):
+class GeneOccupancy(BoxLayout):
+    pass
+
+
+class MissingData(BoxLayout):
+    pass
+
+
+class MissingOrto(BoxLayout):
     pass
 
 

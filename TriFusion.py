@@ -6644,9 +6644,9 @@ class TriFusionApp(App):
                 "avg_seqsize_species.png"],
             "Distribution of sequence size all": [histogram_plot,
                 "avg_seqsize.png"],
-            "Proportion of nucleotides/residues": [bar_plot,
+            "Proportion of nucleotides or residues": [bar_plot,
                 "char_proportions.png"],
-            "Proportion of nucleotides/residues sp": [stacked_bar_plot,
+            "Proportion of nucleotides or residues sp": [stacked_bar_plot,
                 "char_proportions_sp.png"],
             "Pairwise sequence similarity": [histogram_plot,
                 "similarity_distribution.png"],
@@ -6668,12 +6668,13 @@ class TriFusionApp(App):
             "Distribution of sequence size all":
                 {"args1": {"plt_idx": "Distribution of sequence size"},
                  "args2": None, "active_bt": "avg", "single_gene": None},
-            "Proportion of nucleotides/residues":
-                {"args1": {"plt_idx": "Proportion of nucleotides/residues sp"},
-                 "args2": None, "active_bt": "avg", "single_gene": None},
-            "Proportion of nucleotides/residues sp":
+            "Proportion of nucleotides or residues":
+                {"args1": {"plt_idx": "Proportion of nucleotides or residues"
+                 " sp"}, "args2": None, "active_bt": "avg",
+                 "single_gene": None},
+            "Proportion of nucleotides or residues sp":
                 {"args1": None, "args2": {"plt_idx": "Proportion "
-                 "of nucleotides/residues"}, "active_bt": "sp",
+                 "of nucleotides or residues"}, "active_bt": "sp",
                  "single_gene": None},
             "Pairwise sequence similarity":
                 {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
