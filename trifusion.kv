@@ -1135,7 +1135,7 @@
             cols: 1
             padding: 10
             size_hint_y: None
-            height: warning_l.texture_size[1] * 1.1
+            height: warning_l.texture_size[1] * 10
 
             Label:
                 id: warning_l
@@ -4115,12 +4115,10 @@
 # PROCESS GENERAL OPTIONS
 #===============================================================================
 
-
-
 <ProcessGeneral>:
     id: main_grid
     process_bt_wdt: 250
-    padding: (5,5)
+    padding: (10,5, 10, 5)
     cols: 1
     size_hint_y: None
     height: sum([x.size[1] for x in self.children])
