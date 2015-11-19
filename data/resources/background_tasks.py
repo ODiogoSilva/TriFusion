@@ -283,7 +283,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Concatenation
         if main_operations["concatenation"]:
             ns.msg = "Concatenating"
-            aln_object = aln_object.concatenate()
+            aln_object = aln_object.concatenate(alignment_name=output_file)
             # In case filtered alignments are going to be saved in a different
             # file, concatenate them as well
             if write_aln:

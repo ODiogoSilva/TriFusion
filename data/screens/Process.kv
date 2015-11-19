@@ -72,10 +72,12 @@ ShowcaseScreen:
         # The inclusion of the Carousel in the ScrollView is apparently
         # necessary. Otherwise, widgets in general will not respond as they
         # should to touch events
-        ScrollView:
-            scroll_type: ["bars"]
-            bar_width: 10
-            id: process_sv
+        BoxLayout:
+            ScrollView:
+                scroll_type: ["bars", "content"]
+                bar_width: 10
+                bar_margin: 2
+                id: process_sv
 
         BoxLayout:
             size_hint_y: None
