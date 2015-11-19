@@ -2275,10 +2275,12 @@ class TriFusionApp(App):
                     msg += "The following input file(s) could not be open:\n\n"\
                            "[b]%s[/b]\n\n" % \
                            "\n".join(basename(x) for x in bad_aln)
+                    self.alignment_list.bad_alignments = []
                 if non_aln:
                     msg += "The following input file(s) contain(s) sequences " \
                            "of unequal length:\n\n[b]%s[/b]" % \
                            "\n".join(basename(x) for x in non_aln)
+                    self.alignment_list.non_alignments = []
 
                 self.dialog_warning("Invalid input file(s) detected", msg)
 
