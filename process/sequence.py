@@ -1416,11 +1416,14 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self):
+    def concatenate(self, alignment_name=None):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
         of the concatenated alignment
+        :param alignment_name: string. Optional. Name of the new concatenated
+        alignment object. This should be used when collapsing the alignment
+        afterwards.
         :return concatenated_alignment: Alignment object
         """
 
@@ -1442,7 +1445,7 @@ class AlignmentList(Base):
                     concatenation[taxa].append(sequence)
                 except KeyError:
                     concatenation[taxa].append(missing
-                                             * alignment_object.locus_length)
+                        * alignment_object.locus_length)
 
         # Each taxa is a list of strings for each alignment object, so here
         # the list is being converted into a string
@@ -1462,7 +1465,8 @@ class AlignmentList(Base):
 
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
-                                           partitions=self.partitions)
+                                           partitions=self.partitions,
+                                           alignment_name=alignment_name)
 
         return concatenated_alignment
 
