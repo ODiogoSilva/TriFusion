@@ -827,6 +827,10 @@ class TextDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class FastaExtra(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class NexusExtra(BoxLayout):
     cancel = ObjectProperty(None)
 

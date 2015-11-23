@@ -753,7 +753,7 @@ class Alignment (Base):
                       interleave=False, gap="-", model_phylip=None,
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None,
-                      phy_truncate_names=False):
+                      phy_truncate_names=False, ld_hat=None):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -806,6 +806,10 @@ class Alignment (Base):
 
         :param phy_truncate_names: Boolean. Whether names in phylip output
         format should be truncated to 10 characters or not.
+
+        :param ld_hat: Boolean: If not None, the Fasta output format will
+        include a first line compliant with the format of LD Hat and will
+        truncate sequence names and sequence lenght per line accordingly.
         """
 
         # If this function is called in the AlignmentList class, there may
@@ -1114,8 +1118,24 @@ class Alignment (Base):
         # Writes file in fasta format
         if "fasta" in output_format:
             out_file = open(output_file + ".fas", "w")
+
+            # If LD HAT sub format has been specificed, write the first line
+            # containing the number of sequences, sites and genotype phase
+            if ld_hat:
+                out_file.write("{} {} {}\n".format(len(self.alignment),
+                                                 self.locus_length,
+                                                 "2"))
+
             for key, seq in self.alignment.items():
-                out_file.write(">%s\n%s\n" % (key, seq.upper()))
+                if ld_hat:
+                    # Truncate sequence name to 30 characters
+                    out_file.write(">%s\n" % (key[:30]))
+                    # Limit each sequence line to 2000 characters
+                    if len(seq) > 2000:
+                        for i in range(0, len(seq), 2000):
+                            out_file.write("%s\n" % (seq[i:i + 2000]))
+                else:
+                    out_file.write(">%s\n%s\n" % (key, seq.upper()))
 
             out_file.close()
 

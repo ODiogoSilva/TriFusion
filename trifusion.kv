@@ -3259,7 +3259,10 @@
                 id: fasta
                 state: "down"
                 text: "Fasta"
-            SettingsBt
+            SettingsBt:
+                disabled: False
+                on_release:
+                    app.dialog_fasta_extra()
         BoxLayout:
             size_hint_y: None
             height: 40
@@ -3355,6 +3358,42 @@
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
                 app.use_nexus_partitions = nexus_check.active
+                app.dismiss_subpopup()
+        TFOKButon:
+            id: cancel_bt
+            text: "Cancel"
+            on_release: root.cancel()
+
+<FastaExtra>:
+    padding: 10
+    spacing: 10
+    orientation: "vertical"
+
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+
+        Label:
+            text: "Produce Fasta compliant with LDhat"
+            halign:"left"
+            valign: "middle"
+            text_size: self.size
+        CheckBox:
+            id: ldhat_check
+            size_hint_x: .2
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 20
+        TFOKButon:
+            id: ok_bt
+            text: "Ok"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                app.ld_hat = ldhat_check.active
                 app.dismiss_subpopup()
         TFOKButon:
             id: cancel_bt

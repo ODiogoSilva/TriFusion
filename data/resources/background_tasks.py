@@ -193,7 +193,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                       main_operations, zorro_suffix, partitions_file,
                       output_formats, create_partfile, use_nexus_partitions,
                       phylip_truncate_name, output_dir, use_app_partitions,
-                      consensus_type):
+                      consensus_type, ld_hat):
     """
     Process execution function
     :param ns: Namespace object
@@ -354,7 +354,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                         interleave=secondary_options["interleave"],
                         partition_file=create_partfile,
                         use_charset=use_nexus_partitions,
-                        phy_truncate_names=phylip_truncate_name)
+                        phy_truncate_names=phylip_truncate_name,
+                        ld_hat=ld_hat)
         else:
             for name, obj in write_aln.items():
                 name = name.replace(output_file, "")
@@ -364,7 +365,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                         partition_file=create_partfile,
                         output_dir=output_dir,
                         use_charset=use_nexus_partitions,
-                        phy_truncate_names=phylip_truncate_name)
+                        phy_truncate_names=phylip_truncate_name,
+                        ld_hat=ld_hat)
 
     except:
         # Log traceback in case any unexpected error occurs. See
