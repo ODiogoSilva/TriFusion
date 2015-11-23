@@ -558,7 +558,7 @@ class TriFusionApp(App):
 
     def mouse_zoom(self, *vals):
         """
-        :return:
+        :param vals: touch event list
         """
 
         # Only perform any actions in plot screens
@@ -662,6 +662,7 @@ class TriFusionApp(App):
             :param backd: string for background down
             :param bt1: Button widget one (usually for Ok buttons)
             :param bt2: Button widget two (usually for Cancel buttons)
+            :param bt3: Optional button widget three.
             """
 
             if not arrow_block:
@@ -957,6 +958,7 @@ class TriFusionApp(App):
             Use this function with a Clock schedule to delay the introduction
             of the label widget. Otherwise, it could become cumbersome to have
             an label appearing right after the mouse colliding with the button
+            :param mouse: mouse position tuple
             :param wgt: Layout widget, containing a descriptive label
             """
 
@@ -980,6 +982,8 @@ class TriFusionApp(App):
             """
             Creates the label for the sidebt mouseover
             :param text: string. Text for the label
+            :param p: tuple. position of the wgt
+            :param s: tuple. size of the wgt
             """
 
             clear_mouse_overs()
@@ -1577,6 +1581,9 @@ class TriFusionApp(App):
         :param text: string, text to appear in the dialog
         :param func: final function if the users chooses to process
         :param bt_wgt: widget where the initial 'on_' event occurred
+        :param args: list, of arguments to be passed on to func
+        :param popup_level: int, level of popup. 1 for _popup and 2 for
+        _subpopup
 
         Usage example:
         This can be applied to the removal button of the bookmarks. In this
@@ -1625,9 +1632,10 @@ class TriFusionApp(App):
         Method used by some filechooser dialogs. Checks whether the provided
         file name already exists. If so, issues a check_action popup. If not,
         proceeds as normal
+        :param path: string, complete path
+        :param file_name: string, file name
+        :param idx: string, operation identifier
         """
-
-        print("here")
 
         # Stores methods. key: idx; first value element, method to apply;
         # second value element, list of arguments; third value element the
@@ -1673,6 +1681,7 @@ class TriFusionApp(App):
         to the argument list returned by func
         :param no_arg2: Boolean. Whether func will return something to
         second_func
+        :param msg: string, message to appear in waiting dialog.
         """
 
         def check_process_status(p, second_function, args, man, dt):
@@ -1737,6 +1746,10 @@ class TriFusionApp(App):
         This will create a pickle file containing a list with the bookmarks
         for the file chooser menu. If no file exists, it will create an empty
         one. If a file already exists, it will load the available bookmarks
+
+        :param wgt: Widget object where the bookmark button will be
+        :param dev_wgt: Widget object where the system bookmarks will be
+        :param fc_wgt: Filechooser widget associated with the bookmarks
         """
 
         if exists(self.bm_file):
@@ -1863,6 +1876,7 @@ class TriFusionApp(App):
         Provided a bookmark button object, it loads the bookmark file path
         that is stored in the button id.
         :param value: bookmark button object
+        :param wgt: Filechooser widget that will show the bookmark
         """
 
         path = value.id
@@ -1985,6 +1999,8 @@ class TriFusionApp(App):
         associated with the sidepanel. While this box is active, the sidepanel
         must remain open. However, clicks outside the partition box will close
         it.
+
+        :param touch: Touch event
         """
 
         # Set touch as a app attribute
@@ -2259,6 +2275,9 @@ class TriFusionApp(App):
         extended.
 
         :param selection: list. Contains the paths to the selected input files
+        :param bad_aln: list. Contains alignments that could not be read
+        :param non_aln: list. Contains files that are in supported formats
+        but are not aligned
         """
 
         # If duplicate alignments were loaded, issue a warning
@@ -2331,6 +2350,8 @@ class TriFusionApp(App):
         Similar to load method, but specific for loading proteome files. Given
         the potential size of these files, they are not stored in memory, but
         instead are processed on the fly
+
+        :param selection: list. Contains complete paths to the proteome files
         """
 
         # Stores invalid proteome files
@@ -2704,7 +2725,8 @@ class TriFusionApp(App):
     def partitions_merge(self, name):
         """
         Merge active partitions
-        :return:
+
+        :param name: string. Name of the new partition
         """
 
         if name in self.alignment_list.partitions.partitions:
@@ -2724,7 +2746,11 @@ class TriFusionApp(App):
     def partitions_split(self, new_range=None, new_names=None):
         """
         Split an active partition
-        :return:
+
+        :param new_range: Optional. Tuple containing the new ranges for the
+        new partitions
+        :param new_names: Optional. Tuple containing the new names for each
+        new partition
         """
 
         # Get active partition
@@ -2879,6 +2905,10 @@ class TriFusionApp(App):
     def set_codon_model(self, codon_partition, wgt=None):
         """
         Changes the model spinners when changing the codon partitioning
+
+        :param codon_partition: string. The codon partition string that
+        should correspond to a key in partition_model
+        :param wgt: Widget object containing the partitions dialog
         """
 
         first_background = join("data", "backgrounds", "model_bt1.png")
@@ -2998,6 +3028,8 @@ class TriFusionApp(App):
         """
         Gives functionality to the buttons in the dialog_select_taxa_group.
         Saves the taxa group name and closes subpopup
+
+        :param bt: Button object
         """
 
         if self.taxa_filter_settings:
@@ -3011,6 +3043,9 @@ class TriFusionApp(App):
         """
         Creates a filechooser dialog  to select a file containing a taxa/file
         list that will be used to generate a data set group
+
+        :param ds_typ: string. Identifies the data set type. Either taxa or
+        files
         """
 
         content = SaveDialog(cancel=self.dismiss_popup,
@@ -3077,12 +3112,17 @@ class TriFusionApp(App):
     def dialog_partitions(self, btx):
         """
         Shows a small widget with partition information
+
+        :param btx: Button widget that will be used to determine which
+        partition is being viewed and the position of the partitions dialog
         """
 
         def flatter(s):
             """
             Creates a flat iterator of tuples. If s is [[(1,2), (2,3)], (4,5)]
             this will yield ((1,2), (2,3), (4,5))
+
+            :param s: list.
             """
             for x in s:
                 if isinstance(x, tuple):
@@ -3350,6 +3390,8 @@ class TriFusionApp(App):
         """
         Adds functionality for the file and taxa toggle buttons in the side
         panel. It adds or removes the selected taxa from the active lists
+
+        :param value: Button widget.
         """
 
         parent_obj = value.parent
@@ -3756,6 +3798,8 @@ class TriFusionApp(App):
         Functionality to the Select All/Deselect All buttons of the side
         panel. The method was made in such a way that it could be of general
         use for buttons in the files and taxa tabs
+
+        :param value: Button widget.
         """
 
         sv_parent = [x for x in value.parent.parent.parent.children if
@@ -3814,6 +3858,11 @@ class TriFusionApp(App):
         """
         Creates a dialog to choose between creating a data set from a file
         or manually
+
+        :param ds_type: string. Identifier of the data type. Can be either
+        taxa or files
+        :param popup_level: integer, The level of the dialog popup. Can be
+        either 1 (creates _popup instance) or 2 (creates _subpopup instance)
         """
 
         content = DataSetTriageDialog(cancel=self.dismiss_popup)
@@ -4325,6 +4374,7 @@ class TriFusionApp(App):
         :param name: string, name of the project
         :param ds_type: string, type of dataset. Can be either 'orthology'
         or 'process'
+        :param grid_wgt: GridLayut widget where the project is to be added
         """
 
         if len(grid_wgt.children) == 1:
