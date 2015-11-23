@@ -1133,7 +1133,7 @@ class Alignment (Base):
                     # Limit each sequence line to 2000 characters
                     if len(seq) > 2000:
                         for i in range(0, len(seq), 2000):
-                            out_file.write("%s\n" % (seq[i:i + 2000]))
+                            out_file.write("%s\n" % (seq[i:i + 2000].upper()))
                 else:
                     out_file.write(">%s\n%s\n" % (key, seq.upper()))
 
