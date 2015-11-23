@@ -1781,7 +1781,7 @@ class AlignmentList(Base):
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
-                      use_charset=True, phy_truncate_names=False):
+                      use_charset=True, phy_truncate_names=False, ld_hat=None):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -1820,7 +1820,8 @@ class AlignmentList(Base):
                                         partition_file=partition_file,
                                         output_dir=output_dir,
                                         use_charset=use_charset,
-                                        phy_truncate_names=phy_truncate_names)
+                                        phy_truncate_names=phy_truncate_names,
+                                        ld_hat=ld_hat)
 
     # Stats methods
     def gene_occupancy(self):
