@@ -366,6 +366,8 @@ class TriFusionApp(App):
     output_formats = ListProperty(["fasta"])
 
     # Attributes for extra options of output formats
+    # Determines wheter the Fasta output format will be compliant with LDhat
+    ld_hat = BooleanProperty(False)
     # Determines whether the part.File associated with phylip format is created
     create_partfile = BooleanProperty(True)
     # Determines whether the charset partitions in Nexus input files are to
@@ -5841,6 +5843,17 @@ class TriFusionApp(App):
 
         self._subpopup.open()
 
+    def dialog_fasta_extra(self):
+
+        content = FastaExtra(cancel=self.dismiss_subpopup)
+
+        content.ids.ldhat_check.active = self.ld_hat
+
+        self._subpopup = Popup(title="Fasta extra options", content=content,
+                               size=(400, 160), size_hint=(None, None))
+
+        self._subpopup.open()
+
     def save_zorro_settings(self, suffix):
         """
         Handles the information provided by the user in the ZorroDialog
@@ -7540,7 +7553,8 @@ class TriFusionApp(App):
             "phylip_truncate_name": bool(self.phylip_truncate_name),
             "output_dir": str(self.output_dir),
             "use_app_partitions": bool(self.use_app_partitions),
-            "consensus_type": self.process_options.ids.consensus_mode.text}
+            "consensus_type": self.process_options.ids.consensus_mode.text,
+            "ld_hat": bool(self.ld_hat)}
 
         p = multiprocessing.Process(target=process_execution,
                                     kwargs=process_kwargs)
