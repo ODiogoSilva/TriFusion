@@ -6777,7 +6777,8 @@ class TriFusionApp(App):
             # when fast switching plots.
             self.plot_backups[plt_idx] = self.current_table
 
-            pickle.dump(self.current_plot, open(plt_idx, "wb"))
+            pickle.dump(self.current_plot, open(join(self.temp_dir, plt_idx),
+                                                "wb"))
 
             self.current_plot.savefig(join(self.temp_dir,
                                            self.stats_plt_method[plt_idx][1]),
@@ -6937,7 +6938,8 @@ class TriFusionApp(App):
 
                 # Get the current plot from the backup
                 self.current_table = self.plot_backups[plt_idx]
-                self.current_plot = pickle.load(open(plt_idx, "rb"))
+                self.current_plot = pickle.load(open(join(self.temp_dir,
+                                                          plt_idx), "rb"))
 
                 return self.stats_write_plot(None, None, plt_idx)
         else:
