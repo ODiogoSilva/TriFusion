@@ -199,7 +199,7 @@ ShowcaseScreen:
                     text: "All"
                     size_hint_x: None
                     width: 100
-                    values: ["All", ".fa*", ".phy", ".nex*"]
+                    values: ["All", ".fa*", ".phy", ".nex*", ".loci"]
                     on_text:
                         # Check if extension is already present. If so, remove it
                         if "." + root.ids.icon_view_tab.f.split(".")[-1] in self.values[1:]: root.ids.icon_view_tab.f =  "".join(root.ids.icon_view_tab.f.split(".")[:-1])
