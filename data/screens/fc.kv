@@ -159,7 +159,7 @@ ShowcaseScreen:
                 previous_dir: []
                 f: "/*"
                 filters: [self.path+self.f]
-                filter_dirs: True
+                filter_dirs: False
                 on_dir_entry:
                     text_filter.text = ""
                     self.previous_dir.append(self.path)
@@ -186,11 +186,28 @@ ShowcaseScreen:
                     id: text_filter
                     multiline: False
                     on_text:
-                        if case_bt.state == "down": root.ids.icon_view_tab.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
-                        if case_bt.state == "normal": root.ids.icon_view_tab.f = "*"+self.text+"*"
+                        ext = "" if ext_filter.text == "All" else ext_filter.text;
+                        if case_bt.state == "down": root.ids.icon_view_tab.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"+ext; root.ids.icon_view_tab.filter_dirs = True
+                        if case_bt.state == "normal": root.ids.icon_view_tab.f = "*"+self.text+"*"+ext; root.ids.icon_view_tab.filter_dirs = True
+                        if self.text == "": root.ids.icon_view_tab.filter_dirs = False
 
                     on_text_validate:
                         focus = True
+
+                Spinner:
+                    id: ext_filter
+                    text: "All"
+                    size_hint_x: None
+                    width: 100
+                    values: ["All", ".fa*", ".phy", ".nex*"]
+                    on_text:
+                        # Check if extension is already present. If so, remove it
+                        if "." + root.ids.icon_view_tab.f.split(".")[-1] in self.values[1:]: root.ids.icon_view_tab.f =  "".join(root.ids.icon_view_tab.f.split(".")[:-1])
+                        # If value is All, just ensure there is a "*" at the end
+                        if self.text == "All" and not root.ids.icon_view_tab.f.endswith("*"): \
+                        root.ids.icon_view_tab.f += "*"
+                        elif self.text != "All": \
+                        root.ids.icon_view_tab.f += self.text
 
             BoxLayout:
                 size_hint_y: None
