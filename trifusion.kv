@@ -5171,15 +5171,17 @@ FloatLayout:
             ActionView:
                 id: av
                 ActionPrevious:
+                    size_hint: None, None
+                    width: 0
+                    with_previous: False
+
+                ActionButton:
                     id: ap
                     size_hint_x: None
-                    app_icon: "data/backgrounds/app_icon.png"
+                    width: 120
                     background_normal: "data/backgrounds/menu_bt.png"
                     background_down: "data/backgrounds/menu_bt_down.png"
-                    border: (0,0,0,0)
-                    width: 120
-                    #title: "Menu"
-                    with_previous: False
+
                     on_release:
                         app.toggle_sidepanel()
 

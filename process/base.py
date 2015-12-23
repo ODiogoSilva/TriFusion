@@ -338,8 +338,6 @@ class Progression():
                                     int((position_proportion / self.width) *
                                         100))
 
-        print(msg, end="")
-
         # Erase the last message
         if int((position_proportion / self.width) * 100) == 100:
             sys.stdout.write("\r" + " " * len(msg))
@@ -348,8 +346,6 @@ class Progression():
         """ This will simply write a provided string to the terminal """
 
         self.msg = msg
-
-        print(msg, end="")
 
 
 __author__ = "Diogo N. Silva"
