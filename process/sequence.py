@@ -33,7 +33,6 @@ from process.data import Partitions
 from collections import OrderedDict, Counter
 import itertools
 import re
-from base.plotter import *
 from os import sep
 from os.path import join, basename, splitext
 
