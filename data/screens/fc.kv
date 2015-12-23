@@ -78,7 +78,7 @@ ShowcaseScreen:
             thickness: 1.5
 
         BoxLayout:
-            size_hint_x: .75
+            #size_hint_x: .75
             orientation: "vertical"
             padding: 10
             spacing: 10
@@ -152,17 +152,19 @@ ShowcaseScreen:
                     background_normal: "data/backgrounds/bt_process.png"
                     on_release: icon_view_tab.selection = []
 
-            FileChooserM:
-                id: icon_view_tab
-                dirselect: True
-                multiselect: True
-                previous_dir: []
-                f: "/*"
-                filters: [self.path+self.f]
-                filter_dirs: False
-                on_dir_entry:
-                    text_filter.text = ""
-                    self.previous_dir.append(self.path)
+            ScrollView:
+                FileChooserM:
+                    id: icon_view_tab
+                    dirselect: True
+                    multiselect: True
+                    previous_dir: []
+                    f: "/*"
+                    filters: [self.path+self.f]
+                    filter_dirs: False
+
+                    on_dir_entry:
+                        text_filter.text = ""
+                        self.previous_dir.append(self.path)
 
             BoxLayout:
                 size_hint_y: None
