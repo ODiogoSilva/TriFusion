@@ -65,13 +65,14 @@ ShowcaseScreen:
                         background_normal: "data/backgrounds/add_bt30.png"
                         on_release: app.save_bookmark(icon_view_tab.path, sv_book, icon_view_tab)
             ScrollView:
+                bar_width: 10
+                scroll_type: ["bars"]
                 GridLayout:
                     size_hint_y: None
-                    height: sum([x.height + 10 for x in self.children]) / 2
+                    height: self.minimum_height
                     cols: 2
                     id: sv_book
                     orientation: "vertical"
-                    padding: 5
                     spacing: [10, 10]
 
         Vseparator:
