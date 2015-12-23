@@ -99,8 +99,6 @@ def create_db(f_list):
     id_dic = {}
 
     for f in f_list:
-        print("\rCreating database (Processing file %s)" %
-              str(f_list.index(f) + 1), end="")
         handle = open(f, encoding="latin1")
         seq = ""
         for line in handle:
@@ -130,10 +128,6 @@ def create_query(input_list):
     query_db = {}
 
     for f in input_list:
-
-        print("\rCreating query (Processing file %s)" % input_list.index(f),
-              end="")
-        query_db[f] = []
         handle = open(f)
         for line in handle:
             if line.startswith(">"):
@@ -175,7 +169,6 @@ def pair_search():
     identical to the original protein files
     """
 
-    print("\rRunning USEARCH", end="")
     subprocess.Popen(["usearch -usearch_global query.fas -db transcripts.fas "
                       "-id 1 -maxaccepts .9 -blast6out pairs.out"],
                      shell=True).wait()
@@ -187,7 +180,6 @@ def get_pairs():
     pairs between original protein and transcripts
     """
 
-    print("\rParsing USEARCH output", end="")
     file_h = open("pairs.out")
     pair_db = {}
 
@@ -224,7 +216,6 @@ def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
             else:
                 bad += 1
     else:
-        print("\r%s sequences could not be retrieved" % bad, end="")
         subprocess.Popen(["rm pairs.out query.fas transcripts.fas"],
                          shell=True).wait()
 
