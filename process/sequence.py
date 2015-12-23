@@ -235,7 +235,7 @@ class Alignment (Base):
         of the sequences in the alignment
         """
 
-        file_handle = open(input_alignment, encoding="latin1")
+        file_handle = open(input_alignment)
 
         # ======================================================================
         # PARSING PHYLIP FORMAT

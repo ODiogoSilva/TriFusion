@@ -3487,7 +3487,7 @@ class TriFusionApp(App):
         """
 
         self.proteome_files = []
-        self.active_proteome_files.clear()
+        self.active_proteome_files = []
         self.orto_min_sp = 3
 
     def clear_process_input(self):
@@ -3501,17 +3501,17 @@ class TriFusionApp(App):
         self.active_tx_inf.clear()
         self.original_file_inf.clear()
         self.active_file_inf.clear()
-        self.active_taxa_list.clear()
+        self.active_taxa_list = []
         self.filename_map.clear()
         self.file_list = []
-        self.active_file_list.clear()
-        self.sequence_types.clear()
+        self.active_file_list = []
+        self.sequence_types = []
         self.MAX_FILE_BUTTON = 20
         self.MAX_PARTITION_BUTTON = 20
         self.mouse_over_bts.clear()
         self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
-        self.sp_taxa_bts.clear()
-        self.sp_file_bts.clear()
+        self.sp_taxa_bts = []
+        self.sp_file_bts = []
         self.previous_mouse_over = ""
         self.current_plot = None
         self.current_table = None

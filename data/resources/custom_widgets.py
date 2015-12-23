@@ -35,6 +35,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.slider import Slider
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
 from kivy.utils import get_hex_from_color
