@@ -1766,7 +1766,7 @@ class TriFusionApp(App):
             # This will happen only the first time the app is executed, when
             # the bookmarks will be saved. From there on, bookmarks will be
             # managed in the app
-            if sys.platform == "linux":
+            if sys.platform in ["linux", "linux2"]:
                 if exists(join(self.home_path, ".config", "gtk-3.0",
                                "bookmarks")):
                     with open(join(self.home_path, ".config", "gtk-3.0",
@@ -1776,7 +1776,7 @@ class TriFusionApp(App):
                             self.save_bookmark(bk, wgt, fc_wgt)
 
         # Get main paths for linux
-        if sys.platform == "linux":
+        if sys.platform in ["linux", "linux2"]:
 
             # System
             self.add_bookmark_bt("/", dev_wgt, fc_wgt, name="System",
