@@ -7619,3 +7619,7 @@ class TriFusionApp(App):
 
         check_func = partial(check_process, p)
         Clock.schedule_interval(check_func, .1)
+
+if __name__ == "__main__":
+
+    TriFusionApp().run()
