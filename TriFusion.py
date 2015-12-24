@@ -6920,7 +6920,7 @@ class TriFusionApp(App):
         if plt_idx in gene_specific:
             try:
                 os.remove(join(self.temp_dir, gene_specific[plt_idx]))
-            except FileNotFoundError:
+            except EnvironmentError:
                 pass
 
         # This will check if the current data sets are different from the
