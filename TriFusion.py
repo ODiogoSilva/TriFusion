@@ -31,6 +31,7 @@ Config.set("graphics", "resizable", 1)
 Config.set("graphics", "fullscreen", 0)
 Config.set("graphics", "height", 700)
 Config.set("graphics", "width", 1000)
+Config.set("input", "mouse", "mouse, disable_multitouch")
 
 # Kivy imports
 from kivy.app import App
@@ -42,7 +43,6 @@ from kivy.lang import Builder
 from kivy.properties import ListProperty, DictProperty
 from kivy.clock import Clock
 from kivy.uix.treeview import TreeView, TreeViewLabel
-from kivy.uix.scrollview import ScrollView
 
 # Main program imports
 from ortho import protein2dna
@@ -640,7 +640,7 @@ class TriFusionApp(App):
         modifier = "".join(vals[-1])
         key_code = vals[1]
 
-        if key_code == 305:
+        if key_code == 306:
             self.is_control_pressed = True
 
         if key_code == 304:
