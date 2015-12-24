@@ -260,7 +260,7 @@ class FileChooserM(FileChooserIconView):
         _dir = self.file_system.is_dir(entry.path)
         dirselect = self.dirselect
 
-        if _dir and dirselect and touch.is_double_tap:
+        if _dir and dirselect and touch.is_double_tap and not self.shift:
             self.open_entry(entry)
             return
 
