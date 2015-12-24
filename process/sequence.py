@@ -30,6 +30,7 @@ from process.missing_filter import MissingFilter
 from process.data import Partitions
 
 # Other imports
+import numpy as np
 from collections import OrderedDict, Counter
 import itertools
 import re
