@@ -624,7 +624,7 @@ class TriFusionApp(App):
 
         key_code = vals[1]
 
-        if key_code == 305:
+        if key_code == 306:
             self.is_control_pressed = False
 
         if key_code == 304:
