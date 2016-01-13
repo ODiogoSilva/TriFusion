@@ -561,8 +561,10 @@ class TriFusionApp(App):
         :param vals: touch event list
         """
 
-        # Only perform any actions in plot screens
-        if self.screen.name in self.plot_screens:
+        # Only perform any actions in plot screens and pop is not active
+        if self.screen.name in self.plot_screens and \
+                self._popup not in self.root_window.children and \
+                self._subpopup not in self.root_window.children:
 
             motion = vals[2]
 
