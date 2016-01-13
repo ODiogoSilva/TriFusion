@@ -183,6 +183,7 @@ class FileChooserM(FileChooserIconView):
     """
 
     shift = False
+    control = False
 
     def __init__(self, **kwargs):
         super(FileChooserM, self).__init__(**kwargs)
@@ -209,6 +210,9 @@ class FileChooserM(FileChooserIconView):
         if key_code == 304:
             self.shift = True
 
+        if key_code == 306:
+            self.control = True
+
     def release_shift(self, *vals):
         """
         Listens to keyboard when a key is released. It is used to set the
@@ -221,6 +225,9 @@ class FileChooserM(FileChooserIconView):
 
         if key_code == 304:
             self.shift = False
+
+        if key_code == 306:
+            self.control = False
 
     def open_entry(self, entry):
         """
@@ -279,6 +286,10 @@ class FileChooserM(FileChooserIconView):
                 idx_f = idx_selection
 
         if self.multiselect:
+
+            if not self.shift and not self.control:
+                self.selection = []
+
             if entry.path in self.selection:
                 # This will deselect multiple files when the shift key is down
                 # while clicking
