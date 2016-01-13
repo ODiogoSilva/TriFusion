@@ -1,3 +1,5 @@
+#:import basename os.path.basename
+
 ShowcaseScreen:
     name: "fc"
 
@@ -155,18 +157,43 @@ ShowcaseScreen:
                     on_release: icon_view_tab.selection = []
 
             ScrollView:
-                FileChooserM:
-                    id: icon_view_tab
-                    dirselect: True
-                    multiselect: True
-                    previous_dir: []
-                    f: "/*"
-                    filters: [self.path+self.f]
-                    filter_dirs: False
+                BoxLayout:
+                    FileChooserM:
+                        id: icon_view_tab
+                        dirselect: True
+                        multiselect: True
+                        previous_dir: []
+                        f: "/*"
+                        filters: [self.path+self.f]
+                        filter_dirs: False
 
-                    on_dir_entry:
-                        text_filter.text = ""
-                        self.previous_dir.append(self.path)
+                        on_dir_entry:
+                            text_filter.text = ""
+                            self.previous_dir.append(self.path)
+
+                    FloatLayout:
+                        size_hint: None, None
+                        Label:
+                            canvas.before:
+                                Color:
+                                    rgba: .3, .3, .3, .5 if len(icon_view_tab.selection) >= 1 else 0
+                                Rectangle:
+                                    pos: self.pos
+                                    size: self.size
+                            id: sf
+                            pos: icon_view_tab.x + (icon_view_tab.width / 2) - (self.texture_size[0] / 2) - 20, icon_view_tab.y #+ icon_view_tab.height - 30
+                            size: self.texture_size[0] + 20, 30
+                            text: basename(icon_view_tab.selection[0]) if len(icon_view_tab.selection) == 1 else "{} files selected".format(len(icon_view_tab.selection)) if len(icon_view_tab.selection) > 1 else ""
+                            StackLayout:
+                                canvas.before:
+                                    Color:
+                                        rgba: .5, .5, .5, .6 if len(icon_view_tab.selection) >= 1 else 0
+                                    Line:
+                                        width: .9
+                                        cap: "none"
+                                        joint: "round"
+                                        close: True
+                                        rectangle: sf.x, sf.y, sf.width, sf.height
 
             BoxLayout:
                 size_hint_y: None
