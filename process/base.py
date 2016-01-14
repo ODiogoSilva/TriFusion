@@ -104,10 +104,11 @@ class Base:
         # "#NEXUS" in the first non-empty line
         if header.upper().strip().startswith("#NEXUS"):
             autofind = "nexus"
-            for line in file_handle:
+            while True:
+                line = file_handle.readline()
                 if line.strip().lower() == "matrix":
-                    sequence = "".join(file_handle.readline().split()[1:])\
-                        .strip()
+                    next_line = file_handle.readline()
+                    sequence = "".join(next_line.split()[1:]).strip()
                     break
 
         # Recognition of FASTA or .loci files is based on the existence of a ">"
