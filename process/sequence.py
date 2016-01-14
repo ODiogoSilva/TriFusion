@@ -34,6 +34,7 @@ import numpy as np
 from collections import OrderedDict, Counter
 import itertools
 import re
+import os
 from os import sep
 from os.path import join, basename, splitext
 
@@ -60,7 +61,7 @@ class AlignmentUnequalLength(Exception):
 class Alignment (Base):
 
     def __init__(self, input_alignment, input_format=None, alignment_name=None,
-                 partitions=None):
+                 partitions=None, dest=None):
         """
         The basic Alignment instance requires only an alignment file or an
         OrderedDict object. In case the class is initialized with a dictionary
@@ -82,6 +83,9 @@ class Alignment (Base):
 
         :param partitions: Partitions object. If provided, it will overwrite
         self.partitions.
+
+        :param dest: string. Path where the temporary sequence files will be
+        stored
         """
 
         self.log_progression = Progression()
@@ -143,6 +147,18 @@ class Alignment (Base):
             # Full name - with extension
             self.name = basename(input_alignment)
 
+            if dest:
+                self.dest = dest
+            else:
+                self.dest = ""
+
+            # Create temporary directory to store sequences for the
+            # current alignment object
+            if not os.path.exists(join(self.dest, self.sname)):
+                os.makedirs(join(self.dest, self.sname))
+
+            print(join(self.dest, self.sname))
+
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
             finder_content = self.autofinder(input_alignment)
@@ -180,7 +196,11 @@ class Alignment (Base):
         """
         Iterate over Alignment objects
         """
-        return iter(self.alignment.items())
+        #return iter(self.alignment.items())
+
+        for tx, f in self.alignment.items():
+            fh = open(f)
+            yield tx, "".join(fh.readlines())
 
     def _set_format(self, input_format):
         """
@@ -221,6 +241,18 @@ class Alignment (Base):
         self.alignment = dictionary_obj
         self.locus_length = len(list(dictionary_obj.values())[0])
 
+    def get_sequence(self, taxon):
+        """
+        Convenince method that returns the sequences for a given taxon
+        :param taxa: string, taxon name. Must be in self.alignments
+        """
+
+        if taxon in self.alignment:
+            with open(self.alignment[taxon]) as fh:
+                return "".join(fh.readlines())
+        else:
+            return None
+
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
         """
@@ -251,12 +283,20 @@ class Alignment (Base):
                 try:
                     taxa = line.split()[0].replace(" ", "")
                     taxa = self.rm_illegal(taxa)
+
+                    # Create temporary directory to store sequences for the
+                    # current alignment object
+                    if not os.path.exists(join(self.dest, self.sname)):
+                        os.makedirs(join(self.dest, self.sname))
+
+                    self.alignment[taxa] = join(self.dest, self.sname,
+                                                taxa + ".temp")
                     try:
                         sequence = line.split()[1].strip().lower()
                     except IndexError:
                         sequence = ""
-
-                    self.alignment[taxa] = sequence
+                    with open(self.alignment[taxa], "w") as fh:
+                        fh.write(sequence)
                 except IndexError:
                     pass
 
@@ -274,11 +314,18 @@ class Alignment (Base):
                 if line.strip().startswith(">"):
                     taxa = line[1:].strip()
                     taxa = self.rm_illegal(taxa)
-                    self.alignment[taxa] = ""
+
+                    self.alignment[taxa] = join(self.dest, self.sname,
+                                                taxa + ".temp")
+
                 elif line.strip() != "" and taxa:
-                    self.alignment[taxa] += line.strip().lower().\
-                        replace(" ", "").replace("*", "")
-            self.locus_length = len(list(self.alignment.values())[0])
+                    with open(self.alignment[taxa], "a") as fh:
+                        fh.write(line.strip().lower().
+                                 replace(" ", "").replace("*", ""))
+
+            with open(self.alignment[taxa]) as fh:
+                self.locus_length = len("".join(fh.readlines()))
+
             self.partitions.set_length(self.locus_length)
 
             # Updating partitions object
@@ -290,6 +337,12 @@ class Alignment (Base):
         # ======================================================================
         elif alignment_format == "loci":
             taxa_list = self.get_loci_taxa(self.path)
+
+            # Create empty dict
+            self.alignment = OrderedDict([(x, open(join(self.dest, self.sname,
+                                                x + ".temp"), "a"))
+                                          for x in taxa_list])
+
             # Add a counter to name each locus
             locus_c = 1
             present_taxa = []
@@ -298,23 +351,18 @@ class Alignment (Base):
                     fields = line.strip().split()
                     taxon = fields[0][1:]
                     present_taxa.append(taxon)
-                    if taxon in self.alignment:
-                        self.alignment[taxon].append(fields[1].lower())
-                    else:
-                        self.alignment[taxon] = [fields[1].lower()]
+                    self.alignment[taxon].write(fields[1].lower())
+
                 elif line.strip().startswith("//"):
 
                     locus_len = len(fields[1])
                     self.locus_length += locus_len
 
+                    # Adding missing data
                     for tx in taxa_list:
                         if tx not in present_taxa:
-                            if tx in self.alignment:
-                                self.alignment[tx].append(self.sequence_code[1]
-                                                          * locus_len)
-                            else:
-                                self.alignment[tx] = [self.sequence_code[1] *
-                                                      locus_len]
+                            self.alignment[tx].write(self.sequence_code[1] *
+                                                     locus_len)
 
                     present_taxa = []
 
@@ -323,10 +371,11 @@ class Alignment (Base):
                                                   file_name=self.path)
                     locus_c += 1
 
-            self.partitions.set_length(self.locus_length)
+            for tx, fh in self.alignment.items():
+                fh.close()
+                self.alignment[tx] = tx + ".temp"
 
-            for taxon, seq in self.alignment.items():
-                self.alignment[taxon] = "".join(seq)
+            self.partitions.set_length(self.locus_length)
 
         # ======================================================================
         # PARSING NEXUS FORMAT
@@ -340,7 +389,15 @@ class Alignment (Base):
                 # Stop sequence parser here
                 elif line.strip() == ";" and counter == 1:
                     counter = 2
-                    self.locus_length = len(list(self.alignment.values())[0][0])
+
+                    # Close file handles
+                    for tx, fh in self.alignment.items():
+                        fh.close()
+                        self.alignment[tx] = tx + ".temp"
+
+                    with open(self.alignment[taxa]) as fh:
+                        self.locus_length = len("".join(fh.readlines()))
+
                     self.partitions.set_length(self.locus_length)
                 # Start parsing here
                 elif line.strip() != "" and counter == 1:
@@ -348,11 +405,13 @@ class Alignment (Base):
                     taxa = self.rm_illegal(taxa)
                     # This accommodates for the interleave format
                     if taxa in self.alignment:
-                        self.alignment[taxa].append("".join(
+                        self.alignment[taxa].write("".join(
                             line.strip().split()[1:]).lower())
                     else:
-                        self.alignment[taxa] = ["".join(
-                            line.strip().split()[1:]).lower()]
+                        self.alignment[taxa] = open(join(self.dest, self.sname,
+                                                taxa + ".temp"), "a")
+                        self.alignment[taxa].write("".join(line.strip().
+                                                           split()[1:]).lower())
 
                 # If partitions are specified using the charset command, this
                 # section will parse the partitions
@@ -365,9 +424,6 @@ class Alignment (Base):
                 if line.lower().strip().startswith("lset") or \
                         line.lower().strip().startswith("prset"):
                     self.partitions.parse_nexus_model(line)
-
-            for taxon, seq in self.alignment.items():
-                self.alignment[taxon] = "".join(seq)
 
             # If no partitions have been added during the parsing of the nexus
             # file, set a single partition
@@ -955,7 +1011,9 @@ class Alignment (Base):
 
             out_file = open(output_file + ".phy", "w")
             out_file.write("%s %s\n" % (len(alignment), self.locus_length))
-            for key, seq in alignment.items():
+            for key, f in alignment.items():
+                    with open(f) as fh:
+                        seq = "".join(fh.readlines())
                     out_file.write("%s %s\n" % (
                                    key[:cut_space_phy].ljust(seq_space_phy),
                                    seq.upper()))
@@ -989,14 +1047,22 @@ class Alignment (Base):
                     out_file.write("%s %s\n" % (taxa_number,
                                                 (lrange[1] - (lrange[0]))))
 
-                    for taxon, seq in self.alignment.items():
+                    for taxon, f in alignment.items():
+
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())
+
                         out_file.write("%s  %s\n" % (
                                        taxon[:cut_space_phy].ljust(
                                          seq_space_phy),
                                        seq[lrange[0]:lrange[1]].upper()))
             else:
                 out_file.write("%s %s\n" % (taxa_number, self.locus_length))
-                for taxon, seq in self.alignment.items():
+                for taxon, f in alignment.items():
+
+                    with open(f) as fh:
+                        seq = "".join(fh.readlines())
+
                     out_file.write("%s  %s\n" % (
                                    taxon[:cut_space_phy].ljust(seq_space_phy),
                                    seq.upper()))
@@ -1026,14 +1092,18 @@ class Alignment (Base):
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
                                    "ntax=%s nchar=%s ;\n\tformat datatype=%s "
                                    "interleave=yes gap=%s missing=%s ;\n\t"
-                                   "matrix\n" % (
-                                   len(alignment),
+                                   "matrix\n" %
+                                   (len(alignment),
                                    self.locus_length,
                                    self.sequence_code[0], gap,
                                    self.sequence_code[1]))
                 counter = 0
                 for i in range(90, self.locus_length, 90):
-                    for key, seq in alignment.items():
+                    for key, f in alignment.items():
+
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())
+
                         out_file.write("%s %s\n" % (
                                        key[:cut_space_nex].ljust(
                                          seq_space_nex),
@@ -1042,7 +1112,11 @@ class Alignment (Base):
                         out_file.write("\n")
                         counter = i
                 else:
-                    for key, seq in alignment.items():
+                    for key, f in alignment.items():
+
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())
+
                         out_file.write("%s %s\n" % (
                                        key[:cut_space_nex].ljust(
                                          seq_space_nex),
@@ -1075,7 +1149,11 @@ class Alignment (Base):
                                     self.sequence_code[0],
                                     gap, self.sequence_code[1]))
 
-                for key, seq in alignment.items():
+                for key, f in alignment.items():
+
+                    with open(f) as fh:
+                        seq = "".join(fh.readlines())
+
                     out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(
                         seq_space_nex), seq))
                 out_file.write(";\n\tend;")
@@ -1126,7 +1204,11 @@ class Alignment (Base):
                                                  self.locus_length,
                                                  "2"))
 
-            for key, seq in self.alignment.items():
+            for key, f in alignment.items():
+
+                with open(f) as fh:
+                    seq = "".join(fh.readlines())
+
                 if ld_hat:
                     # Truncate sequence name to 30 characters
                     out_file.write(">%s\n" % (key[:30]))
@@ -1148,9 +1230,11 @@ class AlignmentList(Base):
     Alignment classes for the write_to_file methods.
     """
 
-    def __init__(self, alignment_list, shared_namespace=None):
+    def __init__(self, alignment_list, dest=None, shared_namespace=None):
         """
         :param alignment_list: List of Alignment objects
+        :param dest: String. Path to temporary directory that will store
+        the sequence data of each alignment object
         :param shared_namespace: Namespace object, used to share information
         between subprocesses
         """
@@ -1216,7 +1300,7 @@ class AlignmentList(Base):
                     shared_namespace.m = alignment.split(sep)[-1]
                     c += 1
 
-                alignment_object = Alignment(alignment)
+                alignment_object = Alignment(alignment, dest=dest)
 
                 # Check for badly formatted alignments
                 if isinstance(alignment_object.alignment, InputError):
@@ -1377,10 +1461,13 @@ class AlignmentList(Base):
 
         self.taxa_names = self._get_taxa_list()
 
-    def add_alignment_files(self, file_name_list, shared_namespace=None):
+    def add_alignment_files(self, file_name_list, dest=None,
+                            shared_namespace=None):
         """
         Adds a new alignment based on a file name
         :param file_name_list: list, with the path to the alignment files
+        :param dest: string. Path to the temporary directory that will store
+        the sequence data of the Alignment object
         """
 
         for file_name in file_name_list:
@@ -1389,7 +1476,7 @@ class AlignmentList(Base):
                 shared_namespace.m = basename(file_name)
                 shared_namespace.progress = file_name_list.index(file_name) + 1
 
-            aln = Alignment(file_name)
+            aln = Alignment(file_name, dest=dest)
 
             # Check for badly formatted alignments
             if isinstance(aln.alignment, InputError):

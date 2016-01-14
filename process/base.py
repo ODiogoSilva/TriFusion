@@ -269,10 +269,16 @@ class Base:
 
         # Checking for taxa with empty sequences
         empty_taxa = []
-        for taxa, seq in alignment_dic.items():
+        seq_list = []
+        for taxa, f in alignment_dic.items():
+
+            with open(f) as fh:
+                seq = "".join(fh.readlines())
 
             if seq == "":
                 empty_taxa.append(taxa)
+            else:
+                seq_list.append(len(seq))
 
         if empty_taxa is []:
 
@@ -283,14 +289,14 @@ class Base:
 
         # Checking sequence lengths
         # Determine the most common length
-        commonseq = max(set([v for v in alignment_dic.values()]),
-                        key=[v for v in alignment_dic.values()].count)
-        # Creates a dictionary with the sequences, and respective length,
-        # of different length
-        diflength = dict((key, len(value)) for key, value in alignment_dic.items()
-                         if len(commonseq) != len(value))
+        # commonseq = max(set([v for v in alignment_dic.values()]),
+        #                 key=[v for v in alignment_dic.values()].count)
+        # # Creates a dictionary with the sequences, and respective length,
+        # # of different length
+        # diflength = dict((key, len(value)) for key, value in alignment_dic.items()
+        #                  if len(commonseq) != len(value))
 
-        if diflength != {}:
+        if len(set(seq_list)) > 1:
             return False
         else:
             return True
