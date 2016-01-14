@@ -777,12 +777,12 @@ class Group ():
 
             if get_stats:
                 return all_orthologs, sp_compliant, gene_compliant,\
-                       final_orthologs
+                           final_orthologs
 
         else:
             raise OrthoGroupException("The groups object must be filtered "
-                                       "before using the export_filtered_group"
-                                       "method")
+                                      "before using the export_filtered_group"
+                                      "method")
 
     def update_filters(self, gn_filter, sp_filter):
         """
