@@ -67,6 +67,7 @@ import time
 import re
 import sys
 import logging
+import shutil
 
 # MEMO
 # scatter.py on_touch_up function was modified to prevent a bug from crashing
@@ -462,6 +463,8 @@ class TriFusionApp(App):
         # Execute cleaning function when exiting app
         Window.bind(on_request_close=lambda x: self._exit_clean())
 
+        Window.bind(on_stop=lambda x: self._exit_clean())
+
         Window.bind(on_motion=self.mouse_zoom)
 
         # Orthology widgets
@@ -589,7 +592,10 @@ class TriFusionApp(App):
         """
 
         for i in os.listdir(self.temp_dir):
-            os.remove(join(self.temp_dir, i))
+            try:
+                os.remove(join(self.temp_dir, i))
+            except OSError:
+                shutil.rmtree(join(self.temp_dir, i))
 
     def _exit_clean(self):
         """
@@ -597,8 +603,13 @@ class TriFusionApp(App):
         necessary clean up operations
         """
 
+        print("here")
+
         for i in os.listdir(self.temp_dir):
-            os.remove(join(self.temp_dir, i))
+            try:
+                os.remove(join(self.temp_dir, i))
+            except OSError:
+                shutil.rmtree(join(self.temp_dir, i))
 
     def _update_path(self, path):
         """
@@ -7141,7 +7152,8 @@ class TriFusionApp(App):
         ns = manager.Namespace()
 
         d = multiprocessing.Process(target=load_proc, args=(self.alignment_list,
-                                                            file_list, ns, ))
+                                                            file_list, ns,
+                                                            self.temp_dir))
 
         d.start()
 
@@ -7238,7 +7250,7 @@ class TriFusionApp(App):
             if aln_list.alignments:
                 for aln in aln_list:
                     if tx in aln.alignment:
-                        sequence += aln.alignment[tx]
+                        sequence += aln.get_sequence(tx)
                     else:
                         tx_missing += 1
                 else:

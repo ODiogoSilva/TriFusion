@@ -13,13 +13,14 @@ from copy import deepcopy
 import logging
 
 
-def load_proc(aln_list, file_list, nm):
+def load_proc(aln_list, file_list, nm, dest):
     try:
         if aln_list:
-            aln_list.add_alignment_files(file_list, shared_namespace=nm)
+            aln_list.add_alignment_files(file_list, dest=dest,
+                                         shared_namespace=nm)
             aln_obj = aln_list
         else:
-            aln_obj = AlignmentList(file_list, shared_namespace=nm)
+            aln_obj = AlignmentList(file_list, dest=dest, shared_namespace=nm)
         nm.alns = aln_obj
     except:
         logging.exception("Unexpected error when loading input data")
