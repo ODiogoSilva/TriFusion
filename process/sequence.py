@@ -1355,8 +1355,13 @@ class AlignmentList(Base):
 
         for alignment_obj in alignment_obj_list:
 
-            if isinstance(alignment_obj.alignment, Exception):
-                self.bad_alignments.append(alignment_obj.name)
+            # Check for badly formatted alignments
+            if isinstance(alignment_obj.alignment, InputError):
+                self.bad_alignments.append(alignment_obj.path)
+            elif isinstance(alignment_obj.alignment,
+                            AlignmentUnequalLength):
+                self.non_alignments.append(alignment_obj.path)
+
             if not ignore_paths:
                 if alignment_obj.path in [x.path for x in
                                           self.alignments.values()]:
@@ -1386,8 +1391,13 @@ class AlignmentList(Base):
 
             aln = Alignment(file_name)
 
-            if isinstance(aln.alignment, Exception):
-                self.bad_alignments.append(aln.name)
+            # Check for badly formatted alignments
+            if isinstance(aln.alignment, InputError):
+                self.bad_alignments.append(aln.path)
+            elif isinstance(aln.alignment,
+                            AlignmentUnequalLength):
+                self.non_alignments.append(aln.path)
+
                 # Check for duplicate alignments
             elif aln.path in [x.path for x in self.alignments.values()]:
                 self.duplicate_alignments.append(aln.name)

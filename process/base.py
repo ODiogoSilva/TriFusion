@@ -137,6 +137,7 @@ class Base:
         # Check if there is any sequence. If not, the alignment file has no
         # sequence
         else:
+            print("here")
             return InputError("Unknown input file format.")
         if sequence.replace("-", "") == "":
             print("\nAlignment file %s has no sequence or the first sequence "
