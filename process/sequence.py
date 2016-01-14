@@ -1690,7 +1690,7 @@ class AlignmentList(Base):
         try:
             file_handle = open("".join(taxa_list))
             taxa_list = self.read_basic_csv(file_handle)
-        except FileNotFoundError:
+        except EnvironmentError:
             pass
 
         for alignment_obj in self.alignments.values():
