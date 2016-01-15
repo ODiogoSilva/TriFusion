@@ -22,6 +22,9 @@
 #  Version:
 #  Last update:
 
+from kivy.base import EventLoop
+EventLoop.ensure_window()
+
 from kivy.config import Config
 
 Config.set("kivy", "log_level", "warning")
