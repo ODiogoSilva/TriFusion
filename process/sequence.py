@@ -157,8 +157,6 @@ class Alignment (Base):
             if not os.path.exists(join(self.dest, self.sname)):
                 os.makedirs(join(self.dest, self.sname))
 
-            print(join(self.dest, self.sname))
-
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
             finder_content = self.autofinder(input_alignment)
