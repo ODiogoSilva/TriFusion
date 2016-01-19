@@ -173,7 +173,9 @@ ShowcaseScreen:
 
                     FloatLayout:
                         size_hint: None, None
+                        width: 0
                         Label:
+                            size_hint: None, None
                             canvas.before:
                                 Color:
                                     rgba: .3, .3, .3, .5 if len(icon_view_tab.selection) >= 1 else 0
