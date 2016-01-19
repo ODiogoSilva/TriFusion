@@ -22,9 +22,6 @@
 #  Version:
 #  Last update:
 
-from kivy.base import EventLoop
-EventLoop.ensure_window()
-
 from kivy.config import Config
 
 Config.set("kivy", "log_level", "warning")
@@ -35,6 +32,9 @@ Config.set("graphics", "fullscreen", 0)
 Config.set("graphics", "height", 700)
 Config.set("graphics", "width", 1000)
 Config.set("input", "mouse", "mouse, disable_multitouch")
+
+from kivy.base import EventLoop
+EventLoop.ensure_window()
 
 # Kivy imports
 from kivy.app import App
