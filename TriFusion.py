@@ -71,6 +71,7 @@ import re
 import sys
 import logging
 import shutil
+import matplotlib
 
 # MEMO
 # scatter.py on_touch_up function was modified to prevent a bug from crashing
