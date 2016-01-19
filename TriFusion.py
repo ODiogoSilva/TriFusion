@@ -1829,7 +1829,6 @@ class TriFusionApp(App):
         self.bookmarks = pickle.load(open(self.bm_file, "rb"))
         # Check if bookmark already exists. Only add bookmark if it does not
         # exist
-        print(path, self.bookmarks[0])
         if path not in self.bookmarks[0]:
 
             # Add bookmarks to the full path list
