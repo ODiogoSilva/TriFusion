@@ -71,6 +71,7 @@ import re
 import sys
 import logging
 import shutil
+import urllib
 import matplotlib
 
 # MEMO
@@ -1787,6 +1788,9 @@ class TriFusionApp(App):
                                    "bookmarks")) as bk_file:
                         for bk_line in bk_file:
                             bk = bk_line.split()[0].replace("file://", "")
+                            # urllib will ensure special characters with
+                            # punctuation are correctly showed
+                            bk = urllib.unquote(bk)
                             self.save_bookmark(bk, wgt, fc_wgt)
 
         # Get main paths for linux
@@ -1825,7 +1829,9 @@ class TriFusionApp(App):
         self.bookmarks = pickle.load(open(self.bm_file, "rb"))
         # Check if bookmark already exists. Only add bookmark if it does not
         # exist
+        print(path, self.bookmarks[0])
         if path not in self.bookmarks[0]:
+
             # Add bookmarks to the full path list
             self.bookmarks[0].append(path)
             # Add mapping of the full path to the bookmark name
