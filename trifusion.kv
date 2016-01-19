@@ -14,9 +14,9 @@
 
 
 <ShowcaseScreen>:
-    ScrollView:
-        do_scroll_x: False
-        do_scroll_y: False# if root.fullscreen else (content.height > root.height - dp(16))
+    BoxLayout:
+        #do_scroll_x: False
+        #do_scroll_y: False# if root.fullscreen else (content.height > root.height - dp(16))
         AnchorLayout:
             size_hint_y: None
             height: root.height# if root.fullscreen else max(root.height, content.height)
@@ -4157,7 +4157,7 @@
 <ProcessGeneral>:
     id: main_grid
     process_bt_wdt: 250
-    padding: (10,5, 10, 5)
+    padding: (10,5, 15, 5)
     cols: 1
     size_hint_y: None
     height: sum([x.size[1] for x in self.children])
