@@ -101,7 +101,6 @@ def kill_proc_tree(pid, include_parent=True):
 
     parent = psutil.Process(pid)
     for child in parent.children(recursive=True):
-        print(child.pid)
         child.kill()
     if include_parent:
         parent.kill()
@@ -606,8 +605,6 @@ class TriFusionApp(App):
         This method is issued when the application is closed and performs any
         necessary clean up operations
         """
-
-        print("here")
 
         for i in os.listdir(self.temp_dir):
             try:
@@ -3233,7 +3230,6 @@ class TriFusionApp(App):
 
             # Get taxa name
             tx = value.id[:-1]
-            print(value.id)
 
             if tx in self.active_taxa_list:
 
