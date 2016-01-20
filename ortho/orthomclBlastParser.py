@@ -112,7 +112,7 @@ def computeNonOverlappingMatchLength (subject):
 def getStartEnd (h):
     start = h[0]
     end = h[1]
-    if start > end :
+    if start > end:
         end = h[0]
         start = h[1]
  
@@ -128,6 +128,7 @@ def orthomclBlastParser(blastFileName, fastaFilesDir):
     prevSubjectId = ''
     prevQueryId = ''
     subject = {} # hash to hold subject info
+    # queryShorter not used
     queryShorter = ''
 
     for line in blastFile:
