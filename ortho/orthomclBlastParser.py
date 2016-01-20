@@ -137,13 +137,16 @@ def orthomclBlastParser(blastFileName, fastaFilesDir):
         subjectId = splitted[1]
         percentIdentity = splitted[2]
         length = int(splitted[3])
+        # mismatches not used
         mismatches = splitted[4]
+        # ngaps not used
         ngaps = splitted[5]
         queryStart = splitted[6]
         queryEnd = splitted[7]
         subjectStart = splitted[8]
         subjectEnd = splitted[9]
         evalue = splitted[10]
+        # bits not used
         bits = splitted[11]
 
         if queryId != prevQueryId or subjectId != prevSubjectId:
