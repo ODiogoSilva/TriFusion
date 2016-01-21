@@ -371,7 +371,7 @@ class Alignment (Base):
 
             for tx, fh in self.alignment.items():
                 fh.close()
-                self.alignment[tx] = tx + ".temp"
+                self.alignment[tx] = join(self.dest, self.sname, tx + ".temp")
 
             self.partitions.set_length(self.locus_length)
 
@@ -391,9 +391,10 @@ class Alignment (Base):
                     # Close file handles
                     for tx, fh in self.alignment.items():
                         fh.close()
-                        self.alignment[tx] = tx + ".temp"
+                        self.alignment[tx] = join(self.dest, self.sname,
+                                                  tx + ".temp")
 
-                    with open(self.alignment[taxa]) as fh:
+                    with open(self.alignment[tx]) as fh:
                         self.locus_length = len("".join(fh.readlines()))
 
                     self.partitions.set_length(self.locus_length)
