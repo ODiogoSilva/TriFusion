@@ -1069,27 +1069,30 @@ class TriFusionApp(App):
             # Set border line color
             self.fancy_bt.line_clr = line_c
 
-            if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.texture_size[0]\
-                    + 50 > self.root.width:
+            # Determine if there is enough space for  the label to be properly
+            # shown. If not, truncante the label width to 70% of window width
+            if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.texture_size[0] + \
+                    50 > self.root.width and wgt_pos[0] - wgt_size[0] - 5 - \
+                    self.fancy_bt.texture_size[0] - 50 < 0:
                 self.fancy_bt.width = self.root.width * .7
                 self.fancy_bt.text_size = self.fancy_bt.size
                 self.fancy_bt.halign = "center"
                 self.fancy_bt.valign = "middle"
                 self.fancy_bt.texture_update()
-                self.fancy_bt.height = self.fancy_bt.texture_size[1] + 16
-
+                self.fancy_bt.height = self.fancy_bt.texture_size[1] + \
+                    16
             else:
                 # Determine label size. Add horizontal margin space (10)
-                self.fancy_bt.size = (self.fancy_bt.texture_size[0] + 10,
-                                      lbl_height)
+                self.fancy_bt.size = (self.fancy_bt.texture_size[0] +
+                                      10, lbl_height)
 
+            # Create horizontal label
             if orientation == "horizontal":
                 # Determine if the label has space to the right. If not, flip
                 # the orientation
                 if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.width < \
-                        self.root.width or \
-                        self.root.width - (wgt_pos[0] + wgt_size[0] + 5 +
-                                           self.fancy_bt.width):
+                        self.root.width:
+
                     # Determine position of arrow widget
                     point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + \
                         wgt_size[1] / 2 - 6
@@ -1104,7 +1107,9 @@ class TriFusionApp(App):
                                             "box_arrow_right.png"),
                                             pos=point_pos, size=(7, 12),
                                             background_color=line_c)
-
+                # In case this else code is executed, it means there is no space
+                # for the label to be shown in the right, so it will show to the
+                # left
                 else:
                     # Determine position of arrow widget
                     point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt_size[1] / \
