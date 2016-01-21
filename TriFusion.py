@@ -1537,6 +1537,9 @@ class TriFusionApp(App):
                                    self.screen.ids.sv_mycomp,
                                    self.screen.ids.icon_view_tab)
 
+        if basename(self.available_screens[idx]) == "fc.kv":
+            self.disengage_groups()
+
         if basename(self.available_screens[idx]) == "Statistics.kv":
             self.show_plot_toolbar(toolbar_type="stats")
             self.screen.ids.taxa_dropdown.dismiss()
@@ -1591,6 +1594,17 @@ class TriFusionApp(App):
                 i.state = "normal"
 
         wgt.disabled = True
+
+    def disengage_groups(self):
+        """
+        Methods used to unselect all module header buttons, in case the user
+        enters the main filechooser
+        """
+
+        for wgt in [self.root.ids.h_ortho, self.root.ids.h_process,
+                    self.root.ids.h_stat]:
+            wgt.disabled = False
+            wgt.state = "normal"
 
     def check_action(self, text, func, bt_wgt=None, args=None, popup_level=1):
         """
