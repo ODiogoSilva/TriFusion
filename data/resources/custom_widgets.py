@@ -210,7 +210,7 @@ class FileChooserM(FileChooserIconView):
         if key_code == 304:
             self.shift = True
 
-        if key_code == 306:
+        if key_code == 305:
             self.control = True
 
     def release_shift(self, *vals):
@@ -226,7 +226,7 @@ class FileChooserM(FileChooserIconView):
         if key_code == 304:
             self.shift = False
 
-        if key_code == 306:
+        if key_code == 305:
             self.control = False
 
     def open_entry(self, entry):
