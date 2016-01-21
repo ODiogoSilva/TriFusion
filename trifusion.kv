@@ -1392,7 +1392,7 @@
             size: 130,130
             canvas.before:
                 Color:
-                    rgba: (113/255, 200/255, 55/255, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
+                    rgba: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                 Ellipse:
                     size: self.size
                     pos: self.pos
@@ -1408,7 +1408,7 @@
                 Label:
                     bold: True
                     text: root.ortholog_num
-                    color: (113/255, 200/255, 55/255, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
+                    color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                     font_size: 22
                     halign: "center"
                     valign: "bottom"
@@ -1417,7 +1417,7 @@
                 Label:
                     bold: True
                     text: str(round(root.proportion * 100, 1)) + "%"
-                    color: (113/255, 200/255, 55/255, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
+                    color: (0.216, 0.67, 0.784, 1) if gauge_txt.text == "Final orthologs" else (.7,.7,.7,1)
                     halign: "center"
                     valign: "top"
                     text_size: self.size
