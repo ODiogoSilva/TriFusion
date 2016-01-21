@@ -35,6 +35,7 @@ from collections import OrderedDict, Counter
 import itertools
 import re
 import os
+import shutil
 from os import sep
 from os.path import join, basename, splitext
 
@@ -194,7 +195,6 @@ class Alignment (Base):
         """
         Iterate over Alignment objects
         """
-        #return iter(self.alignment.items())
 
         for tx, f in self.alignment.items():
             fh = open(f)
@@ -250,6 +250,13 @@ class Alignment (Base):
                 return "".join(fh.readlines())
         else:
             return None
+
+    def remove_alignment(self):
+        """
+        Removes all temporary sequence files for the alignment object
+        """
+
+        shutil.rmtree(join(self.dest, self.sname))
 
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
@@ -1724,8 +1731,10 @@ class AlignmentList(Base):
         for nm_path in filename_list:
             nm = nm_path.split(sep)[-1]
             if nm in self.alignments:
+                self.alignments[nm].remove_alignment()
                 del self.alignments[nm]
             elif nm in self.shelve_alignments:
+                self.alignments[nm].remove_alignment()
                 del self.shelve_alignments[nm]
             self.partitions.remove_partition(file_name=nm_path)
 
