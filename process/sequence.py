@@ -197,8 +197,8 @@ class Alignment (Base):
         """
 
         for tx, f in self.alignment.items():
-            fh = open(f)
-            yield tx, "".join(fh.readlines())
+            with open(f) as fh:
+                yield tx, "".join(fh.readlines())
 
     def _set_format(self, input_format):
         """
@@ -239,6 +239,16 @@ class Alignment (Base):
         self.alignment = dictionary_obj
         self.locus_length = len(list(dictionary_obj.values())[0])
 
+    def sequences(self):
+        """
+        Generator for sequence data of the alignment object. Akin to
+        values() method of a dictionary
+        """
+
+        for f in self.alignment.values():
+            with open(f) as fh:
+                yield "".join(fh.readlines())
+
     def get_sequence(self, taxon):
         """
         Convenince method that returns the sequences for a given taxon
@@ -249,7 +259,7 @@ class Alignment (Base):
             with open(self.alignment[taxon]) as fh:
                 return "".join(fh.readlines())
         else:
-            return None
+            raise KeyError
 
     def remove_alignment(self):
         """
@@ -1963,10 +1973,11 @@ class AlignmentList(Base):
             for key in data_storage:
                 if key in aln.alignment:
                     # Get gaps
-                    gaps = aln.alignment[key].count("-")
+                    seq = aln.get_sequence(key)
+                    gaps = seq.count("-")
                     data_storage[key][0] += gaps
                     # Get missing
-                    missing = aln.alignment[key].count(aln.sequence_code[1])
+                    missing = seq.count(aln.sequence_code[1])
                     data_storage[key][1] += missing
                     # Get actual data
                     actual_data = aln.locus_length - gaps - missing
@@ -2085,7 +2096,7 @@ class AlignmentList(Base):
         data_storage = Counter()
 
         for aln in self.alignments.values():
-            for seq in aln.alignment.values():
+            for seq in aln.sequences():
                 data_storage += Counter(seq.replace("-", "").
                                         replace(self.sequence_code[1], ""))
 
@@ -2184,7 +2195,7 @@ class AlignmentList(Base):
 
             aln_similarities = []
 
-            for seq1, seq2 in itertools.combinations(aln.alignment.values(), 2):
+            for seq1, seq2 in itertools.combinations(aln.sequences(), 2):
 
                 x = self._get_similarity(seq1, seq2)
 
@@ -2213,7 +2224,7 @@ class AlignmentList(Base):
             for tx1, tx2 in itertools.combinations(taxa_pos.keys(), 2):
 
                 try:
-                    seq1, seq2 = aln.alignment[tx1], aln.alignment[tx2]
+                    seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
                 except KeyError:
                     continue
 
@@ -2239,7 +2250,7 @@ class AlignmentList(Base):
             window_similarities = []
 
             seqs = np.array([[y for y in x[i:i + window_size]] for x in
-                             aln_obj.alignment.values()])
+                             aln_obj.sequences()])
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
                 window_similarities.append((self._get_similarity(seq1, seq2) /
@@ -2264,7 +2275,7 @@ class AlignmentList(Base):
 
             segregating_sites = 0
 
-            for column in zip(*aln.alignment.values()):
+            for column in zip(*aln.sequences()):
 
                 # Remove gaps and missing characters
                 column = set([x for x in column if x != aln.sequence_code[1]
@@ -2296,7 +2307,7 @@ class AlignmentList(Base):
             segregating_sites = 0
 
             seqs = np.array([[y for y in x[i:i + window_size]] for x in
-                             aln_obj.alignment.values()])
+                             aln_obj.sequences()])
 
             for column in zip(*seqs):
                 column = set([x for x in column if x != aln_obj.sequence_code[1]
