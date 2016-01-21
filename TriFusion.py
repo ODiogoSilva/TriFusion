@@ -1537,6 +1537,7 @@ class TriFusionApp(App):
                                    self.screen.ids.sv_mycomp,
                                    self.screen.ids.icon_view_tab)
 
+        # Disengage acion bar toggle buttons when entering main filechooser
         if basename(self.available_screens[idx]) == "fc.kv":
             self.disengage_groups()
 
