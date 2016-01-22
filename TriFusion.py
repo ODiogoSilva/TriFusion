@@ -7661,4 +7661,6 @@ class TriFusionApp(App):
 
 if __name__ == "__main__":
 
+    multiprocessing.freeze_support()
+
     TriFusionApp().run()
