@@ -46,6 +46,7 @@ from kivy.graphics import Color, Rectangle
 
 import re
 from os.path import join, sep, abspath, pardir
+import sys
 
 
 class ShowcaseScreen(Screen):
@@ -84,15 +85,25 @@ class LinkedLabel(Label):
         the path
         """
 
-        s = p = sep
+        if sys.platform in ["win32", "cygwin"]:
+            s = p = ""
+        else:
+            s = p = sep
+
+        # This will check if the first path_list element represents a windows
+        # drive (like C:). If  so, it will add a "\" character, so that the
+        # path is correctly constructed
         path_list = text.split(sep)
+        if sys.platform in ["win32", "cygwin"] and len(path_list[0]) == 2\
+                and path_list[0].endswith(":"):
+            path_list[0] += "\\"
 
         for d in path_list:
             p = join(p, d)
             if p != sep:
-                s = join(s, "[ref={}]{}[/ref]".format(p, d))
+                s += "[ref={}]{}[/ref]".format(p, d) + sep
 
-        return s
+        return s[:-1]
 
     def texture_update(self, *largs):
         """Force texture recreation with the current Label properties.
@@ -248,6 +259,7 @@ class FileChooserM(FileChooserIconView):
             # If entry.path is to jump to previous directory, update path with
             # parent directory
             if entry.path == "../" or entry.path == "..\\":
+                print(pardir)
                 self.path = abspath(join(self.path, pardir))
                 self.selection = []
             else:
