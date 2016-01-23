@@ -6999,7 +6999,7 @@ if __name__ == "__main__":
             self.run_in_background(func=get_stats_data,
                                    second_func=self.stats_write_plot,
                                    args1=[self.alignment_list, plt_idx, file_set,
-                                          taxa_set, additional_args],
+                                          list(taxa_set), additional_args],
                                    args2=[plt_idx])
 
             self.toggle_stats_panel(force_close=True)
