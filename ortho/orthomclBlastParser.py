@@ -2,7 +2,12 @@
 
 import os
 import re
+import sys
+import pprint
+from operator import itemgetter
 
+VAR_LENGTH=0
+VAR_TAXON=1
 
 """
 Read all fasta files from a folder, placing the genes present on those fasta into a single variable
@@ -12,53 +17,74 @@ def getGenesFromFasta(fastaFilesDir) :
 
     genes = {}
 
+    #for all fast files in fasta directory
     for fasta in os.listdir(fastaFilesDir):
         #skip hidden files and not fasta files
         if fasta.startswith('.') or not fasta.endswith(".fasta"):
             continue
 
+        #get taxon from file name
         splitted = fasta.split(".")
-        taxon = splitted[len(splitted) - 1]
+        taxon = splitted[0]
+
+        #open file
         fastaFile = open(os.path.join(fastaFilesDir, fasta), "r")
+
         gene = ''
         length = 0
+        newGene = False
         for line in fastaFile:
-            if not line:
+            #clean '\n'
+            line = line.strip()
+            #ignore empty lines and stop codons
+            if not line :# or line.endswith("*"):
                 continue
-            line = re.sub('\>(\S+)', '', line)
-            if not line:
+
+            newGene = True if line.startswith(">") else False
+
+            if newGene:
+                #save previous gene info
                 if gene:
-                    genes["gene"]["length"] = length
-                    genes["gene"]["taxon"] = taxon
-                gene = line
+                    genes[gene][VAR_LENGTH] = length
+
+                #save new gene info
+                gene = line[1:]
+                genes[gene] = [None, taxon]
+
+                #reset vars
                 length = 0
-            else:#TODO not sure if this is correct
+            else:
                 length += len(line)
 
-        if gene:
-            genes["gene"]["length"] = length
-            genes["gene"]["taxon"] = taxon
+        genes[gene][VAR_LENGTH] = length
+
         fastaFile.close()
+
+#        pprint.pprint(genes, width=-1)
+#        exit()
 
     return genes
 
 #################################################################################################################
 def getTaxonAndLength (subject, genes):
 
-    subject["queryTaxon"] = genes[subject["queryId"]]["taxon"];
-    subject["subjectTaxon"] = genes[subject["subjectId"]]["taxon"]
-    subject["queryLength"] = genes[subject["queryId"]]["length"]
-    subject["subjectLength"] = genes[subject["subjectId"]]["length"]
+    subject["queryTaxon"] = genes[subject["queryId"]][VAR_TAXON];
+    subject["subjectTaxon"] = genes[subject["subjectId"]][VAR_TAXON]
+    subject["queryLength"] = genes[subject["queryId"]][VAR_LENGTH]
+    subject["subjectLength"] = genes[subject["subjectId"]][VAR_LENGTH]
+
+#    print(subject)
+
     try:
         subject["subjectTaxon"]
     except KeyError:
-        print "couldn't find taxon for gene " + subject["subjectId"]
+        print ("couldn't find taxon for gene " + subject["subjectId"])
     try:
         subject["queryTaxon"]
     except KeyError:
-        print "couldn't find taxon for gene " + subject["queryId"]
+        print ("couldn't find taxon for gene " + subject["queryId"])
 
-    return subject["queryLength"] < subject["subjectLength"]
+    return int(subject["queryLength"]) < int(subject["subjectLength"])
 
 #################################################################################################################
 def printPreviousSubject(subject):
@@ -66,46 +92,52 @@ def printPreviousSubject(subject):
 
     percentIdent = int(subject["totalIdentities"] / subject["totalLength"] * 10 + .5)/10;
     shorterLength = subject["queryLength"] if subject["queryShorter"] else subject["subjectLength"]
+
+    print(nonOverlapMatchLen)
+    print(shorterLength)
+
     percentMatch = int(nonOverlapMatchLen / shorterLength * 1000 + .5) / 10;
-    print subject["queryId"] + "\t" + subject["subjectId"] + "\t" + subject["queryTaxon"] + "\t" + subject["subjectTaxon"] + "\t" + subject["evalueMant"] + "\t" + subject["evalueExp"] + "\t" + percentIdent + "\t" + percentMatch + "\n"
+    print (subject["queryId"] + "\t" + subject["subjectId"] + "\t" + subject["queryTaxon"] + "\t" + subject["subjectTaxon"] + "\t" + str(subject["evalueMant"]) + "\t" + str(subject["evalueExp"]) + "\t" + str(percentIdent) + "\t" + str(percentMatch))
 
 #################################################################################################################
 # this (corrected) version of formatEvalue provided by Robson de Souza
 def formatEvalue (evalue):
+    if evalue == '0':
+        return (0,0)
     if evalue.startswith('e'):
         evalue = '1'.evalue
     return [round(float(x), 2) for x in evalue.split("e")]
 
 #################################################################################################################
 def computeNonOverlappingMatchLength (subject):
+    #flatten lists
+    hsps = subject["hspspans"]
+    hsps.sort(key=lambda x: x[0])
+    original = hsps.pop(0)
 
-    hsps = [str(x) for x in sorted([int(x) for x in subject["hspspans"]])]
-    first = hsps.pop(0)
+    original = (int(original[0]), int(original[1]))
 
-    if not first:
+    start = 0
+    end = 1
+    
+    if not original:
         return 0
 
-    startEnd = getStartEnd(first)
-    start = startEnd[0]
-    end = startEnd[1]
-    len = 0
+    original = getStartEnd(original)
+    length = 0
+
     for h in hsps:
-        hspStartEnd = getStartEnd(h)
-        hspStart = hspStartEnd[0]
-        hspEnd = hspStartEnd[0]
+        h = getStartEnd(h)
+        if h[end] < original[end]: #does not extend
+            continue 
+        if h[start] <= original[end]: #overlaps
+            original = (original[start], h[end])  #extend end ... already dealt with if new end is less
+        else:  #there is a gap in between
+            length = original[end] - original[start] + 1
+            original = (h[start], h[end])
 
-        if hspEnd <= end:
-            continue
-        if hspStart <= end:
-            end = hspEnd
-        else:
-            len += end - start + 1
-            start = hspStart
-            end = hspEnd
-
-    len += end - start + 1
-
-    return len
+    length += original[end] - original[start] + 1 # deal with the last one 
+    return length
 
 #################################################################################################################
 # flip orientation if nec.
@@ -116,7 +148,7 @@ def getStartEnd (h):
         end = h[0]
         start = h[1]
  
-    return(start,end)
+    return(int(start),int(end))
 
 #################################################################################################################
 
@@ -128,8 +160,6 @@ def orthomclBlastParser(blastFileName, fastaFilesDir):
     prevSubjectId = ''
     prevQueryId = ''
     subject = {} # hash to hold subject info
-    # queryShorter not used
-    queryShorter = ''
 
     for line in blastFile:
         splitted = line.split()
@@ -168,13 +198,16 @@ def orthomclBlastParser(blastFileName, fastaFilesDir):
             tup = formatEvalue(evalue) # from first hsp
             subject["evalueMant"] = tup[0]
             subject["evalueExp"] = tup[1]
+            subject["totalIdentities"] = 0
+            subject["totalLength"] = 0
+            subject["hspspans"] = []
 
         # get additional info from subsequent HSPs
-        hspspan = {subjectStart, subjectEnd}
+        hspspan = (subjectStart, subjectEnd)
         if subject and subject["queryShorter"] :
-            hspspan = {queryStart, queryEnd}
-        subject["hspspans"] = hspspan
-        subject["totalIdentities"] += percentIdentity * length
+            hspspan = (queryStart, queryEnd)
+        subject["hspspans"].append(hspspan)
+        subject["totalIdentities"] += float(percentIdentity) * length
         subject["totalLength"] += length
 
     printPreviousSubject(subject)
