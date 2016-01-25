@@ -6817,8 +6817,8 @@ if __name__ == "__main__":
             main operation is chosen for the first time, the general options
             are introduced, but further selection of the main operation only
             changes the state of the operations button.
-            :param op: string, the main operations. values are "concatenation" and
-            "conversion"
+            :param op: string, the main operations. values are "concatenation"
+             and "conversion"
             """
 
             # If the general options widget is not shown yet, show them
@@ -6840,17 +6840,21 @@ if __name__ == "__main__":
 
         def toggle_process_options(self):
             """
-            Controls the toggling of the GridLayout with the additional options for
-            the process screen.
+            Controls the toggling of the GridLayout with the additional options
+            for the process screen.
             """
 
             # Shows additional options
-            if self.process_grid_wgt.ids.opt_bt.text == "Show additional options":
+            if (self.process_grid_wgt.ids.opt_bt.text == "Show additional "
+                                                         "options"):
 
                 # Adds widget to the Process widget tree an animates its
-                # appearance via changes in opacity to give impression of fade in
+                # appearance via changes in opacity to give impression of fade
+                # in
                 self.process_grid_wgt.add_widget(self.process_options)
-                Animation(opacity=1, d=.5, t="in_quad").start(self.process_options)
+
+                Animation(
+                    opacity=1, d=.5, t="in_quad").start(self.process_options)
 
                 # Update the height of the GridLayout to allow scrolling
                 self.process_grid_wgt.height = self.process_height + \
@@ -6858,23 +6862,30 @@ if __name__ == "__main__":
                          self.process_options.ids.filter_grid.children]) + 55
 
                 # Change text in the toggle button
-                self.process_grid_wgt.ids.opt_bt.text = "Hide additional options"
+                self.process_grid_wgt.ids.opt_bt.text = \
+                    "Hide additional options"
 
             # Hides additional options
-            elif self.process_grid_wgt.ids.opt_bt.text == "Hide additional options":
+            elif (self.process_grid_wgt.ids.opt_bt.text == "Hide additional "
+                                                           "options"):
 
-                # Removes widget from widget tree. However, all settings that were
-                # change while the widget was visible will be stored
+                # Removes widget from widget tree. However, all settings that
+                #  were change while the widget was visible will be stored
                 self.process_grid_wgt.remove_widget(self.process_options)
 
                 # Change text in the toggle button
-                self.process_grid_wgt.ids.opt_bt.text = "Show additional options"
+                self.process_grid_wgt.ids.opt_bt.text = \
+                    "Show additional options"
 
-        # ######################### STATISTICS SCREEN ##############################
+        # ######################### STATISTICS SCREEN ##########################
 
         def toggle_stats_panel(self, force_close=None, force_open=None):
             """
             Controls the animation of the statistics panel
+            :param force_close: Boolean. If True, close the stats panel
+            regardless of current position
+            :param force_open: Boolean. If True, open the stats panel
+            regardless of current position
             """
 
             expanded_width = 400
@@ -6882,15 +6893,15 @@ if __name__ == "__main__":
             if self.screen.ids.stats_panel.width == expanded_width and \
                     not force_open:
                 self.sidepanel_animation(width=0,
-                                         wgt=self.screen.ids.stats_panel)
+                    wgt=self.screen.ids.stats_panel)
                 self.sidepanel_animation(width=40,
-                                         wgt=self.screen.ids.sidepanel_container)
+                    wgt=self.screen.ids.sidepanel_container)
 
             elif self.screen.ids.stats_panel.width == 0 and not force_close:
                 self.sidepanel_animation(width=expanded_width,
-                                         wgt=self.screen.ids.stats_panel)
+                    wgt=self.screen.ids.stats_panel)
                 self.sidepanel_animation(width=expanded_width + 40,
-                                         wgt=self.screen.ids.sidepanel_container)
+                    wgt=self.screen.ids.sidepanel_container)
 
         def toggle_stats_options(self, bt, idx):
             """
@@ -6909,15 +6920,17 @@ if __name__ == "__main__":
             bt.disabled = True
 
             # Storage of Options buttons separated by major analysis types
-            wgts = {"General information": [self.screen.ids.general_information,
-                                            [SizeDistribution(),
-                                             NucAAProportions()]],
-                    "Missing Data": [self.screen.ids.missing_data_opts,
-                                     [GeneOccupancy(), MissingOrto(),
-                                      MissingData()]],
-                    "Polymorphism and Variation":
-                        [self.screen.ids.polymorphism_data_opts,
-                         [SequenceSimilarity(), SegregatingSites()]]}
+            wgts = {
+                "General information":
+                [self.screen.ids.general_information, [SizeDistribution(),
+                 NucAAProportions()]],
+                "Missing Data":
+                [self.screen.ids.missing_data_opts, [GeneOccupancy(),
+                                                     MissingOrto(),
+                 MissingData()]],
+                "Polymorphism and Variation":
+                [self.screen.ids.polymorphism_data_opts, [SequenceSimilarity(),
+                                                          SegregatingSites()]]}
 
             # Get active type
             main_gl = self.screen.ids.main_stats_opts
@@ -6937,8 +6950,8 @@ if __name__ == "__main__":
             gl_height = sum(x.height + 10 for x in wgts[idx][1]) + 5
             Animation(height=gl_height, d=.32, t="in_quad").start(wgts[idx][0])
 
-            Clock.schedule_once(lambda x: transfer_wgts(wgts[idx][1], wgts[idx][0]),
-                                .32)
+            Clock.schedule_once(
+                lambda x: transfer_wgts(wgts[idx][1], wgts[idx][0]), .32)
 
         def stats_write_plot(self, plot_data, footer, plt_idx):
             """
@@ -6953,98 +6966,126 @@ if __name__ == "__main__":
             """
 
             if isinstance(plot_data, EmptyAlignment):
-                return self.dialog_floatcheck("ERROR: Active alignment is empty",
-                                              t="error")
+                return self.dialog_floatcheck(
+                    "ERROR: Active alignment is empty", t="error")
 
             # Dismiss stats toggle widget, if present
             self.dismiss_stats_toggle()
 
-            self.stats_plt_method = {"Gene occupancy": [interpolation_plot,
-                                                        "gene_occupancy.png"],
-                "Distribution of missing data": [stacked_bar_plot,
-                    "missing_data_distribution.png"],
-                "Distribution of missing orthologs": [bar_plot,
-                    "missing_gene_distribution.png"],
-                "Distribution of missing orthologs avg": [histogram_plot,
-                    "missing_gene_distribution_avg.png"],
-                "Distribution of sequence size": [box_plot,
-                    "avg_seqsize_species.png"],
-                "Distribution of sequence size all": [histogram_plot,
-                    "avg_seqsize.png"],
-                "Proportion of nucleotides or residues": [bar_plot,
-                    "char_proportions.png"],
-                "Proportion of nucleotides or residues sp": [stacked_bar_plot,
-                    "char_proportions_sp.png"],
-                "Pairwise sequence similarity": [histogram_plot,
-                    "similarity_distribution.png"],
-                "Pairwise sequence similarity sp": [triangular_heat,
-                    "similarity_distribution_sp.png"],
-                "Pairwise sequence similarity gn": [sliding_window,
-                    "similarity_distribution_gn.png"],
-                "Segregating sites": [histogram_plot,
-                    "segregating_sites.png"],
-                "Segregating sites gn": [sliding_window,
-                    "segregating_sites_gn.png"]}
-
-            # Dict of plt_idx identifiers that will trigger the stats toggle widget
-            # with the information needed to give functionality to the widget's
-            # buttons
-            stats_compliant = {"Distribution of sequence size":
-                    {"args1": None, "args2": {"plt_idx": "Distribution of sequence"
-                    " size all"}, "active_bt": "sp", "single_gene": None},
-                "Distribution of sequence size all":
-                    {"args1": {"plt_idx": "Distribution of sequence size"},
-                     "args2": None, "active_bt": "avg", "single_gene": None},
-                "Proportion of nucleotides or residues":
-                    {"args1": {"plt_idx": "Proportion of nucleotides or residues"
-                     " sp"}, "args2": None, "active_bt": "avg",
-                     "single_gene": None},
-                "Proportion of nucleotides or residues sp":
-                    {"args1": None, "args2": {"plt_idx": "Proportion "
-                     "of nucleotides or residues"}, "active_bt": "sp",
-                     "single_gene": None},
-                "Pairwise sequence similarity":
-                    {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
-                     "args2": None, "active_bt": "avg", "single_gene": {"plt_idx":
-                     "Pairwise sequence similarity gn"}},
-                "Pairwise sequence similarity sp":
-                    {"args1": None, "args2": {"plt_idx": "Pairwise sequence "
-                     "similarity"}, "active_bt": "sp", "single_gene": {"plt_idx":
-                     "Pairwise sequence similarity gn"}},
-                "Pairwise sequence similarity gn":
-                    {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
-                     "args2": {"plt_idx": "Pairwise sequence similarity"},
-                     "active_bt": "gene", "single_gene": {"plt_idx": "Pairwise "
-                     "sequence similarity gn"}},
+            self.stats_plt_method = {
+                "Gene occupancy":
+                [interpolation_plot, "gene_occupancy.png"],
+                "Distribution of missing data":
+                [stacked_bar_plot, "missing_data_distribution.png"],
                 "Distribution of missing orthologs":
-                    {"args1": None, "args2": {"plt_idx": "Distribution of missing "
-                     "orthologs avg"}, "active_bt": "sp", "single_gene": None},
+                [bar_plot, "missing_gene_distribution.png"],
                 "Distribution of missing orthologs avg":
-                    {"args1": {"plt_idx": "Distribution of missing orthologs"},
-                     "args2": None, "active_bt": "avg", "single_gene": None},
+                [histogram_plot, "missing_gene_distribution_avg.png"],
+                "Distribution of sequence size":
+                [box_plot, "avg_seqsize_species.png"],
+                "Distribution of sequence size all":
+                [histogram_plot, "avg_seqsize.png"],
+                "Proportion of nucleotides or residues":
+                [bar_plot, "char_proportions.png"],
+                "Proportion of nucleotides or residues sp":
+                [stacked_bar_plot, "char_proportions_sp.png"],
+                "Pairwise sequence similarity":
+                [histogram_plot, "similarity_distribution.png"],
+                "Pairwise sequence similarity sp":
+                [triangular_heat, "similarity_distribution_sp.png"],
+                "Pairwise sequence similarity gn":
+                [sliding_window, "similarity_distribution_gn.png"],
                 "Segregating sites":
-                    {"args1": None, "args2": None, "active_bt": "avg",
-                     "single_gene": {"plt_idx": "Segregating sites gn"}},
+                [histogram_plot, "segregating_sites.png"],
                 "Segregating sites gn":
-                    {"args1": None, "args2": {"plt_idx": "Segregating sites"},
-                     "active_bt": "gene", "single_gene": {"plt_idx": "Segregating "
-                     "sites gn"}}}
+                [sliding_window, "segregating_sites_gn.png"]}
+
+            # Dict of plt_idx identifiers that will trigger the stats toggle
+            # widget with the information needed to give functionality to
+            # the widget's buttons
+            stats_compliant = {
+                "Distribution of sequence size":
+                {"args1": None,
+                 "args2": {"plt_idx": "Distribution of sequence size all"},
+                 "active_bt": "sp",
+                 "single_gene": None},
+
+                "Distribution of sequence size all":
+                {"args1": {"plt_idx": "Distribution of sequence size"},
+                 "args2": None,
+                 "active_bt": "avg",
+                 "single_gene": None},
+
+                "Proportion of nucleotides or residues":
+                {"args1": {"plt_idx": "Proportion of nucleotides or residues"
+                                      " sp"},
+                 "args2": None,
+                 "active_bt": "avg",
+                 "single_gene": None},
+
+                "Proportion of nucleotides or residues sp":
+                {"args1": None,
+                 "args2": {"plt_idx": "Proportion of nucleotides or residues"},
+                 "active_bt": "sp",
+                 "single_gene": None},
+
+                "Pairwise sequence similarity":
+                {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
+                "args2": None,
+                 "active_bt": "avg",
+                 "single_gene": {"plt_idx": "Pairwise sequence similarity gn"}},
+
+                "Pairwise sequence similarity sp":
+                {"args1": None,
+                 "args2": {"plt_idx": "Pairwise sequence similarity"},
+                 "active_bt": "sp",
+                 "single_gene": {"plt_idx": "Pairwise sequence similarity gn"}},
+
+                "Pairwise sequence similarity gn":
+                {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
+                "args2": {"plt_idx": "Pairwise sequence similarity"},
+                "active_bt": "gene",
+                 "single_gene": {"plt_idx": "Pairwise sequence similarity gn"}},
+
+                "Distribution of missing orthologs":
+                {"args1": None,
+                 "args2": {"plt_idx": "Distribution of missing orthologs avg"},
+                 "active_bt": "sp",
+                 "single_gene": None},
+
+                "Distribution of missing orthologs avg":
+                {"args1": {"plt_idx": "Distribution of missing orthologs"},
+                 "args2": None,
+                 "active_bt": "avg",
+                 "single_gene": None},
+
+                "Segregating sites":
+                {"args1": None,
+                 "args2": None,
+                 "active_bt": "avg",
+                 "single_gene": {"plt_idx": "Segregating sites gn"}},
+
+                "Segregating sites gn":
+                {"args1": None,
+                 "args2": {"plt_idx": "Segregating sites"},
+                 "active_bt": "gene",
+                 "single_gene": {"plt_idx": "Segregating sites gn"}}}
 
             if plot_data:
                 # Set new plot attributes
                 self.current_plot, self.current_lgd, self.current_table = \
                     self.stats_plt_method[plt_idx][0](**plot_data)
 
-                # Save plot elements in a backup. This backup can then be accessed
-                # when fast switching plots.
+                # Save plot elements in a backup. This backup can then be
+                # accessed when fast switching plots.
                 self.plot_backups[plt_idx] = self.current_table
 
-                pickle.dump(self.current_plot, open(join(self.temp_dir, plt_idx),
-                                                    "wb"))
+                pickle.dump(self.current_plot,
+                            open(join(self.temp_dir, plt_idx), "wb"))
 
-                self.current_plot.savefig(join(self.temp_dir,
-                                               self.stats_plt_method[plt_idx][1]),
-                                          bbox_inches="tight", dpi=200)
+                self.current_plot.savefig(
+                    join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
+                    bbox_inches="tight", dpi=200)
 
             if plt_idx in stats_compliant:
 
@@ -7063,14 +7104,16 @@ if __name__ == "__main__":
                 self.screen.ids.footer_box.clear_widgets()
                 hwgt = HseparatorFooter()
                 ylims = self.current_plot.gca().get_ylim()
-                hwgt.ids.slider.min, hwgt.ids.slider.max = [int(x) for x in ylims]
+                hwgt.ids.slider.min, hwgt.ids.slider.max = \
+                    [int(x) for x in ylims]
                 hwgt.plt_file = self.stats_plt_method[plt_idx][1]
                 self.screen.ids.footer_box.add_widget(hwgt)
             else:
                 self.screen.ids.footer_box.clear_widgets()
 
-            self.load_plot(join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
-                           self.screen.ids.plot_content)
+            self.load_plot(
+                    join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
+                    self.screen.ids.plot_content)
 
             if footer:
                 self.populate_stats_footer(footer)
@@ -7098,9 +7141,9 @@ if __name__ == "__main__":
                 xy = (xlim[0], ylim[0])
                 height = val - ylim[0]
 
-            self.plt_patch = patches.Rectangle(xy, xlim[1], height,
-                                               edgecolor="grey", fc="#dcdcdc",
-                                               alpha=.7, zorder=10)
+            self.plt_patch = patches.Rectangle(
+                xy, xlim[1], height, edgecolor="grey", fc="#dcdcdc",
+                alpha=.7, zorder=10)
 
             self.current_plot.gca().add_patch(self.plt_patch)
 
@@ -7131,27 +7174,27 @@ if __name__ == "__main__":
 
         def populate_stats_footer(self, footer):
             """
-            Populates the footer of the Statistics screen with information on the
-            active number of genes and taxa
+            Populates the footer of the Statistics screen with information on
+            the active number of genes and taxa
             :param footer: list, first element contains the number of genes, the
             second element contains the number of taxa
             """
 
-            self.screen.ids.gene_num.text = "Genes: [color=37abc8ff]{}[/color]". \
-                format(footer[0])
+            self.screen.ids.gene_num.text = \
+                "Genes: [color=37abc8ff]{}[/color]".format(footer[0])
 
-            self.screen.ids.taxa_num.text = "Taxa: [color=37abc8ff]{}[/color]". \
-                format(footer[1])
+            self.screen.ids.taxa_num.text = \
+                "Taxa: [color=37abc8ff]{}[/color]". format(footer[1])
 
         def stats_show_plot(self, plt_idx, additional_args=None):
             """
             Wrapper that executes plot data gathering and execution. The method
-            that gathers the data for plot production runs in the background. Once
-            it's finished, that data is fed to the stats_write_plot method that
-            will create the plot file and load it into the program.
+            that gathers the data for plot production runs in the background.
+            Once it's finished, that data is fed to the stats_write_plot
+            method that will create the plot file and load it into the program.
 
-            :param plt_idx: string, identification string of the plot. Usually is
-            the text property of the issuing button.
+            :param plt_idx: string, identification string of the plot. Usually
+            is the text property of the issuing button.
             :param additional_args:
             """
 
@@ -7186,9 +7229,9 @@ if __name__ == "__main__":
                     pass
 
             # This will check if the current data sets are different from the
-            # previous. If so, it will then check if there is a temporary plot file
-            # for the current plt_idx. If so, do not run get_stats_data and
-            # show the previous plot instead.
+            # previous. If so, it will then check if there is a temporary plot
+            #  file for the current plt_idx. If so, do not run get_stats_data
+            #  and show the previous plot instead.
             if file_set == self.previous_sets["Files"] and \
                     taxa_set == self.previous_sets["Taxa"]:
 
@@ -7211,14 +7254,15 @@ if __name__ == "__main__":
 
             # Check if there are input files loaded
             if not self.active_file_list:
-                return self.dialog_floatcheck("ERROR: No input files were loaded",
-                                              t="error")
+                return self.dialog_floatcheck(
+                    "ERROR: No input files were loaded", t="error")
 
-            self.run_in_background(func=get_stats_data,
-                                   second_func=self.stats_write_plot,
-                                   args1=[self.alignment_list, plt_idx, file_set,
-                                          list(taxa_set), additional_args],
-                                   args2=[plt_idx])
+            self.run_in_background(
+                func=get_stats_data,
+                second_func=self.stats_write_plot,
+                args1=[self.alignment_list, plt_idx, file_set,
+                       list(taxa_set), additional_args],
+                args2=[plt_idx])
 
             self.toggle_stats_panel(force_close=True)
 
@@ -7236,11 +7280,11 @@ if __name__ == "__main__":
                     f = basename(self.file_list[i])
 
                     bt = TGToggleButton(text=f, id=f, state="normal", height=30,
-                                        shorten=True, shorten_from="right",
-                                        disabled_color=(1, 1, 1, 1),
-                                        background_disabled_down=join("data",
-                                                                 "backgrounds",
-                                                                 "bt_process.png"))
+                        shorten=True, shorten_from="right",
+                        disabled_color=(1, 1, 1, 1),
+                        background_disabled_down=join("data", "backgrounds",
+                                                      "bt_process.png"))
+
                     bt.text_size[0] = bt.size[0] * 3
                     bt.bind(on_release=self.toggle_groups)
                     content.ids.gn_grid.add_widget(bt)
@@ -7276,11 +7320,11 @@ if __name__ == "__main__":
             for f in found_bts:
 
                 bt = TGToggleButton(text=f, id=f, state="normal", height=30,
-                                    shorten=True, shorten_from="right",
-                                    disabled_color=(1, 1, 1, 1),
-                                    background_disabled_down=join("data",
-                                                                  "backgrounds",
-                                                                  "bt_process.png"))
+                    shorten=True, shorten_from="right",
+                    disabled_color=(1, 1, 1, 1),
+                    background_disabled_down=join("data", "backgrounds",
+                                                  "bt_process.png"))
+
                 bt.text_size[0] = bt.size[0] * 3
                 bt.bind(on_release=self.toggle_groups)
                 self._popup.content.ids.gn_grid.add_widget(bt)
@@ -7302,11 +7346,11 @@ if __name__ == "__main__":
                     f = basename(self.file_list[i])
 
                     bt = TGToggleButton(text=f, id=f, state="normal", height=30,
-                                        shorten=True, shorten_from="right",
-                                        disabled_color=(1, 1, 1, 1),
-                                        background_disabled_down=join("data",
-                                                                 "backgrounds",
-                                                                 "bt_process.png"))
+                        shorten=True, shorten_from="right",
+                        disabled_color=(1, 1, 1, 1),
+                        background_disabled_down=join("data", "backgrounds",
+                                                      "bt_process.png"))
+
                     bt.text_size[0] = bt.size[0] * 3
                     bt.bind(on_release=self.toggle_groups)
                     self._popup.content.ids.gn_grid.add_widget(bt)
@@ -7332,11 +7376,10 @@ if __name__ == "__main__":
                     f = basename(self.file_list[i])
 
                     bt = TGToggleButton(text=f, id=f, state="normal", height=30,
-                                        shorten=True, shorten_from="right",
-                                        disabled_color=(1, 1, 1, 1),
-                                        background_disabled_down=join("data",
-                                                                 "backgrounds",
-                                                                 "bt_process.png"))
+                        shorten=True, shorten_from="right",
+                        disabled_color=(1, 1, 1, 1),
+                        background_disabled_down=join("data", "backgrounds",
+                                                      "bt_process.png"))
                     bt.text_size[0] = bt.size[0] * 3
                     bt.bind(on_release=self.toggle_groups)
                     self._popup.content.ids.gn_grid.add_widget(bt)
@@ -7369,8 +7412,9 @@ if __name__ == "__main__":
 
                     try:
                         if ns.exception:
-                            return self.dialog_floatcheck("Unexpected error when"
-                                " loading input data. Check app logs", t="error")
+                            return self.dialog_floatcheck(
+                                "Unexpected error when loading input data. "
+                                "Check app logs", t="error")
                     except:
                         pass
 
@@ -7402,9 +7446,9 @@ if __name__ == "__main__":
             manager = multiprocessing.Manager()
             ns = manager.Namespace()
 
-            d = multiprocessing.Process(target=load_proc, args=(self.alignment_list,
-                                                                file_list, ns,
-                                                                self.temp_dir))
+            d = multiprocessing.Process(
+                target=load_proc,
+                args=(self.alignment_list, file_list, ns, self.temp_dir))
 
             d.start()
 
@@ -7429,20 +7473,21 @@ if __name__ == "__main__":
             AlignmentList object, they will be returned by this method for
             handling in the load method
 
-            I also sets the alignment and taxa active lists, which should be used
-            to perform subsequent operations. For now, the original taxa and
-            alignment lists should remain untouched for future implementation of
-            undo/redo functionality and as backups
+            I also sets the alignment and taxa active lists, which should be
+            used to perform subsequent operations. For now, the original taxa
+            and alignment lists should remain untouched for future
+            implementation of undo/redo functionality and as backups
             :returns: List of invalid/badly formatted alignment objects
             """
 
             # Check for consistency in sequence type across alignments
             current_seq_type = set(self.sequence_types + aln_list.format_list())
             if len(current_seq_type) > 1:
-                return self.dialog_warning("Multiple sequence types detected",
-                    "The selected input alignments contain more than one sequence "
-                    "type (DNA, RNA, Protein). Please select input files of the "
-                    "same sequence type")
+                return self.dialog_warning(
+                    "Multiple sequence types detected",
+                    "The selected input alignments contain more than one "
+                    "sequence type (DNA, RNA, Protein). Please select input "
+                    "files of the  same sequence type")
             else:
                 self.sequence_types.extend(list(current_seq_type))
 
@@ -7450,7 +7495,8 @@ if __name__ == "__main__":
             # Updating active alignment list
             self.active_taxa_list = self.alignment_list.taxa_names
 
-            self.load(selection, aln_list.bad_alignments, aln_list.non_alignments)
+            self.load(selection, aln_list.bad_alignments,
+                      aln_list.non_alignments)
 
         def get_taxa_information(self, alt_list=None):
             """
@@ -7519,10 +7565,11 @@ if __name__ == "__main__":
                     tx_inf[tx]["missing"] = sequence.count(missing_symbol)
 
                     # Get effective sequence length in absolute and percentage
-                    tx_inf[tx]["effective_len"] = seq_len - (tx_inf[tx]["indel"] +
-                                                             tx_inf[tx]["missing"])
-                    tx_inf[tx]["effective_len_per"] = round(
-                        (tx_inf[tx]["effective_len"] * 100) / seq_len, 2)
+                    tx_inf[tx]["effective_len"] = \
+                        seq_len - (tx_inf[tx]["indel"] + tx_inf[tx]["missing"])
+
+                    tx_inf[tx]["effective_len_per"] = \
+                        round((tx_inf[tx]["effective_len"] * 100) / seq_len, 2)
 
                     # Get number of files containing the taxa in absolute and
                     # percentage
@@ -7548,11 +7595,11 @@ if __name__ == "__main__":
             """
             Similar to get_taxa_information, but generating information for the
             files in the file tab.
-            :param mode: string. The type of file information to retrieve. May be
-            'alignment' or 'proteome'
+            :param mode: string. The type of file information to retrieve. May
+            be 'alignment' or 'proteome'
 
-            :return: file_inf (dictionary). Contains all relevant content for the
-            file popup. It contains the following keys:
+            :return: file_inf (dictionary). Contains all relevant content for
+            the file popup. It contains the following keys:
 
                 ..:mode: alignment:
                     - aln_format: The format of the input file
@@ -7561,7 +7608,8 @@ if __name__ == "__main__":
                     - aln_len: Length of the alignment
                     - is_aln: If the input file is in alignment format of
                     non-aligned sequence set format
-                    - model: The model of sequence evolution, if applicable. This is
+                    - model: The model of sequence evolution, if applicable.
+                     This is
                     usually only present on Nexus input format
                 ..mode: proteome:
                     - n_seq: Number of sequences
@@ -7636,8 +7684,8 @@ if __name__ == "__main__":
             """
             Listens and updates the attribute process_switches when their state
             changes.
-            :param switch_id: string, name of the switch according to the keys in
-            process_switches
+            :param switch_id: string, name of the switch according to the keys
+            in process_switches
             :param state: Boolean, current state of the corresponding switch
             """
 
@@ -7653,40 +7701,46 @@ if __name__ == "__main__":
 
             # Check for input proteomes
             if not self.proteome_files:
-                return self.dialog_floatcheck("Please provide proteome files as "
-                                              "input data", t="error")
+                return self.dialog_floatcheck(
+                    "Please provide proteome files as input data", t="error")
 
             # Check for output directory
             if self.ortho_dir == "":
-                return self.dialog_floatcheck("Please specify an output directory"
-                                              "for orthology results", t="error")
+                return self.dialog_floatcheck(
+                    "Please specify an output directory for orthology results",
+                    t="error")
 
             content = OrtoExecutionDialog(cancel=self.dismiss_popup)
 
-            content.ids.gene_filter.text = "[b][size=18][color=37abc8ff]Maximum" \
-                                           " number of gene copies per cluster:" \
-                                           "[/color][/size][/b] %s" % \
-                                           self.orto_max_gene
+            content.ids.gene_filter.text = \
+                "[b][size=18][color=37abc8ff]Maximum number of gene copies " \
+                "per cluster:[/color][/size][/b] %s" %\
+                self.orto_max_gene
 
-            content.ids.sp_filter.text = "[b][size=18][color=37abc8ff]Minimum" \
-                                         " number of taxa per cluster:[/color]" \
-                                         "[/size][/b] %s" % self.orto_min_sp
+            content.ids.sp_filter.text = \
+                "[b][size=18][color=37abc8ff]Minimum number of taxa per " \
+                "cluster:[/color][/size][/b] %s" %\
+                self.orto_min_sp
 
-            content.ids.eval.text = "[b][size=18][color=37abc8ff]USEARCH e-value" \
-                                    " threshold:[/color][/size][/b] %s" % \
-                                    self.usearch_evalue
+            content.ids.eval.text =\
+                "[b][size=18][color=37abc8ff]USEARCH e-value threshold:" \
+                "[/color][/size][/b] %s" %\
+                self.usearch_evalue
 
-            content.ids.inflation.text = "[b][size=18][color=37abc8ff]MCL " \
-                                         "inflation value(s):[/color][/size][/b] " \
-                                         "%s" % ", ".join(self.mcl_inflation)
+            content.ids.inflation.text = \
+                "[b][size=18][color=37abc8ff]MCL inflation value(s):" \
+                "[/color][/size][/b] %s" %\
+                ", ".join(self.mcl_inflation)
 
-            content.ids.threads.text = "[b][size=18][color=37abc8ff]Threads " \
-                                       ":[/color][/size][/b] %s" % \
-                                       self.screen.ids.usearch_threads.text
+            content.ids.threads.text = \
+                "[b][size=18][color=37abc8ff]Threads :[/color][/size][/b] %s" %\
+                self.screen.ids.usearch_threads.text
 
-            self.show_popup(title="Orthology search execution summary - Processing"
-                                  " %s file(s)" % len(self.proteome_files),
-                            content=content, size=(550, 350))
+            self.show_popup(
+                title="Orthology search execution summary - Processing %s"
+                      " file(s)" % len(self.proteome_files),
+                content=content,
+                size=(550, 350))
 
         def orthology_search_exec(self):
             """
@@ -7705,15 +7759,15 @@ if __name__ == "__main__":
                 # Updates progress bar
                 content.ids.pb.value = ns.c
 
-                # When the process finishes, close progress dialog and unschedule
-                # this callback
+                # When the process finishes, close progress dialog and
+                #  unschedule this callback
                 if not p.is_alive():
 
                     try:
                         if ns.exception:
-                            return self.dialog_floatcheck("Unexpected error when"
-                                                      " searching orthologs."
-                                                      " Check app logs", t="error")
+                            return self.dialog_floatcheck(
+                                "Unexpected error when searching orthologs."
+                                " Check app logs", t="error")
                     except:
                         pass
 
@@ -7745,27 +7799,34 @@ if __name__ == "__main__":
                             size=(400, 200))
 
             # Setup multiprocess
-            # The manager will allow shared variables between independent processes
-            # so that the progress dialog label can be updated with the current
-            # pipeline status
+            # The manager will allow shared variables between independent
+            # processes so that the progress dialog label can be updated with
+            #  the current pipeline status
             manager = multiprocessing.Manager()
             ns = manager.Namespace()
             ns.k = True
 
             # Create Process instance
-            d = multiprocessing.Process(name="daemon", target=orto_execution,
-                                        args=(ns, self.temp_dir,
-                                              self.proteome_files,
-                                              self.protein_min_len,
-                                              self.protein_max_stop, self.cur_dir,
-                                              self.usearch_evalue,
-                                              self.screen.ids.usearch_threads.text,
-                                              self.usearch_output,
-                                              self.mcl_inflation,
-                                              self.ortholog_prefix,
-                                              self.group_prefix, self.orto_max_gene,
-                                              self.orto_min_sp, self.sqldb,
-                                              self.ortho_dir))
+            d = multiprocessing.Process(
+                name="daemon",
+                target=orto_execution,
+                args=(
+                    ns,
+                    self.temp_dir,
+                    self.proteome_files,
+                    self.protein_min_len,
+                    self.protein_max_stop,
+                    self.cur_dir,
+                    self.usearch_evalue,
+                    self.screen.ids.usearch_threads.text,
+                    self.usearch_output,
+                    self.mcl_inflation,
+                    self.ortholog_prefix,
+                    self.group_prefix,
+                    self.orto_max_gene,
+                    self.orto_min_sp,
+                    self.sqldb,
+                    self.ortho_dir))
             # This will make the process run in the background so that the app
             # doesn't freeze
             d.daemon = True
@@ -7773,8 +7834,8 @@ if __name__ == "__main__":
             # Change working directory
             os.chdir(self.ortho_dir)
 
-            # Create directory that will store intermediate files during orthology
-            # search
+            # Create directory that will store intermediate files during
+            # orthology search
             int_dir = "backstage_files"
             if not os.path.exists(int_dir):
                 os.makedirs(int_dir)
@@ -7790,7 +7851,8 @@ if __name__ == "__main__":
 
         def process_exec(self):
             """
-            Main function that executes all queued procedures of the process module
+            Main function that executes all queued procedures of the process
+            module
 
             ORDER OF PROCESS EXECUTION:
 
@@ -7828,18 +7890,19 @@ if __name__ == "__main__":
                     # If process execution ended with an error, issue warning.
                     try:
                         if shared_ns.exception:
-                            return self.dialog_floatcheck("ERROR: Unexpected error"
-                                " when generating Process output. Check the app "
-                                "logs.", t="error")
+                            return self.dialog_floatcheck(
+                                "ERROR: Unexpected error when generating "
+                                "Process output. Check the app logs.",
+                                t="error")
                     except:
                         if shared_ns.proc_files == 1:
-                            self.dialog_floatcheck("All Done! %s file was "
-                                                   "successfully processed" %
-                                                   shared_ns.proc_files, t="info")
+                            self.dialog_floatcheck(
+                                "All Done! %s file was successfully processed"
+                                % shared_ns.proc_files, t="info")
                         else:
-                            self.dialog_floatcheck("All Done! %s files were "
-                                                   "successfully processed" %
-                                                   shared_ns.proc_files, t="info")
+                            self.dialog_floatcheck(
+                                "All Done! %s files were successfully processed"
+                                % shared_ns.proc_files, t="info")
 
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
