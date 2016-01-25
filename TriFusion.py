@@ -1641,7 +1641,7 @@ if __name__ == "__main__":
             # issues with garbage collector of kivy. So, for now, this will
             # iterate over all children of the toggle button's parent
             for i in [x for x in wgt.parent.children
-                      if isinstance(x,ToggleButton)]:
+                      if isinstance(x, ToggleButton)]:
                 if i.disabled:
                     i.disabled = False
                     i.state = "normal"
@@ -1659,12 +1659,13 @@ if __name__ == "__main__":
                 wgt.disabled = False
                 wgt.state = "normal"
 
-        def check_action(self, text, func, bt_wgt=None, args=None, popup_level=1):
+        def check_action(self, text, func, bt_wgt=None, args=None,
+                         popup_level=1):
             """
-            General purpose method that pops a dialog checking if the user wants to
-            perform a certain action. This method should be passed as a function on
-            the 'on_*' with the final function and original widget triggering the
-            event as arguments
+            General purpose method that pops a dialog checking if the user
+            wants to perform a certain action. This method should be passed
+            as a function on the 'on_*' with the final function and original
+            widget triggering the event as arguments
             :param text: string, text to appear in the dialog
             :param func: final function if the users chooses to process
             :param bt_wgt: widget where the initial 'on_' event occurred
@@ -1676,10 +1677,11 @@ if __name__ == "__main__":
             This can be applied to the removal button of the bookmarks. In this
             case, the event of the removal button must be like this:
 
-            remove_button.bind(partial(self.check_action, self.remove_bookmark_bt))
+            remove_button.bind(partial(self.check_action,
+                               self.remove_bookmark_bt))
 
-            where, self.check_action is this method, and self.remove_bookmark_bt is
-            the function that will actually remove the bookmark button. This
+            where, self.check_action is this method, and self.remove_bookmark_bt
+            is the function that will actually remove the bookmark button. This
             function is then binder to the "OK" button of the check dialog.
             By default, the last argument is the bt_wgt.
             """
@@ -1691,13 +1693,15 @@ if __name__ == "__main__":
 
             check_content.ids.check_text.text = text
             if bt_wgt and not args:
-                check_content.ids.check_ok.bind(on_release=lambda val: func(bt_wgt))
+                check_content.ids.check_ok.bind(
+                    on_release=lambda val: func(bt_wgt))
             else:
                 if args:
                     check_content.ids.check_ok.bind(on_release=lambda val:
                     func(*args))
                 else:
-                    check_content.ids.check_ok.bind(on_release=lambda val: func())
+                    check_content.ids.check_ok.bind(
+                        on_release=lambda val: func())
 
             if popup_level == 1:
                 self.show_popup(title="Warning!", content=check_content,
@@ -1717,8 +1721,8 @@ if __name__ == "__main__":
         def check_file(self, path, file_name, idx):
             """
             Method used by some filechooser dialogs. Checks whether the provided
-            file name already exists. If so, issues a check_action popup. If not,
-            proceeds as normal
+            file name already exists. If so, issues a check_action popup. If
+            not, proceeds as normal
             :param path: string, complete path
             :param file_name: string, file name
             :param idx: string, operation identifier
@@ -1727,45 +1731,51 @@ if __name__ == "__main__":
             # Stores methods. key: idx; first value element, method to apply;
             # second value element, list of arguments; third value element the
             # file_name extension
-            methods = {"main_output": [self.save_file, [path, file_name, idx], ""],
-                       "export": [self.export_names, [path, file_name], ".txt"],
-                       "export_table": [self.export_table, [path, file_name],
-                                        ".csv"],
-                       "group": [self.orto_export_groups, ["group", path,
-                                                           file_name], ""]}
+            methods = {
+                "main_output":
+                [self.save_file, [path, file_name, idx], ""],
+                "export":
+                [self.export_names, [path, file_name], ".txt"],
+                "export_table":
+                [self.export_table, [path, file_name], ".csv"],
+                "group":
+                [self.orto_export_groups, ["group", path, file_name], ""]
+            }
 
             # Check if files exists.
             if os.path.exists(join(path, file_name + methods[idx][2])):
 
-                self.check_action("The file {} already exists."
-                                  " Overwrite?".format(file_name), methods[idx][0],
-                                  **{"args": methods[idx][1], "popup_level": 2})
+                self.check_action(
+                    "The file {} already exists. Overwrite?".format(file_name),
+                    methods[idx][0],
+                    **{"args": methods[idx][1], "popup_level": 2})
 
             else:
                 methods[idx][0](*methods[idx][1])
                 self.dismiss_popup()
 
-        # ########################## GENERAL USE ###################################
+        # ########################## GENERAL USE ###############################
 
         def run_in_background(self, func, second_func, args1, args2=None,
                               no_arg2=False, msg="Crunching data..."):
             """
-            This method is intended to run time/resource consuming operations in the
-            background, without freezing the app, and return the final result to the
-            main thread. This means that complex methods that perform multiple
-            changes to the App's attributes are not suitable for this method
-            (changes in a secondary thread will not change the App in the main
-            thread). Therefore, the simplest solution to the problem is to isolate
-            the time consuming parts of those methods, run them in the background,
-            and get their result. Then, their result is piped to the follow-up
-            fuction provided as argument
-            :param func: intensive callable bound method to run in the background
+            This method is intended to run time/resource consuming operations in
+            the background, without freezing the app, and return the final
+            result to the main thread. This means that complex methods that
+            perform multiple changes to the App's attributes are not suitable
+            for this method  (changes in a secondary thread will not change
+            the App in the main thread). Therefore, the simplest solution to
+            the problem is to isolate the time consuming parts of those
+            methods, run them in the background, and get their result. Then,
+            their result is piped to the follow-up fuction provided as argument
+            :param func: intensive callable bound method to run in the
+            background
             :param second_func: Follow-up bound method that will use the value
             returned by func
-            :param args1: list, with the arguments for func t method. No keywords
-            allowed
-            :param args2: list, with arguments for second_func. These will be added
-            to the argument list returned by func
+            :param args1: list, with the arguments for func t method. No
+            keywords allowed
+            :param args2: list, with arguments for second_func. These will be
+            added to the argument list returned by func
             :param no_arg2: Boolean. Whether func will return something to
             second_func
             :param msg: string, message to appear in waiting dialog.
@@ -1773,18 +1783,27 @@ if __name__ == "__main__":
 
             def check_process_status(p, second_function, args, man, dt):
                 """
-                This scheduled function will check the status of the second process.
-                When finished, it will dismiss the waiting popup, get the value
-                returned by the second process and issue the following method
+                This scheduled function will check the status of the second
+                process. When finished, it will dismiss the waiting popup,
+                get the value returned by the second process and issue the
+                following method
+
+                :param p: Process object.
+                :param second_function: function object. If not None, this
+                function will be executed in the main process, once the first
+                process is finished.
+                :param args: list. Contains the argument to be passed at the
+                second_function
+                :param man: Manager object.
                 """
 
                 if not p.is_alive():
 
                     try:
                         if shared_ns.exception:
-                            return self.dialog_floatcheck("An unexpected error "
-                                                          "occurred. Check the app"
-                                                          " logs", t="error")
+                            return self.dialog_floatcheck(
+                                "An unexpected error occurred. Check the app"
+                                " logs", t="error")
                     except:
                         pass
 
@@ -1792,11 +1811,14 @@ if __name__ == "__main__":
                     Clock.unschedule(check_func)
                     self.dismiss_popup()
 
+                    # Manager must be shutdown before closing the process,
+                    # otherwise the data pipe will prevent the process from
+                    # closing
                     man.shutdown()
                     p.terminate()
 
-                    # Checks if there is a second function to run and whether there
-                    # are additional arguments for secondary function
+                    # Checks if there is a second function to run and whether
+                    # there are additional arguments for secondary function
                     if not no_arg2:
                         if second_func:
                             if args2:
@@ -1808,8 +1830,8 @@ if __name__ == "__main__":
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
 
-            second_process = multiprocessing.Process(target=background_process,
-                                                     args=(func, shared_ns, args1))
+            second_process = multiprocessing.Process(
+                target=background_process, args=(func, shared_ns, args1))
             second_process.start()
 
             # Remove any possible previous popups
@@ -1822,17 +1844,18 @@ if __name__ == "__main__":
             self.show_popup(title="", content=content, size=(230, 180))
 
             # Schedule function that checks the process' pulse
-            check_func = partial(check_process_status, second_process, second_func,
-                                 args2, manager)
+            check_func = partial(check_process_status, second_process,
+                                 second_func, args2, manager)
             Clock.schedule_interval(check_func, .1)
 
-        # ###################### BOOKMARKS OPERATIONS ##############################
+        # ###################### BOOKMARKS OPERATIONS ##########################
 
         def bookmark_init(self, wgt, dev_wgt, fc_wgt):
             """
             This will create a pickle file containing a list with the bookmarks
-            for the file chooser menu. If no file exists, it will create an empty
-            one. If a file already exists, it will load the available bookmarks
+            for the file chooser menu. If no file exists, it will create an
+            empty one. If a file already exists, it will load the available
+            bookmarks
 
             :param wgt: Widget object where the bookmark button will be
             :param dev_wgt: Widget object where the system bookmarks will be
@@ -1872,14 +1895,14 @@ if __name__ == "__main__":
                 self.add_bookmark_bt("/", dev_wgt, fc_wgt, name="System",
                                      rm_bt=False)
                 # Home
-                self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt, name="Home",
-                                     rm_bt=False)
+                self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt,
+                                     name="Home", rm_bt=False)
 
             # Get main devices for windows
             if sys.platform in ["win32", "cygwin"]:
 
-                devices = re.findall(r"[A-Z]+:.*$", os.popen("mountvol /").read(),
-                                     re.MULTILINE)
+                devices = re.findall(
+                    r"[A-Z]+:.*$", os.popen("mountvol /").read(), re.MULTILINE)
 
                 for d in devices:
                     if exists(d):
@@ -1934,8 +1957,8 @@ if __name__ == "__main__":
 
             bookmark_name = basename(bk)
             # Define bookmark button
-            bt = TFButton(text=name if name else bookmark_name, id=bk, bold=True,
-                          height=30, size_hint=(.8, None),
+            bt = TFButton(text=name if name else bookmark_name, id=bk,
+                          bold=True, height=30, size_hint=(.8, None),
                           background_normal=join("data", "backgrounds",
                                                  "bt_process.png"),
                           background_down=join("data", "backgrounds",
@@ -1954,8 +1977,8 @@ if __name__ == "__main__":
                                                     "remove_bt.png"),
                              background_down=join("data", "backgrounds",
                                                   "remove_bt_down.png"))
-                # Bind to function that removes bookmark button as well as the path
-                # from self.bm_file
+                # Bind to function that removes bookmark button as well as the
+                # path from self.bm_file
                 xbt.bind(on_release=partial(self.check_action,
                                             "Are you sure you want to remove"
                                             " this bookmark?",
@@ -1979,13 +2002,14 @@ if __name__ == "__main__":
                 wgt.path = path
                 wgt.selection = []
             else:
-                self.dialog_floatcheck("The path to the selected bookmark no longer"
-                                       " exists.", t="error")
+                self.dialog_floatcheck(
+                    "The path to the selected bookmark no longer exists.",
+                    t="error")
 
         def remove_bookmark_bt(self, value):
             """
-            Adds functionality to the removal button associated with each bookmark
-            button. This will not only remove the
+            Adds functionality to the removal button associated with each
+            bookmark button. This will not only remove the
             :param value: The removal button widget
             """
 
@@ -2011,13 +2035,13 @@ if __name__ == "__main__":
             # Update self.bm_file
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
-        # ####################### PLOT SCREEN OPERATIONS ###########################
+        # ####################### PLOT SCREEN OPERATIONS #######################
 
         def dialog_export_graphic(self):
             """
-            Creates a filechooser dialog for graphics exportation. It differs from
-            other filechooser dialogs in the presence of a spinner to select
-            the graphical extension
+            Creates a filechooser dialog for graphics exportation. It differs
+            from other filechooser dialogs in the presence of a spinner to
+            select the graphical extension
             :return:
             """
 
@@ -2033,16 +2057,18 @@ if __name__ == "__main__":
             extension
             :param path: string, path to final directory
             :param file_name: string, name of graphic file
-            :param ext: string, extension of graphic file (e.g. png, svg, pdf, etc)
+            :param ext: string, extension of graphic file (e.g. png, svg, pdf,
+            etc)
             """
 
             if self.current_lgd:
-                self.current_plot.savefig(join(path, file_name + ext),
-                                          bbox_extra_artists=(self.current_lgd,),
-                                          bbox_inches="tight")
+                self.current_plot.savefig(
+                    join(path, file_name + ext),
+                    bbox_extra_artists=(self.current_lgd,),
+                    bbox_inches="tight")
             else:
-                self.current_plot.savefig(join(path, file_name + ext),
-                                          bbox_inches="tight")
+                self.current_plot.savefig(
+                    join(path, file_name + ext), bbox_inches="tight")
 
             self.dialog_floatcheck("Graphic successfully exported!", t="info")
 
@@ -2066,7 +2092,7 @@ if __name__ == "__main__":
 
             self.dialog_floatcheck("Table successfully exported!", t="info")
 
-        # ####################### SIDE PANEL OPERATIONS ############################
+        # ####################### SIDE PANEL OPERATIONS ########################
 
         def sidepanel_on_touch(self, touch):
             """
@@ -2080,16 +2106,17 @@ if __name__ == "__main__":
             - When the variable controlling the side panel (show_side_panel) is
             True, meaning that the panel is extended
             - When the mouse input is outside the previous button in the action
-            bar, which is also used to toggle the side panel. This prevents issues
-            of toggling the side panel twice with one mouse input
-            - When a popup is not open. There are several buttons in the side bar
-            that open whose position is outside the side bar. The user should be
+            bar, which is also used to toggle the side panel. This prevents
+            issues of toggling the side panel twice with one mouse input
+            - When a popup is not open. There are several buttons in the side
+            bar that open whose position is outside the side bar. The user
+            should be
             able to click anywhere in the popup without the side panel closing.
 
             In addition, it will handle the status of the partition box dialog,
-            associated with the sidepanel. While this box is active, the sidepanel
-            must remain open. However, clicks outside the partition box will close
-            it.
+            associated with the sidepanel. While this box is active, the
+            sidepanel must remain open. However, clicks outside the partition
+            box will close it.
 
             :param touch: Touch event
             """
@@ -2133,7 +2160,8 @@ if __name__ == "__main__":
                     mp[0], mp[1]):
                 # Check if spinner is open
                 spin1 = partition_box[0].ids.codon_spin.is_open
-                spin2 = [x.is_open for x in partition_box[0].ids.model_bx.children]
+                spin2 = [x.is_open for x in
+                         partition_box[0].ids.model_bx.children]
 
                 # If the spinners are not open, remove
                 if True not in spin2 and not spin1:
@@ -2143,8 +2171,8 @@ if __name__ == "__main__":
                     self.root_window.remove_widget(rm_bt)
 
             # Check for conditions to close the side panel.
-            # If touch is out of panel; if panel is open; is touch is out of menu
-            # button; a popup is not open
+            # If touch is out of panel; if panel is open; is touch is out of
+            # menu button; a popup is not open
             if side_panel_wgt.collide_point(mp[0], mp[1]) is False \
                     and self.show_side_panel \
                     and ap.collide_point(mp[0], mp[1]) is False \
@@ -2170,8 +2198,8 @@ if __name__ == "__main__":
                     return
 
             # Toggling the state of the panel. This attribute is the main
-            # controller of the side panel state. When its True, the side panel is
-            # extended, otherwise the side panel is hidden
+            # controller of the side panel state. When its True, the side panel
+            #  is extended, otherwise the side panel is hidden
             self.show_side_panel = not self.show_side_panel
 
             if self.show_side_panel:
@@ -2241,7 +2269,8 @@ if __name__ == "__main__":
             for txt in found_bts:
                 if panel == "partitions":
                     # Get number of alignment for partition
-                    fls = self.alignment_list.partitions.partitions_alignments[txt]
+                    fls = self.alignment_list.partitions.\
+                        partitions_alignments[txt]
                     bt, inf_bt, x_bt = create_bts_mtd([txt, fls])
                 else:
                     bt, inf_bt, x_bt = create_bts_mtd(txt)
@@ -2259,7 +2288,8 @@ if __name__ == "__main__":
 
         def sidepanel_clear_search(self, panel):
             """
-            Clears previous search string and populates with the original buttons
+            Clears previous search string and populates with the original
+            buttons
             :param panel: string, the panel to clear the search. Can be either
             'files' or 'taxa'
             """
@@ -2281,8 +2311,10 @@ if __name__ == "__main__":
             mouse_bts = []
             for bt, inf_bt, rm_bt in bt_list:
                 # Update button states during search operation
-                # Default states is down for Taxa/Files and normal for Partitions
-                state = "down" if gl_wgt != self.root.ids.partition_sl else "normal"
+                # Default states is down for Taxa/Files and normal for
+                # Partitions
+                state = "down" if gl_wgt != self.root.ids.partition_sl else \
+                    "normal"
                 # For files
                 if bt.id in self.filename_map:
                     if self.filename_map[bt.id] not in self.active_file_list:
@@ -2337,12 +2369,11 @@ if __name__ == "__main__":
             wgt_y = bt.y + bt.height + 12
 
             # Generate fancy marker
-            point_wgt = FancyMarkerPersist(background_normal=join("data",
-                                           "backgrounds", "box_arrow_down.png"),
-                                           pos=(bt.x + (bt.width * 2),
-                                                (bt.y + bt.height + 5)),
-                                           size=(12, 7),
-                                           background_color=(0.216, 0.67, 0.784, 1))
+            point_wgt = FancyMarkerPersist(
+                background_normal=join("data", "backgrounds",
+                                       "box_arrow_down.png"),
+                pos=(bt.x + (bt.width * 2), (bt.y + bt.height + 5)),
+                size=(12, 7), background_color=(0.216, 0.67, 0.784, 1))
 
             dlg_wgt = SP_MoreOpts_Dialog(ds_type=active_tab, pos=(wgt_x, wgt_y))
 
@@ -2361,11 +2392,12 @@ if __name__ == "__main__":
             To allow different files to be loaded on independent occasions,
             before performing the loading operations, the self.file_list
             attribute that contains the full paths to the input files will be
-            checked to see if its empty or populated. When empty, attributes will
-            be loaded anew; otherwise, the existing populated attributes will be
-            extended.
+            checked to see if its empty or populated. When empty, attributes
+            will be loaded anew; otherwise, the existing populated attributes
+            will be extended.
 
-            :param selection: list. Contains the paths to the selected input files
+            :param selection: list. Contains the paths to the selected input
+            files
             :param bad_aln: list. Contains alignments that could not be read
             :param non_aln: list. Contains files that are in supported formats
             but are not aligned
@@ -2373,10 +2405,11 @@ if __name__ == "__main__":
 
             # If duplicate alignments were loaded, issue a warning
             if self.alignment_list.duplicate_alignments:
-                self.dialog_floatcheck("Duplicate input alignments detected and "
-                                       "ignored", t="error")
-                # Reset the duplicate alignment storage, so that it doesn't issue
-                # the warning every time data is loaded
+                self.dialog_floatcheck(
+                    "Duplicate input alignments detected and ignored",
+                    t="error")
+                # Reset the duplicate alignment storage, so that it doesn't
+                # issue the warning every time data is loaded
                 self.alignment_list.duplicate_alignments = []
 
             else:
@@ -2384,13 +2417,14 @@ if __name__ == "__main__":
                 if bad_aln or non_aln:
                     msg = ""
                     if bad_aln:
-                        msg += "The following input file(s) could not be open:\n\n"\
-                               "[b]%s[/b]\n\n" % \
-                               "\n".join(basename(x) for x in bad_aln)
+                        msg += "The following input file(s) could not be open:"\
+                            "\n\n[b]%s[/b]\n\n" % "\n".join(basename(x) for x in
+                                                            bad_aln)
+
                         self.alignment_list.bad_alignments = []
                     if non_aln:
-                        msg += "The following input file(s) contain(s) sequences " \
-                               "of unequal length:\n\n[b]%s[/b]" % \
+                        msg += "The following input file(s) contain(s) " \
+                               "sequences of unequal length:\n\n[b]%s[/b]" % \
                                "\n".join(basename(x) for x in non_aln)
                         self.alignment_list.non_alignments = []
 
@@ -2433,16 +2467,18 @@ if __name__ == "__main__":
 
                     # Issue float check
                     if selection and self.root_window:
-                        self.dialog_floatcheck("%s file(s) successfully loaded" %
-                                               len(selection), t="info")
+                        self.dialog_floatcheck(
+                            "%s file(s) successfully loaded" % len(selection),
+                            t="info")
 
         def load_proteomes(self, selection):
             """
-            Similar to load method, but specific for loading proteome files. Given
-            the potential size of these files, they are not stored in memory, but
-            instead are processed on the fly
+            Similar to load method, but specific for loading proteome files.
+            Given the potential size of these files, they are not stored in
+            memory, but instead are processed on the fly
 
-            :param selection: list. Contains complete paths to the proteome files
+            :param selection: list. Contains complete paths to the proteome
+            files
             """
 
             # Stores invalid proteome files
@@ -2501,22 +2537,25 @@ if __name__ == "__main__":
                                                   good_proteomes)))
 
                 # Populate file buttons in side panel
-                self.original_file_inf = self.get_file_information(mode="proteome")
+                self.original_file_inf = self.get_file_information(
+                    mode="proteome")
                 self.populate_input_files(mode="proteome")
 
             if list(bad_proteomes.values()) != [[], [], []]:
                 msg = ""
                 if bad_proteomes["invalid"]:
-                    msg += "The following files are in invalid format:\n%s\n\n" % \
-                           ", ".join(bad_proteomes["invalid"])
+                    msg += "The following files are in invalid format:\n%s" \
+                           "\n\n" % ", ".join(bad_proteomes["invalid"])
                 if bad_proteomes["no_fasta"]:
-                    msg += "The following files are not in FASTA format:\n%s\n\n" \
-                           % ", ".join(bad_proteomes["no_fasta"])
+                    msg += "The following files are not in FASTA format:\n%s" \
+                           "\n\n" % ", ".join(bad_proteomes["no_fasta"])
                 if bad_proteomes["no_protein"]:
-                    msg += "The following files do not contain protein sequences:" \
-                           "\n%s\n\n" % ", ".join(bad_proteomes["no_protein"])
+                    msg += "The following files do not contain protein " \
+                           "sequences:\n%s\n\n" \
+                           % ", ".join(bad_proteomes["no_protein"])
 
-                return self.dialog_warning("Invalid proteome files detected", msg)
+                return self.dialog_warning("Invalid proteome files detected",
+                                           msg)
 
         def update_tabs(self):
             """
@@ -2529,8 +2568,8 @@ if __name__ == "__main__":
 
         def update_taxa(self):
             """
-            This checks whether some taxa that were specific to some file(s) were
-            removed when that file is removed.
+            This checks whether some taxa that were specific to some file(s)
+            were removed when that file is removed.
             """
 
             # If taxa were removed during the update, remove those buttons too
@@ -2558,8 +2597,8 @@ if __name__ == "__main__":
 
         def update_file_label(self):
             """
-            Sets and updates a label on the Files tab of the side panel, informing
-            how many files are selected out of the total files
+            Sets and updates a label on the Files tab of the side panel,
+            informing how many files are selected out of the total files
             """
 
             # Determine which list is used to populate
@@ -2572,9 +2611,9 @@ if __name__ == "__main__":
 
         def update_sp_label(self):
             """
-            Sets and updates a label on the Taxa tab of the side panel, informing
-            how many taxa are selected out of the total taxa. If the taxa list
-            is empty, it disables the select/deselect buttons
+            Sets and updates a label on the Taxa tab of the side panel,
+            informing how many taxa are selected out of the total taxa. If
+            the taxa list is empty, it disables the select/deselect buttons
             """
 
             self.root.ids.sp_lab.text = "%s of %s taxa selected" % (
