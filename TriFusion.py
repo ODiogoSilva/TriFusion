@@ -4557,23 +4557,23 @@ if __name__ == "__main__":
             if ds_bt == "orthology":
                 pass
             else:
-                bt.bind(on_release=partial(self.check_action,
-                                           "Are you sure you want to load a new "
-                                           "project? Any previously loaded data "
-                                           "will be removed.",
-                                           self.open_project,
-                                           **{"args": [name]}))
+                bt.bind(on_release=partial(
+                    self.check_action,
+                    "Are you sure you want to load a new project? Any "
+                    "previously loaded data will be removed.",
+                    self.open_project,
+                    **{"args": [name]}))
 
             rm_bt = Button(size_hint=(None, None), size=(35, 35),
-                           id=name, border=(0, 0, 0, 0),
-                           background_normal=join("data", "backgrounds",
-                                                  "remove_bt35.png"),
-                           background_down=join("data", "backgrounds",
-                                                "remove_bt35_down.png"))
-            rm_bt.bind(on_release=partial(self.check_action,
-                                          "Are you sure you want to remove this"
-                                          " project?",
-                                          self.remove_project))
+                id=name, border=(0, 0, 0, 0),
+                background_normal=join("data", "backgrounds",
+                                       "remove_bt35.png"),
+                background_down=join("data", "backgrounds",
+                                     "remove_bt35_down.png"))
+            rm_bt.bind(on_release=partial(
+                self.check_action,
+                "Are you sure you want to remove this project?",
+                self.remove_project))
 
             for i in [ds_bt, bt, rm_bt]:
                 grid_wgt.add_widget(i)
@@ -4605,14 +4605,15 @@ if __name__ == "__main__":
 
             # Remove from home screen, if present
             if "home_projects_grid" in self.screen.ids:
-                for i in [bt for bt in self.screen.ids.home_projects_grid.children
+                for i in [bt for bt in
+                          self.screen.ids.home_projects_grid.children
                           if bt.id == wgt.id]:
                     self.screen.ids.home_projects_grid.remove_widget(i)
 
                 if len(self.screen.ids.home_projects_grid.children) == 0:
                     self.screen.ids.home_projects_grid.add_widget(Button(
-                        text="No Saved Projects", disabled=True, size_hint_y=None,
-                        height=35))
+                        text="No Saved Projects", disabled=True,
+                        size_hint_y=None, height=35))
 
         def open_project(self, name):
             """
@@ -4641,16 +4642,19 @@ if __name__ == "__main__":
             This method is called when the dataset selection buttons in the
             Statistics sidepanel are pressed. They populate the respective
             dropdown menu with the currently set groups
-            :param ds_type: string, data set type. Can be either 'taxa' or 'files'
+            :param ds_type: string, data set type. Can be either 'taxa' or
+            'files'
             """
 
             if ds_type == "taxa":
                 dd_wgt = self.screen.ids.taxa_dropdown
-                grid_children = self.screen.ids.taxa_dropdown.children[0].children
+                grid_children = \
+                    self.screen.ids.taxa_dropdown.children[0].children
                 group_atr = self.taxa_groups
             else:
                 dd_wgt = self.screen.ids.file_dropdown
-                grid_children = self.screen.ids.file_dropdown.children[0].children
+                grid_children = \
+                    self.screen.ids.file_dropdown.children[0].children
                 group_atr = self.file_groups
 
             # Remove discarded groups
@@ -4665,19 +4669,20 @@ if __name__ == "__main__":
             current_groups = [x.text for x in grid_children]
             for g in group_atr:
                 if g not in current_groups:
-                    dd_bt = Button(text=g, size_hint_y=None, height=40, bold=True,
-                                   background_normal=join("data", "backgrounds",
-                                                          "spinner_opt.png"))
-                    dd_bt.bind(on_release=lambda x: dd_wgt.select(g))
+                    dd_bt = Button(
+                        text=g, size_hint_y=None, height=40, bold=True,
+                        background_normal=join("data", "backgrounds",
+                                               "spinner_opt.png"))
+                    dd_bt.bind(on_release=lambda y: dd_wgt.select(g))
                     dd_wgt.add_widget(dd_bt)
 
         def dialog_general_info(self, idx):
             """
             Generates the popup with information for several components of the
             application
-            :param idx: string. Identifier of the informative content to be shown.
-            It must be present in the dictionary keys of the informative_storage
-            variable in data/resources/info_data.py
+            :param idx: string. Identifier of the informative content to be
+            shown. It must be present in the dictionary keys of the
+            informative_storage variable in data/resources/info_data.py
             """
 
             content = InfoPopup(cancel=self.dismiss_popup)
@@ -4688,7 +4693,8 @@ if __name__ == "__main__":
             # Add text body
             content.ids.content.text = body_str
 
-            self.show_popup(title=title_str, content=content, size_hint=(.5, .5))
+            self.show_popup(title=title_str, content=content,
+                            size_hint=(.5, .5))
 
         def operation_queue_init(self):
             """
@@ -4702,21 +4708,22 @@ if __name__ == "__main__":
 
             # Create main nodes for each module
             ortho_node = self.operation_tv.add_node(
-                TreeViewLabel(text="Orthology Operations", bold=True, font_size=20,
-                              color=(1, 0.3, 0.3, .2)))
+                TreeViewLabel(text="Orthology Operations", bold=True,
+                              font_size=20, color=(1, 0.3, 0.3, .2)))
             proc_node = self.operation_tv.add_node(
-                TreeViewLabel(text="Process Operations", bold=True, font_size=20,
-                              color=(.3, .3, 1, 1)))
+                TreeViewLabel(text="Process Operations", bold=True,
+                              font_size=20, color=(.3, .3, 1, 1)))
             stat_node = self.operation_tv.add_node(
-                TreeViewLabel(text="Statistics Operations", bold=True, font_size=20,
-                              color=(.3, 1, .3, .2)))
+                TreeViewLabel(text="Statistics Operations", bold=True,
+                              font_size=20, color=(.3, 1, .3, .2)))
 
             # Main subnodes for Process
             main_op_node = self.operation_tv.add_node(TreeViewLabel(
                 text="Main Operation", bold=True, font_size=15, opacity=.2),
                 proc_node)
             secondary_op_node = self.operation_tv.add_node(TreeViewLabel(
-                text="Secondary Operations", bold=True, font_size=15, opacity=.2),
+                text="Secondary Operations", bold=True, font_size=15,
+                opacity=.2),
                 proc_node)
             format_node = self.operation_tv.add_node(TreeViewLabel(
                 text="Output Formats", bold=True, font_size=15, opacity=.2),
@@ -4743,7 +4750,8 @@ if __name__ == "__main__":
 
                 - self.main_operations, to gather the main operation
                 - self.process_switches, to gather secondary operations
-                - self.output_formats, to gather information on the output formats
+                - self.output_formats, to gather information on the output
+                formats
                 - self.
             """
 
@@ -4757,8 +4765,8 @@ if __name__ == "__main__":
                     self.operation_tv.height -= 24
 
             def add_node(text, parent):
-                self.operation_tv.add_node(TreeViewLabel(text=text, font_size=16),
-                                           parent)
+                self.operation_tv.add_node(
+                    TreeViewLabel(text=text, font_size=16), parent)
                 self.operation_tv.height += 24
                 if parent.opacity != 1:
                     parent.opacity = 1
@@ -4810,7 +4818,8 @@ if __name__ == "__main__":
             clear_nodes(self.main_nodes["main_file"])
             # for conversion
             if self.main_operations["conversion"]:
-                add_node("[Based on input] (main)", self.main_nodes["main_file"])
+                add_node("[Based on input] (main)",
+                         self.main_nodes["main_file"])
                 if self.main_nodes["main_file"].is_open is False:
                     self.operation_tv.toggle_node(self.main_nodes["main_file"])
                 # Output files from secondary operations
@@ -4843,7 +4852,8 @@ if __name__ == "__main__":
 
             # CORE CHANGES
             # Clear main operations
-            self.main_operations = dict((op, False) for op in self.main_operations)
+            self.main_operations = dict((op, False) for op in
+                                        self.main_operations)
 
             # Clear active data set
             self.process_grid_wgt.ids.active_taxa_set.text = "Active taxa"
@@ -4922,7 +4932,7 @@ if __name__ == "__main__":
 
             self.ortho_search_options.ids.inflation_bt.text = "['3']"
 
-        # ########################### PLOT SCREENS #################################
+        # ########################### PLOT SCREENS #############################
 
         def show_stats_toggle(self, args1, args2, active_bt, single_gene=None):
             """
@@ -4938,8 +4948,8 @@ if __name__ == "__main__":
             else:
                 content.gene_args = single_gene
                 if active_bt == "gene":
-                    content.ids.gene.background_normal = "data/backgrounds/" \
-                                                         "bt_focus.png"
+                    content.ids.gene.background_normal = \
+                        "data/backgrounds/bt_focus.png"
                     content.ids.gene.text = "Change gene"
                 else:
                     content.ids.gene.text = "Single gene"
@@ -4964,8 +4974,8 @@ if __name__ == "__main__":
 
         def show_plot_toolbar(self, toolbar_type="orto"):
             """
-            Adds a PlotToolbar BoxLayout to self.root_window. This is meant to be an
-            auxiliary toolbar for specific operations related to plots.
+            Adds a PlotToolbar BoxLayout to self.root_window. This is meant to
+            be an auxiliary toolbar for specific operations related to plots.
             :param toolbar_type: string, determines whether an orto plot toolbar
             is displayed ('orto') or a stats plot toolbar ('stats')
             """
@@ -5015,28 +5025,31 @@ if __name__ == "__main__":
             except IndexError:
                 pass
 
-        # ######################### ORTHOLOGY SCREEN ###############################
+        # ######################### ORTHOLOGY SCREEN ###########################
 
         def toggle_orto_soptions(self):
             """
-            Controls the toggling of the GridLayout with the advanced options for
-            the Orthology screen, Ortholog search slide
+            Controls the toggling of the GridLayout with the advanced options
+            for the Orthology screen, Ortholog search slide
             """
 
             if not self.orto_search_height:
                 self.orto_search_height = self.screen.ids.gl_orto_search.height
 
-            if self.screen.ids.adv_search_options.text == "Show additional options":
+            if (self.screen.ids.adv_search_options.text ==
+                    "Show additional options"):
                 # Add widget to main grid
-                self.screen.ids.gl_orto_search.add_widget(self.ortho_search_options)
+                self.screen.ids.gl_orto_search.add_widget(
+                    self.ortho_search_options)
                 # Animate widget entrance
                 Animation(opacity=1, d=.5, t="in_quad").start(
                     self.ortho_search_options)
                 # Update button text
-                self.screen.ids.adv_search_options.text = "Hide additional options"
+                self.screen.ids.adv_search_options.text = \
+                    "Hide additional options"
 
-                self.screen.ids.gl_orto_search.height = self.orto_search_height + \
-                    sum(x.height + 5 for x in
+                self.screen.ids.gl_orto_search.height = \
+                    self.orto_search_height + sum(x.height + 5 for x in
                         self.ortho_search_options.ids.mcl_grid.children) + 30
 
             elif self.screen.ids.adv_search_options.text == \
@@ -5046,13 +5059,15 @@ if __name__ == "__main__":
                 self.screen.ids.gl_orto_search.remove_widget(
                     self.ortho_search_options)
                 # Update button text
-                self.screen.ids.adv_search_options.text = "Show additional options"
+                self.screen.ids.adv_search_options.text = \
+                    "Show additional options"
 
         def dialog_search_report(self, stat_storage, groups):
             """
             Creates the dialog that reports the results of the Orthology search
-            :param stat_storage: dictionary. Each entry corresponds to an inflation
-            value, which will have a list as a value. The list will contain:
+            :param stat_storage: dictionary. Each entry corresponds to an
+            inflation value, which will have a list as a value. The list will
+            contain:
 
                [total_orts, species_compliant_orts, gene_compliant_orts,
                final_orts]
@@ -5104,8 +5119,8 @@ if __name__ == "__main__":
             content = LoadMultipleDialog(cancel=self.dismiss_popup,
                                          bookmark_init=self.bookmark_init)
 
-            self.show_popup(title="Choose group file(s) to import", content=content,
-                            size_hint=(.9, .9))
+            self.show_popup(title="Choose group file(s) to import",
+                            content=content, size_hint=(.9, .9))
 
         def dialog_mysql(self):
             """
@@ -5146,6 +5161,7 @@ if __name__ == "__main__":
             A similar dialog to dialog_ortho_filter but for the explore screen.
             Contains an additional option of applying the specified filters
             to all group files
+            :param group_name: string. name for the group object
             """
 
             content = OrtoSetFiltersDialog(cancel=self.dismiss_popup)
@@ -5167,20 +5183,24 @@ if __name__ == "__main__":
         def save_ortho_filters(self, gene_filt, sp_filt):
             """
             Save orthology clusters filters
+            :param gene_filt: int. Integer for gene filter threshold
+            :param sp_filt: int. Integer for species filter threshold
             """
 
             try:
                 self.orto_max_gene = int(gene_filt)
 
             except ValueError:
-                return self.dialog_floatcheck("Invalid filter value: '%s'. Must be "
-                                              "integer" % gene_filt, t="error")
+                return self.dialog_floatcheck(
+                    "Invalid filter value: '%s'. Must be integer" % gene_filt,
+                    t="error")
             try:
                 self.orto_min_sp = int(sp_filt)
 
             except ValueError:
-                return self.dialog_floatcheck("Invalid filter value: '%s'. Must be "
-                                              "integer" % sp_filt, t="error")
+                return self.dialog_floatcheck(
+                    "Invalid filter value: '%s'. Must be integer" % sp_filt,
+                    t="error")
 
             self.dismiss_popup()
 
@@ -5195,6 +5215,7 @@ if __name__ == "__main__":
         def save_inflation(self, inflation_wgt):
             """
             Save inflation values
+            :param inflation_wgt: Widget. Widget containing the inflation values
             """
 
             for wgt in inflation_wgt.children:
@@ -5209,6 +5230,8 @@ if __name__ == "__main__":
         def save_protein_filters(self, min_len, max_stop):
             """
             Saves protein length and stop percentage filters
+            :param min_len: int. Minimum sequence length
+            :param max_stop: int. Maximum percentage of stop codons
             """
 
             # Check arguments for compliance. Must be int
@@ -5216,17 +5239,17 @@ if __name__ == "__main__":
             try:
                 # Check if max_stop value is between 0 and 100
                 if 0 < int(max_stop) > 100:
-                    return self.dialog_floatcheck("ERROR: Maximum codon stops value"
-                                                  " must be between 0 and 100",
-                                                  t="error")
+                    return self.dialog_floatcheck(
+                        "ERROR: Maximum codon stops value must be between 0 "
+                        "and 100", t="error")
 
                 self.protein_min_len = abs(int(min_len))
                 self.protein_max_stop = abs(int(max_stop))
                 self.dismiss_popup()
             except ValueError:
-                return self.dialog_floatcheck("ERROR: {} and {} must be "
-                                              "numbers".format(min_len, max_stop),
-                                              t="error")
+                return self.dialog_floatcheck(
+                    "ERROR: {} and {} must be "
+                    "numbers".format(min_len, max_stop), t="error")
 
         def dialog_export_groups(self):
             """
@@ -5239,9 +5262,10 @@ if __name__ == "__main__":
 
         def dialog_export_groups_filechooser(self, idx):
             """
-            When clicking Export groups in the main dialog for group exportation,
-            the user is redirected to a filechooser to choose the output directory
-            and output file name, in the case of group exportation.
+            When clicking Export groups in the main dialog for group
+            exportation, the user is redirected to a filechooser to choose
+            the output directory and output file name, in the case of group
+            exportation.
             :param idx: string. Determines the export mode: if "protein" or
             "nucleotide", it will export sequence files, if "group", it will
             export to another group file
@@ -5266,14 +5290,16 @@ if __name__ == "__main__":
 
             self.show_popup(title=title, content=content)
 
-        def orto_export_groups(self, export_idx, output_dir=None, output_name=None):
+        def orto_export_groups(self, export_idx, output_dir=None,
+                               output_name=None):
             """
             This will handle the group exportation of the orthology screen. The
             intensive export methods will run in the background while updating
             the main process of their process.
-            :param export_idx: string, with the identifier of exportation. Can be
-            either 'group', 'protein' or 'dna'
-            the database from which sequences will be retrieved
+            :param export_idx: string, with the identifier of exportation. Can
+            be either 'group', 'protein' or 'dna' the database from which
+            sequences will be retrieved
+            :param output_dir: string. Path to output directory
             :param output_name: string, for group exportation, provide the name
             of the output filtered file
             """
@@ -5300,24 +5326,23 @@ if __name__ == "__main__":
 
                     try:
                         if ns.exception:
-                            return self.dialog_floatcheck("An unexpected error "
-                                                "occurred when exporting orthologs."
-                                                "Check the app logs.", t="error")
+                            return self.dialog_floatcheck(
+                                "An unexpected error occurred when exporting "
+                                "orthologs. Check the app logs.", t="error")
                     except:
                         pass
 
                     Clock.unschedule(func)
                     self.dismiss_popup()
                     if not ns.missed:
-                        self.dialog_floatcheck("%s orthologs successfully "
-                                               "exported" % ns.progress,
-                                               t="info")
+                        self.dialog_floatcheck(
+                            "%s orthologs successfully exported" % ns.progress,
+                            t="info")
                     else:
-                        self.dialog_floatcheck("%s orthologs exported. However,"
-                                               " %s sequences could not be "
-                                               "retrieved!" % (ns.progress,
-                                                               ns.missed),
-                                               t="info")
+                        self.dialog_floatcheck(
+                            "%s orthologs exported. However, %s sequences "
+                            "could not be retrieved!" %
+                            (ns.progress, ns.missed), t="info")
 
             # Update orthology export directory, if necessary
             if output_dir != self.orto_export_dir:
@@ -5332,13 +5357,16 @@ if __name__ == "__main__":
             self.active_group.update_filters(*self.ortho_groups.filters[
                 self.active_group.name])
 
-            method_store = {"group": [self.active_group.export_filtered_group,
-                                      [self.sqldb, output_name, output_dir]],
-                            "protein": [self.active_group.retrieve_sequences,
-                                        [self.sqldb, self.protein_db, output_dir]],
-                            "nucleotide": [protein2dna.convert_group,
-                                           [self.cds_db, self.protein_db,
-                                            self.active_group]]}
+            method_store = {
+                "group":
+                [self.active_group.export_filtered_group,
+                [self.sqldb, output_name, output_dir]],
+                "protein":
+                [self.active_group.retrieve_sequences,
+                [self.sqldb, self.protein_db, output_dir]],
+                "nucleotide":
+                [protein2dna.convert_group,
+                [self.cds_db, self.protein_db, self.active_group]]}
             # Get method and args
             m = method_store[export_idx]
 
@@ -5354,7 +5382,8 @@ if __name__ == "__main__":
 
             content = LoadProgressDialog()
             content.ids.pb.max = self.active_group.all_compliant
-            self.show_popup(title="Exporting...", content=content, size=(400, 250))
+            self.show_popup(title="Exporting...", content=content,
+                            size=(400, 250))
 
             func = partial(check_process, d)
             Clock.schedule_interval(func, .1)
@@ -5380,7 +5409,8 @@ if __name__ == "__main__":
                 groups_objs = self.ortho_groups
 
             # Update slider max values
-            self.screen.ids.gn_spin.max = max(groups_objs.max_extra_copy.values())
+            self.screen.ids.gn_spin.max = \
+                max(groups_objs.max_extra_copy.values())
             self.screen.ids.sp_spin.max = groups_objs.species_number[0]
 
             # Update initial slider values
@@ -5392,8 +5422,9 @@ if __name__ == "__main__":
             self.screen.ids.header_content.original_filt = \
                 [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
 
-            # Set group object for screen. This property will be used when changing
-            # which filters should be displayed in the compare plot screen
+            # Set group object for screen. This property will be used when
+            # changing  which filters should be displayed in the compare
+            # plot screen
             self.screen.group_obj = groups_objs
 
             # Get active displays
@@ -5420,14 +5451,15 @@ if __name__ == "__main__":
             on the plot index. This method can be called in three ways:
 
             ..: Orthology Explore screen button, which generates the plot for
-                the first time and sets initial attributes for plot screen header.
-                This only uses the plt_idx argument.
-            ..: Update button in plot screen, used after gene/species filters have
-                been changed. This uses the plt_idx and filt arguments.
+                the first time and sets initial attributes for plot screen
+                header. This only uses the plt_idx argument.
+            ..: Update button in plot screen, used after gene/species filters
+                have been changed. This uses the plt_idx and filt arguments.
             ..: Taxa filter button in plot screen, used after changing the taxa
-                that should be included in the plot analysis. This uses the plt_idx
-                and exclude_taxa arguments
+                that should be included in the plot analysis. This uses the
+                plt_idx and exclude_taxa arguments
 
+            :param active_group: Group Object.
             :param plt_idx: string, id of the plot in plt_method to issue the
             appropriate method
             :param filt: list, contains the gn and sp filters for group object,
@@ -5447,8 +5479,9 @@ if __name__ == "__main__":
 
                 # If all taxa were excluded issue a warning and do nothing more
                 if set(exclude_taxa) == set(self.active_group.species_list):
-                    return self.dialog_floatcheck("WARNING: At least one taxon "
-                                                  "must be included.", t="error")
+                    return self.dialog_floatcheck(
+                        "WARNING: At least one taxon must be included.",
+                        t="error")
 
                 # Update attributes and remove taxa from group object
                 self.screen.ids.header_content.excluded_taxa = exclude_taxa
@@ -5460,9 +5493,12 @@ if __name__ == "__main__":
                 # Reset excluded taxa storage list
                 self.screen.ids.header_content.excluded_taxa = []
 
-            # If excluded_taxa is not provided in function calling, but has already
-            # being defined in header_content.excluded_taxa, use this list.
-            elif not exclude_taxa and self.screen.ids.header_content.excluded_taxa:
+            # If excluded_taxa is not provided in function calling, but has
+            # already being defined in header_content.excluded_taxa, use this
+            # list.
+            elif (not exclude_taxa and
+                    self.screen.ids.header_content.excluded_taxa):
+
                 self.active_group.exclude_taxa(
                     self.screen.ids.header_content.excluded_taxa)
 
@@ -5473,65 +5509,83 @@ if __name__ == "__main__":
             if self.screen.ids.gn_spin.value > self.screen.ids.gn_spin.max:
                 self.screen.ids.gn_spin.value = self.screen.ids.gn_spin.max
 
-            if self.screen.ids.sp_spin.value > len(self.active_group.species_list):
-                self.screen.ids.sp_spin.value = len(self.active_group.species_list)
+            if (self.screen.ids.sp_spin.value >
+                    len(self.active_group.species_list)):
+
+                self.screen.ids.sp_spin.value = \
+                    len(self.active_group.species_list)
 
             # If filt is specified, update the groups object
             if filt:
                 # This will test whether the specified filters are inside bounds
-                # of the group object. Removal of taxa may alter the maximum number
-                # of gene copies and/or taxa and this will account for that and
-                # correct it
-                gn_filt = filt[0] if filt[0] <= self.active_group.max_extra_copy \
+                # of the group object. Removal of taxa may alter the maximum
+                # number of gene copies and/or taxa and this will account for
+                #  that and correct it
+                gn_filt = filt[0] if \
+                    filt[0] <= self.active_group.max_extra_copy \
                     else self.active_group.max_extra_copy
-                sp_filt = filt[1] if filt[1] <= len(self.active_group.species_list)\
+
+                sp_filt = filt[1] if \
+                    filt[1] <= len(self.active_group.species_list) \
                     else len(self.active_group.species_list)
+
                 # Update group filters
                 self.active_group.update_filters(gn_filt, sp_filt, True)
-                self.screen.ids.header_content.original_filt = [gn_filt, sp_filt]
+                self.screen.ids.header_content.original_filt = \
+                    [gn_filt, sp_filt]
+
                 # If any of the filters had to be adjusted, issue a warning
                 if gn_filt != filt[0] or sp_filt != filt[1]:
-                    self.dialog_floatcheck("WARNING: Current filters beyond the "
-                                           "maximum accepted values. Adjusting gene"
-                                           " and species thresholds to %s and %s, "
-                                           "respectively" % (gn_filt, sp_filt),
-                                           t="error")
+                    self.dialog_floatcheck(
+                        "WARNING: Current filters beyond the  maximum "
+                        "accepted values. Adjusting gene  and species "
+                        "thresholds to %s and %s,  respectively" %
+                        (gn_filt, sp_filt), t="error")
 
-            # If no filter has been specified, but taxa removal changed the maximum
-            # number of species and/or gene copies beyond the current filter,
-            # adjust it
-            elif exclude_taxa and self.screen.ids.header_content.original_filt != \
-                    [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]:
+            # If no filter has been specified, but taxa removal changed the
+            # maximum number of species and/or gene copies beyond the current
+            #  filter, adjust it
+            elif (exclude_taxa and
+                    self.screen.ids.header_content.original_filt !=
+                    [self.screen.ids.gn_spin.value,
+                     self.screen.ids.sp_spin.value]):
+
                 self.screen.ids.header_content.original_filt = \
-                    [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
-                self.active_group.update_filters(self.screen.ids.gn_spin.value,
-                                                 self.screen.ids.sp_spin.value,
-                                                 True)
+                    [self.screen.ids.gn_spin.value,
+                     self.screen.ids.sp_spin.value]
+
+                self.active_group.update_filters(
+                    self.screen.ids.gn_spin.value,
+                    self.screen.ids.sp_spin.value,
+                    True)
+
                 # Issue warning that the filters were adjusted
-                self.dialog_floatcheck("WARNING: Current filters beyond the maximum"
-                                       " accepted values. Adjusting gene and "
-                                       "species thresholds to %s and %s, "
-                                       "respectively" %
-                                       (self.screen.ids.gn_spin.value,
-                                        self.screen.ids.sp_spin.value), t="error")
+                self.dialog_floatcheck(
+                    "WARNING: Current filters beyond the maximum accepted "
+                    "values. Adjusting gene and species thresholds to %s and "
+                    "%s, respectively" %
+                    (self.screen.ids.gn_spin.value,
+                    self.screen.ids.sp_spin.value), t="error")
 
             # Set the current plt_idx for update reference
             self.screen.ids.header_content.plt_idx = plt_idx
 
-            # Store the plot generation method in a dictionary where keys are the
-            # text attributes of the plot spinner and the values are bound methods
-            plt_method = {"Taxa distribution": [
-                self.active_group.bar_species_distribution,
-                "Species_distribution.png"],
-                "Taxa coverage": [
-                    self.active_group.bar_species_coverage,
-                    "Species_coverage.png"],
-                "Gene copy distribution": [
-                    self.active_group.bar_genecopy_distribution,
-                    "Gene_copy_distribution.png"],
-                "Taxa gene copies": [
-                    self.active_group.bar_genecopy_per_species,
-                    "Species_copy_number.png"]}
+            # Store the plot generation method in a dictionary where keys are
+            # the text attributes of the plot spinner and the values are
+            # bound methods
+            plt_method = {
+                "Taxa distribution":
+                [self.active_group.bar_species_distribution,
+                 "Species_distribution.png"],
+                "Taxa coverage":
+                [self.active_group.bar_species_coverage,
+                 "Species_coverage.png"],
+                "Gene copy distribution":
+                [self.active_group.bar_genecopy_distribution,
+                 "Gene_copy_distribution.png"],
+                "Taxa gene copies":
+                [self.active_group.bar_genecopy_per_species,
+                 "Species_copy_number.png"]}
 
             # Call corresponding method and catch plot object
             self.current_plot, self.current_lgd, self.current_table = \
@@ -5544,25 +5598,32 @@ if __name__ == "__main__":
                 self.screen.ids.sp_spin.value = 1
                 self.screen.ids.header_content.original_filt = \
                     [self.active_group.max_extra_copy, 1]
-                self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
-                    "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
+
+                self.screen.ids.orto_sum.text = \
+                    "[size=26][color=71c837ff]%s[/color][/size][size=13]/" \
+                    "[color=ff5555ff]0[/color][/size]" % \
                     len(self.active_group.species_frequency)
+
                 self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                    "[/color][/size][size=13]/[color=ff5555ff]0[/color][/size]" % \
-                    len(self.active_group.species_list)
-                self.active_group.update_filters(self.active_group.max_extra_copy,
-                                                 1, True)
+                    "[/color][/size][size=13]/[color=ff5555ff]0[/color][" \
+                    "/size]" % len(self.active_group.species_list)
+
+                self.active_group.update_filters(
+                    self.active_group.max_extra_copy, 1, True)
             else:
                 self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
-                    "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
+                    "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
+                    "[/size]" % \
                     (str(self.active_group.all_compliant),
                     str(len(self.active_group.species_frequency) -
                         len(self.active_group.filtered_groups)))
+
                 self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                    "[/color][/size][size=13]/[color=ff5555ff]%s[/color][/size]" % \
+                    "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
+                    "[/size]" % \
                     (len(self.active_group.species_list),
                     len(self.screen.ids.header_content.excluded_taxa) +
-                    len(self.active_group.species_list))
+                        len(self.active_group.species_list))
 
             # Load plot
             self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
