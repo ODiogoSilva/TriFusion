@@ -620,7 +620,8 @@ if __name__ == "__main__":
 
         def _start_clean(self):
             """
-            In the event of unexpected exits, clean the tmp directory on app start
+            In the event of unexpected exits, clean the tmp directory on app
+            start
             :return:
             """
 
@@ -632,8 +633,8 @@ if __name__ == "__main__":
 
         def _exit_clean(self):
             """
-            This method is issued when the application is closed and performs any
-            necessary clean up operations
+            This method is issued when the application is closed and performs
+            any necessary clean up operations
             """
 
             for i in os.listdir(self.temp_dir):
@@ -644,7 +645,8 @@ if __name__ == "__main__":
 
         def _update_path(self, path):
             """
-            This method updates the filechooser path when clicking on the path label
+            This method updates the filechooser path when clicking on the path
+            label
             :param path: string, with destination path
             """
 
@@ -674,8 +676,8 @@ if __name__ == "__main__":
 
         def _on_keyboard_events(self, *vals):
             """
-            Methods that listens to keyboard input and triggers events or changes
-            properties when acceptable keyboard shortcuts are entered
+            Methods that listens to keyboard input and triggers events or
+            changes properties when acceptable keyboard shortcuts are entered
             :param vals: input list from on_key_down function
             """
 
@@ -694,9 +696,9 @@ if __name__ == "__main__":
             # through buttons
             arrow_block = False
 
-            # ======================================================================
+            # ==================================================================
             # Popup keybindings
-            # ======================================================================
+            # ==================================================================
 
             def popup_keys(backn, backd, bt1, bt2, bt3=None):
                 """
@@ -720,7 +722,8 @@ if __name__ == "__main__":
                         if key_code == 275:
                             bt1.background_normal = backd
                             bt2.background_normal = backn
-                        # if enter key. Dispatch the events of the focused button
+                        # if enter key. Dispatch the events of the focused
+                        # button
                         if key_code == 13:
                             if bt1.background_normal == backn:
                                 bt1.dispatch("on_release")
@@ -730,7 +733,8 @@ if __name__ == "__main__":
                     # This will cycle through three buttons
                     else:
                         bt_list = [bt1, bt2, bt3]
-                        idx = [x.background_normal for x in bt_list].index(backn)
+                        idx = [i.background_normal for i
+                               in bt_list].index(backn)
                         if key_code == 276 and idx > 0:
                             idx -= 1
                         if key_code == 275 and idx < 2:
@@ -743,13 +747,13 @@ if __name__ == "__main__":
                                 bt.background_normal = backd
 
                         if key_code == 13:
-                            bt_on = [x for x in bt_list if
-                                     x.background_normal == backn][0]
+                            bt_on = [i for i in bt_list if
+                                     i.background_normal == backn][0]
                             bt_on.dispatch("on_release")
 
-            # ======================================================================
+            # ==================================================================
             # Popup keybindings
-            # ======================================================================
+            # ==================================================================
 
             # When the path editing text input is focused, the arrows should
             # not be used to cycle through buttons.
@@ -856,9 +860,9 @@ if __name__ == "__main__":
                     cancel_bt = self.screen.ids.cancel_bt
                     popup_keys(bn, bd, open_close_bt, open_bt, cancel_bt)
 
-            # ======================================================================
+            # ==================================================================
             # General keybindings
-            # ======================================================================
+            # ==================================================================
 
             if not [x for x in self.root_window.children
                     if isinstance(x, CustomPopup)]:
@@ -867,7 +871,8 @@ if __name__ == "__main__":
                 if modifier == "ctrl" and key_code == 111:
                     self.go_screen(self.screen_names.index("fc"))
 
-                # Changing main screens between Orthology, Process and Statistics
+                # Changing main screens between Orthology, Process and
+                # Statistics
                 if modifier == "ctrl" and key_code == 49:
                     self.root.ids.h_ortho.dispatch("on_release")
                     self.root.ids.h_ortho.state = "down"
@@ -882,9 +887,9 @@ if __name__ == "__main__":
                 if key_code == 92:
                     self.root.ids.ap.dispatch("on_release")
 
-            # ======================================================================
+            # ==================================================================
             # Text input autocompletion
-            # ======================================================================
+            # ==================================================================
 
             # Use tab for auto completion when textinput is focused
             path_wgt = None
@@ -950,8 +955,8 @@ if __name__ == "__main__":
             if len(dirlist) == 1:
                 return join(path, dirlist[0])
 
-            # If there are multiple matches in dirlist, return the longest common
-            # substring
+            # If there are multiple matches in dirlist, return the longest
+            # common substring
             elif len(dirlist) > 1:
                 return join(path, os.path.commonprefix(dirlist))
 
@@ -980,8 +985,8 @@ if __name__ == "__main__":
         def _on_mouseover_tabs(self):
             """
             Provides mouse over events throughout the app. In order to reduce
-            computations in each cycle, the mouse over events should only be tested
-            when the appropriate screen/widget is visible
+            computations in each cycle, the mouse over events should only be
+            tested when the appropriate screen/widget is visible
             """
 
             try:
@@ -999,18 +1004,19 @@ if __name__ == "__main__":
 
             def show_label(mouse, wgt):
                 """
-                Use this function with a Clock schedule to delay the introduction
-                of the label widget. Otherwise, it could become cumbersome to have
-                an label appearing right after the mouse colliding with the button
+                Use this function with a Clock schedule to delay the
+                introduction of the label widget. Otherwise, it could become
+                cumbersome to have an label appearing right after the mouse
+                colliding with the button
                 :param mouse: mouse position tuple
                 :param wgt: Layout widget, containing a descriptive label
                 """
 
-                # Checking if the current mouse position is the same as the mouse
-                # position when the mouse over was triggered. This ensures that if
-                # the user changes the mouse position while this event is
-                # scheduled, the label will not be added to the root_window but the
-                # lock in self.mouse_over_ready is removed
+                # Checking if the current mouse position is the same as the
+                #  mouse position when the mouse over was triggered. This
+                # ensures that if the user changes the mouse position while
+                # this event is scheduled, the label will not be added to the
+                #  root_window but the lock in self.mouse_over_ready is removed
                 if self.root_window.mouse_pos == mouse:
                     # Add widget to root layout
                     self.root_window.add_widget(wgt)
@@ -1041,10 +1047,11 @@ if __name__ == "__main__":
                                    wgt_size=None, orientation="horizontal",
                                    line_c=(1, 1, 1, 1)):
                 """
-                Creates a fancy label akin to the mouse over labels in github. This
-                method is quite versatile as it is able to calculate the available
-                space for the label and determine its orientation accordingly. It
-                also starts by removing any other potential fancy labels.
+                Creates a fancy label akin to the mouse over labels in github.
+                This method is quite versatile as it is able to calculate the
+                available space for the label and determine its orientation
+                accordingly. It also starts by removing any other potential
+                fancy labels.
 
                 :param text: string, text that will be displayed in the label
                 :param wgt: widget that triggered the mouse over
@@ -1053,8 +1060,8 @@ if __name__ == "__main__":
                 be adjusted to window coordenates; If False, use the origial
                 position of the wgt. This is only relevant when wgt_pos=None
                 :param c: tuple. Label color
-                :param wgt_pos: tuple/list, If not None, this will be the position
-                used to create the label. Superseeds wgt.pos
+                :param wgt_pos: tuple/list, If not None, this will be the
+                position used to create the label. Superseeds wgt.pos
                 :param wgt_size: tuple/list, If not None this will be the size
                 of the wgt. Superseed wgt.size
                 :param orientation: string, whether the label will be display in
@@ -1090,26 +1097,27 @@ if __name__ == "__main__":
                     wgt_size = wgt.size
 
                 # Create label
-                self.fancy_bt = FancyButton(text=text, height=lbl_height, id=text,
-                                            background_color=c)
-                # Update label texture size, so that we can evaluate the available
-                # space for the label
+                self.fancy_bt = FancyButton(text=text, height=lbl_height,
+                                            id=text, background_color=c)
+                # Update label texture size, so that we can evaluate the
+                # available space for the label
                 self.fancy_bt.texture_update()
                 # Set border line color
                 self.fancy_bt.line_clr = line_c
 
-                # Determine if there is enough space for  the label to be properly
-                # shown. If not, truncante the label width to 70% of window width
-                if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.texture_size[0] + \
-                        50 > self.root.width and wgt_pos[0] - wgt_size[0] - 5 - \
-                        self.fancy_bt.texture_size[0] - 50 < 0:
+                # Determine if there is enough space for  the label to be
+                # properly shown. If not, truncante the label width to 70% of
+                #  window width
+                if (wgt_pos[0] + wgt_size[0] + 5 +
+                        self.fancy_bt.texture_size[0] + 50 >
+                        self.root.width and wgt_pos[0] - wgt_size[0] - 5 -
+                        self.fancy_bt.texture_size[0] - 50 < 0):
                     self.fancy_bt.width = self.root.width * .7
                     self.fancy_bt.text_size = self.fancy_bt.size
                     self.fancy_bt.halign = "center"
                     self.fancy_bt.valign = "middle"
                     self.fancy_bt.texture_update()
-                    self.fancy_bt.height = self.fancy_bt.texture_size[1] + \
-                        16
+                    self.fancy_bt.height = self.fancy_bt.texture_size[1] + 16
                 else:
                     # Determine label size. Add horizontal margin space (10)
                     self.fancy_bt.size = (self.fancy_bt.texture_size[0] +
@@ -1117,10 +1125,10 @@ if __name__ == "__main__":
 
                 # Create horizontal label
                 if orientation == "horizontal":
-                    # Determine if the label has space to the right. If not, flip
-                    # the orientation
-                    if wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.width < \
-                            self.root.width:
+                    # Determine if the label has space to the right. If not,
+                    # flip the orientation
+                    if (wgt_pos[0] + wgt_size[0] + 5 + self.fancy_bt.width <
+                            self.root.width):
 
                         # Determine position of arrow widget
                         point_pos = wgt_pos[0] + wgt_size[0] + 5, wgt_pos[1] + \
@@ -1136,17 +1144,18 @@ if __name__ == "__main__":
                                                 "box_arrow_right.png"),
                                                 pos=point_pos, size=(7, 12),
                                                 background_color=line_c)
-                    # In case this else code is executed, it means there is no space
-                    # for the label to be shown in the right, so it will show to the
-                    # left
+                    # In case this else code is executed, it means there is no
+                    #  space for the label to be shown in the right,
+                    # so it will show to the left
                     else:
                         # Determine position of arrow widget
-                        point_pos = wgt_pos[0] - 10, wgt_pos[1] + wgt_size[1] / \
-                            2 - 6
+                        point_pos = wgt_pos[0] - 10, wgt_pos[1] + \
+                            wgt_size[1] / 2 - 6
 
                         # Determine label position
-                        self.fancy_bt.pos = point_pos[0] - self.fancy_bt.width, \
-                            wgt_pos[1] + wgt_size[1] / 2 - self.fancy_bt.height / 2
+                        self.fancy_bt.pos = point_pos[0] - self.fancy_bt.width,\
+                            wgt_pos[1] + wgt_size[1] / 2 - \
+                            self.fancy_bt.height / 2
 
                         # Create arrow widget with left arrow
                         point_wgt = FancyMarker(background_normal=join("data",
@@ -1163,14 +1172,15 @@ if __name__ == "__main__":
                                  wgt_pos[1] + wgt_size[1] + 5]
 
                     # Determine position of label
-                    self.fancy_bt.pos = [point_pos[0] - (self.fancy_bt.width / 2) +
-                                         6, point_pos[1] + 7]
+                    self.fancy_bt.pos = [point_pos[0] -
+                        (self.fancy_bt.width / 2) + 6, point_pos[1] + 7]
 
                     # Create arrow widget with down arrow
                     point_wgt = FancyMarker(background_normal=join("data",
                                             "backgrounds",
                                             "box_arrow_down.png"),
-                                            pos=point_pos, size=(12, 7), id=text,
+                                            pos=point_pos, size=(12, 7),
+                                            id=text,
                                             background_color=line_c)
 
                 for w in [self.fancy_bt, point_wgt]:
@@ -1184,9 +1194,9 @@ if __name__ == "__main__":
                 Clears fancy mouseovers, if any
                 """
 
-                for i in [x for x in self.root_window.children
-                          if isinstance(x, FancyButton) or
-                          isinstance(x, FancyMarker)]:
+                for i in [i for i in self.root_window.children
+                          if isinstance(i, FancyButton) or
+                          isinstance(i, FancyMarker)]:
                     self.root_window.remove_widget(i)
 
             # Only do this routine when the filechooser screen is on
@@ -1221,15 +1231,13 @@ if __name__ == "__main__":
                                          isinstance(x, FancyButton)]:
                                 clear_mouse_overs()
 
-                            Clock.schedule_once(lambda x:
-                                                create_fancy_label(txt, bt,
-                                                                   adjust_pos=True,
-                                                                   wgt_pos=pos,
-                                                                   wgt_size=size),
-                                                .8)
+                            Clock.schedule_once(lambda i: create_fancy_label(
+                                txt, bt, adjust_pos=True, wgt_pos=pos,
+                                wgt_size=size), .8)
                             self.mouse_over_ready = False
                 else:
-                    # If no collision is detected, remove any remaining label widget
+                    # If no collision is detected, remove any remaining label
+                    # widget
                     if collision is False and \
                             self.old_mouse_over in self.root_window.children:
                         self.root_window.remove_widget(self.old_mouse_over)
@@ -1245,13 +1253,15 @@ if __name__ == "__main__":
                             self.root.ids.add_part]
 
                 # Iterate over buttons of active tab
-                for bt in self.mouse_over_bts[active_tab] + sidebt_list + rm_bt + \
-                        part_bts:
+                for bt in self.mouse_over_bts[active_tab] + sidebt_list + \
+                        rm_bt + part_bts:
                     # Determine if there is a collision with mouse position
-                    if self._determine_collision(bt, mp) and self._popup not in \
+                    if self._determine_collision(bt, mp) and self._popup not in\
                             self.root_window.children:
+
                         if bt in self.mouse_over_bts[active_tab]:
-                            if self._determine_collision(self.root.ids.sv_file, mp)\
+                            if self._determine_collision(self.root.ids.sv_file,
+                                                         mp)\
                                     or self._determine_collision(
                                         self.root.ids.sv_sp, mp):
                                 collision = True
@@ -1260,14 +1270,15 @@ if __name__ == "__main__":
                         else:
                             # Set collision marker to true
                             collision = True
-                        # This will determine if a new label button will be added
-                        # to the layout, based on the text of the button. If the
-                        # text is already in the previous mouse over, then do
-                        # nothing. If the text is some new button, then do something
+                        # This will determine if a new label button will be
+                        # added to the layout, based on the text of the
+                        # button. If the text is already in the previous
+                        # mouse over, then do nothing. If the text is some
+                        # new button, then do something
                         if bt in self.mouse_over_bts[active_tab] + sidebt_list:
                             if bt.text != self.previous_mouse_over:
-                                # Check if there is an old label button and remove
-                                # it
+                                # Check if there is an old label button and
+                                # remove it
                                 if self.old_mouse_over:
                                     self.root_window.remove_widget(
                                         self.old_mouse_over)
@@ -1281,8 +1292,8 @@ if __name__ == "__main__":
 
                             elif bt in self.mouse_over_bts[active_tab]:
 
-                                # Saving relevant attributes, otherwise they would
-                                # be lost
+                                # Saving relevant attributes, otherwise they
+                                # would be lost
                                 txt = bt.text
                                 pos = bt.to_window(bt.pos[0], bt.pos[1])
                                 size = bt.size
@@ -1295,12 +1306,10 @@ if __name__ == "__main__":
                                     clear_mouse_overs()
 
                                 # Schedule the introduction of the label widget
-                                Clock.schedule_once(lambda x:
-                                                    create_fancy_label(txt, bt,
-                                                            wgt_pos=pos,
-                                                            wgt_size=size,
-                                                            c=(.3, .3, .3, .95)),
-                                                    1)
+                                Clock.schedule_once(lambda i:
+                                    create_fancy_label(txt, bt, wgt_pos=pos,
+                                                       wgt_size=size,
+                                                       c=(.3, .3, .3, .95)), 1)
 
                                 # Locking mouse over so that no additional label
                                 # widgets are added during the waiting time
@@ -1312,19 +1321,20 @@ if __name__ == "__main__":
                                         not in self.previous_mouse_over:
 
                                     if not bt.disabled:
-                                        create_fancy_label("Removes all files and "
-                                                           "taxa", rm_bt[1],
-                                                           adjust_pos=True,
-                                                           c=(1, .33, .33, 1))
+                                        create_fancy_label(
+                                            "Removes all files and taxa",
+                                            rm_bt[1], adjust_pos=True,
+                                            c=(1, .33, .33, 1))
+
                             elif active_tab == "Files" and bt == rm_bt[0]:
                                 if "Removes all files and taxa" \
                                         not in self.previous_mouse_over:
 
                                     if not bt.disabled:
-                                        create_fancy_label("Removes all files and "
-                                                           "taxa", rm_bt[0],
-                                                           adjust_pos=True,
-                                                           c=(1, .33, .33, 1))
+                                        create_fancy_label(
+                                            "Removes all files and  taxa",
+                                            rm_bt[0], adjust_pos=True,
+                                            c=(1, .33, .33, 1))
 
                         elif bt in part_bts:
                             bt_text = {"data/backgrounds/group_bt.png":
@@ -1335,12 +1345,13 @@ if __name__ == "__main__":
                                 "Import partition scheme"}
 
                             if active_tab == "Partitions":
-                                create_fancy_label(bt_text[bt.background_normal],
-                                                   bt, adjust_pos=True,
-                                                   orientation="vertical")
+                                create_fancy_label(
+                                    bt_text[bt.background_normal],
+                                    bt, adjust_pos=True, orientation="vertical")
 
                 else:
-                    # If no collision is detected, remove any remaining label widget
+                    # If no collision is detected, remove any remaining
+                    # label widget
                     if collision is False and \
                             self.old_mouse_over in self.root_window.children:
                         self.root_window.remove_widget(self.old_mouse_over)
@@ -1357,28 +1368,33 @@ if __name__ == "__main__":
                     toolbar_wgt = [x for x in self.root_window.children
                                    if isinstance(x, StatsPlotToolbar)][0]
 
-                # For headless plot screens a back button is added to root_window
+                # For headless plot screens a back button is added to
+                # root_window
                 if self.screen.name == "plot":
                     # Get back bt
                     back_bt = [x for x in self.root_window.children
                                if isinstance(x, BackButton)][0]
+
                     if self._determine_collision(back_bt, mp):
                         if back_bt.opacity != 1:
-                            Animation(opacity=1, d=.3, t="out_quart").start(back_bt)
+                            Animation(
+                                opacity=1, d=.3, t="out_quart").start(back_bt)
                     else:
                         if back_bt.opacity == 1:
-                            Animation(opacity=.2, d=.3, t="out_quart").start(
-                                back_bt)
+                            Animation(
+                                opacity=.2, d=.3, t="out_quart").start(back_bt)
 
-                # Change toolbar opacity to become visible when collision is true
+                # Change toolbar opacity to become visible when collision is
+                # true
                 if self._determine_collision(toolbar_wgt, mp):
                     if toolbar_wgt.opacity != 1:
-                        Animation(opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
+                        Animation(
+                            opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
 
                 else:
                     if toolbar_wgt.opacity == 1:
-                        Animation(opacity=.2, d=.3, t="out_quart").start(
-                            toolbar_wgt)
+                        Animation(
+                            opacity=.2, d=.3, t="out_quart").start(toolbar_wgt)
 
                 if self.screen.name == "Statistics":
 
@@ -1406,7 +1422,8 @@ if __name__ == "__main__":
                                            toolbar_wgt.ids.export_fig,
                                            line_c=(0.216, 0.67, 0.784, 1))
 
-                elif self._determine_collision(toolbar_wgt.ids.export_table, mp):
+                elif self._determine_collision(toolbar_wgt.ids.export_table,
+                                               mp):
                     collision = True
                     if "Export as table" not in [x.id for x in
                                                  self.root_window.children]:
@@ -1416,7 +1433,8 @@ if __name__ == "__main__":
                                            line_c=(0.216, 0.67, 0.784, 1))
 
                 if self.screen.name != "Statistics":
-                    if self._determine_collision(toolbar_wgt.ids.export_group, mp):
+                    if self._determine_collision(toolbar_wgt.ids.export_group,
+                                                 mp):
                         collision = True
                         if "Export group" not in [x.id for x in
                                                   self.root_window.children]:
@@ -1426,8 +1444,9 @@ if __name__ == "__main__":
                                                line_c=(0.216, 0.67, 0.784, 1))
 
             # Only do this in Orthology screen
-            if self.screen.name == "Orthology" and self.show_side_panel is False \
-                    and self._popup not in self.root_window.children:
+            if (self.screen.name == "Orthology" and self.show_side_panel is
+                    False and self._popup not in self.root_window.children):
+
                 id_to_txt = {"sp_vis": "Species focused exploration",
                              "gn_vis": "Ortholog focused exploration"}
 
@@ -1464,8 +1483,8 @@ if __name__ == "__main__":
                 if os.path.exists(txt.text):
                     fc_wgt.path = txt.text
                 else:
-                    return self.dialog_floatcheck("ERROR: Directory does not exist",
-                                                  t="error")
+                    return self.dialog_floatcheck(
+                        "ERROR: Directory does not exist", t="error")
 
             label = PathLabel()
             txt = PathText()
@@ -1490,20 +1509,21 @@ if __name__ == "__main__":
             dir_name = join(path, text)
 
             if os.path.exists(dir_name):
-                return self.dialog_floatcheck("The specified folder already exists",
-                                              t="error")
+                return self.dialog_floatcheck(
+                    "The specified folder already exists", t="error")
             else:
                 os.makedirs(dir_name)
                 self._popup.content.ids.sd_filechooser.path = dir_name
                 self.dismiss_subpopup()
 
-        # ######################### SCREEN NAVIGATION ##############################
+        # ######################### SCREEN NAVIGATION ##########################
 
         def go_screen(self, idx, direct="left"):
             """
             Method used to go to a specific screen by specifying and index and
             transition direction
-            :param idx: integer. Index value of the screen from self.screen_names
+            :param idx: integer. Index value of the screen from
+            self.screen_names
             :param direct: string. The direction of the transition
             """
 
@@ -1518,8 +1538,8 @@ if __name__ == "__main__":
                 if self.screen_names[idx] not in self.plot_screens:
                     self.dismiss_plot_wgt()
 
-                # Removes old toolbar when switching directly from orto plot widget
-                # to Statistics
+                # Removes old toolbar when switching directly from orto plot
+                #  widget to Statistics
                 if self.screen_names[idx] == "Statistics":
                     self.dismiss_plot_wgt()
 
@@ -1533,11 +1553,13 @@ if __name__ == "__main__":
                 # Update current screen
                 self.current_screen = self.screen_names[idx]
                 # Make the switch
-                self.root.ids.sm.switch_to(self.load_screen(idx), direction=direct)
+                self.root.ids.sm.switch_to(self.load_screen(idx),
+                                           direction=direct)
 
         def go_previous_screen(self):
             """
-            Method that returns to the previous screen, set by self.previous_screen
+            Method that returns to the previous screen, set by
+            self.previous_screen
             """
 
             if self.previous_screen != "":
@@ -1557,8 +1579,8 @@ if __name__ == "__main__":
             else:
                 self.screen = Builder.load_file(self.available_screens[idx])
 
-                # If the screen to be loaded is the filechooser, set the home path
-                #  as the default
+                # If the screen to be loaded is the filechooser, set the
+                # home path as the default
                 if basename(self.available_screens[idx]) == "fc.kv":
                     self.screen.ids.icon_view_tab.path = self.home_path
                     # Initialize bookmarks
@@ -1582,8 +1604,8 @@ if __name__ == "__main__":
 
         def go_carousel(self, slide, bt_id):
             """
-            Method used by other buttons outside the side buttons of the side panel
-            to go to specific slides of the side panel
+            Method used by other buttons outside the side buttons of the side
+            panel to go to specific slides of the side panel
             :param slide: int, the index of the target slide
             :param bt_id: string, the id of the corresponding button
             :return:
@@ -1598,27 +1620,28 @@ if __name__ == "__main__":
         @staticmethod
         def toggle_groups(wgt):
             """
-            This method generates a desired behaviour for groups of toggle buttons
-            By default, when a toggle button is pressed, the state will be down and
-            a new screen/slide is presented. However, if the same toggle button is
-            pressed again, it's state will return to the normal state while the
-            same screen/slide is showed. To prevent this behaviour, this method
-            will disable the active toggle button in the group and enable any
-            other previously disabled button.
+            This method generates a desired behaviour for groups of toggle
+            buttons By default, when a toggle button is pressed, the state
+            will be down and a new screen/slide is presented. However,
+            if the same toggle button is pressed again, it's state will
+            return to the normal state while the same screen/slide is showed.
+            To prevent this behaviour, this method will disable the active
+            toggle button in the group and enable any other previously
+            disabled button.
 
-            To allow a seamless transition, ensure that background_disabled_dow is
-            the same as background_down, and that disabled_color is the same as
-            color.
+            To allow a seamless transition, ensure that background_disabled_dow
+            is the same as background_down, and that disabled_color is the
+            same as color.
 
             :param wgt: The toggle button widget. Must belong to a group.
             """
 
             # Iterating over the children of the parent may not be optimal, but
-            # using the get_widgets(groupname) method could result in some issues
-            # with garbage collector of kivy. So, for now, this will iterate over
-            # all children of the toggle button's parent
-            for i in [x for x in wgt.parent.children if isinstance(x,
-                                                                   ToggleButton)]:
+            # using the get_widgets(groupname) method could result in some
+            # issues with garbage collector of kivy. So, for now, this will
+            # iterate over all children of the toggle button's parent
+            for i in [x for x in wgt.parent.children
+                      if isinstance(x,ToggleButton)]:
                 if i.disabled:
                     i.disabled = False
                     i.state = "normal"
