@@ -5947,6 +5947,7 @@ if __name__ == "__main__":
             :param size_hint: tuple. Size hint for the widget
             :param size: tuple. The absolute size for the popup. If this
             argument is used, the size_hint will be ignored
+            :param separator_color: List with rgb color of popup separator
             :param custom_background: string. Provide the path to a custom
             background image for the popup.
             """
@@ -6955,9 +6956,9 @@ if __name__ == "__main__":
 
         def stats_write_plot(self, plot_data, footer, plt_idx):
             """
-            Provided with the data structure and a plt_idx string identifier, this
-            function will create the plot file and app variable, and load it into
-            the Statistics screen.
+            Provided with the data structure and a plt_idx string identifier,
+            this function will create the plot file and app variable,
+            and load it into the Statistics screen.
 
             :param plot_data: list/np array, data structure to be used in plot
             construction
@@ -7500,17 +7501,19 @@ if __name__ == "__main__":
 
         def get_taxa_information(self, alt_list=None):
             """
-            This method will gather all available information for all taxa and set
-            a number of related attributes. The way the method is implemented,
-            allow the generation of information for both complete (if the method
-            is applied in the original data set) and active (if the method is
+            This method will gather all available information for all taxa and
+            set a number of related attributes. The way the method is
+            implemented, allow the generation of information for both
+            complete (if the method is applied in the original data set) and
+            active (if the method is
             applied to the currently data set) data sets.
 
             :param: alt_list: This argument provides a way to override the
-            self.active_alignment_list that is used by default. This may be helpful
-            when the complete/original list has been modified and the contents of
-            the taxa popup have to reflect those modifications. If no alternative
-            is provided, the method will use the self.active_taxa_list.
+            self.active_alignment_list that is used by default. This may be
+            helpful when the complete/original list has been modified and the
+            contents of the taxa popup have to reflect those modifications.
+            If no alternative is provided, the method will use the
+            self.active_taxa_list.
 
             :return: tx_inf (dictionary): Contains the relevant information for
             the taxa popup. All corresponding values are the result of additions
@@ -7519,7 +7522,8 @@ if __name__ == "__main__":
                 - length: Total alignment length including missing data and gaps
                 - indel: The number columns containing indel/gaps
                 - missing: The number of columns containing missing data
-                - effective_len: Alignment length excluding gaps and missing data
+                - effective_len: Alignment length excluding gaps and missing
+                data
                 - effective_len_per: Same as above but in percentage
                 - fl_coverage: The number of files containing the focal taxon
                 - fl_coverage_per: Same as above but in percentage
