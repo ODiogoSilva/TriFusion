@@ -3,8 +3,6 @@
 import os
 import re
 import sys
-import pprint
-from operator import itemgetter
 
 VAR_LENGTH=0
 VAR_TAXON=1
@@ -60,9 +58,6 @@ def getGenesFromFasta(fastaFilesDir) :
 
         fastaFile.close()
 
-#        pprint.pprint(genes, width=-1)
-#        exit()
-
     return genes
 
 #################################################################################################################
@@ -72,8 +67,6 @@ def getTaxonAndLength (subject, genes):
     subject["subjectTaxon"] = genes[subject["subjectId"]][VAR_TAXON]
     subject["queryLength"] = genes[subject["queryId"]][VAR_LENGTH]
     subject["subjectLength"] = genes[subject["subjectId"]][VAR_LENGTH]
-
-#    print(subject)
 
     try:
         subject["subjectTaxon"]
@@ -93,10 +86,7 @@ def printPreviousSubject(subject):
     percentIdent = int(subject["totalIdentities"] / subject["totalLength"] * 10 + .5)/10;
     shorterLength = subject["queryLength"] if subject["queryShorter"] else subject["subjectLength"]
 
-    print(nonOverlapMatchLen)
-    print(shorterLength)
-
-    percentMatch = int(nonOverlapMatchLen / shorterLength * 1000 + .5) / 10;
+    percentMatch = '{0:.3g}'.format((float(nonOverlapMatchLen) / float(shorterLength) * 1000 + .5) / 10)
     print (subject["queryId"] + "\t" + subject["subjectId"] + "\t" + subject["queryTaxon"] + "\t" + subject["subjectTaxon"] + "\t" + str(subject["evalueMant"]) + "\t" + str(subject["evalueExp"]) + "\t" + str(percentIdent) + "\t" + str(percentMatch))
 
 #################################################################################################################
