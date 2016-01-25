@@ -22,14 +22,35 @@
 #  Version:
 #  Last update:
 
-import multiprocessing
-
 if __name__ == "__main__":
 
+    # Standard libraries imports
+    from os.path import dirname, join, exists, expanduser, basename
+    from collections import OrderedDict
+    from functools import partial
+    from copy import deepcopy
+    import multiprocessing
+    import matplotlib
+    import matplotlib.patches as patches
+    import logging
+    import psutil
+    import pickle
+    import shutil
+    import urllib
+    import time
+    import sys
+    import re
+    import os
+    from os import sep
+
+    # freeze_support must be called here so that multiprocessing work
+    # correctly on windows
     multiprocessing.freeze_support()
 
+    # Kivy imports
     from kivy.config import Config
 
+    # Sets some kivy configurations before creating main window
     Config.set("kivy", "log_level", "warning")
     Config.set("kivy", "desktop", 1)
     Config.set("kivy", "exit_on_escape", 0)
@@ -39,10 +60,10 @@ if __name__ == "__main__":
     Config.set("graphics", "width", 1000)
     Config.set("input", "mouse", "mouse, disable_multitouch")
 
+    # Force creation of main window
     from kivy.base import EventLoop
     EventLoop.ensure_window()
 
-    # Kivy imports
     from kivy.app import App
     from kivy.animation import Animation
     from kivy.uix.image import Image
@@ -53,7 +74,7 @@ if __name__ == "__main__":
     from kivy.clock import Clock
     from kivy.uix.treeview import TreeView, TreeViewLabel
 
-    # Main program imports
+    # Local TriFusion imports
     from ortho import protein2dna
     from process.base import Base
     from data.resources.info_data import informative_storage
@@ -61,38 +82,24 @@ if __name__ == "__main__":
     from data.resources.custom_widgets import *
     from base.plotter import *
 
-    # Other imports
-    import os
-    from os.path import dirname, join, exists, expanduser, basename
-    from os import sep
-    from collections import OrderedDict
-    from copy import deepcopy
-    from functools import partial
-    import matplotlib.patches as patches
-    import psutil
-    import pickle
-    import multiprocessing
-    import time
-    import re
-    import sys
-    import logging
-    import shutil
-    import urllib
-    import matplotlib
+    ###################################
+    # Modifications to kivy source code
+    ###################################
 
-    # MEMO
-    # scatter.py on_touch_up function was modified to prevent a bug from crashing
-    # the app. Before the fix, when right-clicking in a ScatterLayout and then
-    # left-clicking in the generate ball would crash the app with a KeyError
-    # exception. The fix on lines 595-598 handles this exception by not deleting
-    # a touch from _last_touch_pos dictionary, since the key is not there anymore.
+    # MEMO 1
+    # scatter.py on_touch_up function was modified to prevent a bug from
+    # crashing  the app. Before the fix, when right-clicking in a
+    # ScatterLayout and then  left-clicking in the generate ball would crash
+    # the app with a KeyError  exception. The fix on lines 595-598 handles
+    # this exception by not deleting a touch from _last_touch_pos
+    # dictionary, since the key is not there anymore.
     # MEMO 2
-    # scrollview.py _change_touch_mode function was modified to prevent a bug from
-    # crashing the app. Before the fix, sometimes the app would crash due to a
-    # KeyError exception on line 920. I did not detect any specific pattern for this
-    # error and I could never replicate the bug, but every now and then the app
-    # would crash. The fix on lines 920-923 handles the KeyError exception by
-    # returning the function.
+    # scrollview.py _change_touch_mode function was modified to prevent a bug
+    # from # crashing the app. Before the fix, sometimes the app would crash
+    # due to a KeyError exception on line 920. I did not detect any
+    # specific pattern for this  error and I could never replicate the bug,
+    # but every now and then the app  would crash. The fix on lines 920-923
+    # handles the KeyError exception by  returning the function.
 
 
     def kill_proc_tree(pid, include_parent=True):
@@ -162,9 +169,9 @@ if __name__ == "__main__":
         # Dynamic list containing only the activated files
         active_file_list = ListProperty()
         # Dictionary mapping file names to their corresponding full paths. This
-        # attribute must exist, because some parts of the code need only the file
-        # name instead of the full path, but a connection to the full path must
-        # be maintained for future reference
+        # attribute must exist, because some parts of the code need only the
+        # file  name instead of the full path, but a connection to the full
+        # path must  be maintained for future reference
         filename_map = DictProperty()
 
         # Setting the list of taxa names
@@ -185,8 +192,10 @@ if __name__ == "__main__":
         _subpopup = ObjectProperty(None)
 
         # Dictionary containing the values for the main process operations
-        main_operations = DictProperty({"concatenation": False, "conversion": False,
-                                        "reverse_concatenation": False})
+        main_operations = DictProperty({
+            "concatenation": False,
+            "conversion": False,
+            "reverse_concatenation": False})
 
         # Dictionary containing all values of the switches and checkboxes in the
         # process screen
@@ -216,8 +225,8 @@ if __name__ == "__main__":
         process_options = None
         process_height = None
 
-        # Attribute for the widget containing the treeview showing the operations
-        # queue
+        # Attribute for the widget containing the treeview showing the
+        # operations queue
         operation_tv = ObjectProperty(None)
         main_nodes = DictProperty()
 
@@ -226,7 +235,8 @@ if __name__ == "__main__":
         current_plot = ObjectProperty(None, allownone=True)
         current_lgd = None
         current_table = ObjectProperty(None, allownone=True)
-        # Alternate version for rapid plot switch. Only available for certain plots
+        # Alternate version for rapid plot switch. Only available for certain
+        #   plots
         alternative_plot = ObjectProperty(None, allownone=True)
         alternative_lgd = None
         alternative_table = ObjectProperty(None, allownone=True)
@@ -238,15 +248,15 @@ if __name__ == "__main__":
         # plot methods should be run, or if they should be ignored
         previous_sets = {"Files": [], "Taxa": []}
         # This attribute will store the StatsToggleWgt when changing the screen
-        # from Statistics. When the Statistics screen is back on active, the widget
-        # can be restored with this var
+        # from Statistics. When the Statistics screen is back on active,
+        # the widget can be restored with this var
         previous_stats_toggle = None
 
-        # Attributes for storing taxa and file buttons for side panel. These will
-        # be used when search for files/taxa and for loading only button subsets
-        # for very large data sets. Each list element pertains a single file/taxon
-        # and it will be a tupple containing the main button, information button
-        # and remove button.
+        # Attributes for storing taxa and file buttons for side panel. These
+        #  will be used when search for files/taxa and for loading only
+        # button subsets for very large data sets. Each list element
+        # pertains a single file/taxon and it will be a tupple containing the
+        #  main button, information button and remove button.
         sp_file_bts = ListProperty()
         sp_taxa_bts = ListProperty()
         sp_partition_bts = ListProperty()
@@ -260,14 +270,17 @@ if __name__ == "__main__":
         MAX_PARTITION_BUTTON = NumericProperty(20)
         count_partitions = NumericProperty(0)
 
-        # Attributes storing the toggle buttons from Taxa/File panels. Mostly for
-        # mouse_over events
+        # Attributes storing the toggle buttons from Taxa/File panels. Mostly
+        # for mouse_over events
         # Contains the button widgets from the Files and Taxa tabs
-        mouse_over_bts = DictProperty({"Files": [], "Taxa": [], "Partitions": []})
+        mouse_over_bts = DictProperty({
+            "Files": [],
+            "Taxa": [],
+            "Partitions": []})
         # The button text of the previous mouse over event. This will allow the
-        # assessment of whether the current mouse collision is for the same button
-        # (in which case the mouse over will not be triggered) or for a different
-        # button (in which case the mouse over is triggered)
+        # assessment of whether the current mouse collision is for the same
+        # button (in which case the mouse over will not be triggered) or for
+        # a different button (in which case the mouse over is triggered)
         previous_mouse_over = StringProperty("")
         # This is a locking mechanism of the mouse over event. When there is a
         # scheduled event for a mouse over this attribute is set to False, which
@@ -357,8 +370,8 @@ if __name__ == "__main__":
         original_file_inf = DictProperty()
         active_file_inf = DictProperty()
 
-        # Export mode. Tuple with first element "taxa" or "file" and second element
-        # as "all" or "selected"
+        # Export mode. Tuple with first element "taxa" or "file" and second
+        # element as "all" or "selected"
         export_mode = None
 
         # Attribute storing the sequence types currently loaded
@@ -369,7 +382,8 @@ if __name__ == "__main__":
         file_groups = DictProperty()
         dataset_file = None
 
-        # Attribute containing the objects for the several possible output files.
+        # Attribute containing the objects for the several possible output
+        # files.
         output_file = StringProperty("")
         output_dir = StringProperty("")
 
@@ -379,13 +393,14 @@ if __name__ == "__main__":
         # Attributes for extra options of output formats
         # Determines wheter the Fasta output format will be compliant with LDhat
         ld_hat = BooleanProperty(False)
-        # Determines whether the part.File associated with phylip format is created
+        # Determines whether the part.File associated with phylip format is
+        # created
         create_partfile = BooleanProperty(True)
         # Determines whether the charset partitions in Nexus input files are to
         # be used in the output file
         use_nexus_partitions = BooleanProperty(True)
-        # Determines whether taxa names should be truncated to 10 characters in a
-        # phylip file
+        # Determines whether taxa names should be truncated to 10 characters
+        # in a phylip file
         phylip_truncate_name = BooleanProperty(False)
 
         # Attribute storing the missing data filter settings. The list should
@@ -393,22 +408,24 @@ if __name__ == "__main__":
         # second element and minimum taxa representation proportion as the third
         # element
         missing_filter_settings = ListProperty([25, 50, 0])
-        # Attribute storing the taxa filter settings. The first element of the list
-        # should be the filter mode (either "Contain" or "Exclude") and the second
-        # element should be a string with the name of the taxa group (from the
+        # Attribute storing the taxa filter settings. The first element of
+        # the list should be the filter mode (either "Contain" or "Exclude")
+        # and the second element should be a string with the name of the taxa
+        #  group (from the
         # taxa_group attribute)
         taxa_filter_settings = ListProperty([])
         # Attribute storing the alignment filter settings. This will determine
         # which codon positions will be written to the output (only for DNA
         # sequences), so this will consist of a list containing 3 elements that
-        # correspond to each position. Positions will be saved or filtered depending
-        # on the boolean value of the list position. Ex. [True, True, True] will
-        # save all positions, whereas [True, True, False] will only save the first
+        # correspond to each position. Positions will be saved or filtered
+        # depending on the boolean value of the list position. Ex. [True,
+        # True, True] will save all positions, whereas [True, True, False]
+        # will only save the first
         # two positions
         codon_filter_settings = ListProperty([True, True, True])
 
-        # Attribute determining whether reverse concatenation will use a partition
-        # file or the partitions defined in the app
+        # Attribute determining whether reverse concatenation will use a
+        # partition file or the partitions defined in the app
         use_app_partitions = BooleanProperty(False)
         # Partitions file
         partitions_file = StringProperty("")
@@ -445,8 +462,8 @@ if __name__ == "__main__":
 
             # Setting available screens
             self.available_screens = ["main", "Orthology", "Process",
-                                      "Statistics", "fc", "group_compare", "plot",
-                                      "orto_plot"]
+                                      "Statistics", "fc", "group_compare",
+                                      "plot", "orto_plot"]
             self.screen_names = self.available_screens
 
             # Transforming screen names into complete paths to be loaded by kivy
@@ -455,9 +472,11 @@ if __name__ == "__main__":
                                       self.available_screens]
 
             # Store screen names specifically designed for plot display
-            self.plot_screens = ["group_compare", "plot", "orto_plot", "Statistics"]
+            self.plot_screens = ["group_compare", "plot", "orto_plot",
+                                 "Statistics"]
 
-            self.loaded_screens = dict((sc, None) for sc in self.available_screens)
+            self.loaded_screens = dict((sc, None) for sc in
+                                       self.available_screens)
 
             # First thing is go to main screen
             self.go_screen(0)
@@ -501,19 +520,21 @@ if __name__ == "__main__":
             self._start_clean()
 
             """
-            ------------------------ METHOD NOMENCLATURE GUIDE ---------------------
+            ------------------------ METHOD NOMENCLATURE GUIDE -----------------
 
-            Given the large number of methods needed to give functionality to the
-            app, this nomenclature guide was created to aid in the naming of new
-            methods so that the code can be more easily browsed and understood. Note
-            that this guide only targets methods that perform similar tasks and,
-            therefore, can be grouped by a common prefix name. Other methods that
-            perform more unique operations may have different names.
+            Given the large number of methods needed to give functionality to
+            the app, this nomenclature guide was created to aid in the naming
+            of new methods so that the code can be more easily browsed and
+            understood. Note that this guide only targets methods that
+            perform similar tasks and, therefore, can be grouped by a common
+            prefix name. Other methods that perform more unique operations
+            may have different names.
 
-            Method's names will be given based on their main operation and specific
-            task. For example, a method in charge of toggle the side panel, should
-            be named "toggle_sidepanel", being "toggle" the common prefix and
-            "sidepanel" the keyword linked ot the specific task.
+            Method's names will be given based on their main operation and
+            specific task. For example, a method in charge of toggle the side
+            panel, should be named "toggle_sidepanel", being "toggle" the
+            common prefix and "sidepanel" the keyword linked ot the specific
+            task.
 
             1. Toggles.
 
@@ -525,35 +546,37 @@ if __name__ == "__main__":
 
             "dialog_[specific_task]", e.g. "dialog_format"
 
-            Methods that generate dialogues throughout the app, usually in the form
-            of popups
+            Methods that generate dialogues throughout the app, usually in
+            the form of popups
 
             3. Populating methods.
 
             "populate_[specific_task]", e.g., "populate_input_files"
 
-            Methods that populate certain widgets, usually gridlayouts, with other
-            widgets
+            Methods that populate certain widgets, usually gridlayouts, with
+            other widgets
 
             4. Add/Remove
 
             "add_[specific_task]", e.g., "add_bookmark"
             "remove_[specific_task]", e.g., "remove_taxa_group"
 
-            Methods that add or remove widgets, usually buttons/togglebuttons, from
-            other widgets
+            Methods that add or remove widgets, usually buttons/togglebuttons,
+            from other widgets
 
             5. Saves.
 
             "save_[specific_task]", e.g., "save_file"
 
-            Methods that save specific settings from the several options of the app
+            Methods that save specific settings from the several options of the
+            sapp
 
             6. Updates.
 
             "update_[specific_task]", e.g., "update_tabs"
 
-            Wrapper methods used to update several attributes or widgets of the app
+            Wrapper methods used to update several attributes or widgets of the
+            app
 
             7. Checks.
 
@@ -565,8 +588,8 @@ if __name__ == "__main__":
 
             [specific_task]_[unique_operation], e.g., "sidepanel_animation"
 
-            When the method performs a unique operations, the specific_task should
-            prefix the name of the method.
+            When the method performs a unique operations, the specific_task
+            should prefix the name of the method.
             """
 
         def mouse_zoom(self, *vals):
