@@ -83,11 +83,11 @@ def getTaxonAndLength (subject, genes):
 def printPreviousSubject(subject):
     nonOverlapMatchLen = computeNonOverlappingMatchLength(subject)
 
-    percentIdent = int(subject["totalIdentities"] / subject["totalLength"] * 10 + .5)/10;
+    percentIdent = '{0:.3g}'.format((float(subject["totalIdentities"]) / float(subject["totalLength"]) * 10 + .5)/10);
     shorterLength = subject["queryLength"] if subject["queryShorter"] else subject["subjectLength"]
 
     percentMatch = '{0:.3g}'.format((float(nonOverlapMatchLen) / float(shorterLength) * 1000 + .5) / 10)
-    print (subject["queryId"] + "\t" + subject["subjectId"] + "\t" + subject["queryTaxon"] + "\t" + subject["subjectTaxon"] + "\t" + str(subject["evalueMant"]) + "\t" + str(subject["evalueExp"]) + "\t" + str(percentIdent) + "\t" + str(percentMatch))
+    print (subject["queryId"] + "\t" + subject["subjectId"] + "\t" + subject["queryTaxon"] + "\t" + subject["subjectTaxon"] + "\t" + str('{0:.3g}'.format(subject["evalueMant"])) + "\t" + str('{0:.3g}'.format(subject["evalueExp"])) + "\t" + str(percentIdent) + "\t" + str(percentMatch))
 
 #################################################################################################################
 # this (corrected) version of formatEvalue provided by Robson de Souza
