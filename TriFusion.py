@@ -2699,8 +2699,8 @@ if __name__ == "__main__":
                 del self.root.ids["file_temp"]
                 self.root.ids.file_sl.height = 5
 
-            # Add a label at the end of the file list informing how many files are
-            # currently selected out of the total files
+            # Add a label at the end of the file list informing how many files
+            # are currently selected out of the total files
             self.update_file_label()
 
             for infile in lst:
@@ -2757,7 +2757,8 @@ if __name__ == "__main__":
 
             max_buttons = self.MAX_FILE_BUTTON + self.count_files
 
-            self.root.ids.file_sl.remove_widget(self.root.ids.file_sl.children[0])
+            self.root.ids.file_sl.remove_widget(
+                self.root.ids.file_sl.children[0])
 
             for i in range(self.count_files, max_buttons):
 
@@ -2785,8 +2786,8 @@ if __name__ == "__main__":
                 del self.root.ids["species_temp"]
                 self.root.ids.taxa_sl.height = 5
 
-            # Add a label at the end of the taxa list informing how many taxa are
-            # currently selected out of the total taxa
+            # Add a label at the end of the taxa list informing how many taxa
+            # are currently selected out of the total taxa
             self.update_sp_label()
 
             for tx in sorted(self.active_taxa_list):
@@ -2810,13 +2811,14 @@ if __name__ == "__main__":
 
         def populate_partitions(self):
             """
-            Populates the partitions tab in the side bar from the partitions object
-            associated with alignment objects.
+            Populates the partitions tab in the side bar from the partitions
+            object associated with alignment objects.
 
             This method is used when input files are loaded into the program,
-            which means there will be no issue with multiple files being associated
-            with the same partitions. This kind of change is done a posteriori
-            when importing partition files or setting the partitions manually.
+            which means there will be no issue with multiple files being
+            associated with the same partitions. This kind of change is done
+            a posteriori when importing partition files or setting the
+            partitions manually.
             """
 
             # Remove initial disabled button, if it's still there
@@ -2842,14 +2844,15 @@ if __name__ == "__main__":
 
         def partitions_merge_dialog(self):
             """
-            Dialog that appears when clicking merge partitions asking for the name
-            of the new partition
+            Dialog that appears when clicking merge partitions asking for the
+            name of the new partition
             """
 
             content = InputTextDialog(cancel=self.dismiss_popup,
                                       action=lambda x: self.partitions_merge(x))
 
-            self.show_popup(title="Choose name for new partition", content=content,
+            self.show_popup(title="Choose name for new partition",
+                            content=content,
                             size=(300, 153.5))
 
         def partitions_merge(self, name):
@@ -2860,11 +2863,12 @@ if __name__ == "__main__":
             """
 
             if name in self.alignment_list.partitions.partitions:
-                return self.dialog_floatcheck("ERROR: A partition named %s already"
-                                              " exists." % name, t="error")
+                return self.dialog_floatcheck(
+                    "ERROR: A partition named %s already exists." % name,
+                    t="error")
 
-            self.alignment_list.partitions.merge_partitions(self.active_partitions,
-                                                            name)
+            self.alignment_list.partitions.merge_partitions(
+                self.active_partitions, name)
 
             # Resets active partitions
             self.active_partitions = []
@@ -2884,13 +2888,14 @@ if __name__ == "__main__":
             """
 
             # Get active partition
-            active_partition = [x.text for x in self.root.ids.partition_sl.children
+            active_partition = [x.text for x in
+                                self.root.ids.partition_sl.children
                                 if isinstance(x, ToggleButton) and
                                 x.state == "down"][0]
 
             if new_range:
-                self.alignment_list.partitions.split_partition(active_partition,
-                                                               new_range, new_names)
+                self.alignment_list.partitions.split_partition(
+                    active_partition, new_range, new_names)
 
             else:
                 self.alignment_list.partitions.split_partition(active_partition)
@@ -2907,14 +2912,17 @@ if __name__ == "__main__":
             content = SplitPartitions(cancel=self.dismiss_popup)
 
             # Get active partition
-            active_partition = [x.text for x in self.root.ids.partition_sl.children
+            active_partition = [x.text for x in
+                                self.root.ids.partition_sl.children
                                 if isinstance(x, ToggleButton) and
                                 x.state == "down"][0]
 
             # Get partition range
-            part_range = self.alignment_list.partitions.partitions[active_partition]
+            part_range = self.alignment_list.partitions.\
+                partitions[active_partition]
 
-            # Disable manual split if the current partition has a fragmented range
+            # Disable manual split if the current partition has a fragmented
+            # range
             if not isinstance(part_range[0], tuple):
                 for wgt in [content.ids.ok_bt, content.ids.part1,
                             content.ids.part2]:
@@ -2924,7 +2932,8 @@ if __name__ == "__main__":
                 content.ids.manual_slider.min = int(part_range[0][0])
                 content.ids.manual_slider.max = int(part_range[0][1])
 
-            # If partition contains only one file, disable automatic split by files
+            # If partition contains only one file, disable automatic split by
+            #  files
             if len(self.alignment_list.partitions.partitions_alignments[
                     active_partition]) == 1:
                 content.ids.auto_split_bt.disabled = True
@@ -2933,9 +2942,10 @@ if __name__ == "__main__":
                             size=(400, 320))
 
             if not isinstance(part_range[0], tuple):
-                self.dialog_floatcheck("WARNING: Manual split in unavailable for"
-                                       " partitions with fragmented ranges.",
-                                       t="error")
+                self.dialog_floatcheck(
+                    "WARNING: Manual split in unavailable for partitions with "
+                    "fragmented ranges.",
+                    t="error")
 
         def partitions_change_name(self, partition_name, new_name):
             """
@@ -2950,13 +2960,15 @@ if __name__ == "__main__":
 
             # Update button in side panel
             bt = [x for x in self.root.ids.partition_sl.children
-                  if isinstance(x, ToggleButton) and x.text == partition_name][0]
+                  if isinstance(x, ToggleButton) and
+                  x.text == partition_name][0]
             bt.text = new_name
 
         def partitions_import_scheme(self, partition_file):
             """
-            Imports partitions in partition_file and applies to the alignment_list
-            partition object. It applies to the entire alignment_list for now.
+            Imports partitions in partition_file and applies to the
+            alignment_list partition object. It applies to the entire
+            alignment_list for now.
             :param partition_file: string, path to partition file
             """
 
@@ -2976,9 +2988,9 @@ if __name__ == "__main__":
             Changes disabled state of merge partitions button
             """
 
-            active_partitions = len([x for x in self.root.ids.partition_sl.children
-                                     if isinstance(x, ToggleButton) and
-                                     x.state == "down"])
+            active_partitions = len([x for x in
+                self.root.ids.partition_sl.children if
+                isinstance(x, ToggleButton) and x.state == "down"])
 
             if active_partitions >= 2:
                 self.root.ids.merge_part.disabled = False
@@ -3045,20 +3057,21 @@ if __name__ == "__main__":
             second_background = join("data", "backgrounds", "model_bt2.png")
             third_background = join("data", "backgrounds", "model_bt3.png")
 
-            partition_model = {"[color=ff5555ff]1[/color] + [color=37abc8ff]2"
-                               "[/color] + [color=71c837ff]3[/color]":
-                     [ModelSpinner(background_normal=first_background, id="1"),
-                      ModelSpinner(background_normal=second_background, id="2"),
-                      ModelSpinner(background_normal=third_background, id="3")],
+            partition_model = {
+                "[color=ff5555ff]1[/color] + [color=37abc8ff]2[/color] + "
+                "[color=71c837ff]3[/color]":
+                [ModelSpinner(background_normal=first_background, id="1"),
+                ModelSpinner(background_normal=second_background, id="2"),
+                ModelSpinner(background_normal=third_background, id="3")],
                 "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]3[/color]":
-                     [ModelSpinner(background_normal=first_background, id="12"),
-                     ModelSpinner(background_normal=second_background, id="3")],
+                [ModelSpinner(background_normal=first_background, id="12"),
+                ModelSpinner(background_normal=second_background, id="3")],
                 "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + 3)[/color]":
-                     [ModelSpinner(background_normal=first_background, id="1"),
-                     ModelSpinner(background_normal=second_background, id="23")],
+                [ModelSpinner(background_normal=first_background, id="1"),
+                ModelSpinner(background_normal=second_background, id="23")],
                 "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]2[/color]":
-                     [ModelSpinner(background_normal=first_background, id="13"),
-                     ModelSpinner(background_normal=second_background, id="2")],
+                [ModelSpinner(background_normal=first_background, id="13"),
+                ModelSpinner(background_normal=second_background, id="2")],
                 "No partitions": [ModelSpinner(id="0")]}
 
             if wgt:
@@ -3077,16 +3090,15 @@ if __name__ == "__main__":
             Saves the model currently set in the partitions dialog.
             :param part_name: string, name of partition
             :param partition_wgt: Widget of the Partitions dialog
-            :param apply_all: boolean, whether the current model will be applied to
-            all partitions or not
+            :param apply_all: boolean, whether the current model will be
+            applied to all partitions or not
             """
 
             model_spiners = [x for x in partition_wgt.ids.model_bx.children]
 
             if len(model_spiners) == 1:
-                self.alignment_list.partitions.set_model(part_name,
-                                                         [model_spiners[0].text],
-                                                         apply_all=apply_all)
+                self.alignment_list.partitions.set_model(
+                    part_name, [model_spiners[0].text], apply_all=apply_all)
             else:
                 models = []
                 links = []
@@ -3094,10 +3106,10 @@ if __name__ == "__main__":
                     models.extend([wgt.text] * len(wgt.id))
                     links.append(wgt.id)
 
-                links, models = [list(x) for x in zip(*sorted(zip(links, models),
-                                                        key=lambda pair: pair[0]))]
-                self.alignment_list.partitions.set_model(part_name, models, links,
-                                                         apply_all=apply_all)
+                links, models = [list(x) for x in zip(
+                    *sorted(zip(links, models), key=lambda pair: pair[0]))]
+                self.alignment_list.partitions.set_model(
+                    part_name, models, links, apply_all=apply_all)
 
         def remove_partition_box(self):
             """
@@ -3134,8 +3146,8 @@ if __name__ == "__main__":
 
         def dialog_select_taxa_group(self):
             """
-            Shows a subpopup listing the taxa groups that have already been created.
-            Each taxa group will be a Button widget
+            Shows a subpopup listing the taxa groups that have already been
+            created. Each taxa group will be a Button widget
             """
 
             content = BtList(cancel=self.dismiss_subpopup)
@@ -3171,10 +3183,9 @@ if __name__ == "__main__":
 
         def dialog_create_group_from_file(self, ds_type):
             """
-            Creates a filechooser dialog  to select a file containing a taxa/file
-            list that will be used to generate a data set group
-
-            :param ds_typ: string. Identifies the data set type. Either taxa or
+            Creates a filechooser dialog  to select a file containing a
+            taxa/file list that will be used to generate a data set group
+            :param ds_type: string. Identifies the data set type. Either taxa or
             files
             """
 
@@ -3222,10 +3233,10 @@ if __name__ == "__main__":
 
         def dialog_import_partitions(self):
             """
-            Creates a filechooser dialog to select a partition file and import its
-            scheme to the current partition. If one or more partitions are active,
-            ask the user if we wants to import the partition scheme to the selected
-            partitions or to the whole dataset
+            Creates a filechooser dialog to select a partition file and import
+            its scheme to the current partition. If one or more partitions
+            are active, ask the user if we wants to import the partition
+            scheme to the selected partitions or to the whole dataset
             :return:
             """
 
@@ -3249,27 +3260,31 @@ if __name__ == "__main__":
 
             def flatter(s):
                 """
-                Creates a flat iterator of tuples. If s is [[(1,2), (2,3)], (4,5)]
-                this will yield ((1,2), (2,3), (4,5))
+                Creates a flat iterator of tuples. If s is [[(1,2), (2,3)],
+                (4,5)] this will yield ((1,2), (2,3), (4,5))
 
                 :param s: list.
                 """
-                for x in s:
-                    if isinstance(x, tuple):
-                        yield x
+                for y in s:
+                    if isinstance(y, tuple):
+                        yield y
                     else:
-                        for j in x:
+                        for j in y:
                             yield j
 
-            partition_model = {"1,2,3": "[color=ff5555ff]1[/color] + "
-                "[color=37abc8ff]2[/color] + [color=71c837ff]"
-                "3[/color]",
-                               "12,2": "[color=ff5555ff](1 + 2)[/color] + "
-                "[color=37abc8ff]3[/color]",
-                               "1,23": "[color=ff5555ff]1[/color] + [color=3"
-                "7abc8ff](2 + 3)[/color]",
-                               "13,2": "[color=ff5555ff](1 + 3)[/color] + ["
-                "color=37abc8ff]2[/color]"}
+            partition_model = {
+                "1,2,3":
+                    "[color=ff5555ff]1[/color] + [color=37abc8ff]2[/color]"
+                    " + [color=71c837ff]3[/color]",
+                "12,2":
+                    "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]3"
+                    "[/color]",
+                "1,23":
+                    "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + 3)"
+                    "[/color]",
+                "13,2":
+                    "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]2"
+                    "[/color]"}
 
             # Get position of partition edit button:
             ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
@@ -3279,17 +3294,20 @@ if __name__ == "__main__":
             pos = [ed_pos[0] + btx.width,
                    ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
 
-            content = PartitionsDialog(pos=pos, size=size, size_hint=(None, None))
-            rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20, pos[1] + size[1] - 20])
+            content = PartitionsDialog(pos=pos, size=size,
+                                       size_hint=(None, None))
+            rm_wgt = RemoveFloat(pos=[pos[0] + size[0] - 20,
+                                      pos[1] + size[1] - 20])
 
             # Set partition object and partition name
 
-            # Since partition names can be changed and I can only get the partition
-            # name from he edition button id (which does not change), this iteration
-            # over all three partition buttons for each partition will retrieve
-            # the correct partition name
-            displayed_partitions = (x for x in self.root.ids.partition_sl.children
-                                    if not isinstance(x, LoadMoreBt))
+            # Since partition names can be changed and I can only get the
+            # partition name from he edition button id (which does not
+            # change), this iteration over all three partition buttons for
+            # each partition will retrieve the correct partition name
+            displayed_partitions = (
+                x for x in self.root.ids.partition_sl.children if not
+                isinstance(x, LoadMoreBt))
             part_name = [bt.text for ebt, ibt, bt in
                          zip(*[iter(displayed_partitions)] * 3)
                          if ebt.id == btx.id][0]
@@ -3297,7 +3315,7 @@ if __name__ == "__main__":
             content.ids.partition_name.text = part_name
             content.original_name = part_name
 
-            # Get partition lenght
+            # Get partition length
             part_range = (y[0] for x, y in self.alignment_list.partitions
                           if x == part_name)
             part_len = sum([x[1] - x[0] for x in flatter(part_range)])
@@ -3306,8 +3324,10 @@ if __name__ == "__main__":
             # If there are codon partitions
             if part_obj.partitions[part_name][1]:
                 if not part_obj.models[part_name][2]:
-                    content.ids.codon_spin.text = content.ids.codon_spin.values[1]
-                    self.set_codon_model(content.ids.codon_spin.values[1], content)
+                    content.ids.codon_spin.text = content.ids.codon_spin.\
+                        values[1]
+                    self.set_codon_model(
+                        content.ids.codon_spin.values[1], content)
                 else:
                     m_key = ",".join(part_obj.models[part_name][2])
                     content.ids.codon_spin.text = partition_model[m_key]
@@ -3329,15 +3349,15 @@ if __name__ == "__main__":
                 content.ids.model_bx.children[0].text = model
 
             # Give functionality to remove button
-            rm_wgt.bind(on_release=lambda x: self.remove_partition_box())
+            rm_wgt.bind(on_release=lambda y: self.remove_partition_box())
 
             self.root_window.add_widget(content)
             self.root_window.add_widget(rm_wgt)
 
         def popup_info(self, value):
             """
-            Generates the pop up information content for the pressed taxa or file
-            button
+            Generates the pop up information content for the pressed taxa or
+            file button
             :param value: the button object is provided when binding
             """
 
@@ -3349,16 +3369,17 @@ if __name__ == "__main__":
 
                 if tx in self.active_taxa_list:
 
-                    # Get the information from the content list. This is done when
-                    # calling the popup to avoid repeating this operation every time
-                    # taxa  or files are added/removed.
+                    # Get the information from the content list. This is done
+                    #  when calling the popup to avoid repeating this
+                    # operation every time taxa  or files are added/removed.
                     self.active_tx_inf = self.get_taxa_information()
 
                     content = BoxLayout(orientation="vertical", padding=10,
                                         spacing=10)
                     sv = ScrollView(scroll_type=["bars"], bar_width=10)
                     all_ds = BoxLayout(orientation="vertical",
-                                       height=2 * (30 * 7) + 10, size_hint_y=None)
+                                       height=2 * (30 * 7) + 10,
+                                       size_hint_y=None)
                     total_ds = TaxaPopup(height=30 * 7)
                     total_ds.ids.dataset_label.text = "Complete data set"
                     active_ds = TaxaPopup(height=30 * 7)
@@ -3366,11 +3387,11 @@ if __name__ == "__main__":
 
                     # Populate complete data set contents
                     total_ds.ids.seq_len.text = "%s" % \
-                                                self.original_tx_inf[tx]["length"]
+                        self.original_tx_inf[tx]["length"]
                     total_ds.ids.indels.text = "%s" % \
-                                               self.original_tx_inf[tx]["indel"]
+                        self.original_tx_inf[tx]["indel"]
                     total_ds.ids.missing.text = "%s" % \
-                                                self.original_tx_inf[tx]["missing"]
+                        self.original_tx_inf[tx]["missing"]
                     total_ds.ids.ef_seq_len.text = ("%s (%s%%)" % (
                         self.original_tx_inf[tx]["effective_len"],
                         self.original_tx_inf[tx]["effective_len_per"]))
@@ -3380,11 +3401,11 @@ if __name__ == "__main__":
 
                     # Populate active data set contents
                     active_ds.ids.seq_len.text = "%s" % \
-                                                 self.active_tx_inf[tx]["length"]
+                        self.active_tx_inf[tx]["length"]
                     active_ds.ids.indels.text = "%s" % \
-                                                self.active_tx_inf[tx]["indel"]
+                        self.active_tx_inf[tx]["indel"]
                     active_ds.ids.missing.text = "%s" % \
-                                                 self.active_tx_inf[tx]["missing"]
+                        self.active_tx_inf[tx]["missing"]
                     active_ds.ids.ef_seq_len.text = ("%s (%s%%)" % (
                         self.active_tx_inf[tx]["effective_len"],
                         self.active_tx_inf[tx]["effective_len_per"]))
@@ -3412,9 +3433,9 @@ if __name__ == "__main__":
 
                     content = FilePopup(cancel=self.dismiss_popup)
 
-                    # Get the information from the content list. This is done when
-                    # calling the popup to avoid repeating this operation every time
-                    # taxa  or files are added/removed.
+                    # Get the information from the content list. This is done
+                    # when calling the popup to avoid repeating this
+                    # operation every time taxa  or files are added/removed.
                     self.active_file_inf = self.get_file_information()
 
                     content.ids.in_format.text = "%s" % \
@@ -3465,8 +3486,8 @@ if __name__ == "__main__":
                     rm.id = "{}X".format(new_name)
 
             # Change tx_info attributes
-            self.original_tx_inf = dict((new_name, y) if x == old_name else (x, y)
-                                        for x, y in self.original_tx_inf.items())
+            self.original_tx_inf = dict((new_name, y) if x == old_name else
+                (x, y) for x, y in self.original_tx_inf.items())
 
             # Change mouser_over_bts attribute
             for taxa in [x for x in self.mouse_over_bts["Taxa"]
@@ -3478,10 +3499,10 @@ if __name__ == "__main__":
 
         def export_names(self, path, file_name):
             """
-            Export the names of buttons in the corresponding tab in the side panel
-            It listens to the self.export_mode attribute, which is a tuple object
-            with the first element being either "file" or "taxa" and the second
-            element as "all" or "selected".
+            Export the names of buttons in the corresponding tab in the side
+            panel It listens to the self.export_mode attribute, which is a
+            tuple object with the first element being either "file" or "taxa"
+            and the second element as "all" or "selected".
 
             :param path: string. Path to the output file.
             :param file_name. Name of the output file.
@@ -3523,11 +3544,12 @@ if __name__ == "__main__":
             :param value: Button widget.
             """
 
+            # Get the parent layout object
             parent_obj = value.parent
 
             if self.touch.is_double_tap and parent_obj == self.root.ids.taxa_sl:
-                self.dialog_text("Change taxon name", "change_taxon", value.text)
-            # Get the parent layout object
+                self.dialog_text(
+                    "Change taxon name", "change_taxon", value.text)
 
             # determine active file list
             act_lst = self.active_file_list if self.file_list else \
@@ -3575,8 +3597,9 @@ if __name__ == "__main__":
 
         def remove_all(self):
             """
-            Functionality for the remove all button for taxa and file buttons in the
-            side panel. This method will remove all files and taxa from the program
+            Functionality for the remove all button for taxa and file buttons
+            in the side panel. This method will remove all files and taxa
+            from the program
             """
 
             # App changes
@@ -3621,8 +3644,8 @@ if __name__ == "__main__":
 
         def clear_process_input(self):
             """
-            Clears any input for the process/statistics screen and related variables
-            and attributes
+            Clears any input for the process/statistics screen and related
+            variables and attributes
             """
 
             self.alignment_list.clear_alignments()
@@ -3650,8 +3673,10 @@ if __name__ == "__main__":
             self.previous_stats_toggle = None
             if self.screen.name == "Statistics":
                 self.screen.ids.plot_content.clear_widgets()
-                self.screen.ids.gene_num.text = "Genes: [color=37abc8ff]N/A[/color]"
-                self.screen.ids.taxa_num.text = "Taxa: [color=37abc8ff]N/A[/color]"
+                self.screen.ids.gene_num.text = \
+                    "Genes: [color=37abc8ff]N/A[/color]"
+                self.screen.ids.taxa_num.text = \
+                    "Taxa: [color=37abc8ff]N/A[/color]"
             else:
                 self.loaded_screens[self.available_screens[3]] = None
 
@@ -3692,7 +3717,8 @@ if __name__ == "__main__":
 
             for gl in gl_bx.children:
                 # Remove appropriate item, according to id, from its gridlayout
-                gl.remove_widget([x for x in gl.children if x.id == value.id][0])
+                gl.remove_widget([x for x in gl.children if
+                                  x.id == value.id][0])
 
             # If no group button is active, dispatch the first
             if not [x for x in self.screen.ids.group_gl.children
@@ -3709,8 +3735,8 @@ if __name__ == "__main__":
             removes button pairs with similar id's and can be used in both files
             and taxa tabs
             :param value: Button widget to be removed
-            :param parent_wgt: Button widget contained. If provided, it overrides
-            value.parent
+            :param parent_wgt: Button widget contained. If provided, it
+            overrides value.parent
             """
 
             # APP CHANGES
@@ -3739,7 +3765,8 @@ if __name__ == "__main__":
                 bt = [x for x in parent_obj.children if bt_idx == x.id][0]
                 parent_obj.remove_widget(bt)
 
-                # Removes reference to this file/taxa in button and mouse over vars
+                # Removes reference to this file/taxa in button and mouse over
+                #  vars
                 if parent_obj == self.root.ids.file_sl:
                     self.sp_file_bts = [x for x in self.sp_file_bts
                                         if x[0].text != bt.text]
@@ -3852,7 +3879,8 @@ if __name__ == "__main__":
                     except IndexError:
                         pass
                     try:
-                        cbt = [x for x in parent_obj.children if f + "X" == x.id][0]
+                        cbt = [x for x in parent_obj.children if
+                               f + "X" == x.id][0]
                         parent_obj.remove_widget(cbt)
                     except IndexError:
                         pass
@@ -3874,8 +3902,8 @@ if __name__ == "__main__":
 
         def select_bt_from_file(self, idx, txt_file):
             """
-            Adds functionality to the dropdown button options for selecting file or
-            taxa buttons contained in a text file
+            Adds functionality to the dropdown button options for selecting
+            file or taxa buttons contained in a text file
             :param idx: string, either 'Files' or 'Taxa'.
             :param txt_file: string, path to txt file containing the files/taxa
             names to be selected
@@ -3916,9 +3944,8 @@ if __name__ == "__main__":
 
                     self.active_file_list = [self.filename_map[x] for x in
                                              selection]
-                    self.alignment_list.update_active_alignments([x for x in
-                                                              selection if x in
-                                                              self.filename_map[x]])
+                    self.alignment_list.update_active_alignments(
+                        [x for x in selection if x in self.filename_map[x]])
 
                     self.update_file_label()
 
@@ -3949,11 +3976,11 @@ if __name__ == "__main__":
                         i.state = "normal"
 
             # Core changes to files
-            if sv_parent == self.root.ids.sv_file and value.text == "Select All":
+            if (sv_parent == self.root.ids.sv_file and
+                    value.text == "Select All"):
                 self.active_file_list = self.file_list[:]
-                self.alignment_list.update_active_alignments([basename(x) for x in
-                                                              self.file_list])
-                # Update label
+                self.alignment_list.update_active_alignments(
+                    [basename(x) for x in self.file_list])
 
             # Core changes to taxa
             if sv_parent == self.root.ids.sv_sp and value.text == "Select All":
@@ -3961,24 +3988,26 @@ if __name__ == "__main__":
                     self.alignment_list.taxa_names)
 
             # Core changes to files
-            if sv_parent == self.root.ids.sv_file and value.text == "Deselect All":
+            if (sv_parent == self.root.ids.sv_file and
+                    value.text == "Deselect All"):
                 self.active_file_list = []
                 self.alignment_list.update_active_alignments([])
             # Core changes to taxa
-            if sv_parent == self.root.ids.sv_sp and value.text == "Deselect All":
+            if (sv_parent == self.root.ids.sv_sp and
+                    value.text == "Deselect All"):
                 self.active_taxa_list = []
 
             # Core changes to partitions
-            if sv_parent == self.root.ids.sv_partition and \
-                    value.text == "Select All":
+            if (sv_parent == self.root.ids.sv_partition and
+                    value.text == "Select All"):
                 self.active_partitions = list(
                     self.alignment_list.partitions.partitions)
                 self.partition_bt_state()
             else:
                 self.active_partitions = []
 
-            if sv_parent == self.root.ids.sv_sp or sv_parent == \
-                    self.root.ids.sv_file:
+            if (sv_parent == self.root.ids.sv_sp or sv_parent ==
+                    self.root.ids.sv_file):
                 # Updates labels
                 self.update_sp_label()
                 self.update_file_label()
@@ -4053,8 +4082,8 @@ if __name__ == "__main__":
         def add_dataset_bt(self, bt, wgt, ds_type):
             """
             Method for addition of a button to a widget. This method was created
-            for the automatic upated of the widgets height when moving buttons in
-            the taxa group creation dialog
+            for the automatic upated of the widgets height when moving buttons
+            in the taxa group creation dialog
             :param bt: The button widget
             :param wgt: The sink widget
             :param ds_type: string. Data set type. It may be either "taxa" or
@@ -4074,8 +4103,8 @@ if __name__ == "__main__":
         def remove_taxa_bt(bt, wgt):
             """
             Method for addition of a button to a widget. This method was created
-            for the automatic upated of the widgets height when moving buttons in
-            the taxa group creation dialog
+            for the automatic upated of the widgets height when moving buttons
+            in the taxa group creation dialog
             :param bt: The button widget
             :param wgt: The source widget
             """
@@ -4084,13 +4113,14 @@ if __name__ == "__main__":
 
         def taxagroup_move_taxa(self, source_wgt, sink_wgt, all_taxa, ds_type):
             """
-            Method that adds functionality to the addition/removal buttons (<<, <,
-            >>, >) in the taxa group dialog.
-            :param source_wgt: widget, the gridlayout from where the buttons will
-            be moved
-            :param sink_wgt: widget, the gridlayout to where buttons will be moved
-            :param all_taxa: Boolean, if True its as if alsa taxa were selected to
-            be moved
+            Method that adds functionality to the addition/removal buttons
+            (<<, <, >>, >) in the taxa group dialog.
+            :param source_wgt: widget, the gridlayout from where the buttons
+            will be moved
+            :param sink_wgt: widget, the gridlayout to where buttons will be
+            moved
+            :param all_taxa: Boolean, if True its as if alsa taxa were selected
+            to be moved
             :param ds_type: string. Data set type. It may be either "taxa" or
             "files"
             """
@@ -4113,10 +4143,10 @@ if __name__ == "__main__":
                     except IndexError:
                         pass
             else:
-                # This workaround is used to add some buttons from the source to the
-                # sink widgets while maintaining their original order. The z-index
-                # of widgets is not working quite as I expected, so for now this
-                # will produce the desired behaviour
+                # This workaround is used to add some buttons from the source
+                #  to the sink widgets while maintaining their original
+                # order. The z-index of widgets is not working quite as I
+                # expected, so for now this will produce the desired behaviour
                 sink_bts = []
                 # Remove buttons from the sink widget and store their names into
                 # a storage list
@@ -4138,8 +4168,10 @@ if __name__ == "__main__":
 
         def taxagroups_show_taxa(self, name_wgt):
             """
-            Creates a popup listing the taxa included in a taxa group given by name
-            :param name_wgt: widget, widget containing the name of the group as text
+            Creates a popup listing the taxa included in a taxa group given by
+            name
+            :param name_wgt: widget, widget containing the name of the group as
+            text
             """
 
             # Create root boxlayout
@@ -4148,8 +4180,8 @@ if __name__ == "__main__":
             sv = ScrollView()
             # Create close button for the popup
             close_bt = Button(text="Close", size_hint_y=None, height=30,
-                              background_normal="data/backgrounds/bt_process.png",
-                              bakcground_down="data/backgrounds/bt_process_off.png")
+                background_normal="data/backgrounds/bt_process.png",
+                bakcground_down="data/backgrounds/bt_process_off.png")
             # Add functionality to the close button
             close_bt.bind(on_release=self.dismiss_popup)
             # Create gridlayout that will store the buttons with taxa names
@@ -4176,13 +4208,13 @@ if __name__ == "__main__":
             content.add_widget(close_bt)
 
             # Show dialog
-            self.show_popup(title="Taxa group: %s" % name_wgt.text, content=content,
-                            size_hint=(.3, .7))
+            self.show_popup(title="Taxa group: %s" % name_wgt.text,
+                            content=content, size_hint=(.3, .7))
 
         def remove_taxa_group(self, rm_wgt):
             """
-            Removes the data set group button from the app list and corresponding
-            data set group attribute
+            Removes the data set group button from the app list and
+            corresponding data set group attribute
             :param rm_wgt: widget, widget of the removal button
             """
 
@@ -4202,12 +4234,12 @@ if __name__ == "__main__":
                 parent_wgt.remove_widget(rm_wgt)
                 # Remove from the sidepanel
                 if parent_wgt.ds == "taxa":
-                    for i in [x for x in self.root.ids.taxa_group_grid.children if
-                              x.id == rm_wgt.id or x.id == bt_idx]:
+                    for i in [x for x in self.root.ids.taxa_group_grid.children
+                              if x.id == rm_wgt.id or x.id == bt_idx]:
                         self.root.ids.taxa_group_grid.remove_widget(i)
                 else:
-                    for i in [x for x in self.root.ids.file_group_grid.children if
-                              x.id == rm_wgt.id or x.id == bt_idx]:
+                    for i in [x for x in self.root.ids.file_group_grid.children
+                              if x.id == rm_wgt.id or x.id == bt_idx]:
                         self.root.ids.file_group_grid.remove_widget(i)
 
             # Remove from program attribute
@@ -4216,12 +4248,13 @@ if __name__ == "__main__":
                 # Remove group from core attribute
                 del self.taxa_groups[bt_idx]
                 # Remove button from dropdown menu
-                # Since the children of a dropdown widget are a gridlayout and not
-                # the actual buttons contained in the dropdown menu, this will
-                # search for the children of the gridlayout
+                # Since the children of a dropdown widget are a gridlayout and
+                # not the actual buttons contained in the dropdown menu,
+                # this will search for the children of the gridlayout
                 for i in [x for x in
-                        self.process_grid_wgt.ids.taxa_dropdown.children[0].children
-                        if x.text == bt_idx]:
+                          self.process_grid_wgt.ids.taxa_dropdown.
+                          children[0].children if x.text == bt_idx]:
+
                     self.process_grid_wgt.ids.taxa_dropdown.remove_widget(i)
                 # Remove button from sidepanel
                 for i in [x for x in self.root.ids.taxa_group_grid.children
@@ -4233,8 +4266,9 @@ if __name__ == "__main__":
                 del self.file_groups[bt_idx]
                 # Remove button from dropdown menu
                 for i in [x for x in
-                        self.process_grid_wgt.ids.file_dropdown.children[0].children
-                        if x.text == bt_idx]:
+                          self.process_grid_wgt.ids.file_dropdown.
+                          children[0].children if x.text == bt_idx]:
+
                     self.process_grid_wgt.ids.file_dropdown.remove_widget(i)
                 # Remove button from sidepanel
                 for i in [x for x in self.root.ids.file_group_grid.children
@@ -4243,34 +4277,34 @@ if __name__ == "__main__":
 
         def taxagroups_add_group(self, name, wgt, ds_type):
             """
-            Adds a dataset button, and corresponding removal button, to the group
-            list gridlayut of the Dataset dialog.
+            Adds a dataset button, and corresponding removal button, to the
+            group list gridlayut of the Dataset dialog.
             :param name: string, name of the group
             :param wgt: GridLayout widget where the buttons will be added
             :param ds_type: string, dataset type, whether 'taxa' or 'files'
             """
 
             bt = TGToggleButton(text=name, size_hint_y=None, height=30,
-                                state="normal",
-                                background_disabled_down=join("data",
-                                                              "backgrounds",
-                                                              "bt_process.png"),
-                                disabled_color=(1, 1, 1, 1))
+                state="normal",
+                background_disabled_down=join("data", "backgrounds",
+                                              "bt_process.png"),
+                disabled_color=(1, 1, 1, 1))
 
             bt.bind(on_release=self.toggle_groups)
             bt.bind(on_release=lambda x: self.taxagroups_display_group(name,
                                                                        ds_type))
             rm_bt = Button(size_hint=(None, None), width=30,
-                           height=30, id="{}X".format(name), border=(0, 0, 0, 0),
-                           background_normal=join("data", "backgrounds",
-                                                  "remove_bt.png"),
-                           background_down=join("data", "backgrounds",
-                                                "remove_bt_down.png"))
-            rm_bt.bind(on_release=partial(self.check_action,
-                                          "Are you sure you want to remove this"
-                                          " group?",
-                                          self.remove_taxa_group,
-                                          popup_level=2))
+                height=30, id="{}X".format(name), border=(0, 0, 0, 0),
+                background_normal=join("data", "backgrounds", "remove_bt.png"),
+                background_down=join("data", "backgrounds",
+                                     "remove_bt_down.png"))
+
+            rm_bt.bind(on_release=partial(
+                self.check_action,
+                "Are you sure you want to remove this group?",
+                self.remove_taxa_group,
+                popup_level=2))
+
             wgt.add_widget(bt)
             wgt.add_widget(rm_bt)
 
@@ -4316,7 +4350,8 @@ if __name__ == "__main__":
             # Change dataset group name in the dialog
             dataset_wgt.ids.group_name.text = name
 
-        def save_dataset_group(self, source_wgt, name, ds_type, group_file=False):
+        def save_dataset_group(self, source_wgt, name, ds_type,
+                               group_file=False):
             """
             Adds a taxa group declared using the taxa group creator popup to the
             list of taxa groups in the side panel
@@ -4372,7 +4407,8 @@ if __name__ == "__main__":
             # If dataset dialog is still active, add the new group
             if dataset_wgt:
 
-                # Remove original button when not groups have been previously added
+                # Remove original button when not groups have been previously
+                # added
                 if len(dataset_wgt.ids.group_list.children) == 1:
                     dataset_wgt.ids.group_list.clear_widgets()
 
@@ -4418,7 +4454,7 @@ if __name__ == "__main__":
             dd_bt = Button(text=name, size_hint_y=None, height=40, bold=True,
                            background_normal=join("data", "backgrounds",
                                                   "spinner_opt.png"))
-            dd_bt.bind(on_release=lambda x: dd_wgt.select(name))
+            dd_bt.bind(on_release=lambda y: dd_wgt.select(name))
             dd_wgt.add_widget(dd_bt)
 
             # Update gridlayout height
@@ -4432,8 +4468,8 @@ if __name__ == "__main__":
             if os.path.exists(self.projects_file):
 
                 with open(self.projects_file, "rb") as projects_fh:
-                    # Attempts to read the projects file. If the file is somewhat
-                    # corrupted, remove it and issue a warning
+                    # Attempts to read the projects file. If the file is
+                    # somewhat corrupted, remove it and issue a warning
                     try:
                         projects_dic = pickle.load(projects_fh)
                     except EOFError:
@@ -4463,9 +4499,9 @@ if __name__ == "__main__":
 
         def save_project(self, name):
             """
-            Saves the current alignment_list or proteome_list for quick access to
-            the data sets. It automatically detects whether the current data set
-            is from the orthology or process modules.
+            Saves the current alignment_list or proteome_list for quick access
+            to the data sets. It automatically detects whether the current
+            data set is from the orthology or process modules.
 
             :param name: string, name of the project
             """
@@ -4476,8 +4512,9 @@ if __name__ == "__main__":
 
             # Check for project name duplicates
             if name in projects_dic:
-                return self.dialog_floatcheck("WARNING: Project with the same name"
-                                              "is already present", t="error")
+                return self.dialog_floatcheck(
+                    "WARNING: Project with the same nameis already present",
+                    t="error")
 
             with open(self.projects_file, "wb") as projects_fh:
                 if self.file_list:
