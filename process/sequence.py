@@ -62,7 +62,7 @@ class AlignmentUnequalLength(Exception):
 class Alignment (Base):
 
     def __init__(self, input_alignment, input_format=None, alignment_name=None,
-                 partitions=None, dest=None):
+                 partitions=None, dest=None, locus_length=None):
         """
         The basic Alignment instance requires only an alignment file or an
         OrderedDict object. In case the class is initialized with a dictionary
@@ -87,6 +87,10 @@ class Alignment (Base):
 
         :param dest: string. Path where the temporary sequence files will be
         stored
+
+        :param locus_length: Manually sets the length of the locus. Usually
+        provided when input_alignment is a dict object and the result of
+        concatenation.
         """
 
         self.log_progression = Progression()
@@ -109,7 +113,10 @@ class Alignment (Base):
         The length of the alignment object. Even if the current alignment object
         is partitioned, this will return the length of the entire alignment
         """
-        self.locus_length = 0
+        if not locus_length:
+            self.locus_length = 0
+        else:
+            self.locus_length = locus_length
 
         """
         This option is only relevant when gaps are coded. This will store a
@@ -190,6 +197,9 @@ class Alignment (Base):
             self._init_dicobj(input_alignment)
             # The input format of the alignment (str)
             self.input_format = input_format
+            # Short name - No extension
+            self.sname = alignment_name
+            self.dest = dest
 
     def __iter__(self):
         """
@@ -237,7 +247,6 @@ class Alignment (Base):
 
         self.sequence_code = self.guess_code(list(dictionary_obj.values())[0])
         self.alignment = dictionary_obj
-        self.locus_length = len(list(dictionary_obj.values())[0])
 
     def sequences(self):
         """
@@ -1570,14 +1579,24 @@ class AlignmentList(Base):
         # Take caution to provide a unique path, so that other temp
         # files are not overwritten. If dest is not provided, temp files will
         # be created on the current working directory
-        if dest and not os.path.exists(dest):
-            os.makedirs(dest)
+        if dest and alignment_name:
+            if not os.path.exists(join(dest, alignment_name)):
+                os.makedirs(join(dest, alignment_name))
         else:
             dest = "./"
 
+        # Variable that will store the lenght of the concatenated alignment
+        # and provided it when initializing the Alignment object
+        locus_length = None
+
         # Initializing alignment dict to store the alignment information
-        concatenation = OrderedDict(
-            [(key, join(dest, key + ".temp")) for key in self.taxa_names])
+        if alignment_name:
+            concatenation = OrderedDict(
+                [(key, join(dest, alignment_name, key + ".temp")) for key in
+                 self.taxa_names])
+        else:
+            concatenation = OrderedDict(
+                [(key, join(dest, key + ".temp")) for key in self.taxa_names])
 
         # Concatenation is performed for each taxon at a time
         for taxon in self.taxa_names:
@@ -1604,6 +1623,11 @@ class AlignmentList(Base):
             if not has_data:
                 os.remove(concatenation[taxon])
                 del concatenation[taxon]
+            # Retrieve locus length
+            else:
+                if not locus_length:
+                    with open(concatenation[taxon]) as fh:
+                        locus_length = len(fh.read().strip())
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
@@ -1611,8 +1635,10 @@ class AlignmentList(Base):
 
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
+                                           dest=dest,
                                            partitions=self.partitions,
-                                           alignment_name=alignment_name)
+                                           alignment_name=alignment_name,
+                                           locus_length=locus_length)
 
         return concatenated_alignment
 
