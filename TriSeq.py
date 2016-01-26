@@ -237,7 +237,7 @@ def main_parser(alignment_list):
             return 0
 
         elif arg.select:
-            print("\rSelecting alignments", end="")
+            print("\rSelecting alignments")
 
             if not os.path.exists("Taxa_selection"):
                 os.makedirs("Taxa_selection")
@@ -265,19 +265,19 @@ def main_parser(alignment_list):
     # Removing taxa
     if arg.remove is not None:
         if arg.quiet is False:
-            print("\rRemoving taxa", end="")
+            print("\rRemoving taxa")
         alignment.remove_taxa(arg.remove)
 
     # Collapsing the alignment
     if arg.collapse is not False:
         if arg.quiet is False:
-            print("\rCollapsing alignment", end="")
+            print("\rCollapsing alignment")
         alignment.collapse(haplotypes_file=outfile)
 
     # Codes gaps into binary states
     if arg.gcoder is not False:
         if arg.quiet is False:
-            print("\rCoding gaps", end="")
+            print("\rCoding gaps")
         if output_format != ["nexus"]:
             raise OutputFormatError("Alignments with gaps coded can only be"
                                     " written in Nexus format")
@@ -288,7 +288,7 @@ def main_parser(alignment_list):
 
     ## Writing files
     if arg.quiet is False:
-        print("\rWriting output file(s)", end="")
+        print("\rWriting output file(s)")
 
     alignment.write_to_file(output_format, outfile, interleave=interleave,
                             outgroup_list=outgroup_taxa,
@@ -348,7 +348,7 @@ def main():
     main_parser(arg.infile)
 
     if arg.quiet is False:
-        print("\rProgram done!", end="")
+        print("\rProgram done!")
 
 ##### EXECUTION ######
 
