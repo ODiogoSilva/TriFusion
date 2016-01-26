@@ -1354,6 +1354,10 @@ class AlignmentList(Base):
         :return:
         """
 
+        # Clear temporary sequence files
+        for aln in self.alignments.values():
+            aln.remove_alignment()
+
         self.alignments = OrderedDict()
         self.shelve_alignments = OrderedDict()
         self.bad_alignments = []
@@ -1549,7 +1553,7 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, alignment_name=None):
+    def concatenate(self, alignment_name=None, dest=None):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
@@ -1557,40 +1561,49 @@ class AlignmentList(Base):
         :param alignment_name: string. Optional. Name of the new concatenated
         alignment object. This should be used when collapsing the alignment
         afterwards.
+        :param dest: Path to temporary directory where sequence data will be
+        stored
         :return concatenated_alignment: Alignment object
         """
 
+        # If dest is provided, this will ensure that the directory exists.
+        # Take caution to provide a unique path, so that other temp
+        # files are not overwritten. If dest is not provided, temp files will
+        # be created on the current working directory
+        if dest and not os.path.exists(dest):
+            os.makedirs(dest)
+        else:
+            dest = "./"
+
         # Initializing alignment dict to store the alignment information
-        concatenation = OrderedDict([(key, []) for key in self.taxa_names])
+        concatenation = OrderedDict(
+            [(key, join(dest, key + ".temp")) for key in self.taxa_names])
 
-        for alignment_object in self.alignments.values():
+        # Concatenation is performed for each taxon at a time
+        for taxon in self.taxa_names:
 
-            # Setting the missing data symbol
-            missing = alignment_object.sequence_code[1]
+            # This variable will remain False unless some data is provided for
+            # the current taxa. If there is only missing data, this taxon
+            # will be removed from the concatenation dict
+            has_data = False
 
-            # Appending sequence data from current alignment to concatenated
-            # alignment. Appending each sequence data in a list and in the end
-            # converting that list into a string is much much faster than
-            # concatenating strings at this point
-            for taxa in self.taxa_names:
-                try:
-                    sequence = alignment_object.alignment[taxa]
-                    concatenation[taxa].append(sequence)
-                except KeyError:
-                    concatenation[taxa].append(missing
-                        * alignment_object.locus_length)
+            with open(concatenation[taxon], "w") as fh:
 
-        # Each taxa is a list of strings for each alignment object, so here
-        # the list is being converted into a string
-        for taxa, seq in list(concatenation.items()):
-            # Check if new sequence has any data. When a subset of files are
-            # concatenated, some taxa may end up with no data. This prevents
-            # those taxa from being written
-            seq = "".join(seq)
-            if set(seq) != {self.sequence_code[1]}:
-                concatenation[taxa] = seq
-            else:
-                del concatenation[taxa]
+                for aln in self.alignments.values():
+
+                    # Setting missing data symbol
+                    missing = aln.sequence_code[1]
+
+                    if taxon in aln.alignment:
+                        fh.write(aln.get_sequence(taxon))
+                        has_data = True
+                    else:
+                        fh.write(missing * aln.locus_length)
+
+            # Remove taxa that do not contain any data
+            if not has_data:
+                os.remove(concatenation[taxon])
+                del concatenation[taxon]
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
