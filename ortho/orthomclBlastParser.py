@@ -3,9 +3,11 @@
 import os
 import re
 import sys
+import sqlite3 as lite
 
 VAR_LENGTH=0
 VAR_TAXON=1
+cur=None
 
 """
 Read all fasta files from a folder, placing the genes present on those fasta into a single variable
@@ -87,7 +89,9 @@ def printPreviousSubject(subject):
     shorterLength = subject["queryLength"] if subject["queryShorter"] else subject["subjectLength"]
 
     percentMatch = '{0:.3g}'.format((float(nonOverlapMatchLen) / float(shorterLength) * 1000 + .5) / 10)
-    print (subject["queryId"] + "\t" + subject["subjectId"] + "\t" + subject["queryTaxon"] + "\t" + subject["subjectTaxon"] + "\t" + str('{0:.3g}'.format(subject["evalueMant"])) + "\t" + str('{0:.3g}'.format(subject["evalueExp"])) + "\t" + str(percentIdent) + "\t" + str(percentMatch))
+    #print (subject["queryId"] + "\t" + subject["subjectId"] + "\t" + subject["queryTaxon"] + "\t" + subject["subjectTaxon"] + "\t" + str('{0:.3g}'.format(subject["evalueMant"])) + "\t" + str('{0:.3g}'.format(subject["evalueExp"])) + "\t" + str(percentIdent) + "\t" + str(percentMatch))
+
+    cur.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, ?, ? ,?, ?)", (subject["queryId"], subject["subjectId"], subject["queryTaxon"], subject["subjectTaxon"], str('{0:.3g}'.format(subject["evalueMant"])), str('{0:.3g}'.format(subject["evalueExp"])), str(percentIdent), str(percentMatch)))
 
 #################################################################################################################
 # this (corrected) version of formatEvalue provided by Robson de Souza
@@ -142,8 +146,15 @@ def getStartEnd (h):
 
 #################################################################################################################
 
-def orthomclBlastParser(blastFileName, fastaFilesDir):
+def orthomclBlastParser(blastFileName, fastaFilesDir, db_dir):
 
+    #create connection to DB
+    con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
+    with con:
+        global cur
+        cur = con.cursor()
+
+    #parse fasta files
     genes = getGenesFromFasta(fastaFilesDir);
     blastFile = open(blastFileName, "r")
 
@@ -202,4 +213,4 @@ def orthomclBlastParser(blastFileName, fastaFilesDir):
 
     printPreviousSubject(subject)
 
-orthomclBlastParser("../test/AllVsAll.out", "../test/compliantFasta")
+orthomclBlastParser("../test/AllVsAll.out", "../test/compliantFasta", "./")

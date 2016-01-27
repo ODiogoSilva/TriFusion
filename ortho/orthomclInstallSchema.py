@@ -116,3 +116,5 @@ def execute(dir):
         createCoOrthologTable(cur)
         createInterTaxonMatchView(cur)
 
+if __name__ == "__main__":
+	execute("./")
