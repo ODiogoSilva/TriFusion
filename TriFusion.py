@@ -32,14 +32,11 @@ if __name__ == "__main__":
     import multiprocessing
     import matplotlib
     import matplotlib.patches as patches
-    import logging
     import psutil
     import pickle
     import shutil
     import urllib
     import time
-    import sys
-    import re
     import os
     from os import sep
 
@@ -7938,7 +7935,8 @@ if __name__ == "__main__":
                 "output_dir": str(self.output_dir),
                 "use_app_partitions": bool(self.use_app_partitions),
                 "consensus_type": self.process_options.ids.consensus_mode.text,
-                "ld_hat": bool(self.ld_hat)}
+                "ld_hat": bool(self.ld_hat),
+                "temp_dir": str(self.temp_dir)}
 
             p = multiprocessing.Process(target=process_execution,
                                         kwargs=process_kwargs)
