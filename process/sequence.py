@@ -26,7 +26,7 @@
 # TriFusion imports
 import process
 from process.base import *
-from process.missing_filter import MissingFilter
+from process.missing_filter import *
 from process.data import Partitions
 
 # Other imports
@@ -38,6 +38,8 @@ import os
 import shutil
 from os import sep
 from os.path import join, basename, splitext
+from itertools import compress
+import fileinput
 
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -59,7 +61,7 @@ class AlignmentUnequalLength(Exception):
     pass
 
 
-class Alignment (Base):
+class Alignment(Base):
 
     def __init__(self, input_alignment, input_format=None, alignment_name=None,
                  partitions=None, dest=None, locus_length=None):
@@ -134,9 +136,23 @@ class Alignment (Base):
         """
         self.is_alignment = None
 
-        # Storage taxa names and corresponding sequences in an ordered
-        # Dictionary
+        """
+        The alignment attribute is an ordered dictionary where the keys are
+        taxon names and the values are file names containing the path to the
+        temporary sequence files.
+        """
         self.alignment = OrderedDict()
+
+        # """
+        # This attribute is derived from self.alignment. To prevent permanent
+        # modifications to the original alignment, this attribute will be
+        # populated when the Process execution is triggered. In this event,
+        # the original temporary .seq files will be duplicated, their file paths
+        # added to self.action_alignment and all modifications will be made in
+        # this attribute. After the execution is done, the duplicated files
+        # will be removed and this attribute will return to its empty state.
+        # """
+        # self.action_alignment = OrderedDict()
 
         self.path = None
 
@@ -248,6 +264,33 @@ class Alignment (Base):
         self.sequence_code = self.guess_code(list(dictionary_obj.values())[0])
         self.alignment = dictionary_obj
 
+    def start_action_alignment(self):
+        """
+        Creates temporary action files and directs self.alignment values to them
+        """
+
+        # Copies temporary files
+        for f in self.alignment.values():
+            shutil.copyfile(f, splitext(f)[0] + ".temp")
+
+        # Populates action_alignment
+        self.alignment = OrderedDict(
+            [(tx, splitext(f)[0] + ".temp")
+             for tx, f in self.alignment.items()])
+
+    def stop_action_alignment(self):
+        """
+        Removes temporary seq files for modification and restores the original
+        alignment files
+        """
+
+        for f in self.alignment.values():
+            os.remove(f)
+
+        self.alignment = OrderedDict(
+            [(tx, splitext(f)[0] + ".seq")
+             for tx, f in self.alignment.items()])
+
     def sequences(self):
         """
         Generator for sequence data of the alignment object. Akin to
@@ -270,12 +313,18 @@ class Alignment (Base):
         else:
             raise KeyError
 
-    def remove_alignment(self):
+    def remove_alignment(self, remove_active=False):
         """
         Removes all temporary sequence files for the alignment object
+        :param remove_active: Boolean. If False, it will remove all temporary
+        files (both active and stoped). If True, it will only remove the active
         """
 
-        shutil.rmtree(join(self.dest, self.sname))
+        if remove_active:
+            for f in self.alignment.values():
+                os.remove(f)
+        else:
+            shutil.rmtree(join(self.dest, self.sname))
 
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
@@ -314,7 +363,7 @@ class Alignment (Base):
                         os.makedirs(join(self.dest, self.sname))
 
                     self.alignment[taxa] = join(self.dest, self.sname,
-                                                taxa + ".temp")
+                                                taxa + ".seq")
                     try:
                         sequence = line.split()[1].strip().lower()
                     except IndexError:
@@ -340,7 +389,7 @@ class Alignment (Base):
                     taxa = self.rm_illegal(taxa)
 
                     self.alignment[taxa] = join(self.dest, self.sname,
-                                                taxa + ".temp")
+                                                taxa + ".seq")
 
                 elif line.strip() != "" and taxa:
                     with open(self.alignment[taxa], "a") as fh:
@@ -364,7 +413,7 @@ class Alignment (Base):
 
             # Create empty dict
             self.alignment = OrderedDict([(x, open(join(self.dest, self.sname,
-                                                x + ".temp"), "a"))
+                                                x + ".seq"), "a"))
                                           for x in taxa_list])
 
             # Add a counter to name each locus
@@ -397,7 +446,7 @@ class Alignment (Base):
 
             for tx, fh in self.alignment.items():
                 fh.close()
-                self.alignment[tx] = join(self.dest, self.sname, tx + ".temp")
+                self.alignment[tx] = join(self.dest, self.sname, tx + ".seq")
 
             self.partitions.set_length(self.locus_length)
 
@@ -418,7 +467,7 @@ class Alignment (Base):
                     for tx, fh in self.alignment.items():
                         fh.close()
                         self.alignment[tx] = join(self.dest, self.sname,
-                                                  tx + ".temp")
+                                                  tx + ".seq")
 
                     with open(self.alignment[tx]) as fh:
                         self.locus_length = len("".join(fh.readlines()))
@@ -434,7 +483,7 @@ class Alignment (Base):
                             line.strip().split()[1:]).lower())
                     else:
                         self.alignment[taxa] = open(join(self.dest, self.sname,
-                                                taxa + ".temp"), "a")
+                                                taxa + ".seq"), "a")
                         self.alignment[taxa].write("".join(line.strip().
                                                            split()[1:]).lower())
 
@@ -804,7 +853,85 @@ class Alignment (Base):
                                             len(complete_gap_list) +
                                             int(self.locus_length) - 1)
 
-    def filter_missing_data(self, gap_threshold, missing_threshold):
+    def _filter_terminals(self):
+        """
+        This will replace the gaps in the extremities of the alignment with
+        missing data symbols
+        :return:
+        """
+
+        for taxa, f in self.alignment.items():
+
+            with open(f) as fh:
+                seq = "".join(fh.readlines())
+
+            # Condition where the sequence only has gaps
+            if not seq.strip("-"):
+                with open(f, "w") as fh:
+                    fh.write(str(self.sequence_code[1]) * len(seq))
+                    continue
+
+            trim_seq = list(seq)
+            counter, reverse_counter = 0, -1
+
+            while trim_seq[counter] == "-":
+                trim_seq[counter] = self.sequence_code[1]
+                counter += 1
+
+            while trim_seq[reverse_counter] == "-":
+                trim_seq[reverse_counter] = self.sequence_code[1]
+                reverse_counter -= 1
+
+            with open(f, "w") as fh:
+                fh.write("".join(trim_seq))
+
+    def _filter_columns(self, gap_threshold, missing_threshold):
+        """ Here several missing data metrics are calculated, and based on
+         some user defined thresholds, columns with inappropriate missing
+         data are removed """
+
+        taxa_number = float(len(self.alignment))
+        self.old_locus_length = len(list(self.alignment.values())[0])
+
+        filtered_cols = []
+
+        fhs = fileinput.input(files=[x for x in self.alignment.values()])
+
+        # Creating the column list variable
+        for column in zip(*fhs):
+
+            cadd = column.count
+
+            # Calculating metrics
+            gap_proportion = (float(cadd("-")) /
+                              taxa_number) * float(100)
+            missing_proportion = (float(cadd(self.sequence_code[1])) /
+                                  taxa_number) * float(100)
+            total_missing_proportion = gap_proportion + missing_proportion
+
+            if total_missing_proportion <= gap_threshold or \
+                    missing_proportion <= missing_threshold:
+
+                filtered_cols.append(1)
+
+            else:
+                filtered_cols.append(0)
+
+        fhs.close()
+
+        # Open file handles in write mode
+        for f in self.alignment.values():
+
+            with open(f) as fh:
+                seq = "".join(fh.readlines())
+
+            with open(f, "w") as fh:
+                fh.write("".join(compress(seq, filtered_cols)))
+
+        self.locus_length = len(seq)
+
+    def filter_missing_data(self, gap_threshold, missing_threshold,
+                            fork=False):
         """
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
@@ -812,21 +939,20 @@ class Alignment (Base):
         missing data. If gap_threshold=50, for example, alignment columns with
         more than 50% of sites with gaps are removed.
 
+        This method will create a new temporary sequence file for each taxa,
+        with the modified sequence. The modified file will have the _filtered
+        suffix. All temporary files should only be created when creating the
+        output files and removed as soon as possible
+
         :param gap_threshold: int ranging from 0 to 100.
         :param missing_threshold: int ranging from 0 to 100.
+        :param fork: boolean. If True, in addition to performing the
+        filtering in the action_alignment it will also perform it on the
+        original alignment and write the output file.
         """
 
-        # When the class is initialized, it performs the basic filtering
-        # operations based on the provided thresholds
-        alignment_filter = MissingFilter(self.alignment,
-                                         gap_threshold=gap_threshold,
-                                         missing_threshold=missing_threshold,
-                                         gap_symbol="-",
-                                         missing_symbol=self.sequence_code[1])
-
-        # Replace the old alignment by the filtered one
-        self.alignment = alignment_filter.alignment
-        self.locus_length = alignment_filter.locus_length
+        self._filter_terminals()
+        self._filter_columns(gap_threshold, missing_threshold)
 
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
@@ -913,8 +1039,6 @@ class Alignment (Base):
         # written there
         if output_dir:
             output_file = join(output_dir, output_file)
-        else:
-            output_file = join("./", output_file)
 
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
@@ -1439,6 +1563,22 @@ class AlignmentList(Base):
         """
         return (alignment.name for alignment in self.alignments.values())
 
+    def start_action_alignment(self):
+        """
+        Wrapper of the start_action_alignment of Alignment object
+        """
+
+        for aln_obj in self.alignments.values():
+            aln_obj.start_action_alignment()
+
+    def stop_action_alignment(self):
+        """
+        Wrapper of the stop_action_alignment of the Alignment object
+        """
+
+        for aln_obj in self.alignments.values():
+            aln_obj.stop_action_alignment()
+
     def set_partition(self, alignment_obj):
         """
         Updates the partition object with the provided alignment_obj
@@ -1475,10 +1615,19 @@ class AlignmentList(Base):
                             AlignmentUnequalLength):
                 self.non_alignments.append(alignment_obj.path)
 
+            # if not ignore_paths:
             if not ignore_paths:
                 if alignment_obj.path in [x.path for x in
                                           self.alignments.values()]:
                     self.duplicate_alignments.append(alignment_obj.name)
+                else:
+                    # Get seq code
+                    if not self.sequence_code:
+                        self.sequence_code = alignment_obj.sequence_code
+
+                    self.alignments[alignment_obj.name] = alignment_obj
+                    self.set_partition(alignment_obj)
+                    self.filename_list.append(alignment_obj.name)
             else:
                 # Get seq code
                 if not self.sequence_code:
@@ -1632,6 +1781,10 @@ class AlignmentList(Base):
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
             self.partitions.remove_partition(file_name=aln_obj.path)
+
+        # Remove previous temp sequence files
+        for aln in self.alignments.values():
+            aln.remove_alignment(remove_active=True)
 
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
