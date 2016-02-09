@@ -4382,8 +4382,7 @@ if __name__ == "__main__":
                 dd_wgt = self.process_grid_wgt.ids.taxa_dropdown
                 # Set the current dataset group as default for taxa filter if
                 # it has not been defined
-                if not self.taxa_filter_settings:
-                    self.taxa_filter_settings[1] = ["Contain", name]
+                self.taxa_filter_settings[1] = name
 
             else:
                 # Make core changes by populating self.file_groups dictionary
