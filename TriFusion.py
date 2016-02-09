@@ -3367,9 +3367,9 @@ if __name__ == "__main__":
                 if tx in self.active_taxa_list:
 
                     # Get the information from the content list. This is done
-                    #  when calling the popup to avoid repeating this
+                    # when calling the popup to avoid repeating this
                     # operation every time taxa  or files are added/removed.
-                    self.active_tx_inf = self.get_taxa_information()
+                    self.active_tx_inf = self.get_taxon_information(tx)
 
                     content = BoxLayout(orientation="vertical", padding=10,
                                         spacing=10)
@@ -3398,17 +3398,17 @@ if __name__ == "__main__":
 
                     # Populate active data set contents
                     active_ds.ids.seq_len.text = "%s" % \
-                        self.active_tx_inf[tx]["length"]
+                        self.active_tx_inf["length"]
                     active_ds.ids.indels.text = "%s" % \
-                        self.active_tx_inf[tx]["indel"]
+                        self.active_tx_inf["indel"]
                     active_ds.ids.missing.text = "%s" % \
-                        self.active_tx_inf[tx]["missing"]
+                        self.active_tx_inf["missing"]
                     active_ds.ids.ef_seq_len.text = ("%s (%s%%)" % (
-                        self.active_tx_inf[tx]["effective_len"],
-                        self.active_tx_inf[tx]["effective_len_per"]))
+                        self.active_tx_inf["effective_len"],
+                        self.active_tx_inf["effective_len_per"]))
                     active_ds.ids.file_cov.text = ("%s (%s%%)" % (
-                        self.active_tx_inf[tx]["fl_coverage"],
-                        self.active_tx_inf[tx]["fl_coverage_per"]))
+                        self.active_tx_inf["fl_coverage"],
+                        self.active_tx_inf["fl_coverage_per"]))
 
                     close_bl = CloseBox(cancel=self.dismiss_popup)
 
@@ -7496,6 +7496,67 @@ if __name__ == "__main__":
             self.load(selection, aln_list.bad_alignments,
                       aln_list.non_alignments)
 
+        def get_taxon_information(self, tx):
+            """
+            Akin to the get_taxa_information method, but it only looks for
+            the information of a single taxon.
+            :return:
+            """
+
+            tx_inf = {}
+            # Counter for alignment missing the taxa
+            tx_missing = 0
+
+            # Get full sequence
+            sequence = []
+            # This assures that the information will only be gathered if the
+            # active data set is not empty
+            if self.alignment_list.alignments:
+                for aln in self.alignment_list:
+                    if tx in aln.alignment:
+                        sequence.append(aln.get_sequence(tx))
+                    else:
+                        tx_missing += 1
+                else:
+                    # Retrieve missing data symbol
+                    missing_symbol = aln.sequence_code[1]
+                    # Convert sequence to string
+                    sequence = "".join(sequence)
+
+                # Get sequence length
+                seq_len = len(sequence)
+                tx_inf["length"] = seq_len
+                # Get indel number
+                tx_inf["indel"] = sequence.count("-")
+                # Get missing data
+                tx_inf["missing"] = sequence.count(missing_symbol)
+                # Get effective sequence length in absolute and percentage
+                tx_inf["effective_len"] = seq_len - \
+                    (tx_inf["indel"] + tx_inf["missing"])
+
+                tx_inf["effective_len_per"] = \
+                    round((tx_inf["effective_len"] * 100) / seq_len, 2)
+
+                # Get number of files containing the taxa in absolute and
+                # percentage
+                tx_inf["fl_coverage"] = len(self.alignment_list.alignments) -\
+                    tx_missing
+                tx_inf["fl_coverage_per"] = \
+                    round(((tx_inf["fl_coverage"] * 100) /
+                           len(self.alignment_list.alignments)), 2)
+
+            else:
+                # This handles the case where the active data set is empty
+                tx_inf["length"] = "NA"
+                tx_inf["indel"] = "NA"
+                tx_inf["missing"] = "NA"
+                tx_inf["effective_len"] = "NA"
+                tx_inf["effective_len_per"] = "NA"
+                tx_inf["fl_coverage"] = "NA"
+                tx_inf["fl_coverage_per"] = "NA"
+
+            return tx_inf
+
         def get_taxa_information(self, alt_list=None):
             """
             This method will gather all available information for all taxa and
@@ -7537,58 +7598,7 @@ if __name__ == "__main__":
             for tx in self.active_taxa_list:
 
                 # Add entry to storage dictionary
-                tx_inf[tx] = {}
-                # Counter for alignment missing the taxa
-                tx_missing = 0
-
-                # Get full sequence
-                sequence = ""
-                # This assures that the information will only be gathered if the
-                # active data set is not empty
-                if aln_list.alignments:
-                    for aln in aln_list:
-                        if tx in aln.alignment:
-                            sequence += aln.get_sequence(tx)
-                        else:
-                            tx_missing += 1
-                    else:
-                        # Retrieve missing data symbol
-                        missing_symbol = aln.sequence_code[1]
-
-                    # Get sequence length
-                    seq_len = len(sequence)
-                    tx_inf[tx]["length"] = seq_len
-
-                    # Get indel number.
-                    tx_inf[tx]["indel"] = sequence.count("-")
-
-                    # Get missing data
-                    tx_inf[tx]["missing"] = sequence.count(missing_symbol)
-
-                    # Get effective sequence length in absolute and percentage
-                    tx_inf[tx]["effective_len"] = \
-                        seq_len - (tx_inf[tx]["indel"] + tx_inf[tx]["missing"])
-
-                    tx_inf[tx]["effective_len_per"] = \
-                        round((tx_inf[tx]["effective_len"] * 100) / seq_len, 2)
-
-                    # Get number of files containing the taxa in absolute and
-                    # percentage
-                    tx_inf[tx]["fl_coverage"] = len(aln_list.alignments) - \
-                        tx_missing
-                    tx_inf[tx]["fl_coverage_per"] = round(
-                        ((tx_inf[tx]["fl_coverage"] * 100) /
-                         len(aln_list.alignments)), 2)
-
-                else:
-                    # This handles the case where the active data set is empty
-                    tx_inf[tx]["length"] = "NA"
-                    tx_inf[tx]["indel"] = "NA"
-                    tx_inf[tx]["missing"] = "NA"
-                    tx_inf[tx]["effective_len"] = "NA"
-                    tx_inf[tx]["effective_len_per"] = "NA"
-                    tx_inf[tx]["fl_coverage"] = "NA"
-                    tx_inf[tx]["fl_coverage_per"] = "NA"
+                tx_inf[tx] = self.get_taxon_information(tx)
 
             return tx_inf
 
