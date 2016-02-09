@@ -206,18 +206,16 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         :return: AlignmentList object
         """
 
-        if main_operations["reverse_concatenation"]:
-            ns.msg = "Reverse concatenating"
-            if not use_app_partitions:
-                partition_obj = data.Partitions()
-                # In case the partitions file is badly formatted or invalid, the
-                # exception will be returned by the read_from_file method.
-                er = partition_obj.read_from_file(partitions_file)
-                aln = aln.retrieve_alignment(basename(rev_infile))
+        if not use_app_partitions:
+            partition_obj = data.Partitions()
+            # In case the partitions file is badly formatted or invalid, the
+            # exception will be returned by the read_from_file method.
+            er = partition_obj.read_from_file(partitions_file)
+            aln = aln.retrieve_alignment(basename(rev_infile))
 
-                aln.set_partitions(partition_obj)
+            aln.set_partitions(partition_obj)
 
-            aln = aln.reverse_concatenate()
+        aln = aln.reverse_concatenate()
 
         return aln
 
@@ -227,49 +225,41 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         :param aln: AlignmentList object
         """
 
-        # Filtering - This should be the first operation to be performed
-        if secondary_operations["filter"]:
-            ns.msg = "Filtering alignment(s)"
-            # if secondary_options["filter_file"]:
-            #     filtered_aln_obj = deepcopy(aln_object)
+        # Check if a minimum taxa representation was specified
+        if secondary_options["gap_filter"]:
+            if missing_filter_settings[2]:
+                aln.filter_min_taxa(missing_filter_settings[2])
 
-            # Check if a minimum taxa representation was specified
-            if secondary_options["gap_filter"]:
-                if missing_filter_settings[2]:
-                    aln.filter_min_taxa(missing_filter_settings[2])
+        # Filter by taxa
+        if secondary_options["taxa_filter"]:
+            # Get taxa list from taxa groups
+            taxa_list = taxa_groups[taxa_filter_settings[1]]
+            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list)
 
-            # Filter by taxa
-            if secondary_options["taxa_filter"]:
-                # Get taxa list from taxa groups
-                taxa_list = taxa_groups[taxa_filter_settings[1]]
-                aln.filter_by_taxa(taxa_filter_settings[0], taxa_list)
+        # Filter codon positions
+        if secondary_options["codon_filter"]:
+            aln.filter_codon_positions(codon_filter_settings)
 
-            # Filter codon positions
-            if secondary_options["codon_filter"]:
-                aln.filter_codon_positions(codon_filter_settings)
-
-            # Filter missing data
-            if secondary_options["gap_filter"]:
-                aln.filter_missing_data(missing_filter_settings[0],
-                                        missing_filter_settings[1])
+        # Filter missing data
+        if secondary_options["gap_filter"]:
+            aln.filter_missing_data(missing_filter_settings[0],
+                                    missing_filter_settings[1])
 
         return aln
 
-    def concatenation(aln):
+    def concatenation(aln, remove_temp=True):
         """
         Wrapper for concatenation operation
         :param aln: AlignmentList object
         """
 
-        if main_operations["concatenation"]:
-            ns.msg = "Concatenating"
-            aln = aln.concatenate(alignment_name=basename(output_file),
-                            dest=temp_dir)
+        aln = aln.concatenate(alignment_name=basename(output_file),
+                              dest=temp_dir, remove_temp=remove_temp)
 
-            if secondary_options["zorro"]:
-                ns.msg = "Concatenating ZORRO files"
-                zorro_data = data.Zorro(aln, zorro_suffix)
-                zorro_data.write_to_file(output_file)
+        if secondary_options["zorro"]:
+            ns.msg = "Concatenating ZORRO files"
+            zorro_data = data.Zorro(aln, zorro_suffix)
+            zorro_data.write_to_file(output_file)
 
         return aln
 
@@ -279,13 +269,11 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         :param aln: AlignmentObject list
         """
 
-        if secondary_operations["consensus"]:
-            ns.msg = "Creating consensus sequence(s)"
-            if secondary_options["consensus_single"]:
-                aln = aln.consensus(consensus_type=consensus_type,
-                                    single_file=True)
-            else:
-                aln.consensus(consensus_type=consensus_type)
+        if secondary_options["consensus_single"]:
+            aln = aln.consensus(consensus_type=consensus_type,
+                                single_file=True)
+        else:
+            aln.consensus(consensus_type=consensus_type)
 
         return aln
 
@@ -323,14 +311,17 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat)
         else:
-            aln.write_to_file(output_formats,
-                output_suffix=outfile,
-                interleave=secondary_options["interleave"],
-                partition_file=create_partfile,
-                output_dir=output_dir,
-                use_charset=use_nexus_partitions,
-                phy_truncate_names=phylip_truncate_name,
-                ld_hat=ld_hat)
+            for name, obj in aln.items():
+                name = name.replace(output_file, "")
+                obj.write_to_file(
+                    output_formats,
+                    output_suffix=name,
+                    interleave=secondary_options["interleave"],
+                    partition_file=create_partfile,
+                    output_dir=output_dir,
+                    use_charset=use_nexus_partitions,
+                    phy_truncate_names=phylip_truncate_name,
+                    ld_hat=ld_hat)
 
     try:
         # Setting the alignment to use.
@@ -361,67 +352,105 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         main_aln = deepcopy(aln_object)
         main_aln.start_action_alignment()
         # Reverse concatenation
-        main_aln = reverse_concatenation(main_aln)
+        if main_operations["reverse_concatenation"]:
+            ns.msg = "Reverse concatenating"
+            main_aln = reverse_concatenation(main_aln)
         # Filtering
-        main_aln = filter_aln(main_aln)
+        if secondary_operations["filter"] and not \
+                secondary_options["filter_file"]:
+            ns.msg = "Filtering alignment(s)"
+            main_aln = filter_aln(main_aln)
         # Concatenation
-        main_aln = concatenation(main_aln)
+        if main_operations["concatenation"]:
+            ns.msg = "Concatenating"
+            main_aln = concatenation(main_aln)
         # Collapsing
-        if secondary_operations["collapse"]:
+        if secondary_operations["collapse"] and not \
+                secondary_options["collapse_file"]:
             ns.msg = "Collapsing alignment(s)"
             main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir)
         # Consensus
-        aln_object = consensus(main_aln)
+        if secondary_operations["consensus"] and not \
+                secondary_options["consensus_file"]:
+            ns.msg = "Creating consensus sequence(s)"
+            main_aln = consensus(main_aln)
         # Gcoder
-        if secondary_operations["gcoder"]:
+        if secondary_operations["gcoder"] and not \
+                secondary_options["gcoder_file"]:
             ns.msg = "Coding gaps"
             main_aln.code_gaps()
-        # Writting main output
+
+        # Writing main output
         writer(main_aln)
 
-        if not main_operations["concatenation"]:
-            main_aln.stop_action_alignment()
+        main_aln.stop_action_alignment()
 
         #####
         # Perform operations on ADDITIONAL OUTPUTS
         #####
 
-        for op in [x for x, y in secondary_options.items()
-                   if x.endswith("_file") and y]:
+        # Perform the filtering option separately, since this the only one
+        # that must be done before concatenation
+        if secondary_options["filter_file"] and secondary_operations["filter"]:
 
-            if not main_operations["concatenation"]:
-                aln_object.start_action_alignment()
+            main_aln = deepcopy(aln_object)
+            main_aln.start_action_alignment()
 
-            if op == "collapse_file":
-                if secondary_operations["collapse"]:
-                    ns.msg = "Creating additional collapsed alignment(s)"
-                    filename = output_file + "_collapsed"
-                    aln_object.collapse(haplotype_name=hap_prefix,
-                                        dest=output_dir)
+            ns.msg = "Creating additional filtered alignments(s)"
+            filename = output_file + "_filtered"
+            main_aln = filter_aln(main_aln)
 
-            elif op == "filter_file":
-                if secondary_operations["filter"]:
-                    ns.msg = "Creating additional filtered alignments(s)"
-                    filename = output_file + "_filtered"
-                    aln_object = filter_aln(aln_object)
+            if main_operations["concatenation"]:
+                main_aln = concatenation(main_aln)
+                filename = output_file + "_filtered"
+                writer(main_aln, filename)
+            else:
+                writer(main_aln)
 
-            elif op == "gcoder_file":
-                if secondary_operations["gcoder"]:
-                    ns.msg = "Creating additional gap coded alignments(s)"
-                    filename = output_file + "_coded"
-                    aln_object.code_gaps()
+            main_aln.stop_action_alignment()
 
-            elif op == "consensus_file":
-                filename = output_file + "_consensus"
-                aln_object = consensus(aln_object)
+        if len([x for x, y in secondary_options.items() if
+                x.endswith("_file") and y and x != "filter_file"]) >= 1:
 
-            writer(aln_object, filename=filename)
+            main_aln = deepcopy(aln_object)
 
-            if not main_operations["concatenation"]:
-                aln_object.stop_action_alignment()
+            if main_operations["concatenation"]:
+                main_aln = concatenation(main_aln, remove_temp=False)
 
-        if main_operations["concatenation"]:
-            aln_object.stop_action_alignment()
+            # Perform the remaining secondary operations
+            for op in [x for x, y in secondary_options.items()
+                       if x.endswith("_file") and y and x != "filter_file"]:
+
+                main_aln.start_action_alignment()
+
+                if op == "collapse_file":
+                    if secondary_operations["collapse"]:
+                        ns.msg = "Creating additional collapsed alignment(s)"
+                        filename = output_file + "_collapsed"
+
+                        main_aln.collapse(haplotype_name=hap_prefix,
+                                          dest=output_dir)
+
+                elif op == "gcoder_file":
+                    if secondary_operations["gcoder"]:
+                        ns.msg = "Creating additional gap coded alignments(s)"
+                        filename = output_file + "_coded"
+                        main_aln.code_gaps()
+
+                elif op == "consensus_file":
+                    filename = output_file + "_consensus"
+                    main_aln = consensus(main_aln)
+
+                if main_operations["concatenation"]:
+                    writer(main_aln, filename=filename)
+                else:
+                    writer(main_aln)
+
+                main_aln.stop_action_alignment()
+
+            else:
+                if main_operations["concatenation"]:
+                    main_aln.stop_action_alignment()
 
     except:
         # Log traceback in case any unexpected error occurs. See
