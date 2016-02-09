@@ -26,7 +26,6 @@
 # TriFusion imports
 import process
 from process.base import *
-from process.missing_filter import *
 from process.data import Partitions
 
 # Other imports
@@ -1844,6 +1843,10 @@ class AlignmentList(Base):
                 if any((x for x in taxa_list
                         if x in list(alignment_obj.alignment))):
                     del self.alignments[k]
+
+        # If the resulting alignment is empty, raise an Exception
+        if self.alignments == {}:
+            raise EmptyAlignment("Alignment is empty after taxa filter")
 
     def filter_codon_positions(self, position_list):
         """
