@@ -74,6 +74,7 @@ if __name__ == "__main__":
     # Local TriFusion imports
     from ortho import protein2dna
     from process.base import Base
+    from process.error_handling import *
     from data.resources.info_data import informative_storage
     from data.resources.background_tasks import *
     from data.resources.custom_widgets import *
@@ -7496,7 +7497,7 @@ if __name__ == "__main__":
             self.load(selection, aln_list.bad_alignments,
                       aln_list.non_alignments)
 
-        def get_taxon_information(self, tx):
+        def get_taxon_information(self, tx, aln_list):
             """
             Akin to the get_taxa_information method, but it only looks for
             the information of a single taxon.
@@ -7511,8 +7512,8 @@ if __name__ == "__main__":
             sequence = []
             # This assures that the information will only be gathered if the
             # active data set is not empty
-            if self.alignment_list.alignments:
-                for aln in self.alignment_list:
+            if aln_list.alignments:
+                for aln in aln_list:
                     if tx in aln.alignment:
                         sequence.append(aln.get_sequence(tx))
                     else:
@@ -7539,11 +7540,11 @@ if __name__ == "__main__":
 
                 # Get number of files containing the taxa in absolute and
                 # percentage
-                tx_inf["fl_coverage"] = len(self.alignment_list.alignments) -\
+                tx_inf["fl_coverage"] = len(aln_list.alignments) -\
                     tx_missing
                 tx_inf["fl_coverage_per"] = \
                     round(((tx_inf["fl_coverage"] * 100) /
-                           len(self.alignment_list.alignments)), 2)
+                           len(aln_list.alignments)), 2)
 
             else:
                 # This handles the case where the active data set is empty
@@ -7598,7 +7599,7 @@ if __name__ == "__main__":
             for tx in self.active_taxa_list:
 
                 # Add entry to storage dictionary
-                tx_inf[tx] = self.get_taxon_information(tx)
+                tx_inf[tx] = self.get_taxon_information(tx, aln_list)
 
             return tx_inf
 
@@ -7900,7 +7901,11 @@ if __name__ == "__main__":
 
                     # If process execution ended with an error, issue warning.
                     try:
-                        if shared_ns.exception:
+                        if shared_ns.exception == "EmptyAlignment":
+                            return self.dialog_floatcheck(
+                                "ERROR: The alignment is empty after taxa "
+                                "filtering", t="error")
+                        elif shared_ns.exception == "Unknown":
                             return self.dialog_floatcheck(
                                 "ERROR: Unexpected error when generating "
                                 "Process output. Check the app logs.",

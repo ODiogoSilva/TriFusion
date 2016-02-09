@@ -453,11 +453,15 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 if main_operations["concatenation"]:
                     main_aln.stop_action_alignment()
 
+    except EmptyAlignment:
+        logging.exception("Empty alignment")
+        ns.exception = "EmptyAlignment"
+
     except:
         # Log traceback in case any unexpected error occurs. See
         # self.log_file for whereabouts of the traceback
         logging.exception("Unexpected exit in Process execution")
-        ns.exception = True
+        ns.exception = "Unknown"
 
 
 def load_group_files(group_files, temp_dir):
