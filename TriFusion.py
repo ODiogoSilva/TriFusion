@@ -411,7 +411,7 @@ if __name__ == "__main__":
         # and the second element should be a string with the name of the taxa
         #  group (from the
         # taxa_group attribute)
-        taxa_filter_settings = ListProperty([])
+        taxa_filter_settings = ListProperty([None, None])
         # Attribute storing the alignment filter settings. This will determine
         # which codon positions will be written to the output (only for DNA
         # sequences), so this will consist of a list containing 3 elements that
@@ -4383,7 +4383,7 @@ if __name__ == "__main__":
                 # Set the current dataset group as default for taxa filter if
                 # it has not been defined
                 if not self.taxa_filter_settings:
-                    self.taxa_filter_settings = ["Contain", name]
+                    self.taxa_filter_settings[1] = ["Contain", name]
 
             else:
                 # Make core changes by populating self.file_groups dictionary

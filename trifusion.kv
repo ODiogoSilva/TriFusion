@@ -3721,11 +3721,13 @@
         size_hint: 1, None
         border: (16, 16, 16, 16)
         height: 40
-        text: app.taxa_filter_settings[0] if app.taxa_filter_settings else "Containing"
+        text: app.taxa_filter_settings[0] if app.taxa_filter_settings[0] else "Containing"
         disabled: False if taxa_filter.active else True
         bold: True
         option_cls: Factory.get("PlotOpt")
         values: ("Contain", "Exclude")
+        on_text:
+            app.taxa_filter_settings[0] = self.text
 
     BoxLayout:
         orientation: "vertical"
@@ -3759,7 +3761,7 @@
             height: 40
             ProcessBt:
                 id: taxa_group_name
-                text: app.taxa_filter_settings[1] if app.taxa_filter_settings else "No group selected"
+                text: app.taxa_filter_settings[1] if app.taxa_filter_settings[1] else "No group selected"
                 size_hint_x: None
                 width: 200
                 disabled: False if taxa_filter.active else True
