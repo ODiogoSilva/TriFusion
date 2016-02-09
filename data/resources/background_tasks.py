@@ -277,11 +277,13 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         return aln
 
-    def writer(aln, filename=None):
+    def writer(aln, filename=None, suffix_str=""):
         """
         Wrapper for the output writing operations
         :param aln: AlignmentList object
         :param filename: string. If provided, it will overwrite the output_file
+        :param suffix_str: string. Provides the suffix for the AlignmentList
+        write_to_file method
         argument
         """
 
@@ -311,17 +313,15 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat)
         else:
-            for name, obj in aln.items():
-                name = name.replace(output_file, "")
-                obj.write_to_file(
-                    output_formats,
-                    output_suffix=name,
-                    interleave=secondary_options["interleave"],
-                    partition_file=create_partfile,
-                    output_dir=output_dir,
-                    use_charset=use_nexus_partitions,
-                    phy_truncate_names=phylip_truncate_name,
-                    ld_hat=ld_hat)
+            aln.write_to_file(
+                output_formats,
+                output_suffix=suffix_str,
+                interleave=secondary_options["interleave"],
+                partition_file=create_partfile,
+                output_dir=output_dir,
+                use_charset=use_nexus_partitions,
+                phy_truncate_names=phylip_truncate_name,
+                ld_hat=ld_hat)
 
     try:
         # Setting the alignment to use.
@@ -397,15 +397,15 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             main_aln.start_action_alignment()
 
             ns.msg = "Creating additional filtered alignments(s)"
-            filename = output_file + "_filtered"
+            suffix = "_filtered"
             main_aln = filter_aln(main_aln)
 
             if main_operations["concatenation"]:
                 main_aln = concatenation(main_aln)
                 filename = output_file + "_filtered"
-                writer(main_aln, filename)
+                writer(main_aln, filename=filename)
             else:
-                writer(main_aln)
+                writer(main_aln, suffix_str="_filtered")
 
             main_aln.stop_action_alignment()
 
@@ -426,7 +426,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 if op == "collapse_file":
                     if secondary_operations["collapse"]:
                         ns.msg = "Creating additional collapsed alignment(s)"
-                        filename = output_file + "_collapsed"
+                        suffix = "_collapsed"
 
                         main_aln.collapse(haplotype_name=hap_prefix,
                                           dest=output_dir)
@@ -434,17 +434,18 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 elif op == "gcoder_file":
                     if secondary_operations["gcoder"]:
                         ns.msg = "Creating additional gap coded alignments(s)"
-                        filename = output_file + "_coded"
+                        suffix = "_coded"
                         main_aln.code_gaps()
 
                 elif op == "consensus_file":
-                    filename = output_file + "_consensus"
+                    suffix = "_consensus"
                     main_aln = consensus(main_aln)
 
                 if main_operations["concatenation"]:
+                    filename = output_file + suffix
                     writer(main_aln, filename=filename)
                 else:
-                    writer(main_aln)
+                    writer(main_aln, suffix_str=suffix)
 
                 main_aln.stop_action_alignment()
 
