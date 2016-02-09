@@ -194,18 +194,136 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                       main_operations, zorro_suffix, partitions_file,
                       output_formats, create_partfile, use_nexus_partitions,
                       phylip_truncate_name, output_dir, use_app_partitions,
-                      consensus_type, ld_hat):
+                      consensus_type, ld_hat, temp_dir):
     """
     Process execution function
     :param ns: Namespace object
     """
 
-    try:
-        write_aln = {}
+    def reverse_concatenation(aln):
+        """
+        Wrapper of the reverse concatenation operation
+        :return: AlignmentList object
+        """
 
-        #####
-        # Perform operations
-        #####
+        if not use_app_partitions:
+            partition_obj = data.Partitions()
+            # In case the partitions file is badly formatted or invalid, the
+            # exception will be returned by the read_from_file method.
+            er = partition_obj.read_from_file(partitions_file)
+            aln = aln.retrieve_alignment(basename(rev_infile))
+
+            aln.set_partitions(partition_obj)
+
+        aln = aln.reverse_concatenate()
+
+        return aln
+
+    def filter_aln(aln):
+        """
+        Wrapper for filtering operations, given an alignment object
+        :param aln: AlignmentList object
+        """
+
+        # Check if a minimum taxa representation was specified
+        if secondary_options["gap_filter"]:
+            if missing_filter_settings[2]:
+                aln.filter_min_taxa(missing_filter_settings[2])
+
+        # Filter by taxa
+        if secondary_options["taxa_filter"]:
+            # Get taxa list from taxa groups
+            taxa_list = taxa_groups[taxa_filter_settings[1]]
+            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list)
+
+        # Filter codon positions
+        if secondary_options["codon_filter"]:
+            aln.filter_codon_positions(codon_filter_settings)
+
+        # Filter missing data
+        if secondary_options["gap_filter"]:
+            aln.filter_missing_data(missing_filter_settings[0],
+                                    missing_filter_settings[1])
+
+        return aln
+
+    def concatenation(aln, remove_temp=True):
+        """
+        Wrapper for concatenation operation
+        :param aln: AlignmentList object
+        """
+
+        aln = aln.concatenate(alignment_name=basename(output_file),
+                              dest=temp_dir, remove_temp=remove_temp)
+
+        if secondary_options["zorro"]:
+            ns.msg = "Concatenating ZORRO files"
+            zorro_data = data.Zorro(aln, zorro_suffix)
+            zorro_data.write_to_file(output_file)
+
+        return aln
+
+    def consensus(aln):
+        """
+        Wrapper of the consensus operation
+        :param aln: AlignmentObject list
+        """
+
+        if secondary_options["consensus_single"]:
+            aln = aln.consensus(consensus_type=consensus_type,
+                                single_file=True)
+        else:
+            aln.consensus(consensus_type=consensus_type)
+
+        return aln
+
+    def writer(aln, filename=None, suffix_str=""):
+        """
+        Wrapper for the output writing operations
+        :param aln: AlignmentList object
+        :param filename: string. If provided, it will overwrite the output_file
+        :param suffix_str: string. Provides the suffix for the AlignmentList
+        write_to_file method
+        argument
+        """
+
+        if filename:
+            outfile = filename
+        else:
+            outfile = output_file
+
+        # The output file(s) will only be written after all the required
+        # operations have been concluded. The reason why there are two "if"
+        # statement for "concatenation" is that the input alignments must be
+        # concatenated before any other additional operations. If the
+        # first if statement did not exist, then all additional options would
+        # have to be manually written for both "conversion" and "concatenation".
+        #  As it is, when "concatenation", the aln_obj is firstly converted
+        # into the concatenated alignment, and then all additional
+        # operations are conducted in the same aln_obj
+        ns.msg = "Writing output"
+
+        if main_operations["concatenation"] or \
+                secondary_options["consensus_single"]:
+            aln.write_to_file(output_formats,
+                outfile if outfile else join(output_dir, "consensus"),
+                interleave=secondary_options["interleave"],
+                partition_file=create_partfile,
+                use_charset=use_nexus_partitions,
+                phy_truncate_names=phylip_truncate_name,
+                ld_hat=ld_hat)
+        else:
+            aln.write_to_file(
+                output_formats,
+                output_suffix=suffix_str,
+                interleave=secondary_options["interleave"],
+                partition_file=create_partfile,
+                output_dir=output_dir,
+                use_charset=use_nexus_partitions,
+                phy_truncate_names=phylip_truncate_name,
+                ld_hat=ld_hat)
+
+    try:
         # Setting the alignment to use.
         # Update active file set of the alignment object
         aln_object = update_active_fileset(aln_list,
@@ -220,154 +338,120 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         ns.proc_files = len(aln_object.alignments)
 
+        # The execution of the process module will begin with all the
+        # operations on the main output alignment. Only after the main
+        # output file has been created will the additional secondary output
+        # files be processed. Since each output file requires the duplication
+        # of the temporary sequence files for modification, this ensures that
+        # there is only one set of "duplicate" temporary sequences files at
+        # one time.
+
+        #####
+        # Perform operations on MAIN OUTPUT
+        #####
+        main_aln = deepcopy(aln_object)
+        main_aln.start_action_alignment()
         # Reverse concatenation
         if main_operations["reverse_concatenation"]:
             ns.msg = "Reverse concatenating"
-            if not use_app_partitions:
-                partition_obj = data.Partitions()
-                # In case the partitions file is badly formatted or invalid, the
-                # exception will be returned by the read_from_file method.
-                er = partition_obj.read_from_file(partitions_file)
-                aln_object = aln_object.retrieve_alignment(basename(
-                    rev_infile))
-                aln_object.set_partitions(partition_obj)
-            aln_object = aln_object.reverse_concatenate()
-
-        # Filtering - This should be the first operation to be performed
-        if secondary_operations["filter"]:
+            main_aln = reverse_concatenation(main_aln)
+        # Filtering
+        if secondary_operations["filter"] and not \
+                secondary_options["filter_file"]:
             ns.msg = "Filtering alignment(s)"
-            if secondary_options["filter_file"]:
-                filtered_aln_obj = deepcopy(aln_object)
-            # Check if a minimum taxa representation was specified
-            if secondary_options["gap_filter"]:
-                if missing_filter_settings[2]:
-                    try:
-                        filtered_aln_obj.filter_min_taxa(
-                            missing_filter_settings[2])
-                    except NameError:
-                        aln_object.filter_min_taxa(
-                            missing_filter_settings[2])
-            # Filter by taxa
-            if secondary_options["taxa_filter"]:
-                # Get taxa list from taxa groups
-                taxa_list = taxa_groups[taxa_filter_settings[1]]
-                try:
-                    filtered_aln_obj.filter_by_taxa(
-                        taxa_filter_settings[0], taxa_list)
-                except NameError:
-                    aln_object.filter_by_taxa(taxa_filter_settings[0],
-                                              taxa_list)
-            # Filter codon positions
-            if secondary_options["codon_filter"]:
-                try:
-                    filtered_aln_obj.filter_codon_positions(
-                        codon_filter_settings)
-                except NameError:
-                    aln_object.filter_codon_positions(
-                        codon_filter_settings)
-            # Filter missing data
-            if secondary_options["gap_filter"]:
-                try:
-                    filtered_aln_obj.filter_missing_data(
-                        missing_filter_settings[0],
-                        missing_filter_settings[1])
-                except NameError:
-                    aln_object.filter_missing_data(
-                        missing_filter_settings[0],
-                        missing_filter_settings[1])
-            try:
-                write_aln[output_file + "_filtered"] = \
-                    filtered_aln_obj
-            except NameError:
-                pass
-
+            main_aln = filter_aln(main_aln)
         # Concatenation
         if main_operations["concatenation"]:
             ns.msg = "Concatenating"
-            aln_object = aln_object.concatenate(alignment_name=output_file)
-            # In case filtered alignments are going to be saved in a different
-            # file, concatenate them as well
-            if write_aln:
-                for name, aln in write_aln.items():
-                    write_aln[name] = aln.concatenate()
-            # Concatenation of ZORRO files
-            if secondary_options["zorro"]:
-                ns.msg = "Concatenating ZORRO files"
-                zorro_data = data.Zorro(aln_object, zorro_suffix)
-                zorro_data.write_to_file(output_file)
-
+            main_aln = concatenation(main_aln)
         # Collapsing
-        if secondary_operations["collapse"]:
+        if secondary_operations["collapse"] and not \
+                secondary_options["collapse_file"]:
             ns.msg = "Collapsing alignment(s)"
-            if secondary_options["collapse_file"]:
-                collapsed_aln_obj = deepcopy(aln_object)
-                collapsed_aln_obj.collapse(haplotype_name=hap_prefix,
-                                           dest=output_dir)
-                write_aln[output_file + "_collapsed"] = collapsed_aln_obj
-            else:
-                aln_object.collapse(haplotype_name=hap_prefix, dest=output_dir)
-
+            main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir)
         # Consensus
-        if secondary_operations["consensus"]:
+        if secondary_operations["consensus"] and not \
+                secondary_options["consensus_file"]:
             ns.msg = "Creating consensus sequence(s)"
-            if secondary_options["consensus_file"]:
-                consensus_aln_obj = deepcopy(aln_object)
-                if secondary_options["consensus_single"]:
-                    consensus_aln_obj = consensus_aln_obj.consensus(
-                        consensus_type=consensus_type, single_file=True)
-                else:
-                    consensus_aln_obj.consensus(consensus_type=consensus_type)
-                write_aln[output_file + "_consensus"] = consensus_aln_obj
-            else:
-                if secondary_options["consensus_single"]:
-                    aln_object = aln_object.consensus(
-                        consensus_type=consensus_type, single_file=True)
-                else:
-                    aln_object.consensus(consensus_type=consensus_type)
-
+            main_aln = consensus(main_aln)
         # Gcoder
-        if secondary_operations["gcoder"]:
+        if secondary_operations["gcoder"] and not \
+                secondary_options["gcoder_file"]:
             ns.msg = "Coding gaps"
-            if secondary_options["gcoder_file"]:
-                gcoded_aln_obj = deepcopy(aln_object)
-                gcoded_aln_obj.code_gaps()
-                write_aln[output_file + "_coded"] = gcoded_aln_obj
+            main_aln.code_gaps()
+
+        # Writing main output
+        writer(main_aln)
+
+        main_aln.stop_action_alignment()
+
+        #####
+        # Perform operations on ADDITIONAL OUTPUTS
+        #####
+
+        # Perform the filtering option separately, since this the only one
+        # that must be done before concatenation
+        if secondary_options["filter_file"] and secondary_operations["filter"]:
+
+            main_aln = deepcopy(aln_object)
+            main_aln.start_action_alignment()
+
+            ns.msg = "Creating additional filtered alignments(s)"
+            suffix = "_filtered"
+            main_aln = filter_aln(main_aln)
+
+            if main_operations["concatenation"]:
+                main_aln = concatenation(main_aln)
+                filename = output_file + "_filtered"
+                writer(main_aln, filename=filename)
             else:
-                aln_object.code_gaps()
-                
-        # The output file(s) will only be written after all the required
-        # operations have been concluded. The reason why there are two "if"
-        # statement for "concatenation" is that the input alignments must be
-        # concatenated before any other additional operations. If the
-        # first if statement did not exist, then all additional options would
-        # have to be manually written for both "conversion" and "concatenation".
-        #  As it is, when "concatenation", the aln_obj is firstly converted
-        # into the concatenated alignment, and then all additional
-        # operations are conducted in the same aln_obj
-        write_aln[output_file] = aln_object
-        ns.msg = "Writhing output"
-        
-        if main_operations["concatenation"] or \
-                secondary_options["consensus_single"]:
-            for name, obj in write_aln.items():
-                obj.write_to_file(output_formats,
-                        name if name else join(output_dir, "consensus"),
-                        interleave=secondary_options["interleave"],
-                        partition_file=create_partfile,
-                        use_charset=use_nexus_partitions,
-                        phy_truncate_names=phylip_truncate_name,
-                        ld_hat=ld_hat)
-        else:
-            for name, obj in write_aln.items():
-                name = name.replace(output_file, "")
-                obj.write_to_file(output_formats,
-                        output_suffix=name,
-                        interleave=secondary_options["interleave"],
-                        partition_file=create_partfile,
-                        output_dir=output_dir,
-                        use_charset=use_nexus_partitions,
-                        phy_truncate_names=phylip_truncate_name,
-                        ld_hat=ld_hat)
+                writer(main_aln, suffix_str="_filtered")
+
+            main_aln.stop_action_alignment()
+
+        if len([x for x, y in secondary_options.items() if
+                x.endswith("_file") and y and x != "filter_file"]) >= 1:
+
+            main_aln = deepcopy(aln_object)
+
+            if main_operations["concatenation"]:
+                main_aln = concatenation(main_aln, remove_temp=False)
+
+            # Perform the remaining secondary operations
+            for op in [x for x, y in secondary_options.items()
+                       if x.endswith("_file") and y and x != "filter_file"]:
+
+                main_aln.start_action_alignment()
+
+                if op == "collapse_file":
+                    if secondary_operations["collapse"]:
+                        ns.msg = "Creating additional collapsed alignment(s)"
+                        suffix = "_collapsed"
+
+                        main_aln.collapse(haplotype_name=hap_prefix,
+                                          dest=output_dir)
+
+                elif op == "gcoder_file":
+                    if secondary_operations["gcoder"]:
+                        ns.msg = "Creating additional gap coded alignments(s)"
+                        suffix = "_coded"
+                        main_aln.code_gaps()
+
+                elif op == "consensus_file":
+                    suffix = "_consensus"
+                    main_aln = consensus(main_aln)
+
+                if main_operations["concatenation"]:
+                    filename = output_file + suffix
+                    writer(main_aln, filename=filename)
+                else:
+                    writer(main_aln, suffix_str=suffix)
+
+                main_aln.stop_action_alignment()
+
+            else:
+                if main_operations["concatenation"]:
+                    main_aln.stop_action_alignment()
 
     except:
         # Log traceback in case any unexpected error occurs. See
