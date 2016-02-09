@@ -317,7 +317,7 @@ class Alignment(Base):
         """
         Removes all temporary sequence files for the alignment object
         :param remove_active: Boolean. If False, it will remove all temporary
-        files (both active and stoped). If True, it will only remove the active
+        files (both active and stopped). If True, it will only remove the active
         """
 
         if remove_active:
@@ -1711,7 +1711,7 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, alignment_name=None, dest=None):
+    def concatenate(self, alignment_name=None, dest=None, remove_temp=True):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
@@ -1721,6 +1721,8 @@ class AlignmentList(Base):
         afterwards.
         :param dest: Path to temporary directory where sequence data will be
         stored
+        :param remove_temp: boolean. If True, it will remove active temporary
+        sequence files.
         :return concatenated_alignment: Alignment object
         """
 
@@ -1741,11 +1743,11 @@ class AlignmentList(Base):
         # Initializing alignment dict to store the alignment information
         if alignment_name:
             concatenation = OrderedDict(
-                [(key, join(dest, alignment_name, key + ".temp")) for key in
+                [(key, join(dest, alignment_name, key + ".seq")) for key in
                  self.taxa_names])
         else:
             concatenation = OrderedDict(
-                [(key, join(dest, key + ".temp")) for key in self.taxa_names])
+                [(key, join(dest, key + ".seq")) for key in self.taxa_names])
 
         # Concatenation is performed for each taxon at a time
         for taxon in self.taxa_names:
@@ -1783,8 +1785,9 @@ class AlignmentList(Base):
             self.partitions.remove_partition(file_name=aln_obj.path)
 
         # Remove previous temp sequence files
-        for aln in self.alignments.values():
-            aln.remove_alignment(remove_active=True)
+        if remove_temp:
+            for aln in self.alignments.values():
+                aln.remove_alignment(remove_active=True)
 
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(concatenation,
