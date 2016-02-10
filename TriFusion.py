@@ -6843,8 +6843,7 @@ if __name__ == "__main__":
             """
 
             # Shows additional options
-            if (self.process_grid_wgt.ids.opt_bt.text == "Show additional "
-                                                         "options"):
+            if self.process_grid_wgt.ids.opt_bt.state == "down":
 
                 # Adds widget to the Process widget tree an animates its
                 # appearance via changes in opacity to give impression of fade
@@ -6864,8 +6863,7 @@ if __name__ == "__main__":
                     "Hide additional options"
 
             # Hides additional options
-            elif (self.process_grid_wgt.ids.opt_bt.text == "Hide additional "
-                                                           "options"):
+            elif self.process_grid_wgt.ids.opt_bt.state == "normal":
 
                 # Removes widget from widget tree. However, all settings that
                 #  were change while the widget was visible will be stored
