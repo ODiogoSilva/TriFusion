@@ -324,6 +324,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 ld_hat=ld_hat)
 
     try:
+        ns.msg = "Setting active data sets"
         # Setting the alignment to use.
         # Update active file set of the alignment object
         aln_object = update_active_fileset(aln_list,
@@ -349,6 +350,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         #####
         # Perform operations on MAIN OUTPUT
         #####
+        ns.msg = "Preparing data"
         main_aln = deepcopy(aln_object)
         main_aln.start_action_alignment()
         # Reverse concatenation
