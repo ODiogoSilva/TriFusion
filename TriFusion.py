@@ -1485,7 +1485,7 @@ if __name__ == "__main__":
                         "ERROR: Directory does not exist", t="error")
 
             label = PathLabel()
-            txt = PathText()
+            txt = PathText(id="path_editor")
 
             fc_wgt.bind(path=txt.setter("text"))
             fc_wgt.bind(path=label.setter("text"))
@@ -2194,6 +2194,9 @@ if __name__ == "__main__":
             if self.screen.name == "fc":
                 if self.screen.ids.text_filter.focus:
                     return
+                if isinstance(self.screen.ids.path_bx.children[0], PathText):
+                    if self.screen.ids.path_bx.children[0].focus:
+                        return
 
             # Toggling the state of the panel. This attribute is the main
             # controller of the side panel state. When its True, the side panel
