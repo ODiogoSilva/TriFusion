@@ -3370,7 +3370,8 @@ if __name__ == "__main__":
                     # Get the information from the content list. This is done
                     # when calling the popup to avoid repeating this
                     # operation every time taxa  or files are added/removed.
-                    self.active_tx_inf = self.get_taxon_information(tx)
+                    self.active_tx_inf = self.get_taxon_information(
+                        tx, self.alignment_list)
 
                     content = BoxLayout(orientation="vertical", padding=10,
                                         spacing=10)
