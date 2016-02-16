@@ -6623,6 +6623,14 @@ if __name__ == "__main__":
                         "ERROR: No output directory has been selected",
                         t="error")
 
+            if main_op == "reverse_concatenation" and not self.rev_infile and \
+                    len(self.file_list) > 1:
+                return self.dialog_floatcheck(
+                    "ERROR: Reverse concatenation using partitions defined in "
+                    "the app requires only one input alignment. Please select"
+                    " a single file to reverse concatenate in the Reverse "
+                    "concatenate settings", t="error")
+
             try:
                 self.show_popup(
                     title="Process execution summary - Processing %s file(s)" %

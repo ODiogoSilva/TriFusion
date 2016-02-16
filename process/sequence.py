@@ -213,7 +213,10 @@ class Alignment(Base):
             # The input format of the alignment (str)
             self.input_format = input_format
             # Short name - No extension
-            self.sname = alignment_name
+            try:
+                self.sname = basename(splitext(alignment_name)[0])
+            except AttributeError:
+                pass
             self.dest = dest
 
     def __iter__(self):
@@ -260,7 +263,10 @@ class Alignment(Base):
         and corresponding sequences as values
         """
 
-        self.sequence_code = self.guess_code(list(dictionary_obj.values())[0])
+        with open(list(dictionary_obj.values())[0]) as fh:
+            seq = "".join(fh.readlines())
+
+        self.sequence_code = self.guess_code(seq)
         self.alignment = dictionary_obj
 
     def start_action_alignment(self):
@@ -649,14 +655,10 @@ class Alignment(Base):
                                            list(self.alignment.values())[0])])
             return
 
-        # If sequence type is any other than first sequence, do this first
-        # Get sequence list
-        seq_list = list(self.alignment.values())
-
         # Empty consensus sequence
         consensus_seq = []
 
-        for column in zip(*seq_list):
+        for column in zip(*[self.get_sequence(x) for x in self.alignment]):
 
             column = list(set(column))
 
@@ -667,8 +669,8 @@ class Alignment(Base):
                 continue
 
             # Remove missing data and gaps
-            column = sorted([x for x in column if x != self.sequence_code[1]
-                             and x != "-"])
+            column = sorted([x for x in column if
+                             x != self.sequence_code[1] and x != "-"])
 
             # In case there is only missing/gap characters
             if not column:
@@ -697,8 +699,13 @@ class Alignment(Base):
             elif consensus_type == "Remove":
                 continue
 
-        # Replace alignment atribute with consensus sequence
-        self.alignment = OrderedDict([("consensus", "".join(consensus_seq))])
+        # Replace alignment attribute with consensus sequence
+        self.remove_alignment(remove_active=True)
+        self.alignment = OrderedDict([("consensus",
+                                       join(self.dest, self.sname,
+                                            "consensus.seq"))])
+        with open(self.alignment["consensus"], "w") as fh:
+            fh.write("".join(consensus_seq))
 
     @staticmethod
     def write_loci_correspondence(dic_obj, output_file, dest="./"):
@@ -750,18 +757,25 @@ class Alignment(Base):
         partitions set in self.partitions and returns an AlignmentList object
         """
 
-        concatenated_aln = AlignmentList([])
+        concatenated_aln = AlignmentList([], dest=self.dest)
         alns = []
 
         for name, part_range in self.partitions:
 
             current_dic = OrderedDict()
-            for taxon, seq in self.alignment.items():
+            for taxon, f in self.alignment.items():
+                seq = self.get_sequence(taxon)
                 sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
                 # If sub_seq is not empty (only gaps or missing data)
                 if sub_seq.replace(self.sequence_code[1], "") != "":
-                    current_dic[taxon] = sub_seq
+                    if not os.path.exists(join(self.dest, name)):
+                        os.makedirs(join(self.dest, name))
+
+                    current_dic[taxon] = join(self.dest, name, taxon + ".seq")
+
+                    with open(current_dic[taxon], "w") as fh:
+                        fh.write(sub_seq)
 
             current_partition = Partitions()
             current_partition.add_partition(name, part_range[0][1] -
@@ -775,7 +789,7 @@ class Alignment(Base):
 
             current_aln = Alignment(current_dic, input_format=self.input_format,
                                     partitions=current_partition,
-                                    alignment_name=name)
+                                    alignment_name=name, dest=self.dest)
 
             alns.append(current_aln)
 
@@ -2071,13 +2085,13 @@ class AlignmentList(Base):
 
             if single_file:
                 single_consensus[alignment_obj.name] = \
-                    list(alignment_obj.alignment.values())[0]
+                    alignment_obj.alignment["consensus"]
 
         if single_file:
             consensus_aln = Alignment(single_consensus)
             return consensus_aln
 
-    def reverse_concatenate(self):
+    def reverse_concatenate(self, dest=None):
         """
         Internal function to reverse concatenate an alignment according to
         defined partitions in a Partitions object
@@ -2090,7 +2104,7 @@ class AlignmentList(Base):
         :return: AlignmentList object with individual alignments
         """
 
-        concatenated_aln = self.concatenate()
+        concatenated_aln = self.concatenate(dest=dest)
 
         reverted_alns = concatenated_aln.reverse_concatenate()
 
