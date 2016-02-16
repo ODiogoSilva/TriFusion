@@ -215,7 +215,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             aln.set_partitions(partition_obj)
 
-        aln = aln.reverse_concatenate()
+        aln = aln.reverse_concatenate(dest=temp_dir)
 
         return aln
 
@@ -371,16 +371,16 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 secondary_options["collapse_file"]:
             ns.msg = "Collapsing alignment(s)"
             main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir)
-        # Consensus
-        if secondary_operations["consensus"] and not \
-                secondary_options["consensus_file"]:
-            ns.msg = "Creating consensus sequence(s)"
-            main_aln = consensus(main_aln)
         # Gcoder
         if secondary_operations["gcoder"] and not \
                 secondary_options["gcoder_file"]:
             ns.msg = "Coding gaps"
             main_aln.code_gaps()
+        # Consensus
+        if secondary_operations["consensus"] and not \
+                secondary_options["consensus_file"]:
+            ns.msg = "Creating consensus sequence(s)"
+            main_aln = consensus(main_aln)
 
         # Writing main output
         writer(main_aln)

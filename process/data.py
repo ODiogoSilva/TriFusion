@@ -260,6 +260,8 @@ class Partitions():
         partitions
         """
 
+        print(partitions_file)
+
         # Get the format of the partition file
         partition_format = self._get_file_format(partitions_file)
 
