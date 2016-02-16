@@ -1428,6 +1428,7 @@ class AlignmentList(Base):
         Lists the Alignment.name attributes of the current AlignmentList object
         """
         self.filename_list = []
+        self.path_list = []
 
         """
         Tuple with the AlignmentList sequence code. Either ("DNA", "n") or
@@ -1490,8 +1491,8 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
             aln.remove_alignment()
 
-        self.alignments = OrderedDict()
-        self.shelve_alignments = OrderedDict()
+        self.alignments = {}
+        self.shelve_alignments = {}
         self.bad_alignments = []
         self.duplicate_alignments = []
         self.partitions = Partitions()
@@ -1499,6 +1500,7 @@ class AlignmentList(Base):
         self.taxa_names = []
         self.non_alignments = []
         self.sequence_code = None
+        self.path_list = []
 
     def update_active_alignments(self, aln_list):
         """
@@ -1647,6 +1649,10 @@ class AlignmentList(Base):
         the sequence data of the Alignment object
         """
 
+        # Check for duplicates
+        for i in set(self.path_list).intersection(set(file_name_list)):
+            self.duplicate_alignments.append(i)
+
         for file_name in file_name_list:
 
             if shared_namespace:
@@ -1662,9 +1668,6 @@ class AlignmentList(Base):
                             AlignmentUnequalLength):
                 self.non_alignments.append(aln.path)
 
-                # Check for duplicate alignments
-            elif aln.path in [x.path for x in self.alignments.values()]:
-                self.duplicate_alignments.append(aln.name)
             else:
                 # Get seq code
                 if not self.sequence_code:
@@ -1673,6 +1676,7 @@ class AlignmentList(Base):
                 self.alignments[aln.name] = aln
                 self.set_partition(aln)
                 self.filename_list.append(aln.name)
+                self.path_list.append(aln.path)
 
         self.taxa_names = self._get_taxa_list()
 

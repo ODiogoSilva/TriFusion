@@ -684,7 +684,7 @@ if __name__ == "__main__":
             modifier = "".join(vals[-1])
             key_code = vals[1]
 
-            if key_code == 306:
+            if key_code == 305:
                 self.is_control_pressed = True
 
             if key_code == 304:
