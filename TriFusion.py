@@ -2190,6 +2190,9 @@ if __name__ == "__main__":
             Method controlling the animation toggling of the side panel
             """
 
+            # Closes partition box, if open
+            self.remove_partition_box()
+
             # Do not toggle when the following conditions are met
             if self.screen.name == "fc":
                 if self.screen.ids.text_filter.focus:
