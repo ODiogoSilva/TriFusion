@@ -291,6 +291,8 @@ if __name__ == "__main__":
         old_mouse_over = None
         fancy_bt = ObjectProperty(FancyButton())
         touch = None
+        # Attribute that stores paths of currently active removable media
+        removable_media = []
 
         # Whether SidePanel's More options dialog is active or not
         sp_moreopts = BooleanProperty(False)
@@ -512,6 +514,9 @@ if __name__ == "__main__":
 
             # Set schedule for mouse over events on side panel
             Clock.schedule_interval(lambda x: self._on_mouseover_tabs(), .1)
+
+            # Sets schedule for removable media automatic detection
+            Clock.schedule_interval(lambda x: self._check_removable_media(), 2)
 
             # Set path to sqlite database
             self.sqldb = join(self.temp_dir, "trifusion.sql3")
@@ -980,6 +985,88 @@ if __name__ == "__main__":
                                size=wgt.size)
 
             return dummy_wgt.collide_point(mp[0], mp[1])
+
+        def _check_removable_media(self):
+            """
+            Checks, when a Filechooser dialog is active, for the insertion or
+            removal of external storage devices, and updates the bookmark
+            buttons accordingly
+            """
+
+            def detect_changes():
+                """
+                Detects changes between the app attribute self.removable_media
+                and the removable media detected in the system. If
+                differences are found, returns the operation (remove ou add)
+                and a list of paths
+                :return: Tuple, 1º element is the operation (add/remove); 2º
+                element is a list of paths with which to perform the operation
+                """
+
+                if sys.platform in ["linux", "linux2"]:
+
+                    # Get current removable media
+                    i = subprocess.Popen(["mount | grep -e /media -e /mnt | "
+                        "awk '{print $3}'"], shell=True, stdout=subprocess.PIPE)
+                    removable_media = i.communicate()[0].split("\n")[:-1]
+
+                    cur, act = set(removable_media), set(self.removable_media)
+
+                    if cur == act:
+                        return False
+
+                    elif cur.difference(act):
+                        return "add", [p for p in cur.difference(act)]
+
+                    elif act.difference(cur):
+                        return "remove", [p for p in act.difference(cur)]
+
+            def update_media(operation, paths, wgt, fc_wgt):
+                """
+                Updates media, according to the operation and list of paths
+                :param operation: string, Either "add" or "remove"
+                :param paths: list, containing the paths to the added or removed
+                :param wgt: Widget, preferentially a gridlayout where the
+                bookmark buttons will be added/removed
+                :param fc_wgt: FileChooser widget in which bookmark operations
+                will be performed
+                """
+
+                if operation == "add":
+
+                    for p in paths:
+                        self.add_bookmark_bt(p, wgt, fc_wgt, rm_bt=False)
+                        self.removable_media.append(p)
+
+                elif operation == "remove":
+
+                    for bt in wgt.children:
+                        if bt.id in paths:
+                            self.removable_media.remove(bt.id)
+                            wgt.remove_widget(bt)
+
+            if self.screen.name == "fc":
+
+                res = detect_changes()
+
+                if res:
+                    update_media(res[0], res[1], self.screen.ids.sv_mycomp,
+                                 self.screen.ids.icon_view_tab)
+
+            elif [x for x in self.root_window.children if
+                    isinstance(x, CustomPopup)]:
+                # Get popup content
+                wgt = [x for x in self.root_window.children if
+                       isinstance(x, CustomPopup)][0].content
+
+                if isinstance(wgt, SaveDialog) or \
+                        isinstance(wgt, LoadMultipleDialog):
+
+                    res = detect_changes()
+
+                    if res:
+                        update_media(res[0], res[1], wgt.ids.sv_mycomp,
+                                     wgt.ids.sd_filechooser)
 
         def _on_mouseover_tabs(self):
             """
@@ -1903,6 +1990,12 @@ if __name__ == "__main__":
                 removable_media = x.communicate()[0]
                 if removable_media:
                     for path in removable_media.split("\n")[:-1]:
+                        # Add path to removable_media attribute. This attribute
+                        # is used when updating removable media real time in
+                        # _check_removable_media
+                        if path not in self.removable_media:
+                            self.removable_media.append(path)
+
                         name = basename(path)
                         self.add_bookmark_bt(path, dev_wgt, fc_wgt, name,
                                              rm_bt=False)
