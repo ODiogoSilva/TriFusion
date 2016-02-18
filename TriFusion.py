@@ -32,6 +32,7 @@ if __name__ == "__main__":
     import multiprocessing
     import matplotlib
     import matplotlib.patches as patches
+    import subprocess
     import psutil
     import pickle
     import shutil
@@ -1895,6 +1896,16 @@ if __name__ == "__main__":
                 # Home
                 self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt,
                                      name="Home", rm_bt=False)
+
+                # Get removable media
+                x = subprocess.Popen(["mount | grep -e /media -e /mnt | awk '{"
+                    "print $3}'"], shell=True, stdout=subprocess.PIPE)
+                removable_media = x.communicate()[0]
+                if removable_media:
+                    for path in removable_media.split("\n")[:-1]:
+                        name = basename(path)
+                        self.add_bookmark_bt(path, dev_wgt, fc_wgt, name,
+                                             rm_bt=False)
 
             # Get main devices for windows
             if sys.platform in ["win32", "cygwin"]:
