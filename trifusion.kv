@@ -59,6 +59,8 @@
     opacity: .3 if self.disabled else 1
     line_clr: (0.216, 0.67, 0.784, 1)
     StackLayout:
+        size_hint_x: None
+        width: 0
         canvas.after:
             Color:
                 rgb: root.line_clr
@@ -5735,7 +5737,7 @@ FloatLayout:
                                                     spacing: 5
                                                     TFButton:
                                                         text: "Select All"
-                                                        font_size: 13
+                                                        #font_size: 13
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
@@ -5744,7 +5746,7 @@ FloatLayout:
                                                             app.select_bt(self)
                                                     TFButton:
                                                         text: "Deselect All"
-                                                        font_size: 13
+                                                        #font_size: 13
                                                         disabled: True if not app.filename_map else False
                                                         background_normal: "data/backgrounds/bt_process_off.png"
                                                         background_down: "data/backgrounds/bt_process.png"
@@ -5753,7 +5755,7 @@ FloatLayout:
                                                             app.select_bt(self)
                                                     TFButton:
                                                         id: merge_part
-                                                        disabled: True
+                                                        disabled: True if len(app.active_partitions) <= 1 else False
                                                         size_hint_x: None
                                                         width: 35
                                                         background_normal: "data/backgrounds/group_bt.png"
@@ -5761,7 +5763,7 @@ FloatLayout:
                                                         on_release:
                                                             app.partitions_merge_dialog()
                                                     TFButton:
-                                                        disabled: True
+                                                        disabled: False if len(app.active_partitions) == 1 else True
                                                         id: split_part
                                                         size_hint_x: None
                                                         width: 35
