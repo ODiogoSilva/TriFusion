@@ -297,6 +297,9 @@ if __name__ == "__main__":
         # Whether SidePanel's More options dialog is active or not
         sp_moreopts = BooleanProperty(False)
 
+        # Attribute that stores the last selected button in the sidepanel.
+        last_sp_bt = {"Files": None, "Taxa": None, "Partitions": None}
+
         # Attribute that stores information on whether the control key is being
         # pressed
         is_control_pressed = BooleanProperty(False)
@@ -2915,7 +2918,6 @@ if __name__ == "__main__":
             self.count_partitions = 0
             # Re-populate partitions
             self.populate_partitions()
-            self.partition_bt_state()
 
         def populate_partitions(self):
             """
@@ -3087,30 +3089,8 @@ if __name__ == "__main__":
             self.root.ids.partition_sl.clear_widgets()
             # Re-populate partitions
             self.populate_partitions()
-            self.partition_bt_state()
 
             self.dismiss_popup()
-
-        def partition_bt_state(self):
-            """
-            Changes disabled state of merge partitions button
-            """
-
-            pass
-
-            # active_partitions = len([x for x in
-            #     self.root.ids.partition_sl.children if
-            #     isinstance(x, ToggleButton) and x.state == "down"])
-            #
-            # if active_partitions >= 2:
-            #     self.root.ids.merge_part.disabled = False
-            #     self.root.ids.split_part.disabled = True
-            # elif active_partitions == 0:
-            #     self.root.ids.merge_part.disabled = True
-            #     self.root.ids.split_part.disabled = True
-            # else:
-            #     self.root.ids.merge_part.disabled = True
-            #     self.root.ids.split_part.disabled = False
 
         def sidepanel_create_part_bts(self, idx):
             """
@@ -3126,7 +3106,6 @@ if __name__ == "__main__":
                                 size_hint_y=.8, shorten=True, height=30,
                                 shorten_from="right")
 
-            bt.bind(on_release=lambda x: self.partition_bt_state())
             bt.bind(on_release=self.toggle_selection)
 
             # Setting horizontal text size for shortening
@@ -3655,6 +3634,34 @@ if __name__ == "__main__":
             :param value: Button widget.
             """
 
+            def get_selection(bt, tab):
+                """
+                To support multiple selection using shift+click,
+                this function will return the list of buttons to be modified,
+                even if it is a single one (when shift is not being pressed)
+                :param bt: ToggleButton objet from sidepanel
+                :param tab: string, identifier of current tab. Either File,
+                Taxa or Partitions
+                """
+
+                if self.is_shift_pressed:
+
+                    # If there is no previous pressed button in the current
+                    # the behaviour is as if shift is not being pressed
+                    if not self.last_sp_bt[tab]:
+                        return [bt]
+
+                    start = self.mouse_over_bts[tab].index(self.last_sp_bt[tab])
+                    stop = self.mouse_over_bts[tab].index(bt)
+
+                    if start < stop:
+                        return self.mouse_over_bts[tab][start:stop + 1]
+                    else:
+                        return self.mouse_over_bts[tab][stop:start + 1]
+
+                else:
+                    return [bt]
+
             # Get the parent layout object
             parent_obj = value.parent
 
@@ -3671,40 +3678,82 @@ if __name__ == "__main__":
             if parent_obj == self.root.ids.file_sl:
                 # When button is normal (unselected) remove from active list
 
-                if value.state == "normal":
-                    act_lst.remove(self.filename_map[value.id])
-                    if self.active_file_list:
-                        self.alignment_list.update_active_alignment(value.id,
-                                                                    "shelve")
-                # When button is down (selected) add to active list
-                elif value.state == "down":
-                    act_lst.append(self.filename_map[value.id])
-                    if self.active_file_list:
-                        self.alignment_list.update_active_alignment(value.id,
-                                                                    "active")
+                sel = get_selection(value, "Files")
+
+                for b in sel:
+
+                    if value.state == "normal":
+
+                        try:
+                            act_lst.remove(self.filename_map[b.id])
+                            b.state = "normal"
+
+                            if self.active_file_list:
+                                self.alignment_list.update_active_alignment(
+                                    b.id, "shelve")
+
+                        except ValueError:
+                            pass
+
+                    # When button is down (selected) add to active list
+                    elif value.state == "down":
+                        if self.filename_map[b.id] not in act_lst:
+                            act_lst.append(self.filename_map[b.id])
+                            b.state = "down"
+
+                            if self.active_file_list:
+                                self.alignment_list.update_active_alignment(
+                                    b.id, "active")
 
                 # Update label
                 self.update_file_label()
 
+                # Update last pressed button
+                self.last_sp_bt["Files"] = value
+
             # Changes concerning the taxa tab
             elif parent_obj == self.root.ids.taxa_sl:
 
-                # When button is normal (unselected) remove from active list
-                if value.state == "normal":
-                    self.active_taxa_list.remove(value.text)
-                # When button is down (selected) add to active
-                elif value.state == "down":
-                    self.active_taxa_list.append(value.text)
+                sel = get_selection(value, "Taxa")
+
+                for b in sel:
+                    # When button is normal (unselected) remove from active list
+                    if value.state == "normal":
+                        try:
+                            self.active_taxa_list.remove(b.text)
+                            b.state = "normal"
+                        except ValueError:
+                            pass
+                    # When button is down (selected) add to active
+                    elif value.state == "down":
+                        if b.text not in self.active_taxa_list:
+                            self.active_taxa_list.append(b.text)
+                            b.state = "down"
 
                 # Update label
                 self.update_sp_label()
 
+                # Update last pressed button
+                self.last_sp_bt["Taxa"] = value
+
             elif parent_obj == self.root.ids.partition_sl:
 
-                if value.state == "normal":
-                    self.active_partitions.remove(value.text)
-                else:
-                    self.active_partitions.append(value.text)
+                sel = get_selection(value, "Partitions")
+
+                for b in sel:
+                    if value.state == "normal":
+                        try:
+                            self.active_partitions.remove(b.text)
+                            b.state = "normal"
+                        except ValueError:
+                            pass
+                    else:
+                        if b.text not in self.active_partitions:
+                            self.active_partitions.append(b.text)
+                            b.state = "down"
+
+                # Update last pressed button
+                self.last_sp_bt["Partitions"] = value
 
         def remove_all(self):
             """
@@ -4113,7 +4162,6 @@ if __name__ == "__main__":
                     value.text == "Select All"):
                 self.active_partitions = list(
                     self.alignment_list.partitions.partitions)
-                self.partition_bt_state()
             else:
                 self.active_partitions = []
 
