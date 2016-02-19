@@ -1335,13 +1335,12 @@ if __name__ == "__main__":
                 active_tab = self.root.ids.main_tp.current_tab.text
                 # Get remove all button
                 rm_bt = [self.root.ids.rm_all_File, self.root.ids.rm_all_Taxa]
-                #part_bts = [self.root.ids.merge_part, self.root.ids.split_part,
-                #            self.root.ids.add_part]
+                part_bts = [self.root.ids.merge_part, self.root.ids.split_part,
+                           self.root.ids.add_part]
 
                 # Iterate over buttons of active tab
                 for bt in self.mouse_over_bts[active_tab] + sidebt_list + \
-                        rm_bt:
-                    #+ part_bts:
+                        rm_bt + part_bts:
                     # Determine if there is a collision with mouse position
                     if self._determine_collision(bt, mp) and self._popup not in\
                             self.root_window.children:
