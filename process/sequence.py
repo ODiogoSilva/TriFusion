@@ -2104,7 +2104,8 @@ class AlignmentList(Base):
         :return: AlignmentList object with individual alignments
         """
 
-        concatenated_aln = self.concatenate(dest=dest)
+        concatenated_aln = self.concatenate(alignment_name="concatenated",
+                                            dest=dest)
 
         reverted_alns = concatenated_aln.reverse_concatenate()
 
