@@ -495,7 +495,8 @@ class GroupLight:
                                      reverse_x=False)
 
         mean_data = np.array(data[0]).mean()
-        b_plt.axhline(y=mean_data, ls="--", c="red")
+        ax = b_plt.get_axes()[0]
+        ax.axhline(y=mean_data, ls="--", c="red")
 
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
                       dpi=200)
