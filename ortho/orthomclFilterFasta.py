@@ -2,76 +2,68 @@
 
 import os
 import re
-from EmptyFolder import *
-
-minLength = 10
-maxStopPercent = 20
-good = open("goodProteins.fasta", "w")
-bad = open("poorProteins.fasta", "w")
-
-def handleSeq(seq, length, stopCnt):
-	isBad = 0;
-	stopPercent = ((length - stopCnt)/length)* 100;
-
-	if length < minLength or stopPercent > maxStopPercent:
-		bad.write(seq + "\n")
-		isBad = 1
-	else:
-		good.write(seq + "\n")
-	
-	return isBad
-
-def orthomclFilterFasta(inputDir, minLength, maxStopPercent):
-
-	minLength = minLength
-	maxStopPercent = maxStopPercent
-
-	filenames = [os.path.join(inputDir, x) for x in os.listdir(inputDir)]
-	#TODO
-	if not filenames:
-		raise EmptyFolder("The provided folder is empty.")
-
-	rejectRates = []
 
 
-	for fileName in filenames:
-		if fileName.startswith('.'):
-			continue
+def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent):
 
-		inputFile = open(fileName, 'r')
-		seqCount = 0
-		rejectSeqCount = 0
-		currentSeq = ""
-		currentLen = 0
-		currentStopCnt = 0
+    def handle_seq(seq, length, stop_cnt):
+        is_bad = 0
+        stop_percent = ((length - stop_cnt) / length) * 100
 
-		# process lines of one file
-		for line in inputFile:
-			if line.startswith('>'):
-				if (currentSeq):
-					seqCount += 1
-					rejectSeqCount += handleSeq(currentSeq, currentLen, currentStopCnt)
-					currentSeq = "";
-					currentLen = 0;
-					currentStopCnt = 0;
-			else:
-				lineLen = len(line)
-				currentLen += lineLen
-				line = re.sub('[^A-Za-z]', '', line)
-				currentStopCnt += lineLen - len(line) # this removes the stop codon from line
-			
-			currentSeq += line
-	
-		rejectSeqCount += handleSeq(currentSeq, currentLen, currentStopCnt)
-		seqCount += 1;
+        if length < min_length or stop_percent > max_stop_percent:
+            bad.write(seq + "\n")
+            is_bad = 1
+        else:
+            good.write(seq + "\n")
 
-		# add file stats to reject count if it qualifies
-		if (rejectSeqCount):
-			pct = rejectSeqCount/seqCount * 100;
-			if (pct > 10):
-				rejectRates.append([inputFile, pct])
+        return is_bad
 
-		inputFile.close()
+    good = open(os.path.join(os.getcwd(), "goodProteins.fasta"), "w")
+    bad = open(os.path.join(os.getcwd(), "poorProteins.fasta"), "w")
 
+    filenames = [os.path.join(input_dir, x) for x in os.listdir(input_dir)]
 
-orthomclFilterFasta("/home/fernando/Dropbox/Diogo_Fernando/perl_scripts/cena" ,minLength, maxStopPercent)
+    reject_rates = []
+
+    for filename in filenames:
+        if filename.startswith('.'):
+            continue
+
+        input_file = open(filename, 'r')
+        seq_count = 0
+        reject_seq_count = 0
+        current_seq = ""
+        current_len = 0
+        current_stop_cnt = 0
+
+        # process lines of one file
+        for line in input_file:
+            if line.startswith('>'):
+                if current_seq:
+                    seq_count += 1
+                    reject_seq_count += handle_seq(current_seq,
+                                                   current_len,
+                                                   current_stop_cnt)
+                    current_seq = ""
+                    current_len = 0
+                    current_stop_cnt = 0
+            else:
+                line_len = len(line)
+                current_len += line_len
+                line = re.sub('[^A-Za-z]', '', line)
+                current_stop_cnt += line_len - len(line)
+
+            current_seq += line
+
+        reject_seq_count += handle_seq(current_seq,
+                                       current_len,
+                                       current_stop_cnt)
+        seq_count += 1
+
+        # add file stats to reject count if it qualifies
+        if reject_seq_count:
+            pct = reject_seq_count / seq_count * 100
+            if pct > 10:
+                reject_rates.append([input_file, pct])
+
+        input_file.close()

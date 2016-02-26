@@ -98,8 +98,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             nm.t = "Parsing USEARCH output"
             nm.c = 5
             ortho_pipe.blast_parser(usearch_output,
-                                    bin_path=join(cur_dir, "ortho",
-                                                  "orthomclBlastParser"))
+                                    db_dir=temp_dir)
         if nm.k:
             ortho_pipe.remove_duplicate_entries()
         if nm.k:
