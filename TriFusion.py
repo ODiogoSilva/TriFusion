@@ -5546,6 +5546,40 @@ if __name__ == "__main__":
             func = partial(check_process, d)
             Clock.schedule_interval(func, .1)
 
+        def orto_report_dialog(self):
+            """
+            Generates a filechooser upon clicking on the "Generate full
+            report" button in Orthology Explore. The filechooser will provide
+            the directory where the report will be generated
+            """
+
+            content = SaveDialog(cancel=self.dismiss_popup,
+                                 bookmark_init=self.bookmark_init)
+
+            # Set the path from previously imported groups, if any
+            content.ids.sd_filechooser.path = self.orto_export_dir if \
+                self.orto_export_dir else self.home_path
+
+            title = "Generate full report in directory..."
+
+            # Remove file name text input
+            content.ids.txt_box.height = 0
+            content.ids.txt_box.clear_widgets()
+
+            # Set identifier for filechooser
+            content.ids.sd_filechooser.text = "orto_report"
+
+            self.show_popup(title=title, content=content)
+
+        def orto_generate_report(self, dir):
+            """
+            Generates full orthology report on the specified directory.
+            :param dir: string, path to directory where the report will be
+            generated
+            """
+
+            pass
+
         def orto_compare_groups(self, groups_objs=None, selected_groups=None):
             """
             Switches to the orthology group comparison screen and presents the
@@ -6079,6 +6113,7 @@ if __name__ == "__main__":
                                                       "check_cancel.png"),
                                  size=(180, 40), size_hint=(None, None),
                                  font_size=17)
+            full_rep_bt.bind(on_release=lambda i: self.orto_report_dialog())
             # Anchor layout that will hold full report button
             anc = AnchorLayout(anchor_y="center", achor_x="center",
                                size_hint_y=None, height=100)
