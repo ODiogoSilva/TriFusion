@@ -10,13 +10,15 @@ import shutil
 #sys.path.append("/home/diogo/Python/Modules")
 
 import argparse
-import pickle
 
 from ortho import OrthomclToolbox as OT
 import ortho.orthomclInstallSchema as install_sqlite
 import ortho.orthomclLoadBlast as load_blast2sqlite
 import ortho.orthomclPairs as make_pairs_sqlite
 import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
+import ortho.orthomclFilterFasta as FilterFasta
+import ortho.orthomclBlastParser as BlastParser
+import ortho.orthomclMclToGroups as MclGroups
 
 parser = argparse.ArgumentParser(description="Pipeline for the OrthoMCL "
                                  "software")
@@ -205,8 +207,7 @@ def filter_fasta(min_len, max_stop, verbose=False,
     if verbose:
         print("Filtering proteome fasta files")
 
-    x = subprocess.Popen([bin_path, "compliantFasta", str(min_len),
-                      str(max_stop)]).wait()
+    FilterFasta.orthomcl_filter_fasta("compliantFasta", min_len, max_stop)
 
 
 def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False,
@@ -221,14 +222,12 @@ def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile, verbose=False,
                           "-threads", str(cpus)]).wait()
 
 
-def blast_parser(usearch_ouput, verbose=False, bin_path="orthomclBlastParser"):
+def blast_parser(usearch_ouput, db_dir, verbose=False):
 
     if verbose:
         print("Parsing BLAST output")
 
-    x = subprocess.Popen([bin_path + " " + usearch_ouput +
-                      " compliantFasta/ >> similarSequences.txt"],
-                      shell=True).wait()
+    BlastParser.orthomcl_blast_parser(usearch_ouput, "compliantFasta", db_dir)
 
 
 def remove_duplicate_entries(verbose=False):
@@ -303,11 +302,17 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, verbose=False,
         os.makedirs(results_dir)
 
     for val in inflation_list:
-        x = subprocess.Popen([bin_path + " " + mcl_prefix + " " +
-                          start_id + " < mclOutput_" + val.replace(".", "")
-                          + " > " + os.path.join(results_dir, group_file + "_"
-                                                 + str(val) + ".txt")],
-                             shell=True).wait()
+        MclGroups.mcl_to_groups(
+            mcl_prefix,
+            start_id,
+            "mclOutput_" + val.replace(".", ""),
+            os.path.join(results_dir, group_file + "_" + str(val) + ".txt"))
+
+        # x = subprocess.Popen([bin_path + " " + mcl_prefix + " " +
+        #                   start_id + " < mclOutput_" + val.replace(".", "")
+        #                   + " > " + os.path.join(results_dir, group_file + "_"
+        #                                          + str(val) + ".txt")],
+        #                      shell=True).wait()
 
     # Change working directory to results directory
     os.chdir(results_dir)

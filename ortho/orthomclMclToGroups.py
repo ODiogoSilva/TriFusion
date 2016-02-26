@@ -1,14 +1,16 @@
 #!/usr/bin/python
 
-def orthomclMCLToGroups(prefix, startId, inFileName, outFileName):
 
-	if not isinstance(startId, int)
-		raise TypeError("StartId is not a number")
+def mcl_to_groups(prefix, start_id, infile, outfile):
 
-	inputFile = open(inFileName, "r")
-	outFile = open(outFileName, "w")
+    try:
+        start_id = int(start_id)
+    except ValueError:
+        raise ValueError("StartId is not a number")
 
-	for line in inputFile:
-		out.write(prefix+startId+": "+line)
-		startId++
+    input_file = open(infile, "r")
+    out = open(outfile, "w")
 
+    for line in input_file:
+        out.write(prefix + str(start_id) + ": " + line)
+        start_id += 1
