@@ -287,8 +287,8 @@ class GroupLight:
 
     def update_filters(self, gn_filter, sp_filter, update_stats=False):
 
-        self.gene_threshold = int(gn_filter)
-        self.species_threshold = int(sp_filter)
+        self.gene_threshold = int(float(gn_filter))
+        self.species_threshold = int(float(sp_filter))
 
         if update_stats:
             self._reset_counter()
