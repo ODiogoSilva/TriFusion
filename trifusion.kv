@@ -2855,6 +2855,7 @@
                         id: bookmark_gl
 
             FileChooserL:
+                multiselect: True
                 id: sd_filechooser
                 previous_dir: []
                 text: "master"
@@ -2862,6 +2863,10 @@
                 on_selection:
                     if txt_box.height == 30: \
                     text_input.text = self.selection[0].split(os.sep)[-1]
+                on_double_click:
+                    if self.text in root.load_dlgs: \
+                    ok_bt.dispatch("on_release")
+
 
         BoxLayout:
             id: txt_box
@@ -2895,15 +2900,6 @@
                         # For save dialogs requiring file name, make this check
                         if self.text_io == "" and txt_box.height == 30: \
                         app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
-#                        # For save dialogs requiring a file name, save the file name
-#                        elif self.text_io != "" and sd_filechooser.text == "main_output" and txt_box.height == 30: \
-#                        app.save_file(sd_filechooser.path, file_name = text_input.text, idx = sd_filechooser.text)
-#                        elif self.text_io != "" and sd_filechooser.text == "export": \
-#                        app.export_names(sd_filechooser.path, file_name = text_input.text)
-#                        elif self.text_io != "" and sd_filechooser.text == "export_table": \
-#                        app.export_table(sd_filechooser.path, text_input.text)
-#                        elif self.text_io != "" and sd_filechooser.text == "group": \
-#                        app.orto_export_groups("group", output_dir=sd_filechooser.path, output_name=text_input.text)
                         elif txt_box.height != 0: \
                         app.check_file(sd_filechooser.path, text_input.text, sd_filechooser.text)
 
