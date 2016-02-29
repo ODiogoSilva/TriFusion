@@ -80,6 +80,7 @@ if __name__ == "__main__":
     from data.resources.background_tasks import *
     from data.resources.custom_widgets import *
     from base.plotter import *
+    from ortho.OrthomclToolbox import MultiGroups
 
     ###################################
     # Modifications to kivy source code
@@ -5571,14 +5572,21 @@ if __name__ == "__main__":
 
             self.show_popup(title=title, content=content)
 
+        def get_active_group_light(self):
+            if not self.active_group:
+                group_id = [x.id for x in self.screen.ids.group_gl.children if x.state == "down"][0]
+                self.active_group = self.ortho_groups.get_group(group_id)
+            return self.active_group
+
         def orto_generate_report(self, dir):
             """
             Generates full orthology report on the specified directory.
             :param dir: string, path to directory where the report will be
             generated
             """
-
-            pass
+            active_group_light = self.get_active_group_light()
+            for command in MultiGroups.calls:
+                getattr(active_group_light, command)(dir)
 
         def orto_compare_groups(self, groups_objs=None, selected_groups=None):
             """
