@@ -154,6 +154,14 @@ class FileChooserL(FileChooserListView):
 
     def __init__(self, **kwargs):
         super(FileChooserL, self).__init__(**kwargs)
+        self.register_event_type("on_double_click")
+
+    def on_double_click(self):
+        """
+        Even triggered when double clicking a file
+        """
+
+        pass
 
     def open_entry(self, entry):
         """
@@ -179,6 +187,38 @@ class FileChooserL(FileChooserListView):
                 self.path = join(self.path, entry.path)
                 self.selection = []
 
+    def entry_touched(self, entry, touch):
+        '''(internal) This method must be called by the template when an entry
+        is touched by the user.
+        '''
+        if (
+            'button' in touch.profile and touch.button in (
+                'scrollup', 'scrolldown', 'scrollleft', 'scrollright')):
+            return False
+
+        _dir = self.file_system.is_dir(entry.path)
+        dirselect = self.dirselect
+
+        if _dir and dirselect and touch.is_double_tap:
+            self.open_entry(entry)
+            return
+        elif not _dir and touch.is_double_tap:
+            self.dispatch("on_double_click")
+
+        if self.multiselect:
+            if entry.path in self.selection:
+                self.selection.remove(entry.path)
+            else:
+                if _dir and not self.dirselect:
+                    self.open_entry(entry)
+                    return
+                self.selection.append(entry.path)
+        else:
+            if _dir and not self.dirselect:
+                self.open_entry
+                return
+            self.selection = [entry.path, ]
+
 
 class FileChooserM(FileChooserIconView):
     """
@@ -200,8 +240,17 @@ class FileChooserM(FileChooserIconView):
         super(FileChooserM, self).__init__(**kwargs)
         # Register new event that is triggered when entering a directory
         self.register_event_type("on_dir_entry")
+        self.register_event_type("on_double_click")
         Window.bind(on_key_down=self.keyboard_listen)
         Window.bind(on_key_up=self.release_shift)
+
+    def on_double_click(self):
+        """
+        Even triggered when double clicking a file
+        """
+
+        pass
+
 
     def on_dir_entry(self):
         """
@@ -282,6 +331,8 @@ class FileChooserM(FileChooserIconView):
         if _dir and dirselect and touch.is_double_tap and not self.shift:
             self.open_entry(entry)
             return
+        elif not _dir and touch.is_double_tap:
+            self.dispatch("on_double_click")
 
         if self.shift and self.selection:
             # Get index of last selection entry and current entry
