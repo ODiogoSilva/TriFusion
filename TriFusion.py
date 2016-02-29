@@ -2542,7 +2542,7 @@ if __name__ == "__main__":
                     self.dialog_warning("Invalid input file(s) detected", msg)
 
                 # removes bad alignment files from selection list
-                selection = [path for path in selection if basename(path) not in
+                selection = [path for path in selection if path not in
                              bad_aln + non_aln]
 
                 # If data has been previously loaded, updated these attributes
