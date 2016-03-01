@@ -7212,7 +7212,9 @@ if __name__ == "__main__":
 
             # Dict of plt_idx identifiers that will trigger the stats toggle
             # widget with the information needed to give functionality to
-            # the widget's buttons
+            # the widget's buttons. More information on this object can be
+            # found here: https://github.com/ODiogoSilva/TriFusion/wiki/Add-Statistics-plot-analysis#configure-triggers-between-plot-types
+
             stats_compliant = {
                 "Distribution of sequence size":
                 {"args1": None,
