@@ -7205,6 +7205,8 @@ if __name__ == "__main__":
                 [sliding_window, "similarity_distribution_gn.png"],
                 "Segregating sites":
                 [histogram_plot, "segregating_sites.png"],
+                "Segregating sites sp":
+                [triangular_heat, "segregating_sites_sp.png"],
                 "Segregating sites gn":
                 [sliding_window, "segregating_sites_gn.png"]}
 
@@ -7271,6 +7273,12 @@ if __name__ == "__main__":
                 {"args1": None,
                  "args2": None,
                  "active_bt": "avg",
+                 "single_gene": {"plt_idx": "Segregating sites gn"}},
+
+                "Segregating sites sp":
+                {"args1": None,
+                 "args2": {"plt_idx": "Segregating sites"},
+                 "active_bt": "sp",
                  "single_gene": {"plt_idx": "Segregating sites gn"}},
 
                 "Segregating sites gn":

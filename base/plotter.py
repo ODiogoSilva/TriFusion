@@ -399,8 +399,6 @@ def box_plot(data, labels=None, title=None, ax_names=None):
         table.append([x, np.percentile(d, 25), np.median(d),
                       np.percentile(d, 75)])
 
-    print("here")
-
     return fig, None, table
 
 
@@ -456,7 +454,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
     return fig, lgd, table
 
 
-def triangular_heat(data, labels):
+def triangular_heat(data, labels, color_label=None):
     """
     Creates a triangular heatmap plot based on an array of triangular shape,
     or with a masked triangle
@@ -500,7 +498,10 @@ def triangular_heat(data, labels):
     plt.gca().invert_xaxis()
 
     cbar = plt.colorbar(heat)
-    cbar.set_label("Similarity proportion")
+    if not color_label:
+        cbar.set_label("Similarity proportion")
+    else:
+        cbar.set_label(color_label)
 
     # Generate table
     table = [[""] + [x for x in labels[::-1]]]

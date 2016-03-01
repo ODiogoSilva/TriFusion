@@ -2508,6 +2508,38 @@ class AlignmentList(Base):
                 "title": "Distribution of segregating sites",
                 "table_header": ["Segregating sites", "Frequency"]}
 
+    def sequence_segregation_per_species(self):
+        """
+        Creates a data for a triangular matrix of sequence segregation for
+        pairs of taxa
+        """
+
+        # Create matrix for parwise comparisons
+        data = [np.empty((len(self.taxa_names), 0)).tolist() for _ in
+                range(len(self.taxa_names))]
+
+        taxa_pos = OrderedDict((x, y) for y, x in enumerate(self.taxa_names))
+
+        for aln in self.alignments.values():
+
+            for tx1, tx2 in itertools.combinations(taxa_pos.keys(), 2):
+
+                try:
+                    seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
+                except KeyError:
+                    continue
+
+                aln_diff = self._get_differences(seq1, seq2)
+                data[taxa_pos[tx1]][taxa_pos[tx2]].append(aln_diff)
+
+        data = np.array([[np.mean(y) if y else 0. for y in x] for x in data])
+        mask = np.tri(data.shape[0], k=0)
+        data = np.ma.array(data, mask=mask)
+
+        return {"data": data,
+                "labels": list(taxa_pos),
+                "color_label": "Segregating sites"}
+
     def sequence_segregation_gene(self, gene_name, window_size):
         """
         Generates data for a sliding window analysis of segregating sites
