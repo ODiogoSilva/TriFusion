@@ -2707,6 +2707,23 @@ if __name__ == "__main__":
                 if bt.id not in self.alignment_list.partitions.partitions:
                     self.remove_bt(x_bt, parent_wgt=self.root.ids.partition_sl)
 
+        def update_partition_label(self):
+            """
+            Setsand updates a label on the Partitions tab of the side panel,
+            informing how partitions files are selected out of the total
+            partitions
+            """
+
+            if self.alignment_list:
+                # Get total number of partitions
+                total_parts = len(self.alignment_list.partitions.partitions)
+                # Get selected partitions
+                active_parts = len([x for x in
+                    self.root.ids.partition_sl.children if
+                    isinstance(x, TGToggleButton) and x.state == "down"])
+                self.root.ids.partition_lab.text = "%s of %s partitions " \
+                    "selected" % (active_parts, total_parts)
+
         def update_file_label(self):
             """
             Sets and updates a label on the Files tab of the side panel,
@@ -2814,6 +2831,7 @@ if __name__ == "__main__":
             # Add a label at the end of the file list informing how many files
             # are currently selected out of the total files
             self.update_file_label()
+            self.update_partition_label()
 
             for infile in lst:
 
@@ -3090,6 +3108,8 @@ if __name__ == "__main__":
             self.root.ids.partition_sl.clear_widgets()
             # Re-populate partitions
             self.populate_partitions()
+            # Update partitions label
+            self.update_partition_label()
 
             self.dismiss_popup()
 
@@ -3756,6 +3776,8 @@ if __name__ == "__main__":
                 # Update last pressed button
                 self.last_sp_bt["Partitions"] = value
 
+                self.update_partition_label()
+
         def remove_all(self):
             """
             Functionality for the remove all button for taxa and file buttons
@@ -3771,6 +3793,7 @@ if __name__ == "__main__":
 
             self.root.ids.sp_lab.text = ""
             self.root.ids.file_lab.text = ""
+            self.root.ids.partition_lab.text = ""
             self.count_files = 0
             self.count_partitions = 0
 
@@ -3984,6 +4007,7 @@ if __name__ == "__main__":
                 # Updates labels
                 self.update_file_label()
                 self.update_sp_label()
+                self.update_partition_label()
 
             if parent_obj == self.root.ids.taxa_sl:
                 self.alignment_list.remove_taxa([bt_idx])
@@ -4060,6 +4084,7 @@ if __name__ == "__main__":
                 self.update_partitions()
                 self.update_file_label()
                 self.update_sp_label()
+                self.update_partition_label()
 
         def select_bt_from_file(self, idx, txt_file):
             """
@@ -4171,6 +4196,7 @@ if __name__ == "__main__":
                 # Updates labels
                 self.update_sp_label()
                 self.update_file_label()
+                self.update_partition_label()
 
         def dialog_dataset_creator(self, ds_type, popup_level=1):
             """
