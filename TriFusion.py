@@ -5123,6 +5123,14 @@ if __name__ == "__main__":
             """
             Adds a toggle widget to some Statistics plots that allow the user to
             toggle plots between the whole data set and species perspectives
+            :param args1: dictionary, key must be "plt_idx", and value the
+            plot index string for the species plot type
+            :param args2: dictionary, key must be "plt_idx", and value the
+            plot index string for the average plot type
+            :param active_bt: string, identifier of the active button. Can be
+            either "sp" (Species), "avg" (Average) or "gene" (Single gene)
+            :param single_gene: dictionary, key must be "plt_idx", and value the
+            plot index string for the single gene plot type
             """
 
             content = StatsToggleWgt()
