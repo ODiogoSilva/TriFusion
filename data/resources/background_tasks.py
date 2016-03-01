@@ -100,30 +100,24 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             ortho_pipe.blast_parser(usearch_output,
                                     db_dir=temp_dir)
         if nm.k:
-            ortho_pipe.remove_duplicate_entries()
-        if nm.k:
-            nm.t = "Loading USEARCH output to database"
-            nm.c = 6
-            ortho_pipe.load_blast(temp_dir)
-        if nm.k:
             nm.t = "Obtaining Pairs"
-            nm.c = 7
+            nm.c = 6
             ortho_pipe.pairs(temp_dir)
         if nm.k:
             ortho_pipe.dump_pairs(temp_dir)
         if nm.k:
             nm.t = "Running MCL"
-            nm.c = 8
+            nm.c = 7
             ortho_pipe.mcl(mcl_inflation)
         if nm.k:
             nm.t = "Dumping groups"
-            nm.c = 9
+            nm.c = 8
             ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
                                   group_prefix, bin_path=join(cur_dir, "ortho",
                                                 "orthomclMclToGroups"))
         if nm.k:
             nm.t = "Filtering group files"
-            nm.c = 10
+            nm.c = 9
             stats, groups_obj = ortho_pipe.export_filtered_groups(mcl_inflation,
                                                                   group_prefix,
                                                                   orto_max_gene,

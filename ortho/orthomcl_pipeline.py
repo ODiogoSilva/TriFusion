@@ -230,39 +230,6 @@ def blast_parser(usearch_ouput, db_dir, verbose=False):
     BlastParser.orthomcl_blast_parser(usearch_ouput, "compliantFasta", db_dir)
 
 
-def remove_duplicate_entries(verbose=False):
-
-    if verbose:
-        print("Removing possible dupplicate entries")
-
-    shutil.move("similarSequences.txt", "similarSequences.txt.old")
-
-    file_handle = open("similarSequences.txt.old")
-    output_handle = open("similarSequences.txt", "w")
-
-    storage = set()
-
-    for line in file_handle:
-        fields = line.split()
-        id1, id2 = fields[0], fields[1]
-        id12 = "".join([id1, id2])
-        if id12 not in storage:
-            output_handle.write(line)
-            storage.add(id12)
-
-    file_handle.close()
-    output_handle.close()
-    os.remove("similarSequences.txt.old")
-
-
-def load_blast(db_dir, verbose=False):
-
-    if verbose:
-        print("Loading BLAST output into orthoMCL database")
-
-    load_blast2sqlite.execute(db_dir, "similarSequences.txt")
-
-
 def pairs(db_dir, verbose=False):
 
     if verbose:
@@ -362,8 +329,6 @@ if __name__ == '__main__':
         filter_fasta(output_dir, min_length)
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
-        remove_duplicate_entries()
-        load_blast()
         pairs()
         dump_pairs()
         mcl()
@@ -377,8 +342,6 @@ if __name__ == '__main__':
         filter_fasta(min_length, max_percent_stop)
         allvsall_usearch("goodProteins.fasta")
         blast_parser()
-        remove_duplicate_entries()
-        load_blast(config_file)
         pairs(config_file)
         dump_pairs(config_file)
         mcl()
