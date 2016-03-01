@@ -7272,7 +7272,7 @@ if __name__ == "__main__":
                  "single_gene": None},
 
                 "Segregating sites":
-                {"args1": None,
+                {"args1": {"plt_idx": "Segregating sites sp"},
                  "args2": None,
                  "active_bt": "avg",
                  "single_gene": {"plt_idx": "Segregating sites gn"}},
@@ -7284,7 +7284,7 @@ if __name__ == "__main__":
                  "single_gene": {"plt_idx": "Segregating sites gn"}},
 
                 "Segregating sites gn":
-                {"args1": None,
+                {"args1": {"plt_idx": "Segregating sites sp"},
                  "args2": {"plt_idx": "Segregating sites"},
                  "active_bt": "gene",
                  "single_gene": {"plt_idx": "Segregating sites gn"}}}
