@@ -282,8 +282,8 @@ class GroupLight:
                 self._apply_filter(cl)
 
         return len(self.species_frequency), self.total_seqs, \
-                   self.num_gene_compliant, self.num_species_compliant, \
-                   self.all_compliant
+            self.num_gene_compliant, self.num_species_compliant, \
+            self.all_compliant
 
     def update_filters(self, gn_filter, sp_filter, update_stats=False):
 
