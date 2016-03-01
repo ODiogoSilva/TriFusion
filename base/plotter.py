@@ -33,7 +33,7 @@ from matplotlib.patches import Circle
 from matplotlib.collections import PatchCollection
 import numpy as np
 from itertools import chain
-
+from collections import Counter
 
 """
 Set of 10 easily distinguishable colors that will be used when generating plots
@@ -415,8 +415,8 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
 
     fig, ax = plt.subplots()
 
-    if len(data) > 50:
-        bins = int(len(data) / 10)
+    if len(Counter(data)) > 50:
+        bins = int(len(Counter(data)) / 10)
     else:
         bins = 10
 
