@@ -7367,6 +7367,10 @@ if __name__ == "__main__":
         def stats_sethline(self, val, plt_file, inverted=False):
             """
             Sets an horizontal threshold bar to the current plot object
+            :param val: integer, The y-axis value for the horizontal line
+            :param plt_file: string, The path to the plot file
+            :param inverted: Boolean, Determine whether the shade will be
+            above or below the plot
             """
 
             # Get plot limits for patch position and size
