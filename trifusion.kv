@@ -5043,6 +5043,13 @@
                 on_release:
                     app.dialog_filechooser("export_table")
 
+<HelpButton@Button>:
+    size_hint: None, None
+    size: 30, 30
+    id: info_seq_size
+    background_normal: "data/backgrounds/info_bt_down.png"
+    background_down: "data/backgrounds/info_bt.png"
+
 ## General information
 <SizeDistribution>:
     size_hint_y: None
@@ -5052,12 +5059,7 @@
         text: "Distribution of sequence size"
         on_release:
             app.stats_select_plot(None, "Distribution of sequence size", "Distribution of sequence size all")
-    Button:
-        size_hint: None, None
-        size: 30, 30
-        id: info_seq_size
-        background_normal: "data/backgrounds/info_bt_down.png"
-        background_down: "data/backgrounds/info_bt.png"
+    HelpButton:
         on_release:
             app.dialog_general_info("info_sequence_size")
 
@@ -5069,12 +5071,7 @@
         text: "Proportion of nucleotides or residues"
         on_release:
             app.stats_select_plot(None, "Proportion of nucleotides or residues sp", "Proportion of nucleotides or residues")
-    Button:
-        size_hint: None, None
-        size: 30, 30
-        id: info_nuc_proportion
-        background_normal: "data/backgrounds/info_bt_down.png"
-        background_down: "data/backgrounds/info_bt.png"
+    HelpButton:
         on_release:
             app.dialog_general_info("info_nucleotide_proportion")
 
@@ -5087,12 +5084,7 @@
         text: "Pairwise sequence similarity"
         on_release:
             app.stats_select_plot("Pairwise sequence similarity gn", "Pairwise sequence similarity sp", "Pairwise sequence similarity")
-    Button:
-        size_hint: None, None
-        size: 30, 30
-        id: info_seq_similarity
-        background_normal: "data/backgrounds/info_bt_down.png"
-        background_down: "data/backgrounds/info_bt.png"
+    HelpButton:
 
 
 <SegregatingSites>:
@@ -5102,13 +5094,9 @@
     TFButtonOff:
         text: "Segregating sites"
         on_release:
-            app.stats_select_plot("Segregating sites gn", None, "Segregating sites")
-    Button:
-        size_hint: None, None
-        size: 30, 30
-        id: info_segregating_sites
-        background_normal: "data/backgrounds/info_bt_down.png"
-        background_down: "data/backgrounds/info_bt.png"
+            app.stats_select_plot("Segregating sites gn", "Segregating sites sp", "Segregating sites")
+    HelpButton:
+
 
 ## Missing data
 
@@ -5120,12 +5108,8 @@
         text: "Gene occupancy"
         on_release:
             app.stats_show_plot(self.text)
-    Button:
-        size_hint: None, None
-        size: 30, 30
-        id: info_gene_occupancy
-        background_normal: "data/backgrounds/info_bt_down.png"
-        background_down: "data/backgrounds/info_bt.png"
+    HelpButton:
+
 
 <MissingOrto>:
     size_hint_y: None
@@ -5135,12 +5119,8 @@
         text: "Distribution of missing genes"
         on_release:
             app.stats_select_plot(None, "Distribution of missing orthologs", "Distribution of missing orthologs avg")
-    Button:
-        size_hint: None, None
-        size: 30, 30
-        id: info_missing_genes
-        background_normal: "data/backgrounds/info_bt_down.png"
-        background_down: "data/backgrounds/info_bt.png"
+    HelpButton:
+
 
 <MissingData>:
     size_hint_y: None
@@ -5150,12 +5130,8 @@
         text: "Distribution of missing data"
         on_release:
             app.stats_show_plot(self.text)
-    Button:
-        size_hint: None, None
-        size: 30, 30
-        id: info_missing_data
-        background_normal: "data/backgrounds/info_bt_down.png"
-        background_down: "data/backgrounds/info_bt.png"
+    HelpButton:
+
 
 #===============================================================================
 # ROOT SCREEN
