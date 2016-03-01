@@ -7195,8 +7195,10 @@ if __name__ == "__main__":
 
             :param plot_data: list/np array, data structure to be used in plot
             construction
-            :param plt_idx: string, identification string of the plot. Usually is
-            the text property of the issuing button.
+            :param footer: List, containing information on the number of
+            active genes and taxa
+            :param plt_idx: string, identification string of the plot. Usually
+            is the text property of the issuing button.
             """
 
             if isinstance(plot_data, EmptyAlignment):
