@@ -11,6 +11,7 @@ from os import sep
 from collections import OrderedDict
 from copy import deepcopy
 import logging
+import cPickle as pickle
 
 
 def load_proc(aln_list, file_list, nm, dest):
@@ -21,7 +22,10 @@ def load_proc(aln_list, file_list, nm, dest):
             aln_obj = aln_list
         else:
             aln_obj = AlignmentList(file_list, dest=dest, shared_namespace=nm)
-        nm.alns = aln_obj
+
+        with open(join(dest, "alns.pc"), "wb") as fh:
+            pickle.dump(aln_obj, fh)
+
     except:
         logging.exception("Unexpected error when loading input data")
         nm.exception = True

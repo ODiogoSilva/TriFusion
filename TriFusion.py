@@ -7659,7 +7659,7 @@ if __name__ == "__main__":
 
                 try:
                     content.ids.pb.value = ns.progress
-                    content.ids.msg.text = "Processing file %s" % ns.m
+                    content.ids.msg.text = ns.m
                 except AttributeError:
                     pass
 
@@ -7676,8 +7676,7 @@ if __name__ == "__main__":
                     except:
                         pass
 
-                    a = ns.alns
-                    self.load_files(file_list, a)
+                    self.load_files(file_list, join(self.temp_dir, "alns.pc"))
 
                     manager.shutdown()
                     p.terminate()
@@ -7737,6 +7736,10 @@ if __name__ == "__main__":
             implementation of undo/redo functionality and as backups
             :returns: List of invalid/badly formatted alignment objects
             """
+
+            if aln_list:
+                with open(aln_list, "rb") as fh:
+                    aln_list = pickle.load(fh)
 
             # Check for consistency in sequence type across alignments
             current_seq_type = set(self.sequence_types + aln_list.format_list())
