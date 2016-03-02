@@ -1694,19 +1694,6 @@ class AlignmentList(Base):
         the sequence data of the Alignment object
         """
 
-        def split_files(n):
-            """
-            Splits the file_name_list into the same number of sublists as the
-            number of available cpu's
-            :param n: Number of sublists to create
-            """
-
-            s = []
-            for j in xrange(0, len(file_name_list), len(file_name_list) / n +
-                    1):
-                s.append(file_name_list[j:j + (len(file_name_list) / n + 1)])
-            return s
-
         # Check for duplicates
         for i in set(self.path_list).intersection(set(file_name_list)):
             self.duplicate_alignments.append(i)
@@ -1715,16 +1702,18 @@ class AlignmentList(Base):
         if shared_namespace:
             shared_namespace.progress = 0
 
-        # Creates the argumet list for each worker
-        jobs = [[y, dest, x, shared_namespace] for x, y in
-                enumerate(split_files(multiprocessing.cpu_count()))]
+        njobs = len(file_name_list) if len(file_name_list) <= \
+            multiprocessing.cpu_count() else multiprocessing.cpu_count()
+
+        jobs = [[x.tolist(), dest, y, shared_namespace] for y, x in enumerate(
+            np.array_split(np.array(file_name_list), njobs))]
 
         # Execute alignment reading in parallel
-        multiprocessing.Pool(multiprocessing.cpu_count()).map(
+        multiprocessing.Pool(njobs).map(
             read_alns, jobs)
 
         # Read the pickle files with the saved Alignment objects
-        for i in range(multiprocessing.cpu_count()):
+        for i in range(njobs):
             fh = open(join(dest, "Worker{}.pc".format(i)), "rb")
             while 1:
                 try:
