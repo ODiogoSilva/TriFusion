@@ -40,8 +40,8 @@ from os.path import join, basename, splitext
 from itertools import compress
 import fileinput
 import multiprocessing
-import pickle
-
+import cPickle as pickle
+# import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
 # applying methods designed for alignments to sets of sequences with unequal
@@ -67,7 +67,9 @@ def exp_fnc(l):
     fh = open(join(l[1], "Worker{}.pc".format(l[2])), "wb")
 
     for i in l[0]:
-        l[3].progress += 1.5
+        count = l[0].index(i) * multiprocessing.cpu_count()
+        l[3].progress = count if count > l[3].progress else l[3].progress
+        l[3].m = "Processing file %s" % basename(i)
         pickle.dump(Alignment(i, dest=l[1]), fh)
 
     fh.close()
@@ -1684,8 +1686,9 @@ class AlignmentList(Base):
         def split_files(n):
 
             s = []
-            for i in xrange(0, len(file_name_list), len(file_name_list) / n):
-                s.append(file_name_list[i:i + (len(file_name_list) / n)])
+            for j in xrange(0, len(file_name_list), len(file_name_list) / n +
+                    1):
+                s.append(file_name_list[j:j + (len(file_name_list) / n + 1)])
             return s
 
         shared_namespace.progress = 0
@@ -1724,26 +1727,8 @@ class AlignmentList(Base):
 
         self.taxa_names = self._get_taxa_list()
 
-        #
-        # for aln in [item for sublist in res for item in sublist]:
-        #
-        #     # Check for badly formatted alignments
-        #     if isinstance(aln.alignment, InputError):
-        #         self.bad_alignments.append(aln.path)
-        #     elif isinstance(aln.alignment, AlignmentUnequalLength):
-        #         self.non_alignments.append(aln.path)
-        #
-        #     else:
-        #         # Get seq code
-        #         if not self.sequence_code:
-        #             self.sequence_code = aln.sequence_code
-        #
-        #         self.alignments[aln.name] = aln
-        #         self.set_partition(aln)
-        #         self.filename_list.append(aln.name)
-        #         self.path_list.append(aln.path)
-        #
-        # self.taxa_names = self._get_taxa_list()
+        shared_namespace.m = "Updating App structures"
+
 
     def retrieve_alignment(self, name):
         """
