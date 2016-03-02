@@ -85,7 +85,7 @@ def get_taxon_and_length(subject, genes):
     return int(subject["queryLength"]) < int(subject["subjectLength"])
 
 
-def print_previous_subject(subject):
+def print_previous_subject(subject, db):
 
     non_overlap = non_overlapping_match(subject)
 
@@ -99,15 +99,15 @@ def print_previous_subject(subject):
     percent_match = '{0:.3g}'.format((float(non_overlap) /
                                       float(shorter_length) * 1000 + .5) / 10)
 
-    cur.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, ?, ? ,?, ?)",
-                (subject["queryId"],
+    db.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, ?, ? ,?, ?)",
+                [subject["queryId"],
                  subject["subjectId"],
                  subject["queryTaxon"],
                  subject["subjectTaxon"],
-                 str('{0:.3g}'.format(subject["evalueMant"])),
-                 str('{0:.3g}'.format(subject["evalueExp"])),
-                 str(percent_ident),
-                 str(percent_match)))
+                 float(subject["evalueMant"]),
+                 int(subject["evalueExp"]),
+                 float(percent_ident),
+                 float(percent_match)])
 
 
 # this (corrected) version of formatEvalue provided by Robson de Souza
@@ -172,62 +172,62 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
     # create connection to DB
     con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
     with con:
-        global cur
+        #global cur
         cur = con.cursor()
 
-    # parse fasta files
-    genes = get_genes(fasta_dir)
-    blast_fh = open(blast_file, "r")
+        # parse fasta files
+        genes = get_genes(fasta_dir)
+        blast_fh = open(blast_file, "r")
 
-    prev_subjectid = ''
-    prev_queryid = ''
-    # hash to hold subject info
-    subject = {}
+        prev_subjectid = ''
+        prev_queryid = ''
+        # hash to hold subject info
+        subject = {}
 
-    for line in blast_fh:
-        splitted = line.split()
+        for line in blast_fh:
+            splitted = line.split()
 
-        query_id = splitted[0]
-        subject_id = splitted[1]
-        percent_identity = splitted[2]
-        length = int(splitted[3])
-        query_start = splitted[6]
-        query_end = splitted[7]
-        subject_start = splitted[8]
-        subject_end = splitted[9]
-        evalue = splitted[10]
+            query_id = splitted[0]
+            subject_id = splitted[1]
+            percent_identity = splitted[2]
+            length = int(splitted[3])
+            query_start = splitted[6]
+            query_end = splitted[7]
+            subject_start = splitted[8]
+            subject_end = splitted[9]
+            evalue = splitted[10]
 
-        if query_id != prev_queryid or subject_id != prev_subjectid:
+            if query_id != prev_queryid or subject_id != prev_subjectid:
 
-            # print previous subject
-            if subject:
-                print_previous_subject(subject)
+                # print previous subject
+                if subject:
+                    print_previous_subject(subject, cur)
 
-            # initialize new one from first HSP
-            prev_subjectid = subject_id
-            prev_queryid = query_id
+                # initialize new one from first HSP
+                prev_subjectid = subject_id
+                prev_queryid = query_id
 
-            # from first hsp
-            tup = format_evalue(evalue)
+                # from first hsp
+                tup = format_evalue(evalue)
 
-            subject = {"queryId": query_id}
-            subject["subjectId"] = subject_id
-            subject["queryShorter"] = get_taxon_and_length(subject, genes)
+                subject = {"queryId": query_id}
+                subject["subjectId"] = subject_id
+                subject["queryShorter"] = get_taxon_and_length(subject, genes)
 
-            subject["evalueMant"] = tup[0]
-            subject["evalueExp"] = tup[1]
-            subject["totalIdentities"] = 0
-            subject["totalLength"] = 0
-            subject["hspspans"] = []
+                subject["evalueMant"] = tup[0]
+                subject["evalueExp"] = tup[1]
+                subject["totalIdentities"] = 0
+                subject["totalLength"] = 0
+                subject["hspspans"] = []
 
-        # get additional info from subsequent HSPs
-        hspspan = (subject_start, subject_end)
-        if subject and subject["queryShorter"]:
-            hspspan = (query_start, query_end)
-        subject["hspspans"].append(hspspan)
-        subject["totalIdentities"] += float(percent_identity) * length
-        subject["totalLength"] += length
+            # get additional info from subsequent HSPs
+            hspspan = (subject_start, subject_end)
+            if subject and subject["queryShorter"]:
+                hspspan = (query_start, query_end)
+            subject["hspspans"].append(hspspan)
+            subject["totalIdentities"] += float(percent_identity) * length
+            subject["totalLength"] += length
 
-    print_previous_subject(subject)
+    #print_previous_subject(subject, cur)
 
-    con.close()
+    #con.close()

@@ -39,6 +39,8 @@ from os import sep
 from os.path import join, basename, splitext
 from itertools import compress
 import fileinput
+import multiprocessing
+import pickle
 
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -58,6 +60,17 @@ class AlignmentException(Exception):
 
 class AlignmentUnequalLength(Exception):
     pass
+
+
+def exp_fnc(l):
+
+    fh = open(join(l[1], "Worker{}.pc".format(l[2])), "wb")
+
+    for i in l[0]:
+        l[3].progress += 1.5
+        pickle.dump(Alignment(i, dest=l[1]), fh)
+
+    fh.close()
 
 
 class Alignment(Base):
@@ -1666,33 +1679,71 @@ class AlignmentList(Base):
         # Check for duplicates
         for i in set(self.path_list).intersection(set(file_name_list)):
             self.duplicate_alignments.append(i)
+            file_name_list.remove(i)
 
-        for file_name in file_name_list:
+        def split_files(n):
 
-            if shared_namespace:
-                shared_namespace.m = basename(file_name)
-                shared_namespace.progress = file_name_list.index(file_name) + 1
+            s = []
+            for i in xrange(0, len(file_name_list), len(file_name_list) / n):
+                s.append(file_name_list[i:i + (len(file_name_list) / n)])
+            return s
 
-            aln = Alignment(file_name, dest=dest)
+        shared_namespace.progress = 0
 
-            # Check for badly formatted alignments
-            if isinstance(aln.alignment, InputError):
-                self.bad_alignments.append(aln.path)
-            elif isinstance(aln.alignment,
-                            AlignmentUnequalLength):
-                self.non_alignments.append(aln.path)
+        jobs = [[y, dest, x, shared_namespace] for x, y in
+                enumerate(split_files(multiprocessing.cpu_count()))]
 
-            else:
-                # Get seq code
-                if not self.sequence_code:
-                    self.sequence_code = aln.sequence_code
+        multiprocessing.Pool(multiprocessing.cpu_count()).map(
+            exp_fnc, jobs)
 
-                self.alignments[aln.name] = aln
-                self.set_partition(aln)
-                self.filename_list.append(aln.name)
-                self.path_list.append(aln.path)
+        for i in range(multiprocessing.cpu_count()):
+            fh = open(join(dest, "Worker{}.pc".format(i)), "rb")
+            while 1:
+                try:
+                    aln = pickle.load(fh)
+
+                    if isinstance(aln.alignment, InputError):
+                        self.bad_alignments.append(aln.path)
+                    elif isinstance(aln.alignment, AlignmentUnequalLength):
+                        self.non_alignments.append(aln.path)
+
+                    else:
+                        # Get seq code
+                        if not self.sequence_code:
+                            self.sequence_code = aln.sequence_code
+
+                        self.alignments[aln.name] = aln
+                        self.set_partition(aln)
+                        self.filename_list.append(aln.name)
+                        self.path_list.append(aln.path)
+
+                except EOFError:
+                    fh.close()
+                    os.remove(join(dest, "Worker{}.pc".format(i)))
+                    break
 
         self.taxa_names = self._get_taxa_list()
+
+        #
+        # for aln in [item for sublist in res for item in sublist]:
+        #
+        #     # Check for badly formatted alignments
+        #     if isinstance(aln.alignment, InputError):
+        #         self.bad_alignments.append(aln.path)
+        #     elif isinstance(aln.alignment, AlignmentUnequalLength):
+        #         self.non_alignments.append(aln.path)
+        #
+        #     else:
+        #         # Get seq code
+        #         if not self.sequence_code:
+        #             self.sequence_code = aln.sequence_code
+        #
+        #         self.alignments[aln.name] = aln
+        #         self.set_partition(aln)
+        #         self.filename_list.append(aln.name)
+        #         self.path_list.append(aln.path)
+        #
+        # self.taxa_names = self._get_taxa_list()
 
     def retrieve_alignment(self, name):
         """
