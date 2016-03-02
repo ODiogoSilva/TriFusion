@@ -62,14 +62,30 @@ class AlignmentUnequalLength(Exception):
     pass
 
 
-def exp_fnc(l):
+def read_alns(l):
+    """
+    Worker function that reads alignments from a list of file names.
+    :param l: list, [0] - List of file names
+                    [1] - dest variable, where the temporary sequences files
+                    will be saved
+                    [2] - int, work number
+                    [3] - Namespace object, to share counter and processed files
+    """
 
+    # Open handle for this worker, where individual Alignment objects will be
+    #  stored
     fh = open(join(l[1], "Worker{}.pc".format(l[2])), "wb")
 
     for i in l[0]:
-        count = l[0].index(i) * multiprocessing.cpu_count()
-        l[3].progress = count if count > l[3].progress else l[3].progress
-        l[3].m = "Processing file %s" % basename(i)
+        # Update the counter for the progress bar. The index is used instead
+        # of a simple counter, because race conditioning of multiple workers
+        # does not produce the expected behaviour with a int counter.
+        if l[3]:
+            count = l[0].index(i) * multiprocessing.cpu_count()
+            l[3].progress = count if count > l[3].progress else l[3].progress
+            # Update the file being processed
+            l[3].m = "Processing file %s" % basename(i)
+        # Pickle the Alignment object
         pickle.dump(Alignment(i, dest=l[1]), fh)
 
     fh.close()
@@ -1678,12 +1694,12 @@ class AlignmentList(Base):
         the sequence data of the Alignment object
         """
 
-        # Check for duplicates
-        for i in set(self.path_list).intersection(set(file_name_list)):
-            self.duplicate_alignments.append(i)
-            file_name_list.remove(i)
-
         def split_files(n):
+            """
+            Splits the file_name_list into the same number of sublists as the
+            number of available cpu's
+            :param n: Number of sublists to create
+            """
 
             s = []
             for j in xrange(0, len(file_name_list), len(file_name_list) / n +
@@ -1691,14 +1707,23 @@ class AlignmentList(Base):
                 s.append(file_name_list[j:j + (len(file_name_list) / n + 1)])
             return s
 
-        shared_namespace.progress = 0
+        # Check for duplicates
+        for i in set(self.path_list).intersection(set(file_name_list)):
+            self.duplicate_alignments.append(i)
+            file_name_list.remove(i)
 
+        if shared_namespace:
+            shared_namespace.progress = 0
+
+        # Creates the argumet list for each worker
         jobs = [[y, dest, x, shared_namespace] for x, y in
                 enumerate(split_files(multiprocessing.cpu_count()))]
 
+        # Execute alignment reading in parallel
         multiprocessing.Pool(multiprocessing.cpu_count()).map(
-            exp_fnc, jobs)
+            read_alns, jobs)
 
+        # Read the pickle files with the saved Alignment objects
         for i in range(multiprocessing.cpu_count()):
             fh = open(join(dest, "Worker{}.pc".format(i)), "rb")
             while 1:
@@ -1728,7 +1753,6 @@ class AlignmentList(Base):
         self.taxa_names = self._get_taxa_list()
 
         shared_namespace.m = "Updating App structures"
-
 
     def retrieve_alignment(self, name):
         """

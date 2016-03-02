@@ -23,6 +23,9 @@ def load_proc(aln_list, file_list, nm, dest):
         else:
             aln_obj = AlignmentList(file_list, dest=dest, shared_namespace=nm)
 
+        # To speed sharing of the new AlignmentList object with the main
+        # process, the class instance is being saved in disk using pickle,
+        # and latter loaded into the add in the load_files method
         with open(join(dest, "alns.pc"), "wb") as fh:
             pickle.dump(aln_obj, fh)
 
