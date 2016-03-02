@@ -3547,18 +3547,18 @@ if __name__ == "__main__":
                     # Get the information from the content list. This is done
                     # when calling the popup to avoid repeating this
                     # operation every time taxa  or files are added/removed.
-                    self.active_file_inf = self.get_file_information()
+                    self.active_file_inf = self.get_file_information(file_name)
 
                     content.ids.in_format.text = "%s" % \
-                        self.active_file_inf[file_name]["aln_format"]
+                        self.active_file_inf["aln_format"]
                     content.ids.seq_type.text = "%s" % \
-                        self.active_file_inf[file_name]["seq_type"]
+                        self.active_file_inf["seq_type"]
                     content.ids.is_aln.text = "%s" % \
-                        self.active_file_inf[file_name]["is_aln"]
+                        self.active_file_inf["is_aln"]
                     content.ids.seq_size.text = "%s" % \
-                        self.active_file_inf[file_name]["aln_len"]
+                        self.active_file_inf["aln_len"]
                     content.ids.n_taxa.text = "%s" % \
-                        self.active_file_inf[file_name]["n_taxa"]
+                        self.active_file_inf["n_taxa"]
 
                     self.show_popup(title="File: %s" % value.id[:-1],
                                     content=content, size=(400, 320))
@@ -7868,7 +7868,7 @@ if __name__ == "__main__":
 
             return tx_inf
 
-        def get_file_information(self, mode="alignment"):
+        def get_file_information(self, file_name=None, mode="alignment"):
             """
             Similar to get_taxa_information, but generating information for the
             files in the file tab.
@@ -7900,29 +7900,25 @@ if __name__ == "__main__":
                 # Iterating over file path since the name of the Alignment
                 # objects contain the full path
                 if self.alignment_list:
-                    for infile in self.file_list:
-                        file_name = basename(infile)
-                        file_inf[file_name] = {}
+                    aln = self.alignment_list.retrieve_alignment(basename(
+                        file_name))
 
-                        # Get alignment object
-                        aln = self.alignment_list.retrieve_alignment(file_name)
+                    # Get input format
+                    file_inf["aln_format"] = aln.input_format
 
-                        # Get input format
-                        file_inf[file_name]["aln_format"] = aln.input_format
+                    # Get sequence type
+                    file_inf["seq_type"] = aln.sequence_code[0]
 
-                        # Get sequence type
-                        file_inf[file_name]["seq_type"] = aln.sequence_code[0]
+                    # Get number of species
+                    file_inf["n_taxa"] = len([x for x in
+                        aln.iter_taxa() if x in self.active_taxa_list])
 
-                        # Get number of species
-                        file_inf[file_name]["n_taxa"] = len([x for x in
-                            aln.iter_taxa() if x in self.active_taxa_list])
+                    # Get if is alignment
+                    file_inf["is_aln"] = str(aln.is_alignment)
 
-                        # Get if is alignment
-                        file_inf[file_name]["is_aln"] = str(aln.is_alignment)
-
-                        # Get length of largest sequence if not aligned, or
-                        # alignment length
-                        file_inf[file_name]["aln_len"] = aln.locus_length
+                    # Get length of largest sequence if not aligned, or
+                    # alignment length
+                    file_inf["aln_len"] = aln.locus_length
 
             elif mode == "proteome":
                 for p in self.proteome_files:
