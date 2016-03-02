@@ -7676,6 +7676,8 @@ if __name__ == "__main__":
                     except:
                         pass
 
+                    # The load_files method now receives the path to the
+                    # pickle file containing the AlignmentList object
                     self.load_files(file_list, join(self.temp_dir, "alns.pc"))
 
                     manager.shutdown()
@@ -7737,6 +7739,7 @@ if __name__ == "__main__":
             :returns: List of invalid/badly formatted alignment objects
             """
 
+            # Read the AlignmentList object from the pickle file
             if aln_list:
                 with open(aln_list, "rb") as fh:
                     aln_list = pickle.load(fh)
