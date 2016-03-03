@@ -315,10 +315,7 @@ class GroupLight:
         if not c.execute("SELECT name FROM sqlite_master WHERE type='table' AND"
                     " name='{}'".format(table_name)).fetchall():
 
-            c.execute("CREATE TABLE {} (seq_id text, seq text)".
-                      format(table_name))
-            # Create index
-            c.execute("CREATE UNIQUE INDEX seq_id ON {}(seq_id)".
+            c.execute("CREATE TABLE {} (seq_id text PRIMARY KEY, seq text)".
                       format(table_name))
 
             # Populate database
