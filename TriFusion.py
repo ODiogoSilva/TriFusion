@@ -188,6 +188,10 @@ if __name__ == "__main__":
         # For mouse over purposes
         bookmarks_bt = []
 
+        # Attribute that controls the DragNDrop timing.
+        drag_files = []
+        drag_c = 0
+
         _popup = ObjectProperty(None)
         _subpopup = ObjectProperty(None)
 
@@ -501,6 +505,8 @@ if __name__ == "__main__":
 
             Window.bind(on_motion=self.mouse_zoom)
 
+            Window.bind(on_dropfile=self.load_files_dragndrop)
+
             # Orthology widgets
             self.ortho_search_options = OrthologySearchGrid()
 
@@ -638,6 +644,62 @@ if __name__ == "__main__":
                     os.remove(join(self.temp_dir, i))
                 except OSError:
                     shutil.rmtree(join(self.temp_dir, i))
+
+        def load_files_dragndrop(self, *args):
+            """
+            This function gives functionality to the drag and drop feature
+            that automatically loads files when droped into the app window.
+            Note that this method will issue different data loding methods
+            depending on the active screen. Proteome alignments will be opened
+            in the Orthology screen, while sequence alignment will be opened
+            in the Process and Statistics screens.
+            :param args: list, first element is the SDL2 object, second
+            element is the file path
+            """
+
+            def drag_check(dt):
+                """
+                In order to support drag and drop of multiple files, a periodic
+                check is made to assess if the self.drag_files object is
+                still being populated, or if it reached a static state. Only
+                when it reaches a static state, will the app issue the
+                corresponding methods to load all files into the app.
+                :param dt:
+                """
+
+                # If the drag_files attribute continues to be populated,
+                # its lenght will be higher than the current counter. In such
+                #  case, update the counter
+                if len(self.drag_files) > self.drag_c:
+                    self.drag_c = len(self.drag_files)
+                    # In case only a single file was dragged and dropped,
+                    # this additional scheduled event will allow the single
+                    # file to the loaded. Otherwise, it will do nothing.
+                    Clock.schedule_once(drag_check, .1)
+                # In this case, the drag_files attribute has reached a static
+                #  size and the loading methods can be issued
+                elif len(self.drag_files) == self.drag_c:
+                    # Issue methods only when drag_files is populated
+                    if self.drag_files:
+                        # Load proteomes
+                        if self.screen.name == "Orthology":
+                            self.load_proteomes(self.drag_files)
+                        if self.screen.name in ["Process", "Statistics",
+                                                "main"]:
+                            self.load_files_subproc(self.drag_files)
+
+                        # Reset drag counter and drag_files attributes
+                        self.drag_c = 0
+                        self.drag_files = []
+
+            # This functionality should only be triggered when in one of the
+            # main screens
+            if self.screen.name in ["Orthology", "Process", "Statistics",
+                                    "main"]:
+
+                self.drag_files.append(args[1])
+
+                Clock.schedule_once(drag_check, .1)
 
         def _exit_clean(self):
             """
