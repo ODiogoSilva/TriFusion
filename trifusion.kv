@@ -293,12 +293,12 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Export all file names to .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
+                text: "Export all file names to .txt" if root.ds_type == "Files" else "Export all taxa names to .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
                     app.dialog_filechooser("export")
-                    if root.ds_type: \
+                    if root.ds_type == "Files": \
                     app.export_mode = ("file", "all")
                     else:\
                     app.export_mode = ("taxa", "all")
@@ -309,12 +309,12 @@
                 valign: "middle"
                 size_hint_y: None
                 height: 30
-                text: "Export selected file names to .txt" if root.ds_type == "Files" else "Select taxa names from .txt"
+                text: "Export selected file names to .txt" if root.ds_type == "Files" else "Export selected taxa names to .txt"
                 bold: True
                 on_release:
                     app.sidepanel_remove_moreopts()
                     app.dialog_filechooser("export")
-                    if root.ds_type:\
+                    if root.ds_type == "Files":\
                     app.export_mode = ("file", "selected")
                     else:\
                     app.export_mode = ("taxa", "selected")
@@ -2910,6 +2910,8 @@
                         app.dialog_floatcheck(text="WARNING: Please select a file", t="error");
 
                         # For save dialogs that do not require file names
+                        elif sd_filechooser.text == "ima2_popfile" and txt_box.height == 0:\
+                        app.save_file(sd_filechooser.selection[0], idx=sd_filechooser.text)
                         elif sd_filechooser.text == "orto_report" and txt_box.height == 0:\
                         app.run_in_background(app.orto_generate_report, None, [sd_filechooser.path], None, False, "Generating full report...")
                         elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
@@ -3315,8 +3317,10 @@
                 background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                 id: ima2
                 text: "IMa2"
-                disabled: True
-            SettingsBt
+            SettingsBt:
+                disabled: False
+                on_release:
+                    app.dialog_ima2_extra()
     BoxLayout:
         orientation: "horizontal"
         size_hint_y: None
@@ -3452,6 +3456,89 @@
             id: cancel_bt
             text: "Cancel"
             on_release: root.cancel()
+
+<IMa2Extra>:
+    padding: 20
+    spacing: 15
+    orientation: "vertical"
+
+    # Population file
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            text: "Population assignment file"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        TFButton:
+            id: popfile
+            size_hint_x: .6
+            text: "Select"
+            on_release:
+                app.dialog_filechooser("ima2_popfile")
+
+    # Population tree
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            text: "Population tree string"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        TextInput:
+            id: pop_string
+            size_hint_x: .6
+
+    # Mutational model
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            text: "Set mutational model"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        PlotSpinner:
+            id: mutation
+            size_hint_x: .6
+            text: "IS"
+            option_cls: Factory.get("PlotOpt")
+            values: ("IS", "HKY", "SSM", "Join SSM", "HapSTR")
+
+    # Inheritance
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            text: "Set inheritance scalar"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        TextInput:
+            id: inheritance
+            size_hint_x: .6
+            text: "1"
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        orientation: "horizontal"
+        spacing: 20
+        TFOKButon:
+            id: ok_bt
+            text: "Ok"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                app.save_ima2_opts(pop_string.text, mutation.text, inheritance.text)
+
+        TFOKButon:
+            id: cancel_bt
+            text: "Cancel"
+            on_release: root.cancel()
+
 
 #===============================================================================
 # PROCESS FORMATTING ADDITIONAL OPTIONS

@@ -411,6 +411,14 @@ if __name__ == "__main__":
         # Determines whether taxa names should be truncated to 10 characters
         # in a phylip file
         phylip_truncate_name = BooleanProperty(False)
+        # Additional options for IMa2 ormat
+        # [0] - string - population file path
+        # [1] - string - Population tree string
+        # [2] - list - mutation model for each partition (one element if
+        # applies to all)
+        # [3] - list - inheritance scalaer for each partition (one element if
+        #  applies to all)
+        ima2_options = ListProperty([None, None, None, None])
 
         # Attribute storing the missing data filter settings. The list should
         # contain gap threshold as first element, missing data threshold as
@@ -6331,6 +6339,9 @@ if __name__ == "__main__":
             elif idx == "orto_export_dir":
                 self.orto_export_dir = path
 
+            elif idx == "ima2_popfile":
+                self.ima2_options[0] = path
+
             self.dismiss_popup()
 
         def save_format(self, value):
@@ -6358,6 +6369,13 @@ if __name__ == "__main__":
                     t="error")
 
             self.dismiss_popup()
+
+            # If IMa2 is among the chosen ouptut formats, issue its
+            # additional options dialog.
+            if "ima2" in self.output_formats:
+                # Only show dialog when the additional options have not been set
+                if None in self.ima2_options:
+                    self.dialog_ima2_extra()
 
         def save_gapfilter(self, filter_act, gap_val, mis_val, min_tx_val):
             """
@@ -6413,7 +6431,54 @@ if __name__ == "__main__":
 
             self.dismiss_popup()
 
+        def save_ima2_opts(self, pop_string, mutation, inheritance):
+            """
+            Check each text input parameter given by the user and, if they
+            checkout, saves them.
+            :param pop_string: string, with population tree
+            :param mutation:  string, with mutation model
+            :param inheritance: string, with inheritance scalar
+            """
+
+            for i, msg in zip([self.ima2_options[0], pop_string, mutation,
+                               inheritance],
+                              ["population file",
+                               "population tree string",
+                               "mutation model",
+                               "inheritance scalar"]):
+                if not i:
+                    return self.dialog_floatcheck("WARNING: Please specify a "
+                                                  "{}".format(msg), t="error")
+
+            self.ima2_options[1] = pop_string
+            self.ima2_options[2] = mutation
+            self.ima2_options[3] = inheritance
+
+            self.dismiss_all_popups()
+
+        def dialog_ima2_extra(self):
+            """
+            Dialog with extra options for IMa2 output format
+            """
+
+            content = IMa2Extra(cancel=self.dismiss_popup)
+
+            if self.ima2_options[0]:
+                content.ids.popfile.text = basename(self.ima2_options[0])
+
+            for i, idx in zip(self.ima2_options[1:], ["pop_string",
+                                                      "mutation",
+                                                      "inheritance"]):
+                if i:
+                    content.ids[idx].text = i
+
+            self.show_popup(title="IMa2 additional options",
+                            content=content, size=(380, 310))
+
         def dialog_nexus_extra(self):
+            """
+            Dialog with extra options for nexus output format
+            """
 
             content = NexusExtra(cancel=self.dismiss_subpopup)
 
@@ -6425,6 +6490,9 @@ if __name__ == "__main__":
             self._subpopup.open()
 
         def dialog_phylip_extra(self):
+            """
+            Dialog with extra options for phylip output format
+            """
 
             content = PhylipExtra(cancel=self.dismiss_subpopup)
 
@@ -6438,6 +6506,9 @@ if __name__ == "__main__":
             self._subpopup.open()
 
         def dialog_fasta_extra(self):
+            """
+            Dialog with extra options for fasta output format
+            """
 
             content = FastaExtra(cancel=self.dismiss_subpopup)
 
@@ -8274,7 +8345,8 @@ if __name__ == "__main__":
                 "use_app_partitions": bool(self.use_app_partitions),
                 "consensus_type": self.process_options.ids.consensus_mode.text,
                 "ld_hat": bool(self.ld_hat),
-                "temp_dir": str(self.temp_dir)}
+                "temp_dir": str(self.temp_dir),
+                "ima2_params": list(self.ima2_options)}
 
             p = multiprocessing.Process(target=process_execution,
                                         kwargs=process_kwargs)

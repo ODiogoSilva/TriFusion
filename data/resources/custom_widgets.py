@@ -917,6 +917,12 @@ class PhylipExtra(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class IMa2Extra(BoxLayout):
+    """
+    Class controlling the dialog with extra options for the IMa2 output format
+    """
+    cancel = ObjectProperty(None)
+
 class ProcessGeneral(GridLayout):
     """
     Class controlling the layout of the general options of the Process screen
