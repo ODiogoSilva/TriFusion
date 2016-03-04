@@ -1108,7 +1108,7 @@ class Alignment(Base):
             population_handle = open(population_file)
             population_storage = OrderedDict()
             for line in population_handle:
-                taxon, population = re.split(r'[\t;,]', line)
+                taxon, population = line.strip().split()
                 try:
                     population_storage[population.strip()].append(taxon)
                 except KeyError:
@@ -1126,7 +1126,7 @@ class Alignment(Base):
                            " ".join(population_storage.keys()),
                            population_tree))
 
-            if self.partitions.is_single() is False:
+            if not self.partitions.is_single():
                 # Write each locus
                 for partition, lrange in self.partitions:
 
@@ -1147,8 +1147,8 @@ class Alignment(Base):
                             #  providing a species in the mapping file that
                             # does not exist in the alignment
                             try:
-                                seq = self.alignment[taxon][
-                                      lrange[0]:lrange[1]].upper()
+                                seq = self.get_sequence(taxon)[
+                                    lrange[0][0]:lrange[0][1]].upper()
                             except KeyError:
                                 print("Taxon %s provided in auxiliary "
                                       "population mapping file is not found "
@@ -1168,7 +1168,7 @@ class Alignment(Base):
                         partition,
                         " ".join([str(len(x)) for x in
                                   list(current_locus_populations.values())]),
-                        (lrange[1]) - lrange[0],
+                        (lrange[0][1]) - lrange[0][0],
                         mutational_model,
                         inheritance_scalar))
 
@@ -1189,11 +1189,9 @@ class Alignment(Base):
                 # Write sequence data
                 for population, taxa_list in population_storage.items():
                     for taxon in taxa_list:
-                        seq = self.alignment[taxon].upper()
+                        seq = self.get_sequence(taxon).upper()
                         out_file.write("%s%s\n" %
-                                      (taxon[:cut_space_ima2].ljust(
-                                         seq_space_ima2),
-                                       seq))
+                            (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
 
         # Writes file in phylip format
         if "phylip" in output_format:
@@ -2162,7 +2160,8 @@ class AlignmentList(Base):
 
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
-                      use_charset=True, phy_truncate_names=False, ld_hat=None):
+                      use_charset=True, phy_truncate_names=False, ld_hat=None,
+                      ima2_params=None):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -2202,7 +2201,8 @@ class AlignmentList(Base):
                                         output_dir=output_dir,
                                         use_charset=use_charset,
                                         phy_truncate_names=phy_truncate_names,
-                                        ld_hat=ld_hat)
+                                        ld_hat=ld_hat,
+                                        ima2_params=ima2_params)
 
     # Stats methods
     def gene_occupancy(self):
