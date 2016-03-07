@@ -2585,6 +2585,59 @@ if __name__ == "__main__":
             but are not aligned
             """
 
+            # Checking if there are invalid input alignments
+            if bad_aln or non_aln:
+                msg = ""
+                if bad_aln:
+                    msg += "The following input file(s) could not be open:"\
+                        "\n\n[b]%s[/b]\n\n" % "\n".join(basename(x) for x in
+                                                        bad_aln)
+
+                    self.alignment_list.bad_alignments = []
+                if non_aln:
+                    msg += "The following input file(s) contain(s) " \
+                           "sequences of unequal length:\n\n[b]%s[/b]" % \
+                           "\n".join(basename(x) for x in non_aln)
+                    self.alignment_list.non_alignments = []
+
+                self.dialog_warning("Invalid input file(s) detected", msg)
+
+            # removes bad alignment files from selection list
+            selection = [path for path in selection if path not in
+                         bad_aln + non_aln]
+
+            # If data has been previously loaded, updated these attributes
+            if self.file_list:
+                # Updating complete and active file lists
+                self.file_list.extend(selection)
+                self.active_file_list.extend(selection)
+                # Update the filename - path mapping attribute
+                self.filename_map = dict(list(self.filename_map.items()) +
+                                         list((x, y) for x, y in
+                                              zip([basename(x) for x in
+                                                   selection],
+                                                  selection)))
+
+            # If no data has been previously loaded, set the attributed
+            else:
+                # Set an attribute with the input file list
+                self.file_list = selection
+                # Setting active file list and path list
+                self.active_file_list = deepcopy(self.file_list)
+                # Sett the filename - path mapping attribute
+                self.filename_map = dict((x, y) for x, y in zip(
+                    [basename(x) for x in selection], selection))
+
+            # If more than one alignment has been provided
+            if self.alignment_list:
+                # Update active taxa list
+                self.update_taxa()
+                # Populates files and taxa contents
+                self.update_tabs()
+                # Gathers taxa  and file information
+                self.original_tx_inf = self.get_taxa_information()
+
+            # Issue float check
             # If duplicate alignments were loaded, issue a warning
             if self.alignment_list.duplicate_alignments:
                 self.dialog_floatcheck(
@@ -2593,65 +2646,11 @@ if __name__ == "__main__":
                 # Reset the duplicate alignment storage, so that it doesn't
                 # issue the warning every time data is loaded
                 self.alignment_list.duplicate_alignments = []
-
-            else:
-                # Checking if there are invalid input alignments
-                if bad_aln or non_aln:
-                    msg = ""
-                    if bad_aln:
-                        msg += "The following input file(s) could not be open:"\
-                            "\n\n[b]%s[/b]\n\n" % "\n".join(basename(x) for x in
-                                                            bad_aln)
-
-                        self.alignment_list.bad_alignments = []
-                    if non_aln:
-                        msg += "The following input file(s) contain(s) " \
-                               "sequences of unequal length:\n\n[b]%s[/b]" % \
-                               "\n".join(basename(x) for x in non_aln)
-                        self.alignment_list.non_alignments = []
-
-                    self.dialog_warning("Invalid input file(s) detected", msg)
-
-                # removes bad alignment files from selection list
-                selection = [path for path in selection if path not in
-                             bad_aln + non_aln]
-
-                # If data has been previously loaded, updated these attributes
-                if self.file_list:
-                    # Updating complete and active file lists
-                    self.file_list.extend(selection)
-                    self.active_file_list.extend(selection)
-                    # Update the filename - path mapping attribute
-                    self.filename_map = dict(list(self.filename_map.items()) +
-                                             list((x, y) for x, y in
-                                                  zip([basename(x) for x in
-                                                       selection],
-                                                      selection)))
-
-                # If no data has been previously loaded, set the attributed
-                else:
-                    # Set an attribute with the input file list
-                    self.file_list = selection
-                    # Setting active file list and path list
-                    self.active_file_list = deepcopy(self.file_list)
-                    # Sett the filename - path mapping attribute
-                    self.filename_map = dict((x, y) for x, y in zip(
-                        [basename(x) for x in selection], selection))
-
-                # If more than one alignment has been provided
-                if self.alignment_list:
-                    # Update active taxa list
-                    self.update_taxa()
-                    # Populates files and taxa contents
-                    self.update_tabs()
-                    # Gathers taxa  and file information
-                    self.original_tx_inf = self.get_taxa_information()
-
-                    # Issue float check
-                    if selection and self.root_window:
-                        self.dialog_floatcheck(
-                            "%s file(s) successfully loaded" % len(selection),
-                            t="info")
+            # Else, if no duplicates, issue an all clear
+            elif selection and self.root_window:
+                self.dialog_floatcheck(
+                    "%s file(s) successfully loaded" % len(selection),
+                    t="info")
 
         def load_proteomes(self, selection):
             """
