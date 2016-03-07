@@ -516,6 +516,10 @@ class ExportGraphics(BoxLayout):
                                 self.ids.sd_filechooser)
 
 
+class InputType(BoxLayout):
+    cancel = ObjectProperty()
+
+
 class ExportGroupDialog(BoxLayout):
     cancel = ObjectProperty(None)
 

@@ -689,12 +689,19 @@ if __name__ == "__main__":
                 elif len(self.drag_files) == self.drag_c:
                     # Issue methods only when drag_files is populated
                     if self.drag_files:
+
+                        content = InputType(cancel=self.dismiss_popup)
+                        content.files = self.drag_files
+
+                        self.show_popup(title="", content=content,
+                                        size=(350, 230))
+
                         # Load proteomes
-                        if self.screen.name == "Orthology":
-                            self.load_proteomes(self.drag_files)
-                        if self.screen.name in ["Process", "Statistics",
-                                                "main"]:
-                            self.load_files_subproc(self.drag_files)
+                        # if self.screen.name == "Orthology":
+                        #     self.load_proteomes(self.drag_files)
+                        # if self.screen.name in ["Process", "Statistics",
+                        #                         "main"]:
+                        #     self.load_files_subproc(self.drag_files)
 
                         # Reset drag counter and drag_files attributes
                         self.drag_c = 0
