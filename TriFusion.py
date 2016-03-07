@@ -694,7 +694,9 @@ if __name__ == "__main__":
                         content.files = self.drag_files
 
                         self.show_popup(title="", content=content,
-                                        size=(350, 230))
+                                        size=(350, 160),
+                                        separator_color=(0, 0, 0, 0),
+                                        close_bt=True)
 
                         # Load proteomes
                         # if self.screen.name == "Orthology":
@@ -6250,7 +6252,8 @@ if __name__ == "__main__":
         # ########################## POPUP OPS #################################
 
         def show_popup(self, title, content, size_hint=(.9, .9), size=None,
-                       separator_color=None, custom_background=None):
+                       separator_color=None, custom_background=None,
+                       close_bt=None):
             """
             General purpose method to create a popup widget
             :param title: string. Title of the popup
@@ -6284,6 +6287,13 @@ if __name__ == "__main__":
                     custom_background=custom_background)
             self._popup.open()
 
+            if close_bt:
+                pos = ((self.root.width / 2) + (self._popup.size[0] / 2) - 25,
+                       (self.root.height / 2) + (self._popup.size[1] / 2) - 25)
+                rm_wgt = CloseFloat(pos=pos, opacity=1)
+                rm_wgt.bind(on_release=self.dismiss_popup)
+                self.root_window.add_widget(rm_wgt)
+
         def dismiss_all_popups(self, *args):
             """
             Method that force closes all popups in thre screen
@@ -6293,18 +6303,40 @@ if __name__ == "__main__":
                         if isinstance(x, CustomPopup)):
                 wgt.dismiss()
 
+            try:
+                rm_wgt = [x for x in self.root_window.children if
+                          isinstance(x, CloseFloat)][0]
+                self.root_window.remove_widget(rm_wgt)
+            except IndexError:
+                pass
+
         def dismiss_popup(self, *args):
             """
             General purpose method to close popups from the screen
             """
             if self._popup:
-                self._popup.dismiss()
+                self._popup.dismiss(force=True)
+                try:
+                    rm_wgt = [x for x in self.root_window.children if
+                              isinstance(x, CloseFloat)][0]
+                    self.root_window.remove_widget(rm_wgt)
+                except IndexError:
+                    pass
+
+            print(self.root_window.children)
 
         def dismiss_subpopup(self, *args):
             """
             General purpose method to close sub-popups from the screen
             """
             self._subpopup.dismiss()
+
+            try:
+                rm_wgt = [x for x in self.root_window.children if
+                          isinstance(x, CloseFloat)][0]
+                self.root_window.remove_widget(rm_wgt)
+            except IndexError:
+                pass
 
         # ########################## PROCESS SCREEN ############################
 

@@ -198,7 +198,7 @@
 
 <InputType>:
     orientation: "vertical"
-    padding: 10
+    padding: [10, 0, 10, 0]
     spacing: 10
     files: []
     Label:
@@ -224,20 +224,6 @@
         color: .6,.6,.6,1
         bold: True
         text: "Loading %s(s) file(s)" % len(root.files)
-
-    AnchorLayout:
-        size_hint_y: None
-        height: 30
-        BoxLayout:
-            size_hint_x: None
-            width: 200
-            TFOKButon:
-                id: close_bt
-                text: "Close"
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
-                on_release:
-                    root.cancel()
 
 #===============================================================================
 # SIDE PANEL
@@ -401,6 +387,9 @@
     background_normal: "data/backgrounds/round_remove.png"
     background_down: "data/backgrounds/round_remove.png"
     size: 25, 25
+
+<CloseFloat>:
+    pos: ((app.root.width / 2) + (app._popup.width / 2) - 25, (app.root.height / 2) + (app._popup.height / 2) - 25)
 
 #===============================================================================
 # FILECHOOSER

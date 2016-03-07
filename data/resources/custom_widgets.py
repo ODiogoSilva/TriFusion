@@ -685,6 +685,15 @@ class RemoveFloat(Button):
     pass
 
 
+class CloseFloat(RemoveFloat):
+    """
+    A Simple (X) float button akin to the RemoveFloat widget. This widget was
+    created specifically for popups and updates its positon according to the
+    position of popus when resizing.
+    """
+    pass
+
+
 class DataSetTriageDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
