@@ -196,6 +196,49 @@
             on_release:
                 root.cancel()
 
+<InputType>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    files: []
+    Label:
+        size_hint_y: None
+        height: 30
+        bold: True
+        text: "Input data type:"
+    BoxLayout:
+        spacing: 10
+        TFButton:
+            text: "Alignment"
+            on_release:
+                root.cancel()
+                app.load_files_subproc(root.files)
+        TFButton:
+            text: "Proteome"
+            on_release:
+                root.cancel()
+                app.load_proteomes(root.files)
+    Label:
+        size_hint_y: None
+        height: 30
+        color: .6,.6,.6,1
+        bold: True
+        text: "Loading %s(s) file(s)" % len(root.files)
+
+    AnchorLayout:
+        size_hint_y: None
+        height: 30
+        BoxLayout:
+            size_hint_x: None
+            width: 200
+            TFOKButon:
+                id: close_bt
+                text: "Close"
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                on_release:
+                    root.cancel()
+
 #===============================================================================
 # SIDE PANEL
 #===============================================================================
