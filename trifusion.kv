@@ -900,20 +900,6 @@
                 line_height: 1
                 halign: "justify"
 
-    AnchorLayout:
-        size_hint_y: None
-        height: 30
-        BoxLayout:
-            size_hint_x: None
-            width: 200
-            TFOKButon:
-                id: close_bt
-                text: "Close"
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
-                on_release:
-                    root.cancel()
-
 <InfoBt@Button>:
     size_hint: (None, None)
     border: 0,0,0,0
