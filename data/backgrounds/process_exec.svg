@@ -1122,17 +1122,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710682"
-     inkscape:cx="-17.359722"
-     inkscape:cy="-1990.2633"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="563.01595"
+     inkscape:cy="-44.424819"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1050"
+     inkscape:window-width="1916"
+     inkscape:window-height="1041"
      inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
+     inkscape:window-y="37"
+     inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true" />
   <metadata
@@ -4449,22 +4449,22 @@
        inkscape:export-xdpi="26.731785"
        inkscape:export-ydpi="26.731785" />
     <rect
-       style="fill:#ff5555;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
        id="rect5044-1-1-2-2"
        width="157.99297"
        height="157.99297"
        x="497.00354"
        y="1092.3657"
        inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_queue.png"
-       inkscape:export-xdpi="34.178738"
-       inkscape:export-ydpi="34.178738" />
+       inkscape:export-xdpi="22.785822"
+       inkscape:export-ydpi="22.785822" />
     <path
        id="path6121"
        d="m 589.9375,1135.1073 0,13.6749 c 3.64202,1.59 6.99112,3.8641 9.88478,6.7577 6.08022,6.0786 9.42772,14.1625 9.42772,22.7598 0,8.5973 -3.3475,16.6812 -9.42772,22.7598 -6.07861,6.0786 -14.1625,9.4277 -22.75978,9.4277 -8.59728,0 -16.68117,-3.3475 -22.75978,-9.4277 -6.07861,-6.0786 -9.42772,-14.1625 -9.42772,-22.7598 0,-8.5973 3.3475,-16.6812 9.42772,-22.7598 2.89365,-2.8936 6.24276,-5.1677 9.88478,-6.7577 l 0,-13.6749 C 545.57347,1140.6484 532,1157.888 532,1178.2997 c 0,24.8874 20.17512,45.0625 45.0625,45.0625 24.88738,0 45.0625,-20.1751 45.0625,-45.0625 0,-20.4133 -13.57347,-37.6529 -32.1875,-43.1924 z m -19.3125,-14.7451 12.875,0 0,51.5 -12.875,0 z"
        inkscape:connector-curvature="0"
-       style="fill:#ffffff;fill-opacity:1"
-       inkscape:export-xdpi="34"
-       inkscape:export-ydpi="34" />
+       style="fill:#ff5555;fill-opacity:1"
+       inkscape:export-xdpi="22.785822"
+       inkscape:export-ydpi="22.785822" />
     <rect
        style="opacity:0;fill:#333333;fill-opacity:0.98823529;fill-rule:nonzero;stroke:none;stroke-width:0.26059851;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect3050-2-7-65"
@@ -4523,5 +4523,22 @@
        style="fill:#ffffff;marker-end:"
        inkscape:export-xdpi="18.949741"
        inkscape:export-ydpi="18.949741" />
+    <rect
+       style="fill:#2e2e2e;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect5044-1-1-2-2-6"
+       width="157.99297"
+       height="157.99297"
+       x="700.00348"
+       y="1092.3657"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/side_bt_queue.png"
+       inkscape:export-xdpi="22.785822"
+       inkscape:export-ydpi="22.785822" />
+    <path
+       id="path10067-3-8"
+       d="m 772.32986,1190.3014 13.68335,0 0,13.6834 -13.68335,0 z m 27.3667,-47.8917 c 3.77832,0 6.84168,3.0634 6.84168,6.8417 l 0,20.525 -20.52503,13.6833 -13.68335,0 0,-6.8416 20.52502,-13.6834 0,-6.8416 -34.20838,0 0,-13.6834 41.05006,0 z m -20.52503,-17.1042 c -11.87886,0 -23.04619,4.625 -31.44606,13.0249 -8.39987,8.3998 -13.02485,19.5672 -13.02485,31.446 0,11.8788 4.62498,23.0462 13.02485,31.446 8.39987,8.3999 19.5672,13.0249 31.44606,13.0249 11.87886,0 23.0462,-4.6267 31.44606,-13.0249 8.39987,-8.3981 13.02485,-19.5672 13.02485,-31.446 0,-11.8788 -4.62669,-23.0462 -13.02485,-31.446 -8.39815,-8.3999 -19.5672,-13.0249 -31.44606,-13.0249 z m 0,-10.2625 0,0 c 30.22825,0 54.73343,24.5052 54.73343,54.7334 0,30.2282 -24.50518,54.7334 -54.73343,54.7334 -30.22824,0 -54.73343,-24.5052 -54.73343,-54.7334 0,-30.2282 24.50519,-54.7334 54.73343,-54.7334 z"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
+       inkscape:export-xdpi="22.785822"
+       inkscape:export-ydpi="22.785822" />
   </g>
 </svg>

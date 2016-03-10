@@ -5418,6 +5418,8 @@ FloatLayout:
                                         size: self.size
                             BoxLayout:
                                 padding: 10
+                                orientation: "vertical"
+                                spacing: 10
                                 canvas.before:
                                     Color:
                                         rgba: (0.180, 0.180, 0.180, .8)
@@ -5428,11 +5430,17 @@ FloatLayout:
                                     size_hint: None, None
                                     size: 40, 40
                                     border: 0,0,0,0
+                                    background_down: "data/backgrounds/about_bt.png"
+                                    background_normal: "data/backgrounds/about_bt.png"
+                                Button:
+                                    size_hint: None, None
+                                    size: 40, 40
+                                    border: 0,0,0,0
                                     background_down: "data/backgrounds/quit.png"
                                     background_normal: "data/backgrounds/quit.png"
                                     id: quit_bt_bar_file
                                     on_release:
-                                        app.check_action(text="Are you sure you want to quit?", func=app.stop())
+                                        app.check_action(text="Are you sure you want to quit?", func=app._exit_clean)
                                         #app.stop()
 
                     BoxLayout:

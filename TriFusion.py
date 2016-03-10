@@ -507,7 +507,9 @@ if __name__ == "__main__":
             Window.bind(on_key_up=self._release_events)
 
             # Execute cleaning function when exiting app
-            Window.bind(on_request_close=lambda x: self._exit_clean())
+            Window.bind(on_request_close=lambda x:
+                self.check_action("Are you sure you want to quit?",
+                                  self._exit_clean))
 
             Window.bind(on_stop=lambda x: self._exit_clean())
 
@@ -718,10 +720,9 @@ if __name__ == "__main__":
 
                 Clock.schedule_once(drag_check, .1)
 
-        def _exit_clean(self):
+        def _remove_tmp(self):
             """
-            This method is issued when the application is closed and performs
-            any necessary clean up operations
+            Removes all temporary files in temp directory
             """
 
             for i in os.listdir(self.temp_dir):
@@ -729,6 +730,18 @@ if __name__ == "__main__":
                     os.remove(join(self.temp_dir, i))
                 except OSError:
                     shutil.rmtree(join(self.temp_dir, i))
+
+        def _exit_clean(self):
+            """
+            This method is issued when the application is closed and performs
+            any necessary clean up operations
+            """
+
+            self.run_in_background(self._remove_tmp, self.stop, None,
+                                   no_arg2=True, msg="Cleaning temporary "
+                                                     "files and exiting...")
+
+            return True
 
         def _update_path(self, path):
             """
@@ -1886,6 +1899,8 @@ if __name__ == "__main__":
                                                               85 / 255.,
                                                               85 / 255., 1.])
                 self._subpopup.open()
+
+            return True
 
         def check_file(self, path, file_name, idx):
             """
