@@ -7615,6 +7615,16 @@ if __name__ == "__main__":
             stats panel
             """
 
+            # Check whether there is data loaded
+            if not self.file_list:
+                return self.dialog_floatcheck("Warning: No data has been "
+                                              "loaded into the app", t="error")
+
+            # Check if active file list is empty
+            if not self.active_file_list:
+                return self.dialog_floatcheck("Warning: There are no active "
+                                              "files selected", t="error")
+
             wgts = ["gene", "sp", "avg"]
 
             content = PlotTriageDialog(cancel=self.dismiss_popup)
@@ -7653,6 +7663,16 @@ if __name__ == "__main__":
             is the text property of the issuing button.
             :param additional_args:
             """
+
+            # Check whether there is data loaded
+            if not self.file_list:
+                return self.dialog_floatcheck("Warning: No data has been "
+                                              "loaded into the app", t="error")
+
+            # Check if active file list is empty
+            if not self.active_file_list:
+                return self.dialog_floatcheck("Warning: There are no active "
+                                              "files selected", t="error")
 
             # Set active file and taxa sets
             file_set_name = self.screen.ids.active_file_set.text
