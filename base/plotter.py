@@ -252,7 +252,7 @@ def interpolation_plot(data):
     fig, ax = plt.subplots()
 
     # Setting the aspect ratio proportional to the data
-    ar = len(data[0]) / len(data) * .2
+    ar = float(len(data[0])) / float(len(data)) * .2
 
     ax.imshow(data, interpolation="none", cmap="Greys", aspect=ar)
 
