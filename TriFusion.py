@@ -4077,11 +4077,6 @@ if __name__ == "__main__":
                 # Updates the partition list
                 self.update_partitions()
 
-                # Update pop up content. Since the file has been removed,
-                # it should also be excluded from the complete data set
-                self.original_tx_inf = self.get_taxa_information(
-                    alt_list=self.alignment_list)
-
                 # Updates labels
                 self.update_file_label()
                 self.update_sp_label()
@@ -4095,6 +4090,9 @@ if __name__ == "__main__":
 
             if not self.file_list:
                 self.clear_process_input()
+
+            self.run_in_background(self.get_taxa_information, None,
+                [self.alignment_list], msg="Updating taxa information")
 
         def remove_bt_from_file(self, idx, txt_file):
             """
