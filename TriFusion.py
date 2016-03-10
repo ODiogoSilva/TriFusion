@@ -22,6 +22,9 @@
 #  Version:
 #  Last update:
 
+__version__ = "0.1"
+__build__ = "10th March 2016"
+
 if __name__ == "__main__":
 
     # Standard libraries imports
@@ -2293,6 +2296,19 @@ if __name__ == "__main__":
             self.dialog_floatcheck("Table successfully exported!", t="info")
 
         # ####################### SIDE PANEL OPERATIONS ########################
+
+        def dialog_about(self):
+            """
+            Dialog with the about information on TriFusion
+            """
+
+            content = AboutDialog()
+
+            content.version = __version__
+            content.build = __build__
+
+            self.show_popup(title="About TriFusion", content=content,
+                            close_bt=True, size=(350, 340))
 
         def sidepanel_on_touch(self, touch):
             """
