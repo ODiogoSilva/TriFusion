@@ -3464,7 +3464,7 @@ if __name__ == "__main__":
                 "1,2,3":
                     "[color=ff5555ff]1[/color] + [color=37abc8ff]2[/color]"
                     " + [color=71c837ff]3[/color]",
-                "12,2":
+                "12,3":
                     "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]3"
                     "[/color]",
                 "1,23":
