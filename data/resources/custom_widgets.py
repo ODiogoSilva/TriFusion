@@ -694,6 +694,13 @@ class CloseFloat(RemoveFloat):
     pass
 
 
+class AboutDialog(BoxLayout):
+    """
+    Dialog with the About information of the App
+    """
+    pass
+
+
 class DataSetTriageDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
