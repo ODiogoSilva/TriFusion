@@ -7913,12 +7913,11 @@ if __name__ == "__main__":
             file_list = []
             for i in files:
                 if os.path.isdir(i):
-                    file_list.extend([join(i, x) for x in os.listdir(i)
+                    file_list.extend([join(i, x).encode("ascii") for x in
+                                      os.listdir(i)
                                       if os.path.isfile(join(i, x))])
                 else:
                     file_list.append(i)
-
-            file_list = sorted(file_list)
 
             manager = multiprocessing.Manager()
             ns = manager.Namespace()
@@ -8439,7 +8438,7 @@ if __name__ == "__main__":
 
             self.dismiss_popup()
             content = CrunchData()
-            self.show_popup(title="Generating output...", content=content,
+            self.show_popup(title="Process execution...", content=content,
                             size=(230, 200))
 
             check_func = partial(check_process, p)
