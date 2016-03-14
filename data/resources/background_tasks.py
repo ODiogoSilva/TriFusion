@@ -405,26 +405,28 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             main_aln = deepcopy(aln_object)
             main_aln.start_action_alignment()
 
-            if op == "filter_file":
+            if op == "filter_file" and secondary_operations["filter"]:
 
                 ns.msg = "Creating additional filtered alignments(s)"
                 suffix = "_filtered"
                 main_aln = filter_aln(main_aln)
 
-            elif op == "consensus_file":
+            elif op == "consensus_file" and secondary_operations["consensus"]:
                 suffix = "_consensus"
                 main_aln = consensus(main_aln)
+                if secondary_options["consensus_single"]:
+                    filename = join(output_dir, "consensus")
 
-            filename = output_file + suffix
-
-            if main_operations["concatenation"]:
+            if main_operations["concatenation"] and \
+                    isinstance(main_aln, AlignmentList):
+                filename = output_file + suffix
                 main_aln = concatenation(main_aln)
                 writer(main_aln, filename=filename)
             else:
-                writer(main_aln, suffix_str=suffix)
+                writer(main_aln, suffix_str=suffix,
+                       filename=filename if filename else None)
 
             main_aln.stop_action_alignment()
-
 
         if len([x for x, y in secondary_options.items() if
                 x.endswith("_file") and y and x != "filter_file" and
@@ -439,7 +441,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             for op in [x for x, y in secondary_options.items()
                        if x.endswith("_file") and y and x != "filter_file"]:
 
-                main_aln = deepcopy(aln_object)
                 main_aln.start_action_alignment()
 
                 if op == "collapse_file":
