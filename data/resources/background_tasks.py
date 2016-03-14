@@ -2,7 +2,7 @@ __author__ = 'diogo'
 
 from process import data
 from process.error_handling import *
-from process.sequence import AlignmentList
+from process.sequence import AlignmentList, Alignment
 from ortho import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
 
@@ -303,8 +303,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # operations are conducted in the same aln_obj
         ns.msg = "Writing output"
 
-        if main_operations["concatenation"] or \
-                secondary_options["consensus_single"]:
+        if isinstance(aln, Alignment):
             aln.write_to_file(output_formats,
                 outfile if outfile else join(output_dir, "consensus"),
                 interleave=secondary_options["interleave"],
@@ -313,7 +312,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat,
                 ima2_params=ima2_params)
-        else:
+        elif isinstance(aln, AlignmentList):
             aln.write_to_file(
                 output_formats,
                 output_suffix=suffix_str,
@@ -393,28 +392,43 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Perform operations on ADDITIONAL OUTPUTS
         #####
 
-        # Perform the filtering option separately, since this the only one
-        # that must be done before concatenation
-        if secondary_options["filter_file"] and secondary_operations["filter"]:
+        # Stores operations that must be performed before concatenation,
+        # if it was specified
+        before_conc = ["filter_file", "consensus_file"]
+
+        # Perform the filtering and consensus option separately, since these
+        # must be done before concatenation
+
+        for op in [x for x, y in secondary_options.items() if
+                   x in before_conc and y]:
 
             main_aln = deepcopy(aln_object)
             main_aln.start_action_alignment()
 
-            ns.msg = "Creating additional filtered alignments(s)"
-            suffix = "_filtered"
-            main_aln = filter_aln(main_aln)
+            if op == "filter_file":
+
+                ns.msg = "Creating additional filtered alignments(s)"
+                suffix = "_filtered"
+                main_aln = filter_aln(main_aln)
+
+            elif op == "consensus_file":
+                suffix = "_consensus"
+                main_aln = consensus(main_aln)
+
+            filename = output_file + suffix
 
             if main_operations["concatenation"]:
                 main_aln = concatenation(main_aln)
-                filename = output_file + "_filtered"
                 writer(main_aln, filename=filename)
             else:
-                writer(main_aln, suffix_str="_filtered")
+                writer(main_aln, suffix_str=suffix)
 
             main_aln.stop_action_alignment()
 
+
         if len([x for x, y in secondary_options.items() if
-                x.endswith("_file") and y and x != "filter_file"]) >= 1:
+                x.endswith("_file") and y and x != "filter_file" and
+                x != "consensus_file"]) >= 1:
 
             main_aln = deepcopy(aln_object)
 
@@ -425,6 +439,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             for op in [x for x, y in secondary_options.items()
                        if x.endswith("_file") and y and x != "filter_file"]:
 
+                main_aln = deepcopy(aln_object)
                 main_aln.start_action_alignment()
 
                 if op == "collapse_file":
@@ -440,10 +455,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                         ns.msg = "Creating additional gap coded alignments(s)"
                         suffix = "_coded"
                         main_aln.code_gaps()
-
-                elif op == "consensus_file":
-                    suffix = "_consensus"
-                    main_aln = consensus(main_aln)
 
                 if main_operations["concatenation"]:
                     filename = output_file + suffix
