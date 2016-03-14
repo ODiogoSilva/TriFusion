@@ -164,7 +164,7 @@ ShowcaseScreen:
                         multiselect: True
                         previous_dir: []
                         f: "/*"
-                        filters: [self.path+self.f]
+                        filters: [self.path.encode("utf-8")+self.f]
                         filter_dirs: False
 
                         on_double_click:
