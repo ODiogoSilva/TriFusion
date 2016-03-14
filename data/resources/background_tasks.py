@@ -402,6 +402,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         for op in [x for x, y in secondary_options.items() if
                    x in before_conc and y]:
 
+            ns.msg = "Preparing data for additional output(s)"
+
             main_aln = deepcopy(aln_object)
             main_aln.start_action_alignment()
 
@@ -412,6 +414,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 main_aln = filter_aln(main_aln)
 
             elif op == "consensus_file" and secondary_operations["consensus"]:
+
+                ns.msg = "Creating additional consensus alignment(s)"
                 suffix = "_consensus"
                 main_aln = consensus(main_aln)
                 if secondary_options["consensus_single"]:
