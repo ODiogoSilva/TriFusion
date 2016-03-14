@@ -2124,6 +2124,8 @@ class AlignmentList(Base):
         the consensus. See the Alignment method for more information
         """
 
+        self.taxa_names = ["consensus"]
+
         if single_file:
             single_consensus = OrderedDict()
 
