@@ -227,8 +227,18 @@ def inparalogs (cur):
     cur.execute("create unique index ust_qids_ix on UniqSimSeqsQueryId (query_id)")
 
 ###########################################################################
-
-    cur.execute("create table BetterHit as\
+#
+#"""    cur.execute("CREATE TABLE BetterHit(\
+#        QUERY_ID TEXT,\
+#        SUBJECT_ID TEXT,\
+#        taxon_id TEXT,\
+#        EVALUE_EXP INT,\
+#        EVALUE_MANT REAL,\
+#        PRIMARY KEY (QUERY_ID, SUBJECT_ID)\
+#        )")
+#"""
+#    cur.execute("insert or ignore into BetterHit \
+    cur.execute("CREATE TABLE BetterHit as\
         select s.query_id, s.subject_id,\
         s.query_taxon_id as taxon_id,\
         s.evalue_exp, s.evalue_mant\
@@ -255,7 +265,7 @@ def inparalogs (cur):
 
 ###########################################################################
 
-    cur.execute("create unique index better_hit_ix on BetterHit (query_id,subject_id)")
+    cur.execute("create index better_hit_ix on BetterHit (query_id,subject_id)")
 
 ###########################################################################
 
@@ -528,3 +538,5 @@ def execute(db_dir):
         inparalogs(cur)
         coorthologs(cur)
 
+if __name__ == '__main__':
+    execute("/home/fernando-work/.config/trifusion/tmp/")
