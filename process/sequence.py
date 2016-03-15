@@ -541,6 +541,8 @@ class Alignment(Base):
                 self.partitions.add_partition(self.name, self.locus_length,
                                               file_name=self.path)
 
+        file_handle.close()
+
         # Checks the size consistency of the alignment
         if size_check is True:
             self.is_alignment = self.check_sizes(self.alignment,
