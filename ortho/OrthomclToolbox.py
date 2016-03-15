@@ -434,7 +434,8 @@ class GroupLight:
             data = Counter((max(cl.values()) for cl in self.species_frequency if
                             self._get_compliance(cl) == (1, 1)))
         else:
-            data = Counter((max(cl.values()) for cl in self.species_frequency))
+            data = Counter((max(cl.values()) for cl in self.species_frequency
+                           if cl))
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
@@ -859,7 +860,7 @@ class Group ():
         if isinstance(database, str):
             try:
                 db_aln = pickle.load(open(database, "rb"))
-            except (FileNotFoundError, pickle.UnpicklingError):
+            except (EnvironmentError, pickle.UnpicklingError):
                 db_aln = Alignment(database)
                 db_aln = db_aln.alignment
         elif isinstance(database, dict):
