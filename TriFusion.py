@@ -4920,6 +4920,11 @@ if __name__ == "__main__":
                 if project_dic[name][1] == "process":
                     # Closes current data sets
                     self.remove_all()
+                    # Check if files are present
+                    if [x for x in project_dic[name][0] if not os.path.isfile(
+                            x)]:
+                        self.dialog_floatcheck("WARNING: Some project "
+                            "files no longer exist", t="error")
                     # Opens new dataset
                     self.load_files_subproc(project_dic[name][0])
 
@@ -7916,8 +7921,12 @@ if __name__ == "__main__":
                     file_list.extend([join(i, x).encode("ascii") for x in
                                       os.listdir(i)
                                       if os.path.isfile(join(i, x))])
-                else:
+                elif os.path.isfile(i):
                     file_list.append(i)
+
+            if not file_list:
+                return self.dialog_floatcheck("ERROR: No valid input files were"
+                    " provided", t="error")
 
             manager = multiprocessing.Manager()
             ns = manager.Namespace()
