@@ -171,7 +171,7 @@ class Alignment(Base):
         taxon names and the values are file names containing the path to the
         temporary sequence files.
         """
-        self.alignment = OrderedDict()
+        self.alignment = {}
 
         # """
         # This attribute is derived from self.alignment. To prevent permanent
@@ -448,9 +448,8 @@ class Alignment(Base):
             taxa_list = self.get_loci_taxa(self.path)
 
             # Create empty dict
-            self.alignment = OrderedDict([(x, open(join(self.dest, self.sname,
-                                                x + ".seq"), "a"))
-                                          for x in taxa_list])
+            self.alignment = dict([(x, open(join(self.dest, self.sname,
+                 x + ".seq"), "a")) for x in taxa_list])
 
             # Add a counter to name each locus
             locus_c = 1
@@ -1705,9 +1704,12 @@ class AlignmentList(Base):
         njobs = len(file_name_list) if len(file_name_list) <= \
             multiprocessing.cpu_count() else multiprocessing.cpu_count()
 
-        jobs = [[x.tolist(), dest, y, shared_namespace] for y, x in enumerate(
-            np.array_split(np.array(file_name_list), njobs))]
-
+        if shared_namespace:
+            jobs = [[x.tolist(), dest, y, shared_namespace] for y, x in
+                enumerate(np.array_split(np.array(file_name_list), njobs))]
+        else:
+            jobs = [[x.tolist(), dest, y, None] for y, x in enumerate(
+                np.array_split(np.array(file_name_list), njobs))]
         # Execute alignment reading in parallel
         multiprocessing.Pool(njobs).map(
             read_alns, jobs)
@@ -1741,7 +1743,8 @@ class AlignmentList(Base):
 
         self.taxa_names = self._get_taxa_list()
 
-        shared_namespace.m = "Updating App structures"
+        if shared_namespace:
+            shared_namespace.m = "Updating App structures"
 
     def retrieve_alignment(self, name):
         """
