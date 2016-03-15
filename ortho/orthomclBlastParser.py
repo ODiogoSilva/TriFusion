@@ -89,14 +89,14 @@ def print_previous_subject(subject, db):
 
     non_overlap = non_overlapping_match(subject)
 
-    percent_ident = '{0:.3g}'.format(
+    percent_ident = '{0:.7g}'.format(
         (float(subject["totalIdentities"]) /
          float(subject["totalLength"]) * 10 + .5) / 10)
     
     shorter_length = subject["queryLength"] if subject["queryShorter"] \
         else subject["subjectLength"]
 
-    percent_match = '{0:.3g}'.format((float(non_overlap) /
+    percent_match = '{0:.7g}'.format((float(non_overlap) /
                                       float(shorter_length) * 1000 + .5) / 10)
 
     db.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, ?, ? ,?, ?)",
@@ -228,6 +228,6 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
             subject["totalIdentities"] += float(percent_identity) * length
             subject["totalLength"] += length
 
-    #print_previous_subject(subject, cur)
+        print_previous_subject(subject, cur)
 
     #con.close()
