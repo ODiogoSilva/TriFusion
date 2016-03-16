@@ -402,6 +402,65 @@ def box_plot(data, labels=None, title=None, ax_names=None):
     return fig, None, table
 
 
+def histogram_smooth(data, ax_names=None, table_header=None,
+                     legend=None):
+    """
+    Creates a smooth line plot with colored areas with the same distribution
+    as an histogram
+    :param data: list, with histogram data. To support multiple plots,
+    provide each plot data as a list. If you want to produce two smooth
+    histograms, provide a data list with two lists.
+    :param title: string, title for the plot
+    :param ax_names: list, names for the x-axis and y-axis, respectively
+    :param table_header: list, header for the table
+    """
+
+    from scipy.interpolate import UnivariateSpline
+
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True, sharey=True)
+
+    # Start building table
+    if table_header:
+        table = [table_header]
+    else:
+        table = []
+
+    for (p, d), axn, l in zip(enumerate(data), ax, legend):
+        # Convert data into histogram
+        y, x = np.histogram(d, 50)
+        x = x[:-1] + (x[1] - x[0]) / 2
+        # Fit a one-dimesional smoothing spline to git a given set of points
+        # from the histogram
+        f = UnivariateSpline(x, y, s=200)
+        # Set title for subplot
+        axn.set_title(l, color=clr_list[p], fontweight="bold")
+        # Create subplot
+        axn.plot(x, f(x), color=clr_list[p])
+        # Color area below line lot
+        axn.fill_between(x, f(x), alpha=0.5, color=clr_list[p])
+
+    # If axis names are provided, add them to figure
+    if ax_names:
+        fig.text(0.5, 0.02, ax_names[0], ha="center", fontweight="bold",
+                 color="grey", fontsize=14)
+        fig.text(0.04, 0.5, ax_names[1], va="center", rotation="vertical",
+                 fontweight='bold', color="grey", fontsize=14)
+
+    # Build histogram with fixed bin range for table construction
+    hist_data = []
+    for d in data:
+        y, x = np.histogram(d, 100, (0., 1.))
+        hist_data.append(y)
+
+    # Populate table
+    for i, d in zip(np.arange(0, 1, 0.01), zip(*hist_data)):
+        table.append([i] + list(d))
+
+    return fig, None, table
+
+
 def histogram_plot(data, title=None, ax_names=None, table_header=None):
     """
     Creates an histogram from data
