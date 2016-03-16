@@ -5196,11 +5196,13 @@
     background_normal: "data/backgrounds/info_bt_down.png"
     background_down: "data/backgrounds/info_bt.png"
 
-## General information
-<SizeDistribution>:
+<StatsBox>:
     size_hint_y: None
     height: 30
     spacing: 10
+
+## General information
+<SizeDistribution>:
     TFButtonOff:
         text: "Distribution of sequence size"
         on_release:
@@ -5210,9 +5212,6 @@
             app.dialog_general_info("info_sequence_size")
 
 <NucAAProportions>:
-    size_hint_y: None
-    height: 30
-    spacing: 10
     TFButtonOff:
         text: "Proportion of nucleotides or residues"
         on_release:
@@ -5223,9 +5222,6 @@
 
 ## Polymorphism and Variation
 <SequenceSimilarity>:
-    size_hint_y: None
-    height: 30
-    spacing: 10
     TFButtonOff:
         text: "Pairwise sequence similarity"
         on_release:
@@ -5234,9 +5230,6 @@
 
 
 <SegregatingSites>:
-    size_hint_y: None
-    height: 30
-    spacing: 10
     TFButtonOff:
         text: "Segregating sites"
         on_release:
@@ -5247,9 +5240,6 @@
 ## Missing data
 
 <GeneOccupancy>:
-    size_hint_y: None
-    height: 30
-    spacing: 10
     TFButtonOff:
         text: "Gene occupancy"
         on_release:
@@ -5258,9 +5248,6 @@
 
 
 <MissingOrto>:
-    size_hint_y: None
-    height: 30
-    spacing: 10
     TFButtonOff:
         text: "Distribution of missing genes"
         on_release:
@@ -5269,13 +5256,10 @@
 
 
 <MissingData>:
-    size_hint_y: None
-    height: 30
-    spacing: 10
     TFButtonOff:
         text: "Distribution of missing data"
         on_release:
-            app.stats_show_plot(self.text)
+            app.stats_select_plot(None, "Distribution of missing data sp", None)
     HelpButton:
 
 
