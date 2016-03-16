@@ -629,31 +629,35 @@ class OptsGrid(GridLayout):
     pass
 
 
-class SequenceSimilarity(BoxLayout):
+class StatsBox(BoxLayout):
     pass
 
 
-class SegregatingSites(BoxLayout):
+class SequenceSimilarity(StatsBox):
     pass
 
 
-class SizeDistribution(BoxLayout):
+class SegregatingSites(StatsBox):
     pass
 
 
-class NucAAProportions(BoxLayout):
+class SizeDistribution(StatsBox):
     pass
 
 
-class GeneOccupancy(BoxLayout):
+class NucAAProportions(StatsBox):
     pass
 
 
-class MissingData(BoxLayout):
+class GeneOccupancy(StatsBox):
     pass
 
 
-class MissingOrto(BoxLayout):
+class MissingData(StatsBox):
+    pass
+
+
+class MissingOrto(StatsBox):
     pass
 
 

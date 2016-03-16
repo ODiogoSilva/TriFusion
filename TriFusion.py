@@ -7422,7 +7422,7 @@ if __name__ == "__main__":
             self.stats_plt_method = {
                 "Gene occupancy":
                 [interpolation_plot, "gene_occupancy.png"],
-                "Distribution of missing data":
+                "Distribution of missing data sp":
                 [stacked_bar_plot, "missing_data_distribution.png"],
                 "Distribution of missing orthologs":
                 [bar_plot, "missing_gene_distribution.png"],
@@ -7710,9 +7710,9 @@ if __name__ == "__main__":
                     pass
 
             # This will check if the current data sets are different from the
-            # previous. If so, it will then check if there is a temporary plot
-            #  file for the current plt_idx. If so, do not run get_stats_data
-            #  and show the previous plot instead.
+            # previous. If not so, it will then check if there is a temporary
+            # plot file for the current plt_idx. If so, do not run
+            # get_stats_data and show the previous plot instead.
             if file_set == self.previous_sets["Files"] and \
                     taxa_set == self.previous_sets["Taxa"]:
 
@@ -7732,11 +7732,6 @@ if __name__ == "__main__":
                 # Update previous sets
                 self.previous_sets["Files"] = file_set
                 self.previous_sets["Taxa"] = taxa_set
-
-            # Check if there are input files loaded
-            if not self.active_file_list:
-                return self.dialog_floatcheck(
-                    "ERROR: No input files were loaded", t="error")
 
             self.run_in_background(
                 func=get_stats_data,
