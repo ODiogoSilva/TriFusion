@@ -866,6 +866,7 @@
         FileChooserL:
             id: sd_filechooser
             text: "master"
+            previous_dir: []
             path: app._common_path() if app._common_path() else app.home_path
             on_selection: text_input.text = self.selection
 
@@ -5259,7 +5260,7 @@
     TFButtonOff:
         text: "Distribution of missing data"
         on_release:
-            app.stats_select_plot(None, "Distribution of missing data sp", None)
+            app.stats_select_plot(None, "Distribution of missing data sp", "Distribution of missing data")
     HelpButton:
 
 
