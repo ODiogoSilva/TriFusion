@@ -147,10 +147,12 @@ ShowcaseScreen:
                                 size_hint_y: None
                                 height: 60
                                 AnchorLayout:
-                                    Button:
+                                    ToggleButton:
                                         bold: True
                                         id: adv_search_options
                                         text: "Show additional options"
+                                        background_down: "data/backgrounds/toggle_process_opts_down.png"
+                                        background_normal: "data/backgrounds/toggle_process_opts_normal.png"
                                         size_hint: None, None
                                         width: 300
                                         height: 40
