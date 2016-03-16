@@ -7423,7 +7423,9 @@ if __name__ == "__main__":
                 "Gene occupancy":
                 [interpolation_plot, "gene_occupancy.png"],
                 "Distribution of missing data sp":
-                [stacked_bar_plot, "missing_data_distribution.png"],
+                [stacked_bar_plot, "missing_data_distribution_sp.png"],
+                "Distribution of missing data":
+                [histogram_smooth, "missing_data_distribution.png"],
                 "Distribution of missing orthologs":
                 [bar_plot, "missing_gene_distribution.png"],
                 "Distribution of missing orthologs avg":
@@ -7509,6 +7511,19 @@ if __name__ == "__main__":
                  "args2": None,
                  "active_bt": "avg",
                  "single_gene": None},
+
+                "Distribution of missing data":
+                {"args1": {"plt_idx": "Distribution of missing data sp"},
+                 "args2": None,
+                 "active_bt": "avg",
+                 "single_gene": None},
+
+                "Distribution of missing data sp":
+                {"args1": None,
+                 "args2": {"plt_idx": "Distribution of missing data"},
+                 "active_bt": "sp",
+                 "single_gene": None},
+
 
                 "Segregating sites":
                 {"args1": {"plt_idx": "Segregating sites sp"},

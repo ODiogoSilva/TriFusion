@@ -544,6 +544,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
     methods = {"Gene occupancy": aln_obj.gene_occupancy,
                "Distribution of missing data sp":
                    aln_obj.missing_data_per_species,
+               "Distribution of missing data":
+                   aln_obj.missing_data_distribution,
                "Distribution of missing orthologs":
                    aln_obj.missing_genes_per_species,
                "Distribution of missing orthologs avg":

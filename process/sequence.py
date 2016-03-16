@@ -2228,6 +2228,46 @@ class AlignmentList(Base):
 
         return {"data": data}
 
+    def missing_data_distribution(self):
+        """
+        Creates data for an overall distribution of missing data
+        """
+
+        legend = ["Gaps", "Missing data", "Data"]
+
+        data_storage = OrderedDict((x, []) for x in legend)
+
+        for aln in self.alignments.values():
+            gaps_g, missing_g, data_g = [], [], []
+            for tx in self.taxa_names:
+                if tx in aln.alignment:
+                    seq = aln.get_sequence(tx)
+                    # Get gaps
+                    gaps = float(seq.count("-"))
+                    gaps_g.append(gaps / float(aln.locus_length))
+                    # Get missing data
+                    missing = float(seq.count(aln.sequence_code[1]))
+                    missing_g.append(missing / float(aln.locus_length))
+                    # Get actual data
+                    actual_data = (float(aln.locus_length) - gaps - missing) / \
+                        float(aln.locus_length)
+                    data_g.append(actual_data)
+                else:
+                    gaps_g.append(0)
+                    missing_g.append(1)
+                    data_g.append(0)
+
+            data_storage["Gaps"].append(np.mean(gaps_g))
+            data_storage["Missing data"].append(np.mean(missing_g))
+            data_storage["Data"].append(np.mean(data_g))
+
+        data = [x for x in data_storage.values()]
+
+        return {"data": data,
+                "legend": legend,
+                "ax_names": ["Proportion", "Number of genes"],
+                "table_header": ["Bin"] + legend}
+
     def missing_data_per_species(self):
         """
         Creates data for a distribution of missing data per species
