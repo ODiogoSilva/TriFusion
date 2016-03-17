@@ -252,25 +252,25 @@ ShowcaseScreen:
                 height: 40
                 spacing: 15
 
-                TFOKButon:
-                    id: open_close_bt
-                    text: "Open and Close"
-                    background_normal: "data/backgrounds/bt_process.png"
-                    background_down: "data/backgrounds/bt_process_off.png"
-                    on_release:
-                        if icon_view_tab.selection and aln_type.state == "down": \
-                        app.load_files_subproc(icon_view_tab.selection); app.go_previous_screen()
-                        if icon_view_tab.selection and prot_type.state == "down": \
-                        app.load_proteomes(icon_view_tab.selection); app.go_previous_screen()
 
                 TFOKButon:
                     id: open_bt
-                    text: "Open"
+                    text: "Load selection"
                     on_release:
                         if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc([x.encode("ascii") for x in icon_view_tab.selection])
                         if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes([x.encode("ascii") for x in icon_view_tab.selection])
 
                 TFOKButon:
+                    id: open_close_bt
+                    text: "Load & go back"
+                    on_release:
+                        if icon_view_tab.selection and aln_type.state == "down": \
+                        app.load_files_subproc(icon_view_tab.selection); app.go_previous_screen()
+                        if icon_view_tab.selection and prot_type.state == "down": \
+                        app.load_proteomes(icon_view_tab.selection); app.go_previous_screen()
+                TFOKButon:
                     id: cancel_bt
+                    background_normal: "data/backgrounds/bt_process.png"
+                    background_down: "data/backgrounds/bt_process_off.png"
                     text: "Cancel"
                     on_release: app.go_previous_screen()
