@@ -12,11 +12,13 @@ ShowcaseScreen:
             LightBox:
                 Label:
                     markup: True
-                    text: "[size=15][b]Choose your destiny[/b][/size]"
+                    text: "[size=15][b][ref=destiny]Choose your destiny[/ref][/b][/size]"
                     halign: "left"
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
+                    on_ref_press:
+                        app.destiny()
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 10

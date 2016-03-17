@@ -73,6 +73,7 @@ if __name__ == "__main__":
     from kivy.lang import Builder
     from kivy.properties import ListProperty, DictProperty
     from kivy.clock import Clock
+    from kivy.core.audio import SoundLoader
     from kivy.uix.treeview import TreeView, TreeViewLabel
 
     # Local TriFusion imports
@@ -478,6 +479,10 @@ if __name__ == "__main__":
             self.bm_file = join(self.user_data_dir, "bookmarks")
             self.projects_file = join(self.user_data_dir, "projects")
 
+            self.sound = SoundLoader.load(join(self.cur_dir, "data",
+                                               "resources",
+                                               "Mortal_Kombat_Theme_Song.mp3"))
+
             logging.basicConfig(filename=self.log_file, level=logging.DEBUG,)
 
             # Setting available screens
@@ -618,6 +623,13 @@ if __name__ == "__main__":
             When the method performs a unique operations, the specific_task
             should prefix the name of the method.
             """
+
+        def destiny(self):
+
+            if self.sound.state == "stop":
+                self.sound.play()
+            else:
+                self.sound.stop()
 
         def mouse_zoom(self, *vals):
             """
@@ -4022,7 +4034,7 @@ if __name__ == "__main__":
             if not self.screen.ids.group_gl.children:
                 self.screen.ids.card_gl.clear_widgets()
 
-        def remove_bt(self, value, parent_wgt=None):
+        def remove_bt(self, value, parent_wgt=None, no_update=False):
             """
             Functionality for the "X" remove buttons in the side panel. It
             removes button pairs with similar id's and can be used in both files
@@ -4122,8 +4134,9 @@ if __name__ == "__main__":
             if not self.file_list:
                 self.clear_process_input()
 
-            self.run_in_background(self.get_taxa_information, None,
-                [self.alignment_list], msg="Updating taxa information")
+            if not no_update:
+                self.run_in_background(self.get_taxa_information, None,
+                    [self.alignment_list], msg="Updating taxa information")
 
         def remove_bt_from_file(self, idx, txt_file):
             """
@@ -4152,7 +4165,8 @@ if __name__ == "__main__":
 
                 for bt, idx in it:
                     if idx in selection_idx:
-                        self.remove_bt(bt, parent_wgt=self.root.ids.taxa_sl)
+                        self.remove_bt(bt, parent_wgt=self.root.ids.taxa_sl,
+                                       no_update=True)
 
             else:
                 parent_obj = self.root.ids.file_sl
@@ -4192,6 +4206,9 @@ if __name__ == "__main__":
                 self.update_file_label()
                 self.update_sp_label()
                 self.update_partition_label()
+
+                self.run_in_background(self.get_taxa_information, None,
+                    None, msg="Updating taxa information")
 
         def select_bt_from_file(self, idx, txt_file):
             """
