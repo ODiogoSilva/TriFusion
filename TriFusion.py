@@ -5947,12 +5947,14 @@ if __name__ == "__main__":
 
                 self.screen.ids.orto_sum.text = \
                     "[size=26][color=71c837ff]%s[/color][/size][size=13]/" \
-                    "[color=ff5555ff]0[/color][/size]" % \
-                    len(self.active_group.species_frequency)
+                    "[color=ff5555ff]%s[/color][/size]" % \
+                    (len(self.active_group.species_frequency),
+                    len(self.active_group.species_frequency))
 
                 self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                    "[/color][/size][size=13]/[color=ff5555ff]0[/color][" \
-                    "/size]" % len(self.active_group.species_list)
+                    "[/color][/size][size=13]/[color=ff5555ff]%s[/color][" \
+                    "/size]" % (len(self.active_group.species_list),
+                                len(self.active_group.species_list))
 
                 self.active_group.update_filters(
                     self.active_group.max_extra_copy, 1, True)
