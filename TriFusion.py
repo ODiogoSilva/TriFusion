@@ -6014,7 +6014,7 @@ if __name__ == "__main__":
                         pass
 
                     # Populate the app gridlayout with group buttons
-                    for gname in groups_obj.groups:
+                    for gname in sorted(groups_obj.groups):
 
                         # If group name contains full path, get only file name
                         gname_short = basename(gname)
@@ -6095,7 +6095,7 @@ if __name__ == "__main__":
 
             # If no group button is active, dispatch the first
             if (group_name and isinstance(group_name,
-                                         OrthoTool.MultiGroupsLight)):
+                                          OrthoTool.MultiGroupsLight)):
                 try:
                     self.ortho_groups = group_name
                 except:
