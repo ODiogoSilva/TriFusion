@@ -529,6 +529,10 @@ class InputTextDialog(BoxLayout):
     action = ObjectProperty(None)
 
 
+class TFTextInput(TextInput):
+    pass
+
+
 class BackButton(Button):
     pass
 
