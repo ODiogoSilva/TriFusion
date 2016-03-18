@@ -392,7 +392,7 @@ if __name__ == "__main__":
         export_mode = None
 
         # Attribute storing the sequence types currently loaded
-        sequence_types = ListProperty()
+        sequence_types = StringProperty()
 
         # Attribute for taxa and file groups
         taxa_groups = DictProperty()
@@ -2588,94 +2588,6 @@ if __name__ == "__main__":
 
             self.sp_moreopts = True
 
-        def load(self, selection, bad_aln, non_aln):
-            """
-            Loads selected input files into the program. This should be switched
-            after selecting files in a FileChooser widget. The selected files
-            will be parsed and the side panel will be populated with information
-            on file names and taxa names.
-
-            To allow different files to be loaded on independent occasions,
-            before performing the loading operations, the self.file_list
-            attribute that contains the full paths to the input files will be
-            checked to see if its empty or populated. When empty, attributes
-            will be loaded anew; otherwise, the existing populated attributes
-            will be extended.
-
-            :param selection: list. Contains the paths to the selected input
-            files
-            :param bad_aln: list. Contains alignments that could not be read
-            :param non_aln: list. Contains files that are in supported formats
-            but are not aligned
-            """
-
-            # Checking if there are invalid input alignments
-            if bad_aln or non_aln:
-                msg = ""
-                if bad_aln:
-                    msg += "The following input file(s) could not be open:"\
-                        "\n\n[b]%s[/b]\n\n" % "\n".join(basename(x) for x in
-                                                        bad_aln)
-
-                    self.alignment_list.bad_alignments = []
-                if non_aln:
-                    msg += "The following input file(s) contain(s) " \
-                           "sequences of unequal length:\n\n[b]%s[/b]" % \
-                           "\n".join(basename(x) for x in non_aln)
-                    self.alignment_list.non_alignments = []
-
-                self.dialog_warning("Invalid input file(s) detected", msg)
-
-            # removes bad alignment files from selection list
-            selection = [path for path in selection if path not in
-                         bad_aln + non_aln]
-
-            # If data has been previously loaded, updated these attributes
-            if self.file_list:
-                # Updating complete and active file lists
-                self.file_list.extend(selection)
-                self.active_file_list.extend(selection)
-                # Update the filename - path mapping attribute
-                self.filename_map = dict(list(self.filename_map.items()) +
-                                         list((x, y) for x, y in
-                                              zip([basename(x) for x in
-                                                   selection],
-                                                  selection)))
-
-            # If no data has been previously loaded, set the attributed
-            else:
-                # Set an attribute with the input file list
-                self.file_list = selection
-                # Setting active file list and path list
-                self.active_file_list = deepcopy(self.file_list)
-                # Sett the filename - path mapping attribute
-                self.filename_map = dict((x, y) for x, y in zip(
-                    [basename(x) for x in selection], selection))
-
-            # If more than one alignment has been provided
-            if self.alignment_list:
-                # Update active taxa list
-                self.update_taxa()
-                # Populates files and taxa contents
-                self.update_tabs()
-                # Gathers taxa  and file information
-                self.original_tx_inf = self.get_taxa_information()
-
-            # Issue float check
-            # If duplicate alignments were loaded, issue a warning
-            if self.alignment_list.duplicate_alignments:
-                self.dialog_floatcheck(
-                    "Duplicate input alignments detected and ignored",
-                    t="error")
-                # Reset the duplicate alignment storage, so that it doesn't
-                # issue the warning every time data is loaded
-                self.alignment_list.duplicate_alignments = []
-            # Else, if no duplicates, issue an all clear
-            elif selection and self.root_window:
-                self.dialog_floatcheck(
-                    "%s file(s) successfully loaded" % len(selection),
-                    t="info")
-
         def load_proteomes(self, selection):
             """
             Similar to load method, but specific for loading proteome files.
@@ -3934,7 +3846,7 @@ if __name__ == "__main__":
             self.filename_map.clear()
             self.file_list = []
             self.active_file_list = []
-            self.sequence_types = []
+            self.sequence_types = ""
             self.MAX_FILE_BUTTON = 20
             self.MAX_PARTITION_BUTTON = 20
             self.mouse_over_bts.clear()
@@ -7968,42 +7880,134 @@ if __name__ == "__main__":
             func = partial(check_proc, d)
             Clock.schedule_interval(func, .1)
 
-        def load_files(self, selection=None, aln_list=None):
+        def load_files(self, selection=None, aln_pickle=None):
             """
             Loads the selected input files into the program using the
-            AlignmentList object. If there are invalid alignment objects in the
-            AlignmentList object, they will be returned by this method for
-            handling in the load method
+            AlignmentList object provided by aln_list. The loading process is
+            divided in phases:
 
-            I also sets the alignment and taxa active lists, which should be
-            used to perform subsequent operations. For now, the original taxa
-            and alignment lists should remain untouched for future
-            implementation of undo/redo functionality and as backups
-            :returns: List of invalid/badly formatted alignment objects
+            .: Load the AlignmentList object from a pickle object
+
+            .: Check for invalid alignments (duplicates, invalid input
+            formats, sequences with unequal length) and issue warning message
+
+            .: If any valid input files passed all checks, then the app
+            structures are updated
+
+            To allow different files to be loaded in different occasions,
+            all checks are performed on the aln_list object, and not in the
+            app attribute self.alignment_list
+
+            :param aln_pickle: string, path to pickle file with the
+            AlignmentObject
+            :param selection: list, with the path of all files provided to
+            the app
             """
 
             # Read the AlignmentList object from the pickle file
-            if aln_list:
-                with open(aln_list, "rb") as fh:
+            if aln_pickle:
+                with open(aln_pickle, "rb") as fh:
                     aln_list = pickle.load(fh)
 
             # Check for consistency in sequence type across alignments
-            current_seq_type = set(self.sequence_types + aln_list.format_list())
+            if self.sequence_types:
+                current_seq_type = set([self.sequence_types] +
+                    aln_list.format_list())
+            else:
+                current_seq_type = aln_list.format_list()
+
             if len(current_seq_type) > 1:
+                # Clear AlignmentList object, to remove temporary files
+                aln_list.clear_alignments()
                 return self.dialog_warning(
                     "Multiple sequence types detected",
                     "The selected input alignments contain more than one "
                     "sequence type (DNA, RNA, Protein). Please select input "
                     "files of the  same sequence type")
             else:
-                self.sequence_types.extend(list(current_seq_type))
+                # If there is no inconsistency and self.sequence_types is not
+                # yet populated, set the current sequence type
+                if not self.sequence_types and current_seq_type:
+                    self.sequence_types = list(current_seq_type)[0]
 
+            # Set the new alignment_list attribute
             self.alignment_list = aln_list
             # Updating active alignment list
             self.active_taxa_list = self.alignment_list.taxa_names
 
-            self.load(selection, aln_list.bad_alignments,
-                      aln_list.non_alignments)
+            # removes bad alignment files from selection list
+            selection = [path for path in selection if path not in
+                         aln_list.bad_alignments + aln_list.non_alignments]
+
+            # If duplicate alignments were loaded, issue a warning
+            if self.alignment_list.duplicate_alignments:
+                self.dialog_floatcheck(
+                    "Duplicate input alignments detected and ignored",
+                    t="error")
+                # Reset the duplicate alignment storage, so that it doesn't
+                # issue the warning every time data is loaded
+                self.alignment_list.duplicate_alignments = []
+
+            # Checking if there are invalid input alignments
+            if aln_list.bad_alignments or aln_list.non_alignments:
+                msg = ""
+                if aln_list.bad_alignments:
+                    msg += "The following input file(s) could not be open:"\
+                        "\n\n[b]%s[/b]\n\n" % "\n".join(basename(x) for x in
+                                                        aln_list.bad_alignments)
+
+                    # Reset the bad_alignments attribute to avoid triggering
+                    # this in subsequent loading operations
+                    self.alignment_list.bad_alignments = []
+
+                if aln_list.non_alignments:
+                    msg += "The following input file(s) contain(s) " \
+                        "sequences of unequal length:\n\n[b]%s[/b]" % \
+                        "\n".join(basename(x) for x in aln_list.non_alignments)
+
+                    # Reset the non_alignments attribute to avoid triggering
+                    # this in subsequent loading operations
+                    self.alignment_list.non_alignments = []
+
+                # After gathering all information on bad input files and
+                # non-aligned sequences, issue the error message
+                self.dialog_warning("Invalid input file(s) detected", msg)
+
+            # If new alignments have been provided update app structures. If
+            # all provided alignments were bad, ignore this
+            if selection:
+                # If data has been previously loaded, updated these attributes
+                if self.file_list:
+                    # Updating complete and active file lists
+                    self.file_list.extend(selection)
+                    self.active_file_list.extend(selection)
+                    # Update the filename - path mapping attribute
+                    self.filename_map = dict(
+                        list(self.filename_map.items()) + list((x, y) for x, y in
+                        zip([basename(x) for x in selection], selection)))
+
+                # If no data has been previously loaded, set the attributed
+                else:
+                    # Set an attribute with the input file list
+                    self.file_list = selection
+                    # Setting active file list and path list
+                    self.active_file_list = deepcopy(self.file_list)
+                    # Sett the filename - path mapping attribute
+                    self.filename_map = dict((x, y) for x, y in zip(
+                        [basename(x) for x in selection], selection))
+
+                # Update active taxa list
+                self.update_taxa()
+                # Populates files and taxa contents
+                self.update_tabs()
+                # Gathers taxa  and file information
+                self.original_tx_inf = self.get_taxa_information()
+
+                # Issue final dialog with the number of files successfully
+                # loaded
+                self.dialog_floatcheck(
+                    "%s file(s) successfully loaded" % len(selection),
+                    t="info")
 
         def get_taxon_information(self, tx, aln_list):
             """
