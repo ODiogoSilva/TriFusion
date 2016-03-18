@@ -945,7 +945,7 @@ if __name__ == "__main__":
                     open_close_bt = self.screen.ids.open_close_bt
                     open_bt = self.screen.ids.open_bt
                     cancel_bt = self.screen.ids.cancel_bt
-                    popup_keys(bn, bd, open_close_bt, open_bt, cancel_bt)
+                    popup_keys(bn, bd, open_bt, open_close_bt, cancel_bt)
 
             # ==================================================================
             # General keybindings
