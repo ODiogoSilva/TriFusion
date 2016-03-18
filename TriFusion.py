@@ -40,6 +40,7 @@ if __name__ == "__main__":
     import pickle
     import shutil
     import urllib
+    import string
     import time
     import os
     from os import sep
@@ -302,6 +303,9 @@ if __name__ == "__main__":
         touch = None
         # Attribute that stores paths of currently active removable media
         removable_media = []
+        # Attribute that locks arrow keys keybindings when a text input is
+        # focused
+        arrow_block = BooleanProperty(False)
 
         # Whether SidePanel's More options dialog is active or not
         sp_moreopts = BooleanProperty(False)
@@ -807,10 +811,6 @@ if __name__ == "__main__":
             if key_code == 304:
                 self.is_shift_pressed = True
 
-            # Change this variable to true when the arrow keys should NOT cycle
-            # through buttons
-            arrow_block = False
-
             # ==================================================================
             # Popup keybindings
             # ==================================================================
@@ -826,7 +826,7 @@ if __name__ == "__main__":
                 :param bt3: Optional button widget three.
                 """
 
-                if not arrow_block:
+                if not self.arrow_block:
                     # This will deal with cases with only two buttons to cycle
                     if not bt3:
                         # if left arrow key
@@ -869,26 +869,6 @@ if __name__ == "__main__":
             # ==================================================================
             # Popup keybindings
             # ==================================================================
-
-            # When the path editing text input is focused, the arrows should
-            # not be used to cycle through buttons.
-            try:
-                if self._popup.content.ids.path_bx.children[0].focus:
-                    arrow_block = True
-            except (AttributeError, ReferenceError):
-                pass
-
-            try:
-                if self._popup.content.ids.text_input.focus:
-                    arrow_block = True
-            except (AttributeError, ReferenceError):
-                pass
-
-            try:
-                if self._popup.content.ids.gn_txt.focus:
-                    arrow_block = True
-            except (AttributeError, ReferenceError):
-                pass
 
             if self._subpopup in self.root_window.children:
                 if "ok_bt" in self._subpopup.content.ids:
@@ -956,14 +936,6 @@ if __name__ == "__main__":
                     self.screen.ids.icon_view_tab.selection = \
                         [x for x in self.screen.ids.icon_view_tab.files if not
                         os.path.isdir(x)]
-
-                # When the path editing text input is focused, the arrows should
-                # not be used to cycle through buttons.
-                try:
-                    if self.screen.ids.path_bx.children[0].focus:
-                        arrow_block = True
-                except AttributeError:
-                    pass
 
                 if self._popup not in self.root_window.children:
                     # Use arrow keys and enter to navigate through open/cancel
@@ -6982,16 +6954,32 @@ if __name__ == "__main__":
             """
 
             try:
+                # Check if value can be converted to float just by replacing
+                # "," to "."
                 x = float(value.replace(",", "."))
-                if x > 100:
-                    corrected_val = 100
-                elif x < 0:
-                    corrected_val = 0
-                else:
-                    corrected_val = x
-                return True, corrected_val
             except ValueError:
-                return False
+                try:
+                    # Check if value can be converted to float by removing
+                    # all non digits. To avoid problems like converting 2.23
+                    # to 223, the first step is to get the first value before
+                    #  a ".", if any
+                    x = value.split(".")[0]
+                    all = string.maketrans("", "")
+                    nodigs = all.translate(all, string.digits)
+                    x = x.encode("ascii", "ignore")
+                    print(x, type(x))
+                    x = float(x.translate(all, nodigs))
+                    print(x)
+                except ValueError:
+                    return False
+
+            if x > 100:
+                corrected_val = 100
+            elif x < 0:
+                corrected_val = 0
+            else:
+                corrected_val = int(x)
+            return True, corrected_val
 
         def dialog_execution(self):
             """

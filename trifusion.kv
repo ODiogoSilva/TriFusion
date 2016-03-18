@@ -174,7 +174,7 @@
     orientation: "vertical"
     padding: 10
     spacing: 10
-    TextInput:
+    TFTextInput:
         id: txt_dlg
         focus: True
         multiline: False
@@ -195,6 +195,12 @@
             text: "Cancel"
             on_release:
                 root.cancel()
+
+# This is a simple modification of the default TextInput widget that changes
+# the application's arrow_block attribute controlling arrow keybindings
+<TFTextInput>:
+    on_focus:
+        app.arrow_block = self.focus
 
 <InputType>:
     orientation: "vertical"
@@ -878,7 +884,7 @@
             size_hint_x: None
             width: 80
             text: "File name:"
-        TextInput:
+        TFTextInput:
             id: text_input
             multiline: False
         Spinner:
@@ -1539,7 +1545,7 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            TextInput:
+            TFTextInput:
                 id: gene_txt
                 size_hint_x: .2
                 text: str(app.ortho_groups.filters[app.active_group_name][0])
@@ -1553,7 +1559,7 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            TextInput:
+            TFTextInput:
                 id: sp_txt
                 size_hint_x: .2
                 text: str(app.ortho_groups.filters[app.active_group_name][1])
@@ -1884,7 +1890,7 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            TextInput:
+            TFTextInput:
                 id: gene_txt
                 size_hint_x: .2
                 text: str(app.orto_max_gene)
@@ -1898,7 +1904,7 @@
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
-            TextInput:
+            TFTextInput:
                 id: sp_txt
                 size_hint_x: .2
                 text: str(app.orto_min_sp)
@@ -1978,7 +1984,7 @@
     orientation: "vertical"
     padding: 10
     spacing: 10
-    TextInput:
+    TFTextInput:
         id: txt_dlg
         password: True
         focus: True
@@ -2010,7 +2016,7 @@
         Label:
             size_hint_x: .7
             text: "Minimum sequence length:"
-        TextInput:
+        TFTextInput:
             size_hint_x: .3
             id: txt_len
             text: str(app.protein_min_len)
@@ -2020,7 +2026,7 @@
         Label:
             size_hint_x: .7
             text: "Maximum codon stops (%):"
-        TextInput:
+        TFTextInput:
             size_hint_x: .3
             id: txt_stop
             text: str(app.protein_max_stop)
@@ -2391,7 +2397,7 @@
                         width: 40
                         state: "down"
 
-                    TextInput:
+                    TFTextInput:
                         id: text_filter
                         multiline: False
                         focus: True
@@ -2578,7 +2584,7 @@
                     text_size: self.size
                     halign: "left"
                     valign: "middle"
-                TextInput:
+                TFTextInput:
                     size_hint_x: .8
                     id: group_name
                     text: "untitled_1"
@@ -2940,7 +2946,7 @@
                 width: 100
                 bold: True
                 text: "File name:"
-            TextInput:
+            TFTextInput:
                 id: text_input
                 multiline: False
 
@@ -3110,7 +3116,7 @@
             text: "Details"
         BoxLayout:
             spacing: 10
-            TextInput:
+            TFTextInput:
                 id: partition_name
                 multiline: False
                 size_hint_x: .7
@@ -3232,11 +3238,11 @@
             size_hint_y: None
             height: 30
             spacing: 10
-            TextInput:
+            TFTextInput:
                 hint_text: "Partition 1 name"
                 multiline: False
                 id: part1
-            TextInput:
+            TFTextInput:
                 hint_text: "Partition 2 name"
                 multiline: False
                 id: part2
@@ -3547,7 +3553,7 @@
             halign: "left"
             valign: "middle"
             text_size: self.size
-        TextInput:
+        TFTextInput:
             id: pop_string
             size_hint_x: .6
 
@@ -3576,7 +3582,7 @@
             halign: "left"
             valign: "middle"
             text_size: self.size
-        TextInput:
+        TFTextInput:
             id: inheritance
             size_hint_x: .6
             text: "1"
@@ -3621,7 +3627,7 @@
             size_hint_x: .5
             text: "ZORRO files suffix:"
             bold: True
-        TextInput:
+        TFTextInput:
             id: zorro_txt
             multiline: False
             size_hint_x: .5
@@ -3650,7 +3656,7 @@
     spacing: 10
     idx: None
     old_name: None
-    TextInput:
+    TFTextInput:
         id: txt_dlg
         focus: True
     BoxLayout:
@@ -4076,13 +4082,13 @@
             Widget:
                 size_hint_x: None
                 width: 5
-            TextInput:
-                size_hint_x: .11
+            TFTextInput:
+                size_hint_x: .15
                 id: gap_ti
-                text: "{}".format(round(gap_sli.value))
+                text: "{}".format(int(round(gap_sli.value)))
                 multiline: False
                 disabled: False if gap_filter.active else True
-                on_text_validate: if app.check_filters(gap_ti.text): gap_sli.value = app.check_filters(gap_ti.text)[1]
+                on_text_validate: if app.check_filters(gap_ti.text): val = app.check_filters(gap_ti.text)[1]; gap_sli.value = val; self.text = str(val)
             Widget:
                 size_hint_x: None
                 width: 5
@@ -4117,13 +4123,13 @@
             Widget:
                 size_hint_x: None
                 width: 5
-            TextInput:
-                size_hint_x: .11
+            TFTextInput:
+                size_hint_x: .15
                 id: mis_ti
-                text: "{}".format(round(mis_sli.value))
+                text: "{}".format(int(round(mis_sli.value)))
                 multiline: False
                 disabled: False if gap_filter.active else True
-                on_text_validate: if app.check_filters(mis_ti.text): mis_sli.value = app.check_filters(mis_ti.text)[1]
+                on_text_validate: if app.check_filters(mis_ti.text): val = app.check_filters(mis_ti.text)[1]; mis_sli.value = val; self.text =str(val)
             Widget:
                 size_hint_x: None
                 width: 5
@@ -4185,13 +4191,13 @@
             Widget:
                 size_hint_x: None
                 width: 5
-            TextInput:
-                size_hint_x: .11
+            TFTextInput:
+                size_hint_x: .15
                 id: min_tx_ti
-                text: "{}".format(round(min_taxa.value))
+                text: "{}".format(int(min_taxa.value))
                 multiline: False
                 disabled: False if gap_filter.active else True
-                on_text_validate: if app.check_filters(self.text): min_taxa.value = app.check_filters(self.text)[1]
+                on_text_validate: if app.check_filters(self.text): val = app.check_filters(self.text)[1]; min_taxa.value = val; self.text = str(val)
             Widget:
                 size_hint_x: None
                 width: 5
@@ -4919,7 +4925,7 @@
             halign: "left"
             valign: "middle"
             text_size: self.size
-        TextInput:
+        TFTextInput:
             size_hint_x: .15
             text: "10"
             id: window
@@ -4942,7 +4948,7 @@
             background_down: "data/backgrounds/search_bt.png"
             on_release:
                 app.stats_search_genes(gn_txt.text)
-        TextInput:
+        TFTextInput:
             background_color: (1, 1, 1, 0)
             foreground_color: (.1, .1, .1, .51)
             hint_text: "Search files..."
@@ -5548,7 +5554,7 @@ FloatLayout:
                                                                 app.sidepanel_clear_search("files")
                                                                 else: \
                                                                 app.sidepanel_search_bts(file_search.text, "files")
-                                                        TextInput:
+                                                        TFTextInput:
                                                             size_hint_x: None
                                                             width: 140
                                                             id: file_search
@@ -5674,7 +5680,7 @@ FloatLayout:
                                                                 app.sidepanel_clear_search("taxa")
                                                                 else: \
                                                                 app.sidepanel_search_bts(taxa_search.text, "taxa")
-                                                        TextInput:
+                                                        TFTextInput:
                                                             size_hint_x: None
                                                             width: 140
                                                             id: taxa_search
@@ -5799,7 +5805,7 @@ FloatLayout:
                                                                 else: \
                                                                 app.sidepanel_search_bts(file_search.text, "partitions")
 
-                                                        TextInput:
+                                                        TFTextInput:
                                                             size_hint_x: None
                                                             width: 140
                                                             id: partition_search
