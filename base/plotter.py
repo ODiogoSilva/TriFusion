@@ -168,6 +168,8 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
     :param lgd_list: list, The legend string for each data set in data_list
     """
 
+    plt.rcParams["figure.figsize"] = (8, 6)
+
     # Use ggpot style
     plt.style.use("ggplot")
 
@@ -246,6 +248,8 @@ def interpolation_plot(data):
     :param data: numpy array of variable shape.
     """
 
+    plt.rcParams["figure.figsize"] = (8, 6)
+
     # Use ggpot style
     plt.style.use("ggplot")
 
@@ -270,6 +274,8 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None,
     :param data: list, data for 2 groups should be like [[1,2], [2,3]]
     :param labels: list, should match the number of items in data.
     """
+
+    plt.rcParams["figure.figsize"] = (8, 6)
 
     if normalize:
 
@@ -347,6 +353,8 @@ def box_plot(data, labels=None, title=None, ax_names=None):
     :param ax_names: list, first element for x-axis, second for y-axis
     """
 
+    plt.rcParams["figure.figsize"] = (8, 6)
+
     if len(labels) > 10:
         plt.rcParams["figure.figsize"] = (len(labels) / 3, 6)
     else:
@@ -417,6 +425,8 @@ def histogram_smooth(data, ax_names=None, table_header=None,
 
     from scipy.interpolate import UnivariateSpline
 
+    plt.rcParams["figure.figsize"] = (8, 6)
+
     plt.style.use("ggplot")
 
     fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True, sharey=True)
@@ -472,6 +482,8 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
     # Use ggpot style
     plt.style.use("ggplot")
 
+    plt.rcParams["figure.figsize"] = (8, 6)
+
     fig, ax = plt.subplots()
 
     if len(Counter(data)) > 50:
@@ -521,6 +533,8 @@ def triangular_heat(data, labels, color_label=None):
     """
 
     plt.style.use("ggplot")
+
+    plt.rcParams["figure.figsize"] = (8, 6)
 
     fig, ax = plt.subplots()
 
@@ -604,6 +618,8 @@ def sliding_window(data, window_size, ax_names=None, table_header=None):
 
     plt.style.use("ggplot")
 
+    plt.rcParams["figure.figsize"] = (8, 6)
+
     data = np.array(data)
     x = np.arange(0, len(data) * window_size, window_size)
 
@@ -612,9 +628,11 @@ def sliding_window(data, window_size, ax_names=None, table_header=None):
     fig, ax = plt.subplots()
 
     for i in range(0, len(data)):
-        ax.plot(x[i:i + 2], data[i:i + 2], color=cm.jet(data[i] / 100., 1),
-                linewidth=2.)
+        ax.plot(x[i:i + 2], data[i:i + 2], color=cm.jet(data[i] / float(max(
+            data)), 1), linewidth=2.)
         table_data.append([x[i], data[i]])
+
+    ax.set_ylim([min(data) - min(data) * .1, max(data) + max(data) * .1])
 
     if ax_names:
         _add_labels(ax_names)
