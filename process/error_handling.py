@@ -41,7 +41,7 @@ class OutputFormatError(Exception):
 
 
 class InputError(Exception):
-    def __init__(self, value):
+    def __init__(self, value="Invalid input"):
         self.value = value
 
     def __str__(self):

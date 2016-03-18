@@ -173,6 +173,13 @@ class Alignment(Base):
         """
         self.alignment = {}
 
+        """
+        The e attribute will store any exceptions that occur during the
+        parsing of the alignment object. It remains None unless something
+        wrong happens.
+        """
+        self.e = None
+
         # """
         # This attribute is derived from self.alignment. To prevent permanent
         # modifications to the original alignment, this attribute will be
@@ -229,10 +236,11 @@ class Alignment(Base):
             else:
                 # If the input file is invalid, self.alignment will be an
                 # Exception instance instead of an OrderedDict()
-                self.alignment = finder_content
+                self.alignment = None
                 # Setting the sequence code attribute for seq type checking
                 # in AlignmentList
                 self.sequence_code = None
+                self.e = finder_content
 
         # In case the class is initialized with a dictionary object
         elif isinstance(input_alignment, OrderedDict):
@@ -1496,9 +1504,9 @@ class AlignmentList(Base):
                 alignment_object = Alignment(alignment, dest=dest)
 
                 # Check for badly formatted alignments
-                if isinstance(alignment_object.alignment, InputError):
+                if isinstance(alignment_object.e, InputError):
                     self.bad_alignments.append(alignment_object.path)
-                elif isinstance(alignment_object.alignment,
+                elif isinstance(alignment_object.e,
                                 AlignmentUnequalLength):
                     self.non_alignments.append(alignment_object.path)
                     print("Warning: Sequences of unequal length detected"
@@ -1654,9 +1662,9 @@ class AlignmentList(Base):
         for alignment_obj in alignment_obj_list:
 
             # Check for badly formatted alignments
-            if isinstance(alignment_obj.alignment, InputError):
+            if isinstance(alignment_obj.e, InputError):
                 self.bad_alignments.append(alignment_obj.path)
-            elif isinstance(alignment_obj.alignment,
+            elif isinstance(alignment_obj.e,
                             AlignmentUnequalLength):
                 self.non_alignments.append(alignment_obj.path)
 
@@ -1721,9 +1729,9 @@ class AlignmentList(Base):
                 try:
                     aln = pickle.load(fh)
 
-                    if isinstance(aln.alignment, InputError):
+                    if isinstance(aln.e, InputError):
                         self.bad_alignments.append(aln.path)
-                    elif isinstance(aln.alignment, AlignmentUnequalLength):
+                    elif isinstance(aln.e, AlignmentUnequalLength):
                         self.non_alignments.append(aln.path)
 
                     else:
