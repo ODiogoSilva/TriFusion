@@ -947,6 +947,9 @@
                 font_size: 15
                 line_height: 1
                 halign: "justify"
+                on_ref_press:
+                    import webbrowser
+                    webbrowser.open(args[1])
 
 <InfoBt@Button>:
     size_hint: (None, None)
