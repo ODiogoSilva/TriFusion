@@ -2610,7 +2610,8 @@ class AlignmentList(Base):
         return {"data": data,
                 "ax_names": ["Segregating sites", "Frequency"],
                 "title": "Distribution of segregating sites",
-                "table_header": ["Segregating sites", "Frequency"]}
+                "table_header": ["Segregating sites", "Frequency"],
+                "real_bin_num": True}
 
     def sequence_segregation_per_species(self):
         """
