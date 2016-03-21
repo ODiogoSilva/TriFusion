@@ -202,6 +202,13 @@
     on_focus:
         app.arrow_block = self.focus
 
+
+<ExtSpinner>:
+    size_hint_x: None
+    width: 80
+    text: ".png"
+    values: [".png", ".svg", ".pdf"]
+
 <InputType>:
     orientation: "vertical"
     padding: [10, 0, 10, 0]
@@ -754,174 +761,6 @@
                     size_hint_x: None
                     width: 100
                     on_release: root.cancel()
-
-<ExportGraphics>:
-    size: root.size
-    pos: root.pos
-    orientation: "vertical"
-    spacing: 10
-    padding: 10
-
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        spacing: 5
-        Label:
-            padding: (5, 0)
-            canvas.before:
-                Color:
-                    rgba: .35, .35, .35, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            text: sd_filechooser.path
-            halign: "left"
-            valign: "middle"
-            shorten_from: "left"
-            shorten: True
-            text_size: self.size
-        Button:
-            size_hint_x: None
-            width: 30
-            background_normal: "data/backgrounds/up_dir_bt.png"
-            background_down: "data/backgrounds/up_dir_bt.png"
-            on_release:
-                sd_filechooser.path = os.path.abspath(os.path.join(sd_filechooser.path, os.path.pardir))
-        Button:
-            bold: True
-            size_hint_x: None
-            width: 30
-            background_normal: "data/backgrounds/create_dir.png"
-            background_down: "data/backgrounds/create_dir.png"
-            on_release:
-                app.dialog_text("New folder", "new_folder")
-
-    BoxLayout:
-        spacing: 10
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 10
-            size_hint_x: None
-            width: 200
-
-            BoxLayout:
-                size_hint_y: None
-                height: 40
-                canvas.before:
-                    Color:
-                        rgba: (0.3, 0.3, 0.3, .8)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                Label:
-                    text: " My Computer"
-                    bold: True
-                    halign: "center"
-                    valign: "middle"
-                    text_size: self.size
-                    font_size: 18
-
-            ScrollView:
-                size_hint_y: None
-                height: sum([x.height + 10 for x in sv_mycomp.children]) if sum([x.height + 10 for x in sv_mycomp.children]) < 200 else 200
-                GridLayout:
-                    size_hint_y: None
-                    height: sum([x.height + 10 for x in self.children])
-                    cols: 1
-                    id: sv_mycomp
-                    orientation: "vertical"
-                    padding: 5
-                    spacing: [10, 10]
-
-            BoxLayout:
-                size_hint_y: None
-                height: 40
-                canvas.before:
-                    Color:
-                        rgba: (0.3, 0.3, 0.3, .8)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                Label:
-                    text: " Bookmarks"
-                    bold: True
-                    halign: "center"
-                    valign: "middle"
-                    text_size: self.size
-                    font_size: 18
-
-                AnchorLayout:
-                    size_hint: None, None
-                    size: 40, 40
-                    Button:
-                        size_hint: None, None
-                        size: 30, 30
-                        background_normal: "data/backgrounds/add_bt30.png"
-                        on_release:
-                            app.save_bookmark(sd_filechooser.path, bookmark_gl, sd_filechooser)
-
-            ScrollView:
-                GridLayout:
-                    size_hint_y: None
-                    height: sum([x.height + 10 for x in self.children]) / 2
-                    cols: 2
-                    orientation: "vertical"
-                    spacing: [10, 10]
-                    id: bookmark_gl
-
-        FileChooserL:
-            id: sd_filechooser
-            text: "master"
-            previous_dir: []
-            path: app._common_path() if app._common_path() else app.home_path
-            on_selection: text_input.text = self.selection
-
-    BoxLayout:
-        size_hint_y: None
-        height: 30
-        spacing: 5
-        Label:
-            size_hint_x: None
-            width: 80
-            text: "File name:"
-        TFTextInput:
-            id: text_input
-            multiline: False
-        Spinner:
-            size_hint_x: None
-            width: 80
-            id: ext
-            text: ".png"
-            values: [".png", ".svg", ".pdf"]
-
-    AnchorLayout:
-        size_hint_y: None
-        height: 30
-        anchor_x: "center"
-        anchor_y: "center"
-        BoxLayout:
-            size_hint_x: None
-            width: 140
-            spacing: 20
-            TFOKButon:
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
-                text: "Save"
-                id: ok_bt
-                size_hint_x: None
-                width: 100
-                on_release:
-                    if text_input.text == "": \
-                    app.dialog_floatcheck("Please specify a file name", t="error")
-                    else: \
-                    app.export_graphic(sd_filechooser.path, text_input.text, ext.text)
-                    root.cancel()
-            TFOKButon:
-                id: cancel_bt
-                text: "Cancel"
-                size_hint_x: None
-                width: 100
-                on_release: root.cancel()
 
 #===============================================================================
 # GENERAL INFORMATIVE POPUP
@@ -2801,7 +2640,7 @@
     # Tracks the load dialogs. Id's on this list will change the default Save
     # button to Load
     load_dlgs: ["import_partitions", "partition_file", "select_from_file", "remove_from_file"]
-    no_auto_close: ["protein", "nucleotide", "group", "taxa", "files", "main_output", "export", "export_table", "group"]
+    no_auto_close: ["protein", "nucleotide", "group", "taxa", "files", "main_output", "export", "export_table", "group", "export_graphic"]
     file_required: ["protein_db", "import_partitions", "partition_file", "select_from_file", "remove_from_file", "files"]
     BoxLayout:
         size: root.size
@@ -2926,14 +2765,13 @@
                         id: bookmark_gl
 
             FileChooserL:
-                multiselect: True
                 id: sd_filechooser
                 previous_dir: []
                 text: "master"
                 path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
                 on_selection:
                     if txt_box.height == 30: \
-                    text_input.text = self.selection[0].split(os.sep)[-1]
+                    print(self.selection[0].split(os.sep)[-1]); text_input.text = self.selection[0].split(os.sep)[-1]
                 on_double_click:
                     if self.text in root.load_dlgs: \
                     ok_bt.dispatch("on_release")
@@ -2968,11 +2806,16 @@
                     id: ok_bt
                     text_io: text_input.text if not None else ""
                     on_release:
+                        # If an extension spinner is present in the dialog, append it to the text_input
+                        if "ext" in txt_box.ids: \
+                        filename = text_input.text + ext.text
+                        else:\
+                        filename = text_input.text
                         # For save dialogs requiring file name, make this check
                         if self.text_io == "" and txt_box.height == 30: \
                         app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
                         elif txt_box.height != 0: \
-                        app.check_file(sd_filechooser.path, text_input.text, sd_filechooser.text)
+                        app.check_file(sd_filechooser.path, filename, sd_filechooser.text)
 
                         # For save dialogs that do not require file names but require a file to be selected
                         elif sd_filechooser.text in root.file_required and not sd_filechooser.selection: \
@@ -5188,7 +5031,7 @@
                 background_disabled_normal: "data/backgrounds/export_fig_disabled.png"
                 disabled: False if app.current_plot else True
                 on_release:
-                    app.dialog_export_graphic()
+                    app.dialog_filechooser("export_graphic")
             Button:
                 size_hint: None, None
                 size: 40, 40
