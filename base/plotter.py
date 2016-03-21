@@ -471,12 +471,17 @@ def histogram_smooth(data, ax_names=None, table_header=None,
     return fig, None, table
 
 
-def histogram_plot(data, title=None, ax_names=None, table_header=None):
+def histogram_plot(data, title=None, ax_names=None, table_header=None,
+                   real_bin_num=False):
     """
     Creates an histogram from data
     :param data: list
     :param title: string
     :param ax_names: list, first element for x-axis, second for y-axis
+    :param table_header: list, containing the header of the table as the
+    first element
+    :param real_bin_num: boolean, if true, the histogram bins will be real
+    numbers
     """
 
     # Use ggpot style
@@ -519,8 +524,17 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None):
     else:
         table = []
 
-    for p, val in zip(bins, vals):
-        table.append([p, val])
+    if real_bin_num:
+        # If real_bin_num was set, then the bins in the table should be real
+        # numbers
+        table_data = Counter(data)
+        for i in range(min(table_data.keys()), max(table_data.keys()), 1):
+            if i in table_data:
+                table.append([i, table_data[i]])
+
+    else:
+        for p, val in zip(bins, vals):
+            table.append([p, val])
 
     return fig, lgd, table
 
