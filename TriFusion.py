@@ -1909,6 +1909,8 @@ if __name__ == "__main__":
                 [self.export_names, [path, file_name], ".txt"],
                 "export_table":
                 [self.export_table, [path, file_name], ".csv"],
+                "export_graphic":
+                [self.export_graphic, [path, file_name], ""],
                 "group":
                 [self.orto_export_groups, ["group", path, file_name], ""]
             }
@@ -2238,24 +2240,22 @@ if __name__ == "__main__":
             self.show_popup(title="Export as graphic...", content=content,
                             size_hint=(.9, .9))
 
-        def export_graphic(self, path, file_name, ext):
+        def export_graphic(self, path, file_name):
             """
             Saves the current plot object into a file based on file name and
             extension
             :param path: string, path to final directory
             :param file_name: string, name of graphic file
-            :param ext: string, extension of graphic file (e.g. png, svg, pdf,
-            etc)
             """
 
             if self.current_lgd:
                 self.current_plot.savefig(
-                    join(path, file_name + ext),
+                    join(path, file_name),
                     bbox_extra_artists=(self.current_lgd,),
                     bbox_inches="tight")
             else:
                 self.current_plot.savefig(
-                    join(path, file_name + ext), bbox_inches="tight")
+                    join(path, file_name), bbox_inches="tight")
 
             self.dialog_floatcheck("Graphic successfully exported!", t="info")
 
@@ -6774,9 +6774,18 @@ if __name__ == "__main__":
             allows the addition of custom behaviours for different dialogs
             """
 
+            # Lists the idx that require the selection of file extensions
+            idx_with_ext = ["export_graphic"]
+
             # Inherits the layout defined in the .kv file under <SaveDialog>
             content = SaveDialog(cancel=self.dismiss_popup,
                                  bookmark_init=self.bookmark_init)
+
+            # Add extension selection spinner, if idx in idx_with_ext
+            if idx in idx_with_ext:
+                ext_spinner = ExtSpinner()
+                ext_spinner.id = "ext"
+                content.ids.txt_box.add_widget(ext_spinner)
 
             # Custom behaviour for main output file chooser dialog
             if idx == "main_output":
@@ -6801,6 +6810,9 @@ if __name__ == "__main__":
 
             elif idx == "export_table":
                 title = "Export as table..."
+
+            elif idx == "export_graphic":
+                title = "Export as graphic..."
 
             else:
                 content.ids.txt_box.clear_widgets()

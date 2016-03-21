@@ -533,6 +533,10 @@ class TFTextInput(TextInput):
     pass
 
 
+class ExtSpinner(Spinner):
+    pass
+
+
 class BackButton(Button):
     pass
 

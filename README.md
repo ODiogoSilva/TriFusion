@@ -1,3 +1,4 @@
-## TriFusion - Streamlining phylogenomic analyses
+### TriFusion
+###### Streamlining phylogenomic data gathering, processing and visualization
 
-Under construction 
+TriFusion is an open source, cross-platform Python GUI and command line application for gathering, processing and visualization of phylogenomic data.  
