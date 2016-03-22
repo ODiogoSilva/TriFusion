@@ -555,7 +555,7 @@ class Alignment(Base):
             self.is_alignment = self.check_sizes(self.alignment,
                                                  input_alignment)
             if not self.is_alignment:
-                self.alignment = AlignmentUnequalLength()
+                self.e = AlignmentUnequalLength()
                 return
 
         # Checks for duplicate taxa
