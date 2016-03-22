@@ -491,21 +491,24 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
 
     fig, ax = plt.subplots()
 
-    if len(Counter(data)) > 50:
-        bins = int(len(Counter(data)) / 10)
+    c_data = Counter(data)
+    max_data = max(c_data)
+    min_data = min(c_data)
+    if len(c_data) > 50:
+        bins = int(len(c_data) / 10)
     else:
-        bins = 10
+        bins = len(c_data)
 
-    vals, bins, patches = plt.hist(data, bins, histtype="stepfilled",
-                                   color=clr_list[0])
+    vals, b, patches = plt.hist(data, bins, histtype="stepfilled",
+                                color=clr_list[0])
 
     plt.axvline(np.mean(data), linewidth=2, color="r", alpha=.8,
                 linestyle="--")
 
     # Add cutom artist for legend
-    meanArtist = plt.Line2D((0, 1), (0, 1), color="r", linestyle="--")
+    mean_artist = plt.Line2D((0, 1), (0, 1), color="r", linestyle="--")
 
-    lgd = ax.legend([meanArtist], ["Mean"], fancybox=True, shadow=True,
+    lgd = ax.legend([mean_artist], ["Mean"], fancybox=True, shadow=True,
                     framealpha=.8, fontsize="large")
     lgd.get_frame().set_facecolor("white")
 
@@ -527,13 +530,20 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     if real_bin_num:
         # If real_bin_num was set, then the bins in the table should be real
         # numbers
-        table_data = Counter(data)
-        for i in range(min(table_data.keys()), max(table_data.keys()), 1):
-            if i in table_data:
-                table.append([i, table_data[i]])
+        if len(c_data) < 50:
+            vals, b = np.histogram(data, xrange(bins), (min_data, max_data + 1))
+        else:
+            vals, b = np.histogram(data, xrange(min_data, max_data + 1, bins),
+                                   (min_data, max_data + 1))
+        c = 0
+        for b, v in zip(b, vals):
+            table.append(["{} - {}".format(int(c), int(b)), v])
+            c = b + 1
+        else:
+            table.append(["{} - {}".format(c, max_data), vals[-1]])
 
     else:
-        for p, val in zip(bins, vals):
+        for p, val in zip(b, vals):
             table.append([p, val])
 
     return fig, lgd, table
