@@ -7862,6 +7862,7 @@ if __name__ == "__main__":
                 return self.load_files(file_list, alns)
 
             content = LoadProgressDialog()
+            content.ids.msg.text = "Initializing"
             content.ids.pb.max = len(file_list)
             self.show_popup(title="Loading files", content=content,
                             size=(400, 300))
