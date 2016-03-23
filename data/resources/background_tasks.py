@@ -15,10 +15,22 @@ import os
 import shutil
 import cPickle as pickle
 
+"""
+Tasks that are executed in a background process are placed here and called
+from the App class in TriFusion.py. The reason for this is that
+multiprocessing in Windows does not rely on os.fork to spawn a new process
+child with shared memory maps with the parent. Instead it relies on pickle to
+transfer data. This reliance on pickle prevents application methods from being
+sent to the background process because pickle cannot handle class methods.
+The solution was to define the functions outside the App class and provide
+them with the necessary arguments upon calling.
+"""
+
 
 def remove_tmp(temp_dir):
     """
     Removes all temporary files in temp directory
+    :param temp_dir: string, path to trifusion's temporary directory
     """
     for i in os.listdir(temp_dir):
         try:
