@@ -74,7 +74,6 @@ if __name__ == "__main__":
     from kivy.lang import Builder
     from kivy.properties import ListProperty, DictProperty
     from kivy.clock import Clock
-    from kivy.core.audio import SoundLoader
     from kivy.uix.treeview import TreeView, TreeViewLabel
 
     # Local TriFusion imports
@@ -627,13 +626,6 @@ if __name__ == "__main__":
             When the method performs a unique operations, the specific_task
             should prefix the name of the method.
             """
-
-        def destiny(self):
-
-            if self.sound.state == "stop":
-                self.sound.play()
-            else:
-                self.sound.stop()
 
         def mouse_zoom(self, *vals):
             """
