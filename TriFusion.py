@@ -727,24 +727,13 @@ if __name__ == "__main__":
 
                 Clock.schedule_once(drag_check, .1)
 
-        def _remove_tmp(self):
-            """
-            Removes all temporary files in temp directory
-            """
-
-            for i in os.listdir(self.temp_dir):
-                try:
-                    os.remove(join(self.temp_dir, i))
-                except OSError:
-                    shutil.rmtree(join(self.temp_dir, i))
-
         def _exit_clean(self):
             """
             This method is issued when the application is closed and performs
             any necessary clean up operations
             """
 
-            self.run_in_background(self._remove_tmp, self.stop, None,
+            self.run_in_background(remove_tmp, self.stop, [self.temp_dir],
                                    no_arg2=True, msg="Cleaning temporary "
                                                      "files and exiting...")
 

@@ -11,7 +11,20 @@ from os import sep
 from collections import OrderedDict
 from copy import deepcopy
 import logging
+import os
+import shutil
 import cPickle as pickle
+
+
+def remove_tmp(temp_dir):
+    """
+    Removes all temporary files in temp directory
+    """
+    for i in os.listdir(temp_dir):
+        try:
+            os.remove(join(temp_dir, i))
+        except OSError:
+            shutil.rmtree(join(temp_dir, i))
 
 
 def load_proc(aln_list, file_list, nm, dest):
