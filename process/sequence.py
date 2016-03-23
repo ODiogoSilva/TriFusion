@@ -81,7 +81,7 @@ def read_alns(l):
         # of a simple counter, because race conditioning of multiple workers
         # does not produce the expected behaviour with a int counter.
         if l[3]:
-            count = l[0].index(i) * multiprocessing.cpu_count()
+            count = (l[0].index(i) + 1) * multiprocessing.cpu_count()
             l[3].progress = count if count > l[3].progress else l[3].progress
             # Update the file being processed
             l[3].m = "Processing file %s" % basename(i)
