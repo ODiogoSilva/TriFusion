@@ -482,10 +482,6 @@ if __name__ == "__main__":
             self.bm_file = join(self.user_data_dir, "bookmarks")
             self.projects_file = join(self.user_data_dir, "projects")
 
-            self.sound = SoundLoader.load(join(self.cur_dir, "data",
-                                               "resources",
-                                               "Mortal_Kombat_Theme_Song.mp3"))
-
             logging.basicConfig(filename=self.log_file, level=logging.DEBUG,)
 
             # Setting available screens
