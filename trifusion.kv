@@ -1035,6 +1035,60 @@
             on_press:
                 root.cancel()
 
+<CheckProject>:
+    orientation: "vertical"
+    id: project_check
+    BoxLayout:
+        padding: 10
+        spacing: 5
+        orientation: "vertical"
+        Widget:
+            size_hint_y: None
+            height: 5
+        Label:
+            size_hint_y: None
+            height: 20
+            valign: "middle"
+            halign: "left"
+            text_size: (self.size[0] - 5, self.size[1])
+            id: proj_name
+            markup: True
+        Label:
+            size_hint_y: None
+            height: 20
+            valign: "middle"
+            halign: "left"
+            text_size: (self.size[0] - 5, self.size[1])
+            id: file_num
+            markup: True
+        Widget:
+            size_hint_y: None
+            height: 5
+        Label:
+            valign: "middle"
+            halign: "center"
+            text_size: (self.size[0] - 5, self.size[1])
+            text: "(Any previously loaded data will be removed)"
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        spacing: 10
+        padding: 10
+        TFOKButon:
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Open"
+            id: check_ok
+            on_press:
+                root.cancel()
+
+        TFOKButon:
+            id: check_cancel
+            text: "Cancel"
+            on_press:
+                root.cancel()
+
+
 #===============================================================================
 # WARNINGS
 #===============================================================================

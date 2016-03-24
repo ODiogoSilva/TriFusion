@@ -537,6 +537,10 @@ class ExtSpinner(Spinner):
     pass
 
 
+class CheckProject(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class BackButton(Button):
     pass
 
