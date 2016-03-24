@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.patches import Circle
 from matplotlib.collections import PatchCollection
+from scipy.stats import spearmanr
 import numpy as np
 from itertools import chain
 from collections import Counter
@@ -67,6 +68,62 @@ def _add_labels(ax_names):
 
     if ax_names[1]:
         plt.ylabel(ax_names[1])
+
+
+def scatter_plot(data, correlation=False, ax_names=None, table_header=None):
+    """
+    Builds a scatter plot from a 2D data list. Also calculates the
+    correlation coefficient is requested.
+    :param data: 2D list, containing the x and y data points
+    :param correlation: Boolean. If True, the spearman's rank correlation
+    coefficient is also calculated
+    :param ax_names: list, with two string elements for the x and y axis
+    :param table_header: list, with table header. Each element represents a
+    column
+    """
+
+    plt.rcParams["figure.figsize"] = (8, 6)
+
+    # Use ggpot style
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    # Generate scatter plot
+    ax.scatter(data[0], data[1], alpha=0.5, edgecolors=None)
+
+    # Plot best fit line
+    ax.plot(data[0], np.poly1d(np.polyfit(data[0], data[1], 1))(data[0]))
+
+    # Set plot limits
+    max1 = max(data[0])
+    max2 = max(data[1])
+    ax.set_xlim(0, max1 + (max1 * .1))
+    ax.set_ylim(0, max2 + (max2 * .1))
+
+    if ax_names:
+        ax.set_xlabel(ax_names[0])
+        ax.set_ylabel(ax_names[1])
+
+    # Calculate spearman's rank correlation coefficient and add it to the plot
+    if correlation:
+        rho, pval = spearmanr(data[0], data[1])
+
+        ax.text((ax.get_xlim()[1] - ax.get_xlim()[0]) * .05,
+                ax.get_ylim()[1] - (ax.get_ylim()[1] * .05),
+                r"$\rho$ = {}; p-value = {}".format(round(rho, 4),
+                                                    round(pval, 4)))
+
+    # Generate table data
+    if table_header:
+        table = [table_header]
+    else:
+        table = []
+
+    for i, j in zip(*data):
+        table.append([i, j])
+
+    return fig, None, table
 
 
 def bar_plot(data, labels=None, title=None, ax_names=None,
