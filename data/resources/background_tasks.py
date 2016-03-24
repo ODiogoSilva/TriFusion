@@ -590,6 +590,7 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                "Segregating sites": aln_obj.sequence_segregation,
                "Segregating sites sp": aln_obj.sequence_segregation_per_species,
                "Segregating sites gn": aln_obj.sequence_segregation_gene,
+               "Segregating sites prop": aln_obj.sequence_segregation,
                "Alignment length/Polymorphism correlation":
                    aln_obj.length_polymorphism_correlation,
                "Distribution of taxa frequency":

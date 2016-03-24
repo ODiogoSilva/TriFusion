@@ -768,6 +768,10 @@ class HseparatorFooter(BoxLayout):
     pass
 
 
+class PropSwitcher(BoxLayout):
+    pass
+
+
 class RevConcDialog(BoxLayout):
     """
     Reverse concatenation dialog
