@@ -1487,6 +1487,7 @@ class AlignmentList(Base):
         ("Protein", "x")
         """
         self.sequence_code = None
+        self.gap_symbol = "-"
 
         # Set partitions object
         self.partitions = Partitions()
@@ -2475,8 +2476,7 @@ class AlignmentList(Base):
                 "ax_names": ["Taxa", ax_ylabel],
                 "table_header": ["Taxon"] + legend}
 
-    @staticmethod
-    def _get_similarity(seq1, seq2):
+    def _get_similarity(self, seq1, seq2):
         """
         Gets the similarity between two sequences
         :param seq1: string
@@ -2486,13 +2486,15 @@ class AlignmentList(Base):
         similarity = 0.0
 
         for c1, c2 in zip(*[seq1, seq2]):
-            if c1 == c2:
+            # Ignore comparisons with gaps or missing data
+            if self.sequence_code[1] in [c1, c2] or self.gap_symbol in [c1, c2]:
+                continue
+            elif c1 == c2:
                 similarity += 1.0
 
         return similarity
 
-    @staticmethod
-    def _get_differences(seq1, seq2):
+    def _get_differences(self, seq1, seq2):
         """
         Returns the number of differences between two sequences
         """
@@ -2500,10 +2502,34 @@ class AlignmentList(Base):
         s = 0
 
         for c1, c2 in zip(*[seq1, seq2]):
+            # Ignore comparisons with gaps or missing data
+            if self.sequence_code[1] in [c1, c2] or self.gap_symbol in [c1, c2]:
+                continue
             if c1 != c2:
                 s += 1
 
         return s
+
+    def _get_informative_sites(self, aln):
+        """
+        Determines the number of informative sites in an Alignment object
+        :param aln: Alignment object
+        :return:
+        """
+
+        informative_sites = 0
+
+        for column in zip(*aln.sequences()):
+
+            column = Counter([x for x in column if x != aln.sequence_code[1] and
+                              x != self.gap_symbol])
+
+            # Remove most common and check the lenght of the remaining
+            del column[column.most_common()[0][0]]
+            if sum(column.values()) > 1:
+                informative_sites += 1
+
+        return informative_sites
 
     def sequence_similarity(self):
         """
@@ -2600,7 +2626,7 @@ class AlignmentList(Base):
 
                 # Remove gaps and missing characters
                 column = set([x for x in column if x != aln.sequence_code[1]
-                              and x != "-"])
+                              and x != self.gap_symbol])
 
                 if len(column) > 1:
                     segregating_sites += 1
@@ -2676,6 +2702,31 @@ class AlignmentList(Base):
                 "window_size": window_size,
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
+
+    def lenght_polymorphism_correlation(self):
+        """
+        Generates data for a scatter plot and correlation analysis between
+        alignment length and informative sites (polymorphic sites in at least
+        two taxa)
+        """
+
+        data_length = []
+        data_inf = []
+
+        for aln in self.alignments.values():
+
+            # Get informative sites for alignment
+            inf_sites = self._get_informative_sites(aln)
+            data_inf.append(inf_sites)
+
+            # Get size
+            data_length.append(aln.locus_length)
+
+        return {"data": [data_length, data_inf],
+                "ax_names": ["Alignment length", "Informative sites"],
+                "table_header": ["Alignment length", "Informative sites"],
+                "correlation": True}
+
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

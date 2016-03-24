@@ -589,7 +589,9 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                    aln_obj.sequence_similarity_gene,
                "Segregating sites": aln_obj.sequence_segregation,
                "Segregating sites sp": aln_obj.sequence_segregation_per_species,
-               "Segregating sites gn": aln_obj.sequence_segregation_gene}
+               "Segregating sites gn": aln_obj.sequence_segregation_gene,
+               "Alignment length/Polymorphism correlation":
+                   aln_obj.lenght_polymorphism_correlation}
 
     if additional_args:
         plot_data = methods[stats_idx](**additional_args)
