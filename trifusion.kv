@@ -2864,7 +2864,7 @@
                         # If an extension spinner is present in the dialog, append it to the text_input
                         if "ext" in txt_box.ids: \
                         filename = text_input.text + ext.text
-                        else:\
+                        elif txt_box.height == 30: \
                         filename = text_input.text
                         # For save dialogs requiring file name, make this check
                         if self.text_io == "" and txt_box.height == 30: \

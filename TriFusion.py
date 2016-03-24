@@ -4070,50 +4070,33 @@ if __name__ == "__main__":
 
             if idx == "Taxa":
 
-                it = iter([(x, x.id) for x in self.root.ids.taxa_sl.children])
-
-                for bt, idx in it:
-                    if idx in selection_idx:
-                        self.remove_bt(bt, parent_wgt=self.root.ids.taxa_sl)
+                wgt = self.root.ids.taxa_sl
+                missing_elements = [x for x in selection if x not in
+                                    self.alignment_list.taxa_names]
 
             else:
-                parent_obj = self.root.ids.file_sl
+                wgt = self.root.ids.file_sl
+                # If a file does not exist in the app, add it here
+                missing_elements = [x for x in selection if
+                                 self.filename_map[x] not in self.file_list]
 
-                for f in selection:
-                    # Remove buttons from side panel
-                    try:
-                        bt = [x for x in parent_obj.children if f == x.id][0]
-                        parent_obj.remove_widget(bt)
-                    except IndexError:
-                        pass
-                    try:
-                        inf_bt = [x for x in parent_obj.children if
-                                  f + "?" == x.id][0]
-                        parent_obj.remove_widget(inf_bt)
-                    except IndexError:
-                        pass
-                    try:
-                        cbt = [x for x in parent_obj.children if
-                               f + "X" == x.id][0]
-                        parent_obj.remove_widget(cbt)
-                    except IndexError:
-                        pass
+            it = iter([(x, x.id) for x in wgt.children])
 
-                    self.file_list.remove(self.filename_map[f])
+            for bt, idx in it:
+                if idx in selection_idx:
+                    self.remove_bt(bt, parent_wgt=wgt)
 
-                    try:
-                        self.active_file_list.remove(self.filename_map[f])
-                    except ValueError:
-                        pass
+            self.update_taxa()
+            self.update_partitions()
+            self.update_file_label()
+            self.update_sp_label()
+            self.update_partition_label()
 
-                self.alignment_list.remove_file([self.filename_map[x] for x in
-                                                 selection])
-
-                self.update_taxa()
-                self.update_partitions()
-                self.update_file_label()
-                self.update_sp_label()
-                self.update_partition_label()
+            # If some of the files did not exist in the app, issue a warning
+            if missing_elements:
+                self.dialog_floatcheck("Warning: {} items could not be removed "
+                    "because they were not loaded into the "
+                    "app".format(len(missing_elements)), t="error")
 
         def select_bt_from_file(self, idx, txt_file):
             """
