@@ -5144,9 +5144,16 @@
             app.stats_select_plot("Segregating sites gn", "Segregating sites sp", "Segregating sites")
     HelpButton:
 
-<LVCorrelation>
+<LVCorrelation>:
     TFButtonOff:
         text: "Alignment length/Polymorphism correlation"
+        on_release:
+            app.stats_show_plot(self.text)
+    HelpButton:
+
+<TaxaDistribution>:
+    TFButtonOff:
+        text: "Distribution of taxa frequency"
         on_release:
             app.stats_show_plot(self.text)
     HelpButton:

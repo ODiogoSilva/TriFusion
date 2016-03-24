@@ -6907,9 +6907,7 @@ if __name__ == "__main__":
                     all = string.maketrans("", "")
                     nodigs = all.translate(all, string.digits)
                     x = x.encode("ascii", "ignore")
-                    print(x, type(x))
                     x = float(x.translate(all, nodigs))
-                    print(x)
                 except ValueError:
                     return False
 
@@ -7315,7 +7313,8 @@ if __name__ == "__main__":
             wgts = {
                 "General information":
                 [self.screen.ids.general_information, [SizeDistribution(),
-                 NucAAProportions()]],
+                                                       NucAAProportions(),
+                                                       TaxaDistribution()]],
                 "Missing Data":
                 [self.screen.ids.missing_data_opts, [GeneOccupancy(),
                                                      MissingOrto(),
@@ -7399,7 +7398,9 @@ if __name__ == "__main__":
                 "Segregating sites gn":
                 [sliding_window, "segregating_sites_gn.png"],
                 "Alignment length/Polymorphism correlation":
-                [scatter_plot, "length_polymorphism_correlation.png"]}
+                [scatter_plot, "length_polymorphism_correlation.png"],
+                "Distribution of taxa frequency":
+                [histogram_plot, "distribution_taxa_frequency.png"]}
 
             # Dict of plt_idx identifiers that will trigger the stats toggle
             # widget with the information needed to give functionality to
@@ -7494,7 +7495,6 @@ if __name__ == "__main__":
                  "single_gene": {"plt_idx": "Segregating sites gn"}}}
 
             if plot_data:
-                print(self.stats_plt_method[plt_idx])
                 # Set new plot attributes
                 self.current_plot, self.current_lgd, self.current_table = \
                     self.stats_plt_method[plt_idx][0](**plot_data)
