@@ -1864,6 +1864,8 @@ if __name__ == "__main__":
                 check_content.ids.proj_name.text = text[0]
                 check_content.ids.file_num.text = text[1]
 
+            # Set the function to be called when dispatching the on_release
+            # event of the check_ok button.
             if bt_wgt and not args:
                 check_content.ids.check_ok.bind(
                     on_release=lambda val: func(bt_wgt))
