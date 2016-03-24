@@ -1813,7 +1813,7 @@ if __name__ == "__main__":
             as a function on the 'on_*' with the final function and original
             widget triggering the event as arguments
             :param text: string, text to appear in the dialog
-            :param func: final function if the users chooses to process
+            :param func: final function if the users chooses to proceed
             :param bt_wgt: widget where the initial 'on_' event occurred
             :param args: list, of arguments to be passed on to func
             :param popup_level: int, level of popup. 1 for _popup and 2 for
@@ -1828,7 +1828,7 @@ if __name__ == "__main__":
 
             where, self.check_action is this method, and self.remove_bookmark_bt
             is the function that will actually remove the bookmark button. This
-            function is then binder to the "OK" button of the check dialog.
+            function is then bound to the "OK" button of the check dialog.
             By default, the last argument is the bt_wgt.
             """
 
@@ -4683,7 +4683,7 @@ if __name__ == "__main__":
             # Check for project name duplicates
             if name in projects_dic:
                 return self.dialog_floatcheck(
-                    "WARNING: Project with the same nameis already present",
+                    "WARNING: Project with the same name is already present",
                     t="error")
 
             with open(self.projects_file, "wb") as projects_fh:
