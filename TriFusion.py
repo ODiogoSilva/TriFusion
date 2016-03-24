@@ -382,6 +382,9 @@ if __name__ == "__main__":
         # List of active partitions
         active_partitions = ListProperty()
 
+        # Attribute that determines whether taxa information needs to be updated
+        trigger_taxa_update = False
+
         # Attributes containing the original and active taxa information
         # dictionaries
         original_tx_inf = DictProperty()
@@ -1996,8 +1999,10 @@ if __name__ == "__main__":
                     # there are additional arguments for secondary function
                     if not no_arg2:
                         if second_func:
-                            if args2:
+                            if args2 and val:
                                 val.extend(args)
+                            elif args2 and not val:
+                                val = args
                             second_function(*val)
                     else:
                         second_function()
@@ -2795,7 +2800,7 @@ if __name__ == "__main__":
                                                    "info_bt_down.png"),
                             background_down=join("data", "backgrounds",
                                                  "info_bt.png"))
-            inf_bt.bind(on_release=self.popup_info)
+            inf_bt.bind(on_release=self.get_popup_info)
 
             # Set remove button with event binded and add the widget
             x_bt = Button(size_hint=(None, None), width=30,
@@ -3471,6 +3476,25 @@ if __name__ == "__main__":
             self.root_window.add_widget(content)
             self.root_window.add_widget(rm_wgt)
 
+        def get_popup_info(self, value):
+            """
+            This function determines whether the taxa information has changed
+            since it has been update (when files are removed). If so,
+            it updates the taxa information and issues popup_info. Else,
+            just issues popup_info
+            :param value: Button object that issued the function
+            """
+
+            if self.trigger_taxa_update:
+                self.trigger_taxa_update = False
+                self.run_in_background(self.get_taxa_information,
+                                       self.popup_info,
+                                       None,
+                                       [value],
+                                       msg="Updating taxa information")
+            else:
+                self.popup_info(value)
+
         def popup_info(self, value):
             """
             Generates the pop up information content for the pressed taxa or
@@ -3920,7 +3944,7 @@ if __name__ == "__main__":
             if not self.screen.ids.group_gl.children:
                 self.screen.ids.card_gl.clear_widgets()
 
-        def remove_bt(self, value, parent_wgt=None, no_update=False):
+        def remove_bt(self, value, parent_wgt=None):
             """
             Functionality for the "X" remove buttons in the side panel. It
             removes button pairs with similar id's and can be used in both files
@@ -3986,6 +4010,9 @@ if __name__ == "__main__":
             # CORE CHANGES
             # Get the parent tab
             if parent_obj == self.root.ids.file_sl:
+                # Set the update_taxa attribute to True so that it updates
+                # the next time the taxa information is queried
+                self.trigger_taxa_update = True
                 # Update file list
                 file_path = self.filename_map[bt_idx]
                 self.file_list.remove(file_path)
@@ -4020,10 +4047,6 @@ if __name__ == "__main__":
             if not self.file_list:
                 self.clear_process_input()
 
-            if not no_update:
-                self.run_in_background(self.get_taxa_information, None,
-                    [self.alignment_list], msg="Updating taxa information")
-
         def remove_bt_from_file(self, idx, txt_file):
             """
             Adds functionality to the dropdown button options for removing file
@@ -4051,8 +4074,7 @@ if __name__ == "__main__":
 
                 for bt, idx in it:
                     if idx in selection_idx:
-                        self.remove_bt(bt, parent_wgt=self.root.ids.taxa_sl,
-                                       no_update=True)
+                        self.remove_bt(bt, parent_wgt=self.root.ids.taxa_sl)
 
             else:
                 parent_obj = self.root.ids.file_sl
@@ -4092,9 +4114,6 @@ if __name__ == "__main__":
                 self.update_file_label()
                 self.update_sp_label()
                 self.update_partition_label()
-
-                self.run_in_background(self.get_taxa_information, None,
-                    None, msg="Updating taxa information")
 
         def select_bt_from_file(self, idx, txt_file):
             """
@@ -8028,7 +8047,7 @@ if __name__ == "__main__":
                 # Populates files and taxa contents
                 self.update_tabs()
                 # Gathers taxa  and file information
-                self.original_tx_inf = self.get_taxa_information()
+                self.get_taxa_information()
 
                 # Issue final dialog with the number of files successfully
                 # loaded
@@ -8040,7 +8059,11 @@ if __name__ == "__main__":
             """
             Akin to the get_taxa_information method, but it only looks for
             the information of a single taxon.
-            :return:
+
+            :param tx: string, taxon name
+            :param aln_list: AlignmentList object from where the information
+            will be retrieved
+
             """
 
             tx_inf = {}
@@ -8097,25 +8120,17 @@ if __name__ == "__main__":
 
             return tx_inf
 
-        def get_taxa_information(self, alt_list=None):
+        def get_taxa_information(self):
             """
             This method will gather all available information for all taxa and
-            set a number of related attributes. The way the method is
-            implemented, allow the generation of information for both
-            complete (if the method is applied in the original data set) and
-            active (if the method is
-            applied to the currently data set) data sets.
+            sets a number of related attributes. This methods should only be
+            used to generate data for the complete data set. The active data
+            set is usually only gathered for a single taxon and upon demand.
 
-            :param: alt_list: This argument provides a way to override the
-            self.active_alignment_list that is used by default. This may be
-            helpful when the complete/original list has been modified and the
-            contents of the taxa popup have to reflect those modifications.
-            If no alternative is provided, the method will use the
-            self.active_taxa_list.
-
-            :return: tx_inf (dictionary): Contains the relevant information for
-            the taxa popup. All corresponding values are the result of additions
-            across all active input alignments. Contains the following keys:
+            Sets the self.original_tx_inf attribute. Contains the relevant
+            information for the taxa popup. All corresponding values are the
+            result of additions across all active input alignments. Contains
+            the following keys:
 
                 - length: Total alignment length including missing data and gaps
                 - indel: The number columns containing indel/gaps
@@ -8127,20 +8142,13 @@ if __name__ == "__main__":
                 - fl_coverage_per: Same as above but in percentage
             """
 
-            # main storage defined
-            tx_inf = {}
-
-            if alt_list:
-                aln_list = alt_list
-            else:
-                aln_list = self.alignment_list
+            # Reset trigger for taxa update
+            self.trigger_taxa_update = False
 
             for tx in self.active_taxa_list:
-
                 # Add entry to storage dictionary
-                tx_inf[tx] = self.get_taxon_information(tx, aln_list)
-
-            return tx_inf
+                self.original_tx_inf[tx] = \
+                    self.get_taxon_information(tx, self.alignment_list)
 
         def get_file_information(self, file_name=None, mode="alignment"):
             """
