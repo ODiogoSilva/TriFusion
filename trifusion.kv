@@ -4922,6 +4922,34 @@
         on_active:
             app.stats_sethline(slider.value, root.plt_file, self.active)
 
+<PropSwitcher>:
+    padding: 5
+    BoxLayout:
+        size_hint_x: None
+        width: 330
+        Label:
+            text: "Absolute values"
+            bold: True
+        CheckBox:
+            size_hint_x: .2
+            group: "prop_switcher"
+            state: "down"
+            plt_idx: ""
+            id: abs
+            on_release:
+                app.stats_show_plot(self.plt_idx)
+        Label:
+            text: "Percentage"
+            bold: True
+        CheckBox:
+            size_hint_x: .2
+            group: "prop_switcher"
+            plt_idx: ""
+            id: proportion
+            on_release:
+                app.stats_show_plot(self.plt_idx, {"proportions": True})
+    Widget
+
 <StatsMoreBt>:
     anchor_x: "left"
     size_hint_y: None

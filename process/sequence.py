@@ -2611,9 +2611,12 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
 
-    def sequence_segregation(self):
+    def sequence_segregation(self, proportions=False):
         """
         Generates data for distribution of segregating sites
+
+        :param proportions: Boolean. If True, use proportions instead of
+        absolute values
         """
 
         data = []
@@ -2631,13 +2634,21 @@ class AlignmentList(Base):
                 if len(column) > 1:
                     segregating_sites += 1
 
-            data.append(segregating_sites)
+            if proportions:
+                data.append(
+                    float(segregating_sites / float(aln.locus_length)))
+                ax_names = ["Segregating sites", "Percentage"]
+                real_bin = False
+            else:
+                data.append(segregating_sites)
+                ax_names = ["Segregating sites", "Frequency"]
+                real_bin = True
 
         return {"data": data,
-                "ax_names": ["Segregating sites", "Frequency"],
+                "ax_names": ax_names,
                 "title": "Distribution of segregating sites",
-                "table_header": ["Segregating sites", "Frequency"],
-                "real_bin_num": True}
+                "table_header": ax_names,
+                "real_bin_num": real_bin}
 
     def sequence_segregation_per_species(self):
         """

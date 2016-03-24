@@ -7393,6 +7393,8 @@ if __name__ == "__main__":
                 [sliding_window, "similarity_distribution_gn.png"],
                 "Segregating sites":
                 [histogram_plot, "segregating_sites.png"],
+                "Segregating sites prop":
+                [histogram_plot, "segregating_sites_prop.png"],
                 "Segregating sites sp":
                 [triangular_heat, "segregating_sites_sp.png"],
                 "Segregating sites gn":
@@ -7475,7 +7477,6 @@ if __name__ == "__main__":
                  "active_bt": "sp",
                  "single_gene": None},
 
-
                 "Segregating sites":
                 {"args1": {"plt_idx": "Segregating sites sp"},
                  "args2": None,
@@ -7522,6 +7523,10 @@ if __name__ == "__main__":
             # List of plots for which an horizontal separator is available:
             hseparator_plots = ["Pairwise sequence similarity gn"]
 
+            # List of plots with a switcher between absolute values and
+            # proportions
+            prop_plots = [["Segregating sites"], ["Segregating sites prop"]]
+
             # Adds or removes the horizontal threshold option slider from the
             # Screen footer
             if plt_idx in hseparator_plots:
@@ -7532,6 +7537,30 @@ if __name__ == "__main__":
                     [int(x) for x in ylims]
                 hwgt.plt_file = self.stats_plt_method[plt_idx][1]
                 self.screen.ids.footer_box.add_widget(hwgt)
+            else:
+                self.screen.ids.footer_box.clear_widgets()
+
+            # Adds or removes the Absolute/Proportion switcher from the footer
+            if plt_idx in prop_plots[0] + prop_plots[1]:
+
+                swt = PropSwitcher()
+
+                try:
+                    prop_idx = prop_plots[1][prop_plots[0].index(plt_idx)]
+                    abs_idx = plt_idx
+                except ValueError:
+                    abs_idx = prop_plots[0][prop_plots[1].index(plt_idx)]
+                    prop_idx = plt_idx
+                    swt.ids.proportion.state = "down"
+
+                # Clear footer box
+                self.screen.ids.footer_box.clear_widgets()
+
+                # Create PropSwitcher instance and provide plt_idx to checkboxes
+                swt.ids.abs.plt_idx = abs_idx
+                swt.ids.proportion.plt_idx = prop_idx
+
+                self.screen.ids.footer_box.add_widget(swt)
             else:
                 self.screen.ids.footer_box.clear_widgets()
 

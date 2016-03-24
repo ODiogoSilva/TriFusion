@@ -588,11 +588,14 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
         # If real_bin_num was set, then the bins in the table should be real
         # numbers
         if len(c_data) < 50:
-            vals, b = np.histogram(data, xrange(bins), (min_data, max_data + 1))
+            vals, b = np.histogram(data,
+                                   np.arange(bins), (min_data, max_data + 1))
         else:
-            vals, b = np.histogram(data, xrange(min_data, max_data + 1, bins),
+            vals, b = np.histogram(data,
+                                   np.arange(min_data, max_data + 1, bins),
                                    (min_data, max_data + 1))
         c = 0
+        print(vals, b)
         for b, v in zip(b, vals):
             table.append(["{} - {}".format(int(c), int(b)), v])
             c = b + 1
