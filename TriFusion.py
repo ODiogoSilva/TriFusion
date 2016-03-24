@@ -140,6 +140,10 @@ if __name__ == "__main__":
         #
         #######################
 
+        # Referecence to blue and red colors
+        _blue = (0.216, 0.67, 0.784, 1)
+        _red = (1., 0.33, 0.33, 1.)
+
         # Setting Boolean controlling the toggling of main headers
         show_side_panel = BooleanProperty(False)
 
@@ -1806,18 +1810,25 @@ if __name__ == "__main__":
                 wgt.state = "normal"
 
         def check_action(self, text, func, bt_wgt=None, args=None,
-                         popup_level=1):
+                         popup_level=1, check_wgt=CheckDialog):
             """
             General purpose method that pops a dialog checking if the user
             wants to perform a certain action. This method should be passed
             as a function on the 'on_*' with the final function and original
-            widget triggering the event as arguments
+            widget triggering the event as arguments.
+
+            By default, the check action dialog is a CheckDialog widget,
+            but alternative widgets can be used by passing them to the
+            check_wgt option. If so, properties such as size, separator
+            color, etc must be specified for such cases.
+
             :param text: string, text to appear in the dialog
             :param func: final function if the users chooses to proceed
             :param bt_wgt: widget where the initial 'on_' event occurred
             :param args: list, of arguments to be passed on to func
             :param popup_level: int, level of popup. 1 for _popup and 2 for
             _subpopup
+            :param check_wgt: Widget. Specified the check dialog widget
 
             Usage example:
             This can be applied to the removal button of the bookmarks. In this
@@ -1833,11 +1844,26 @@ if __name__ == "__main__":
             """
 
             if popup_level == 1:
-                check_content = CheckDialog(cancel=self.dismiss_popup)
+                check_content = check_wgt(cancel=self.dismiss_popup)
             else:
-                check_content = CheckDialog(cancel=self.dismiss_subpopup)
+                check_content = check_wgt(cancel=self.dismiss_subpopup)
 
-            check_content.ids.check_text.text = text
+            if isinstance(check_content, CheckDialog):
+                # Set size
+                size = (300, 200)
+                # Sep separator color
+                sep_color = self._red
+                # Set popup title
+                title = "Warning!"
+                # Set text for dialog
+                check_content.ids.check_text.text = text
+            elif isinstance(check_content, CheckProject):
+                title = "Project overview"
+                size = (350, 230)
+                sep_color = self._blue
+                check_content.ids.proj_name.text = text[0]
+                check_content.ids.file_num.text = text[1]
+
             if bt_wgt and not args:
                 check_content.ids.check_ok.bind(
                     on_release=lambda val: func(bt_wgt))
@@ -1850,18 +1876,15 @@ if __name__ == "__main__":
                         on_release=lambda val: func())
 
             if popup_level == 1:
-                self.show_popup(title="Warning!", content=check_content,
-                                size=(300, 200),
-                                separator_color=[255 / 255., 85 / 255., 85 /
-                                                 255., 1.])
+                self.show_popup(title=title, content=check_content,
+                                size=size,
+                                separator_color=sep_color)
             else:
-                self._subpopup = CustomPopup(title="Warning!",
+                self._subpopup = CustomPopup(title=title,
                                              content=check_content,
-                                             size=(300, 200),
+                                             size=size,
                                              size_hint=(None, None),
-                                             separator_color=[255 / 255.,
-                                                              85 / 255.,
-                                                              85 / 255., 1.])
+                                             separator_color=sep_color)
                 self._subpopup.open()
 
             return True
@@ -4653,12 +4676,13 @@ if __name__ == "__main__":
                     # Populate sidepanel
                     for name, p in projects_dic.items():
                         project_grid = self.root.ids.project_grid
-                        self.add_project_bt(name, p[1], project_grid)
+                        self.add_project_bt(name, len(p[0]), p[1], project_grid)
 
                         # Populates main screen if active
                         if "home_projects_grid" in self.screen.ids:
                             project_grid = self.screen.ids.home_projects_grid
-                            self.add_project_bt(name, p[1], project_grid)
+                            self.add_project_bt(name, len(p[0]), p[1],
+                                                project_grid)
 
             # This handles cases where the projects file has
             # not been populated yet
@@ -4698,16 +4722,19 @@ if __name__ == "__main__":
                     ds_type = "orthology"
 
             project_grid = self.root.ids.project_grid
-            self.add_project_bt(name, ds_type, project_grid)
+            self.add_project_bt(name, len(self.file_list), ds_type,
+                                project_grid)
 
             if "home_projects_grid" in self.screen.ids:
                 project_grid = self.screen.ids.home_projects_grid
-                self.add_project_bt(name, ds_type, project_grid)
+                self.add_project_bt(name, len(self.file_list), ds_type,
+                                    project_grid)
 
-        def add_project_bt(self, name, ds_type, grid_wgt):
+        def add_project_bt(self, name, file_num, ds_type, grid_wgt):
             """
             Wrapper that adds a project button to the sidepanel
             :param name: string, name of the project
+            :param file_num: int, number of files associated with project
             :param ds_type: string, type of dataset. Can be either 'orthology'
             or 'process'
             :param grid_wgt: GridLayut widget where the project is to be added
@@ -4724,15 +4751,23 @@ if __name__ == "__main__":
             bt = TFButton(text=name, size_hint_y=None, height=35, bold=True,
                           id=name)
 
+            # Set markup message for project name
+            msg1 = "[b][color=ccccccff]Project name:[/color][/b] {}".format(
+                name)
+
+            # Set markup message for number of files
+            msg2 = "[b][color=ccccccff]Number of files:[/color][/b] {}".format(
+                str(file_num))
+
             if ds_bt == "orthology":
                 pass
             else:
                 bt.bind(on_release=partial(
                     self.check_action,
-                    "Are you sure you want to load a new project? Any "
-                    "previously loaded data will be removed.",
+                    [msg1, msg2],
                     self.open_project,
-                    **{"args": [name]}))
+                    **{"args": [name],
+                       "check_wgt": CheckProject}))
 
             rm_bt = Button(size_hint=(None, None), size=(35, 35),
                 id=name, border=(0, 0, 0, 0),
