@@ -2703,7 +2703,7 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
 
-    def lenght_polymorphism_correlation(self):
+    def length_polymorphism_correlation(self):
         """
         Generates data for a scatter plot and correlation analysis between
         alignment length and informative sites (polymorphic sites in at least
@@ -2727,6 +2727,23 @@ class AlignmentList(Base):
                 "table_header": ["Alignment length", "Informative sites"],
                 "correlation": True}
 
+    def taxa_distribution(self):
+        """
+        Generates data for a distribution of taxa frequency across alignments
+        """
+
+        data = []
+
+        for aln in self.alignments.values():
+
+            # Get number of taxa
+            data.append(len(aln.alignment))
+
+        return {"data": data,
+                "ax_names": ["Number of taxa", "Frequency"],
+                "title": "Distribution of taxa frequency",
+                "table_header": ["Number of taxa", "Frequency"],
+                "real_bin_num": True}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
