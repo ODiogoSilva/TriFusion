@@ -7322,7 +7322,8 @@ if __name__ == "__main__":
                  MissingData()]],
                 "Polymorphism and Variation":
                 [self.screen.ids.polymorphism_data_opts, [SequenceSimilarity(),
-                                                          SegregatingSites()]]}
+                                                          SegregatingSites(),
+                                                          LVCorrelation()]]}
 
             # Get active type
             main_gl = self.screen.ids.main_stats_opts
@@ -7396,7 +7397,9 @@ if __name__ == "__main__":
                 "Segregating sites sp":
                 [triangular_heat, "segregating_sites_sp.png"],
                 "Segregating sites gn":
-                [sliding_window, "segregating_sites_gn.png"]}
+                [sliding_window, "segregating_sites_gn.png"],
+                "Alignment length/Polymorphism correlation":
+                [scatter_plot, "length_polymorphism_correlation.png"]}
 
             # Dict of plt_idx identifiers that will trigger the stats toggle
             # widget with the information needed to give functionality to
@@ -7491,6 +7494,7 @@ if __name__ == "__main__":
                  "single_gene": {"plt_idx": "Segregating sites gn"}}}
 
             if plot_data:
+                print(self.stats_plt_method[plt_idx])
                 # Set new plot attributes
                 self.current_plot, self.current_lgd, self.current_table = \
                     self.stats_plt_method[plt_idx][0](**plot_data)
@@ -7500,7 +7504,8 @@ if __name__ == "__main__":
                 self.plot_backups[plt_idx] = self.current_table
 
                 pickle.dump(self.current_plot,
-                            open(join(self.temp_dir, plt_idx), "wb"))
+                            open(join(self.temp_dir, plt_idx.replace("/", "")),
+                                 "wb"))
 
                 self.current_plot.savefig(
                     join(self.temp_dir, self.stats_plt_method[plt_idx][1]),

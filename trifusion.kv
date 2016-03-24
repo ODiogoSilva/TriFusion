@@ -5144,6 +5144,12 @@
             app.stats_select_plot("Segregating sites gn", "Segregating sites sp", "Segregating sites")
     HelpButton:
 
+<LVCorrelation>
+    TFButtonOff:
+        text: "Alignment length/Polymorphism correlation"
+        on_release:
+            app.stats_show_plot(self.text)
+    HelpButton:
 
 ## Missing data
 

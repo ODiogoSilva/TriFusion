@@ -673,6 +673,10 @@ class MissingOrto(StatsBox):
     pass
 
 
+class LVCorrelation(StatsBox):
+    pass
+
+
 class LoadMultipleDialog(BoxLayout):
     """
     A Filechooser widget in Icon view that allows multpiple file choosing
