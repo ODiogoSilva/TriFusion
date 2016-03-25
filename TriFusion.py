@@ -7405,6 +7405,8 @@ if __name__ == "__main__":
                 [scatter_plot, "length_polymorphism_correlation.png"],
                 "Distribution of taxa frequency":
                 [histogram_plot, "distribution_taxa_frequency.png"],
+                "Missing data outliers":
+                [outlier_densisty_dist, "Missing_data_outliers.png"],
                 "Missing data outliers sp":
                 [outlier_densisty_dist, "Missing_data_outliers_sp.png"]}
 
@@ -7499,9 +7501,15 @@ if __name__ == "__main__":
                  "active_bt": "gene",
                  "single_gene": {"plt_idx": "Segregating sites gn"}},
 
+                "Missing data outliers":
+                {"args1": {"plt_idx": "Missing data outliers sp"},
+                 "args2": None,
+                 "active_bt": "avg",
+                 "single_gene": None},
+
                 "Missing data outliers sp":
                 {"args1": None,
-                 "args2": None,
+                 "args2": {"plt_idx": "Missing data outliers"},
                  "active_bt": "sp",
                  "single_gene": None}}
 
