@@ -693,7 +693,7 @@ def punchcard_plot(data, labels=None, legend=None, ax_names=None,
     return fig, None, None
 
 
-def outlier_densisty_dist(data, outliers):
+def outlier_densisty_dist(data, outliers, outliers_labels=None):
     """
     Creates a density distribution for data and highlights outliers
     :param data: 1D array containing data points
@@ -715,7 +715,12 @@ def outlier_densisty_dist(data, outliers):
     lgd = ax.legend(frameon=True, loc=2, fancybox=True, shadow=True,
                     framealpha=.8, prop={"weight": "bold"})
 
-    return fig, lgd, None
+    if outliers_labels:
+        table = [[x] for x in outliers_labels]
+    else:
+        table = None
+
+    return fig, lgd, table
 
 
 def sliding_window(data, window_size, ax_names=None, table_header=None):

@@ -595,7 +595,7 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                    aln_obj.length_polymorphism_correlation,
                "Distribution of taxa frequency":
                    aln_obj.taxa_distribution,
-               "Missing data outliers":aln_obj.outlier_missing_data,
+               "Missing data outliers": aln_obj.outlier_missing_data,
                "Missing data outliers sp": aln_obj.outlier_missing_data_sp}
 
     if additional_args:
