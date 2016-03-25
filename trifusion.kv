@@ -3630,6 +3630,7 @@
         size_hint_y: None
         height: 30
         BoxLayout:
+            id: ok_bx
             size_hint_x: None
             width: 180
             spacing: 10
@@ -4948,6 +4949,41 @@
             id: proportion
             on_release:
                 app.stats_show_plot(self.plt_idx, {"proportions": True})
+    Widget
+
+
+<OutlierFooter>:
+    padding: 5
+    ds_type: ""
+    BoxLayout:
+        size_hint_x: None
+        width: 450
+        spacing:10
+        Label:
+            id: outlier_number
+            bold: True
+            color: app._red
+        TFButton:
+            id: o_rm
+            size_hint: None, 1
+            width: 100
+            text: "Remove"
+            on_release:
+                app.stats_handle_outliers("remove", root.ds_type)
+        TFButton:
+            id: o_exp
+            size_hint: None, 1
+            width: 100
+            text: "Export"
+            on_release:
+                app.stats_handle_outliers("export", root.ds_type)
+        TFButton:
+            id: o_view
+            size_hint: None, 1
+            width: 100
+            text: "View"
+            on_release:
+                app.stats_handle_outliers("view", root.ds_type)
     Widget
 
 <StatsMoreBt>:
