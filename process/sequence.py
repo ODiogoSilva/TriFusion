@@ -2781,6 +2781,41 @@ class AlignmentList(Base):
 
         return z_score > threshold
 
+    def outlier_missing_data(self):
+        """
+        Get data for outlier detection of genes based on the distribution of
+        average missing data per gene. Data points will be based on the
+        proportion of missing data symbols out of the possible total. For
+        example, in an alignment with three taxa, each with 100 sites,
+        the total possible missing data is 300 (100 * 3). Here, missing data
+        will be gathered from all taxa and a proportion will be calculated
+        based n the total possible
+        """
+
+        data_labels = []
+        data_points = []
+
+        for gn, aln in self.alignments.items():
+
+            total_len = aln.locus_length * len(aln.alignment)
+            gn_data = 0
+
+            for seq in aln.sequences():
+                gn_data += seq.count(self.sequence_code[1]) + \
+                          seq.count(self.gap_symbol)
+
+            m_data = float(gn_data) / float(total_len)
+            data_points.append(m_data)
+            data_labels.append(gn)
+
+        data_points = np.asarray(data_points)
+
+        # Get outliers
+        outliers = data_points[self._mad_based_outlier(data_points)]
+
+        return {"data": data_points,
+                "outliers": outliers}
+
     def outlier_missing_data_sp(self):
         """
         Gets data for outlier detection of species based on missing data. For
