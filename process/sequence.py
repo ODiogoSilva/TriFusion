@@ -2809,12 +2809,17 @@ class AlignmentList(Base):
             data_labels.append(gn)
 
         data_points = np.asarray(data_points)
+        data_labels = np.asarray(data_labels)
 
         # Get outliers
-        outliers = data_points[self._mad_based_outlier(data_points)]
+        outliers_points = data_points[self._mad_based_outlier(data_points)]
+        # Get outlier labels
+        outliers_labels = list(data_labels[self._mad_based_outlier(
+            data_points)])
 
         return {"data": data_points,
-                "outliers": outliers}
+                "outliers": outliers_points,
+                "outliers_labels": outliers_labels}
 
     def outlier_missing_data_sp(self):
         """
@@ -2854,12 +2859,16 @@ class AlignmentList(Base):
             data_labels.append(tx)
 
         data_points = np.asarray(data_points)
+        data_labels = np.asarray(data_labels)
 
         # Get outliers
-        outliers = data_points[self._mad_based_outlier(data_points)]
+        outliers_points = data_points[self._mad_based_outlier(data_points)]
+        # Get outlier taxa
+        outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
 
         return {"data": data_points,
-                "outliers": outliers}
+                "outliers": outliers_points,
+                "outliers_labels": outlier_labels}
 
 
 __author__ = "Diogo N. Silva"
