@@ -2756,6 +2756,77 @@ class AlignmentList(Base):
                 "table_header": ["Number of taxa", "Frequency"],
                 "real_bin_num": True}
 
+    @staticmethod
+    def _mad_based_outlier(p, threshold=3.5):
+        """
+        An outlier detection method based on median absolute deviation. This
+        code was adapted from http://stackoverflow.com/a/22357811/1990165.
+        The usage of media is much less biased that the mean and is robust to
+        smaller data sets.
+        :param p: Num of observations
+        :param threshold: modified Z-score to use as a threshold.
+        """
+
+        if len(p.shape) == 1:
+            p = p[:, None]
+        # Get sample median.
+        median = np.median(p, axis=0)
+        diff = np.sum((p - median) ** 2, axis=-1)
+        diff = np.sqrt(diff)
+        med_abs_deviation = np.median(diff)
+
+        # The 0.6745is a constant that makes values roughly equivalent in
+        # units to standard deviations.
+        z_score = 0.6745 * diff / med_abs_deviation
+
+        return z_score > threshold
+
+    def outlier_missing_data_sp(self):
+        """
+        Gets data for outlier detection of species based on missing data. For
+        this analysis, genes for which a taxa is completely absent will be
+        ignored for the calculations of that taxa. The reason for this,
+        is that including genes where the taxon is absent would bias the
+        outlier detection towards taxa that have low prevalence in the data
+        set, even if they have low missing data in the alignments where they
+        are present.
+        """
+
+        data = dict((tx, []) for tx in self.taxa_names)
+
+        for aln in self.alignments.values():
+
+            total_len = aln.locus_length
+
+            # Get missing data for every taxon
+            for tx in data:
+                if tx in aln.alignment:
+                    seq = aln.get_sequence(tx)
+                    m_data = float(seq.count(self.sequence_code[1]) +
+                                   seq.count(self.gap_symbol)) / \
+                        float(total_len)
+                    data[tx].append(m_data)
+
+        # Get average for each taxon
+        for tx, vals in data.items():
+            data[tx] = np.mean(vals)
+
+        # Prepara data for plotting
+        data_points = []
+        data_labels = []
+        for tx, vals in data.items():
+            data_points.append(vals)
+            data_labels.append(tx)
+
+        data_points = np.asarray(data_points)
+
+        # Get outliers
+        outliers = data_points[self._mad_based_outlier(data_points)]
+
+        return {"data": data_points,
+                "outliers": outliers}
+
+
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]

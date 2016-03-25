@@ -7322,7 +7322,9 @@ if __name__ == "__main__":
                 "Polymorphism and Variation":
                 [self.screen.ids.polymorphism_data_opts, [SequenceSimilarity(),
                                                           SegregatingSites(),
-                                                          LVCorrelation()]]}
+                                                          LVCorrelation()]],
+                "Outlier detection":
+                [self.screen.ids.outlier_opts, [OutlierMissing()]]}
 
             # Get active type
             main_gl = self.screen.ids.main_stats_opts
@@ -7402,7 +7404,9 @@ if __name__ == "__main__":
                 "Alignment length/Polymorphism correlation":
                 [scatter_plot, "length_polymorphism_correlation.png"],
                 "Distribution of taxa frequency":
-                [histogram_plot, "distribution_taxa_frequency.png"]}
+                [histogram_plot, "distribution_taxa_frequency.png"],
+                "Missing data outliers sp":
+                [outlier_densisty_dist, "Missing_data_outliers_sp.png"]}
 
             # Dict of plt_idx identifiers that will trigger the stats toggle
             # widget with the information needed to give functionality to
@@ -7493,7 +7497,13 @@ if __name__ == "__main__":
                 {"args1": {"plt_idx": "Segregating sites sp"},
                  "args2": {"plt_idx": "Segregating sites"},
                  "active_bt": "gene",
-                 "single_gene": {"plt_idx": "Segregating sites gn"}}}
+                 "single_gene": {"plt_idx": "Segregating sites gn"}},
+
+                "Missing data outliers sp":
+                {"args1": None,
+                 "args2": None,
+                 "active_bt": "sp",
+                 "single_gene": None}}
 
             if plot_data:
                 # Set new plot attributes
@@ -7508,9 +7518,15 @@ if __name__ == "__main__":
                             open(join(self.temp_dir, plt_idx.replace("/", "")),
                                  "wb"))
 
-                self.current_plot.savefig(
-                    join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
-                    bbox_inches="tight", dpi=200)
+                if self.current_lgd:
+                    self.current_plot.savefig(
+                        join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
+                        bbox_extra_artists=(self.current_lgd,),
+                        bbox_inches="tight", dpi=200)
+                else:
+                    self.current_plot.savefig(
+                        join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
+                        bbox_inches="tight", dpi=200)
 
             if plt_idx in stats_compliant:
 

@@ -81,6 +81,15 @@ ShowcaseScreen:
                                 grid_name: "Missing Data"
 
                             TFStatsButton:
+                                text: "Outlier detection"
+                                on_release:
+                                    app.toggle_stats_options(self, self.text)
+
+                            OptsGrid:
+                                id: outlier_opts
+                                grid_name: "Outlier detection"
+
+                            TFStatsButton:
                                 text: "Phylogenetic Tree Annotation"
 
                             OptsGrid:

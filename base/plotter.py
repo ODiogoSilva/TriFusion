@@ -29,12 +29,14 @@ matplotlib.use("agg")
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.lines as mlines
 from matplotlib.patches import Circle
 from matplotlib.collections import PatchCollection
 from scipy.stats import spearmanr
 import numpy as np
 from itertools import chain
 from collections import Counter
+import seaborn as sns
 
 """
 Set of 10 easily distinguishable colors that will be used when generating plots
@@ -689,6 +691,31 @@ def punchcard_plot(data, labels=None, legend=None, ax_names=None,
     ax.add_collection(p)
 
     return fig, None, None
+
+
+def outlier_densisty_dist(data, outliers):
+    """
+    Creates a density distribution for data and highlights outliers
+    :param data: 1D array containing data points
+    :param outliers: 1D array containing the outliers
+    """
+
+    plt.rcParams["figure.figsize"] = (8, 6)
+
+    fig, ax = plt.subplots()
+
+    # Create density function
+    sns.distplot(data, rug=True, hist=False, color="black")
+
+    # Plot outliers
+    ax.plot(outliers, np.zeros_like(outliers), "ro", clip_on=False,
+            label="Outliers")
+
+    # Create legend
+    lgd = ax.legend(frameon=True, loc=2, fancybox=True, shadow=True,
+                    framealpha=.8, prop={"weight": "bold"})
+
+    return fig, lgd, None
 
 
 def sliding_window(data, window_size, ax_names=None, table_header=None):

@@ -5211,6 +5211,15 @@
             app.stats_select_plot(None, "Distribution of missing data sp", "Distribution of missing data")
     HelpButton:
 
+## Outlier detection
+
+<OutlierMissing>:
+    TFButtonOff:
+        text: "Missing data outliers"
+        on_release:
+            app.stats_select_plot(None, "Missing data outliers sp", None)
+    HelpButton:
+
 
 #===============================================================================
 # ROOT SCREEN

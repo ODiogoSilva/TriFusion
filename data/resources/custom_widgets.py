@@ -681,6 +681,10 @@ class TaxaDistribution(StatsBox):
     pass
 
 
+class OutlierMissing(StatsBox):
+    pass
+
+
 class LoadMultipleDialog(BoxLayout):
     """
     A Filechooser widget in Icon view that allows multpiple file choosing
