@@ -110,67 +110,76 @@ ShowcaseScreen:
                             size_hint_y: None
                             height: 30
                             spacing: 10
-                            ProcessBt:
-                                id: active_file_set
-                                text: "Active files"
-                                on_release: app.statistics_populate_groups("files"); file_dropdown.open(self)
+                            BoxLayout:
+                                spacing: 10
+                                ProcessBt:
+                                    id: active_file_set
+                                    text: "Active files"
+                                    on_release: app.statistics_populate_groups("files"); file_dropdown.open(self)
 
-                            ProcessBt:
-                                id: active_taxa_set
-                                text: "Active taxa"
-                                on_release: app.statistics_populate_groups("taxa"); taxa_dropdown.open(self)
+                                ProcessBt:
+                                    id: active_taxa_set
+                                    text: "Active taxa"
+                                    on_release: app.statistics_populate_groups("taxa"); taxa_dropdown.open(self)
 
-                            DropDown:
-                                id: taxa_dropdown
-                                on_select: active_taxa_set.text = args[1]
-                                canvas.before:
-                                    Color:
-                                        rgba: (0,0,0,1)
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
+                                DropDown:
+                                    id: taxa_dropdown
+                                    on_select: active_taxa_set.text = args[1]
+                                    canvas.before:
+                                        Color:
+                                            rgba: (0,0,0,1)
+                                        Rectangle:
+                                            pos: self.pos
+                                            size: self.size
 
-                                Button:
-                                    background_normal: "data/backgrounds/spinner_opt.png"
-                                    text: 'All taxa'
-                                    size_hint_y: None
-                                    height: 40
-                                    bold: True
-                                    on_release: taxa_dropdown.select(self.text)
+                                    Button:
+                                        background_normal: "data/backgrounds/spinner_opt.png"
+                                        text: 'All taxa'
+                                        size_hint_y: None
+                                        height: 40
+                                        bold: True
+                                        on_release: taxa_dropdown.select(self.text)
 
-                                Button:
-                                    background_normal: "data/backgrounds/spinner_opt.png"
-                                    text: 'Active taxa'
-                                    size_hint_y: None
-                                    height: 40
-                                    bold: True
-                                    on_release: taxa_dropdown.select(self.text)
+                                    Button:
+                                        background_normal: "data/backgrounds/spinner_opt.png"
+                                        text: 'Active taxa'
+                                        size_hint_y: None
+                                        height: 40
+                                        bold: True
+                                        on_release: taxa_dropdown.select(self.text)
 
-                            DropDown:
-                                id: file_dropdown
-                                on_select: active_file_set.text = args[1]
-                                canvas.before:
-                                    Color:
-                                        rgba: (0,0,0,1)
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
+                                DropDown:
+                                    id: file_dropdown
+                                    on_select: active_file_set.text = args[1]
+                                    canvas.before:
+                                        Color:
+                                            rgba: (0,0,0,1)
+                                        Rectangle:
+                                            pos: self.pos
+                                            size: self.size
 
-                                Button:
-                                    background_normal: "data/backgrounds/spinner_opt.png"
-                                    text: 'All files'
-                                    size_hint_y: None
-                                    height: 40
-                                    bold: True
-                                    on_release: file_dropdown.select(self.text)
+                                    Button:
+                                        background_normal: "data/backgrounds/spinner_opt.png"
+                                        text: 'All files'
+                                        size_hint_y: None
+                                        height: 40
+                                        bold: True
+                                        on_release: file_dropdown.select(self.text)
 
-                                Button:
-                                    background_normal: "data/backgrounds/spinner_opt.png"
-                                    text: 'Active files'
-                                    size_hint_y: None
-                                    height: 40
-                                    bold: True
-                                    on_release: file_dropdown.select(self.text)
+                                    Button:
+                                        background_normal: "data/backgrounds/spinner_opt.png"
+                                        text: 'Active files'
+                                        size_hint_y: None
+                                        height: 40
+                                        bold: True
+                                        on_release: file_dropdown.select(self.text)
+                            Button:
+                                size_hint: None, None
+                                size: 30, 30
+                                background_normal: "data/backgrounds/refresh_bt.png"
+                                background_down: "data/backgrounds/refresh_bt.png"
+                                on_release:
+                                    app.stats_show_plot(*app.current_plt_idx)
 
         FloatLayout:
             size_hint_x: None
