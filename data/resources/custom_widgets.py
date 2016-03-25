@@ -776,6 +776,10 @@ class PropSwitcher(BoxLayout):
     pass
 
 
+class OutlierFooter(BoxLayout):
+    pass
+
+
 class RevConcDialog(BoxLayout):
     """
     Reverse concatenation dialog

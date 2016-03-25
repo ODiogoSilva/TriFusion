@@ -244,6 +244,7 @@ if __name__ == "__main__":
 
         # Attributes containing plot related elements
         plot_backups = {}
+        current_plt_idx = StringProperty(None)
         current_plot = ObjectProperty(None, allownone=True)
         current_lgd = None
         current_table = ObjectProperty(None, allownone=True)
@@ -2266,11 +2267,13 @@ if __name__ == "__main__":
 
             self.dialog_floatcheck("Graphic successfully exported!", t="info")
 
-        def export_table(self, path, file_name):
+        def export_table(self, path, file_name, warning_dlg=True):
             """
             Saves the current_table list attribute to a .csv file.
             :param path: string, path to final directory
             :param file_name: string, name of table file
+            :param warning_dlg: boolean. If True, issue a float dialog when
+            the operation is done. If false do not issue the float dialog.
             """
 
             # Create table file object handle
@@ -2284,7 +2287,8 @@ if __name__ == "__main__":
             # Close file object
             table_handle.close()
 
-            self.dialog_floatcheck("Table successfully exported!", t="info")
+            if warning_dlg:
+                self.dialog_floatcheck("Table successfully exported!", t="info")
 
         # ####################### SIDE PANEL OPERATIONS ########################
 
@@ -3880,6 +3884,7 @@ if __name__ == "__main__":
             self.sp_taxa_bts = []
             self.sp_file_bts = []
             self.previous_mouse_over = ""
+            self.current_plt_idx = ""
             self.current_plot = None
             self.current_table = None
 
@@ -4015,6 +4020,7 @@ if __name__ == "__main__":
                 self.trigger_taxa_update = True
                 # Update file list
                 file_path = self.filename_map[bt_idx]
+                del self.filename_map[bt_idx]
                 self.file_list.remove(file_path)
                 # Update active file list. If the file has been removed from the
                 # active list, this will handle the exception
@@ -4023,7 +4029,7 @@ if __name__ == "__main__":
                 except ValueError:
                     pass
                 # Update alignment object list
-                self.alignment_list.remove_file([self.filename_map[bt_idx]])
+                self.alignment_list.remove_file([file_path])
 
                 # Update active taxa list. This must be executed before calling
                 # self.get_taxa_information since this method relies on an
@@ -4077,14 +4083,32 @@ if __name__ == "__main__":
             else:
                 wgt = self.root.ids.file_sl
                 # If a file does not exist in the app, add it here
-                missing_elements = [x for x in selection if
-                                 self.filename_map[x] not in self.file_list]
+                missing_elements = [x for x in selection
+                                    if x not in self.filename_map]
 
+            # Removes buttons from side panel. In the case of Files, some may
+            # not be loaded as a button in the side panel (due to the limit
+            # of 20 files by default). These files have to be removed from
+            # other structures in the code below
             it = iter([(x, x.id) for x in wgt.children])
-
             for bt, idx in it:
                 if idx in selection_idx:
                     self.remove_bt(bt, parent_wgt=wgt)
+                    selection_idx.remove(idx)
+
+            for idx in selection_idx:
+                if idx[:-1] in self.filename_map:
+                    # Set the update_taxa attribute to True so that it updates
+                    # the next time the taxa information is queried
+                    self.trigger_taxa_update = True
+                    file_path = self.filename_map[idx[:-1]]
+                    del self.filename_map[idx[:-1]]
+                    self.file_list.remove(file_path)
+                    try:
+                        self.active_file_list.remove(file_path)
+                    except ValueError:
+                        pass
+                    self.alignment_list.remove_file([file_path])
 
             self.update_taxa()
             self.update_partitions()
@@ -7551,6 +7575,10 @@ if __name__ == "__main__":
             # proportions
             prop_plots = [["Segregating sites"], ["Segregating sites prop"]]
 
+            # List of plots with outlier footer
+            outlier_plots = ["Missing data outliers",
+                             "Missing data outliers sp"]
+
             # Adds or removes the horizontal threshold option slider from the
             # Screen footer
             if plt_idx in hseparator_plots:
@@ -7561,11 +7589,9 @@ if __name__ == "__main__":
                     [int(x) for x in ylims]
                 hwgt.plt_file = self.stats_plt_method[plt_idx][1]
                 self.screen.ids.footer_box.add_widget(hwgt)
-            else:
-                self.screen.ids.footer_box.clear_widgets()
 
             # Adds or removes the Absolute/Proportion switcher from the footer
-            if plt_idx in prop_plots[0] + prop_plots[1]:
+            elif plt_idx in prop_plots[0] + prop_plots[1]:
 
                 swt = PropSwitcher()
 
@@ -7585,6 +7611,34 @@ if __name__ == "__main__":
                 swt.ids.proportion.plt_idx = prop_idx
 
                 self.screen.ids.footer_box.add_widget(swt)
+
+            # Adds or removes outlier footer
+            elif plt_idx in outlier_plots:
+
+                self.screen.ids.footer_box.clear_widgets()
+                outlier_wgt = OutlierFooter()
+
+                # Outliers are present when self.current_table is not None
+                if self.current_table:
+                    outlier_num = len(self.current_table)
+                    # Set label with number of outliers
+                    outlier_wgt.ids.outlier_number.text = \
+                        "{} outliers found".format(outlier_num)
+                    # Set the data set type based on the ending of the
+                    # plt_idx. Species plots always end with " sp"
+                    if plt_idx.endswith(" sp"):
+                        outlier_wgt.ds_type = "Taxa"
+                    else:
+                        outlier_wgt.ds_type = "Files"
+                else:
+                    # If no outliers were found, disabled all buttons
+                    outlier_wgt.ids.o_rm.disabled = True
+                    outlier_wgt.ids.o_exp.disabled = True
+                    outlier_wgt.ids.o_view.disabled = True
+                    outlier_wgt.ids.outlier_number.text = "No outliers found"
+
+                self.screen.ids.footer_box.add_widget(outlier_wgt)
+
             else:
                 self.screen.ids.footer_box.clear_widgets()
 
@@ -7662,6 +7716,56 @@ if __name__ == "__main__":
 
             self.show_popup(title="Select plot type", content=content,
                             size=(400, 180))
+
+        def stats_handle_outliers(self, operation, ds_type):
+            """
+            Function that handles the processing of outliers in the stats plots
+            :param operation: string, three operations are available:
+                .:remove: Removes outliers from data set
+                .:export: Export outliers to text file
+                .:view: Opens a new dialog with the list of outliers
+            :param ds_type: string, two ds_types are available:
+                .:Taxa: Removes taxa
+                .:Files: Removes files
+            """
+
+            # Remove elements from app
+            if operation == "remove":
+
+                # The removal of taxa/files uses the export_table function to
+                # dump the outliers into a file and then the
+                # remove_bt_from_file function to remove them form the app
+                self.export_table(self.temp_dir, "outlier_temp", False)
+
+                self.remove_bt_from_file(ds_type, join(self.temp_dir,
+                                                       "outlier_temp.csv"))
+
+                # Remove temporary outlier text file
+                os.remove(join(self.temp_dir, "outlier_temp.csv"))
+
+                # Refresh plot after outlier removal
+                self.stats_show_plot(self.current_plt_idx)
+
+                self.dialog_floatcheck(
+                    "{} outliers where removed".format(len(self.current_table),
+                                                       ds_type), t="info")
+
+            if operation == "export":
+                self.dialog_filechooser("export_table")
+
+            if operation == "view":
+
+                content = InputList(cancel=self.dismiss_popup)
+                content.ids.ok_bx.remove_widget(content.ids.ok_bt)
+                content.ids.ok_bx.width = 100
+                for outlier in self.current_table:
+                    bt = TFButton(text=outlier[0], height=30)
+                    content.ids.rev_inlist.add_widget(bt)
+
+                self.show_popup(
+                    title="{} {} outlier(s)".format(len(self.current_table),
+                                                    ds_type),
+                    content=content, size=(450, 500))
 
         def populate_stats_footer(self, footer):
             """
@@ -7753,6 +7857,13 @@ if __name__ == "__main__":
                 self.previous_sets["Files"] = file_set
                 self.previous_sets["Taxa"] = taxa_set
 
+                # Remove previous plots when data sets are modified
+                for p in self.stats_plt_method.values():
+                    try:
+                        os.remove(join(self.temp_dir, p[1]))
+                    except OSError:
+                        pass
+
             self.run_in_background(
                 func=get_stats_data,
                 second_func=self.stats_write_plot,
@@ -7761,6 +7872,10 @@ if __name__ == "__main__":
                 args2=[plt_idx])
 
             self.toggle_stats_panel(force_close=True)
+
+            # Sets the current_plt_idx so that plots can be updated and
+            # reload the current plot
+            self.current_plt_idx = plt_idx
 
         def dialog_select_gene(self, plt_idx):
             """
