@@ -244,7 +244,7 @@ if __name__ == "__main__":
 
         # Attributes containing plot related elements
         plot_backups = {}
-        current_plt_idx = StringProperty(None)
+        current_plt_idx = ListProperty(None)
         current_plot = ObjectProperty(None, allownone=True)
         current_lgd = None
         current_table = ObjectProperty(None, allownone=True)
@@ -3695,7 +3695,7 @@ if __name__ == "__main__":
                 To support multiple selection using shift+click,
                 this function will return the list of buttons to be modified,
                 even if it is a single one (when shift is not being pressed)
-                :param bt: ToggleButton objet from sidepanel
+                :param bt: ToggleButton object from sidepanel
                 :param tab: string, identifier of current tab. Either File,
                 Taxa or Partitions
                 """
@@ -3884,7 +3884,7 @@ if __name__ == "__main__":
             self.sp_taxa_bts = []
             self.sp_file_bts = []
             self.previous_mouse_over = ""
-            self.current_plt_idx = ""
+            self.current_plt_idx = []
             self.current_plot = None
             self.current_table = None
 
@@ -7744,7 +7744,8 @@ if __name__ == "__main__":
                 os.remove(join(self.temp_dir, "outlier_temp.csv"))
 
                 # Refresh plot after outlier removal
-                self.stats_show_plot(self.current_plt_idx)
+                self.stats_show_plot(self.current_plt_idx[0],
+                                     self.current_plt_idx[1])
 
                 self.dialog_floatcheck(
                     "{} outliers where removed".format(len(self.current_table),
@@ -7807,6 +7808,10 @@ if __name__ == "__main__":
             file_set_name = self.screen.ids.active_file_set.text
             taxa_set_name = self.screen.ids.active_taxa_set.text
 
+            # Note: When setting file_set, the objects file_list,
+            # active_taxa_list, etc should not be directly assigned since
+            # changes to these objects will also change the taxa_set,
+            # and consequently, the self.previous_sets
             if file_set_name == "All files":
                 file_set = [basename(x) for x in self.file_list]
             elif file_set_name == "Active files":
@@ -7815,9 +7820,9 @@ if __name__ == "__main__":
                 file_set = self.file_groups[file_set_name]
 
             if taxa_set_name == "Active taxa":
-                taxa_set = self.active_taxa_list
+                taxa_set = [x for x in self.active_taxa_list]
             elif taxa_set_name == "All taxa":
-                taxa_set = self.alignment_list.taxa_names
+                taxa_set = [x for x in self.alignment_list.taxa_names]
             else:
                 taxa_set = self.taxa_groups[taxa_set_name]
 
@@ -7875,7 +7880,7 @@ if __name__ == "__main__":
 
             # Sets the current_plt_idx so that plots can be updated and
             # reload the current plot
-            self.current_plt_idx = plt_idx
+            self.current_plt_idx = [plt_idx, additional_args]
 
         def dialog_select_gene(self, plt_idx):
             """
