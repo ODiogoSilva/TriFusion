@@ -7506,6 +7506,7 @@ if __name__ == "__main__":
                 try:
                     prop_idx = prop_plots[1][prop_plots[0].index(plt_idx)]
                     abs_idx = plt_idx
+                    swt.ids.abs.state = "down"
                 except ValueError:
                     abs_idx = prop_plots[0][prop_plots[1].index(plt_idx)]
                     prop_idx = plt_idx
