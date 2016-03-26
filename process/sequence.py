@@ -2488,10 +2488,11 @@ class AlignmentList(Base):
         similarity = 0.0
         total_len = 0.0
 
+        missing = [self.sequence_code[1], self.gap_symbol]
+
         for c1, c2 in zip(*[seq1, seq2]):
             # Ignore comparisons with ONLY missing data / gaps
-            if c1 + c2.replace(self.sequence_code[1], "").replace(
-                    self.gap_symbol, "") == "":
+            if c1 in missing and c2 in missing:
                 continue
             elif c1 == c2:
                 similarity += 1.0
@@ -2579,7 +2580,8 @@ class AlignmentList(Base):
 
                 x = self._get_similarity(seq1, seq2)
 
-                aln_similarities.append(x)
+                if x:
+                    aln_similarities.append(x)
 
             if aln_similarities:
                 data.append(np.mean(aln_similarities) * 100)
