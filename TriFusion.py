@@ -7348,7 +7348,8 @@ if __name__ == "__main__":
                                                           SegregatingSites(),
                                                           LVCorrelation()]],
                 "Outlier detection":
-                [self.screen.ids.outlier_opts, [OutlierMissing()]]}
+                [self.screen.ids.outlier_opts, [OutlierMissing(),
+                                                OutlierSegregating()]]}
 
             # Get active type
             main_gl = self.screen.ids.main_stats_opts
@@ -7432,7 +7433,9 @@ if __name__ == "__main__":
                 "Missing data outliers":
                 [outlier_densisty_dist, "Missing_data_outliers.png"],
                 "Missing data outliers sp":
-                [outlier_densisty_dist, "Missing_data_outliers_sp.png"]}
+                [outlier_densisty_dist, "Missing_data_outliers_sp.png"],
+                "Segregating sites outliers":
+                [outlier_densisty_dist, "Segregating_sites_outliers.png"]}
 
             # Dict of plt_idx identifiers that will trigger the stats toggle
             # widget with the information needed to give functionality to
@@ -7535,6 +7538,12 @@ if __name__ == "__main__":
                 {"args1": None,
                  "args2": {"plt_idx": "Missing data outliers"},
                  "active_bt": "sp",
+                 "single_gene": None},
+
+                "Segregating sites outliers":
+                {"args1": None,
+                 "args2": None,
+                 "active_bt": "avg",
                  "single_gene": None}}
 
             if plot_data:

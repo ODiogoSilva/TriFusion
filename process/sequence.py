@@ -2870,6 +2870,46 @@ class AlignmentList(Base):
                 "outliers": outliers_points,
                 "outliers_labels": outlier_labels}
 
+    def outlier_segregating(self):
+        """
+        Generates data for the outlier detection of species based on
+        segregating sites. The data will be based on the number of alignments
+        columns with a variable number of sites, excluding gaps and missing
+        data
+        """
+
+        data_points = []
+        data_labels = []
+
+        for aln in self.alignments.values():
+
+            segregating_sites = 0
+
+            for column in zip(*aln.sequences()):
+
+                # Remove gaps and missing characters
+                column = set([x for x in column if x != aln.sequence_code[1] and
+                              x != self.gap_symbol])
+
+                if len(column) > 1:
+                    segregating_sites += 1
+
+            # Get proportion of segregating sites for current alignment
+            data_points.append(float(segregating_sites) /
+                               float(aln.locus_length))
+            data_labels.append(aln.name)
+
+        data_points = np.asarray(data_points)
+        data_labels = np.asarray(data_labels)
+
+        # Get outliers
+        outliers_points = data_points[self._mad_based_outlier(data_points)]
+        # Get outlier taxa
+        outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
+
+        return {"data": data_points,
+                "outliers": outliers_points,
+                "outliers_labels": outlier_labels}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
