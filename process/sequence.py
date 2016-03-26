@@ -2478,21 +2478,28 @@ class AlignmentList(Base):
 
     def _get_similarity(self, seq1, seq2):
         """
-        Gets the similarity between two sequences
+        Gets the similarity between two sequences in proportion. The
+        proportion is calculated here so that sites with only missing
+        data/gaps are not accounted in the total length.
         :param seq1: string
         :param seq2: string
         """
 
         similarity = 0.0
+        total_len = 0.0
 
         for c1, c2 in zip(*[seq1, seq2]):
-            # Ignore comparisons with gaps or missing data
-            if self.sequence_code[1] in [c1, c2] or self.gap_symbol in [c1, c2]:
+            # Ignore comparisons with ONLY missing data / gaps
+            if c1 + c2.replace(self.sequence_code[1], "").replace(
+                    self.gap_symbol, "") == "":
                 continue
             elif c1 == c2:
                 similarity += 1.0
+                total_len += 1.0
+            else:
+                total_len += 1.0
 
-        return similarity
+        return similarity / total_len
 
     def _get_differences(self, seq1, seq2):
         """
@@ -2510,6 +2517,31 @@ class AlignmentList(Base):
 
         return s
 
+    def _get_differences_prop(self, seq1, seq2):
+        """
+        Returns the proportion of differences between two sequences,
+        accounting for sites with only missing data / gaps
+        :param seq1: string, sequence 1
+        :param seq2: string sequence 2
+        :return: s: float, proportion of segregating sites
+        """
+
+        s = 0.0
+        total_len = 0.0
+
+        for c1, c2 in zip(*[seq1, seq2]):
+            # Ignore comparisons with ONLY missing data / gaps
+            if c1 + c2.replace(self.sequence_code[1], "").replace(
+                    self.gap_symbol, "") == "":
+                continue
+            if c1 != c2:
+                s += 1.0
+                total_len += 1.0
+            else:
+                total_len += 1.0
+
+        return s / total_len
+
     def _get_informative_sites(self, aln):
         """
         Determines the number of informative sites in an Alignment object
@@ -2524,10 +2556,11 @@ class AlignmentList(Base):
             column = Counter([x for x in column if x != aln.sequence_code[1] and
                               x != self.gap_symbol])
 
-            # Remove most common and check the lenght of the remaining
-            del column[column.most_common()[0][0]]
-            if sum(column.values()) > 1:
-                informative_sites += 1
+            if len(column) > 1:
+                # Remove most common and check the length of the remaining
+                del column[column.most_common()[0][0]]
+                if sum(column.values()) > 1:
+                    informative_sites += 1
 
         return informative_sites
 
@@ -2546,7 +2579,7 @@ class AlignmentList(Base):
 
                 x = self._get_similarity(seq1, seq2)
 
-                aln_similarities.append(x / float(aln.locus_length))
+                aln_similarities.append(x)
 
             if aln_similarities:
                 data.append(np.mean(aln_similarities) * 100)
@@ -2575,8 +2608,7 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                similarity = self._get_similarity(seq1, seq2) / \
-                                 float(aln.locus_length)
+                similarity = self._get_similarity(seq1, seq2)
                 data[taxa_pos[tx1]][taxa_pos[tx2]].append(similarity)
 
         data = np.array([[np.mean(y) if y else 0. for y in x] for x in data])
@@ -2600,8 +2632,8 @@ class AlignmentList(Base):
                              aln_obj.sequences()])
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
-                window_similarities.append((self._get_similarity(seq1, seq2) /
-                                           window_size) * 100)
+                window_similarities.append(self._get_similarity(seq1, seq2)
+                                           * 100)
 
             if window_similarities:
                 data.append(np.mean(window_similarities))
@@ -2872,7 +2904,7 @@ class AlignmentList(Base):
 
     def outlier_segregating(self):
         """
-        Generates data for the outlier detection of species based on
+        Generates data for the outlier detection of genes based on
         segregating sites. The data will be based on the number of alignments
         columns with a variable number of sites, excluding gaps and missing
         data
@@ -2898,6 +2930,50 @@ class AlignmentList(Base):
             data_points.append(float(segregating_sites) /
                                float(aln.locus_length))
             data_labels.append(aln.name)
+
+        data_points = np.asarray(data_points)
+        data_labels = np.asarray(data_labels)
+
+        # Get outliers
+        outliers_points = data_points[self._mad_based_outlier(data_points)]
+        # Get outlier taxa
+        outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
+
+        return {"data": data_points,
+                "outliers": outliers_points,
+                "outliers_labels": outlier_labels}
+
+    def outlier_segregating_sp(self):
+        """
+        Generates data for the outlier detection of species based on their
+        average pair-wise proportion of segregating sites. Comparisons
+        with gaps or missing data are ignored
+        """
+
+        data = OrderedDict((tx, []) for tx in self.taxa_names)
+
+        for aln in self.alignments.values():
+
+            for tx1, tx2 in itertools.combinations(data.keys(), 2):
+                try:
+                    seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
+                except KeyError:
+                    continue
+
+                s_data = self._get_differences_prop(seq1, seq2)
+
+                data[tx1].append(s_data)
+                data[tx2].append(s_data)
+
+        for tx, vals in data.items():
+            data[tx] = np.mean(vals)
+
+        # Prepara data for plotting
+        data_points = []
+        data_labels = []
+        for tx, vals in data.items():
+            data_points.append(vals)
+            data_labels.append(tx)
 
         data_points = np.asarray(data_points)
         data_labels = np.asarray(data_labels)
