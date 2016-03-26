@@ -7435,7 +7435,9 @@ if __name__ == "__main__":
                 "Missing data outliers sp":
                 [outlier_densisty_dist, "Missing_data_outliers_sp.png"],
                 "Segregating sites outliers":
-                [outlier_densisty_dist, "Segregating_sites_outliers.png"]}
+                [outlier_densisty_dist, "Segregating_sites_outliers.png"],
+                "Segregating sites outliers sp":
+                [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"]}
 
             # Dict of plt_idx identifiers that will trigger the stats toggle
             # widget with the information needed to give functionality to
@@ -7541,9 +7543,15 @@ if __name__ == "__main__":
                  "single_gene": None},
 
                 "Segregating sites outliers":
-                {"args1": None,
+                {"args1": {"plt_idx": "Segregating sites outliers sp"},
                  "args2": None,
                  "active_bt": "avg",
+                 "single_gene": None},
+
+                "Segregating sites outliers sp":
+                {"args1": None,
+                 "args2": {"plt_idx": "Segregating sites outliers"},
+                 "active_bt": "sp",
                  "single_gene": None}}
 
             if plot_data:
@@ -7586,7 +7594,9 @@ if __name__ == "__main__":
 
             # List of plots with outlier footer
             outlier_plots = ["Missing data outliers",
-                             "Missing data outliers sp"]
+                             "Missing data outliers sp",
+                             "Segregating sites outliers",
+                             "Segregating sites outliers sp"]
 
             # Adds or removes the horizontal threshold option slider from the
             # Screen footer

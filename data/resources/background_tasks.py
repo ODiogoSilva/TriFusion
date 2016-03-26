@@ -597,7 +597,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                    aln_obj.taxa_distribution,
                "Missing data outliers": aln_obj.outlier_missing_data,
                "Missing data outliers sp": aln_obj.outlier_missing_data_sp,
-               "Segregating sites outliers": aln_obj.outlier_segregating}
+               "Segregating sites outliers": aln_obj.outlier_segregating,
+               "Segregating sites outliers sp": aln_obj.outlier_segregating_sp}
 
     if additional_args:
         plot_data = methods[stats_idx](**additional_args)
