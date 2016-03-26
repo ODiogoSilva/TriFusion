@@ -90,6 +90,12 @@ stats_compliant = {
      "active_bt": "avg",
      "single_gene": {"plt_idx": "Segregating sites gn"}},
 
+    "Segregating sites prop":
+    {"args1": {"plt_idx": "Segregating sites sp"},
+     "args2": None,
+     "active_bt": "avg",
+     "single_gene": {"plt_idx": "Segregating sites gn"}},
+
     "Segregating sites sp":
     {"args1": None,
      "args2": {"plt_idx": "Segregating sites"},
