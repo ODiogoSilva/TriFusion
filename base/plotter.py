@@ -104,8 +104,7 @@ def scatter_plot(data, correlation=False, ax_names=None, table_header=None):
     ax.set_ylim(0, max2 + (max2 * .1))
 
     if ax_names:
-        ax.set_xlabel(ax_names[0])
-        ax.set_ylabel(ax_names[1])
+        _add_labels(ax_names)
 
     # Calculate spearman's rank correlation coefficient and add it to the plot
     if correlation:
@@ -178,11 +177,9 @@ def bar_plot(data, labels=None, title=None, ax_names=None,
     else:
         lgd = None
 
-    # Set axys names
-    if ax_names[0]:
-        plt.xlabel(ax_names[0])
-    if ax_names[1]:
-        plt.ylabel(ax_names[1])
+    # Set axis names
+    if ax_names:
+        _add_labels(ax_names)
 
     # Set title
     if title:
@@ -382,10 +379,7 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None,
                          shadow=True, framealpha=.8, ncol=cols)
 
     if ax_names:
-        if ax_names[0]:
-            plt.xlabel(ax_names[0])
-        if ax_names[1]:
-            plt.ylabel(ax_names[1])
+        _add_labels(ax_names)
 
     # Generate table structure
     if table_header:
@@ -454,10 +448,7 @@ def box_plot(data, labels=None, title=None, ax_names=None):
         plt.title(title)
 
     if ax_names:
-        if ax_names[0]:
-            plt.xlabel(ax_names[0])
-        if ax_names[1]:
-            plt.ylabel(ax_names[1])
+        _add_labels(ax_names)
 
     # Generate table structure
     table = [["", "1st Quartile", "Median", "3rd Quartile"]]
@@ -500,7 +491,7 @@ def histogram_smooth(data, ax_names=None, table_header=None,
         # Convert data into histogram
         y, x = np.histogram(d, 50)
         x = x[:-1] + (x[1] - x[0]) / 2
-        # Fit a one-dimesional smoothing spline to git a given set of points
+        # Fit a one-dimensional smoothing spline to git a given set of points
         # from the histogram
         f = UnivariateSpline(x, y, s=200)
         # Set title for subplot
@@ -567,18 +558,15 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     # Add cutom artist for legend
     mean_artist = plt.Line2D((0, 1), (0, 1), color="r", linestyle="--")
 
-    lgd = ax.legend([mean_artist], ["Mean"], fancybox=True, shadow=True,
-                    framealpha=.8, fontsize="large")
+    lgd = ax.legend([mean_artist], ["Mean"], loc=2, frameon=True, fancybox=True,
+                    shadow=True, framealpha=.8, fontsize="large")
     lgd.get_frame().set_facecolor("white")
 
     if title:
         plt.title(title)
 
     if ax_names:
-        if ax_names[0]:
-            plt.xlabel(ax_names[0])
-        if ax_names[1]:
-            plt.ylabel(ax_names[1])
+        _add_labels(ax_names)
 
     # Generate table structure
     if table_header:
@@ -589,20 +577,14 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     if real_bin_num:
         # If real_bin_num was set, then the bins in the table should be real
         # numbers
-        if len(c_data) < 50:
-            vals, b = np.histogram(data,
-                                   np.arange(bins), (min_data, max_data + 1))
-        else:
-            vals, b = np.histogram(data,
-                                   np.arange(min_data, max_data + 1, bins),
-                                   (min_data, max_data + 1))
+        vals, b = np.histogram(data, bins, (min_data, max_data + 1))
+
         c = 0
-        print(vals, b)
         for b, v in zip(b, vals):
             table.append(["{} - {}".format(int(c), int(b)), v])
             c = b + 1
         else:
-            table.append(["{} - {}".format(c, max_data), vals[-1]])
+            table.append(["{} - {}".format(int(c), max_data), vals[-1]])
 
     else:
         for p, val in zip(b, vals):
@@ -670,29 +652,6 @@ def triangular_heat(data, labels, color_label=None):
     return fig, None, table
 
 
-def punchcard_plot(data, labels=None, legend=None, ax_names=None,
-                   table_header=None):
-
-    patches = []
-
-    for x in range(data.shape[0]):
-        for y in range(data.shape[1]):
-            print(data[x][y])
-            print(data[x][y] * 100 / (float(data.shape[1]) * data.shape[0]))
-            c = Circle((x, y), data[x][y] * 4)
-            patches.append(c)
-
-    fig, ax = plt.subplots()
-
-    ax.set_xlim(-1, (data.shape[0] - .5))
-    ax.set_ylim(-1, data.shape[1])
-
-    p = PatchCollection(patches)
-    ax.add_collection(p)
-
-    return fig, None, None
-
-
 def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None):
     """
     Creates a density distribution for data and highlights outliers
@@ -719,8 +678,7 @@ def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None):
                     framealpha=.8, prop={"weight": "bold"})
 
     if ax_names:
-        ax.set_xlabel(ax_names[0])
-        ax.set_ylabel(ax_names[1])
+        _add_labels(ax_names)
 
     if outliers_labels:
         table = [[x] for x in outliers_labels]
