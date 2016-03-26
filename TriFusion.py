@@ -83,6 +83,7 @@ if __name__ == "__main__":
     from data.resources.info_data import informative_storage
     from data.resources.background_tasks import *
     from data.resources.custom_widgets import *
+    from data.resources.stats import *
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
@@ -7378,6 +7379,9 @@ if __name__ == "__main__":
             this function will create the plot file and app variable,
             and load it into the Statistics screen.
 
+            To configure the Gene/Species/Average plot trigger, this method
+            impors the stats_compliant object from data/resources/stats.py
+
             :param plot_data: list/np array, data structure to be used in plot
             construction
             :param footer: List, containing information on the number of
@@ -7438,121 +7442,6 @@ if __name__ == "__main__":
                 [outlier_densisty_dist, "Segregating_sites_outliers.png"],
                 "Segregating sites outliers sp":
                 [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"]}
-
-            # Dict of plt_idx identifiers that will trigger the stats toggle
-            # widget with the information needed to give functionality to
-            # the widget's buttons. More information on this object can be
-            # found here: https://github.com/ODiogoSilva/TriFusion/wiki/Add-Statistics-plot-analysis#configure-triggers-between-plot-types
-
-            stats_compliant = {
-                "Distribution of sequence size":
-                {"args1": None,
-                 "args2": {"plt_idx": "Distribution of sequence size all"},
-                 "active_bt": "sp",
-                 "single_gene": None},
-
-                "Distribution of sequence size all":
-                {"args1": {"plt_idx": "Distribution of sequence size"},
-                 "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": None},
-
-                "Proportion of nucleotides or residues":
-                {"args1": {"plt_idx": "Proportion of nucleotides or residues"
-                                      " sp"},
-                 "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": None},
-
-                "Proportion of nucleotides or residues sp":
-                {"args1": None,
-                 "args2": {"plt_idx": "Proportion of nucleotides or residues"},
-                 "active_bt": "sp",
-                 "single_gene": None},
-
-                "Pairwise sequence similarity":
-                {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
-                "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": {"plt_idx": "Pairwise sequence similarity gn"}},
-
-                "Pairwise sequence similarity sp":
-                {"args1": None,
-                 "args2": {"plt_idx": "Pairwise sequence similarity"},
-                 "active_bt": "sp",
-                 "single_gene": {"plt_idx": "Pairwise sequence similarity gn"}},
-
-                "Pairwise sequence similarity gn":
-                {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
-                "args2": {"plt_idx": "Pairwise sequence similarity"},
-                "active_bt": "gene",
-                 "single_gene": {"plt_idx": "Pairwise sequence similarity gn"}},
-
-                "Distribution of missing orthologs":
-                {"args1": None,
-                 "args2": {"plt_idx": "Distribution of missing orthologs avg"},
-                 "active_bt": "sp",
-                 "single_gene": None},
-
-                "Distribution of missing orthologs avg":
-                {"args1": {"plt_idx": "Distribution of missing orthologs"},
-                 "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": None},
-
-                "Distribution of missing data":
-                {"args1": {"plt_idx": "Distribution of missing data sp"},
-                 "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": None},
-
-                "Distribution of missing data sp":
-                {"args1": None,
-                 "args2": {"plt_idx": "Distribution of missing data"},
-                 "active_bt": "sp",
-                 "single_gene": None},
-
-                "Segregating sites":
-                {"args1": {"plt_idx": "Segregating sites sp"},
-                 "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": {"plt_idx": "Segregating sites gn"}},
-
-                "Segregating sites sp":
-                {"args1": None,
-                 "args2": {"plt_idx": "Segregating sites"},
-                 "active_bt": "sp",
-                 "single_gene": {"plt_idx": "Segregating sites gn"}},
-
-                "Segregating sites gn":
-                {"args1": {"plt_idx": "Segregating sites sp"},
-                 "args2": {"plt_idx": "Segregating sites"},
-                 "active_bt": "gene",
-                 "single_gene": {"plt_idx": "Segregating sites gn"}},
-
-                "Missing data outliers":
-                {"args1": {"plt_idx": "Missing data outliers sp"},
-                 "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": None},
-
-                "Missing data outliers sp":
-                {"args1": None,
-                 "args2": {"plt_idx": "Missing data outliers"},
-                 "active_bt": "sp",
-                 "single_gene": None},
-
-                "Segregating sites outliers":
-                {"args1": {"plt_idx": "Segregating sites outliers sp"},
-                 "args2": None,
-                 "active_bt": "avg",
-                 "single_gene": None},
-
-                "Segregating sites outliers sp":
-                {"args1": None,
-                 "args2": {"plt_idx": "Segregating sites outliers"},
-                 "active_bt": "sp",
-                 "single_gene": None}}
 
             if plot_data:
                 # Set new plot attributes
