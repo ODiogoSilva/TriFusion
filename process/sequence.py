@@ -2851,7 +2851,8 @@ class AlignmentList(Base):
 
         return {"data": data_points,
                 "outliers": outliers_points,
-                "outliers_labels": outliers_labels}
+                "outliers_labels": outliers_labels,
+                "ax_names": ["Proportion of missing data", "Frequency"]}
 
     def outlier_missing_data_sp(self):
         """
@@ -2900,7 +2901,8 @@ class AlignmentList(Base):
 
         return {"data": data_points,
                 "outliers": outliers_points,
-                "outliers_labels": outlier_labels}
+                "outliers_labels": outlier_labels,
+                "ax_names": ["Proportion of missing data", "Frequency"]}
 
     def outlier_segregating(self):
         """
@@ -2941,7 +2943,8 @@ class AlignmentList(Base):
 
         return {"data": data_points,
                 "outliers": outliers_points,
-                "outliers_labels": outlier_labels}
+                "outliers_labels": outlier_labels,
+                "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
     def outlier_segregating_sp(self):
         """
@@ -2985,7 +2988,8 @@ class AlignmentList(Base):
 
         return {"data": data_points,
                 "outliers": outliers_points,
-                "outliers_labels": outlier_labels}
+                "outliers_labels": outlier_labels,
+                "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

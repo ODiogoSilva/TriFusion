@@ -693,11 +693,14 @@ def punchcard_plot(data, labels=None, legend=None, ax_names=None,
     return fig, None, None
 
 
-def outlier_densisty_dist(data, outliers, outliers_labels=None):
+def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None):
     """
     Creates a density distribution for data and highlights outliers
     :param data: 1D array containing data points
     :param outliers: 1D array containing the outliers
+    :param outliers_labels: 1D array containing the name of the outliers.
+    Must match outliers in size
+    :param ax_names: list, with names for x and y axis, respectively
     """
 
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -714,6 +717,10 @@ def outlier_densisty_dist(data, outliers, outliers_labels=None):
     # Create legend
     lgd = ax.legend(frameon=True, loc=2, fancybox=True, shadow=True,
                     framealpha=.8, prop={"weight": "bold"})
+
+    if ax_names:
+        ax.set_xlabel(ax_names[0])
+        ax.set_ylabel(ax_names[1])
 
     if outliers_labels:
         table = [[x] for x in outliers_labels]
