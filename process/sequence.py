@@ -24,6 +24,7 @@
 #  Last update: 11/02/14
 
 # TriFusion imports
+
 import process
 from process.base import *
 from process.data import Partitions
@@ -41,6 +42,12 @@ from itertools import compress
 import fileinput
 import multiprocessing
 import cPickle as pickle
+import functools
+import sqlite3
+
+import pyximport; pyximport.install()
+from process import pw
+
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -52,6 +59,71 @@ import cPickle as pickle
 # TODO After creating the SequenceSet class, an additional class should be
 # used to make the triage of files to either the Alignment or SequenceSet
 # classes
+
+
+class pairwise_cache(object):
+
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+
+        self.c = None
+
+    def __call__(self, *args):
+
+        c_args = args[1:3]
+
+        if c_args[0] == "connect":
+
+            print("connecting")
+
+            self.con = sqlite3.connect(join(args[0].dest, "pw.db"))
+            self.c = self.con.cursor()
+
+            if not self.c.execute("SELECT name FROM sqlite_master WHERE type="
+                                  "'table' AND name='pw_table'").fetchall():
+                self.c.execute("CREATE TABLE pw_table (hash integer"
+                               ", seq_len integer"
+                               ", val float, "
+                               "effective_len float,"
+                               "PRIMARY KEY (hash, seq_len))")
+
+            return
+
+        elif c_args[0] == "disconnect":
+
+            self.con.commit()
+            self.c.close()
+
+            return
+
+        if self.c:
+
+            h = hash(c_args)
+            self.c.execute("SELECT * FROM pw_table WHERE hash = ?"
+                           " AND seq_len = ?", (h, args[-1]))
+            vals = self.c.fetchone()
+            if vals:
+                return vals[2], vals[3]
+            else:
+                value = self.func(*args)
+                h = hash(c_args)
+                self.c.execute("INSERT INTO pw_table VALUES (?, ?, ?, ?)",
+                               (h, args[-1], value[0], value[1]))
+                self.cache[c_args] = value
+                return value
+
+    def __repr__(self):
+        """
+        Return the function's docstring.
+        """
+        return self.func.__doc__
+
+    def __get__(self, obj, objtype):
+        """
+        Support instance methods
+        """
+        return functools.partial(self.__call__, obj)
 
 
 class AlignmentException(Exception):
@@ -1489,6 +1561,9 @@ class AlignmentList(Base):
         self.sequence_code = None
         self.gap_symbol = "-"
 
+        self.dest = dest
+        self.pw_data = None
+
         # Set partitions object
         self.partitions = Partitions()
 
@@ -1701,6 +1776,8 @@ class AlignmentList(Base):
         :param dest: string. Path to the temporary directory that will store
         the sequence data of the Alignment object
         """
+
+        self.dest = dest
 
         # Check for duplicates
         for i in set(self.path_list).intersection(set(file_name_list)):
@@ -2445,7 +2522,7 @@ class AlignmentList(Base):
 
     def characters_proportion_per_species(self):
         """
-        Creates data for the proportion of nucleotides/residures per species
+        Creates data for the proportion of nucleotides/residues per species
         """
 
         data_storage = OrderedDict((x, Counter()) for x in self.taxa_names)
@@ -2476,7 +2553,124 @@ class AlignmentList(Base):
                 "ax_names": ["Taxa", ax_ylabel],
                 "table_header": ["Taxon"] + legend}
 
-    def _get_similarity(self, seq1, seq2):
+    # def _get_reference_data(self, seq_list):
+    #     """
+    #     Given a reference string, this method will return a list of tuples
+    #     for each sequence in seq_list with information on position and
+    #     characters of variable sites
+    #     :param seq_list: list, containing the strings of the sequences for a
+    #     given alignment
+    #     :return: a dictionary with sequences as keys and their positions and
+    #     characters as tuples
+    #     """
+    #
+    #     # Get reference with least missing data
+    #     ref = min(seq_list, key=lambda x: x.count(self.sequence_code[1]) +
+    #         x.count(self.gap_symbol))
+    #     seq_list.remove(ref)
+    #
+    #     # pw_data will store the (positions, characters) of the segregating
+    #     # sites between the reference and a sequence (e.g: (123, "T"))
+    #     self.pw_data = {}
+    #     # pw_data_m will store the positions of sites with missing data
+    #     self.pw_data_m = {}
+    #     self.ref = ref
+    #
+    #     missing = [self.sequence_code[1], self.gap_symbol]
+    #
+    #     for seq in seq_list:
+    #
+    #         # If metrics were already calculated for an identical sequence,
+    #         # skip to the next sequence.
+    #         if seq in self.pw_data:
+    #             continue
+    #         else:
+    #             self.pw_data[seq] = []
+    #             self.pw_data_m[seq] = []
+    #
+    #         for i in xrange(len(ref)):
+    #
+    #             # If both chars are missing data or only seq has missing
+    #             if ref[i] in missing and seq[i] in missing or \
+    #                     ref[i] not in missing and seq[i] in missing:
+    #                 self.pw_data_m[seq].append(i)
+    #
+    #             # If only reference has missing data
+    #             elif ref[i] in missing and seq[i] not in missing:
+    #                 self.pw_data[seq].append((i, seq[i] + "N"))
+    #
+    #             # If both chars are not missing data and are different
+    #             elif ref[i] != seq[i]:
+    #                 self.pw_data[seq].append((i, seq[i]))
+
+        # Convert to sets here, instead of doing it in every pair-wise
+        # comparison
+        # for k, v in self.pw_data.items():
+        #     if k != "ref":
+        #         self.pw_data[k] = set(v)
+        #
+        # for k, v in self.pw_data_m.items():
+        #     if k != "ref":
+        #         self.pw_data_m[k] = set(v)
+
+    # @pairwise_cache
+    # def _get_similarity(self, seq1, seq2, total_len):
+    #
+    #     # If seq1 is reference sequence
+    #     if seq1 == self.ref:
+    #
+    #         # Get segregating sites
+    #         diffs = len([x for x in self.pw_data[seq2] if "N" not in x[1]])
+    #
+    #         # Get effective len
+    #         effective_len = len(seq2) - (len(self.pw_data_m[seq2]))
+    #
+    #     # If seq2 is reference sequence
+    #     elif seq2 == self.ref:
+    #
+    #         # Get segregating sites
+    #         diffs = len([x for x in self.pw_data[seq1] if "N" not in x[1]])
+    #
+    #         # Get effective len
+    #         effective_len = len(seq1) - len(self.pw_data_m[seq1])
+    #
+    #     else:
+    #     # try:
+    #         # Get sites with missing data for each sequence. This is done
+    #         # before calculating the segregating sites because columns with
+    #         # missing data must be removed from the segregating sites set
+    #         seq1_m = self.pw_data_m[seq1]
+    #         seq2_m = self.pw_data_m[seq2]
+    #
+    #         # Get union of missing data for both sequences
+    #         # m = seq1_m.union(seq2_m)
+    #         # missing = len(m)
+    #         m_data =[x for x in seq1_m + seq2_m if (x in seq1_m) and
+    #                  (x in seq2_m)]
+    #         m = len(m_data)
+    #
+    #         # Get segregating sites for both sequences
+    #         seq1_data = self.pw_data[seq1]
+    #         seq2_data = self.pw_data[seq2]
+    #
+    #         # Get segregating sites between the two sequences
+    #         #diffs = seq1_data.symmetric_difference(seq2_data)
+    #         diffs = len([x[0] for x in seq1_data + seq2_data if
+    #                      (x not in seq1_data) or (x not in seq1_data) and
+    #                      (x[0] not in m_data)])
+    #
+    #         effective_len = len(seq1) - m
+    #
+    #     if effective_len:
+    #         return float(effective_len - diffs), float(effective_len)
+    #     else:
+    #         return None, None
+
+        # except KeyError:
+        #     return None, None
+
+    @pairwise_cache
+    def _get_similarity(self, seq1, seq2, aln_len):
         """
         Gets the similarity between two sequences in proportion. The
         proportion is calculated here so that sites with only missing
@@ -2485,63 +2679,53 @@ class AlignmentList(Base):
         :param seq2: string
         """
 
-        similarity = 0.0
-        total_len = 0.0
+        return pw.calc_similarity(seq1, seq2)
 
-        missing = [self.sequence_code[1], self.gap_symbol]
+        # similarity = 0.0
+        # effective_len = 0.0
+        #
+        # missing = [self.sequence_code[1], self.gap_symbol]
+        #
+        # for c1, c2 in zip(*[seq1, seq2]):
+        #     # Ignore comparisons with ONLY missing data / gaps
+        #     if c1 in missing or c2 in missing:
+        #         continue
+        #     elif c1 == c2:
+        #         similarity += 1.0
+        #         effective_len += 1.0
+        #     else:
+        #         effective_len += 1.0
+        #
+        # if effective_len:
+        #     return similarity, effective_len
+        # else:
+        #     return None, None
 
-        for c1, c2 in zip(*[seq1, seq2]):
-            # Ignore comparisons with ONLY missing data / gaps
-            if c1 in missing and c2 in missing:
-                continue
-            elif c1 == c2:
-                similarity += 1.0
-                total_len += 1.0
-            else:
-                total_len += 1.0
-
-        return similarity / total_len
-
-    def _get_differences(self, seq1, seq2):
-        """
-        Returns the number of differences between two sequences
-        """
-
-        s = 0
-
-        for c1, c2 in zip(*[seq1, seq2]):
-            # Ignore comparisons with gaps or missing data
-            if self.sequence_code[1] in [c1, c2] or self.gap_symbol in [c1, c2]:
-                continue
-            if c1 != c2:
-                s += 1
-
-        return s
-
-    def _get_differences_prop(self, seq1, seq2):
-        """
-        Returns the proportion of differences between two sequences,
-        accounting for sites with only missing data / gaps
-        :param seq1: string, sequence 1
-        :param seq2: string sequence 2
-        :return: s: float, proportion of segregating sites
-        """
-
-        s = 0.0
-        total_len = 0.0
-
-        for c1, c2 in zip(*[seq1, seq2]):
-            # Ignore comparisons with ONLY missing data / gaps
-            if c1 + c2.replace(self.sequence_code[1], "").replace(
-                    self.gap_symbol, "") == "":
-                continue
-            if c1 != c2:
-                s += 1.0
-                total_len += 1.0
-            else:
-                total_len += 1.0
-
-        return s / total_len
+    # @pairwise_cache
+    # def _get_differences(self, seq1, seq2):
+    #     """
+    #     Returns the proportion of differences between two sequences,
+    #     accounting for sites with only missing data / gaps
+    #     :param seq1: string, sequence 1
+    #     :param seq2: string sequence 2
+    #     :return: s: float, proportion of segregating sites
+    #     """
+    #
+    #     s = 0.0
+    #     total_len = 0.0
+    #
+    #     for c1, c2 in zip(*[seq1, seq2]):
+    #         # Ignore comparisons with ONLY missing data / gaps
+    #         if c1 + c2.replace(self.sequence_code[1], "").replace(
+    #                 self.gap_symbol, "") == "":
+    #             continue
+    #         if c1 != c2:
+    #             s += 1.0
+    #             total_len += 1.0
+    #         else:
+    #             total_len += 1.0
+    #
+    #     return s, total_len
 
     def _get_informative_sites(self, aln):
         """
@@ -2570,21 +2754,28 @@ class AlignmentList(Base):
         Creates average sequence similarity data
         """
 
+        self._get_similarity("connect")
+
         data = []
 
         for aln in self.alignments.values():
+
+            # self._get_reference_data(list(aln.sequences()))
 
             aln_similarities = []
 
             for seq1, seq2 in itertools.combinations(aln.sequences(), 2):
 
-                x = self._get_similarity(seq1, seq2)
+                sim, total_len = self._get_similarity(seq1, seq2,
+                                                      aln.locus_length)
 
-                if x:
-                    aln_similarities.append(x)
+                if total_len:
+                    aln_similarities.append(sim / total_len)
 
             if aln_similarities:
                 data.append(np.mean(aln_similarities) * 100)
+
+        self._get_similarity("disconnect")
 
         return {"data": data,
                 "ax_names": ["Similarity (%)", "Frequency"]}
@@ -2594,6 +2785,8 @@ class AlignmentList(Base):
         Creates data for a triangular matrix of sequence similarity for pairs
         of taxa
         """
+
+        self._get_similarity("connect")
 
         # Create matrix for parwise comparisons
         data = [np.empty((len(self.taxa_names), 0)).tolist() for _ in
@@ -2610,12 +2803,15 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                similarity = self._get_similarity(seq1, seq2)
-                data[taxa_pos[tx1]][taxa_pos[tx2]].append(similarity)
+                sim, l = self._get_similarity(seq1, seq2, aln.locus_length)
+                if l:
+                    data[taxa_pos[tx1]][taxa_pos[tx2]].append(sim / l)
 
         data = np.array([[np.mean(y) if y else 0. for y in x] for x in data])
         mask = np.tri(data.shape[0], k=0)
         data = np.ma.array(data, mask=mask)
+
+        self._get_similarity("disconnect")
 
         return {"data": data,
                 "labels": list(taxa_pos)}
@@ -2634,8 +2830,11 @@ class AlignmentList(Base):
                              aln_obj.sequences()])
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
-                window_similarities.append(self._get_similarity(seq1, seq2)
-                                           * 100)
+
+                s, t = self._get_similarity(seq1, seq2)
+                sim = s / t
+
+                window_similarities.append(sim * 100)
 
             if window_similarities:
                 data.append(np.mean(window_similarities))
@@ -2690,6 +2889,8 @@ class AlignmentList(Base):
         pairs of taxa
         """
 
+        self._get_similarity("load", join(self.dest, "pw.pic"))
+
         # Create matrix for parwise comparisons
         data = [np.empty((len(self.taxa_names), 0)).tolist() for _ in
                 range(len(self.taxa_names))]
@@ -2705,12 +2906,15 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                aln_diff = self._get_differences(seq1, seq2)
+                s, t = self._get_similarity(seq1, seq2)
+                aln_diff = t - s
                 data[taxa_pos[tx1]][taxa_pos[tx2]].append(aln_diff)
 
         data = np.array([[np.mean(y) if y else 0. for y in x] for x in data])
         mask = np.tri(data.shape[0], k=0)
         data = np.ma.array(data, mask=mask)
+
+        self._get_similarity("store", join(self.dest, "pw.pic"))
 
         return {"data": data,
                 "labels": list(taxa_pos),
@@ -2955,6 +3159,8 @@ class AlignmentList(Base):
         with gaps or missing data are ignored
         """
 
+        self._get_similarity("load", join(self.dest, "pw.pic"))
+
         data = OrderedDict((tx, []) for tx in self.taxa_names)
 
         for aln in self.alignments.values():
@@ -2965,7 +3171,9 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                s_data = self._get_differences_prop(seq1, seq2)
+                s, t_len = self._get_similarity(seq1, seq2)
+
+                s_data = (t_len - s) / t_len
 
                 data[tx1].append(s_data)
                 data[tx2].append(s_data)
@@ -2987,6 +3195,8 @@ class AlignmentList(Base):
         outliers_points = data_points[self._mad_based_outlier(data_points)]
         # Get outlier taxa
         outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
+
+        self._get_similarity("store", join(self.dest, "pw.pic"))
 
         return {"data": data_points,
                 "outliers": outliers_points,
