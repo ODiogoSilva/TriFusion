@@ -2990,8 +2990,8 @@
 
 <ModelSpinner>:
     bold: True
-    text: "JC" if app.sequence_types == ["DNA"] else "LG"
-    values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == ["DNA"] else ("LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
+    text: "JC" if app.sequence_types == "DNA" else "LG"
+    values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == "DNA" else ("LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
     #background_normal: "data/backgrounds/model_bt1.png"
 
 <PartitionsDialog>:
@@ -3044,7 +3044,7 @@
             text: "No partition"
             markup: True
             bold: True
-            disabled: True if app.sequence_types != ["DNA"] else False
+            disabled: True if app.sequence_types != "DNA" else False
             option_cls: Factory.get("CodonSpinner")
             values: ("No partitions", "[color=ff5555ff]1[/color] + [color=37abc8ff]2[/color] + [color=71c837ff]3[/color]", "[color=ff5555ff](1 + 2)[/color] + [color=37abc8ff]3[/color]", "[color=ff5555ff]1[/color] + [color=37abc8ff](2 + 3)[/color]", "[color=ff5555ff](1 + 3)[/color] + [color=37abc8ff]2[/color]")
 
