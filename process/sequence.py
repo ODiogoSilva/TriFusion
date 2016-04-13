@@ -1283,7 +1283,7 @@ class Alignment(Base):
                                    "yes gap=%s missing=%s ;\n\tmatrix\n" %
                                    (len(alignment),
                                     self.locus_length,
-                                    self.sequence_code[0],
+                                    self.sequence_code[0].upper(),
                                     self.locus_length - 1,
                                     self.restriction_range,
                                     gap,
@@ -1294,9 +1294,10 @@ class Alignment(Base):
                                    "interleave=yes gap=%s missing=%s ;\n\t"
                                    "matrix\n" %
                                    (len(alignment),
-                                   self.locus_length,
-                                   self.sequence_code[0], gap,
-                                   self.sequence_code[1]))
+                                    self.locus_length,
+                                   self.sequence_code[0].upper(),
+                                    gap,
+                                    self.sequence_code[1]))
                 counter = 0
                 for i in range(90, self.locus_length, 90):
                     for key, f in alignment.items():
