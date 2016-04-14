@@ -45,7 +45,7 @@ import cPickle as pickle
 import functools
 import sqlite3
 
-import pyximport; pyximport.install()
+import pyximport; pyximport.install(setup_args={"script_args": ["--compiler=mingw32"]})
 from process import pw
 
 # import pickle
