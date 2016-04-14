@@ -29,12 +29,12 @@ Python 2.7 is required to run TriFusion. It should already be present in most Un
 
 Assuming python is already installed, the following libraries are required:
 
-- kivy 
-- matplotlib (included in Anaconda)
-- numpy (included in Anaconda)
-- psutil (included in Anaconda)
-- scipy (included in Anaconda)
-- seaborn (included in Anaconda)
+- `kivy` 
+- `matplotlib` (included in Anaconda)
+- `numpy` (included in Anaconda)
+- `psutil` (included in Anaconda)
+- `scipy` (included in Anaconda)
+- `seaborn` (included in Anaconda)
 
 These can be easily installed using `pip`:
 
