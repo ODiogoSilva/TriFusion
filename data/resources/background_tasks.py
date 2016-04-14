@@ -295,8 +295,11 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         """
 
         if secondary_options["consensus_single"]:
-            aln = aln.consensus(consensus_type=consensus_type,
-                                single_file=True)
+            if isinstance(aln, AlignmentList):
+                aln = aln.consensus(consensus_type=consensus_type,
+                                    single_file=True)
+            else:
+                aln.consensus(consensus_type=consensus_type)
         else:
             aln.consensus(consensus_type=consensus_type)
 
