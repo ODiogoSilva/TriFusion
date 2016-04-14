@@ -448,6 +448,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 main_aln = consensus(main_aln)
                 if secondary_options["consensus_single"]:
                     filename = join(output_dir, "consensus")
+                else:
+                    filename = None
 
             if main_operations["concatenation"] and \
                     isinstance(main_aln, AlignmentList):
