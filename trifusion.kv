@@ -4608,9 +4608,9 @@
                     width: root.process_bt_wdt
                     id: consensus_mode
                     disabled: True
-                    text: "IUPAC"
+                    text: "IUPAC" if app.sequence_types != "Protein" else "Soft mask"
                     option_cls: Factory.get("PlotOpt")
-                    values: ("IUPAC", "Soft mask", "Remove", "First sequence")
+                    values: ("IUPAC", "Soft mask", "Remove", "First sequence") if app.sequence_types != "Protein" else ("Soft mask", "Remove", "First sequence")
 
 
     TabbedPanelItem:
