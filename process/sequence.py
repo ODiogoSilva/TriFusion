@@ -1211,12 +1211,27 @@ class Alignment(Base):
 
             out_file = open(output_file + ".phy", "w")
             out_file.write("%s %s\n" % (len(alignment), self.locus_length))
-            for key, f in alignment.items():
-                    with open(f) as fh:
-                        seq = "".join(fh.readlines())
-                    out_file.write("%s %s\n" % (
-                                   key[:cut_space_phy].ljust(seq_space_phy),
-                                   seq.upper()))
+            if interleave:
+                counter = 0
+                for i in range(90, self.locus_length, 90):
+                    for key, f in alignment.items():
+
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())[counter:i]
+
+                        out_file.write("%s %s\n" % (
+                            key[:cut_space_phy].ljust(seq_space_phy),
+                            seq.upper()))
+                    else:
+                        out_file.write("\n")
+                        counter = i
+            else:
+                for key, f in alignment.items():
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())
+                        out_file.write("%s %s\n" % (
+                            key[:cut_space_phy].ljust(seq_space_phy),
+                            seq.upper()))
 
             # In case there is a concatenated alignment being written
             if not self.partitions.is_single() and partition_file:
