@@ -1093,6 +1093,18 @@ class Alignment(Base):
         if output_dir:
             output_file = join(output_dir, output_file)
 
+        # For each format, checks if file name already exists. If so, add
+        # a "_conv" suffix
+        format_ext = {"ima2": ".txt",
+                      "mcmctree": "_mcmctree.phy",
+                      "phylip": ".phy",
+                      "nexus": ".nex",
+                      "fasta": ".fas"}
+
+        for f in output_format:
+            if os.path.exists(output_file + format_ext[f]):
+                format_ext[f] = "_conv" + format_ext[f]
+
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
         if self.restriction_range is not None:
@@ -1124,7 +1136,8 @@ class Alignment(Base):
                     population_storage[population.strip()] = [taxon]
 
             # Write the general header of the IMa2 input file
-            out_file = open(output_file + ".txt", "w")
+
+            out_file = open(output_file + format_ext["ima2"], "w")
             # First line with general description
             out_file.write("Input file for IMa2 using %s alignments\n"
                         "%s\n"  # Line with number of loci
@@ -1209,7 +1222,7 @@ class Alignment(Base):
             if phy_truncate_names:
                 cut_space_phy = 10
 
-            out_file = open(output_file + ".phy", "w")
+            out_file = open(output_file + format_ext["phylip"], "w")
             out_file.write("%s %s\n" % (len(alignment), self.locus_length))
             if interleave:
                 counter = 0
@@ -1253,7 +1266,7 @@ class Alignment(Base):
 
         if "mcmctree" in output_format:
 
-            out_file = open(output_file + "_mcmctree.phy", "w")
+            out_file = open(output_file + format_ext["mcmctree"], "w")
             taxa_number = len(self.alignment)
 
             if self.partitions.is_single() is False:
@@ -1287,7 +1300,7 @@ class Alignment(Base):
         # Writes file in nexus format
         if "nexus" in output_format:
 
-            out_file = open(output_file + ".nex", "w")
+            out_file = open(output_file + format_ext["nexus"], "w")
 
             # This writes the output in interleave format
             if interleave:
@@ -1411,7 +1424,7 @@ class Alignment(Base):
 
         # Writes file in fasta format
         if "fasta" in output_format:
-            out_file = open(output_file + ".fas", "w")
+            out_file = open(output_file + format_ext["fasta"], "w")
 
             # If LD HAT sub format has been specificed, write the first line
             # containing the number of sequences, sites and genotype phase
@@ -2224,12 +2237,7 @@ class AlignmentList(Base):
 
         for alignment_obj in self.alignments.values():
 
-            if alignment_obj.input_format in output_format:
-                output_file_name = alignment_obj.name.split(".")[0] \
-                                   + output_suffix + "_conv"
-            else:
-                output_file_name = alignment_obj.name.split(".")[0] + \
-                                   output_suffix
+            output_file_name = alignment_obj.name.split(".")[0] + output_suffix
 
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
