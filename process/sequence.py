@@ -1432,6 +1432,12 @@ class Alignment(Base):
                     if len(seq) > 2000:
                         for i in range(0, len(seq), 2000):
                             out_file.write("%s\n" % (seq[i:i + 2000].upper()))
+                elif interleave:
+                    out_file.write(">%s\n" % key)
+                    counter = 0
+                    for i in range(90, self.locus_length, 90):
+                        out_file.write("%s\n" % seq[counter:i])
+                        counter = i
                 else:
                     out_file.write(">%s\n%s\n" % (key, seq.upper()))
 
