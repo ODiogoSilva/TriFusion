@@ -34,7 +34,7 @@ Assuming python is already installed, the following libraries are required:
 - `numpy` (included in Anaconda)
 - `psutil` (included in Anaconda)
 - `scipy` (included in Anaconda)
-- `seaborn` (included in Anaconda)
+- `seaborn`
 
 These can be easily installed using `pip`:
 
@@ -42,6 +42,13 @@ These can be easily installed using `pip`:
 pip install kivy matplotlib numpy psutil scipy seaborn
 ```
 
+##### Note for Windows users
+
+Installation of Kivy on Windows machines, requires a few more commands that are explained in [kivy's webpage](https://kivy.org/docs/installation/installation-windows.html#installation). Shortly, Kivy's dependencies must be installer beforehand:
+
+```
+python -m pip install docutils pygments pypiwin32 kivy.deps.sdl2 kivy.deps.glew
+```
 
 ### Documentation
 
