@@ -422,12 +422,12 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         # Stores operations that must be performed before concatenation,
         # if it was specified
-        before_conc = ["filter_file", "consensus_file"]
+        before_conc = ["filter"]
 
         # Perform the filtering and consensus option separately, since these
         # must be done before concatenation
 
-        for op in [x for x, y in secondary_options.items() if
+        for op in [x for x, y in secondary_operations.items() if
                    x in before_conc and y]:
 
             ns.msg = "Preparing data for additional output(s)"
@@ -441,16 +441,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 suffix = "_filtered"
                 main_aln = filter_aln(main_aln)
 
-            elif op == "consensus_file" and secondary_operations["consensus"]:
-
-                ns.msg = "Creating additional consensus alignment(s)"
-                suffix = "_consensus"
-                main_aln = consensus(main_aln)
-                if secondary_options["consensus_single"]:
-                    filename = join(output_dir, "consensus")
-                else:
-                    filename = None
-
             if main_operations["concatenation"] and \
                     isinstance(main_aln, AlignmentList):
                 filename = output_file + suffix
@@ -462,46 +452,42 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             main_aln.stop_action_alignment()
 
-        if len([x for x, y in secondary_options.items() if
-                x.endswith("_file") and y and x != "filter_file" and
-                x != "consensus_file"]) >= 1:
+        for op in [x for x, y in secondary_operations.items() if
+                   x not in before_conc and y and
+                   secondary_options["%s_file" % x]]:
 
             main_aln = deepcopy(aln_object)
 
             if main_operations["concatenation"]:
                 main_aln = concatenation(main_aln, remove_temp=False)
 
-            # Perform the remaining secondary operations
-            for op in [x for x, y in secondary_options.items()
-                       if x.endswith("_file") and y and x != "filter_file"]:
+            main_aln.start_action_alignment()
 
-                main_aln.start_action_alignment()
+            if op == "consensus":
 
-                if op == "collapse_file":
-                    if secondary_operations["collapse"]:
-                        ns.msg = "Creating additional collapsed alignment(s)"
-                        suffix = "_collapsed"
+                ns.msg = "Creating additional consensus alignment(s)"
+                suffix = "_consensus"
+                main_aln = consensus(main_aln)
 
-                        main_aln.collapse(haplotype_name=hap_prefix,
-                                          dest=output_dir)
+            elif op == "collapse":
+                ns.msg = "Creating additional collapsed alignment(s)"
+                suffix = "_collapsed"
 
-                elif op == "gcoder_file":
-                    if secondary_operations["gcoder"]:
-                        ns.msg = "Creating additional gap coded alignments(s)"
-                        suffix = "_coded"
-                        main_aln.code_gaps()
+                main_aln.collapse(haplotype_name=hap_prefix,
+                                  dest=output_dir)
 
-                if main_operations["concatenation"]:
-                    filename = output_file + suffix
-                    writer(main_aln, filename=filename)
-                else:
-                    writer(main_aln, suffix_str=suffix)
+            elif op == "gcoder":
+                ns.msg = "Creating additional gap coded alignments(s)"
+                suffix = "_coded"
+                main_aln.code_gaps()
 
-                main_aln.stop_action_alignment()
-
+            if main_operations["concatenation"]:
+                filename = output_file + suffix
+                writer(main_aln, filename=filename)
             else:
-                if main_operations["concatenation"]:
-                    main_aln.stop_action_alignment()
+                writer(main_aln, suffix_str=suffix)
+
+            main_aln.stop_action_alignment()
 
     except EmptyAlignment:
         logging.exception("Empty alignment")

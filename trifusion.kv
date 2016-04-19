@@ -4547,10 +4547,6 @@
                     size_hint_x: None
                     width: root.process_bt_wdt
                     id: consensus
-                    on_active:
-                        if self.active == True: consensus_file.disabled = False; consensus_single.disabled = False; consensus_mode.disabled = False
-                        if self.active == False: consensus_file.disabled = True; consensus_single.disabled = True; consensus_mode.disabled = True
-                        app.update_process_switch("consensus", self.active)
 
             DarkBox:
                 height: 70
@@ -4565,7 +4561,7 @@
                     id: consensus_file
                     size_hint_x: None
                     width: root.process_bt_wdt
-                    disabled: True
+                    disabled: True if not consensus.active else False
                     on_active:
                         app.update_process_switch("consensus_file", self.active)
 
@@ -4584,7 +4580,8 @@
                     id: consensus_single
                     size_hint_x: None
                     width: root.process_bt_wdt
-                    disabled: True
+                    disabled: True if not consensus.active or app.main_operations["concatenation"] else False
+                    active: True if app.main_operations["concatenation"] else False
                     on_active:
                         app.update_process_switch("consensus_single", self.active)
 
