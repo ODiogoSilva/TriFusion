@@ -6695,8 +6695,6 @@ if __name__ == "__main__":
                 if not er:
                     return
 
-            print(self.main_operations)
-
             if self.main_operations["reverse_concatenation"]:
                 self.screen.ids.rev_conc.background_normal = \
                     "data/backgrounds/bt_process.png"
