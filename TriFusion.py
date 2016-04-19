@@ -6668,43 +6668,46 @@ if __name__ == "__main__":
             Use user defined partitions
             """
 
-            # Check if a partition file has been selected
-            if self.partitions_file == "" and not use_parts:
-                return self.dialog_floatcheck(
-                    "Please provide a partitions file", t="error")
+            if not self.partitions_file and not self.rev_infile and \
+                    not use_parts:
+                return self.dialog_floatcheck("Please provide a partition "
+                    "file and file to reverse concatenate OR use defined "
+                    "partitions defined in side panel", t="error")
 
-            if use_parts:
+            if not use_parts:
 
-                if self.main_operations["reverse_concatenation"]:
-                    self.screen.ids.rev_conc.background_normal = \
-                        "data/backgrounds/bt_process.png"
-                    self.screen.ids.rev_conc.text = "Active"
+                if not self.partitions_file:
+                    # Check if partition file was selected. If not, return
+                    # warning
+                    return self.dialog_floatcheck(
+                        "Please provide a partitions file", t="error")
 
-                else:
-                    self.screen.ids.rev_conc.background_normal = \
-                        "data/backgrounds/bt_process_off.png"
-                    self.screen.ids.rev_conc.text = "OFF"
-
-                self.dismiss_popup()
-
-            else:
+                if not self.rev_infile:
+                    # Check if file to reverse concatenate was specified. If
+                    # not, return warning
+                    return self.dialog_floatcheck(
+                        "Please provide a file to reverse concatenate",
+                        t="error")
 
                 # Check for the validity of the partitions file
                 er = self.check_partitions_file()
 
-                if er is True:
+                if not er:
+                    return
 
-                    if self.main_operations["reverse_concatenation"]:
-                        self.screen.ids.rev_conc.background_normal = \
-                            "data/backgrounds/bt_process.png"
-                        self.screen.ids.rev_conc.text = "Active"
+            print(self.main_operations)
 
-                    else:
-                        self.screen.ids.rev_conc.background_normal = \
-                            "data/backgrounds/bt_process_off.png"
-                        self.screen.ids.rev_conc.text = "OFF"
+            if self.main_operations["reverse_concatenation"]:
+                self.screen.ids.rev_conc.background_normal = \
+                    "data/backgrounds/bt_process.png"
+                self.screen.ids.rev_conc.text = "Active"
 
-                    self.dismiss_popup()
+            else:
+                self.screen.ids.rev_conc.background_normal = \
+                    "data/backgrounds/bt_process_off.png"
+                self.screen.ids.rev_conc.text = "OFF"
+
+            self.dismiss_popup()
 
         def dialog_format(self):
             """

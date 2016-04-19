@@ -3666,7 +3666,7 @@
             id: rev_conc
             on_active:
                 if self.active == True: app.update_main_operations("reverse_concatenation")
-                if self.active == False: app.update_main_operations("concatenation")
+                if self.active == False: app.update_main_operations("concatenation"); use_parts.state = "normal"
 
         BoxLayout:
             spacing: 10
@@ -3725,8 +3725,8 @@
                     disabled: False if rev_conc.active else True
                     on_release:
                         app.use_app_partitions = True if self.state == "down" else False
-                        part_file.background_normal = "data/backgrounds/bt_process_off.png"
-                        rev_infile.background_normal = "data/backgrounds/bt_process_off.png"
+                        part_file.background_normal = "data/backgrounds/bt_process_off.png"; part_file.text = "Select partition file"; app.partitions_file = ""
+                        rev_infile.background_normal = "data/backgrounds/bt_process_off.png"; app.rev_infile = ""; rev_infile.text = "Select file to reverse concatenate"
 
     BoxLayout:
         size_hint_y: None
@@ -3739,10 +3739,7 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "OK"
             on_release:
-                if rev_conc.active: \
                 app.save_reverseconc_settings(True if use_parts.state == "down" else False)
-                else: \
-                root.cancel()
 
         TFOKButon:
             id: cancel_bt
