@@ -2823,12 +2823,14 @@
                 id: sd_filechooser
                 previous_dir: []
                 text: "master"
+                dirselect: True
+                multiselect: True
                 path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
                 on_selection:
-                    if txt_box.height == 30: \
-                    print(self.selection[0].split(os.sep)[-1]); text_input.text = self.selection[0].split(os.sep)[-1]
+                    if txt_box.height == 30 and self.selection and not os.path.isdir(self.selection[0]): \
+                    text_input.text = self.selection[0].split(os.sep)[-1]
                 on_double_click:
-                    if self.text in root.load_dlgs: \
+                    if self.text in root.load_dlgs and self.text != "main_output": \
                     ok_bt.dispatch("on_release")
 
 
