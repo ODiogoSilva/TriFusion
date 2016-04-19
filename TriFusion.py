@@ -5101,12 +5101,14 @@ if __name__ == "__main__":
             # Clear output formats
             self.output_formats = ["fasta"]
 
-            # Clear filters, haplotype name and zorro suffix
+            # Clear filters, consensus, haplotype name and zorro suffix
             self.missing_filter_settings = [25, 50, 0]
             self.taxa_filter_settings = [None, None]
             self.codon_filter_settings = [True, True, True]
             self.hap_prefix = "Hap"
             self.zorro_suffix = ""
+            self.process_grid_wgt.ids.consensus_mode.text = \
+                "IUPAC" if self.sequence_types != "Protein" else "Soft mask"
 
             # Clear output file
             self.output_file = ""
