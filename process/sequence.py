@@ -791,7 +791,7 @@ class Alignment(Base):
         else:
             self.partitions = partitions
 
-    def reverse_concatenate(self):
+    def reverse_concatenate(self, dest=None):
         """
         This function divides a concatenated file according to the
         partitions set in self.partitions and returns an AlignmentList object
