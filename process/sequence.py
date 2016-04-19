@@ -1093,17 +1093,23 @@ class Alignment(Base):
         if output_dir:
             output_file = join(output_dir, output_file)
 
-        # For each format, checks if file name already exists. If so, add
-        # a "_conv" suffix
+        # Stores suffixes for each format
         format_ext = {"ima2": ".txt",
                       "mcmctree": "_mcmctree.phy",
                       "phylip": ".phy",
                       "nexus": ".nex",
                       "fasta": ".fas"}
 
+        # Check if any output file already exist. If so, add a _conv suffix
+        # to all extensions
+        conv_label = False
         for f in output_format:
             if os.path.exists(output_file + format_ext[f]):
-                format_ext[f] = "_conv" + format_ext[f]
+                conv_label = True
+
+        if conv_label:
+            for k, v in format_ext.items():
+                format_ext[k] = "_conv" + v
 
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
