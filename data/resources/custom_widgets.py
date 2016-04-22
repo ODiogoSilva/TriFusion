@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-#
+#!/usr/bin/env python2
 #
 #  Copyright 2012 Unknown <diogo@arch>
 #
@@ -43,9 +42,13 @@ from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ObjectProperty
 from kivy.uix.screenmanager import Screen
 from kivy.graphics import Color, Rectangle
+from kivy.logger import Logger
+
 
 import re
-from os.path import join, sep, abspath, pardir
+from weakref import ref
+from os.path import (
+    basename, join, sep, normpath, expanduser, abspath, pardir)
 import sys
 
 
@@ -101,7 +104,7 @@ class LinkedLabel(Label):
         for d in path_list:
             p = join(p, d)
             if p != sep:
-                s += "[ref={}]{}[/ref]".format(p, d) + sep
+                s += u"[ref={}]{}[/ref]".format(p, d) + sep
 
         return s[:-1]
 
@@ -308,7 +311,6 @@ class FileChooserM(FileChooserIconView):
             # If entry.path is to jump to previous directory, update path with
             # parent directory
             if entry.path == "../" or entry.path == "..\\":
-                print(pardir)
                 self.path = abspath(join(self.path, pardir))
                 self.selection = []
             else:
@@ -382,6 +384,52 @@ class FileChooserM(FileChooserIconView):
                 return
             self.selection = [entry.path, ]
 
+    def _add_files(self, path, parent=None):
+        path = expanduser(path)
+
+        files = []
+        fappend = files.append
+        if sys.platform in ["win32", "cygwin"]:
+            try:
+                tdir = [str(x.encode("latin1")) for x in self.file_system.listdir(path)]
+            except UnicodeDecodeError:
+                tdir = self.file_system.listdir(path)
+            ldir = [unicode(x, "latin1") for x in tdir]
+        else:
+            ldir = self.file_system.listdir(path)
+        for f in ldir:
+            try:
+                # In the following, use fully qualified filenames
+                fappend(normpath(join(path, f)))
+            except UnicodeDecodeError:
+                Logger.exception('unable to decode <{}>'.format(f))
+            except UnicodeEncodeError:
+                Logger.exception('unable to encode <{}>'.format(f))
+        # Apply filename filters
+        files = self._apply_filters(files)
+        # Sort the list of files
+        files = self.sort_func(files, self.file_system)
+        is_hidden = self.file_system.is_hidden
+        if not self.show_hidden:
+            files = [x for x in files if not is_hidden(x)]
+        self.files[:] = files
+        total = len(files)
+        wself = ref(self)
+        for index, fn in enumerate(files):
+
+            def get_nice_size():
+                # Use a closure for lazy-loading here
+                return self.get_nice_size(fn)
+
+            ctx = {'name': basename(fn),
+                   'get_nice_size': get_nice_size,
+                   'path': fn,
+                   'controller': wself,
+                   'isdir': self.file_system.is_dir(fn),
+                   'parent': parent,
+                   'sep': sep}
+            entry = self._create_entry_widget(ctx)
+            yield index, total, entry
 
 class CustomPopup(Popup):
     """

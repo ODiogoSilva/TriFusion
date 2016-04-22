@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# -*- coding: utf-8 -*-#
 #
 #  Copyright 2012 Unknown <diogo@arch>
 #
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     from kivy.config import Config
 
     # Sets some kivy configurations before creating main window
-    Config.set("kivy", "log_level", "warning")
+    #Config.set("kivy", "log_level", "warning")
     Config.set("kivy", "desktop", 1)
     Config.set("kivy", "exit_on_escape", 0)
     Config.set("graphics", "resizable", 1)
@@ -1068,7 +1067,7 @@ if __name__ == "__main__":
                 and the removable media detected in the system. If
                 differences are found, returns the operation (remove ou add)
                 and a list of paths
-                :return: Tuple, 1º element is the operation (add/remove); 2º
+                :return: Tuple, 1? element is the operation (add/remove); 2?
                 element is a list of paths with which to perform the operation
                 """
 

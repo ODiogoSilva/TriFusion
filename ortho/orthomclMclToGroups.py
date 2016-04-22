@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 
 def mcl_to_groups(prefix, start_id, infile, outfile):
