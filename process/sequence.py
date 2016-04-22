@@ -1007,6 +1007,49 @@ class Alignment(Base):
         self._filter_terminals()
         self._filter_columns(gap_threshold, missing_threshold)
 
+    def filter_segregating_sites(self, min_val, max_val):
+        """
+        Evaluates the number of segregating sites of the current alignment
+        and returns True if they fall between the min_val and max_val.
+        :returns: Boolean. True if the alignment's number of segregating
+        sites is within the provided range
+        """
+
+        fhs = fileinput.input(files=[x for x in self.alignment.values()])
+
+        # Counter for segregating sites
+        s = 0
+
+        # Creating the column list variable
+        for column in zip(*fhs):
+
+            v = len(set([i for i in column if i not in [self.sequence_code[1],
+                                                        "-"]]))
+
+            if v > 1:
+                s += 1
+
+            # Add these tests so that the method may exit earlier if the
+            # conditions are met, precluding the analysis of the entire
+            # alignment
+            if min_val and s >= min_val and not max_val:
+                return True
+
+            if max_val and s > max_val and not min_val:
+                return False
+
+        # If both values were specified, check if s is within range
+        if max_val and min_val and s >= min_val and s <= max_val:
+            return True
+        # If only min_val was specified, check if s is higher
+        elif not max_val and s >= min_val:
+            return True
+        # If only max_val was specified, check if s is lower
+        elif not min_val and s <= max_val:
+            return True
+        else:
+            return False
+
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
                       cut_space_nex=50, cut_space_phy=258, cut_space_ima2=8,
@@ -2016,6 +2059,22 @@ class AlignmentList(Base):
 
             alignment_obj.filter_missing_data(gap_threshold=gap_threshold,
                                         missing_threshold=missing_threshold)
+
+    def filter_segregating_sites(self, min_val, max_val):
+        """
+        Wrapper of the filter_segregating_sites method of the Alignment
+        object. See the method's documentation
+        :param min_val: Integer. If not None, sets the minimum number of
+        segregating sites allowed for the alignment to pass the filter
+        :param max_val: Integer. If not None, sets the maximum number of
+        segregating sites allowed for the alignment to pass the filter
+        """
+
+        for k, alignment_obj in list(self.alignments.items()):
+
+            if not alignment_obj.filter_segregating_sites(min_val, max_val):
+                del self.alignments[k]
+                self.partitions.remove_partition(file_name=alignment_obj.path)
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """
