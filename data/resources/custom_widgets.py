@@ -298,7 +298,6 @@ class FileChooserM(FileChooserIconView):
         "../", the path is updated to the parent directory, instead of
         appending the entry.path
         """
-        print("here")
         self.dispatch("on_dir_entry")
         try:
             # Just check if we can list the directory. This is also what
@@ -312,7 +311,6 @@ class FileChooserM(FileChooserIconView):
             # If entry.path is to jump to previous directory, update path with
             # parent directory
             if entry.path == "../" or entry.path == "..\\":
-                print(pardir)
                 self.path = abspath(join(self.path, pardir))
                 self.selection = []
             else:
@@ -392,7 +390,11 @@ class FileChooserM(FileChooserIconView):
         files = []
         fappend = files.append
         if sys.platform in ["win32", "cygwin"]:
-            ldir = [unicode(x, "latin1") for x in self.file_system.listdir(path)]
+            try:
+                tdir = [str(x.encode("latin1")) for x in self.file_system.listdir(path)]
+            except UnicodeDecodeError:
+                tdir = self.file_system.listdir(path)
+            ldir = [unicode(x, "latin1") for x in tdir]
         else:
             ldir = self.file_system.listdir(path)
         for f in ldir:
