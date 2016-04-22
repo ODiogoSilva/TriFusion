@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python2
 #
-#  
 #  Copyright 2012 Unknown <diogo@arch>
 #  
 #  This program is free software; you can redistribute it and/or modify
