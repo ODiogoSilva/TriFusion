@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
+#!/usr/bin/env python2
 #
 #  Copyright 2012 Unknown <diogo@arch>
 #
@@ -107,7 +105,7 @@ def create_db(f_list):
                     aa_seq = translate(seq)
                     output_handle.write(">%s\n%s\n" % (header, aa_seq))
                     id_dic[header] = seq
-                header = line.strip()[1:].replace(" ", "€")
+                header = line.strip()[1:].replace(" ", ";;")
                 seq = ""
             else:
                 seq += line.strip()
@@ -131,8 +129,8 @@ def create_query(input_list):
         handle = open(f)
         for line in handle:
             if line.startswith(">"):
-                query_db[f].append(line.strip()[1:].replace(" ", "€"))
-                f_handle.write(line.replace(" ", "€"))
+                query_db[f].append(line.strip()[1:].replace(" ", ";;"))
+                f_handle.write(line.replace(" ", ";;"))
             else:
                 f_handle.write(line)
 
@@ -155,8 +153,8 @@ def create_query_from_dict(protein_dict):
 
     for cl in protein_dict:
         for seq_id, seq in cl:
-            query_db[cl].append(seq_id.replace(" ", "€"))
-            f_handle.write(">%s\n%s\n" % (seq_id.replace(" ", "€"), seq))
+            query_db[cl].append(seq_id.replace(" ", ";;"))
+            f_handle.write(">%s\n%s\n" % (seq_id.replace(" ", ";;"), seq))
 
     f_handle.close()
 
@@ -212,7 +210,7 @@ def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
         for i in vals:
             if i in pairs:
                 seq = id_db[pairs[i]]
-                f_handle.write(">%s\n%s\n" % (i.replace("€", " "), seq))
+                f_handle.write(">%s\n%s\n" % (i.replace(";;", " "), seq))
             else:
                 bad += 1
     else:
