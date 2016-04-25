@@ -239,6 +239,13 @@ class FileChooserM(FileChooserIconView):
     shift = False
     control = False
 
+    # This attribute is a workaround of the "going back two par dirs" on Windows. The problem is that, occasionally,
+    # three mouse inputs are provided when double clicking. The third input is also registered as a double tap and,
+    # therefore, the open_dir method is issue twice. This attribute checks if the previous touch is False (previous
+    # touch was not double tap) or True (previous touch was double tap), and only issues an open dir when prev_touch is
+    # False
+    prev_touch = False
+
     def __init__(self, **kwargs):
         super(FileChooserM, self).__init__(**kwargs)
         # Register new event that is triggered when entering a directory
@@ -253,7 +260,6 @@ class FileChooserM(FileChooserIconView):
         """
 
         pass
-
 
     def on_dir_entry(self):
         """
@@ -322,6 +328,7 @@ class FileChooserM(FileChooserIconView):
         (internal) This method must be called by the template when an entry
         is touched by the user. Supports Shift+Clicking for multiple selection
         """
+
         if (
             'button' in touch.profile and touch.button in (
                 'scrollup', 'scrolldown', 'scrollleft', 'scrollright')):
@@ -330,11 +337,15 @@ class FileChooserM(FileChooserIconView):
         _dir = self.file_system.is_dir(entry.path)
         dirselect = self.dirselect
 
-        if _dir and dirselect and touch.is_double_tap and not self.shift:
+        if _dir and dirselect and touch.is_double_tap and not self.shift and not self.prev_touch:
             self.open_entry(entry)
+            self.prev_touch = touch.is_double_tap
             return
         elif not _dir and touch.is_double_tap:
             self.dispatch("on_double_click")
+
+        # Workaround for issue #151
+        self.prev_touch = touch.is_double_tap
 
         if self.shift and self.selection:
             # Get index of last selection entry and current entry
@@ -430,6 +441,7 @@ class FileChooserM(FileChooserIconView):
                    'sep': sep}
             entry = self._create_entry_widget(ctx)
             yield index, total, entry
+
 
 class CustomPopup(Popup):
     """
