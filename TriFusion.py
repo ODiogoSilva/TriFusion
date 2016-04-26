@@ -52,7 +52,6 @@ if __name__ == "__main__":
     from kivy.config import Config
 
     # Sets some kivy configurations before creating main window
-    #Config.set("kivy", "log_level", "warning")
     Config.set("kivy", "desktop", 1)
     Config.set("kivy", "exit_on_escape", 0)
     Config.set("graphics", "resizable", 1)
