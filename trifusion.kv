@@ -4041,7 +4041,7 @@
                 color: (0.216, 0.67, 0.784, 1)
 
     Label:
-        text: "Multiple alignmnets"
+        text: "Multiple alignments"
         bold: True
         halign: "left"
         valign: "middle"
@@ -4119,6 +4119,125 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             on_release: app.save_gapfilter(gap_filter.active, gap_sli.value, mis_sli.value, min_taxa.value)
+        TFOKButon:
+            id: cancel_bt
+            text: "Cancel"
+            on_release: root.cancel()
+
+<VariationFilterDialog>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 15
+
+    Switch:
+        id: variation_filter
+
+    Label:
+        size_hint_y: None
+        height: 30
+        text: "Variable sites"
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (0.216, 0.67, 0.784, 1)
+        size_hint_y: None
+        height: 20
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: var_min
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Minimum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not var_min.active else (1,1,1,1)
+        TextInput:
+            disabled: True if not variation_filter.active or not var_min.active else False
+            size_hint_x: .7
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: var_max
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Maximum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not var_max.active else (1,1,1,1)
+        TextInput:
+            disabled: True if not variation_filter.active or not var_max.active else False
+            size_hint_x: .7
+
+    Label:
+        text: "Informative sites"
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (0.216, 0.67, 0.784, 1)
+        size_hint_y: None
+        height: 30
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: inf_min
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Minimum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not inf_min.active else (1,1,1,1)
+
+        TextInput:
+            disabled: True if not variation_filter.active or not inf_min.active else False
+            size_hint_x: .7
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: inf_max
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Maximum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not inf_max.active else (1,1,1,1)
+        TextInput:
+            disabled: True if not variation_filter.active or not inf_max.active else False
+            size_hint_x: .7
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        TFOKButon:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
@@ -4727,6 +4846,32 @@
                     background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["gap_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release: app.dialog_filter();
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Sequence variation filter[/b][/size]\n[size=13] Set filters to remove/include alignments inside the specified sequence variation range [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("variation_filter")
+                ProcessBt:
+                    id: variation_filterbt
+                    disabled: False if filter.active else True
+                    text: "Filters ON" if app.secondary_options["variation_filter"] else "Set filters"
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["gap_filter"] else "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    on_release:
+                        app.dialog_variationfilter()
 
     TabbedPanelItem:
         id: gcoder_tab

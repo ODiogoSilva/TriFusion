@@ -88,6 +88,9 @@ informative_storage = {
         "filtering of codon positions in the alignments. By default, all "
         "positions are set to be saved but any combination can be specified to "
         "be filtered out."],
+    "variation_filter": ["Variation Filter - Help", "The [b]variation filter["
+        "/b] option allows alignments to be filtered according their amount "
+        "or type of sequence variation."],
     "consensus": ["Alignment consensus - Help", "The alignment consensus "
         "option will merge all sequences in an alignment into a single "
         "consensus sequence. Variation in alignment columns can be either "

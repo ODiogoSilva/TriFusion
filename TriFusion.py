@@ -223,9 +223,10 @@ if __name__ == "__main__":
                                           ("taxa_filter", False),
                                           ("codon_filter", False),
                                           ("gap_filter", False),
+                                          ("variation_filter", False),
                                           ("gcoder_file", False),
                                           ("consensus_file", False),
-                                          ("consensus_single", False)])
+                                          ("consensus_single", False),])
 
         # Attributes for the Orthology screen widgets
         ortho_search_options = None
@@ -6908,6 +6909,16 @@ if __name__ == "__main__":
             self.show_popup(title="Set filter thresholds", content=content,
                             size=(400, 470))
 
+        def dialog_variationfilter(self):
+            """
+            Generates the settings popup for variation filter options
+            """
+
+            content = VariationFilterDialog(cancel=self.dismiss_popup)
+
+            self.show_popup(title="Set variation filter options",
+                            content=content, size=(250, 440))
+
         @staticmethod
         def check_filters(value):
             """
@@ -7277,7 +7288,7 @@ if __name__ == "__main__":
                 # Update the height of the GridLayout to allow scrolling
                 self.process_grid_wgt.height = self.process_height + \
                     sum([x.height for x in
-                         self.process_options.ids.filter_grid.children]) + 55
+                         self.process_options.ids.filter_grid.children]) + 65
 
                 # Change text in the toggle button
                 self.process_grid_wgt.ids.opt_bt.text = \

@@ -1003,6 +1003,10 @@ class FilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class VariationFilterDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class TextDialog(BoxLayout):
     """
     Class controlling a simple text input popup
