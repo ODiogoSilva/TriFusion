@@ -455,6 +455,11 @@ if __name__ == "__main__":
         # will only save the first
         # two positions
         codon_filter_settings = ListProperty([True, True, True])
+        # Attribute storing the alignment variation filter settings. For each
+        # key entry there is a list with two elements, storing the minimum
+        # and maximum value for that particular statistic. None values are
+        # allowed, in which case there is no boundary
+        variation_filter = ListProperty([None, None, None, None])
 
         # Attribute determining whether reverse concatenation will use a
         # partition file or the partitions defined in the app
@@ -6446,6 +6451,39 @@ if __name__ == "__main__":
 
             self.dismiss_popup()
 
+        def save_variationfilter(self, filter_act, *pargs):
+            """
+            Stores the information of the variation filter dialog.
+            :param filter_act: Boolean, whether the filter is active (True) or
+            not (False)
+            :param pargs, list of tuples, with first element being the
+            checkbox active property and the second element the value of said
+            parameter
+            """
+
+            # Check if all checked parameters have values. If not,
+            # issue warning and do not close popup
+            for p in pargs:
+                if p[0] and not p[1]:
+                    return self.dialog_floatcheck("Warning: Checked "
+                        "parameters must have values specified", t="error")
+
+            # Check for consistency between min and max values
+            for i in range(0, len(pargs), 2):
+                vals = (pargs[i][1], pargs[i + 1][1])
+                if vals[0] and vals[1] and vals[0] > vals[1]:
+                    return self.dialog_floatcheck("Warning: Minimum values "
+                        "cannot be greater than maximum values", t="error")
+
+            self.secondary_options["variation_filter"] = filter_act
+
+            if filter_act:
+                for i, p in enumerate(pargs):
+                    p = int(p[1]) if p[0] else None
+                    self.variation_filter[i] = p
+
+            self.dismiss_popup()
+
         def save_ima2_opts(self, pop_string, mutation, inheritance):
             """
             Check each text input parameter given by the user and, if they
@@ -6913,10 +6951,48 @@ if __name__ == "__main__":
             Generates the settings popup for variation filter options
             """
 
+            p_list = [("var_min", "var_min_val"), ("var_max", "var_max_val"),
+                      ("inf_min", "inf_min_val"), ("inf_max", "inf_max_val")]
+
             content = VariationFilterDialog(cancel=self.dismiss_popup)
+
+            content.ids.variation_filter.active = self.secondary_options[
+                "variation_filter"]
+
+            # Populate content with previous filters
+            for i, p in enumerate(self.variation_filter):
+                content.ids[p_list[i][0]].active = True if p else False
+                content.ids[p_list[i][1]].text = str(p) if p else ""
 
             self.show_popup(title="Set variation filter options",
                             content=content, size=(250, 440))
+
+        @staticmethod
+        def check_variation_filters(value):
+            """
+            Same function as check_filters method, but checks only for
+            integer compliance
+            :param value: text_input.text
+            """
+
+            x = value.replace(",", ".")
+
+            try:
+                x = int(x)
+            except ValueError:
+                # Check if value can be converted to float by removing
+                # all non digits. To avoid problems like converting 2.23
+                # to 223, the first step is to get the first value before
+                #  a ".", if any
+                try:
+                    all = string.maketrans("", "")
+                    nodigs = all.translate(all, string.digits)
+                    x = x.encode("ascii", "ignore")
+                    x = int(x.translate(all, nodigs))
+                except ValueError:
+                    return False
+
+            return True, abs(x)
 
         @staticmethod
         def check_filters(value):
@@ -6927,7 +7003,6 @@ if __name__ == "__main__":
             of 0 and 100. If the text input cannot be converted to float,
             it will return false and the slider value will not change
             :param value: text_input.text
-            :return:
             """
 
             try:
@@ -8528,8 +8603,8 @@ if __name__ == "__main__":
                     try:
                         if shared_ns.exception == "EmptyAlignment":
                             return self.dialog_floatcheck(
-                                "ERROR: The alignment is empty after taxa "
-                                "filtering", t="error")
+                                "ERROR: The alignment is empty after applying "
+                                "filters", t="error")
                         elif shared_ns.exception == "Unknown":
                             return self.dialog_floatcheck(
                                 "ERROR: Unexpected error when generating "
@@ -8563,6 +8638,7 @@ if __name__ == "__main__":
                 "missing_filter_settings": list(self.missing_filter_settings),
                 "taxa_filter_settings": list(self.taxa_filter_settings),
                 "codon_filter_settings": list(self.codon_filter_settings),
+                "variation_filter_settings": list(self.variation_filter),
                 "output_file": str(self.output_file),
                 "rev_infile": str(self.rev_infile),
                 "main_operations": dict(self.main_operations),
