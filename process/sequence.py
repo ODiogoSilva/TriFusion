@@ -1009,6 +1009,10 @@ class Alignment(Base):
         """
         Evaluates the number of segregating sites of the current alignment
         and returns True if they fall between the min_val and max_val.
+        :param min_val: integer, minimum number of segregating sites for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of segregating sites for the
+        alignment to pass. Can be None, in which case there is no upper bound
         :returns: Boolean. True if the alignment's number of segregating
         sites is within the provided range
         """
