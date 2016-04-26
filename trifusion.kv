@@ -4159,8 +4159,12 @@
             bold: True
             color: (.6,.6,.6,.6) if not variation_filter.active or not var_min.active else (1,1,1,1)
         TextInput:
+            id: var_min_val
             disabled: True if not variation_filter.active or not var_min.active else False
             size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
     BoxLayout:
         size_hint_y: None
         height: 30
@@ -4177,8 +4181,12 @@
             bold: True
             color: (.6,.6,.6,.6) if not variation_filter.active or not var_max.active else (1,1,1,1)
         TextInput:
+            id: var_max_val
             disabled: True if not variation_filter.active or not var_max.active else False
             size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
 
     Label:
         text: "Informative sites"
@@ -4206,8 +4214,12 @@
             color: (.6,.6,.6,.6) if not variation_filter.active or not inf_min.active else (1,1,1,1)
 
         TextInput:
+            id: inf_min_val
             disabled: True if not variation_filter.active or not inf_min.active else False
             size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
     BoxLayout:
         size_hint_y: None
         height: 30
@@ -4224,8 +4236,12 @@
             bold: True
             color: (.6,.6,.6,.6) if not variation_filter.active or not inf_max.active else (1,1,1,1)
         TextInput:
+            id: inf_max_val
             disabled: True if not variation_filter.active or not inf_max.active else False
             size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
 
     BoxLayout:
         orientation: "horizontal"
@@ -4238,6 +4254,7 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             on_release:
+                app.save_variationfilter(variation_filter.active, (var_min.active, var_min_val.text), (var_max.active, var_max_val.text), (inf_min.active, inf_min_val.text), (inf_max.active, inf_max_val.text))
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
@@ -4868,7 +4885,7 @@
                     text: "Filters ON" if app.secondary_options["variation_filter"] else "Set filters"
                     size_hint_x: None
                     width: root.process_bt_wdt
-                    background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["gap_filter"] else "data/backgrounds/bt_process_off.png"
+                    background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["variation_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release:
                         app.dialog_variationfilter()

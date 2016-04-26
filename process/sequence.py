@@ -1005,6 +1005,32 @@ class Alignment(Base):
         self._filter_terminals()
         self._filter_columns(gap_threshold, missing_threshold)
 
+    @staticmethod
+    def _test_range(s, min_val, max_val):
+        """
+        Wrapper for the tests that determine whether a certain alignment
+        statistic (s) is within the range provided by min_val and max_val
+        :param s: integer, test statistic
+        :param min_val: integer, minimum number of test statistic for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of test statistic for the
+        alignment to pass. Can be None, in which case there is no upper bound
+        :returns: Boolean. True if the alignment's test statistic is within the
+        provided range
+        """
+
+        # If both values were specified, check if s is within range
+        if max_val and min_val and s >= min_val and s <= max_val:
+            return True
+        # If only min_val was specified, check if s is higher
+        elif not max_val and s >= min_val:
+            return True
+        # If only max_val was specified, check if s is lower
+        elif not min_val and s <= max_val:
+            return True
+        else:
+            return False
+
     def filter_segregating_sites(self, min_val, max_val):
         """
         Evaluates the number of segregating sites of the current alignment
@@ -1040,17 +1066,49 @@ class Alignment(Base):
             if max_val and s > max_val and not min_val:
                 return False
 
-        # If both values were specified, check if s is within range
-        if max_val and min_val and s >= min_val and s <= max_val:
-            return True
-        # If only min_val was specified, check if s is higher
-        elif not max_val and s >= min_val:
-            return True
-        # If only max_val was specified, check if s is lower
-        elif not min_val and s <= max_val:
-            return True
-        else:
-            return False
+        return self._test_range(s, min_val, max_val)
+
+    def filter_informative_sites(self, min_val, max_val):
+        """
+        Similar to filter_segregating_sites method, but only considers
+        informative sites (variable sites present in more than 2 taxa).
+        :param min_val: integer, minimum number of informative sites for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of informative sites for the
+        alignment to pass. Can be None, in which case there is no upper bound
+        :returns: Boolean. True if the alignment's number of informative
+        sites is within the provided range
+        """
+
+        fhs = fileinput.input(files=[x for x in self.alignment.values()])
+
+        # Counter for informative sites
+        s = 0
+
+        # Creating the column list variable
+        for column in zip(*fhs):
+
+            column = Counter([i for i in column if i not in
+                              [self.sequence_code[1], "-"]])
+
+            # Delete most common
+            del column[column.most_common()[0][0]]
+
+            # If any of the remaining sites is present in more than two taxa,
+            # score the site as informative
+            if any([x >= 2 for x in column.values()]):
+                s += 1
+
+            # Add these tests so that the method may exit earlier if the
+            # conditions are met, precluding the analysis of the entire
+            # alignment
+            if min_val and s >= min_val and not max_val:
+                return True
+
+            if max_val and s > max_val and not min_val:
+                return False
+
+        return self._test_range(s, min_val, max_val)
 
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
@@ -2075,6 +2133,22 @@ class AlignmentList(Base):
         for k, alignment_obj in list(self.alignments.items()):
 
             if not alignment_obj.filter_segregating_sites(min_val, max_val):
+                del self.alignments[k]
+                self.partitions.remove_partition(file_name=alignment_obj.path)
+
+    def filter_informative_sites(self, min_val, max_val):
+        """
+        Wrapper of the filter_informative_sites method of the Alignment
+        object. See the method's documentation
+        :param min_val: Integer. If not None, sets the minimum number of
+        informative sites allowed for the alignment to pass the filter
+        :param max_val: Integer. If not None, sets the maximum number of
+        informative sites allowed for the alignment to pass the filter
+        """
+
+        for k, alignment_obj in list(self.alignments.items()):
+
+            if not alignment_obj.filter_informative_sites(min_val, max_val):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
 
