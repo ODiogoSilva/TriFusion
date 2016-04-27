@@ -6970,6 +6970,49 @@ if __name__ == "__main__":
             self.show_popup(title="Set variation filter options",
                             content=content, size=(250, 440))
 
+        def dialog_filter_report(self, filtered_stats, nalns):
+            """
+            Generates graphic report at the end of a processing operation
+            with active filters
+            :param filtered_stats: Dictionary with the values of the filtered
+             alignments for each filter type
+            :param nalns: integer, total number of processed alignments
+            """
+
+            content = FilterGraphicReport(cancel=self.dismiss_popup)
+
+            # Set total number of alignments
+            content.ids.total_alns.text = str(nalns)
+
+            # Set final alignments
+            final_alns = sum([x for x in filtered_stats.values() if x])
+            content.ids.final_box.size_hint_x = float(final_alns) / float(nalns)
+            content.bar_color = (.44, .78, .22, 1)
+
+            if final_alns:
+                content.ids.final_txt.text = str(final_alns)
+            else:
+                content.ids.final_txt2.text = 0
+
+            # Set graphics for each filter
+            for f, val in filtered_stats.items():
+
+                filt_wgt = IndividualFilterWgt()
+                filt_wgt.ids.main_lbl.text = f
+                if val:
+                    filt_wgt.ids.gf_box.size_hint_x = float(val) / float(nalns)
+                    filt_wgt.ids.gf_txt.text = str(val)
+                elif val == 0:
+                    filt_wgt.ids.gf_box.size_hint_x = 0.00001
+                    filt_wgt.ids.gf_text2.text = "0"
+                else:
+                    filt_wgt.ids.gf_box.size_hint_x = 0.00001
+                    filt_wgt.ids.gf_txt2.text = "Not applied"
+
+                content.ids.filter_bx.add_widget(filt_wgt)
+
+            self.show_popup("Filter report", content=content, size=(400, 520))
+
         @staticmethod
         def check_variation_filters(value):
             """
@@ -8622,6 +8665,10 @@ if __name__ == "__main__":
                             self.dialog_floatcheck(
                                 "All Done! %s files were successfully processed"
                                 % shared_ns.proc_files, t="info")
+
+                        if shared_ns.filtered_alns:
+                            self.dialog_filter_report(shared_ns.filtered_alns,
+                                                      shared_ns.proc_files)
 
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()

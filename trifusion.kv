@@ -4260,6 +4260,137 @@
             text: "Cancel"
             on_release: root.cancel()
 
+<FilterGraphicReport>:
+    padding: 10
+    spacing: 10
+    orientation: "vertical"
+    bar_color: None
+    BoxLayout:
+        id: filter_bx
+        orientation: "vertical"
+        spacing: 5
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 5
+            orientation: "vertical"
+            Label:
+                bold: True
+                text: "Total alignments"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                color: (.7,.7,.7,1)
+            BoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: (.7,.7,.7,1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    bold: True
+                    id: total_alns
+        Label:
+            text: "Filters"
+            bold: True
+            color: app._blue
+            size_hint_y: None
+            height: 30
+
+
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 5
+        size_hint_y: None
+        height: 65
+        Label:
+            text: "Total filtered alignments"
+            bold: True
+            color: app._blue
+            size_hint_y: None
+            height: 30
+        BoxLayout:
+            BoxLayout:
+                id: final_box
+                canvas.before:
+                    Color:
+                        rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    id: final_txt
+                    bold: True
+
+            BoxLayout:
+                size_hint_x: 1 - final_box.size_hint_x
+                canvas.before:
+                    Color:
+                        rgba: (.4, .4, .4, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    id: final_txt2
+                    bold: True
+
+    Widget:
+        size_hint_y: None
+        height: 10
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        TFOKButon:
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            id: cancel_bt
+            text: "Close"
+            on_release:
+                root.cancel()
+
+<IndividualFilterWgt>:
+    size_hint_y: None
+    height: 50
+    spacing: 5
+    orientation: "vertical"
+    bar_color: None
+    Label:
+        id: main_lbl
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (.7,.7,.7,1)
+    BoxLayout:
+        BoxLayout:
+            id: gf_box
+            canvas.before:
+                Color:
+                    rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                id: gf_txt
+                bold: True
+
+        BoxLayout:
+            size_hint_x: 1 - gf_box.size_hint_x
+            canvas.before:
+                Color:
+                    rgba: (.4, .4, .4, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                id: gf_txt2
+                bold: True
+
+
 <Sidebt@ToggleButton>:
     size_hint_y: None
     height: 50
