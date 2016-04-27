@@ -6470,10 +6470,13 @@ if __name__ == "__main__":
 
             # Check for consistency between min and max values
             for i in range(0, len(pargs), 2):
-                vals = (pargs[i][1], pargs[i + 1][1])
-                if vals[0] and vals[1] and vals[0] > vals[1]:
-                    return self.dialog_floatcheck("Warning: Minimum values "
-                        "cannot be greater than maximum values", t="error")
+                try:
+                    vals = (int(pargs[i][1]), int(pargs[i + 1][1]))
+                    if vals[0] and vals[1] and vals[0] > vals[1]:
+                        return self.dialog_floatcheck("Warning: Minimum values "
+                            "cannot be greater than maximum values", t="error")
+                except ValueError:
+                    pass
 
             self.secondary_options["variation_filter"] = filter_act
 
