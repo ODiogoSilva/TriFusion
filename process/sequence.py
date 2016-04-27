@@ -39,7 +39,7 @@ from itertools import compress
 import fileinput
 import multiprocessing
 import cPickle as pickle
-# import pickle
+
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
 # applying methods designed for alignments to sets of sequences with unequal
@@ -1627,6 +1627,14 @@ class AlignmentList(Base):
         self.path_list = []
 
         """
+        Records the number of filtered alignments by each individual filter type
+        """
+        self.filtered_alignments = OrderedDict([("By minimum taxa", None),
+                                               ("By taxa", None),
+                                               ("By variable sites", None),
+                                               ("By informative sites", None)])
+
+        """
         Tuple with the AlignmentList sequence code. Either ("DNA", "n") or
         ("Protein", "x")
         """
@@ -2037,11 +2045,14 @@ class AlignmentList(Base):
         alignments are moved to the filtered_alignments attribute
         """
 
+        self.filtered_alignments["By minimum taxa"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
             if len(alignment_obj.alignment) < \
                     (min_taxa / 100) * len(self.taxa_names):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By minimum taxa"] += 1
 
     def filter_by_taxa(self, filter_mode, taxa_list):
         """
@@ -2053,6 +2064,8 @@ class AlignmentList(Base):
         filtering
         """
 
+        self.filtered_alignments["By taxa"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
 
             # Filter alignments that do not contain at least all taxa in
@@ -2060,12 +2073,18 @@ class AlignmentList(Base):
             if filter_mode == "Contain":
                 if set(taxa_list) - set(list(alignment_obj.alignment)) != set():
                     del self.alignments[k]
+                    self.partitions.remove_partition(
+                        file_name=alignment_obj.path)
+                    self.filtered_alignments["By taxa"] += 1
 
             # Filter alignments that contain the taxa in taxa list
             if filter_mode == "Exclude":
                 if any((x for x in taxa_list
                         if x in list(alignment_obj.alignment))):
                     del self.alignments[k]
+                    self.partitions.remove_partition(
+                        file_name=alignment_obj.path)
+                    self.filtered_alignments["By taxa"] += 1
 
         # If the resulting alignment is empty, raise an Exception
         if self.alignments == {}:
@@ -2130,11 +2149,14 @@ class AlignmentList(Base):
         segregating sites allowed for the alignment to pass the filter
         """
 
+        self.filtered_alignments["By variable sites"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
 
             if not alignment_obj.filter_segregating_sites(min_val, max_val):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By variable sites"] += 1
 
     def filter_informative_sites(self, min_val, max_val):
         """
@@ -2146,11 +2168,14 @@ class AlignmentList(Base):
         informative sites allowed for the alignment to pass the filter
         """
 
+        self.filtered_alignments["By informative sites"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
 
             if not alignment_obj.filter_informative_sites(min_val, max_val):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By informative sites"] += 1
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """

@@ -282,6 +282,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 aln.filter_informative_sites(variation_filter_settings[2],
                                              variation_filter_settings[3])
 
+        # Pipe the information on the filtered alignments to the main process
+        ns.filtered_alns = aln.filtered_alignments
+
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
         if not main_aln.alignments:
@@ -384,6 +387,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                                            taxa_groups)
 
         ns.proc_files = len(aln_object.alignments)
+
+        # Initialize attribute tha will store the number of filtered
+        # alignments for reporting purposes
+        ns.filtered_alns = None
 
         # The execution of the process module will begin with all the
         # operations on the main output alignment. Only after the main

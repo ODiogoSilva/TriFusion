@@ -669,6 +669,14 @@ class OrthoGraphicReport(BoxLayout):
     pass
 
 
+class FilterGraphicReport(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
+class IndividualFilterWgt(BoxLayout):
+    pass
+
+
 class OrtoFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
