@@ -6421,6 +6421,12 @@ if __name__ == "__main__":
             should be present in the taxa_group attribute
             """
 
+            # Check if a taxa group has been selected. If not issue a warning
+            # and do not close popup
+            if taxa_group == "No group selected":
+                return self.dialog_floatcheck("Warning: A taxa group must be "
+                    "specified to activate the filter", t="error")
+
             self.secondary_options["taxa_filter"] = filter_act
 
             # Save only when the filter is set to active
