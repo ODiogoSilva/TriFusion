@@ -6456,6 +6456,13 @@ if __name__ == "__main__":
             parameter
             """
 
+            # Check if any parameter was checked. If not, issue warning and
+            # do not close popup
+            if not any([p[0] for p in pargs]) and filter_act:
+                return self.dialog_floatcheck("Warning: No parameters where "
+                    "checked. Specify at least one to activate the filter",
+                                              t="error")
+
             # Check if all checked parameters have values. If not,
             # issue warning and do not close popup
             for p in pargs:
