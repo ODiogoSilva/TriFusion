@@ -4961,7 +4961,7 @@
                         app.dialog_general_info("codon_filter")
                 ProcessBt:
                     id: taxa_filter
-                    disabled: False if filter.active and app.sequence_types == ["DNA"] else True
+                    disabled: False if filter.active and app.sequence_types == "DNA" else True
                     size_hint_x: None
                     width: root.process_bt_wdt
                     text: "Filters ON" if app.secondary_options["codon_filter"] else "Set filters"
