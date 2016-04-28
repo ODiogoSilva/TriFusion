@@ -6236,8 +6236,7 @@ if __name__ == "__main__":
         # ########################## POPUP OPS #################################
 
         def show_popup(self, title, content, size_hint=(.9, .9), size=None,
-                       separator_color=None, custom_background=None,
-                       close_bt=None):
+                       separator_color=None, close_bt=None):
             """
             General purpose method to create a popup widget
             :param title: string. Title of the popup
@@ -6246,8 +6245,6 @@ if __name__ == "__main__":
             :param size: tuple. The absolute size for the popup. If this
             argument is used, the size_hint will be ignored
             :param separator_color: List with rgb color of popup separator
-            :param custom_background: string. Provide the path to a custom
-            background image for the popup.
             """
 
             # This prevents defining a mutable argument.
@@ -6260,15 +6257,13 @@ if __name__ == "__main__":
                     content=content, size=size,
                     size_hint=(None, None), auto_dismiss=False,
                     separator_color=separator_color,
-                    title_color=separator_color,
-                    custom_background=custom_background)
+                    title_color=separator_color)
             else:
                 self._popup = CustomPopup(title="[b]%s[/b]" % title,
                     content=content, size_hint=size_hint,
                     auto_dismiss=False,
                     separator_color=separator_color,
-                    title_color=separator_color,
-                    custom_background=custom_background)
+                    title_color=separator_color1)
             self._popup.open()
 
             if close_bt:
