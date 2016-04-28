@@ -283,7 +283,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                                              variation_filter_settings[3])
 
         # Pipe the information on the filtered alignments to the main process
-        ns.filtered_alns = aln.filtered_alignments
+        # only if it was applied a filter that changes the final alignments
+        if any(aln.filtered_alignments.values()):
+            ns.filtered_alns = aln.filtered_alignments
 
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
@@ -459,7 +461,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             main_aln = deepcopy(aln_object)
             main_aln.start_action_alignment()
 
-            if op == "filter_file" and secondary_operations["filter"]:
+            if op == "filter":
 
                 ns.msg = "Creating additional filtered alignments(s)"
                 suffix = "_filtered"
