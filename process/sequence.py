@@ -1091,22 +1091,23 @@ class Alignment(Base):
             column = Counter([i for i in column if i not in
                               [self.sequence_code[1], "-"]])
 
-            # Delete most common
-            del column[column.most_common()[0][0]]
+            if column:
+                # Delete most common
+                del column[column.most_common()[0][0]]
 
-            # If any of the remaining sites is present in more than two taxa,
-            # score the site as informative
-            if any([x >= 2 for x in column.values()]):
-                s += 1
+                # If any of the remaining sites is present in more than two
+                # taxa score the site as informative
+                if any([x >= 2 for x in column.values()]):
+                    s += 1
 
-            # Add these tests so that the method may exit earlier if the
-            # conditions are met, precluding the analysis of the entire
-            # alignment
-            if min_val and s >= min_val and not max_val:
-                return True
+                # Add these tests so that the method may exit earlier if the
+                # conditions are met, precluding the analysis of the entire
+                # alignment
+                if min_val and s >= min_val and not max_val:
+                    return True
 
-            if max_val and s > max_val and not min_val:
-                return False
+                if max_val and s > max_val and not min_val:
+                    return False
 
         return self._test_range(s, min_val, max_val)
 
