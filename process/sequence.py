@@ -2118,7 +2118,9 @@ class AlignmentList(Base):
                 filtered_seq = "".join(list(itertools.compress(seq,
                                             index(alignment_obj.locus_length,
                                                   position_list))))
-                alignment_obj.alignment[taxon] = filtered_seq
+
+                with open(alignment_obj.alignment[taxon], "w") as fh:
+                    fh.write(filtered_seq)
 
             alignment_obj.locus_length = len(filtered_seq)
 
