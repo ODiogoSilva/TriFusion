@@ -6263,7 +6263,7 @@ if __name__ == "__main__":
                     content=content, size_hint=size_hint,
                     auto_dismiss=False,
                     separator_color=separator_color,
-                    title_color=separator_color1)
+                    title_color=separator_color)
             self._popup.open()
 
             if close_bt:
@@ -6294,7 +6294,7 @@ if __name__ == "__main__":
             General purpose method to close popups from the screen
             """
             if self._popup:
-                self._popup.dismiss(force=True)
+                self._popup.dismiss()
                 try:
                     rm_wgt = [x for x in self.root_window.children if
                               isinstance(x, CloseFloat)][0]
