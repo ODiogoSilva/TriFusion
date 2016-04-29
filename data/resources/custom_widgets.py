@@ -225,6 +225,54 @@ class FileChooserL(FileChooserListView):
                 return
             self.selection = [entry.path, ]
 
+    def _add_files(self, path, parent=None):
+        path = expanduser(path)
+
+        files = []
+        fappend = files.append
+        if sys.platform in ["win32", "cygwin"]:
+            try:
+                tdir = [str(x.encode("latin1")) for x in
+                        self.file_system.listdir(path)]
+            except UnicodeDecodeError:
+                tdir = self.file_system.listdir(path)
+            ldir = [unicode(x, "latin1") for x in tdir]
+        else:
+            ldir = self.file_system.listdir(path)
+        for f in ldir:
+            try:
+                # In the following, use fully qualified filenames
+                fappend(normpath(join(path, f)))
+            except UnicodeDecodeError:
+                Logger.exception('unable to decode <{}>'.format(f))
+            except UnicodeEncodeError:
+                Logger.exception('unable to encode <{}>'.format(f))
+        # Apply filename filters
+        files = self._apply_filters(files)
+        # Sort the list of files
+        files = self.sort_func(files, self.file_system)
+        is_hidden = self.file_system.is_hidden
+        if not self.show_hidden:
+            files = [x for x in files if not is_hidden(x)]
+        self.files[:] = files
+        total = len(files)
+        wself = ref(self)
+        for index, fn in enumerate(files):
+
+            def get_nice_size():
+                # Use a closure for lazy-loading here
+                return self.get_nice_size(fn)
+
+            ctx = {'name': basename(fn),
+                   'get_nice_size': get_nice_size,
+                   'path': fn,
+                   'controller': wself,
+                   'isdir': self.file_system.is_dir(fn),
+                   'parent': parent,
+                   'sep': sep}
+            entry = self._create_entry_widget(ctx)
+            yield index, total, entry
+
 
 class FileChooserM(FileChooserIconView):
     """
@@ -242,11 +290,13 @@ class FileChooserM(FileChooserIconView):
     shift = False
     control = False
 
-    # This attribute is a workaround of the "going back two par dirs" on Windows. The problem is that, occasionally,
-    # three mouse inputs are provided when double clicking. The third input is also registered as a double tap and,
-    # therefore, the open_dir method is issue twice. This attribute checks if the previous touch is False (previous
-    # touch was not double tap) or True (previous touch was double tap), and only issues an open dir when prev_touch is
-    # False
+    # This attribute is a workaround of the "going back two par dirs" on
+    # Windows. The problem is that, occasionally, three mouse inputs are
+    # provided when double clicking. The third input is also registered as a
+    # double tap and, therefore, the open_dir method is issue twice. This
+    # attribute checks if the previous touch is False (previous touch was not
+    # double tap) or True (previous touch was double tap), and only issues an
+    # open dir when prev_touch is False
     prev_touch = False
 
     def __init__(self, **kwargs):
@@ -405,7 +455,8 @@ class FileChooserM(FileChooserIconView):
         fappend = files.append
         if sys.platform in ["win32", "cygwin"]:
             try:
-                tdir = [str(x.encode("latin1")) for x in self.file_system.listdir(path)]
+                tdir = [str(x.encode("latin1")) for x in
+                        self.file_system.listdir(path)]
             except UnicodeDecodeError:
                 tdir = self.file_system.listdir(path)
             ldir = [unicode(x, "latin1") for x in tdir]
