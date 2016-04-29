@@ -8091,6 +8091,13 @@ if __name__ == "__main__":
                     self.dismiss_popup()
 
                     try:
+                        if ns.exception == "multiple_type":
+                            return self.dialog_warning(
+                                "Multiple sequence types detected",
+                                "The selected input alignments contain more "
+                                "than one sequence type (DNA, RNA, Protein). "
+                                "Please select input files of the  same "
+                                "sequence type")
                         if ns.exception:
                             return self.dialog_floatcheck(
                                 "Unexpected error when loading input data. "
@@ -8187,19 +8194,8 @@ if __name__ == "__main__":
             else:
                 current_seq_type = aln_list.format_list()
 
-            if len(current_seq_type) > 1:
-                # Clear AlignmentList object, to remove temporary files
-                aln_list.clear_alignments()
-                return self.dialog_warning(
-                    "Multiple sequence types detected",
-                    "The selected input alignments contain more than one "
-                    "sequence type (DNA, RNA, Protein). Please select input "
-                    "files of the  same sequence type")
-            else:
-                # If there is no inconsistency and self.sequence_types is not
-                # yet populated, set the current sequence type
-                if not self.sequence_types and current_seq_type:
-                    self.sequence_types = list(current_seq_type)[0]
+            if not self.sequence_types and current_seq_type:
+                self.sequence_types = list(current_seq_type)[0]
 
             # Set the new alignment_list attribute
             self.alignment_list = aln_list

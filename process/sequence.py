@@ -366,6 +366,7 @@ class Alignment(Base):
             for f in self.alignment.values():
                 os.remove(f)
         else:
+            print(join(self.dest, self.sname))
             shutil.rmtree(join(self.dest, self.sname))
 
     def read_alignment(self, input_alignment, alignment_format,
@@ -1914,6 +1915,13 @@ class AlignmentList(Base):
                         # Get seq code
                         if not self.sequence_code:
                             self.sequence_code = aln.sequence_code
+                        # Check for multiple sequence types. If True,
+                        # raise Exception
+                        elif self.sequence_code[0] != aln.sequence_code[0]:
+                            raise MultipleSequenceTypes("Multiple sequence "
+                                "types detected: {} and {}".format(
+                                    self.sequence_code[0],
+                                    aln.sequence_code[0]))
 
                         self.alignments[aln.name] = aln
                         self.set_partition(aln)
