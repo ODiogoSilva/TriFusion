@@ -192,7 +192,7 @@ class Alignment(Base):
         self.path = None
 
         # If the object is initialized with a string
-        if isinstance(input_alignment, str):
+        if isinstance(input_alignment, str) or isinstance(input_alignment, unicode):
 
             """
             Sets the alignment object name based on the input alignment file
