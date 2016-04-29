@@ -1117,7 +1117,8 @@ class Alignment(Base):
                       interleave=False, gap="-", model_phylip=None,
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None,
-                      phy_truncate_names=False, ld_hat=None):
+                      phy_truncate_names=False, ld_hat=None,
+                      use_nexus_models=True):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -1501,6 +1502,7 @@ class Alignment(Base):
                 # Writing partitions, if any
                 if not self.partitions.is_single():
                     out_file.write("\nbegin mrbayes;\n")
+                    p = 0
                     # Full gene partitions
                     for name, lrange in self.partitions:
                         # If there are codon partitions, write those
@@ -1508,16 +1510,36 @@ class Alignment(Base):
                             for i in lrange[1]:
                                 out_file.write("\tcharset %s_%s = %s-%s\\3;\n" %
                                        (name, i + 1, i + 1, lrange[0][1] + 1))
+                                p += 1
                         else:
                             out_file.write("\tcharset %s = %s-%s;\n" %
                                        (name, lrange[0][0] + 1,
                                         lrange[0][1] + 1))
+                            p += 1
 
                     out_file.write("\tpartition part = %s: %s;\n\tset "
                                    "partition=part;\nend;\n" %
-                                   (len(self.partitions.partitions),
-                                    ", ".join([name for name in
+                                   (p, ", ".join([name for name in
                                     self.partitions.get_partition_names()])))
+
+                # Write models, if any
+            if use_nexus_models:
+                out_file.write("\nbegin mrbayes;\n")
+                i = 1
+                for name, models in self.partitions.models.items():
+                    if models[1]:
+                        for m in models[1]:
+                            if m:
+                                m_str = self.partitions._models["mrbayes"][m]
+                                if not self.partitions.is_single():
+                                    out_file.write("applyto=({}) "
+                                                   "lset ".format(i) +
+                                                   " ".join(m_str) + "\n")
+                                else:
+                                    out_file.write("lset " +
+                                                   " ".join(m_str) + "\n")
+                            i += 1
+                out_file.write("end;\n")
 
             # In case outgroup taxa are specified
             if outgroup_list is not None:
@@ -2381,7 +2403,7 @@ class AlignmentList(Base):
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
                       use_charset=True, phy_truncate_names=False, ld_hat=None,
-                      ima2_params=None):
+                      ima2_params=None, use_nexus_models=True):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -2408,6 +2430,14 @@ class AlignmentList(Base):
 
             output_file_name = alignment_obj.name.split(".")[0] + output_suffix
 
+            # Get partition name for current alignment object
+            part_name = [x for x, y in
+                         self.partitions.partitions_alignments.items() if
+                         alignment_obj.path in y][0]
+            # Get model from partitions
+            m = self.partitions.models[part_name]
+            alignment_obj.partitions.set_model(alignment_obj.name, m[1])
+
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
                                         interleave=interleave,
@@ -2417,7 +2447,8 @@ class AlignmentList(Base):
                                         use_charset=use_charset,
                                         phy_truncate_names=phy_truncate_names,
                                         ld_hat=ld_hat,
-                                        ima2_params=ima2_params)
+                                        ima2_params=ima2_params,
+                                        use_nexus_models=use_nexus_models)
 
     # Stats methods
     def gene_occupancy(self):

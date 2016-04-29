@@ -782,6 +782,9 @@ class Partitions():
         else:
             plist = [partition]
 
+        # Replace "No model" string with None
+        models = [None if x == "No model" else x for x in models]
+
         # Set model to the whole partition
         if len(models) == 1:
             # If the current partition was previously defined as having codon
