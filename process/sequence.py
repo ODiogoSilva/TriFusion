@@ -366,7 +366,6 @@ class Alignment(Base):
             for f in self.alignment.values():
                 os.remove(f)
         else:
-            print(join(self.dest, self.sname))
             shutil.rmtree(join(self.dest, self.sname))
 
     def read_alignment(self, input_alignment, alignment_format,
