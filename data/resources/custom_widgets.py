@@ -104,7 +104,8 @@ class LinkedLabel(Label):
         for d in path_list:
             p = join(p, d)
             if p != sep:
-                s += u"[ref={}]{}[/ref]".format(p, d) + sep
+                print(s, p, d)
+                s += "[ref={}]{}[/ref]".format(p, d) + sep
 
         return s[:-1]
 
