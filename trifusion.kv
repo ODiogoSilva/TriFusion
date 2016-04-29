@@ -4825,6 +4825,8 @@
                     size_hint_x: None
                     width: root.process_bt_wdt
                     id: consensus
+                    on_active:
+                        app.update_process_switch("consensus", self.active)
 
             DarkBox:
                 height: 70

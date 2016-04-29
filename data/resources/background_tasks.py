@@ -437,6 +437,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if secondary_operations["consensus"] and not \
                 secondary_options["consensus_file"]:
             ns.msg = "Creating consensus sequence(s)"
+            print("here")
             main_aln = consensus(main_aln)
 
         # Writing main output
