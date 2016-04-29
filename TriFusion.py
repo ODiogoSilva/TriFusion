@@ -7964,9 +7964,14 @@ if __name__ == "__main__":
             file_list = []
             for i in files:
                 if os.path.isdir(i):
-                    file_list.extend([join(i, x) for x in
-                                      os.listdir(i)
-                                      if os.path.isfile(join(i, x))])
+                    if sys.platform in ["win32", "cygwin"]:
+                        file_list.extend([join(i, x) for x in
+                                         os.listdir(i)
+                                         if os.path.isfile(join(i, x))])
+                    else:
+                        file_list.extend([join(i, x) for x in
+                                         os.listdir(i)
+                                         if os.path.isfile(join(i, x))])
                 elif os.path.isfile(i):
                     file_list.append(i)
 
