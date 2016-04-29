@@ -1930,8 +1930,12 @@ if __name__ == "__main__":
             }
 
             # Check if files exists.
-            if os.path.exists(join(unicode(path, "utf8"),
-                                   file_name + methods[idx][2])):
+            try:
+                p = join(unicode(path, "utf8"), file_name + methods[idx][2])
+            except TypeError:
+                p = join(path, file_name + methods[idx][2])
+
+            if os.path.exists(p):
 
                 self.check_action(
                     "The file {} already exists. Overwrite?".format(file_name),
@@ -6339,13 +6343,20 @@ if __name__ == "__main__":
             if idx == "main_output":
                 if self.main_operations["concatenation"]:
                     # Adds output file to storage
-                    self.output_file = join(unicode(path, "utf8"), file_name)
+                    try:
+                        self.output_file = join(unicode(path, "utf8"),
+                                                file_name)
+                    except TypeError:
+                        self.output_file = join(path, file_name)
                     self.output_dir = path
                     # Renames the output file button text
                     self.process_grid_wgt.ids.conv.text = file_name
 
                 else:
-                    self.output_dir = unicode(path, "utf8")
+                    try:
+                        self.output_dir = unicode(path, "utf8")
+                    except TypeError:
+                        self.output_dir = path
                     self.process_grid_wgt.ids.conv.text = basename(path)
 
             elif idx == "ortho_dir":
