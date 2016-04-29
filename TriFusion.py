@@ -52,7 +52,6 @@ if __name__ == "__main__":
     from kivy.config import Config
 
     # Sets some kivy configurations before creating main window
-    #Config.set("kivy", "log_level", "warning")
     Config.set("kivy", "desktop", 1)
     Config.set("kivy", "exit_on_escape", 0)
     Config.set("graphics", "resizable", 1)
@@ -223,9 +222,10 @@ if __name__ == "__main__":
                                           ("taxa_filter", False),
                                           ("codon_filter", False),
                                           ("gap_filter", False),
+                                          ("variation_filter", False),
                                           ("gcoder_file", False),
                                           ("consensus_file", False),
-                                          ("consensus_single", False)])
+                                          ("consensus_single", False),])
 
         # Attributes for the Orthology screen widgets
         ortho_search_options = None
@@ -423,6 +423,9 @@ if __name__ == "__main__":
         # Determines whether the charset partitions in Nexus input files are to
         # be used in the output file
         use_nexus_partitions = BooleanProperty(True)
+        # Determines whether the substitution models defined for the
+        # partitions are to be used in the output file
+        use_nexus_models = BooleanProperty(True)
         # Determines whether taxa names should be truncated to 10 characters
         # in a phylip file
         phylip_truncate_name = BooleanProperty(False)
@@ -455,6 +458,11 @@ if __name__ == "__main__":
         # will only save the first
         # two positions
         codon_filter_settings = ListProperty([True, True, True])
+        # Attribute storing the alignment variation filter settings. For each
+        # key entry there is a list with two elements, storing the minimum
+        # and maximum value for that particular statistic. None values are
+        # allowed, in which case there is no boundary
+        variation_filter = ListProperty([None, None, None, None])
 
         # Attribute determining whether reverse concatenation will use a
         # partition file or the partitions defined in the app
@@ -6231,8 +6239,7 @@ if __name__ == "__main__":
         # ########################## POPUP OPS #################################
 
         def show_popup(self, title, content, size_hint=(.9, .9), size=None,
-                       separator_color=None, custom_background=None,
-                       close_bt=None):
+                       separator_color=None, close_bt=None):
             """
             General purpose method to create a popup widget
             :param title: string. Title of the popup
@@ -6241,8 +6248,6 @@ if __name__ == "__main__":
             :param size: tuple. The absolute size for the popup. If this
             argument is used, the size_hint will be ignored
             :param separator_color: List with rgb color of popup separator
-            :param custom_background: string. Provide the path to a custom
-            background image for the popup.
             """
 
             # This prevents defining a mutable argument.
@@ -6255,15 +6260,13 @@ if __name__ == "__main__":
                     content=content, size=size,
                     size_hint=(None, None), auto_dismiss=False,
                     separator_color=separator_color,
-                    title_color=separator_color,
-                    custom_background=custom_background)
+                    title_color=separator_color)
             else:
                 self._popup = CustomPopup(title="[b]%s[/b]" % title,
                     content=content, size_hint=size_hint,
                     auto_dismiss=False,
                     separator_color=separator_color,
-                    title_color=separator_color,
-                    custom_background=custom_background)
+                    title_color=separator_color)
             self._popup.open()
 
             if close_bt:
@@ -6294,7 +6297,7 @@ if __name__ == "__main__":
             General purpose method to close popups from the screen
             """
             if self._popup:
-                self._popup.dismiss(force=True)
+                self._popup.dismiss()
                 try:
                     rm_wgt = [x for x in self.root_window.children if
                               isinstance(x, CloseFloat)][0]
@@ -6421,6 +6424,12 @@ if __name__ == "__main__":
             should be present in the taxa_group attribute
             """
 
+            # Check if a taxa group has been selected. If not issue a warning
+            # and do not close popup
+            if taxa_group == "No group selected":
+                return self.dialog_floatcheck("Warning: A taxa group must be "
+                    "specified to activate the filter", t="error")
+
             self.secondary_options["taxa_filter"] = filter_act
 
             # Save only when the filter is set to active
@@ -6443,6 +6452,49 @@ if __name__ == "__main__":
 
             if filter_act:
                 self.codon_filter_settings = position_list
+
+            self.dismiss_popup()
+
+        def save_variationfilter(self, filter_act, *pargs):
+            """
+            Stores the information of the variation filter dialog.
+            :param filter_act: Boolean, whether the filter is active (True) or
+            not (False)
+            :param pargs, list of tuples, with first element being the
+            checkbox active property and the second element the value of said
+            parameter
+            """
+
+            # Check if any parameter was checked. If not, issue warning and
+            # do not close popup
+            if not any([p[0] for p in pargs]) and filter_act:
+                return self.dialog_floatcheck("Warning: No parameters where "
+                    "checked. Specify at least one to activate the filter",
+                                              t="error")
+
+            # Check if all checked parameters have values. If not,
+            # issue warning and do not close popup
+            for p in pargs:
+                if p[0] and not p[1]:
+                    return self.dialog_floatcheck("Warning: Checked "
+                        "parameters must have values specified", t="error")
+
+            # Check for consistency between min and max values
+            for i in range(0, len(pargs), 2):
+                try:
+                    vals = (int(pargs[i][1]), int(pargs[i + 1][1]))
+                    if vals[0] and vals[1] and vals[0] > vals[1]:
+                        return self.dialog_floatcheck("Warning: Minimum values "
+                            "cannot be greater than maximum values", t="error")
+                except ValueError:
+                    pass
+
+            self.secondary_options["variation_filter"] = filter_act
+
+            if filter_act:
+                for i, p in enumerate(pargs):
+                    p = int(p[1]) if p[0] else None
+                    self.variation_filter[i] = p
 
             self.dismiss_popup()
 
@@ -6498,9 +6550,10 @@ if __name__ == "__main__":
             content = NexusExtra(cancel=self.dismiss_subpopup)
 
             content.ids.nexus_check.active = self.use_nexus_partitions
+            content.ids.nexus_model_check.active = self.use_nexus_models
 
             self._subpopup = Popup(title="Nexus extra options", content=content,
-                                   size=(500, 160), size_hint=(None, None))
+                                   size=(500, 210), size_hint=(None, None))
 
             self._subpopup.open()
 
@@ -6908,6 +6961,97 @@ if __name__ == "__main__":
             self.show_popup(title="Set filter thresholds", content=content,
                             size=(400, 470))
 
+        def dialog_variationfilter(self):
+            """
+            Generates the settings popup for variation filter options
+            """
+
+            p_list = [("var_min", "var_min_val"), ("var_max", "var_max_val"),
+                      ("inf_min", "inf_min_val"), ("inf_max", "inf_max_val")]
+
+            content = VariationFilterDialog(cancel=self.dismiss_popup)
+
+            content.ids.variation_filter.active = self.secondary_options[
+                "variation_filter"]
+
+            # Populate content with previous filters
+            for i, p in enumerate(self.variation_filter):
+                content.ids[p_list[i][0]].active = True if p else False
+                content.ids[p_list[i][1]].text = str(p) if p else ""
+
+            self.show_popup(title="Set variation filter options",
+                            content=content, size=(250, 440))
+
+        def dialog_filter_report(self, filtered_stats, nalns):
+            """
+            Generates graphic report at the end of a processing operation
+            with active filters
+            :param filtered_stats: Dictionary with the values of the filtered
+             alignments for each filter type
+            :param nalns: integer, total number of processed alignments
+            """
+
+            content = FilterGraphicReport(cancel=self.dismiss_popup)
+
+            # Set total number of alignments
+            content.ids.total_alns.text = str(nalns)
+
+            # Set final alignments
+            final_alns = sum([x for x in filtered_stats.values() if x])
+            content.ids.final_box.size_hint_x = float(final_alns) / float(nalns)
+            content.bar_color = (.44, .78, .22, 1)
+
+            if final_alns:
+                content.ids.final_txt.text = str(final_alns)
+            else:
+                content.ids.final_txt2.text = 0
+
+            # Set graphics for each filter
+            for f, val in filtered_stats.items():
+
+                filt_wgt = IndividualFilterWgt()
+                filt_wgt.ids.main_lbl.text = f
+                if val:
+                    filt_wgt.ids.gf_box.size_hint_x = float(val) / float(nalns)
+                    filt_wgt.ids.gf_txt.text = str(val)
+                elif val == 0:
+                    filt_wgt.ids.gf_box.size_hint_x = 0.00001
+                    filt_wgt.ids.gf_text2.text = "0"
+                else:
+                    filt_wgt.ids.gf_box.size_hint_x = 0.00001
+                    filt_wgt.ids.gf_txt2.text = "Not applied"
+
+                content.ids.filter_bx.add_widget(filt_wgt)
+
+            self.show_popup("Filter report", content=content, size=(400, 520))
+
+        @staticmethod
+        def check_variation_filters(value):
+            """
+            Same function as check_filters method, but checks only for
+            integer compliance
+            :param value: text_input.text
+            """
+
+            x = value.replace(",", ".")
+
+            try:
+                x = int(x)
+            except ValueError:
+                # Check if value can be converted to float by removing
+                # all non digits. To avoid problems like converting 2.23
+                # to 223, the first step is to get the first value before
+                #  a ".", if any
+                try:
+                    all = string.maketrans("", "")
+                    nodigs = all.translate(all, string.digits)
+                    x = x.encode("ascii", "ignore")
+                    x = int(x.translate(all, nodigs))
+                except ValueError:
+                    return False
+
+            return True, abs(x)
+
         @staticmethod
         def check_filters(value):
             """
@@ -6917,7 +7061,6 @@ if __name__ == "__main__":
             of 0 and 100. If the text input cannot be converted to float,
             it will return false and the slider value will not change
             :param value: text_input.text
-            :return:
             """
 
             try:
@@ -7277,7 +7420,7 @@ if __name__ == "__main__":
                 # Update the height of the GridLayout to allow scrolling
                 self.process_grid_wgt.height = self.process_height + \
                     sum([x.height for x in
-                         self.process_options.ids.filter_grid.children]) + 55
+                         self.process_options.ids.filter_grid.children]) + 65
 
                 # Change text in the toggle button
                 self.process_grid_wgt.ids.opt_bt.text = \
@@ -8523,8 +8666,8 @@ if __name__ == "__main__":
                     try:
                         if shared_ns.exception == "EmptyAlignment":
                             return self.dialog_floatcheck(
-                                "ERROR: The alignment is empty after taxa "
-                                "filtering", t="error")
+                                "ERROR: The alignment is empty after applying "
+                                "filters", t="error")
                         elif shared_ns.exception == "Unknown":
                             return self.dialog_floatcheck(
                                 "ERROR: Unexpected error when generating "
@@ -8539,6 +8682,10 @@ if __name__ == "__main__":
                             self.dialog_floatcheck(
                                 "All Done! %s files were successfully processed"
                                 % shared_ns.proc_files, t="info")
+
+                        if shared_ns.filtered_alns:
+                            self.dialog_filter_report(shared_ns.filtered_alns,
+                                                      shared_ns.proc_files)
 
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
@@ -8558,6 +8705,7 @@ if __name__ == "__main__":
                 "missing_filter_settings": list(self.missing_filter_settings),
                 "taxa_filter_settings": list(self.taxa_filter_settings),
                 "codon_filter_settings": list(self.codon_filter_settings),
+                "variation_filter_settings": list(self.variation_filter),
                 "output_file": str(self.output_file),
                 "rev_infile": str(self.rev_infile),
                 "main_operations": dict(self.main_operations),
@@ -8566,6 +8714,7 @@ if __name__ == "__main__":
                 "output_formats": list(self.output_formats),
                 "create_partfile": bool(self.create_partfile),
                 "use_nexus_partitions": bool(self.use_nexus_partitions),
+                "use_nexus_models": bool(self.use_nexus_models),
                 "phylip_truncate_name": bool(self.phylip_truncate_name),
                 "output_dir": str(self.output_dir),
                 "use_app_partitions": bool(self.use_app_partitions),

@@ -215,9 +215,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                       taxa_set_name, active_taxa_list, ns, taxa_groups,
                       hap_prefix, secondary_operations, secondary_options,
                       missing_filter_settings, taxa_filter_settings,
-                      codon_filter_settings, output_file, rev_infile, 
-                      main_operations, zorro_suffix, partitions_file,
-                      output_formats, create_partfile, use_nexus_partitions,
+                      codon_filter_settings, variation_filter_settings,
+                      output_file, rev_infile, main_operations, zorro_suffix,
+                      partitions_file, output_formats, create_partfile,
+                      use_nexus_partitions, use_nexus_models,
                       phylip_truncate_name, output_dir, use_app_partitions,
                       consensus_type, ld_hat, temp_dir, ima2_params):
     """
@@ -269,6 +270,27 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if secondary_options["gap_filter"]:
             aln.filter_missing_data(missing_filter_settings[0],
                                     missing_filter_settings[1])
+
+        # Filter variation
+        if secondary_options["variation_filter"]:
+            # Checks for variable site filter
+            if variation_filter_settings[0] or variation_filter_settings[1]:
+                aln.filter_segregating_sites(variation_filter_settings[0],
+                                             variation_filter_settings[1])
+            # Checks for informative site filter
+            if variation_filter_settings[2] or variation_filter_settings[3]:
+                aln.filter_informative_sites(variation_filter_settings[2],
+                                             variation_filter_settings[3])
+
+        # Pipe the information on the filtered alignments to the main process
+        # only if it was applied a filter that changes the final alignments
+        if any(aln.filtered_alignments.values()):
+            ns.filtered_alns = aln.filtered_alignments
+
+        # Some filter configurations may result in empty final alignment
+        # list. In such cases, return and issue warning
+        if not main_aln.alignments:
+            raise EmptyAlignment("Active alignment is empty")
 
         return aln
 
@@ -339,7 +361,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 use_charset=use_nexus_partitions,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat,
-                ima2_params=ima2_params)
+                ima2_params=ima2_params,
+                use_nexus_models=use_nexus_models)
         elif isinstance(aln, AlignmentList):
             aln.write_to_file(
                 output_formats,
@@ -350,7 +373,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 use_charset=use_nexus_partitions,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat,
-                ima2_params=ima2_params)
+                ima2_params=ima2_params,
+                use_nexus_models=use_nexus_models)
 
     try:
         ns.msg = "Setting active data sets"
@@ -367,6 +391,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                                            taxa_groups)
 
         ns.proc_files = len(aln_object.alignments)
+
+        # Initialize attribute tha will store the number of filtered
+        # alignments for reporting purposes
+        ns.filtered_alns = None
 
         # The execution of the process module will begin with all the
         # operations on the main output alignment. Only after the main
@@ -426,16 +454,16 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         # Perform the filtering and consensus option separately, since these
         # must be done before concatenation
-
         for op in [x for x, y in secondary_operations.items() if
-                   x in before_conc and y]:
+                   x in before_conc and y and
+                   secondary_options["%s_file" % x]]:
 
             ns.msg = "Preparing data for additional output(s)"
 
             main_aln = deepcopy(aln_object)
             main_aln.start_action_alignment()
 
-            if op == "filter_file" and secondary_operations["filter"]:
+            if op == "filter":
 
                 ns.msg = "Creating additional filtered alignments(s)"
                 suffix = "_filtered"

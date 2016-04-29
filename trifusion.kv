@@ -2992,8 +2992,8 @@
 
 <ModelSpinner>:
     bold: True
-    text: "JC" if app.sequence_types == "DNA" else "LG"
-    values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == "DNA" else ("LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
+    text: "No model"
+    values: ("No model", "JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == "DNA" else ("No model", "LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
     #background_normal: "data/backgrounds/model_bt1.png"
 
 <PartitionsDialog>:
@@ -3321,6 +3321,18 @@
             text: "Write the partitions block, if any."
         CheckBox:
             id: nexus_check
+            size_hint_x: .2
+
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        Label:
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            text: "Write the substitution model block, if any."
+        CheckBox:
+            id: nexus_model_check
             size_hint_x: .2
 
     BoxLayout:
@@ -4041,7 +4053,7 @@
                 color: (0.216, 0.67, 0.784, 1)
 
     Label:
-        text: "Multiple alignmnets"
+        text: "Multiple alignments"
         bold: True
         halign: "left"
         valign: "middle"
@@ -4123,6 +4135,273 @@
             id: cancel_bt
             text: "Cancel"
             on_release: root.cancel()
+
+<VariationFilterDialog>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 15
+
+    Switch:
+        id: variation_filter
+
+    Label:
+        size_hint_y: None
+        height: 30
+        text: "Variable sites"
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (0.216, 0.67, 0.784, 1)
+        size_hint_y: None
+        height: 20
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: var_min
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Minimum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not var_min.active else (1,1,1,1)
+        TextInput:
+            id: var_min_val
+            disabled: True if not variation_filter.active or not var_min.active else False
+            size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: var_max
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Maximum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not var_max.active else (1,1,1,1)
+        TextInput:
+            id: var_max_val
+            disabled: True if not variation_filter.active or not var_max.active else False
+            size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+
+    Label:
+        text: "Informative sites"
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (0.216, 0.67, 0.784, 1)
+        size_hint_y: None
+        height: 30
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: inf_min
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Minimum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not inf_min.active else (1,1,1,1)
+
+        TextInput:
+            id: inf_min_val
+            disabled: True if not variation_filter.active or not inf_min.active else False
+            size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: .2
+            id: inf_max
+            disabled: True if not variation_filter.active else False
+        Label:
+            text: "Maximum"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: (.6,.6,.6,.6) if not variation_filter.active or not inf_max.active else (1,1,1,1)
+        TextInput:
+            id: inf_max_val
+            disabled: True if not variation_filter.active or not inf_max.active else False
+            size_hint_x: .7
+            multiline: False
+            on_text_validate: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+            on_focus: if app.check_variation_filters(self.text): val = app.check_variation_filters(self.text)[1]; self.text = str(val)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        TFOKButon:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Ok"
+            on_release:
+                app.save_variationfilter(variation_filter.active, (var_min.active, var_min_val.text), (var_max.active, var_max_val.text), (inf_min.active, inf_min_val.text), (inf_max.active, inf_max_val.text))
+        TFOKButon:
+            id: cancel_bt
+            text: "Cancel"
+            on_release: root.cancel()
+
+<FilterGraphicReport>:
+    padding: 10
+    spacing: 10
+    orientation: "vertical"
+    bar_color: None
+    BoxLayout:
+        id: filter_bx
+        orientation: "vertical"
+        spacing: 5
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 5
+            orientation: "vertical"
+            Label:
+                bold: True
+                text: "Total alignments"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                color: (.7,.7,.7,1)
+            BoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: (.7,.7,.7,1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    bold: True
+                    id: total_alns
+        Label:
+            text: "Filters"
+            bold: True
+            color: app._blue
+            size_hint_y: None
+            height: 30
+
+
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 5
+        size_hint_y: None
+        height: 65
+        Label:
+            text: "Total filtered alignments"
+            bold: True
+            color: app._blue
+            size_hint_y: None
+            height: 30
+        BoxLayout:
+            BoxLayout:
+                id: final_box
+                canvas.before:
+                    Color:
+                        rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    id: final_txt
+                    bold: True
+
+            BoxLayout:
+                size_hint_x: 1 - final_box.size_hint_x
+                canvas.before:
+                    Color:
+                        rgba: (.4, .4, .4, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    id: final_txt2
+                    bold: True
+
+    Widget:
+        size_hint_y: None
+        height: 10
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        TFOKButon:
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            id: cancel_bt
+            text: "Close"
+            on_release:
+                root.cancel()
+
+<IndividualFilterWgt>:
+    size_hint_y: None
+    height: 50
+    spacing: 5
+    orientation: "vertical"
+    bar_color: None
+    Label:
+        id: main_lbl
+        bold: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (.7,.7,.7,1)
+    BoxLayout:
+        BoxLayout:
+            id: gf_box
+            canvas.before:
+                Color:
+                    rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                id: gf_txt
+                bold: True
+
+        BoxLayout:
+            size_hint_x: 1 - gf_box.size_hint_x
+            canvas.before:
+                Color:
+                    rgba: (.4, .4, .4, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                id: gf_txt2
+                bold: True
+
 
 <Sidebt@ToggleButton>:
     size_hint_y: None
@@ -4694,7 +4973,7 @@
                         app.dialog_general_info("codon_filter")
                 ProcessBt:
                     id: taxa_filter
-                    disabled: False if filter.active and app.sequence_types == ["DNA"] else True
+                    disabled: False if filter.active and app.sequence_types == "DNA" else True
                     size_hint_x: None
                     width: root.process_bt_wdt
                     text: "Filters ON" if app.secondary_options["codon_filter"] else "Set filters"
@@ -4727,6 +5006,32 @@
                     background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["gap_filter"] else "data/backgrounds/bt_process_off.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
                     on_release: app.dialog_filter();
+
+            Hseparator
+
+            DarkBox:
+                Label:
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Sequence variation filter[/b][/size]\n[size=13] Set filters to remove/include alignments inside the specified sequence variation range [/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("variation_filter")
+                ProcessBt:
+                    id: variation_filterbt
+                    disabled: False if filter.active else True
+                    text: "Filters ON" if app.secondary_options["variation_filter"] else "Set filters"
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    background_normal: "data/backgrounds/bt_process.png" if app.secondary_options["variation_filter"] else "data/backgrounds/bt_process_off.png"
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    on_release:
+                        app.dialog_variationfilter()
 
     TabbedPanelItem:
         id: gcoder_tab
@@ -5270,7 +5575,7 @@ FloatLayout:
             Color:
                 rgba: (.7,.7,.7,1)
             Rectangle:
-                source: "data/backgrounds/master_background.jpg"
+                source: "data/backgrounds/master_background.png"
                 pos: self.pos
                 size: self.size
 
