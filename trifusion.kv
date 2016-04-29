@@ -2992,8 +2992,8 @@
 
 <ModelSpinner>:
     bold: True
-    text: "JC" if app.sequence_types == "DNA" else "LG"
-    values: ("JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == "DNA" else ("LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
+    text: "No model"
+    values: ("No model", "JC", "F81", "K2P", "HKY", "SYM", "GTR") if app.sequence_types == "DNA" else ("No model", "LG", "WAG", "DAYHOFF", "JTT", "MTREV", "CPREV", "VT", "BLOSUM62", "MTMAM")
     #background_normal: "data/backgrounds/model_bt1.png"
 
 <PartitionsDialog>:
@@ -3321,6 +3321,18 @@
             text: "Write the partitions block, if any."
         CheckBox:
             id: nexus_check
+            size_hint_x: .2
+
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        Label:
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            text: "Write the substitution model block, if any."
+        CheckBox:
+            id: nexus_model_check
             size_hint_x: .2
 
     BoxLayout:

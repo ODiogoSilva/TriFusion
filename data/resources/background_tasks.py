@@ -218,9 +218,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                       codon_filter_settings, variation_filter_settings,
                       output_file, rev_infile, main_operations, zorro_suffix,
                       partitions_file, output_formats, create_partfile,
-                      use_nexus_partitions, phylip_truncate_name, output_dir,
-                      use_app_partitions, consensus_type, ld_hat, temp_dir,
-                      ima2_params):
+                      use_nexus_partitions, use_nexus_models,
+                      phylip_truncate_name, output_dir, use_app_partitions,
+                      consensus_type, ld_hat, temp_dir, ima2_params):
     """
     Process execution function
     :param ns: Namespace object
@@ -361,7 +361,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 use_charset=use_nexus_partitions,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat,
-                ima2_params=ima2_params)
+                ima2_params=ima2_params,
+                use_nexus_models=use_nexus_models)
         elif isinstance(aln, AlignmentList):
             aln.write_to_file(
                 output_formats,
@@ -372,7 +373,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 use_charset=use_nexus_partitions,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat,
-                ima2_params=ima2_params)
+                ima2_params=ima2_params,
+                use_nexus_models=use_nexus_models)
 
     try:
         ns.msg = "Setting active data sets"

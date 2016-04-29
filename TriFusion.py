@@ -423,6 +423,9 @@ if __name__ == "__main__":
         # Determines whether the charset partitions in Nexus input files are to
         # be used in the output file
         use_nexus_partitions = BooleanProperty(True)
+        # Determines whether the substitution models defined for the
+        # partitions are to be used in the output file
+        use_nexus_models = BooleanProperty(True)
         # Determines whether taxa names should be truncated to 10 characters
         # in a phylip file
         phylip_truncate_name = BooleanProperty(False)
@@ -6547,9 +6550,10 @@ if __name__ == "__main__":
             content = NexusExtra(cancel=self.dismiss_subpopup)
 
             content.ids.nexus_check.active = self.use_nexus_partitions
+            content.ids.nexus_model_check.active = self.use_nexus_models
 
             self._subpopup = Popup(title="Nexus extra options", content=content,
-                                   size=(500, 160), size_hint=(None, None))
+                                   size=(500, 210), size_hint=(None, None))
 
             self._subpopup.open()
 
@@ -8705,6 +8709,7 @@ if __name__ == "__main__":
                 "output_formats": list(self.output_formats),
                 "create_partfile": bool(self.create_partfile),
                 "use_nexus_partitions": bool(self.use_nexus_partitions),
+                "use_nexus_models": bool(self.use_nexus_models),
                 "phylip_truncate_name": bool(self.phylip_truncate_name),
                 "output_dir": str(self.output_dir),
                 "use_app_partitions": bool(self.use_app_partitions),
