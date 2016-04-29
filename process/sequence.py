@@ -827,7 +827,8 @@ class Alignment(Base):
 
             current_aln = Alignment(current_dic, input_format=self.input_format,
                                     partitions=current_partition,
-                                    alignment_name=name, dest=self.dest)
+                                    alignment_name=name, dest=self.dest,
+                                    locus_length=len(sub_seq))
 
             alns.append(current_aln)
 
@@ -2438,9 +2439,15 @@ class AlignmentList(Base):
             output_file_name = alignment_obj.name.split(".")[0] + output_suffix
 
             # Get partition name for current alignment object
-            part_name = [x for x, y in
-                         self.partitions.partitions_alignments.items() if
-                         alignment_obj.path in y][0]
+            try:
+                part_name = [x for x, y in
+                             self.partitions.partitions_alignments.items() if
+                             alignment_obj.path in y][0]
+            except IndexError:
+                part_name = [x for x, y in
+                             self.partitions.partitions_alignments.items() if
+                             alignment_obj.name in y][0]
+
             # Get model from partitions
             m = self.partitions.models[part_name]
             alignment_obj.partitions.set_model(alignment_obj.name, m[1])

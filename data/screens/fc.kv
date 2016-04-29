@@ -168,8 +168,8 @@ ShowcaseScreen:
                         filter_dirs: False
 
                         on_double_click:
-                            if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc([x.encode("ascii", "ignore") for x in icon_view_tab.selection])
-                            if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes([x.encode("ascii", "ignore") for x in icon_view_tab.selection])
+                            if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc(icon_view_tab.selection)
+                            if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes(icon_view_tab.selection)
 
                         on_dir_entry:
                             text_filter.text = ""
