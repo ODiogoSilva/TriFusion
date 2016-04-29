@@ -39,7 +39,7 @@ from itertools import compress
 import fileinput
 import multiprocessing
 import cPickle as pickle
-# import pickle
+
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
 # applying methods designed for alignments to sets of sequences with unequal
@@ -1005,10 +1005,40 @@ class Alignment(Base):
         self._filter_terminals()
         self._filter_columns(gap_threshold, missing_threshold)
 
+    @staticmethod
+    def _test_range(s, min_val, max_val):
+        """
+        Wrapper for the tests that determine whether a certain alignment
+        statistic (s) is within the range provided by min_val and max_val
+        :param s: integer, test statistic
+        :param min_val: integer, minimum number of test statistic for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of test statistic for the
+        alignment to pass. Can be None, in which case there is no upper bound
+        :returns: Boolean. True if the alignment's test statistic is within the
+        provided range
+        """
+
+        # If both values were specified, check if s is within range
+        if max_val and min_val and s >= min_val and s <= max_val:
+            return True
+        # If only min_val was specified, check if s is higher
+        elif not max_val and s >= min_val:
+            return True
+        # If only max_val was specified, check if s is lower
+        elif not min_val and s <= max_val:
+            return True
+        else:
+            return False
+
     def filter_segregating_sites(self, min_val, max_val):
         """
         Evaluates the number of segregating sites of the current alignment
         and returns True if they fall between the min_val and max_val.
+        :param min_val: integer, minimum number of segregating sites for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of segregating sites for the
+        alignment to pass. Can be None, in which case there is no upper bound
         :returns: Boolean. True if the alignment's number of segregating
         sites is within the provided range
         """
@@ -1036,17 +1066,50 @@ class Alignment(Base):
             if max_val and s > max_val and not min_val:
                 return False
 
-        # If both values were specified, check if s is within range
-        if max_val and min_val and s >= min_val and s <= max_val:
-            return True
-        # If only min_val was specified, check if s is higher
-        elif not max_val and s >= min_val:
-            return True
-        # If only max_val was specified, check if s is lower
-        elif not min_val and s <= max_val:
-            return True
-        else:
-            return False
+        return self._test_range(s, min_val, max_val)
+
+    def filter_informative_sites(self, min_val, max_val):
+        """
+        Similar to filter_segregating_sites method, but only considers
+        informative sites (variable sites present in more than 2 taxa).
+        :param min_val: integer, minimum number of informative sites for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of informative sites for the
+        alignment to pass. Can be None, in which case there is no upper bound
+        :returns: Boolean. True if the alignment's number of informative
+        sites is within the provided range
+        """
+
+        fhs = fileinput.input(files=[x for x in self.alignment.values()])
+
+        # Counter for informative sites
+        s = 0
+
+        # Creating the column list variable
+        for column in zip(*fhs):
+
+            column = Counter([i for i in column if i not in
+                              [self.sequence_code[1], "-"]])
+
+            if column:
+                # Delete most common
+                del column[column.most_common()[0][0]]
+
+                # If any of the remaining sites is present in more than two
+                # taxa score the site as informative
+                if any([x >= 2 for x in column.values()]):
+                    s += 1
+
+                # Add these tests so that the method may exit earlier if the
+                # conditions are met, precluding the analysis of the entire
+                # alignment
+                if min_val and s >= min_val and not max_val:
+                    return True
+
+                if max_val and s > max_val and not min_val:
+                    return False
+
+        return self._test_range(s, min_val, max_val)
 
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
@@ -1054,7 +1117,8 @@ class Alignment(Base):
                       interleave=False, gap="-", model_phylip=None,
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None,
-                      phy_truncate_names=False, ld_hat=None):
+                      phy_truncate_names=False, ld_hat=None,
+                      use_nexus_models=True):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -1438,6 +1502,7 @@ class Alignment(Base):
                 # Writing partitions, if any
                 if not self.partitions.is_single():
                     out_file.write("\nbegin mrbayes;\n")
+                    p = 0
                     # Full gene partitions
                     for name, lrange in self.partitions:
                         # If there are codon partitions, write those
@@ -1445,16 +1510,36 @@ class Alignment(Base):
                             for i in lrange[1]:
                                 out_file.write("\tcharset %s_%s = %s-%s\\3;\n" %
                                        (name, i + 1, i + 1, lrange[0][1] + 1))
+                                p += 1
                         else:
                             out_file.write("\tcharset %s = %s-%s;\n" %
                                        (name, lrange[0][0] + 1,
                                         lrange[0][1] + 1))
+                            p += 1
 
                     out_file.write("\tpartition part = %s: %s;\n\tset "
                                    "partition=part;\nend;\n" %
-                                   (len(self.partitions.partitions),
-                                    ", ".join([name for name in
+                                   (p, ", ".join([name for name in
                                     self.partitions.get_partition_names()])))
+
+                # Write models, if any
+            if use_nexus_models:
+                out_file.write("\nbegin mrbayes;\n")
+                i = 1
+                for name, models in self.partitions.models.items():
+                    if models[1]:
+                        for m in models[1]:
+                            if m:
+                                m_str = self.partitions._models["mrbayes"][m]
+                                if not self.partitions.is_single():
+                                    out_file.write("applyto=({}) "
+                                                   "lset ".format(i) +
+                                                   " ".join(m_str) + "\n")
+                                else:
+                                    out_file.write("lset " +
+                                                   " ".join(m_str) + "\n")
+                            i += 1
+                out_file.write("end;\n")
 
             # In case outgroup taxa are specified
             if outgroup_list is not None:
@@ -1563,6 +1648,14 @@ class AlignmentList(Base):
         """
         self.filename_list = []
         self.path_list = []
+
+        """
+        Records the number of filtered alignments by each individual filter type
+        """
+        self.filtered_alignments = OrderedDict([("By minimum taxa", None),
+                                               ("By taxa", None),
+                                               ("By variable sites", None),
+                                               ("By informative sites", None)])
 
         """
         Tuple with the AlignmentList sequence code. Either ("DNA", "n") or
@@ -1975,11 +2068,14 @@ class AlignmentList(Base):
         alignments are moved to the filtered_alignments attribute
         """
 
+        self.filtered_alignments["By minimum taxa"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
             if len(alignment_obj.alignment) < \
                     (min_taxa / 100) * len(self.taxa_names):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By minimum taxa"] += 1
 
     def filter_by_taxa(self, filter_mode, taxa_list):
         """
@@ -1991,6 +2087,8 @@ class AlignmentList(Base):
         filtering
         """
 
+        self.filtered_alignments["By taxa"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
 
             # Filter alignments that do not contain at least all taxa in
@@ -1998,12 +2096,18 @@ class AlignmentList(Base):
             if filter_mode == "Contain":
                 if set(taxa_list) - set(list(alignment_obj.alignment)) != set():
                     del self.alignments[k]
+                    self.partitions.remove_partition(
+                        file_name=alignment_obj.path)
+                    self.filtered_alignments["By taxa"] += 1
 
             # Filter alignments that contain the taxa in taxa list
             if filter_mode == "Exclude":
                 if any((x for x in taxa_list
                         if x in list(alignment_obj.alignment))):
                     del self.alignments[k]
+                    self.partitions.remove_partition(
+                        file_name=alignment_obj.path)
+                    self.filtered_alignments["By taxa"] += 1
 
         # If the resulting alignment is empty, raise an Exception
         if self.alignments == {}:
@@ -2037,7 +2141,9 @@ class AlignmentList(Base):
                 filtered_seq = "".join(list(itertools.compress(seq,
                                             index(alignment_obj.locus_length,
                                                   position_list))))
-                alignment_obj.alignment[taxon] = filtered_seq
+
+                with open(alignment_obj.alignment[taxon], "w") as fh:
+                    fh.write(filtered_seq)
 
             alignment_obj.locus_length = len(filtered_seq)
 
@@ -2068,11 +2174,33 @@ class AlignmentList(Base):
         segregating sites allowed for the alignment to pass the filter
         """
 
+        self.filtered_alignments["By variable sites"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
 
             if not alignment_obj.filter_segregating_sites(min_val, max_val):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By variable sites"] += 1
+
+    def filter_informative_sites(self, min_val, max_val):
+        """
+        Wrapper of the filter_informative_sites method of the Alignment
+        object. See the method's documentation
+        :param min_val: Integer. If not None, sets the minimum number of
+        informative sites allowed for the alignment to pass the filter
+        :param max_val: Integer. If not None, sets the maximum number of
+        informative sites allowed for the alignment to pass the filter
+        """
+
+        self.filtered_alignments["By informative sites"] = 0
+
+        for k, alignment_obj in list(self.alignments.items()):
+
+            if not alignment_obj.filter_informative_sites(min_val, max_val):
+                del self.alignments[k]
+                self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By informative sites"] += 1
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """
@@ -2275,7 +2403,7 @@ class AlignmentList(Base):
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
                       use_charset=True, phy_truncate_names=False, ld_hat=None,
-                      ima2_params=None):
+                      ima2_params=None, use_nexus_models=True):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -2302,6 +2430,14 @@ class AlignmentList(Base):
 
             output_file_name = alignment_obj.name.split(".")[0] + output_suffix
 
+            # Get partition name for current alignment object
+            part_name = [x for x, y in
+                         self.partitions.partitions_alignments.items() if
+                         alignment_obj.path in y][0]
+            # Get model from partitions
+            m = self.partitions.models[part_name]
+            alignment_obj.partitions.set_model(alignment_obj.name, m[1])
+
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
                                         interleave=interleave,
@@ -2311,7 +2447,8 @@ class AlignmentList(Base):
                                         use_charset=use_charset,
                                         phy_truncate_names=phy_truncate_names,
                                         ld_hat=ld_hat,
-                                        ima2_params=ima2_params)
+                                        ima2_params=ima2_params,
+                                        use_nexus_models=use_nexus_models)
 
     # Stats methods
     def gene_occupancy(self):

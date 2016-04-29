@@ -104,7 +104,10 @@ class LinkedLabel(Label):
         for d in path_list:
             p = join(p, d)
             if p != sep:
-                s += u"[ref={}]{}[/ref]".format(p, d) + sep
+                if sys.platform in ["win32", "cygwin"]:
+                    s += u"[ref={}]{}[/ref]".format(p, d) + sep
+                else:
+                    s += "[ref={}]{}[/ref]".format(p, d) + sep
 
         return s[:-1]
 
@@ -458,30 +461,6 @@ class CustomPopup(Popup):
         label.shorten_from = "right"
         label.markup = True
 
-        # New attributes
-        try:
-            self.custom_background = kwargs["custom_background"]
-        except KeyError:
-            self.custom_background = None
-
-        # Set custom background
-        if self.custom_background:
-            gl = self.children[0]
-            with gl.canvas.before:
-                Color(.7, .7, .7, 1)
-                self.rect = Rectangle(
-                    source=self.custom_background,
-                    pos=self.pos,
-                    size=self.size)
-
-                # This will update the background position when the popup is
-                # set to the final position
-                self.bind(size=self._update_rect, pos=self._update_rect)
-
-    def _update_rect(self, instance, value):
-        self.rect.pos = instance.pos
-        self.rect.size = instance.size
-
 
 class AutoCompTextInput(TextInput):
     """
@@ -666,6 +645,14 @@ class OrthoReportDialog(BoxLayout):
 
 
 class OrthoGraphicReport(BoxLayout):
+    pass
+
+
+class FilterGraphicReport(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
+class IndividualFilterWgt(BoxLayout):
     pass
 
 
@@ -1012,6 +999,10 @@ class FilterDialog(BoxLayout):
     Class controlling the layout of the gap/missing filtering options in the
     Process screen
     """
+    cancel = ObjectProperty(None)
+
+
+class VariationFilterDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
