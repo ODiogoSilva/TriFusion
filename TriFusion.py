@@ -6523,12 +6523,15 @@ if __name__ == "__main__":
 
             self.dismiss_all_popups()
 
-        def dialog_ima2_extra(self):
+        def dialog_ima2_extra(self, popup_level=1):
             """
             Dialog with extra options for IMa2 output format
             """
 
-            content = IMa2Extra(cancel=self.dismiss_popup)
+            if popup_level == 1:
+                content = IMa2Extra(cancel=self.dismiss_popup)
+            else:
+                content = IMa2Extra(cancel=self.dismiss_subpopup)
 
             if self.ima2_options[0]:
                 content.ids.popfile.text = basename(self.ima2_options[0])
@@ -6539,8 +6542,15 @@ if __name__ == "__main__":
                 if i:
                     content.ids[idx].text = i
 
-            self.show_popup(title="IMa2 additional options",
-                            content=content, size=(380, 310))
+            title = "IMa2 additional options"
+
+            if popup_level == 1:
+                self.show_popup(title=title,
+                                content=content, size=(380, 310))
+            else:
+                self._subpopup = Popup(title=title, content=content,
+                                       size=(380, 310), size_hint=(None, None))
+                self._subpopup.open()
 
         def dialog_nexus_extra(self):
             """
