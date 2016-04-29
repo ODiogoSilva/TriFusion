@@ -54,6 +54,9 @@ def load_proc(aln_list, file_list, nm, dest):
         with open(join(dest, "alns.pc"), "wb") as fh:
             pickle.dump(aln_obj, fh)
 
+    except MultipleSequenceTypes:
+        nm.exception = "multiple_type"
+
     except:
         logging.exception("Unexpected error when loading input data")
         nm.exception = True
@@ -437,7 +440,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if secondary_operations["consensus"] and not \
                 secondary_options["consensus_file"]:
             ns.msg = "Creating consensus sequence(s)"
-            print("here")
             main_aln = consensus(main_aln)
 
         # Writing main output
