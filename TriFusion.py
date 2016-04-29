@@ -1930,7 +1930,8 @@ if __name__ == "__main__":
             }
 
             # Check if files exists.
-            if os.path.exists(join(path, file_name + methods[idx][2])):
+            if os.path.exists(join(unicode(path, "utf8"),
+                                   file_name + methods[idx][2])):
 
                 self.check_action(
                     "The file {} already exists. Overwrite?".format(file_name),
@@ -6338,13 +6339,13 @@ if __name__ == "__main__":
             if idx == "main_output":
                 if self.main_operations["concatenation"]:
                     # Adds output file to storage
-                    self.output_file = join(path, file_name)
+                    self.output_file = join(unicode(path, "utf8"), file_name)
                     self.output_dir = path
                     # Renames the output file button text
                     self.process_grid_wgt.ids.conv.text = file_name
 
                 else:
-                    self.output_dir = path
+                    self.output_dir = unicode(path, "utf8")
                     self.process_grid_wgt.ids.conv.text = basename(path)
 
             elif idx == "ortho_dir":
@@ -8691,13 +8692,6 @@ if __name__ == "__main__":
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
 
-            try:
-                output_file = str(self.output_file)
-                output_dir = str(self.output_dir)
-            except UnicodeEncodeError:
-                output_file = self.output_file
-                output_dir = self.output_dir
-
             # Packing arguments to background process
             process_kwargs = {"aln_list": self.alignment_list,
                 "file_set_name": self.process_grid_wgt.ids.active_file_set.text,
@@ -8714,7 +8708,7 @@ if __name__ == "__main__":
                 "taxa_filter_settings": list(self.taxa_filter_settings),
                 "codon_filter_settings": list(self.codon_filter_settings),
                 "variation_filter_settings": list(self.variation_filter),
-                "output_file": output_file,
+                "output_file": self.output_file,
                 "rev_infile": str(self.rev_infile),
                 "main_operations": dict(self.main_operations),
                 "zorro_suffix": str(self.zorro_suffix),
@@ -8724,7 +8718,7 @@ if __name__ == "__main__":
                 "use_nexus_partitions": bool(self.use_nexus_partitions),
                 "use_nexus_models": bool(self.use_nexus_models),
                 "phylip_truncate_name": bool(self.phylip_truncate_name),
-                "output_dir": output_dir,
+                "output_dir": self.output_dir,
                 "use_app_partitions": bool(self.use_app_partitions),
                 "consensus_type": self.process_options.ids.consensus_mode.text,
                 "ld_hat": bool(self.ld_hat),

@@ -107,7 +107,10 @@ class LinkedLabel(Label):
                 if sys.platform in ["win32", "cygwin"]:
                     s += u"[ref={}]{}[/ref]".format(p, d) + sep
                 else:
-                    s += "[ref={}]{}[/ref]".format(p, d) + sep
+                    try:
+                        s += "[ref={}]{}[/ref]".format(p, d) + sep
+                    except UnicodeEncodeError:
+                        s += u"[ref={}]{}[/ref]".format(p, d) + sep
 
         return s[:-1]
 
