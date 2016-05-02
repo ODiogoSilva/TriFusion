@@ -110,6 +110,9 @@ class pairwise_cache(object):
                 self.cache[c_args] = value
                 return value
 
+        else:
+            return self.func(*args)
+
     def __repr__(self):
         """
         Return the function's docstring.
@@ -3072,8 +3075,12 @@ class AlignmentList(Base):
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
 
-                s, t = self._get_similarity(seq1, seq2)
-                sim = s / t
+                s, t = self._get_similarity("".join(seq1), "".join(seq2),
+                                            window_size)
+                if t:
+                    sim = s / t
+                else:
+                    sim = 0
 
                 window_similarities.append(sim * 100)
 
