@@ -1403,6 +1403,7 @@ class MultiGroupsLight:
 
         if group_id in self.groups:
             os.remove(self.groups[group_id])
+            del self.groups[group_id]
 
     def get_group(self, group_id):
         """
