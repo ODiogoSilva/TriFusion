@@ -44,7 +44,7 @@ pip install kivy matplotlib numpy psutil scipy seaborn
 
 ##### Note for Windows users
 
-Installation of Kivy on Windows machines, requires a few more commands that are explained in [kivy's webpage](https://kivy.org/docs/installation/installation-windows.html#installation). Shortly, Kivy's dependencies must be installer beforehand:
+Installation of Kivy on Windows machines, requires a few more commands that are explained in [kivy's webpage](https://kivy.org/docs/installation/installation-windows.html#installation). Shortly, Kivy's dependencies must be installed beforehand:
 
 ```
 python -m pip install docutils pygments pypiwin32 kivy.deps.sdl2 kivy.deps.glew
