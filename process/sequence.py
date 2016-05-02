@@ -3411,7 +3411,7 @@ class AlignmentList(Base):
         with gaps or missing data are ignored
         """
 
-        self._get_similarity("load", join(self.dest, "pw.pic"))
+        self._get_similarity("connect")
 
         data = OrderedDict((tx, []) for tx in self.taxa_names)
 
@@ -3423,9 +3423,12 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                s, t_len = self._get_similarity(seq1, seq2)
+                s, t_len = self._get_similarity(seq1, seq2, aln.locus_length)
 
-                s_data = (t_len - s) / t_len
+                if t_len:
+                    s_data = (t_len - s) / t_len
+                else:
+                    s_data = 0
 
                 data[tx1].append(s_data)
                 data[tx2].append(s_data)
@@ -3448,7 +3451,7 @@ class AlignmentList(Base):
         # Get outlier taxa
         outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
 
-        self._get_similarity("store", join(self.dest, "pw.pic"))
+        self._get_similarity("disconnect")
 
         return {"data": data_points,
                 "outliers": outliers_points,
