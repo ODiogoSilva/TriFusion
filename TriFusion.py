@@ -6007,11 +6007,18 @@ if __name__ == "__main__":
             number of active check boxes
             """
 
+            # Change Compare button state
             if (len([x for x in self.screen.ids.group_check.children if
                      x.active]) >= 2):
                 self.screen.ids.compare_group_bt.disabled = False
             else:
                 self.screen.ids.compare_group_bt.disabled = True
+
+            # Check master check box state
+            if all([x.active for x in self.screen.ids.group_check.children]):
+                self.screen.ids.master_chk.active = True
+            else:
+                self.screen.ids.master_chk.active = False
 
         def load_groups(self, groups_obj, default_filters):
             """
