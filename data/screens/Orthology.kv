@@ -216,10 +216,11 @@ ShowcaseScreen:
                                                 anchor_y: "center"
                                                 anchor_x: "left"
                                                 CheckBox:
+                                                    id: master_chk
                                                     size_hint_x: None
                                                     width: group_check.width
                                                     disabled: True if not app.ortho_group_files else False
-                                                    on_active:
+                                                    on_release:
                                                         app.orto_change_state()
                                             AnchorLayout:
                                                 anchor_x: "center"
