@@ -45,9 +45,6 @@ import cPickle as pickle
 import functools
 import sqlite3
 
-import pyximport; pyximport.install(setup_args={"script_args": ["--compiler=mingw32"]})
-from process import pw
-
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
 # to an alignment, i.e. unequal length.This would eliminate the problems of
@@ -266,7 +263,7 @@ class Alignment(Base):
         self.path = None
 
         # If the object is initialized with a string
-        if isinstance(input_alignment, str):
+        if isinstance(input_alignment, str) or isinstance(input_alignment, unicode):
 
             """
             Sets the alignment object name based on the input alignment file
@@ -863,7 +860,7 @@ class Alignment(Base):
         else:
             self.partitions = partitions
 
-    def reverse_concatenate(self):
+    def reverse_concatenate(self, dest=None):
         """
         This function divides a concatenated file according to the
         partitions set in self.partitions and returns an AlignmentList object
@@ -901,7 +898,8 @@ class Alignment(Base):
 
             current_aln = Alignment(current_dic, input_format=self.input_format,
                                     partitions=current_partition,
-                                    alignment_name=name, dest=self.dest)
+                                    alignment_name=name, dest=self.dest,
+                                    locus_length=len(sub_seq))
 
             alns.append(current_aln)
 
@@ -1079,13 +1077,120 @@ class Alignment(Base):
         self._filter_terminals()
         self._filter_columns(gap_threshold, missing_threshold)
 
+    @staticmethod
+    def _test_range(s, min_val, max_val):
+        """
+        Wrapper for the tests that determine whether a certain alignment
+        statistic (s) is within the range provided by min_val and max_val
+        :param s: integer, test statistic
+        :param min_val: integer, minimum number of test statistic for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of test statistic for the
+        alignment to pass. Can be None, in which case there is no upper bound
+        :returns: Boolean. True if the alignment's test statistic is within the
+        provided range
+        """
+
+        # If both values were specified, check if s is within range
+        if max_val and min_val and s >= min_val and s <= max_val:
+            return True
+        # If only min_val was specified, check if s is higher
+        elif not max_val and s >= min_val:
+            return True
+        # If only max_val was specified, check if s is lower
+        elif not min_val and s <= max_val:
+            return True
+        else:
+            return False
+
+    def filter_segregating_sites(self, min_val, max_val):
+        """
+        Evaluates the number of segregating sites of the current alignment
+        and returns True if they fall between the min_val and max_val.
+        :param min_val: integer, minimum number of segregating sites for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of segregating sites for the
+        alignment to pass. Can be None, in which case there is no upper bound
+        :returns: Boolean. True if the alignment's number of segregating
+        sites is within the provided range
+        """
+
+        fhs = fileinput.input(files=[x for x in self.alignment.values()])
+
+        # Counter for segregating sites
+        s = 0
+
+        # Creating the column list variable
+        for column in zip(*fhs):
+
+            v = len(set([i for i in column if i not in [self.sequence_code[1],
+                                                        "-"]]))
+
+            if v > 1:
+                s += 1
+
+            # Add these tests so that the method may exit earlier if the
+            # conditions are met, precluding the analysis of the entire
+            # alignment
+            if min_val and s >= min_val and not max_val:
+                return True
+
+            if max_val and s > max_val and not min_val:
+                return False
+
+        return self._test_range(s, min_val, max_val)
+
+    def filter_informative_sites(self, min_val, max_val):
+        """
+        Similar to filter_segregating_sites method, but only considers
+        informative sites (variable sites present in more than 2 taxa).
+        :param min_val: integer, minimum number of informative sites for the
+        alignment to pass. Can be None, in which case there is no lower bound
+        :param max_val: integer, maximum number of informative sites for the
+        alignment to pass. Can be None, in which case there is no upper bound
+        :returns: Boolean. True if the alignment's number of informative
+        sites is within the provided range
+        """
+
+        fhs = fileinput.input(files=[x for x in self.alignment.values()])
+
+        # Counter for informative sites
+        s = 0
+
+        # Creating the column list variable
+        for column in zip(*fhs):
+
+            column = Counter([i for i in column if i not in
+                              [self.sequence_code[1], "-"]])
+
+            if column:
+                # Delete most common
+                del column[column.most_common()[0][0]]
+
+                # If any of the remaining sites is present in more than two
+                # taxa score the site as informative
+                if any([x >= 2 for x in column.values()]):
+                    s += 1
+
+                # Add these tests so that the method may exit earlier if the
+                # conditions are met, precluding the analysis of the entire
+                # alignment
+                if min_val and s >= min_val and not max_val:
+                    return True
+
+                if max_val and s > max_val and not min_val:
+                    return False
+
+        return self._test_range(s, min_val, max_val)
+
     def write_to_file(self, output_format, output_file, new_alignment=None,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
                       cut_space_nex=50, cut_space_phy=258, cut_space_ima2=8,
                       interleave=False, gap="-", model_phylip=None,
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None,
-                      phy_truncate_names=False, ld_hat=None):
+                      phy_truncate_names=False, ld_hat=None,
+                      use_nexus_models=True):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -1165,6 +1270,24 @@ class Alignment(Base):
         if output_dir:
             output_file = join(output_dir, output_file)
 
+        # Stores suffixes for each format
+        format_ext = {"ima2": ".txt",
+                      "mcmctree": "_mcmctree.phy",
+                      "phylip": ".phy",
+                      "nexus": ".nex",
+                      "fasta": ".fas"}
+
+        # Check if any output file already exist. If so, add a _conv suffix
+        # to all extensions
+        conv_label = False
+        for f in output_format:
+            if os.path.exists(output_file + format_ext[f]):
+                conv_label = True
+
+        if conv_label:
+            for k, v in format_ext.items():
+                format_ext[k] = "_conv" + v
+
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
         if self.restriction_range is not None:
@@ -1196,7 +1319,8 @@ class Alignment(Base):
                     population_storage[population.strip()] = [taxon]
 
             # Write the general header of the IMa2 input file
-            out_file = open(output_file + ".txt", "w")
+
+            out_file = open(output_file + format_ext["ima2"], "w")
             # First line with general description
             out_file.write("Input file for IMa2 using %s alignments\n"
                         "%s\n"  # Line with number of loci
@@ -1281,14 +1405,29 @@ class Alignment(Base):
             if phy_truncate_names:
                 cut_space_phy = 10
 
-            out_file = open(output_file + ".phy", "w")
+            out_file = open(output_file + format_ext["phylip"], "w")
             out_file.write("%s %s\n" % (len(alignment), self.locus_length))
-            for key, f in alignment.items():
-                    with open(f) as fh:
-                        seq = "".join(fh.readlines())
-                    out_file.write("%s %s\n" % (
-                                   key[:cut_space_phy].ljust(seq_space_phy),
-                                   seq.upper()))
+            if interleave:
+                counter = 0
+                for i in range(90, self.locus_length, 90):
+                    for key, f in alignment.items():
+
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())[counter:i]
+
+                        out_file.write("%s %s\n" % (
+                            key[:cut_space_phy].ljust(seq_space_phy),
+                            seq.upper()))
+                    else:
+                        out_file.write("\n")
+                        counter = i
+            else:
+                for key, f in alignment.items():
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())
+                        out_file.write("%s %s\n" % (
+                            key[:cut_space_phy].ljust(seq_space_phy),
+                            seq.upper()))
 
             # In case there is a concatenated alignment being written
             if not self.partitions.is_single() and partition_file:
@@ -1310,7 +1449,7 @@ class Alignment(Base):
 
         if "mcmctree" in output_format:
 
-            out_file = open(output_file + "_mcmctree.phy", "w")
+            out_file = open(output_file + format_ext["mcmctree"], "w")
             taxa_number = len(self.alignment)
 
             if self.partitions.is_single() is False:
@@ -1344,7 +1483,7 @@ class Alignment(Base):
         # Writes file in nexus format
         if "nexus" in output_format:
 
-            out_file = open(output_file + ".nex", "w")
+            out_file = open(output_file + format_ext["nexus"], "w")
 
             # This writes the output in interleave format
             if interleave:
@@ -1355,7 +1494,7 @@ class Alignment(Base):
                                    "yes gap=%s missing=%s ;\n\tmatrix\n" %
                                    (len(alignment),
                                     self.locus_length,
-                                    self.sequence_code[0],
+                                    self.sequence_code[0].upper(),
                                     self.locus_length - 1,
                                     self.restriction_range,
                                     gap,
@@ -1366,9 +1505,10 @@ class Alignment(Base):
                                    "interleave=yes gap=%s missing=%s ;\n\t"
                                    "matrix\n" %
                                    (len(alignment),
-                                   self.locus_length,
-                                   self.sequence_code[0], gap,
-                                   self.sequence_code[1]))
+                                    self.locus_length,
+                                   self.sequence_code[0].upper(),
+                                    gap,
+                                    self.sequence_code[1]))
                 counter = 0
                 for i in range(90, self.locus_length, 90):
                     for key, f in alignment.items():
@@ -1434,6 +1574,7 @@ class Alignment(Base):
                 # Writing partitions, if any
                 if not self.partitions.is_single():
                     out_file.write("\nbegin mrbayes;\n")
+                    p = 0
                     # Full gene partitions
                     for name, lrange in self.partitions:
                         # If there are codon partitions, write those
@@ -1441,16 +1582,36 @@ class Alignment(Base):
                             for i in lrange[1]:
                                 out_file.write("\tcharset %s_%s = %s-%s\\3;\n" %
                                        (name, i + 1, i + 1, lrange[0][1] + 1))
+                                p += 1
                         else:
                             out_file.write("\tcharset %s = %s-%s;\n" %
                                        (name, lrange[0][0] + 1,
                                         lrange[0][1] + 1))
+                            p += 1
 
                     out_file.write("\tpartition part = %s: %s;\n\tset "
                                    "partition=part;\nend;\n" %
-                                   (len(self.partitions.partitions),
-                                    ", ".join([name for name in
+                                   (p, ", ".join([name for name in
                                     self.partitions.get_partition_names()])))
+
+                # Write models, if any
+            if use_nexus_models:
+                out_file.write("\nbegin mrbayes;\n")
+                i = 1
+                for name, models in self.partitions.models.items():
+                    if models[1]:
+                        for m in models[1]:
+                            if m:
+                                m_str = self.partitions._models["mrbayes"][m]
+                                if not self.partitions.is_single():
+                                    out_file.write("applyto=({}) "
+                                                   "lset ".format(i) +
+                                                   " ".join(m_str) + "\n")
+                                else:
+                                    out_file.write("lset " +
+                                                   " ".join(m_str) + "\n")
+                            i += 1
+                out_file.write("end;\n")
 
             # In case outgroup taxa are specified
             if outgroup_list is not None:
@@ -1467,7 +1628,7 @@ class Alignment(Base):
 
         # Writes file in fasta format
         if "fasta" in output_format:
-            out_file = open(output_file + ".fas", "w")
+            out_file = open(output_file + format_ext["fasta"], "w")
 
             # If LD HAT sub format has been specificed, write the first line
             # containing the number of sequences, sites and genotype phase
@@ -1488,6 +1649,12 @@ class Alignment(Base):
                     if len(seq) > 2000:
                         for i in range(0, len(seq), 2000):
                             out_file.write("%s\n" % (seq[i:i + 2000].upper()))
+                elif interleave:
+                    out_file.write(">%s\n" % key)
+                    counter = 0
+                    for i in range(90, self.locus_length, 90):
+                        out_file.write("%s\n" % seq[counter:i])
+                        counter = i
                 else:
                     out_file.write(">%s\n%s\n" % (key, seq.upper()))
 
@@ -1553,6 +1720,14 @@ class AlignmentList(Base):
         """
         self.filename_list = []
         self.path_list = []
+
+        """
+        Records the number of filtered alignments by each individual filter type
+        """
+        self.filtered_alignments = OrderedDict([("By minimum taxa", None),
+                                               ("By taxa", None),
+                                               ("By variable sites", None),
+                                               ("By informative sites", None)])
 
         """
         Tuple with the AlignmentList sequence code. Either ("DNA", "n") or
@@ -1816,6 +1991,13 @@ class AlignmentList(Base):
                         # Get seq code
                         if not self.sequence_code:
                             self.sequence_code = aln.sequence_code
+                        # Check for multiple sequence types. If True,
+                        # raise Exception
+                        elif self.sequence_code[0] != aln.sequence_code[0]:
+                            raise MultipleSequenceTypes("Multiple sequence "
+                                "types detected: {} and {}".format(
+                                    self.sequence_code[0],
+                                    aln.sequence_code[0]))
 
                         self.alignments[aln.name] = aln
                         self.set_partition(aln)
@@ -1970,11 +2152,14 @@ class AlignmentList(Base):
         alignments are moved to the filtered_alignments attribute
         """
 
+        self.filtered_alignments["By minimum taxa"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
             if len(alignment_obj.alignment) < \
                     (min_taxa / 100) * len(self.taxa_names):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By minimum taxa"] += 1
 
     def filter_by_taxa(self, filter_mode, taxa_list):
         """
@@ -1986,6 +2171,8 @@ class AlignmentList(Base):
         filtering
         """
 
+        self.filtered_alignments["By taxa"] = 0
+
         for k, alignment_obj in list(self.alignments.items()):
 
             # Filter alignments that do not contain at least all taxa in
@@ -1993,12 +2180,18 @@ class AlignmentList(Base):
             if filter_mode == "Contain":
                 if set(taxa_list) - set(list(alignment_obj.alignment)) != set():
                     del self.alignments[k]
+                    self.partitions.remove_partition(
+                        file_name=alignment_obj.path)
+                    self.filtered_alignments["By taxa"] += 1
 
             # Filter alignments that contain the taxa in taxa list
             if filter_mode == "Exclude":
                 if any((x for x in taxa_list
                         if x in list(alignment_obj.alignment))):
                     del self.alignments[k]
+                    self.partitions.remove_partition(
+                        file_name=alignment_obj.path)
+                    self.filtered_alignments["By taxa"] += 1
 
         # If the resulting alignment is empty, raise an Exception
         if self.alignments == {}:
@@ -2032,7 +2225,9 @@ class AlignmentList(Base):
                 filtered_seq = "".join(list(itertools.compress(seq,
                                             index(alignment_obj.locus_length,
                                                   position_list))))
-                alignment_obj.alignment[taxon] = filtered_seq
+
+                with open(alignment_obj.alignment[taxon], "w") as fh:
+                    fh.write(filtered_seq)
 
             alignment_obj.locus_length = len(filtered_seq)
 
@@ -2052,6 +2247,44 @@ class AlignmentList(Base):
 
             alignment_obj.filter_missing_data(gap_threshold=gap_threshold,
                                         missing_threshold=missing_threshold)
+
+    def filter_segregating_sites(self, min_val, max_val):
+        """
+        Wrapper of the filter_segregating_sites method of the Alignment
+        object. See the method's documentation
+        :param min_val: Integer. If not None, sets the minimum number of
+        segregating sites allowed for the alignment to pass the filter
+        :param max_val: Integer. If not None, sets the maximum number of
+        segregating sites allowed for the alignment to pass the filter
+        """
+
+        self.filtered_alignments["By variable sites"] = 0
+
+        for k, alignment_obj in list(self.alignments.items()):
+
+            if not alignment_obj.filter_segregating_sites(min_val, max_val):
+                del self.alignments[k]
+                self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By variable sites"] += 1
+
+    def filter_informative_sites(self, min_val, max_val):
+        """
+        Wrapper of the filter_informative_sites method of the Alignment
+        object. See the method's documentation
+        :param min_val: Integer. If not None, sets the minimum number of
+        informative sites allowed for the alignment to pass the filter
+        :param max_val: Integer. If not None, sets the maximum number of
+        informative sites allowed for the alignment to pass the filter
+        """
+
+        self.filtered_alignments["By informative sites"] = 0
+
+        for k, alignment_obj in list(self.alignments.items()):
+
+            if not alignment_obj.filter_informative_sites(min_val, max_val):
+                del self.alignments[k]
+                self.partitions.remove_partition(file_name=alignment_obj.path)
+                self.filtered_alignments["By informative sites"] += 1
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """
@@ -2254,7 +2487,7 @@ class AlignmentList(Base):
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
                       use_charset=True, phy_truncate_names=False, ld_hat=None,
-                      ima2_params=None):
+                      ima2_params=None, use_nexus_models=True):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -2279,12 +2512,21 @@ class AlignmentList(Base):
 
         for alignment_obj in self.alignments.values():
 
-            if alignment_obj.input_format in output_format:
-                output_file_name = alignment_obj.name.split(".")[0] \
-                                   + output_suffix + "_conv"
-            else:
-                output_file_name = alignment_obj.name.split(".")[0] + \
-                                   output_suffix
+            output_file_name = alignment_obj.name.split(".")[0] + output_suffix
+
+            # Get partition name for current alignment object
+            try:
+                part_name = [x for x, y in
+                             self.partitions.partitions_alignments.items() if
+                             alignment_obj.path in y][0]
+            except IndexError:
+                part_name = [x for x, y in
+                             self.partitions.partitions_alignments.items() if
+                             alignment_obj.name in y][0]
+
+            # Get model from partitions
+            m = self.partitions.models[part_name]
+            alignment_obj.partitions.set_model(alignment_obj.name, m[1])
 
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
@@ -2295,7 +2537,8 @@ class AlignmentList(Base):
                                         use_charset=use_charset,
                                         phy_truncate_names=phy_truncate_names,
                                         ld_hat=ld_hat,
-                                        ima2_params=ima2_params)
+                                        ima2_params=ima2_params,
+                                        use_nexus_models=use_nexus_models)
 
     # Stats methods
     def gene_occupancy(self):
@@ -2522,7 +2765,7 @@ class AlignmentList(Base):
 
     def characters_proportion_per_species(self):
         """
-        Creates data for the proportion of nucleotides/residues per species
+        Creates data for the proportion of nucleotides/residures per species
         """
 
         data_storage = OrderedDict((x, Counter()) for x in self.taxa_names)
@@ -2679,27 +2922,25 @@ class AlignmentList(Base):
         :param seq2: string
         """
 
-        return pw.calc_similarity(seq1, seq2)
+        similarity = 0.0
+        effective_len = 0.0
 
-        # similarity = 0.0
-        # effective_len = 0.0
-        #
-        # missing = [self.sequence_code[1], self.gap_symbol]
-        #
-        # for c1, c2 in zip(*[seq1, seq2]):
-        #     # Ignore comparisons with ONLY missing data / gaps
-        #     if c1 in missing or c2 in missing:
-        #         continue
-        #     elif c1 == c2:
-        #         similarity += 1.0
-        #         effective_len += 1.0
-        #     else:
-        #         effective_len += 1.0
-        #
-        # if effective_len:
-        #     return similarity, effective_len
-        # else:
-        #     return None, None
+        missing = [self.sequence_code[1], self.gap_symbol]
+
+        for c1, c2 in zip(*[seq1, seq2]):
+            # Ignore comparisons with ONLY missing data / gaps
+            if c1 in missing or c2 in missing:
+                continue
+            elif c1 == c2:
+                similarity += 1.0
+                effective_len += 1.0
+            else:
+                effective_len += 1.0
+
+        if effective_len:
+            return similarity, effective_len
+        else:
+            return None, None
 
     # @pairwise_cache
     # def _get_differences(self, seq1, seq2):
