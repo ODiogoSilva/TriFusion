@@ -3137,7 +3137,7 @@ class AlignmentList(Base):
         pairs of taxa
         """
 
-        self._get_similarity("load", join(self.dest, "pw.pic"))
+        self._get_similarity("connect")
 
         # Create matrix for parwise comparisons
         data = [np.empty((len(self.taxa_names), 0)).tolist() for _ in
@@ -3154,15 +3154,19 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                s, t = self._get_similarity(seq1, seq2)
-                aln_diff = t - s
+                s, t = self._get_similarity(seq1, seq2, aln.locus_length)
+                if t:
+                    aln_diff = t - s
+                else:
+                    aln_diff = 0
+
                 data[taxa_pos[tx1]][taxa_pos[tx2]].append(aln_diff)
 
         data = np.array([[np.mean(y) if y else 0. for y in x] for x in data])
         mask = np.tri(data.shape[0], k=0)
         data = np.ma.array(data, mask=mask)
 
-        self._get_similarity("store", join(self.dest, "pw.pic"))
+        self._get_similarity("disconnect")
 
         return {"data": data,
                 "labels": list(taxa_pos),
