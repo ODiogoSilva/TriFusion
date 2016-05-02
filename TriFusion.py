@@ -1644,6 +1644,7 @@ if __name__ == "__main__":
             def path_updater():
                 if os.path.exists(txt.text):
                     fc_wgt.path = txt.text
+                    self.previous_dir.append(fc_wgt.path)
                 else:
                     return self.dialog_floatcheck(
                         "ERROR: Directory does not exist", t="error")
