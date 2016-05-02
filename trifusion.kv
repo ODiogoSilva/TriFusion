@@ -2299,7 +2299,6 @@
                     TFTextInput:
                         id: text_filter
                         multiline: False
-                        focus: True
                         on_text:
                             if case_bt.state == "down": sd_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
                             if case_bt.state == "normal": sd_filechooser.f = "*"+self.text+"*"
