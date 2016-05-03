@@ -110,6 +110,9 @@ class pairwise_cache(object):
                 self.cache[c_args] = value
                 return value
 
+        else:
+            return self.func(*args)
+
     def __repr__(self):
         """
         Return the function's docstring.
@@ -3072,8 +3075,12 @@ class AlignmentList(Base):
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
 
-                s, t = self._get_similarity(seq1, seq2)
-                sim = s / t
+                s, t = self._get_similarity("".join(seq1), "".join(seq2),
+                                            window_size)
+                if t:
+                    sim = s / t
+                else:
+                    sim = 0
 
                 window_similarities.append(sim * 100)
 
@@ -3130,7 +3137,7 @@ class AlignmentList(Base):
         pairs of taxa
         """
 
-        self._get_similarity("load", join(self.dest, "pw.pic"))
+        self._get_similarity("connect")
 
         # Create matrix for parwise comparisons
         data = [np.empty((len(self.taxa_names), 0)).tolist() for _ in
@@ -3147,15 +3154,19 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                s, t = self._get_similarity(seq1, seq2)
-                aln_diff = t - s
+                s, t = self._get_similarity(seq1, seq2, aln.locus_length)
+                if t:
+                    aln_diff = t - s
+                else:
+                    aln_diff = 0
+
                 data[taxa_pos[tx1]][taxa_pos[tx2]].append(aln_diff)
 
         data = np.array([[np.mean(y) if y else 0. for y in x] for x in data])
         mask = np.tri(data.shape[0], k=0)
         data = np.ma.array(data, mask=mask)
 
-        self._get_similarity("store", join(self.dest, "pw.pic"))
+        self._get_similarity("disconnect")
 
         return {"data": data,
                 "labels": list(taxa_pos),
@@ -3400,7 +3411,7 @@ class AlignmentList(Base):
         with gaps or missing data are ignored
         """
 
-        self._get_similarity("load", join(self.dest, "pw.pic"))
+        self._get_similarity("connect")
 
         data = OrderedDict((tx, []) for tx in self.taxa_names)
 
@@ -3412,9 +3423,12 @@ class AlignmentList(Base):
                 except KeyError:
                     continue
 
-                s, t_len = self._get_similarity(seq1, seq2)
+                s, t_len = self._get_similarity(seq1, seq2, aln.locus_length)
 
-                s_data = (t_len - s) / t_len
+                if t_len:
+                    s_data = (t_len - s) / t_len
+                else:
+                    s_data = 0
 
                 data[tx1].append(s_data)
                 data[tx2].append(s_data)
@@ -3437,7 +3451,7 @@ class AlignmentList(Base):
         # Get outlier taxa
         outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
 
-        self._get_similarity("store", join(self.dest, "pw.pic"))
+        self._get_similarity("disconnect")
 
         return {"data": data_points,
                 "outliers": outliers_points,

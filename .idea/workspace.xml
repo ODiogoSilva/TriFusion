@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="76d37b86-1798-4784-af80-428833bd6dc1" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/process/pw.c" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/process/sequence.py" afterPath="$PROJECT_DIR$/process/sequence.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/setup.py" afterPath="$PROJECT_DIR$/setup.py" />
     </list>
     <ignored path="TriFusion.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -25,14 +24,14 @@
     <favorites_list name="TriFusion" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.49566475">
+    <splitter split-orientation="horizontal" split-proportion="0.5462428">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="TriFusion.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/TriFusion.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="2038" column="75" selection-start-line="2038" selection-start-column="75" selection-end-line="2038" selection-end-column="75" />
+                  <caret line="2038" column="71" selection-start-line="2038" selection-start-column="71" selection-end-line="2038" selection-end-column="71" />
                   <folding />
                 </state>
               </provider>
@@ -53,9 +52,7 @@
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
                   <caret line="174" column="20" selection-start-line="174" selection-start-column="20" selection-end-line="174" selection-end-column="20" />
-                  <folding>
-                    <element signature="e#867#913#0" expanded="true" />
-                  </folding>
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -75,13 +72,14 @@
           <file leaf-file-name="sequence.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/process/sequence.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.61028415">
-                  <caret line="47" column="86" selection-start-line="47" selection-start-column="86" selection-end-line="47" selection-end-column="86" />
+                <state vertical-scroll-proportion="0.541272">
+                  <caret line="3082" column="27" selection-start-line="3082" selection-start-column="27" selection-end-line="3082" selection-end-column="27" />
                   <folding>
-                    <marker date="1459433866121" expanded="true" signature="2482:2588" placeholder="SELECT name sqlite_master" />
-                    <marker date="1459433866121" expanded="true" signature="2635:2884" placeholder="CREATE TABLE... pw_table" />
-                    <marker date="1459433866121" expanded="true" signature="3104:3187" placeholder="SELECT * FRO... pw_table" />
-                    <marker date="1459433866121" expanded="true" signature="3427:3467" placeholder="INSERT INTO pw_table... " />
+                    <element signature="e#914#928#0" expanded="true" />
+                    <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+                    <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+                    <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+                    <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
                   </folding>
                 </state>
               </provider>
@@ -101,23 +99,26 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="sequence.py" pinned="false" current-in-tab="false">
+          <file leaf-file-name="sequence.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/process/sequence.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0">
-                  <caret line="1781" column="30" selection-start-line="1781" selection-start-column="30" selection-end-line="1781" selection-end-column="30" />
+                <state vertical-scroll-proportion="0.75352114">
+                  <caret line="3422" column="32" selection-start-line="3422" selection-start-column="32" selection-end-line="3422" selection-end-column="32" />
                   <folding>
-                    <marker date="1459433866121" expanded="true" signature="123761:123764" placeholder="..." />
+                    <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+                    <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+                    <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+                    <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="setup.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/setup.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="0" column="15" selection-start-line="0" selection-start-column="15" selection-end-line="0" selection-end-column="15" />
+                  <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -177,6 +178,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -212,7 +214,6 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -463,15 +464,34 @@
       <option name="project" value="LOCAL" />
       <updated>1458749026772</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Added previous sequence changes">
+      <created>1462190593829</created>
+      <option name="number" value="00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1462190593829</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Fixed issue with _get_similarity decorator">
+      <created>1462194602242</created>
+      <option name="number" value="00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1462194602242</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Fixed segregating sites per species">
+      <created>1462194898244</created>
+      <option name="number" value="00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1462194898244</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.135" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.135" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32985657" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -480,7 +500,6 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -509,7 +528,10 @@
     <MESSAGE value="removed sound attribute" />
     <MESSAGE value="Fixed #179" />
     <MESSAGE value="Added init message" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added init message" />
+    <MESSAGE value="Added previous sequence changes" />
+    <MESSAGE value="Fixed issue with _get_similarity decorator" />
+    <MESSAGE value="Fixed segregating sites per species" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed segregating sites per species" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -529,10 +551,63 @@
     <entry file="file://$PROJECT_DIR$/data/resources/custom_widgets.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="154" column="20" selection-start-line="154" selection-start-column="20" selection-end-line="154" selection-end-column="20" />
+          <caret line="174" column="20" selection-start-line="174" selection-start-column="20" selection-end-line="174" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/resources/background_tasks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="40" column="0" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
           <folding>
-            <element signature="e#867#913#0" expanded="true" />
+            <element signature="e#22#46#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TriFusion.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7990" column="34" selection-start-line="7990" selection-start-column="34" selection-end-line="7990" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/process/sequence.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="47" column="86" selection-start-line="47" selection-start-column="86" selection-end-line="47" selection-end-column="86" />
+          <folding>
+            <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+            <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/screens/fc.kv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="136" column="29" selection-start-line="131" selection-start-column="20" selection-end-line="131" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/resources/custom_widgets.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="154" column="20" selection-start-line="154" selection-start-column="20" selection-end-line="154" selection-end-column="20" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -559,10 +634,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="83" column="40" selection-start-line="83" selection-start-column="40" selection-end-line="83" selection-end-column="40" />
           <folding>
-            <marker date="1459433866121" expanded="true" signature="2482:2588" placeholder="SELECT name sqlite_master" />
-            <marker date="1459433866121" expanded="true" signature="2635:2884" placeholder="CREATE TABLE... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3104:3187" placeholder="SELECT * FRO... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3427:3467" placeholder="INSERT INTO pw_table... " />
+            <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+            <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
           </folding>
         </state>
       </provider>
@@ -579,9 +654,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="154" column="20" selection-start-line="154" selection-start-column="20" selection-end-line="154" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -608,10 +681,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="1724" column="8" selection-start-line="1724" selection-start-column="8" selection-end-line="1724" selection-end-column="8" />
           <folding>
-            <marker date="1459433866121" expanded="true" signature="2482:2588" placeholder="SELECT name sqlite_master" />
-            <marker date="1459433866121" expanded="true" signature="2635:2884" placeholder="CREATE TABLE... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3104:3187" placeholder="SELECT * FRO... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3427:3467" placeholder="INSERT INTO pw_table... " />
+            <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+            <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
           </folding>
         </state>
       </provider>
@@ -628,9 +701,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="154" column="20" selection-start-line="154" selection-start-column="20" selection-end-line="154" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -657,10 +728,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="30" column="15" selection-start-line="30" selection-start-column="15" selection-end-line="30" selection-end-column="15" />
           <folding>
-            <marker date="1459433866121" expanded="true" signature="2482:2588" placeholder="SELECT name sqlite_master" />
-            <marker date="1459433866121" expanded="true" signature="2635:2884" placeholder="CREATE TABLE... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3104:3187" placeholder="SELECT * FRO... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3427:3467" placeholder="INSERT INTO pw_table... " />
+            <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+            <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
           </folding>
         </state>
       </provider>
@@ -677,9 +748,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="154" column="20" selection-start-line="154" selection-start-column="20" selection-end-line="154" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -706,10 +775,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1459433866121" expanded="true" signature="2482:2588" placeholder="SELECT name sqlite_master" />
-            <marker date="1459433866121" expanded="true" signature="2635:2884" placeholder="CREATE TABLE... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3104:3187" placeholder="SELECT * FRO... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3427:3467" placeholder="INSERT INTO pw_table... " />
+            <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+            <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
           </folding>
         </state>
       </provider>
@@ -726,9 +795,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="154" column="20" selection-start-line="154" selection-start-column="20" selection-end-line="154" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -755,10 +822,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1459433866121" expanded="true" signature="2482:2588" placeholder="SELECT name sqlite_master" />
-            <marker date="1459433866121" expanded="true" signature="2635:2884" placeholder="CREATE TABLE... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3104:3187" placeholder="SELECT * FRO... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3427:3467" placeholder="INSERT INTO pw_table... " />
+            <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+            <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
           </folding>
         </state>
       </provider>
@@ -775,9 +842,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="105" column="20" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -811,9 +876,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="105" column="20" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -847,9 +910,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="105" column="20" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -883,9 +944,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="174" column="20" selection-start-line="174" selection-start-column="20" selection-end-line="174" selection-end-column="20" />
-          <folding>
-            <element signature="e#867#913#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -902,7 +961,7 @@
     <entry file="file://$PROJECT_DIR$/TriFusion.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="2038" column="75" selection-start-line="2038" selection-start-column="75" selection-end-line="2038" selection-end-column="75" />
+          <caret line="7990" column="34" selection-start-line="7990" selection-start-column="34" selection-end-line="7990" selection-end-column="34" />
           <folding />
         </state>
       </provider>
@@ -910,20 +969,20 @@
     <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="15" selection-start-line="0" selection-start-column="15" selection-end-line="0" selection-end-column="15" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/process/sequence.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.61028415">
-          <caret line="47" column="86" selection-start-line="47" selection-start-column="86" selection-end-line="47" selection-end-column="86" />
+        <state vertical-scroll-proportion="0.75352114">
+          <caret line="3422" column="32" selection-start-line="3422" selection-start-column="32" selection-end-line="3422" selection-end-column="32" />
           <folding>
-            <marker date="1459433866121" expanded="true" signature="2482:2588" placeholder="SELECT name sqlite_master" />
-            <marker date="1459433866121" expanded="true" signature="2635:2884" placeholder="CREATE TABLE... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3104:3187" placeholder="SELECT * FRO... pw_table" />
-            <marker date="1459433866121" expanded="true" signature="3427:3467" placeholder="INSERT INTO pw_table... " />
+            <marker date="1462194948569" expanded="true" signature="2370:2476" placeholder="SELECT name sqlite_master" />
+            <marker date="1462194948569" expanded="true" signature="2523:2772" placeholder="CREATE TABLE... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="2992:3075" placeholder="SELECT * FRO... pw_table" />
+            <marker date="1462194948569" expanded="true" signature="3315:3355" placeholder="INSERT INTO pw_table... " />
           </folding>
         </state>
       </provider>
