@@ -17,9 +17,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #
-#  Author: Diogo N. Silva
-#  Version: 0.1
-#  Last update: 11/02/14
 
 """
 This module deals with the conversion of protein sequences into their
@@ -248,4 +245,4 @@ def convert_group(cds_file_list, protein_db, group_sequences,
     convert_protein_file(pair_db, query_db, id_db)
 
 
-__author__ = 'diogo'
+__author__ = "Diogo N. Silva"

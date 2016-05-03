@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python2
 #
-#  
 #  Copyright 2012 Unknown <diogo@arch>
 #  
 #  This program is free software; you can redistribute it and/or modify
@@ -18,20 +16,9 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
-#  Author: Diogo N. Silva
-#  Version: 0.1.1
-#  Last update: 11/02/14
 
-# TriFusion imports
-
-import process
-from process.base import *
-from process.data import Partitions
-
-# Other imports
 import numpy as np
-from collections import OrderedDict, Counter
+from collections import Counter
 import itertools
 import re
 import os
@@ -44,6 +31,12 @@ import multiprocessing
 import cPickle as pickle
 import functools
 import sqlite3
+
+# TriFusion imports
+from TriFusion import __version__, __build__
+import process
+from process.base import *
+from process.data import Partitions
 
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
@@ -3459,10 +3452,4 @@ class AlignmentList(Base):
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
 __author__ = "Diogo N. Silva"
-__copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
-__license__ = "GPL"
-__version__ = "0.1.0"
-__maintainer__ = "Diogo N. Silva"
-__email__ = "o.diogosilva@gmail.com"
-__status__ = "Prototype"

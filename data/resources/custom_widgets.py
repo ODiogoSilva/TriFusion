@@ -16,10 +16,6 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#
-#  Author: Diogo N. Silva
-#  Version:
-#  Last update:
 
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.button import Button
@@ -34,14 +30,12 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.slider import Slider
-from kivy.uix.scrollview import ScrollView
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
 from kivy.utils import get_hex_from_color
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ObjectProperty
 from kivy.uix.screenmanager import Screen
-from kivy.graphics import Color, Rectangle
 from kivy.logger import Logger
 
 
@@ -1117,6 +1111,4 @@ class ZorroDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
-
-
-__author__ = 'diogo'
+__author__ = "Diogo N. Silva"

@@ -1,9 +1,5 @@
 #!/usr/bin/python2
 
-"""
-Made by Diogo Silva, Fernando Alves
-"""
-
 import sqlite3 as lite
 import os
 import math
@@ -540,3 +536,6 @@ def execute(db_dir):
 
 if __name__ == '__main__':
     execute("/home/fernando-work/.config/trifusion/tmp/")
+
+
+__author__ = "Fernando Alves"

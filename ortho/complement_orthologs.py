@@ -28,4 +28,4 @@ provided by the user.
 
 
 
-__author__ = 'diogo'
+__author__ = "Diogo N. Silva"

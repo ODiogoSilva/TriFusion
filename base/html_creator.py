@@ -16,13 +16,9 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
-#  Author: Diogo N. Silva
-#  Version: 0.1
-#  Last update: 11/02/14
 
 
-class HtmlTemplate ():
+class HtmlTemplate:
     def __init__(self):
         self.hcontents = []
         self.bcontents = []
@@ -64,3 +60,5 @@ class HtmlTemplate ():
         output_handle = open(file_name + ".html", "w")
         output_handle.write(string)
         output_handle.close()
+
+__author__ = "Diogo N. Silva"

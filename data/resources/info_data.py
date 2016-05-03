@@ -16,10 +16,6 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#
-#  Author: Diogo N. Silva
-#  Version: 0.1
-#  Last update: 11/02/14
 
 
 ################################################################################
@@ -120,3 +116,6 @@ orthology_storage = {
         "clusters",
     "Taxa gene copies": "Cumulative number of multiple gene copies per taxon"
 }
+
+
+__author__ = "Diogo N. Silva"

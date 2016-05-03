@@ -131,3 +131,6 @@ stats_compliant = {
      "args2": {"plt_idx": "Segregating sites outliers"},
      "active_bt": "sp",
      "single_gene": None}}
+
+
+__author__ = "Diogo N. Silva"

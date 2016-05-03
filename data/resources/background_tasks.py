@@ -1,5 +1,3 @@
-__author__ = 'diogo'
-
 from process import data
 from process.error_handling import *
 from process.sequence import AlignmentList, Alignment
@@ -7,7 +5,6 @@ from ortho import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
 
 from os.path import join, basename
-from os import sep
 from collections import OrderedDict
 from copy import deepcopy
 import logging
@@ -629,3 +626,5 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
 
     return [plot_data, footer]
 
+
+__author__ = "Diogo N. Silva"

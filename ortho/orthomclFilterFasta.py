@@ -67,3 +67,7 @@ def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent):
                 reject_rates.append([input_file, pct])
 
         input_file.close()
+
+
+__author__ = "Fernando Alves"
+

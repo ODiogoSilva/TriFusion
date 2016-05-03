@@ -17,10 +17,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #
-#  Author: Diogo N. Silva
-#  Version:
-#  Last update:
-#
 
 import argparse
 from ortho import OrthomclToolbox as OT
@@ -126,11 +122,5 @@ def main():
 
 main()
 
+
 __author__ = "Diogo N. Silva"
-__copyright__ = "Diogo N. Silva"
-__credits__ = ["Diogo N. Silva"]
-__license__ = "GPL"
-__version__ = "0.1.0"
-__maintainer__ = "Diogo N. Silva"
-__email__ = "o.diogosilva@gmail.com"
-__status__ = "Prototype"
