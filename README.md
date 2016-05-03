@@ -18,6 +18,7 @@ For a complete overview of the features for each module, please refer to the man
 ### Executables
 
 [Linux executable (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/trifusion-linux_v0.1.1.zip)
+
 [Window executable (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-windows_v0.1.1.zip)
 
 ### Installation from source
