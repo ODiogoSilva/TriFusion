@@ -231,3 +231,6 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
         print_previous_subject(subject, cur)
 
     #con.close()
+
+
+__author__ = "Fernando Alves"

@@ -14,3 +14,6 @@ def mcl_to_groups(prefix, start_id, infile, outfile):
     for line in input_file:
         out.write(prefix + str(start_id) + ": " + line)
         start_id += 1
+
+
+__author__ = "Fernando Alves"

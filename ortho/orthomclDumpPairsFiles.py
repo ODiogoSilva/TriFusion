@@ -1,9 +1,5 @@
 #!/usr/bin/python2
 
-"""
-Made by Diogo Silva, Fernando Alves
-"""
-
 import sqlite3 as lite
 import os
 
@@ -103,3 +99,5 @@ def execute(db_dir):
 
         printMclAbcFile(cur, "mclInput")
 
+
+__author__ = "Fernando Alves"

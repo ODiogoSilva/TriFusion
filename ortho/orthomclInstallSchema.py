@@ -1,9 +1,5 @@
 #!/usr/bin/python2
 
-"""
-Made by Diogo Silva, Fernando Alves
-"""
-
 import sqlite3 as lite
 import os
 
@@ -122,4 +118,7 @@ def execute(dir):
         createInterTaxonMatchView(cur)
 
 if __name__ == "__main__":
-	execute("./")
+    execute("./")
+
+
+__author__ = "Fernando Alves"

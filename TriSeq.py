@@ -351,3 +351,6 @@ def main():
 ##### EXECUTION ######
 
 main()
+
+
+__author__ = "Diogo N. Silva"

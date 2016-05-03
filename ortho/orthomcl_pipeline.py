@@ -1,14 +1,27 @@
-#!/usr/bin/python2
+#!/usr/bin/env python2
+#
+#  Copyright 2012 Unknown <diogo@arch>
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
 
 import os
 import sys
 import codecs
 import subprocess
 import shutil
-
-#For systems without argparse installed, provide the path to the module
-#sys.path.append("/home/diogo/Python/Modules")
-
 import argparse
 
 from ortho import OrthomclToolbox as OT
@@ -346,3 +359,6 @@ if __name__ == '__main__':
         dump_pairs(config_file)
         mcl()
         mcl_groups(prefix, start_ID, groups_file)
+
+
+__author__ = "Diogo N. Silva"

@@ -16,10 +16,6 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#
-#  Author: Diogo N. Silva
-#  Version:
-#  Last update:
 
 import matplotlib
 # Using the agg backend prevent a segmentation fault when quiting the
@@ -28,9 +24,6 @@ matplotlib.use("agg")
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.lines as mlines
-from matplotlib.patches import Circle
-from matplotlib.collections import PatchCollection
 from scipy.stats import spearmanr
 import numpy as np
 from itertools import chain
@@ -725,4 +718,6 @@ def sliding_window(data, window_size, ax_names=None, table_header=None):
 
     return fig, None, table
 
-__author__ = 'diogo'
+
+__author__ = "Diogo N. Silva"
+__credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]

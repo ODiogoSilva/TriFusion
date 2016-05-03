@@ -16,13 +16,6 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#
-#  Author: Diogo N. Silva
-#  Version:
-#  Last update:
-
-__version__ = "0.1.0"
-__build__ = "030516"
 
 if __name__ == "__main__":
 
@@ -84,6 +77,16 @@ if __name__ == "__main__":
     from data.resources.stats import *
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
+
+    __version__ = "0.1.0"
+    __build__ = "030516"
+    __author__ = "Diogo N. Silva"
+    __copyright__ = "Diogo N. Silva"
+    __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
+    __license__ = "GPL"
+    __maintainer__ = "Diogo N. Silva"
+    __email__ = "o.diogosilva@gmail.com"
+    __status__ = "Development"
 
     ###################################
     # Modifications to kivy source code

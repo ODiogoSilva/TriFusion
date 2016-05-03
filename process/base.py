@@ -16,10 +16,6 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
-#  Author: Diogo N. Silva
-#  Version: 0.1
-#  Last update: 11/02/14
 
 import sys
 from process.error_handling import *
@@ -354,10 +350,3 @@ class Progression():
 
 
 __author__ = "Diogo N. Silva"
-__copyright__ = "Diogo N. Silva"
-__credits__ = ["Diogo N. Silva"]
-__license__ = "GPL"
-__version__ = "0.1.0"
-__maintainer__ = "Diogo N. Silva"
-__email__ = "o.diogosilva@gmail.com"
-__status__ = "Prototype"
