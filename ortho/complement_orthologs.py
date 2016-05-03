@@ -23,5 +23,4 @@ provided by the user.
 """
 
 
-
 __author__ = "Diogo N. Silva"
