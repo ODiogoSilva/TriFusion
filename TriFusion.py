@@ -62,6 +62,7 @@ if __name__ == "__main__":
     from kivy.uix.image import Image
     from kivy.uix.widget import Widget
     from kivy.uix.checkbox import CheckBox
+    from kivy.uix.scrollview import ScrollView
     from kivy.lang import Builder
     from kivy.properties import ListProperty, DictProperty
     from kivy.clock import Clock
@@ -78,7 +79,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.1.1"
+    __version__ = "0.1.2"
     __build__ = "030516"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"

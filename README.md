@@ -50,6 +50,10 @@ Installation of Kivy on Windows machines, requires a few more commands that are 
 python -m pip install docutils pygments pypiwin32 kivy.deps.sdl2 kivy.deps.glew
 ```
 
+### Know issues
+
+When using the executable version of TriFusion make sure its path does not contain non-ASCII characters, otherwise the app will not open. This issue is currently being fixed.
+
 ### Documentation
 
 User guide coming soon!
