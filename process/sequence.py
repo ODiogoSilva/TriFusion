@@ -33,7 +33,6 @@ import functools
 import sqlite3
 
 # TriFusion imports
-from TriFusion import __version__, __build__
 import process
 from process.base import *
 from process.data import Partitions
