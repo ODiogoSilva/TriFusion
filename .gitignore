@@ -1,3 +1,4 @@
 *.pyc
 data/resources/bookmarks
 data/backgrounds/process_exec.svg
+.idea/

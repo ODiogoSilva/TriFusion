@@ -21,8 +21,8 @@
 #  Version:
 #  Last update:
 
-__version__ = "0.1"
-__build__ = "10th March 2016"
+__version__ = "0.1.0"
+__build__ = "030516"
 
 if __name__ == "__main__":
 
