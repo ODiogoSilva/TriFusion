@@ -387,11 +387,16 @@ class FileChooserM(FileChooserIconView):
         _dir = self.file_system.is_dir(entry.path)
         dirselect = self.dirselect
 
-        if _dir and dirselect and touch.is_double_tap and not self.shift and not self.prev_touch:
+        if _dir and dirselect and touch.is_double_tap and not \
+                self.shift and not self.prev_touch:
             self.open_entry(entry)
             self.prev_touch = touch.is_double_tap
             return
-        elif not _dir and touch.is_double_tap:
+
+        # The 'not self.shift' fixes an incorrect behaviour of touch, where
+        # shift+click sets is_double_tap to true, even when there is no
+        # double click
+        elif not _dir and touch.is_double_tap and not self.shift:
             self.dispatch("on_double_click")
 
         # Workaround for issue #151
