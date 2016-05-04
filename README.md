@@ -19,7 +19,7 @@ For a complete overview of the features for each module, please refer to the man
 
 [Linux executable (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-linux_current.zip)
 
-[Window installer (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-windows_current.msi)
+[Windows installer (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-windows_current.msi)
 
 ##### Note for Windows 8.x and 10 users:
 
