@@ -17,9 +17,13 @@ For a complete overview of the features for each module, please refer to the man
 
 ### Executables
 
-[Linux executable (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/trifusion-linux_v0.1.1.zip)
+[Linux executable (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-linux_current.zip)
 
-[Window executable (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-windows_v0.1.1.zip)
+[Window installer (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-windows_current.msi)
+
+##### Note for Windows 8.x and 10 users:
+
+Executing the TriFusion installer may generate a warning from SmartScreen. To circumvent this issue, click the "More info" label and then "Run anyway".
 
 ### Installation from source
 
