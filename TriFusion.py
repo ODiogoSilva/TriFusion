@@ -493,6 +493,10 @@ if __name__ == "__main__":
             # Setting main window title
             self.title = "TriFusion - Streamline phylogenomics"
 
+            # Set icon
+            self.icon = join(self.cur_dir, "data", "backgrounds",
+                             "trifusion-icon-64.png")
+
             # Create temporary directory for transient files if it doesn't exist
             if not os.path.exists(join(self.user_data_dir, "tmp")):
                 os.makedirs(join(self.user_data_dir, "tmp"))
