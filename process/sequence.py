@@ -1493,7 +1493,7 @@ class Alignment(Base):
                                     self.locus_length - 1,
                                     self.restriction_range,
                                     gap,
-                                    self.sequence_code[1]))
+                                    self.sequence_code[1].upper()))
                 else:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
                                    "ntax=%s nchar=%s ;\n\tformat datatype=%s "
@@ -1501,20 +1501,20 @@ class Alignment(Base):
                                    "matrix\n" %
                                    (len(alignment),
                                     self.locus_length,
-                                   self.sequence_code[0].upper(),
+                                    self.sequence_code[0].upper(),
                                     gap,
-                                    self.sequence_code[1]))
+                                    self.sequence_code[1].upper()))
                 counter = 0
                 for i in range(90, self.locus_length, 90):
                     for key, f in alignment.items():
 
                         with open(f) as fh:
-                            seq = "".join(fh.readlines())
+                            seq = "".join(fh.readlines()).upper()
 
                         out_file.write("%s %s\n" % (
                                        key[:cut_space_nex].ljust(
                                          seq_space_nex),
-                                       seq[counter:i].upper()))
+                                       seq[counter:i]))
                     else:
                         out_file.write("\n")
                         counter = i
@@ -1522,12 +1522,12 @@ class Alignment(Base):
                     for key, f in alignment.items():
 
                         with open(f) as fh:
-                            seq = "".join(fh.readlines())
+                            seq = "".join(fh.readlines()).upper()
 
                         out_file.write("%s %s\n" % (
                                        key[:cut_space_nex].ljust(
                                          seq_space_nex),
-                                       seq[i:self.locus_length].upper()))
+                                       seq[i:self.locus_length]))
                     else:
                         out_file.write("\n")
                 out_file.write(";\n\tend;")
@@ -1537,7 +1537,7 @@ class Alignment(Base):
                 if self.restriction_range is not None:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
                                    "ntax=%s nchar=%s ;\n\tformat datatype=mixed"
-                                   "(%s:1-%s, restriction:%s) interleave=yes "
+                                   "(%s:1-%s, restriction:%s) interleave=no "
                                    "gap=%s missing=%s ;\n\tmatrix\n" %
                                    (len(alignment),
                                     self.locus_length,
@@ -1545,7 +1545,7 @@ class Alignment(Base):
                                     self.locus_length - 1,
                                     self.restriction_range,
                                     gap,
-                                    self.sequence_code[1]))
+                                    self.sequence_code[1].upper()))
                 else:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions ntax=%s"
                                    " nchar=%s ;\n\tformat datatype=%s "
@@ -1554,12 +1554,12 @@ class Alignment(Base):
                                     len(alignment),
                                     self.locus_length,
                                     self.sequence_code[0],
-                                    gap, self.sequence_code[1]))
+                                    gap, self.sequence_code[1].upper()))
 
                 for key, f in alignment.items():
 
                     with open(f) as fh:
-                        seq = "".join(fh.readlines())
+                        seq = "".join(fh.readlines()).upper()
 
                     out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(
                         seq_space_nex), seq))
