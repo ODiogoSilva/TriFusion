@@ -1,6 +1,7 @@
 ### [Upcoming release]
 
 [Bug Fixes]
+Fixed issues with sequence case and interleave options in nexus output format
 Fixed missing imports
 Fixed faulty behaviour of shift+click on icon filechooser on Windows
 
