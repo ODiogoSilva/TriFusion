@@ -79,7 +79,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.1.4"
+    __version__ = "0.1.5"
     __build__ = "050516"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"

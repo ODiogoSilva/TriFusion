@@ -235,7 +235,7 @@ class Alignment(Base):
         taxon names and the values are file names containing the path to the
         temporary sequence files.
         """
-        self.alignment = {}
+        self.alignment = OrderedDict()
 
         """
         The e attribute will store any exceptions that occur during the
@@ -1505,7 +1505,8 @@ class Alignment(Base):
                                     gap,
                                     self.sequence_code[1].upper()))
                 counter = 0
-                for i in range(90, self.locus_length, 90):
+                print(self.locus_length)
+                for i in range(0, self.locus_length, 90):
                     for key, f in alignment.items():
 
                         with open(f) as fh:
@@ -1514,22 +1515,26 @@ class Alignment(Base):
                         out_file.write("%s %s\n" % (
                                        key[:cut_space_nex].ljust(
                                          seq_space_nex),
-                                       seq[counter:i]))
+                                       seq[counter:counter + 90]))
                     else:
                         out_file.write("\n")
                         counter = i
                 else:
-                    for key, f in alignment.items():
+                    # Only do this when the alignment is bigger than 90
+                    # characters. Otherwise, it will be written entirely on
+                    # the first iteration.
+                    if self.locus_length > 90:
+                        for key, f in alignment.items():
 
-                        with open(f) as fh:
-                            seq = "".join(fh.readlines()).upper()
+                            with open(f) as fh:
+                                seq = "".join(fh.readlines()).upper()
 
-                        out_file.write("%s %s\n" % (
-                                       key[:cut_space_nex].ljust(
-                                         seq_space_nex),
-                                       seq[i:self.locus_length]))
-                    else:
-                        out_file.write("\n")
+                            out_file.write("%s %s\n" % (
+                                           key[:cut_space_nex].ljust(
+                                             seq_space_nex),
+                                           seq[i + 90:self.locus_length]))
+                        else:
+                            out_file.write("\n")
                 out_file.write(";\n\tend;")
 
             # This writes the output in leave format (default)
