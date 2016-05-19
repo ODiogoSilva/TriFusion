@@ -1505,7 +1505,6 @@ class Alignment(Base):
                                     gap,
                                     self.sequence_code[1].upper()))
                 counter = 0
-                print(self.locus_length)
                 for i in range(0, self.locus_length, 90):
                     for key, f in alignment.items():
 
