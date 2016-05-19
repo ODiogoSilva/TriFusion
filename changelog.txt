@@ -1,4 +1,4 @@
-### [Upcoming release]
+### v0.2.0
 
 [Improvements]
 Missing data and minimum taxa filters are now disassociated and can be executed separately
