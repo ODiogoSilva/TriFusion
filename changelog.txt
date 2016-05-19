@@ -1,5 +1,8 @@
 ### [Upcoming release]
 
+[Improvements]
+Missing data and minimum taxa filters are now disassociated and can be executed separately
+
 [Bug Fixes]
 Fixed issues with sequence case and interleave options in nexus output format
 Fixed missing imports
