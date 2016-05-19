@@ -5,5 +5,6 @@ Fixed issues with sequence case and interleave options in nexus output format
 Fixed missing imports
 Fixed faulty behaviour of shift+click on icon filechooser on Windows
 Fixed issue when writing output alignments with less than 90 characters in interleave format
+Fixed issue with number of output files when setting secondary operations
 
 ### v0.1.0

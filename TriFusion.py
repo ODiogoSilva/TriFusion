@@ -79,7 +79,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.1.5"
+    __version__ = "0.1.6"
     __build__ = "050516"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -7180,7 +7180,8 @@ if __name__ == "__main__":
 
                 out_file = basename(self.output_file)
                 add_files = [out_file + "_" + nm for nm, bl in
-                             self.secondary_operations.items() if bl]
+                             self.secondary_operations.items() if bl and
+                             self.secondary_options["%s_file" % nm]]
                 content.ids.out_files.text = "[b][size=18][color=37abc8ff]" \
                     "Output file(s):[/color][/size][/b] (%s) %s, %s" % \
                     (len(add_files) + 1, out_file, ", ".join(add_files))
