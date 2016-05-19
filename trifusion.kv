@@ -3944,15 +3944,23 @@
     Switch:
         id: gap_filter
 
-    Label:
-        text: "Within alignmnet"
-        bold: True
-        halign: "left"
-        valign: "middle"
-        text_size: self.size
-        color: (0.216, 0.67, 0.784, 1)
+    BoxLayout:
         size_hint_y: None
         height: 20
+        spacing: 10
+        CheckBox:
+            id: within_chk
+            size_hint_x: None
+            width: 20
+            disabled: True if not gap_filter.active else False
+            active: True
+        Label:
+            text: "Within alignment"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
 
     BoxLayout:
         size_hint_y: None
@@ -3992,7 +4000,7 @@
                 max: 100
                 step: 1
                 value: 25
-                disabled: False if gap_filter.active else True
+                disabled: False if gap_filter.active and within_chk.active else True
             Widget:
                 size_hint_x: None
                 width: 5
@@ -4001,7 +4009,7 @@
                 id: gap_ti
                 text: "{}".format(int(round(gap_sli.value)))
                 multiline: False
-                disabled: False if gap_filter.active else True
+                disabled: False if gap_filter.active and within_chk.active else True
                 on_text_validate: if app.check_filters(gap_ti.text): val = app.check_filters(gap_ti.text)[1]; gap_sli.value = val; self.text = str(val)
             Widget:
                 size_hint_x: None
@@ -4033,7 +4041,7 @@
                 max: 100
                 step: 1
                 value: 50
-                disabled: False if gap_filter.active else True
+                disabled: False if gap_filter.active and within_chk.active else True
             Widget:
                 size_hint_x: None
                 width: 5
@@ -4042,7 +4050,7 @@
                 id: mis_ti
                 text: "{}".format(int(round(mis_sli.value)))
                 multiline: False
-                disabled: False if gap_filter.active else True
+                disabled: False if gap_filter.active and within_chk.active else True
                 on_text_validate: if app.check_filters(mis_ti.text): val = app.check_filters(mis_ti.text)[1]; mis_sli.value = val; self.text =str(val)
             Widget:
                 size_hint_x: None
@@ -4053,15 +4061,25 @@
                 bold: True
                 color: (0.216, 0.67, 0.784, 1)
 
-    Label:
-        text: "Multiple alignments"
-        bold: True
-        halign: "left"
-        valign: "middle"
-        text_size: self.size
-        color: (0.216, 0.67, 0.784, 1)
+
+    BoxLayout:
         size_hint_y: None
         height: 20
+        spacing: 10
+        CheckBox:
+            id: among_chk
+            size_hint_x: None
+            width: 20
+            disabled: True if not gap_filter.active else False
+            active: True
+        Label:
+            text: "Multiple alignments"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+
 
     BoxLayout:
         size_hint_y: None
@@ -4101,7 +4119,7 @@
                 max: 100
                 step: 1
                 value: 50
-                disabled: False if gap_filter.active else True
+                disabled: False if gap_filter.active and among_chk.active else True
             Widget:
                 size_hint_x: None
                 width: 5
@@ -4110,7 +4128,7 @@
                 id: min_tx_ti
                 text: "{}".format(int(min_taxa.value))
                 multiline: False
-                disabled: False if gap_filter.active else True
+                disabled: False if gap_filter.active and among_chk.active else True
                 on_text_validate: if app.check_filters(self.text): val = app.check_filters(self.text)[1]; min_taxa.value = val; self.text = str(val)
             Widget:
                 size_hint_x: None
@@ -4131,7 +4149,7 @@
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
-            on_release: app.save_gapfilter(gap_filter.active, gap_sli.value, mis_sli.value, min_taxa.value)
+            on_release: app.save_gapfilter(gap_filter.active, within_chk.active, among_chk.active, gap_sli.value, mis_sli.value, min_taxa.value)
         TFOKButon:
             id: cancel_bt
             text: "Cancel"

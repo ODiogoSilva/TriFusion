@@ -79,7 +79,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.1.6"
+    __version__ = "0.1.7"
     __build__ = "050516"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -226,6 +226,7 @@ if __name__ == "__main__":
                                           ("taxa_filter", False),
                                           ("codon_filter", False),
                                           ("gap_filter", False),
+                                          ("minimum_taxa_filter", False),
                                           ("variation_filter", False),
                                           ("gcoder_file", False),
                                           ("consensus_file", False),
@@ -446,7 +447,7 @@ if __name__ == "__main__":
         # contain gap threshold as first element, missing data threshold as
         # second element and minimum taxa representation proportion as the third
         # element
-        missing_filter_settings = ListProperty([25, 50, 0])
+        missing_filter_settings = ListProperty([(True, 25, 50), (True, 0)])
         # Attribute storing the taxa filter settings. The first element of
         # the list should be the filter mode (either "Contain" or "Exclude")
         # and the second element should be a string with the name of the taxa
@@ -5123,7 +5124,7 @@ if __name__ == "__main__":
             self.output_formats = ["fasta"]
 
             # Clear filters, consensus, haplotype name and zorro suffix
-            self.missing_filter_settings = [25, 50, 0]
+            self.missing_filter_settings = [(True, 25, 50), (True, 0)]
             self.taxa_filter_settings = [None, None]
             self.codon_filter_settings = [True, True, True]
             self.hap_prefix = "Hap"
@@ -6423,22 +6424,33 @@ if __name__ == "__main__":
                 if None in self.ima2_options:
                     self.dialog_ima2_extra()
 
-        def save_gapfilter(self, filter_act, gap_val, mis_val, min_tx_val):
+        def save_gapfilter(self, filter_act, within_chk, among_chk, gap_val,
+                           mis_val, min_tx_val):
             """
             Stores the information of the FilterDialog
             :param filter_act: Boolean, whether the filter is active (True) or
             not (False)
+            :param within_chk: Boolean, whether the within alignment filter
+            is active (True) or not (False)
+            :param among_chk: Boolean, whether the multiple alignments filter
+            is active (True) or not (False)
             :param gap_val: integer, proportion of gap threshold
             :param mis_val: integer, proportion of missing data threshold
             :param min_tx_val: integer, proportion of minimum taxa
             representation
             """
 
+            if filter_act and not within_chk and not among_chk:
+                return self.dialog_floatcheck("Warning: No filters were "
+                    "checked. Specify at least one to active the filter.",
+                                              t="error")
+
             self.secondary_options["gap_filter"] = filter_act
 
             # Save only when the filter is set to active
             if filter_act:
-                self.missing_filter_settings = [gap_val, mis_val, min_tx_val]
+                self.missing_filter_settings = [(within_chk, gap_val, mis_val),
+                                                (among_chk, min_tx_val)]
 
             self.dismiss_popup()
 
@@ -6496,8 +6508,8 @@ if __name__ == "__main__":
             # Check if any parameter was checked. If not, issue warning and
             # do not close popup
             if not any([p[0] for p in pargs]) and filter_act:
-                return self.dialog_floatcheck("Warning: No parameters where "
-                    "checked. Specify at least one to activate the filter",
+                return self.dialog_floatcheck("Warning: No parameters were "
+                    "checked. Specify at least one to activate the filter.",
                                               t="error")
 
             # Check if all checked parameters have values. If not,
@@ -6505,7 +6517,7 @@ if __name__ == "__main__":
             for p in pargs:
                 if p[0] and not p[1]:
                     return self.dialog_floatcheck("Warning: Checked "
-                        "parameters must have values specified", t="error")
+                        "parameters must have values specified.", t="error")
 
             # Check for consistency between min and max values
             for i in range(0, len(pargs), 2):
@@ -6990,9 +7002,16 @@ if __name__ == "__main__":
             content = FilterDialog(cancel=self.dismiss_popup)
             # Update filter values if they were changed
             if self.missing_filter_settings:
-                content.ids.gap_sli.value = self.missing_filter_settings[0]
-                content.ids.mis_sli.value = self.missing_filter_settings[1]
-                content.ids.min_taxa.value = self.missing_filter_settings[2]
+                # For within alignment
+                content.ids.within_chk.active = \
+                    self.missing_filter_settings[0][0]
+                content.ids.gap_sli.value = self.missing_filter_settings[0][1]
+                content.ids.mis_sli.value = self.missing_filter_settings[0][2]
+
+                # For minimum taxa
+                content.ids.among_chk.active = \
+                    self.missing_filter_settings[1][0]
+                content.ids.min_taxa.value = self.missing_filter_settings[1][1]
 
             content.ids.gap_filter.active = self.secondary_options["gap_filter"]
 
