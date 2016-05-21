@@ -79,8 +79,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.0"
-    __build__ = "190516"
+    __version__ = "0.2.1"
+    __build__ = "210516"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -231,6 +231,12 @@ if __name__ == "__main__":
                                           ("gcoder_file", False),
                                           ("consensus_file", False),
                                           ("consensus_single", False),])
+
+        # Attribute that controls whether a file is to be overwritten or skipped
+        # For it to be active it must be a string with "overwrite" or "skip",
+        # otherwise it's ignored
+        file_overwrite = None
+        file_apply_all = False
 
         # Attributes for the Orthology screen widgets
         ortho_search_options = None
@@ -1945,7 +1951,7 @@ if __name__ == "__main__":
             except TypeError:
                 p = join(path, file_name + methods[idx][2])
 
-            if os.path.exists(p):
+            if os.path.exists(p) and idx != "main_output":
 
                 self.check_action(
                     "The file {} already exists. Overwrite?".format(file_name),
@@ -8673,31 +8679,23 @@ if __name__ == "__main__":
             func = partial(check_process, d)
             Clock.schedule_interval(func, .1)
 
+        def dialog_fileoverwrite(self, msg):
+            """
+            General dialog for querying whether an existing file should be
+            overwritten or skipped
+            """
+
+            content = FileOverwriteDialog(cancel=self.dismiss_popup)
+
+            content.ids.dlg_text.text = msg
+
+            self.show_popup(title="File already exists...", content=content,
+                            size=(450, 250))
+
         def process_exec(self):
             """
             Main function that executes all queued procedures of the process
             module
-
-            ORDER OF PROCESS EXECUTION:
-
-            1. Update active file set
-            2. Update active taxa set
-            [Filters]
-            3. Filter alignments by minimum taxa representation
-            4. Filter alignments according to taxa filter
-            5. Filter alignments according to alignment filter
-            6. Filter gaps and missing data
-            [Main operations - only one is executed]
-            7. Concatenation
-            8. Reverse concatenation
-            * If neither 7 nor 8 are selected, the default is Conversion
-            [Additional operations]
-            9. Collapse
-            10. Consensus
-            11. Gap coding
-            [Output generation]
-            12. Write main output to file(s)
-
             """
 
             def check_process(p, dt):
@@ -8707,9 +8705,37 @@ if __name__ == "__main__":
                 except AttributeError:
                     pass
 
+                # Checks for signal that the current file being processed
+                # already exists
+                try:
+                    if shared_ns.file_dialog:
+                        self.dialog_fileoverwrite("File %s already exists" %
+                            basename(shared_ns.file_dialog))
+                        # This will prevent the dialog from being
+                        # re-generated while the user chooses the option
+                        shared_ns.file_dialog = None
+                except AttributeError:
+                    pass
+
+                # Transmit to the subprocess the option of overwrite/skip
+                try:
+                    if self.file_overwrite:
+                        shared_ns.status = self.file_overwrite
+                        # If the user does not check the apply to all,
+                        # reset the file_overwrite attribute for the next file
+                        if not self.file_apply_all:
+                            self.file_overwrite = None
+                        else:
+                            shared_ns.apply_all = True
+                except AttributeError:
+                    pass
+
                 if not p.is_alive():
+                    # Resets file_apply_all and file_overwrite attributes
+                    self.file_apply_all = False
+                    self.file_overwrite = None
                     Clock.unschedule(check_func)
-                    self.dismiss_popup()
+                    self.dismiss_all_popups()
 
                     # If process execution ended with an error, issue warning.
                     try:
@@ -8738,6 +8764,9 @@ if __name__ == "__main__":
 
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
+
+            shared_ns.status = None
+            shared_ns.apply_all = False
 
             # Packing arguments to background process
             process_kwargs = {"aln_list": self.alignment_list,

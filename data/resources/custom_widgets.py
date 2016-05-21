@@ -580,6 +580,10 @@ class CrunchData(BoxLayout):
     pass
 
 
+class FileOverwriteDialog(BoxLayout):
+    cancel = ObjectProperty()
+
+
 class TFButton(Button):
 
     def __init__(self, **kwargs):
