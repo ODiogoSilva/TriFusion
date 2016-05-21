@@ -170,6 +170,55 @@
         text_size: self.size
         color: (0.216, 0.67, 0.784, 1)
 
+<FileOverwriteDialog>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 20
+
+    ScrollView:
+        Label:
+            id: dlg_text
+            bold: True
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        CheckBox:
+            size_hint_x: None
+            width: 30
+            id: dlg_chk
+        Label:
+            text: "Apply this option to all files"
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        TFOKButon:
+            id: ok_bt
+            text: "Overwrite"
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            on_release:
+                app.file_overwrite = "overwrite"
+                app.file_apply_all = True if dlg_chk.active else False
+                root.cancel()
+
+        TFOKButon:
+            text: "Skip"
+            id: cancel_bt
+            on_release:
+                app.file_overwrite = "skip"
+                app.file_apply_all = True if dlg_chk.active else False
+                root.cancel()
+
 <InputTextDialog>:
     orientation: "vertical"
     padding: 10

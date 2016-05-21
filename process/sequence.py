@@ -1185,7 +1185,7 @@ class Alignment(Base):
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None,
                       phy_truncate_names=False, ld_hat=None,
-                      use_nexus_models=True):
+                      use_nexus_models=True, ns_pipe=None):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -1242,6 +1242,12 @@ class Alignment(Base):
         :param ld_hat: Boolean: If not None, the Fasta output format will
         include a first line compliant with the format of LD Hat and will
         truncate sequence names and sequence lenght per line accordingly.
+
+        :param ns_pipe: To connect with the app for file overwrite issues,
+        provide the NameSpace object.
+
+        :param file_status: list, with two list items. First is files to be
+        written, second is files to be skipped
         """
 
         # If this function is called in the AlignmentList class, there may
@@ -1272,16 +1278,33 @@ class Alignment(Base):
                       "nexus": ".nex",
                       "fasta": ".fas"}
 
-        # Check if any output file already exist. If so, add a _conv suffix
-        # to all extensions
-        conv_label = False
+        # Check if any output file already exist. If so, issue a warning
+        # through the app or terminal pipes
         for f in output_format:
-            if os.path.exists(output_file + format_ext[f]):
-                conv_label = True
+            fname = output_file + format_ext[f]
+            if os.path.exists(fname):
 
-        if conv_label:
-            for k, v in format_ext.items():
-                format_ext[k] = "_conv" + v
+                # File exists issue warning through appropriate pipe
+                if ns_pipe:
+                    if not ns_pipe.apply_all:
+                        ns_pipe.file_dialog = fname
+                        while not ns_pipe.status:
+                            pass
+
+                # When the dialog has been close, check if file is to be
+                # skipped or overwritten
+                if ns_pipe:
+                    if ns_pipe.status == "skip":
+                        # Skip file
+                        return
+
+        # Reset pipes, if any
+        if ns_pipe:
+            ns_pipe.status = None
+
+        # if conv_label:
+        #     for k, v in format_ext.items():
+        #         format_ext[k] = "_conv" + v
 
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
@@ -2486,7 +2509,7 @@ class AlignmentList(Base):
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
                       use_charset=True, phy_truncate_names=False, ld_hat=None,
-                      ima2_params=None, use_nexus_models=True):
+                      ima2_params=None, use_nexus_models=True, ns_pipe=None):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -2537,7 +2560,8 @@ class AlignmentList(Base):
                                         phy_truncate_names=phy_truncate_names,
                                         ld_hat=ld_hat,
                                         ima2_params=ima2_params,
-                                        use_nexus_models=use_nexus_models)
+                                        use_nexus_models=use_nexus_models,
+                                        ns_pipe=ns_pipe)
 
     # Stats methods
     def gene_occupancy(self):

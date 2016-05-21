@@ -1,3 +1,8 @@
+### Upcoming release
+
+[Improvements]
+Added a general file checking system for main process output
+
 ### v0.2.0
 
 [Improvements]

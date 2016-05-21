@@ -365,7 +365,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat,
                 ima2_params=ima2_params,
-                use_nexus_models=use_nexus_models)
+                use_nexus_models=use_nexus_models,
+                ns_pipe=ns)
         elif isinstance(aln, AlignmentList):
             aln.write_to_file(
                 output_formats,
@@ -377,7 +378,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 phy_truncate_names=phylip_truncate_name,
                 ld_hat=ld_hat,
                 ima2_params=ima2_params,
-                use_nexus_models=use_nexus_models)
+                use_nexus_models=use_nexus_models,
+                ns_pipe=ns)
 
     try:
         ns.msg = "Setting active data sets"
