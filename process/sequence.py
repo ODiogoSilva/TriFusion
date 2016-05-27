@@ -258,7 +258,8 @@ class Alignment(Base):
         self.path = None
 
         # If the object is initialized with a string
-        if isinstance(input_alignment, str) or isinstance(input_alignment, unicode):
+        if isinstance(input_alignment, str) or isinstance(input_alignment,
+                                                          unicode):
 
             """
             Sets the alignment object name based on the input alignment file
@@ -465,11 +466,6 @@ class Alignment(Base):
                     taxa = line.split()[0].replace(" ", "")
                     taxa = self.rm_illegal(taxa)
 
-                    # Create temporary directory to store sequences for the
-                    # current alignment object
-                    if not os.path.exists(join(self.dest, self.sname)):
-                        os.makedirs(join(self.dest, self.sname))
-
                     self.alignment[taxa] = join(self.dest, self.sname,
                                                 taxa + ".seq")
                     try:
@@ -611,6 +607,50 @@ class Alignment(Base):
             if self.partitions.partitions == OrderedDict():
                 self.partitions.add_partition(self.name, self.locus_length,
                                               file_name=self.path)
+
+        # ======================================================================
+        # PARSING Stockholm FORMAT
+        # ======================================================================
+        elif alignment_format == "stockholm":
+
+            # Skip first header line
+            next(file_handle)
+
+            for line in file_handle:
+                # Skip header and comments
+                if line.startswith("#"):
+                    pass
+                # End of file
+                elif line.strip() == "//":
+                    break
+                # Parse sequence data
+                elif line.strip() != "":
+
+                    taxa = line.split()[0].split("/")[0]
+                    taxa = self.rm_illegal(taxa)
+
+                    self.alignment[taxa] = join(self.dest, self.sname,
+                                                taxa + ".seq")
+
+                    try:
+                        sequence = line.split()[1].strip().lower()
+                    except IndexError:
+                        sequence = ""
+
+                    print(join(self.dest, self.sname))
+
+                    with open(self.alignment[taxa], "w") as fh:
+                        print(sequence)
+                        fh.write(sequence)
+
+            with open(self.alignment[taxa]) as fh:
+                self.locus_length = len("".join(fh.readlines()))
+
+            self.partitions.set_length(self.locus_length)
+
+            # Updating partitions object
+            self.partitions.add_partition(self.name, self.locus_length,
+                                          file_name=self.path)
 
         file_handle.close()
 

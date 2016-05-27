@@ -54,6 +54,7 @@ iupac_rev = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
              "b": "cgt", "n": "acgt", "h": "act", "y": "ct", "w": "at",
              "k": "gt"}
 
+
 def merger(ranges):
     """
     Generator that merges ranges in a list of tuples. For example,
@@ -103,6 +104,17 @@ class Base:
                 if line.strip().lower() == "matrix":
                     next_line = file_handle.readline()
                     sequence = "".join(next_line.split()[1:]).strip()
+                    break
+
+        # Recognition of Stockhold files is based on the existence of the
+        # string "# stockholm" in the first non-empty line (case insensitive)
+        elif header.upper().strip().startswith("# STOCKHOLM") or \
+                header.upper().strip().startswith("#STOCKHOLM"):
+            autofind = "stockholm"
+            while True:
+                line = file_handle.readline()
+                if not line.startswith("#") and line.strip() != "":
+                    sequence = line.split()[1]
                     break
 
         # Recognition of FASTA or .loci files is based on the existence of a ">"
