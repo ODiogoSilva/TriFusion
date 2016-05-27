@@ -1553,7 +1553,7 @@ class Alignment(Base):
 
             out_file.close()
 
-        if "mcmctree" in output_format or "gphocs" in output_format:
+        if "mcmctree" in output_format:
 
             out_file = open(output_file + format_ext["mcmctree"], "w")
             taxa_number = len(self.alignment)
