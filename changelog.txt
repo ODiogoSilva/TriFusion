@@ -2,6 +2,8 @@
 
 [Improvements]
 Added a general file checking system for main process output
+Added support for Stockholm input and output formats
+Added support for GPhoCS output format
 
 ### v0.2.0
 
