@@ -6837,7 +6837,7 @@ if __name__ == "__main__":
 
             # Show popup
             self.show_popup(title="Choose output format", content=content,
-                            size=(300, 400))
+                            size=(300, 450))
 
         def dialog_reverse_inlist(self):
 

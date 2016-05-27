@@ -640,7 +640,6 @@ class Alignment(Base):
                     print(join(self.dest, self.sname))
 
                     with open(self.alignment[taxa], "w") as fh:
-                        print(sequence)
                         fh.write(sequence)
 
             with open(self.alignment[taxa]) as fh:
@@ -1316,7 +1315,8 @@ class Alignment(Base):
                       "mcmctree": "_mcmctree.phy",
                       "phylip": ".phy",
                       "nexus": ".nex",
-                      "fasta": ".fas"}
+                      "fasta": ".fas",
+                      "stockholm": ".stockholm"}
 
         # Check if any output file already exist. If so, issue a warning
         # through the app or terminal pipes
@@ -1481,11 +1481,11 @@ class Alignment(Base):
                         counter = i
             else:
                 for key, f in alignment.items():
-                        with open(f) as fh:
-                            seq = "".join(fh.readlines())
-                        out_file.write("%s %s\n" % (
-                            key[:cut_space_phy].ljust(seq_space_phy),
-                            seq.upper()))
+                    with open(f) as fh:
+                        seq = "".join(fh.readlines())
+                    out_file.write("%s %s\n" % (
+                        key[:cut_space_phy].ljust(seq_space_phy),
+                        seq.upper()))
 
             # In case there is a concatenated alignment being written
             if not self.partitions.is_single() and partition_file:
@@ -1503,6 +1503,20 @@ class Alignment(Base):
                                                    lrange[0]])))
                 partition_file.close()
 
+            out_file.close()
+
+        if "stockholm" in output_format:
+
+            out_file = open(output_file + format_ext["stockholm"], "w")
+
+            out_file.write("# STOCKHOLM V1.0\n")
+
+            for k, f in alignment.items():
+                with open(f) as fh:
+                    seq = "".join(fh.readlines())
+                out_file.write("%s\t%s\n" % (k, seq))
+
+            out_file.write("//\n")
             out_file.close()
 
         if "mcmctree" in output_format:
