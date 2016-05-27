@@ -1316,7 +1316,8 @@ class Alignment(Base):
                       "phylip": ".phy",
                       "nexus": ".nex",
                       "fasta": ".fas",
-                      "stockholm": ".stockholm"}
+                      "stockholm": ".stockholm",
+                      "gphocs": ".txt"}
 
         # Check if any output file already exist. If so, issue a warning
         # through the app or terminal pipes
@@ -1519,7 +1520,40 @@ class Alignment(Base):
             out_file.write("//\n")
             out_file.close()
 
-        if "mcmctree" in output_format:
+        if "gphocs" in output_format:
+
+            out_file = open(output_file + format_ext["gphocs"], "w")
+
+            # Write number of loci
+            out_file.write("%s\n" % (len(self.partitions.partitions)))
+
+            if not self.partitions.is_single():
+                for name, lrange in self.partitions.partitions.items():
+                    lrange = lrange[0]
+                    out_file.write("%s %s %s\n" % (name, len(self.alignment),
+                                                 lrange[1] - lrange[0]))
+                    for taxon, f in alignment.items():
+
+                        with open(f) as fh:
+                            seq = "".join(fh.readlines())
+
+                        out_file.write("%s\t%s\n" % (taxon,
+                                                     seq[lrange[0]:lrange[1]]))
+
+            else:
+                out_file.write("%s %s %s\n" % (self.sname,
+                                               len(self.alignment),
+                                               self.locus_length))
+
+                for taxon, f in alignment.items():
+                    with open(f) as fh:
+                        seq = "".join(fh.readlines())
+
+                    out_file.write("%s\t%s\n" % (taxon, seq))
+
+            out_file.close()
+
+        if "mcmctree" in output_format or "gphocs" in output_format:
 
             out_file = open(output_file + format_ext["mcmctree"], "w")
             taxa_number = len(self.alignment)
