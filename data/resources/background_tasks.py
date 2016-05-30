@@ -12,6 +12,9 @@ import os
 import shutil
 import cPickle as pickle
 
+import os
+os.environ["KIVY_NO_ARGS"] = "1"
+
 """
 Tasks that are executed in a background process are placed here and called
 from the App class in TriFusion.py. The reason for this is that

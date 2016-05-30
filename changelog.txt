@@ -4,6 +4,7 @@
 Added a general file checking system for main process output
 Added support for Stockholm input and output formats
 Added support for GPhoCS output format
+Added support for automatic file loading via command line arguments when launching the app
 
 ### v0.2.0
 
