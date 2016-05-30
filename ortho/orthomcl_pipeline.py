@@ -33,24 +33,26 @@ import ortho.orthomclFilterFasta as FilterFasta
 import ortho.orthomclBlastParser as BlastParser
 import ortho.orthomclMclToGroups as MclGroups
 
-parser = argparse.ArgumentParser(description="Pipeline for the OrthoMCL "
-                                 "software")
-parser.add_argument("-in", dest="infile", type=str, help="Provide the path to "
-                    "the directory containing the proteome files")
-parser.add_argument("-a", action="store_const", const=True, dest="adjust",
-                    help="Run only the adjust_fasta program")
-parser.add_argument("-na", action="store_const", const=True, dest="no_adjust",
-                    help="Do not run only the adjust_fasta program")
-parser.add_argument("-c", action="store_const", const=True, dest="code",
-                    help="The proteome file names are already in "
-                    "code (e.g. Homo_sapiens.fas -> HoSap.fas). Not advisable"
-                    " because it will overwrite the originals!")
-parser.add_argument("-p", action="store_const", const=True, dest="check",
-                    help="Checks for duplicates and other potential errors")
-parser.add_argument("-n", action="store_const", const=True, dest="normal",
-                    help="Normal run of the pipeline")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Pipeline for the OrthoMCL "
+                                     "software")
+    parser.add_argument("-in", dest="infile", type=str, help="Provide the path "
+                        "to the directory containing the proteome files")
+    parser.add_argument("-a", action="store_const", const=True, dest="adjust",
+                        help="Run only the adjust_fasta program")
+    parser.add_argument("-na", action="store_const", const=True,
+                        dest="no_adjust",
+                        help="Do not run only the adjust_fasta program")
+    parser.add_argument("-c", action="store_const", const=True, dest="code",
+                        help="The proteome file names are already in "
+                        "code (e.g. Homo_sapiens.fas -> HoSap.fas). Not "
+                        "advisable because it will overwrite the originals!")
+    parser.add_argument("-p", action="store_const", const=True, dest="check",
+                        help="Checks for duplicates and other potential errors")
+    parser.add_argument("-n", action="store_const", const=True, dest="normal",
+                        help="Normal run of the pipeline")
 
-arg = parser.parse_args()
+    arg = parser.parse_args()
 
 ## PARAMETER DEFINITIONS ##
 

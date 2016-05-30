@@ -30,16 +30,19 @@ if __name__ == "__main__":
     import subprocess
     import psutil
     import pickle
-    import shutil
     import urllib
     import string
     import time
+    import sys
     import os
     from os import sep
 
     # freeze_support must be called here so that multiprocessing work
     # correctly on windows
     multiprocessing.freeze_support()
+
+    # Bypass default argument handling from kivy
+    os.environ["KIVY_NO_ARGS"] = "1"
 
     # Kivy imports
     from kivy.config import Config
@@ -79,8 +82,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.3"
-    __build__ = "270516"
+    __version__ = "0.2.4"
+    __build__ = "300516"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -581,6 +584,12 @@ if __name__ == "__main__":
 
             self._start_clean()
 
+            # If arguments were provided at the command line, load data into
+            # the app assuming they are alignments
+            if sys.argv[1:]:
+                Clock.schedule_once(
+                    lambda dt: self.load_files_startup(sys.argv[1:]), .5)
+
             """
             ------------------------ METHOD NOMENCLATURE GUIDE -----------------
 
@@ -692,6 +701,23 @@ if __name__ == "__main__":
                     os.remove(join(self.temp_dir, i))
                 except OSError:
                     shutil.rmtree(join(self.temp_dir, i))
+
+        def load_files_startup(self, file_list):
+            """
+            Gives support for loading data into the app when launching the
+            app via command line and providing the files as arguments. Issues
+            the same dialog as the load_files_dragndrop to let the user
+            choose whether the input files are alignments or proteomes
+            :param file_list: list, with file paths as strings or unicode
+            """
+
+            content = InputType(cancel=self.dismiss_popup)
+            content.files = file_list
+
+            self.show_popup(title="", content=content,
+                            size=(350, 160),
+                            separator_color=(0, 0, 0, 0),
+                            close_bt=True)
 
         def load_files_dragndrop(self, *args):
             """
@@ -8176,6 +8202,7 @@ if __name__ == "__main__":
             # entries in files will be checked if they are directories. If so,
             # all files in that directory will be appended to file_list instead
             file_list = []
+            print(files)
             for i in files:
                 if os.path.isdir(i):
                     file_list.extend([join(i, x) for x in
