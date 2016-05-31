@@ -7,6 +7,7 @@ Added support for GPhoCS output format
 Added support for automatic file loading via command line arguments when launching the app
 Added full support for TriSeq.py, the command line version of the Process module
 Added full support for orthomcl_pipeline.py, the command line version of the Orthology search module
+Added full support for TriStats.py, the command line version of the Statistics module
 
 ### v0.2.0
 

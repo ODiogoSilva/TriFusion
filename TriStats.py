@@ -18,93 +18,221 @@
 #  MA 02110-1301, USA.
 
 
+import time
 import argparse
-from stats import stats
-from base import html_creator
+import configparser
+from process.sequence import *
+from base.plotter import *
+from TriSeq import CleanUp
+from process.base import print_col, GREEN, RED, YELLOW
 
-parser = argparse.ArgumentParser(description="Filters alignment files and "
-                                 "creates statistics and graphics for "
-                                 "alignments")
-parser.add_argument("-in", dest="infile", nargs="+", required=True,
-                    help="Provide the input files")
-parser.add_argument("-o", dest="project_name", required=True,
-                    help="Provide a name for the project")
+if __name__ == "__main__":
 
-modes = parser.add_argument_group("Report options")
-modes.add_argument("-f", dest="full_report", action="store_const", const=True,
-                   help="Generate full report")
-modes.add_argument("-m", dest="mode", choices=["1", "2", "2a", "2b", "3", "all"]
-                   , help="Specify which report(s): "
-                   "\n\t\t1: Basic phylogenetic statistics;"
-                   "\n\t\t2: Species specific missing data plot and table;"
-                   "\n\t\t2a: Species specific missing data "
-                   "plot;"
-                   "\n\t\t2b: Species specific missing data table phylogenetic "
-                   "information"
-                   "\n\t\t3: Information on average gene length per species")
+    parser = argparse.ArgumentParser(description="Command line interface for "
+                                     "TriFusion Statistics module")
 
-arg = parser.parse_args()
+    # Main execution
+    main_exec = parser.add_argument_group("Main execution")
+    main_exec.add_argument("-in", dest="infile", nargs="+",
+                           help="Provide the input files.")
+    main_exec.add_argument("-o", dest="project_name",
+                           help="Name of the output directory")
+    main_exec.add_argument("-cfg", dest="config_file",
+                           help="Name of the configuration file with the "
+                           "statistical analyses to be executed")
+    main_exec.add_argument("--generate-cfg", dest="generate_cfg",
+                           action="store_const", const=True,
+                           help="Generates a configuration template file")
+
+    arg = parser.parse_args()
 
 
+def generate_cfg_template():
+
+    template_fh = open("stats_template.ini", "w")
+
+    template_fh.write("""
+# Configuration template file for statistical analyses that can be passed to
+# TriStats.py using the -cfg option. Section and option names mimic the names
+# Present in the Statistics side panel.
+
+# For each option, three values are possible but not necessarily all used.
+# The allowed values are provided above each option.
+# The values are:
+#   - species: Creates a plot focusing on the taxa
+#   - average: Creates a plot that averages over all alignments
+#   - gene: Creates a plot for a single gene. Can only be used with single
+#           input files
+
+[General Information]
+# Options available: species average
+distribution_sequence_size: species average
+# Options available: species average
+proportion_nucleotides_residues: species average Ai
+# Options available: average
+distribution_taxa_frequency: average
+
+[Polymorphism and Variation]
+# Options available: gene species average
+sequence_similarity: species average
+# Options available: gene species average
+segregating_sites: species average
+# Options available: average
+alignment_pol_correlation: average
+
+[Missing Data]
+# Options available: average
+gene_occupancy: average
+# Options available: species average
+distribution_missing_genes: species average
+# Options available: species average
+distribution_missing_data: species average
+
+[Outlier Detection]
+# Options available: species average
+missing_data_outliers: species average
+# Options available: species average
+segregating_sites_outliers: species average
+    """)
+
+    template_fh.close()
+
+
+@CleanUp
 def main():
 
+    print_col("Executing TriStats module at %s %s" % (
+        time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN, 2)
+
+    if arg.generate_cfg:
+        print_col("Generating configuration template file", GREEN, 2)
+        return generate_cfg_template()
+
     # Arguments
-    input_list = arg.infile
-    project = arg.project_name
+    input_files = arg.infile
+    output_dir = arg.project_name
+    config_file = arg.config_file
 
-    # Determine the mode
-    if arg.full_report:
-        mode = "all"
-    else:
-        mode = arg.mode
+    print_col("Reading configuration file", GREEN, 2)
+    settings = configparser.ConfigParser()
+    settings.read(config_file)
 
-    # Initialize report and html creator instances
-    report = stats.MultiReport(input_list)
-    html_instance = html_creator.HtmlTemplate()
-    html_instance.add_title(project)
+    # Parse alignments
+    print_col("Parsing %s alignments" % len(input_files), GREEN, 2)
+    alignments = AlignmentList(input_files, dest=".tmp/")
 
-    if "1" in mode or "all" in mode:
+    # Create output dir
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-        # Defining output file name based on project
-        file_name = "%s_basic_table.csv" % project
+    func_map = {
+        ("General Information", "distribution_sequence_size", "species"):
+            [alignments.average_seqsize_per_species,
+             (box_plot, "avg_seqsize_species.png")],
 
-        report.report_table(file_name)
+        ("General Information", "distribution_sequence_size", "average"):
+            [alignments.average_seqsize,
+             (histogram_plot, "avg_seqsize.png")],
 
-    if "2a" in mode or "2" in mode or "all" in mode:
+        ("General Information", "proportion_nucleotides_residues", "species"):
+            [alignments.characters_proportion_per_species,
+             (stacked_bar_plot, "char_proportions_sp.png")],
 
-        # Defining output file name based on project
-        file_name = "%s_species_missing_data.svg" % project
+        ("General Information", "proportion_nucleotides_residues", "average"):
+            [alignments.characters_proportion,
+             (bar_plot, "char_proportions.png")],
 
-        plot_object = report.species_missing_data(file_name, plot=True)
-        plot_object.render_to_file(file_name)
+        ("General Information", "distribution_taxa_frequency", "average"):
+            [alignments.taxa_distribution,
+             (histogram_plot, "distribution_taxa_frequency.png")],
 
-        # Adding plot to html template object
-        html_instance.add_single_plot("Species specific missing data",
-                                      file_name, heading_level=3)
+        ("Polymorphism and Variation", "sequence_similarity", "species"):
+            [alignments.sequence_similarity_per_species,
+             (triangular_heat, "similarity_distribution_sp.png")],
 
-    if "2b" in mode or "2" in mode or "all" in mode:
+        ("Polymorphism and Variation", "sequence_similarity", "average"):
+            [alignments.sequence_similarity,
+             (histogram_plot, "similarity_distribution.png")],
 
-        # Defining output file name based on project
-        file_name = "%s_species_missing_data.csv" % project
+        ("Polymorphism and Variation", "sequence_similarity", "gene"):
+            [alignments.sequence_similarity_gene,
+             (sliding_window, "similarity_distribution_gn.png")],
 
-        report.species_missing_data(table=True, output_file=file_name)
+        ("Polymorphism and Variation", "segregating_sites", "species"):
+            [alignments.sequence_segregation_per_species,
+             (triangular_heat, "segregating_sites_sp.png")],
 
-    if "3" in mode or "all" in mode:
+        ("Polymorphism and Variation", "segregating_sites", "average"):
+            [alignments.sequence_segregation,
+             (histogram_plot, "segregating_sites.png")],
 
-        # Defining output file name based on project
-        file_name = "%s_species_gene_length" % project
+        ("Polymorphism and Variation", "segregating_sites", "gene"):
+            [alignments.sequence_segregation_gene,
+             (sliding_window, "segregating_sites_gn.png")],
 
-        gene_length_plot = report.species_gene_length(file_name + ".csv",
-                                                      table=True, plot=True)
-        gene_length_plot.render_to_file(file_name + ".svg")
+        ("Polymorphism and Variation", "alignment_pol_correlation", "average"):
+            [alignments.length_polymorphism_correlation,
+             (scatter_plot, "length_polymorphism_correlation.png")],
 
-        # Adding plot to html template object
-        html_instance.add_single_plot("Average gene length per species",
-                                      file_name + ".svg", heading_level=3)
+        ("Missing Data", "gene_occupancy", "average"):
+            [alignments.gene_occupancy,
+             (interpolation_plot, "gene_occupancy.png")],
 
-    # Finally, write the html file
-    html_instance.write_file(project + "_report")
+        ("Missing Data", "distribution_missing_genes", "species"):
+            [alignments.missing_genes_per_species,
+             (bar_plot, "missing_gene_distribution.png")],
 
+        ("Missing Data", "distribution_missing_genes", "average"):
+            [alignments.missing_genes_average,
+             (histogram_plot, "missing_gene_distribution_avg.png")],
+
+        ("Missing Data", "distribution_missing_data", "species"):
+            [alignments.missing_data_per_species,
+             (stacked_bar_plot, "missing_data_distribution_sp.png")],
+
+        ("Missing Data", "distribution_missing_data", "average"):
+            [alignments.missing_data_distribution,
+             (histogram_smooth, "missing_data_distribution.png")],
+
+        ("Outlier Detection", "missing_data_outliers", "species"):
+            [alignments.outlier_missing_data_sp,
+             (outlier_densisty_dist, "Missing_data_outliers_sp.png")],
+
+        ("Outlier Detection", "missing_data_outliers", "average"):
+            [alignments.outlier_missing_data,
+             (outlier_densisty_dist, "Missing_data_outliers.png")],
+
+        ("Outlier Detection", "segregating_sites_outliers", "species"):
+            [alignments.outlier_segregating_sp,
+             (outlier_densisty_dist, "Segregating_sites_outliers_sp.png")],
+
+        ("Outlier Detection", "segregating_sites_outliers", "average"):
+            [alignments.outlier_segregating,
+             (outlier_densisty_dist, "Segregating_sites_outliers.png")]
+    }
+
+    print_col("Parsing configuation file options", GREEN, 2)
+    for section in settings.sections():
+        for option, val in settings.items(section):
+            for i in val.split():
+
+                if (section, option, i) in func_map:
+                    print_col("Generating plot for option: %s - %s - %s" %
+                              (section, option, i), GREEN, 2)
+                    funcs = func_map[(section, option, i)]
+                    plot_data = funcs[0]()
+                    plot_obj, _, lgd = funcs[1][0](
+                        **plot_data)
+                    plot_obj.tight_layout()
+
+                    if lgd:
+                        plot_obj.savefig(join(output_dir, funcs[1][1]),
+                                         bbox_extra_artists=(lgd,), dpi=200)
+                    else:
+                        plot_obj.savefig(join(output_dir, funcs[1][1]), dpi=200)
+                else:
+                    print_col("Invald option: %s - %s - %s. Skipping." %
+                              (section, option, i), YELLOW, 2)
 
 if __name__ == '__main__':
     main()

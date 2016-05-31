@@ -40,6 +40,7 @@ Assuming python is already installed, the following libraries are required:
 - `numpy` (included in Anaconda)
 - `psutil` (included in Anaconda)
 - `scipy` (included in Anaconda)
+- `configparser`
 - `seaborn`
 
 These can be easily installed using `pip`:
