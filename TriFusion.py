@@ -82,7 +82,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.5"
+    __version__ = "0.2.6"
     __build__ = "310516"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -8683,7 +8683,8 @@ if __name__ == "__main__":
                     self.orto_max_gene,
                     self.orto_min_sp,
                     self.sqldb,
-                    self.ortho_dir))
+                    self.ortho_dir,
+                    self.usearch_db))
             # This will make the process run in the background so that the app
             # doesn't freeze
             d.daemon = True
