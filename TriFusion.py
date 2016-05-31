@@ -2358,7 +2358,7 @@ if __name__ == "__main__":
             content.build = __build__
 
             self.show_popup(title="About TriFusion", content=content,
-                            close_bt=True, size=(350, 340))
+                            close_bt=True, size=(400, 370))
 
         def sidepanel_on_touch(self, touch):
             """
