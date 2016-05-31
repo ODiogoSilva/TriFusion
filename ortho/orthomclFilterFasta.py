@@ -4,7 +4,7 @@ import os
 import re
 
 
-def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent):
+def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent, db):
 
     def handle_seq(seq, length, stop_cnt):
         is_bad = 0
@@ -18,8 +18,8 @@ def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent):
 
         return is_bad
 
-    good = open(os.path.join(os.getcwd(), "goodProteins.fasta"), "w")
-    bad = open(os.path.join(os.getcwd(), "poorProteins.fasta"), "w")
+    good = open(os.path.join(os.getcwd(), db), "w")
+    bad = open(os.path.join(os.getcwd(), db), "w")
 
     filenames = [os.path.join(input_dir, x) for x in os.listdir(input_dir)]
 

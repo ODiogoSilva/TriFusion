@@ -16,26 +16,17 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
-#  Author: Diogo N. Silva
-#  Version: 0.1.1.0
-#  Last update: 25/02/14
 
 import os
-import sys
 import shutil
 import time
 import argparse
 import traceback
-from process.base import has_colours
+from process.base import print_col, RED, GREEN, YELLOW
 from process import sequence as seqset
 from process import data
 from process.error_handling import *
 
-
-# Support for terminal colors
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
-has_colours = has_colours(sys.stdout)
 
 if __name__ == "__main__":
 
@@ -233,22 +224,10 @@ class CleanUp(object):
             shutil.rmtree(".tmp")
 
 
-def print_col(text, color):
-    suf = {GREEN: "[TriSeq] ", YELLOW: "[TriSeq-Warning] ",
-           RED: "[TriSeq-Error] "}
-    if has_colours:
-        seq = "\x1b[1;%dm" % (30 + color) + suf[color] + "\x1b[0m" + text
-        print(seq)
-    else:
-        print(text)
-
-    if color is RED:
-        raise SystemExit
-
-
 @CleanUp
 def main_parser(alignment_list):
     """ Function with the main operations of TriSeq """
+
     print_col("Executing TriSeq module at %s %s" % (
         time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN)
 
@@ -459,8 +438,8 @@ def main():
     main_check()
     main_parser(arg.infile)
 
-
-main()
+if __name__ == "__main__":
+    main()
 
 
 __author__ = "Diogo N. Silva"

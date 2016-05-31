@@ -100,7 +100,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
                    protein_max_stop, cur_dir, usearch_evalue,
                    usearch_threads, usearch_output, mcl_inflation,
                    ortholog_prefix, group_prefix, orto_max_gene,
-                   orto_min_sp, sqldb, ortho_dir):
+                   orto_min_sp, sqldb, ortho_dir, usearch_db):
     """
     Executes all pipeline subprocesses sequentially and updates the
     Progess dialog label
@@ -119,8 +119,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             nm.t = "Filtering Fasta Files"
             nm.c = 3
             ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
-                                    bin_path=join(cur_dir, "ortho",
-                                                  "orthomclFilterFasta"))
+                                    usearch_db)
         if nm.k:
             nm.t = "Running USearch. This may take a while..."
             nm.c = 4

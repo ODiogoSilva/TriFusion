@@ -90,6 +90,25 @@ def has_colours(stream):
         # guess false in case of error
         return False
 
+# Support for terminal colors
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+has_colours = has_colours(sys.stdout)
+
+
+def print_col(text, color, i=0):
+    p = ["TriSeq", "OrthoMCl Pipeline"]
+    suf = {GREEN: "[%s] " % p[i], YELLOW: "[%s-Warning] " % p[i],
+           RED: "[%s-Error] " % p[i]}
+    if has_colours:
+        seq = "\x1b[1;%dm" % (30 + color) + suf[color] + "\x1b[0m" + text
+        print(seq)
+    else:
+        print(text)
+
+    if color is RED:
+        raise SystemExit
+
+
 class Base:
 
     def autofinder(self, reference_file):
