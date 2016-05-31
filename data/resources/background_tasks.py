@@ -1,7 +1,7 @@
 from process import data
 from process.error_handling import *
 from process.sequence import AlignmentList, Alignment
-from ortho import orthomcl_pipeline as ortho_pipe
+import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
 
 from os.path import join, basename
