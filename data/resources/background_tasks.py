@@ -257,7 +257,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Check if a minimum taxa representation was specified
         if secondary_options["gap_filter"]:
             if missing_filter_settings[1][0]:
-                print("taxa")
                 aln.filter_min_taxa(missing_filter_settings[1][1])
 
         # Filter by taxa
@@ -273,7 +272,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Filter missing data
         if secondary_options["gap_filter"]:
             if missing_filter_settings[0][0]:
-                print("gap")
                 aln.filter_missing_data(missing_filter_settings[0][1],
                                         missing_filter_settings[0][2])
 

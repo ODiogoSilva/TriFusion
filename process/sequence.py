@@ -2178,8 +2178,8 @@ class AlignmentList(Base):
         # files are not overwritten. If dest is not provided, temp files will
         # be created on the current working directory
         if dest and alignment_name:
-            if not os.path.exists(join(dest, alignment_name)):
-                os.makedirs(join(dest, alignment_name))
+            if not os.path.exists(join(dest, alignment_name + "_conc")):
+                os.makedirs(join(dest, alignment_name + "_conc"))
         else:
             dest = "./"
 
@@ -2190,8 +2190,8 @@ class AlignmentList(Base):
         # Initializing alignment dict to store the alignment information
         if alignment_name:
             concatenation = OrderedDict(
-                [(key, join(dest, alignment_name, key + ".seq")) for key in
-                 self.taxa_names])
+                [(key, join(dest, alignment_name + "_conc", key + ".seq")) for
+                    key in self.taxa_names])
         else:
             concatenation = OrderedDict(
                 [(key, join(dest, key + ".seq")) for key in self.taxa_names])
@@ -2282,6 +2282,14 @@ class AlignmentList(Base):
         """
 
         self.filtered_alignments["By taxa"] = 0
+
+        # Support automatic file detection if taxa_list is a string
+        if isinstance(taxa_list, str):
+            try:
+                file_handle = open(taxa_list)
+                taxa_list = self.read_basic_csv(file_handle)
+            except IOError:
+                pass
 
         for k, alignment_obj in list(self.alignments.items()):
 

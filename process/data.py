@@ -181,6 +181,8 @@ class Partitions():
         """
         self.counter = 0
 
+        self.partition_format = None
+
     def __iter__(self):
         """
         The class iterator will iterate over a list containing the partition
@@ -799,32 +801,32 @@ class Partitions():
                 self.models[p][1] = models
                 self.models[p][2] = links
 
-    # def write_to_file(self, output_format, output_file, model="LG"):
-    #     """ Writes the Partitions object into an output file according to the
-    #      output_format. The supported output formats are RAxML and Nexus.
-    #      9The model option is for the RAxML format """
-    #
-    #     if output_format == "raxml":
-    #         outfile_handle = open(output_file + ".part.File", "w")
-    #         for part in self.partitions:
-    #             partition_name = part[0]
-    #             partition_range = "-".join([x for x in part[1]])
-    #             outfile_handle.write("%s, %s = %s\n" % (model,
-    #                                                     partition_name,
-    #                                                     partition_range))
-    #
-    #         outfile_handle.close()
-    #
-    #     elif output_format == "nexus":
-    #         outfile_handle = open(output_file + ".charset", "w")
-    #         for part in self.partitions:
-    #             outfile_handle.write("charset %s = %s;\n" % (
-    #                                  part[1],
-    #                                  "-".join(part[2])))
-    #
-    #         outfile_handle.close()
-    #
-    #     return 0
+    def write_to_file(self, output_format, output_file, model="LG"):
+        """ Writes the Partitions object into an output file according to the
+         output_format. The supported output formats are RAxML and Nexus.
+         9The model option is for the RAxML format """
+
+        if output_format == "raxml":
+            outfile_handle = open(output_file + ".part.File", "w")
+            for part in self.partitions:
+                partition_name = part[0]
+                partition_range = "-".join([x for x in part[1]])
+                outfile_handle.write("%s, %s = %s\n" % (model,
+                                                        partition_name,
+                                                        partition_range))
+
+            outfile_handle.close()
+
+        elif output_format == "nexus":
+            outfile_handle = open(output_file + ".charset", "w")
+            for part in self.partitions:
+                outfile_handle.write("charset %s = %s;\n" % (
+                                     part[1],
+                                     "-".join(part[2])))
+
+            outfile_handle.close()
+
+        return 0
 
 
 class Zorro ():
