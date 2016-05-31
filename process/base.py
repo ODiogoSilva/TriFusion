@@ -96,7 +96,7 @@ has_colours = has_colours(sys.stdout)
 
 
 def print_col(text, color, i=0):
-    p = ["TriSeq", "OrthoMCl Pipeline"]
+    p = ["TriSeq", "OrthoMCl Pipeline", "TriStats"]
     suf = {GREEN: "[%s] " % p[i], YELLOW: "[%s-Warning] " % p[i],
            RED: "[%s-Error] " % p[i]}
     if has_colours:

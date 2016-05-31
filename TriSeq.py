@@ -201,14 +201,15 @@ class CleanUp(object):
 
     def __init__(self, func):
         self.func = func
+        self.idx = 0 if self.func.__name__ == "main_parser" else 2
 
     def __call__(self, *args):
 
         try:
             start_time = time.time()
             self.func(*args)
-            print_col("TriSeq execution successfully completed in %s seconds" %
-                      (round(time.time() - start_time, 2)), GREEN)
+            print_col("Program execution successfully completed in %s seconds" %
+                      (round(time.time() - start_time, 2)), GREEN, self.idx)
         # The broad exception handling is used to remove the temporary
         # directory under any circumstances
         except:
@@ -217,7 +218,7 @@ class CleanUp(object):
             if os.path.exists(".tmp"):
                 shutil.rmtree(".tmp")
 
-            print_col("Program exited with errors!", RED)
+            print_col("Program exited with errors!", RED, self.idx)
 
         # Removing temporary directory, if any
         if os.path.exists(".tmp"):
