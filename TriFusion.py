@@ -32,6 +32,7 @@ if __name__ == "__main__":
     import pickle
     import urllib
     import string
+    import Image as PImage
     import time
     import sys
     import os
@@ -82,7 +83,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.13"
+    __version__ = "0.2.14"
     __build__ = "010616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -1946,7 +1947,7 @@ if __name__ == "__main__":
 
             return True
 
-        def check_file(self, path, file_name, idx):
+        def check_file(self, path, file_name, idx, bw=None):
             """
             Method used by some filechooser dialogs. Checks whether the provided
             file name already exists. If so, issues a check_action popup. If
@@ -1954,6 +1955,9 @@ if __name__ == "__main__":
             :param path: string, complete path
             :param file_name: string, file name
             :param idx: string, operation identifier
+            :param bw: bool, argument specific for export_graphic idx.
+            Determines whether a figure will be exported in original color or
+            grayscale
             """
 
             # Stores methods. key: idx; first value element, method to apply;
@@ -1967,7 +1971,7 @@ if __name__ == "__main__":
                 "export_table":
                 [self.export_table, [path, file_name], ".csv"],
                 "export_graphic":
-                [self.export_graphic, [path, file_name], ""],
+                [self.export_graphic, [path, file_name, bw], ""],
                 "group":
                 [self.orto_export_groups, ["group", path, file_name], ""]
             }
@@ -2304,22 +2308,38 @@ if __name__ == "__main__":
             self.show_popup(title="Export as graphic...", content=content,
                             size_hint=(.9, .9))
 
-        def export_graphic(self, path, file_name):
+        def export_graphic(self, path, file_name, bw):
             """
             Saves the current plot object into a file based on file name and
             extension
             :param path: string, path to final directory
             :param file_name: string, name of graphic file
+            :param bw: bool, Determined whether the graphic will be in the
+            original colors (False) or grayscale (True)
             """
 
+            print(path, file_name, bw)
+
+            temp_f = None
+            f_path = join(path, file_name)
+
+            if bw:
+                temp_f = join(self.temp_dir, "." + file_name)
+                file_name = os.path.splitext(file_name)[0] + "_bw" + \
+                    os.path.splitext(file_name)[1]
+                f_path = join(path, file_name)
+
             if self.current_lgd:
-                self.current_plot.savefig(
-                    join(path, file_name),
+                self.current_plot.savefig(temp_f if temp_f else f_path,
                     bbox_extra_artists=(self.current_lgd,),
                     bbox_inches="tight")
             else:
-                self.current_plot.savefig(
-                    join(path, file_name), bbox_inches="tight")
+                self.current_plot.savefig(temp_f if temp_f else f_path,
+                                          bbox_inches="tight")
+
+            if bw:
+                PImage.open(temp_f).convert("L").save(f_path)
+                os.remove(temp_f)
 
             self.dialog_floatcheck("Graphic successfully exported!", t="info")
 
@@ -6963,8 +6983,11 @@ if __name__ == "__main__":
             # Add extension selection spinner, if idx in idx_with_ext
             if idx in idx_with_ext:
                 ext_spinner = ExtSpinner()
-                ext_spinner.id = "ext"
+                content.ids.txt_box.ids["ext"] = ext_spinner
+                bw_box = BWCheck()
                 content.ids.txt_box.add_widget(ext_spinner)
+                content.ids.txt_box.add_widget(bw_box)
+                content.ids.txt_box.ids["bw"] = bw_box
 
             # Custom behaviour for main output file chooser dialog
             if idx == "main_output":

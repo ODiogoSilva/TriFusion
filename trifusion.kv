@@ -254,10 +254,24 @@
 
 
 <ExtSpinner>:
+    id: ext
     size_hint_x: None
     width: 80
     text: ".png"
     values: [".png", ".svg", ".pdf"]
+
+<BWCheck>:
+    size_hint_x: None
+    width: 110
+    id: bw_box
+    CheckBox:
+        id: bw
+        size_hint_x: None
+        width: 30
+    Label:
+        text: "Grayscale"
+        bold: True
+
 
 <InputType>:
     orientation: "vertical"
@@ -2759,6 +2773,7 @@
     load_dlgs: ["import_partitions", "partition_file", "select_from_file", "remove_from_file"]
     no_auto_close: ["protein", "nucleotide", "group", "taxa", "files", "main_output", "export", "export_table", "group", "export_graphic"]
     file_required: ["protein_db", "import_partitions", "partition_file", "select_from_file", "remove_from_file", "files"]
+    bw: False
     BoxLayout:
         size: root.size
         pos: root.pos
@@ -2901,6 +2916,7 @@
             orientation: "horizontal"
             size_hint_y: None
             height: 30
+            spacing: 5
             Label:
                 size_hint_x: None
                 width: 100
@@ -2926,15 +2942,15 @@
                     text_io: text_input.text if not None else ""
                     on_release:
                         # If an extension spinner is present in the dialog, append it to the text_input
-                        if "ext" in txt_box.ids: \
-                        filename = text_input.text + ext.text
+                        if sd_filechooser.text == "export_graphic": \
+                        filename = text_input.text + txt_box.ids.ext.text;
                         elif txt_box.height == 30: \
                         filename = text_input.text
                         # For save dialogs requiring file name, make this check
                         if self.text_io == "" and txt_box.height == 30: \
                         app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
                         elif txt_box.height != 0: \
-                        app.check_file(sd_filechooser.path, filename, sd_filechooser.text)
+                        app.check_file(sd_filechooser.path, filename, sd_filechooser.text, txt_box.ids.bw.children[-1].active)
 
                         # For save dialogs that do not require file names but require a file to be selected
                         elif sd_filechooser.text in root.file_required and not sd_filechooser.selection: \
