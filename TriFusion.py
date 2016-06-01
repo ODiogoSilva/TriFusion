@@ -82,7 +82,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.12"
+    __version__ = "0.2.11"
     __build__ = "010616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -7587,7 +7587,8 @@ if __name__ == "__main__":
                                                           LVCorrelation()]],
                 "Outlier detection":
                 [self.screen.ids.outlier_opts, [OutlierMissing(),
-                                                OutlierSegregating()]]}
+                                                OutlierSegregating(),
+                                                OutlierSize()]]}
 
             # Get active type
             main_gl = self.screen.ids.main_stats_opts
@@ -7680,7 +7681,12 @@ if __name__ == "__main__":
                 "Segregating sites outliers":
                 [outlier_densisty_dist, "Segregating_sites_outliers.png"],
                 "Segregating sites outliers sp":
-                [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"]}
+                [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"],
+                "Sequence size outliers":
+                [outlier_densisty_dist, "Sequence_size_outliers.png"],
+                "Sequence size outliers sp":
+                [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
+            }
 
             if plot_data:
                 # Set new plot attributes
@@ -7724,7 +7730,9 @@ if __name__ == "__main__":
             outlier_plots = ["Missing data outliers",
                              "Missing data outliers sp",
                              "Segregating sites outliers",
-                             "Segregating sites outliers sp"]
+                             "Segregating sites outliers sp",
+                             "Sequence size outliers",
+                             "Sequence size outliers sp"]
 
             # Adds or removes the horizontal threshold option slider from the
             # Screen footer

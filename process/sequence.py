@@ -3604,5 +3604,82 @@ class AlignmentList(Base):
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
+    def outlier_sequence_size(self):
+        """
+        Generates data for the outlier detection of genes based on their
+        sequence length (excluding missing data)
+        """
+
+        data_labels = []
+        data_points = []
+
+        for gn, aln in self.alignments.items():
+
+            gn_l = []
+
+            for seq in aln.sequences():
+                gn_l.append(len(seq.
+                              replace(aln.sequence_code[1], "").
+                              replace(self.gap_symbol, "")))
+
+            gn_avg = np.mean(gn_l)
+            data_points.append(gn_avg)
+            data_labels.append(gn)
+
+        data_points = np.asarray(data_points)
+        data_labels = np.asarray(data_labels)
+
+        # Get outliers
+        outliers_points = data_points[self._mad_based_outlier(data_points)]
+        # Get outliers labels
+        outliers_labels = list(data_labels[self._mad_based_outlier(
+            data_points)])
+
+        return {"data": data_points,
+                "outliers": outliers_points,
+                "outliers_labels": outliers_labels,
+                "ax_names": ["Sequence size", "Frequency"]}
+
+    def outlier_sequence_size_sp(self):
+        """
+        Generates data for the outlier detection of species based on their
+        sequence length (excluding missing data)
+        """
+
+        data = dict((tx, []) for tx in self.taxa_names)
+
+        for aln in self.alignments.values():
+
+            for tx in data:
+                if tx in aln.alignment:
+                    seq = aln.get_sequence(tx)
+                    s_data = len(seq.replace(aln.sequence_code[1], "").
+                                 replace(self.gap_symbol, ""))
+                    data[tx].append(s_data)
+
+        # Get average for each taxon
+        for tx, vals in data.items():
+            data[tx] = np.mean(vals)
+
+        # Preparing data for plotting
+        data_points = []
+        data_labels = []
+        for tx, vals in data.items():
+            data_points.append(vals)
+            data_labels.append(tx)
+
+        data_points = np.asarray(data_points)
+        data_labels = np.asarray(data_labels)
+
+        # Get outliers
+        outliers_points = data_points[self._mad_based_outlier(data_points)]
+        # Get outlier taxa
+        outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
+
+        return {"data": data_points,
+                "outliers": outliers_points,
+                "outliers_labels": outlier_labels,
+                "ax_names": ["Sequence size", "Frequency"]}
+
 __author__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]

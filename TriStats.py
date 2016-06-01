@@ -95,6 +95,8 @@ cumulative_distribution_missing_genes: average
 missing_data_outliers: species average
 # Options available: species average
 segregating_sites_outliers: species average
+# Options available: species average
+sequence_size_outliers: species average
     """)
 
     template_fh.close()
@@ -224,7 +226,15 @@ def main():
 
         ("Outlier Detection", "segregating_sites_outliers", "average"):
             [alignments.outlier_segregating,
-             (outlier_densisty_dist, "Segregating_sites_outliers.png")]
+             (outlier_densisty_dist, "Segregating_sites_outliers.png")],
+
+        ("Outlier Detection", "sequence_size_outliers", "species"):
+            [alignments.outlier_sequence_size_sp,
+             (outlier_densisty_dist, "Sequence_size_outliers_sp.png")],
+
+        ("Outlier Detection", "sequence_size_outliers", "average"):
+            [alignments.outlier_sequence_size,
+             (outlier_densisty_dist, "Sequence_size_outliers.png")]
     }
 
     print_col("Parsing configuation file options", GREEN, 2)
