@@ -7538,7 +7538,7 @@ if __name__ == "__main__":
             regardless of current position
             """
 
-            expanded_width = 400
+            expanded_width = 410
 
             if self.screen.ids.stats_panel.width == expanded_width and \
                     not force_open:
