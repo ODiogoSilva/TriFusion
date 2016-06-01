@@ -5635,7 +5635,10 @@
     TFButtonOff:
         text: "Allele Frequency Spectrum"
         on_release:
+            if app.sequence_types == "DNA":\
             app.stats_select_plot("Allele Frequency Spectrum gn", None, "Allele Frequency Spectrum")
+            else:\
+            app.dialog_floatcheck("ERROR: This option is only available for nucleotide sequences", t="error")
     HelpButton:
 
 ## Missing data
