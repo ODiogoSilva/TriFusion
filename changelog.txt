@@ -14,6 +14,7 @@ Added full support for TriStats.py, the command line version of the Statistics m
 
 [Bug Fixes]
 Fixed issue with scrolling in Statistics Data exploration analyses panel
+Fixed crash when using keybindings to change to Statistics screen repeatedly
 
 ### v0.2.0
 

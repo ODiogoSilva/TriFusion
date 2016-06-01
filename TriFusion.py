@@ -82,7 +82,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.9"
+    __version__ = "0.2.10"
     __build__ = "010616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -1744,7 +1744,8 @@ if __name__ == "__main__":
 
                 # Removes old toolbar when switching directly from orto plot
                 #  widget to Statistics
-                if self.screen_names[idx] == "Statistics":
+                if self.screen_names[idx] == "Statistics" and \
+                        self.current_screen != "Statistics":
                     self.dismiss_plot_wgt()
 
             self.index = idx
