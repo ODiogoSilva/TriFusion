@@ -51,7 +51,7 @@ ShowcaseScreen:
                             spacing: 5
                             cols: 1
                             size_hint_y: None
-                            height: sum([x.height for x in self.children])
+                            height: self.minimum_height
 
                             TFStatsButton:
                                 text: "General information"
