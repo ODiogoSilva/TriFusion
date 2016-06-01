@@ -56,9 +56,21 @@ stats_compliant = {
 
     "Pairwise sequence similarity gn":
     {"args1": {"plt_idx": "Pairwise sequence similarity sp"},
-    "args2": {"plt_idx": "Pairwise sequence similarity"},
-    "active_bt": "gene",
+     "args2": {"plt_idx": "Pairwise sequence similarity"},
+     "active_bt": "gene",
      "single_gene": {"plt_idx": "Pairwise sequence similarity gn"}},
+
+    "Allele Frequency Spectrum":
+    {"args1": None,
+     "args2": None,
+     "active_bt": "sp",
+     "single_gene": {"plt_idx": "Allele Frequency Spectrum gn"}},
+
+    "Allele Frequency Spectrum gn":
+    {"args1": None,
+     "args2": {"plt_idx": "Allele Frequency Spectrum"},
+     "active_bt": "gene",
+     "single_gene": {"plt_idx": "Allele Frequency Spectrum gn"}},
 
     "Distribution of missing orthologs":
     {"args1": None,

@@ -54,6 +54,10 @@ iupac_rev = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
              "b": "cgt", "n": "acgt", "h": "act", "y": "ct", "w": "at",
              "k": "gt"}
 
+iupac_conv = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
+              "b": "cgt", "n": "acgt", "h": "act", "y": "ct", "w": "at",
+              "k": "gt", "a": "aa", "t": "tt", "c": "cc", "g": "gg"}
+
 
 def merger(ranges):
     """

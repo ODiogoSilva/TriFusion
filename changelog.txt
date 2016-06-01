@@ -3,6 +3,7 @@
 [New Features]
 Added Statistics plot with the cumulative distribution of missing genes for consecutive percentage values of missing data
 Added Statistics plot for the detection of sequence size outliers for genes and species
+Added Statistics plot for Allele Frequency Spectrum
 
 [Improvements]
 Added a general file checking system for main process output
