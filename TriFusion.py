@@ -82,7 +82,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.10"
+    __version__ = "0.2.11"
     __build__ = "010616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -780,7 +780,7 @@ if __name__ == "__main__":
             if self.screen.name in ["Orthology", "Process", "Statistics",
                                     "main"]:
 
-                self.drag_files.append(args[1])
+                self.drag_files.append(unicode(args[1], "utf8"))
 
                 Clock.schedule_once(drag_check, .1)
 
