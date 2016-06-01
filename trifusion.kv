@@ -5651,6 +5651,13 @@
             app.stats_select_plot(None, "Distribution of missing data sp", "Distribution of missing data")
     HelpButton:
 
+<CumulativeMissingOrto>:
+    TFButtonOff:
+        text: "Cumulative distribution of missing genes"
+        on_release:
+            app.stats_show_plot(self.text)
+    HelpButton:
+
 ## Outlier detection
 
 <OutlierMissing>:

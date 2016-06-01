@@ -3362,6 +3362,36 @@ class AlignmentList(Base):
                 "table_header": ["Number of taxa", "Frequency"],
                 "real_bin_num": True}
 
+    def cumulative_missing_genes(self):
+        """
+        Generates data for a distribution of the maximum number of genes
+        available for consecutive thresholds of missing data.
+        """
+
+        size_storage = []
+        data = []
+
+        # total number of taxa in data set
+        taxa = float(len(self.taxa_names))
+
+        for aln in self.alignments.values():
+
+            # Get number of taxa
+            size_storage.append((float(len(aln.alignment)) / taxa) * 100)
+
+        labels = []
+        for i in xrange(0, 100, 5):
+
+            # Get percentage
+            data.append(len([x for x in size_storage if x > i]))
+            labels.append(str(i))
+
+        return {"data": [data],
+                "labels": labels,
+                "ax_names": ["Missing genes percentage", "Frequency"],
+                "title": "Cumulative distribution of missing genes",
+                "table_header": ["Percentage", "Frequency"]}
+
     @staticmethod
     def _mad_based_outlier(p, threshold=3.5):
         """
