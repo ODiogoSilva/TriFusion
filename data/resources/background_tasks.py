@@ -624,7 +624,9 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                "Missing data outliers": aln_obj.outlier_missing_data,
                "Missing data outliers sp": aln_obj.outlier_missing_data_sp,
                "Segregating sites outliers": aln_obj.outlier_segregating,
-               "Segregating sites outliers sp": aln_obj.outlier_segregating_sp}
+               "Segregating sites outliers sp": aln_obj.outlier_segregating_sp,
+               "Sequence size outliers sp": aln_obj.outlier_sequence_size_sp,
+               "Sequence size outliers": aln_obj.outlier_sequence_size}
 
     if additional_args:
         plot_data = methods[stats_idx](**additional_args)

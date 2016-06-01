@@ -800,6 +800,10 @@ class OutlierSegregating(StatsBox):
     pass
 
 
+class OutlierSize(StatsBox):
+    pass
+
+
 class LoadMultipleDialog(BoxLayout):
     """
     A Filechooser widget in Icon view that allows multpiple file choosing
