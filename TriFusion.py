@@ -82,7 +82,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.12"
+    __version__ = "0.2.13"
     __build__ = "010616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -7692,6 +7692,12 @@ if __name__ == "__main__":
                 "Sequence size outliers sp":
                 [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
             }
+
+            if "exception" in plot_data:
+                if plot_data["exception"] is EmptyData:
+                    self.screen.ids.plot_content.clear_widgets()
+                    return self.dialog_floatcheck(
+                        "ERROR: No data available for plotting", t="error")
 
             if plot_data:
                 # Set new plot attributes
