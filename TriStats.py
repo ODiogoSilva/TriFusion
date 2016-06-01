@@ -79,6 +79,8 @@ sequence_similarity: species average
 segregating_sites: species average
 # Options available: average
 alignment_pol_correlation: average
+# Options available: gene average
+allele_frequency_spectrum: average
 
 [Missing Data]
 # Options available: average
@@ -187,6 +189,14 @@ def main():
         ("Polymorphism and Variation", "alignment_pol_correlation", "average"):
             [alignments.length_polymorphism_correlation,
              (scatter_plot, "length_polymorphism_correlation.png")],
+
+        ("Polymorphism and Variation", "allele_frequency_spectrum", "average"):
+            [alignments.allele_frequency_spectrum,
+             (histogram_plot, "allele_frequency_spectrum.png")],
+
+        ("Polymorphism and Variation", "allele_frequency_spectrum", "gene"):
+            [alignments.allele_frequency_spectrum_gene,
+             (histogram_plot, "allele_frequency_spectrum_gn.png")],
 
         ("Missing Data", "gene_occupancy", "average"):
             [alignments.gene_occupancy,

@@ -3344,6 +3344,63 @@ class AlignmentList(Base):
                 "table_header": ["Alignment length", "Informative sites"],
                 "correlation": True}
 
+    def allele_frequency_spectrum(self):
+        """
+        Generates data for the allele frequency spectrum of the entire
+        alignment data set. Here, multiple alignments are effectively treated
+        as a single one. This method is exclusive of DNA sequence type and
+        supports IUPAC ambiguity codes
+        """
+
+        data = []
+
+        for aln in self.alignments.values():
+
+            for column in zip(*aln.sequences()):
+
+                # Remove gaps and missing characters
+                column = Counter([iupac_conv[x] for x in column if
+                                  x != aln.sequence_code[1] and
+                                  x != self.gap_symbol])
+
+                # Consider only bi-allelic SNPs
+                if len(column) == 2:
+                    # Remove most common and check the length of the remaining
+                    del column[column.most_common()[0][0]]
+                    # Append number of derived alleles
+                    data.append(sum(column.values()))
+
+        return {"data": data,
+                "title": "Allele frequency spectrum",
+                "ax_names": ["Derived allele frequency", "Frequency"],
+                "table_header": ["Derived allele frequency", "Frequency"],
+                "real_bin_num": True}
+
+    def allele_frequency_spectrum_gene(self, gene_name):
+
+        aln = self.retrieve_alignment(gene_name)
+        data = []
+
+        for column in zip(*aln.sequences()):
+
+            # Remove gaps and missing characters
+            column = Counter([iupac_conv[x] for x in column if
+                              x != aln.sequence_code[1] and
+                              x != self.gap_symbol])
+
+            # Consider only bi-allelic SNPs
+            if len(column) == 2:
+                # Remove most common and check the length of the remaining
+                del column[column.most_common()[0][0]]
+                # Append number of derived alleles
+                data.append(sum(column.values()))
+
+        return {"data": data,
+                "title": "Allele frequency spectrum",
+                "ax_names": ["Derived allele frequency", "Frequency"],
+                "table_header": ["Derived allele frequency", "Frequency"],
+                "real_bin_num": True}
+
     def taxa_distribution(self):
         """
         Generates data for a distribution of taxa frequency across alignments

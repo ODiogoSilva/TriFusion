@@ -621,6 +621,10 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                    aln_obj.length_polymorphism_correlation,
                "Distribution of taxa frequency":
                    aln_obj.taxa_distribution,
+               "Allele Frequency Spectrum":
+                   aln_obj.allele_frequency_spectrum,
+               "Allele Frequency Spectrum gn":
+                   aln_obj.allele_frequency_spectrum_gene,
                "Missing data outliers": aln_obj.outlier_missing_data,
                "Missing data outliers sp": aln_obj.outlier_missing_data_sp,
                "Segregating sites outliers": aln_obj.outlier_segregating,

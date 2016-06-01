@@ -760,6 +760,10 @@ class SegregatingSites(StatsBox):
     pass
 
 
+class AFS(StatsBox):
+    pass
+
+
 class SizeDistribution(StatsBox):
     pass
 

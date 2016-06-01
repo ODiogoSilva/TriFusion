@@ -82,7 +82,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.11"
+    __version__ = "0.2.12"
     __build__ = "010616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -7584,7 +7584,8 @@ if __name__ == "__main__":
                 "Polymorphism and Variation":
                 [self.screen.ids.polymorphism_data_opts, [SequenceSimilarity(),
                                                           SegregatingSites(),
-                                                          LVCorrelation()]],
+                                                          LVCorrelation(),
+                                                          AFS()]],
                 "Outlier detection":
                 [self.screen.ids.outlier_opts, [OutlierMissing(),
                                                 OutlierSegregating(),
@@ -7674,6 +7675,10 @@ if __name__ == "__main__":
                 [scatter_plot, "length_polymorphism_correlation.png"],
                 "Distribution of taxa frequency":
                 [histogram_plot, "distribution_taxa_frequency.png"],
+                "Allele Frequency Spectrum":
+                [histogram_plot, "allele_frequency_spectrum.png"],
+                "Allele Frequency Spectrum gn":
+                [histogram_plot, "allele_frequency_spectrum_gn.png"],
                 "Missing data outliers":
                 [outlier_densisty_dist, "Missing_data_outliers.png"],
                 "Missing data outliers sp":
@@ -7985,7 +7990,9 @@ if __name__ == "__main__":
             # List of gene specific plots. These are always removed
             gene_specific = {"Pairwise sequence similarity gn":
                 "similarity_distribution_gn.png",
-                "Segregating sites gn": "segregating_sites_gn.png"}
+                "Segregating sites gn": "segregating_sites_gn.png",
+                "Allele Frequency Spectrum gn":
+                "allele_frequency_spectrum_gn.png"}
 
             # Remove gene specific plots if they exist
             if plt_idx in gene_specific:
@@ -8043,7 +8050,14 @@ if __name__ == "__main__":
             Generates dialog for selecting gene for single gene plot creation
             """
 
+            no_window = ["Allele Frequency Spectrum gn"]
+
             content = SelectGeneDialog(cancel=self.dismiss_popup)
+
+            # Remove sliding window parameter if plt_idx does not use it
+            if plt_idx in no_window:
+                content.remove_widget(content.ids.sliding_window)
+
             content.plt_idx = plt_idx
 
             # By default show up to 20 files at first
