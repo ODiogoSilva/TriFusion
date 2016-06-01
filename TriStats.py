@@ -17,10 +17,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-
 import time
 import argparse
 import configparser
+from glob import glob
 from process.sequence import *
 from base.plotter import *
 from TriSeq import CleanUp
@@ -121,6 +121,13 @@ def main():
     settings.read(config_file)
 
     # Parse alignments
+    # Support wildcards as arguments for windows
+    fl = []
+    if sys.platform in ["win32", "cygwin"]:
+        for p in input_files:
+            fl += glob(p)
+        input_files = fl
+
     print_col("Parsing %s alignments" % len(input_files), GREEN, 2)
     alignments = AlignmentList(input_files, dest=".tmp/")
 

@@ -18,10 +18,12 @@
 #  MA 02110-1301, USA.
 
 import os
+import sys
 import shutil
 import time
 import argparse
 import traceback
+from glob import glob
 from process.base import print_col, RED, GREEN, YELLOW
 from process import sequence as seqset
 from process import data
@@ -259,6 +261,13 @@ def main_parser(alignment_list):
         else:
             partition.write_to_file("nexus", outfile)
         return 0
+
+    # Support wildcars as arguments for windows
+    fl = []
+    if sys.platform in ["win32", "cygwin"]:
+        for p in alignment_list:
+            fl += glob(p)
+        alignment_list = fl
 
     # Input alignments are mandatory from now on
     print_col("Parsing %s alignments" % len(alignment_list), GREEN)
