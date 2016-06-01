@@ -115,6 +115,7 @@ def main():
     output_dir = arg.project_name
     config_file = arg.config_file
 
+    # Read configuration file
     print_col("Reading configuration file", GREEN, 2)
     settings = configparser.ConfigParser()
     settings.read(config_file)
@@ -127,6 +128,8 @@ def main():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    # Variable mapping each available option with the appropriate statistics
+    # and plotting methods
     func_map = {
         ("General Information", "distribution_sequence_size", "species"):
             [alignments.average_seqsize_per_species,
@@ -218,19 +221,26 @@ def main():
     }
 
     print_col("Parsing configuation file options", GREEN, 2)
+
+    # Iterate over each individual option
     for section in settings.sections():
         for option, val in settings.items(section):
             for i in val.split():
 
+                # Check if current option is available or suported
                 if (section, option, i) in func_map:
                     print_col("Generating plot for option: %s - %s - %s" %
                               (section, option, i), GREEN, 2)
+                    # Get appropriate method list
                     funcs = func_map[(section, option, i)]
+                    # Retrieve plot data using statistics method
                     plot_data = funcs[0]()
-                    plot_obj, _, lgd = funcs[1][0](
-                        **plot_data)
+                    # Generate plot object
+                    plot_obj, _, lgd = funcs[1][0](**plot_data)
                     plot_obj.tight_layout()
 
+                    # Save plot to file, including the legend object, if
+                    # available
                     if lgd:
                         plot_obj.savefig(join(output_dir, funcs[1][1]),
                                          bbox_extra_artists=(lgd,), dpi=200)
