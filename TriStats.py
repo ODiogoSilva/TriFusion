@@ -262,6 +262,20 @@ def main():
                     funcs = func_map[(section, option, i)]
                     # Retrieve plot data using statistics method
                     plot_data = funcs[0]()
+
+                    # Check for exceptions in plot data
+                    if "exception" in plot_data:
+                        if plot_data["exception"] is EmptyData:
+                            print_col("Option %s - %s - %s has no data for "
+                                      "plotting" % (section, option, i),
+                                      YELLOW, 2)
+                        if plot_data["exception"] is InvalidSequenceType:
+                            print_col("Invalid sequence type for option %s - "
+                                      "%s - %s (%s)" %
+                                      (section, option, i,
+                                       alignments.sequence_code[0]), YELLOW, 2)
+                        continue
+
                     # Generate plot object
                     plot_obj, _, lgd = funcs[1][0](**plot_data)
                     plot_obj.tight_layout()
@@ -274,7 +288,7 @@ def main():
                     else:
                         plot_obj.savefig(join(output_dir, funcs[1][1]), dpi=200)
                 else:
-                    print_col("Invald option: %s - %s - %s. Skipping." %
+                    print_col("Invalid option: %s - %s - %s. Skipping." %
                               (section, option, i), YELLOW, 2)
 
 if __name__ == '__main__':

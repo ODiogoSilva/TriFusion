@@ -64,8 +64,6 @@ class pairwise_cache(object):
 
         if c_args[0] == "connect":
 
-            print("connecting")
-
             self.con = sqlite3.connect(join(args[0].dest, "pw.db"))
             self.c = self.con.cursor()
 
@@ -117,6 +115,29 @@ class pairwise_cache(object):
         """
         return functools.partial(self.__call__, obj)
 
+
+class CheckData(object):
+
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, *args, **kwargs):
+
+        res = self.func(*args, **kwargs)
+
+        if "data" in res:
+            if np.asarray(res["data"]).any():
+                return res
+            else:
+                return {"exception": EmptyData}
+        elif "exception" in res:
+            return res
+
+    def __get__(self, obj, objtype):
+        """
+        Support instance methods
+        """
+        return functools.partial(self.__call__, obj)
 
 class AlignmentException(Exception):
     pass
@@ -2660,6 +2681,7 @@ class AlignmentList(Base):
                                         ns_pipe=ns_pipe)
 
     # Stats methods
+    @CheckData
     def gene_occupancy(self):
         """
         Creates data for an interpolation plot to visualize the amount of
@@ -2676,6 +2698,7 @@ class AlignmentList(Base):
 
         return {"data": data}
 
+    @CheckData
     def missing_data_distribution(self):
         """
         Creates data for an overall distribution of missing data
@@ -2716,6 +2739,7 @@ class AlignmentList(Base):
                 "ax_names": ["Proportion", "Number of genes"],
                 "table_header": ["Bin"] + legend}
 
+    @CheckData
     def missing_data_per_species(self):
         """
         Creates data for a distribution of missing data per species
@@ -2765,6 +2789,7 @@ class AlignmentList(Base):
                 "normalize": True,
                 "normalize_factor": total_len}
 
+    @CheckData
     def missing_genes_per_species(self):
         """
         Creates data for the distribution of missing genes per species
@@ -2789,6 +2814,7 @@ class AlignmentList(Base):
                 "table_header": ["Taxon", "Missing genes"]
                 }
 
+    @CheckData
     def missing_genes_average(self):
         """
         Creates histogram data for average mssing genes
@@ -2804,6 +2830,7 @@ class AlignmentList(Base):
                 "ax_names": ["Number of missing genes", "Frequency"],
                 "table_header": ["Number of missing genes", "Frequency"]}
 
+    @CheckData
     def average_seqsize_per_species(self):
         """
         Creates data for the average sequence size for each taxa
@@ -2829,6 +2856,7 @@ class AlignmentList(Base):
                 "title": "Sequence size distribution per species",
                 "ax_names": [None, ax_ylabel]}
 
+    @CheckData
     def average_seqsize(self):
         """
         Creates data for the average sequence size for the entire data set
@@ -2849,6 +2877,7 @@ class AlignmentList(Base):
                 "ax_names": [ax_xlabel, "Frequency"],
                 "table_header": [ax_xlabel, "Frequency"]}
 
+    @CheckData
     def characters_proportion(self):
         """
         Creates data for the proportion of nucleotides/residues for the data set
@@ -2882,6 +2911,7 @@ class AlignmentList(Base):
                 "ax_names": [ax_xlabel, "Proportion"],
                 "table_header": [ax_xlabel, "Proportion"]}
 
+    @CheckData
     def characters_proportion_per_species(self):
         """
         Creates data for the proportion of nucleotides/residures per species
@@ -3109,6 +3139,7 @@ class AlignmentList(Base):
 
         return informative_sites
 
+    @CheckData
     def sequence_similarity(self):
         """
         Creates average sequence similarity data
@@ -3140,6 +3171,7 @@ class AlignmentList(Base):
         return {"data": data,
                 "ax_names": ["Similarity (%)", "Frequency"]}
 
+    @CheckData
     def sequence_similarity_per_species(self):
         """
         Creates data for a triangular matrix of sequence similarity for pairs
@@ -3176,6 +3208,7 @@ class AlignmentList(Base):
         return {"data": data,
                 "labels": list(taxa_pos)}
 
+    @CheckData
     def sequence_similarity_gene(self, gene_name, window_size):
 
         aln_obj = self.alignments[gene_name]
@@ -3208,6 +3241,7 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
 
+    @CheckData
     def sequence_segregation(self, proportions=False):
         """
         Generates data for distribution of segregating sites
@@ -3247,6 +3281,7 @@ class AlignmentList(Base):
                 "table_header": ax_names,
                 "real_bin_num": real_bin}
 
+    @CheckData
     def sequence_segregation_per_species(self):
         """
         Creates a data for a triangular matrix of sequence segregation for
@@ -3288,6 +3323,7 @@ class AlignmentList(Base):
                 "labels": list(taxa_pos),
                 "color_label": "Segregating sites"}
 
+    @CheckData
     def sequence_segregation_gene(self, gene_name, window_size):
         """
         Generates data for a sliding window analysis of segregating sites
@@ -3320,6 +3356,7 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
 
+    @CheckData
     def length_polymorphism_correlation(self):
         """
         Generates data for a scatter plot and correlation analysis between
@@ -3344,6 +3381,7 @@ class AlignmentList(Base):
                 "table_header": ["Alignment length", "Informative sites"],
                 "correlation": True}
 
+    @CheckData
     def allele_frequency_spectrum(self):
         """
         Generates data for the allele frequency spectrum of the entire
@@ -3351,6 +3389,11 @@ class AlignmentList(Base):
         as a single one. This method is exclusive of DNA sequence type and
         supports IUPAC ambiguity codes
         """
+
+        # Make check for sequence type consistency here for TriStats.py. In
+        # TriFusion the check is made before calling this method
+        if self.sequence_code[0] != "DNA":
+            return {"exception": InvalidSequenceType}
 
         data = []
 
@@ -3376,7 +3419,18 @@ class AlignmentList(Base):
                 "table_header": ["Derived allele frequency", "Frequency"],
                 "real_bin_num": True}
 
+    @CheckData
     def allele_frequency_spectrum_gene(self, gene_name):
+        """
+        Generates data for the allele frequency spectrum of the gene
+        specified by gene_name
+        :param gene_name: string, gene name present in the AlignmentList object
+        """
+
+        # Make check for sequence type consistency here for TriStats.py. In
+        # TriFusion the check is made before calling this method
+        if self.sequence_code[0] != "DNA":
+            return {"exception": InvalidSequenceType}
 
         aln = self.retrieve_alignment(gene_name)
         data = []
@@ -3401,6 +3455,7 @@ class AlignmentList(Base):
                 "table_header": ["Derived allele frequency", "Frequency"],
                 "real_bin_num": True}
 
+    @CheckData
     def taxa_distribution(self):
         """
         Generates data for a distribution of taxa frequency across alignments
@@ -3419,6 +3474,7 @@ class AlignmentList(Base):
                 "table_header": ["Number of taxa", "Frequency"],
                 "real_bin_num": True}
 
+    @CheckData
     def cumulative_missing_genes(self):
         """
         Generates data for a distribution of the maximum number of genes
@@ -3474,6 +3530,7 @@ class AlignmentList(Base):
 
         return z_score > threshold
 
+    @CheckData
     def outlier_missing_data(self):
         """
         Get data for outlier detection of genes based on the distribution of
@@ -3515,6 +3572,7 @@ class AlignmentList(Base):
                 "outliers_labels": outliers_labels,
                 "ax_names": ["Proportion of missing data", "Frequency"]}
 
+    @CheckData
     def outlier_missing_data_sp(self):
         """
         Gets data for outlier detection of species based on missing data. For
@@ -3565,6 +3623,7 @@ class AlignmentList(Base):
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of missing data", "Frequency"]}
 
+    @CheckData
     def outlier_segregating(self):
         """
         Generates data for the outlier detection of genes based on
@@ -3607,6 +3666,7 @@ class AlignmentList(Base):
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
+    @CheckData
     def outlier_segregating_sp(self):
         """
         Generates data for the outlier detection of species based on their
@@ -3661,6 +3721,7 @@ class AlignmentList(Base):
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
+    @CheckData
     def outlier_sequence_size(self):
         """
         Generates data for the outlier detection of genes based on their
@@ -3697,6 +3758,7 @@ class AlignmentList(Base):
                 "outliers_labels": outliers_labels,
                 "ax_names": ["Sequence size", "Frequency"]}
 
+    @CheckData
     def outlier_sequence_size_sp(self):
         """
         Generates data for the outlier detection of species based on their
