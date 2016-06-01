@@ -82,8 +82,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.2.7"
-    __build__ = "310516"
+    __version__ = "0.2.8"
+    __build__ = "010616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -7578,7 +7578,8 @@ if __name__ == "__main__":
                 "Missing Data":
                 [self.screen.ids.missing_data_opts, [GeneOccupancy(),
                                                      MissingOrto(),
-                 MissingData()]],
+                                                     MissingData(),
+                                                     CumulativeMissingOrto()]],
                 "Polymorphism and Variation":
                 [self.screen.ids.polymorphism_data_opts, [SequenceSimilarity(),
                                                           SegregatingSites(),
@@ -7643,6 +7644,8 @@ if __name__ == "__main__":
                 [bar_plot, "missing_gene_distribution.png"],
                 "Distribution of missing orthologs avg":
                 [histogram_plot, "missing_gene_distribution_avg.png"],
+                "Cumulative distribution of missing genes":
+                [bar_plot, "cumulative_distribution_missing_genes.png"],
                 "Distribution of sequence size":
                 [box_plot, "avg_seqsize_species.png"],
                 "Distribution of sequence size all":
@@ -8202,7 +8205,6 @@ if __name__ == "__main__":
             # entries in files will be checked if they are directories. If so,
             # all files in that directory will be appended to file_list instead
             file_list = []
-            print(files)
             for i in files:
                 if os.path.isdir(i):
                     file_list.extend([join(i, x) for x in

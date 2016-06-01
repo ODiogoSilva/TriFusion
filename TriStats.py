@@ -87,6 +87,8 @@ gene_occupancy: average
 distribution_missing_genes: species average
 # Options available: species average
 distribution_missing_data: species average
+# Options available: average
+cumulative_distribution_missing_genes: average
 
 [Outlier Detection]
 # Options available: species average
@@ -193,6 +195,10 @@ def main():
         ("Missing Data", "distribution_missing_data", "average"):
             [alignments.missing_data_distribution,
              (histogram_smooth, "missing_data_distribution.png")],
+
+        ("Missing Data", "cumulative_distribution_missing_genes", "average"):
+            [alignments.cumulative_missing_genes,
+             (bar_plot, "cumulative_distribution_missing_genes.png")],
 
         ("Outlier Detection", "missing_data_outliers", "species"):
             [alignments.outlier_missing_data_sp,

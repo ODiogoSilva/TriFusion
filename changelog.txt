@@ -1,5 +1,8 @@
 ### Upcoming release
 
+[New Features]
+Added Statistics plot with the cumulative distribution of missing genes for consecutive percentage values of missing data
+
 [Improvements]
 Added a general file checking system for main process output
 Added support for Stockholm input and output formats

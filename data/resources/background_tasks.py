@@ -602,6 +602,8 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                "Distribution of sequence size":
                    aln_obj.average_seqsize_per_species,
                "Distribution of sequence size all": aln_obj.average_seqsize,
+               "Cumulative distribution of missing genes":
+                   aln_obj.cumulative_missing_genes,
                "Proportion of nucleotides or residues":
                    aln_obj.characters_proportion,
                "Proportion of nucleotides or residues sp":

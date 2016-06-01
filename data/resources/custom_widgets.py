@@ -780,6 +780,10 @@ class MissingOrto(StatsBox):
     pass
 
 
+class CumulativeMissingOrto(StatsBox):
+    pass
+
+
 class LVCorrelation(StatsBox):
     pass
 
