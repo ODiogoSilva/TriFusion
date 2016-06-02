@@ -203,16 +203,20 @@ class GroupLight:
 
             cp = max(cl.values())
 
+            if not self.gene_threshold and not self.species_threshold:
+                return 1, 1
+
             if cp <= self.gene_threshold and self.gene_threshold and\
                 len(cl) >= self.species_threshold and  \
                     self.species_threshold:
                 return 1, 1
 
-            elif cp <= self.gene_threshold and self.gene_threshold:
+            elif (cp <= self.gene_threshold and self.gene_threshold) or \
+                    not self.gene_threshold:
                 return 1, 0
 
-            elif len(cl) >= self.species_threshold and \
-                    self.species_threshold:
+            elif (len(cl) >= self.species_threshold and
+                    self.species_threshold) or not self.species_threshold:
                 return 0, 1
 
             else:
@@ -289,7 +293,7 @@ class GroupLight:
             for cl in self.species_frequency:
                 self._apply_filter(cl)
 
-    def retrieve_sequences(self, sqldb, protein_db, dest="./", mode="fasta",
+    def retrieve_sequences(self, sqldb, protein_db, dest="./",
                            shared_namespace=None):
 
         if not os.path.exists(dest):
@@ -307,7 +311,7 @@ class GroupLight:
 
         # Create table if it does not exist
         if not c.execute("SELECT name FROM sqlite_master WHERE type='table' AND"
-                    " name='{}'".format(table_name)).fetchall():
+                         " name='{}'".format(table_name)).fetchall():
 
             c.execute("CREATE TABLE {} (seq_id text PRIMARY KEY, seq text)".
                       format(table_name))
@@ -379,7 +383,7 @@ class GroupLight:
                 shared_namespace.progress = \
                     self.species_frequency.index(cl)
 
-            if self._get_compliance(cl) == "all":
+            if self._get_compliance(cl) == (1, 1):
                 output_handle.write("{}\n".format(line))
 
         output_handle.close()
@@ -1455,9 +1459,9 @@ class MultiGroupsLight:
 
     def get_multigroup_statistics(self, group_obj):
         """
-        :param output_file_name:
         :return:
         """
+
 
         stats = group_obj.basic_group_statistics()
 
@@ -1466,7 +1470,7 @@ class MultiGroupsLight:
                                         "max_copies": group_obj.max_extra_copy}
 
     def bar_orthologs(self, group_names=None, output_file_name="Final_orthologs",
-                             dest="./", stats="total"):
+                             dest="./", stats="all"):
         """
         Creates a bar plot with the final ortholog values for each group file
         :param group_names: list. If None, all groups in self.group_stats will

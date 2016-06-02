@@ -1,4 +1,4 @@
-### Upcoming release
+### v0.3.0
 
 [New Features]
 Added Statistics plot with the cumulative distribution of missing genes for consecutive percentage values of missing data
@@ -16,6 +16,7 @@ Added full support for TriStats.py, the command line version of the Statistics m
 Added support for wildcards in arguments for TriSeq.py and TriStats.py on windows
 Added data check decorator when calling Statistics related method that can handle different types of exceptions
 Added option to automatic convert all exported Statistics graphics to grayscale
+Added full support for TriOrtho.py, the command line version of the Orthology explore module
 
 [Bug Fixes]
 Fixed issue with scrolling in Statistics Data exploration analyses panel

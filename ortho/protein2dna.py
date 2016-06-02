@@ -26,7 +26,7 @@ functions that compile and store DNA sequences, convert them into amino acid
 sequences and then tries to match them to the original protein sequences.
 """
 
-from process.sequence import Alignment
+from os.path import join
 import subprocess
 
 dna_map = {
@@ -79,7 +79,7 @@ def translate(sequence):
     return aa_sequence
 
 
-def create_db(f_list):
+def create_db(f_list, dest="./"):
     """
     Creates a fasta database file containing the translated protein sequences
     from the cds files. The final transcripts.fas file will be use
@@ -90,7 +90,7 @@ def create_db(f_list):
     :param f_list. List, containing the file names of the transcript files
     """
 
-    output_handle = open("transcripts.fas", "w")
+    output_handle = open(join(dest, "transcripts.fas"), "w")
     id_dic = {}
 
     for f in f_list:
@@ -112,14 +112,14 @@ def create_db(f_list):
     return id_dic
 
 
-def create_query(input_list):
+def create_query(input_list, dest="./"):
     """
     To speed things up, all sequences in the input protein files will be
     concatenated into a single file, which will be used as query in USEARCH.
     :param input_list: List, with file names of the protein files to convert
     """
 
-    f_handle = open("query.fas", "w")
+    f_handle = open(join(dest, "query.fas"), "w")
     query_db = {}
 
     for f in input_list:
@@ -158,24 +158,28 @@ def create_query_from_dict(protein_dict):
     return query_db
 
 
-def pair_search():
+def pair_search(dest="./"):
     """
     This will use USEARCH to search for translated transcript sequences
     identical to the original protein files
     """
 
-    subprocess.Popen(["usearch -usearch_global query.fas -db transcripts.fas "
-                      "-id 1 -maxaccepts .9 -blast6out pairs.out"],
+    query_path = join(dest, "query.fas")
+    db_path = join(dest, "transcripts.fas")
+    out_path = join(dest, "pairs.out")
+
+    subprocess.Popen(["usearch -usearch_global %s -db %s -id 1 -maxaccepts"
+                      " .9 -blast6out %s" % (query_path, db_path, out_path)],
                      shell=True).wait()
 
 
-def get_pairs():
+def get_pairs(dest="./"):
     """
     Parses the output of USEARCH and creates a dictionary with the header
     pairs between original protein and transcripts
     """
 
-    file_h = open("pairs.out")
+    file_h = open(join(dest, "pairs.out"))
     pair_db = {}
 
     for l in file_h:
@@ -186,15 +190,11 @@ def get_pairs():
     return pair_db
 
 
-def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
+def convert_protein_file(pairs, query_db, id_db, output_dir,
+                         outfile_suffix="_dna.fa"):
     """
     A given protein file will be converted into their corresponding nucleotide
     sequences using a previously set database using the create_db function
-    :param p_file: string. File name of the protein file
-    :param db: dictionary. Database of original DNA sequences and translated
-    sequences
-    :param outfile_suffix: string. Suffix to append at the end of the p_file
-    name. This output file will contained the converted DNA sequences
     :return:
     """
 
@@ -202,7 +202,9 @@ def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
 
     for infile, vals in query_db.items():
 
-        f_handle = open(infile.split(".")[0] + outfile_suffix, "w")
+        output_file = join(output_dir, infile.split(".")[0] + outfile_suffix)
+
+        f_handle = open(output_file, "w")
 
         for i in vals:
             if i in pairs:
@@ -210,9 +212,6 @@ def convert_protein_file(pairs, query_db, id_db, outfile_suffix="_dna.fa"):
                 f_handle.write(">%s\n%s\n" % (i.replace(";;", " "), seq))
             else:
                 bad += 1
-    else:
-        subprocess.Popen(["rm pairs.out query.fas transcripts.fas"],
-                         shell=True).wait()
 
 
 def convert_group(cds_file_list, protein_db, group_sequences,
