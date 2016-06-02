@@ -1,38 +1,38 @@
 ### v0.3.0
 
-[New Features]
-Added Statistics plot with the cumulative distribution of missing genes for consecutive percentage values of missing data
-Added Statistics plot for the detection of sequence size outliers for genes and species
-Added Statistics plot for Allele Frequency Spectrum
+##### New Features
+- Added Statistics plot with the cumulative distribution of missing genes for consecutive percentage values of missing data
+- Added Statistics plot for the detection of sequence size outliers for genes and species
+- Added Statistics plot for Allele Frequency Spectrum
 
-[Improvements]
-Added a general file checking system for main process output
-Added support for Stockholm input and output formats
-Added support for GPhoCS output format
-Added support for automatic file loading via command line arguments when launching the app
-Added full support for TriSeq.py, the command line version of the Process module
-Added full support for orthomcl_pipeline.py, the command line version of the Orthology search module
-Added full support for TriStats.py, the command line version of the Statistics module
-Added support for wildcards in arguments for TriSeq.py and TriStats.py on windows
-Added data check decorator when calling Statistics related method that can handle different types of exceptions
-Added option to automatic convert all exported Statistics graphics to grayscale
-Added full support for TriOrtho.py, the command line version of the Orthology explore module
+##### Improvements
+- Added a general file checking system for main process output
+- Added support for Stockholm input and output formats
+- Added support for GPhoCS output format
+- Added support for automatic file loading via command line arguments when launching the app
+- Added full support for TriSeq.py, the command line version of the Process module
+- Added full support for orthomcl_pipeline.py, the command line version of the Orthology search module
+- Added full support for TriStats.py, the command line version of the Statistics module
+- Added support for wildcards in arguments for TriSeq.py and TriStats.py on windows
+- Added data check decorator when calling Statistics related method that can handle different types of exceptions
+- Added option to automatic convert all exported Statistics graphics to grayscale
+- Added full support for TriOrtho.py, the command line version of the Orthology explore module
 
-[Bug Fixes]
-Fixed issue with scrolling in Statistics Data exploration analyses panel
-Fixed crash when using keybindings to change to Statistics screen repeatedly
-Fixed path encoding issue when using Drag'N'Drop on Windows
+##### Bug Fixes
+- Fixed issue with scrolling in Statistics Data exploration analyses panel
+- Fixed crash when using keybindings to change to Statistics screen repeatedly
+- Fixed path encoding issue when using Drag'N'Drop on Windows
 
 ### v0.2.0
 
-[Improvements]
-Missing data and minimum taxa filters are now disassociated and can be executed separately
+##### Improvements
+- Missing data and minimum taxa filters are now disassociated and can be executed separately
 
-[Bug Fixes]
-Fixed issues with sequence case and interleave options in nexus output format
-Fixed missing imports
-Fixed faulty behaviour of shift+click on icon filechooser on Windows
-Fixed issue when writing output alignments with less than 90 characters in interleave format
-Fixed issue with number of output files when setting secondary operations
+##### Bug Fixes
+- Fixed issues with sequence case and interleave options in nexus output format
+- Fixed missing imports
+- Fixed faulty behaviour of shift+click on icon filechooser on Windows
+- Fixed issue when writing output alignments with less than 90 characters in interleave format
+- Fixed issue with number of output files when setting secondary operations
 
 ### v0.1.0
