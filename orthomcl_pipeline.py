@@ -128,13 +128,6 @@ if __name__ == "__main__":
 
     arg = parser.parse_args()
 
-
-# Crete temp directory
-tmp_dir = join(os.getcwd(), ".tmp")
-if not os.path.exists(tmp_dir):
-    os.makedirs(tmp_dir)
-
-
 def install_schema(db_dir):
     """
     Install the schema for the mySQL database
@@ -423,6 +416,12 @@ def main():
 
 
 if __name__ == "__main__":
+
+    # Crete temp directory
+    tmp_dir = join(os.getcwd(), ".tmp")
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+
     try:
         start_time = time.time()
         main()
