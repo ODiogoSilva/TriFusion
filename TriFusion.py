@@ -7720,13 +7720,14 @@ if __name__ == "__main__":
                 [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
             }
 
-            if "exception" in plot_data:
-                if plot_data["exception"] is EmptyData:
-                    self.screen.ids.plot_content.clear_widgets()
-                    return self.dialog_floatcheck(
-                        "ERROR: No data available for plotting", t="error")
-
             if plot_data:
+
+                if "exception" in plot_data:
+                    if plot_data["exception"] is EmptyData:
+                        self.screen.ids.plot_content.clear_widgets()
+                        return self.dialog_floatcheck(
+                            "ERROR: No data available for plotting", t="error")
+
                 # Set new plot attributes
                 self.current_plot, self.current_lgd, self.current_table = \
                     self.stats_plt_method[plt_idx][0](**plot_data)
