@@ -32,11 +32,15 @@ if __name__ == "__main__":
     import pickle
     import urllib
     import string
-    import Image as PImage
     import time
     import sys
     import os
     from os import sep
+
+    if sys.platform in ["win32", "cygwin"]:
+        from PIL import Image as PImage
+    else:
+        import Image as PImage
 
     # freeze_support must be called here so that multiprocessing work
     # correctly on windows
