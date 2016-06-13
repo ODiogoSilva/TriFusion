@@ -33,6 +33,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.slider import Slider
+from kivy.clock import Clock
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
@@ -69,6 +70,50 @@ class StringInput(TextInput):
         s = re.sub(r"\D", "", substring)
 
         return super(StringInput, self).insert_text(s, from_undo=from_undo)
+
+
+# class HoverBehaviour(object):
+#     """
+#     Creates mouse over behaviour for widget
+#     """
+#
+#     hovered = BooleanProperty(False)
+#     border_point = ObjectProperty(None)
+#     x1 = 0
+#
+#     def __init__(self, **kwargs):
+#
+#         self.register_event_type('on_enter')
+#         self.register_event_type('on_leave')
+#         #Window.bind(mouse_pos=self.on_mouse_pos)
+#         Clock.schedule_interval(self.on_mouse_pos, 1)
+#         super(HoverBehaviour, self).__init__(**kwargs)
+#
+#     def on_mouse_pos(self, *args):
+#         if not self.get_root_window():
+#             return  # do proceed if I'm not displayed <=> If have no parent
+#         #pos = args[1]
+#         pos = self.get_root_window().mouse_pos
+#         self.x1+= 1
+#
+#         print(self.x1)
+#         # Next line to_widget allow to compensate for relative layout
+#         inside = self.collide_point(*self.to_widget(*pos))
+#         if self.hovered == inside:
+#             # We have already done what was needed
+#             return
+#         self.border_point = pos
+#         self.hovered = inside
+#         if inside:
+#             self.dispatch('on_enter')
+#         else:
+#             self.dispatch('on_leave')
+#
+#     def on_enter(self):
+#         pass
+#
+#     def on_leave(self):
+#         pass
 
 
 class LinkedLabel(Label):
@@ -614,6 +659,34 @@ class ExportGraphics(BoxLayout):
 
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
                                 self.ids.sd_filechooser)
+
+
+class StatsLoading(BoxLayout):
+    pass
+
+
+class StatsSummary(BoxLayout):
+    pass
+
+
+class NoDataLabel(Label):
+    pass
+
+
+class GeneTable(BoxLayout):
+    pass
+
+
+class TableCell(Label):
+    pass
+
+
+class TableLine(BoxLayout):
+    pass
+
+
+class MoreTableBt(BoxLayout):
+    pass
 
 
 class InputType(BoxLayout):

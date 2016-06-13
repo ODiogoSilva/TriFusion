@@ -18,7 +18,7 @@
 #  MA 02110-1301, USA.
 
 import numpy as np
-from collections import Counter
+from collections import Counter, defaultdict
 import itertools
 import re
 import os
@@ -393,6 +393,14 @@ class Alignment(Base):
 
         self.sequence_code = self.guess_code(seq)
         self.alignment = dictionary_obj
+
+    def columns(self):
+        """
+        Iterator over alignment columns
+        """
+
+        for c in zip(*self.sequences()):
+            yield c
 
     def start_action_alignment(self):
         """
@@ -1867,6 +1875,19 @@ class AlignmentList(Base):
         self.sequence_code = None
         self.gap_symbol = "-"
 
+        """
+        Dictionary with summary statistics for the active alignments
+        """
+        self.summary_stats = {"genes": 0, "taxa": 0, "seq_len": 0, "gaps": 0,
+                              "avg_gaps": [], "missing": 0, "avg_missing": [],
+                              "variable": 0, "avg_var": [], "informative": 0,
+                              "avg_inf": []}
+
+        """
+        Dictionary with summary statistics for each alignment.
+        """
+        self.summary_gene_table = defaultdict(dict)
+
         self.dest = dest
         self.pw_data = None
 
@@ -1953,6 +1974,9 @@ class AlignmentList(Base):
                     self.shelve_alignments[aln_name] = self.alignments[aln_name]
                     del self.alignments[aln_name]
 
+        # Update taxa names
+        self.taxa_names = self._get_taxa_list()
+
     def update_active_alignment(self, aln_name, direction):
         """
         Same as update_active_alignments but for a single aln_name, so that
@@ -1968,6 +1992,9 @@ class AlignmentList(Base):
         else:
             self.alignments[aln_name] = self.shelve_alignments[aln_name]
             del self.shelve_alignments[aln_name]
+
+        # Update taxa names
+        self.taxa_names = self._get_taxa_list()
 
     def format_list(self):
         """
@@ -2204,7 +2231,7 @@ class AlignmentList(Base):
         else:
             dest = "./"
 
-        # Variable that will store the lenght of the concatenated alignment
+        # Variable that will store the length of the concatenated alignment
         # and provided it when initializing the Alignment object
         locus_length = None
 
@@ -2477,24 +2504,24 @@ class AlignmentList(Base):
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
 
-    def shelve_file(self, filename_list):
-        """
-        Instead of completely removing the Alignment object, these are moved
-        to the shelve_alignments list.
-        :param filename_list: list with the names of the alignment objects to
-        be removed
-        """
-
-        for nm in filename_list:
-            nm_wext = basename(nm)
-            nm = basename(nm).split(".")[0]
-            if nm in self.alignments:
-                self.shelve_alignments[nm] = self.alignments[nm]
-                del self.alignments[nm]
-            self.partitions.remove_partition(file_name=nm_wext)
-
-        # Updates taxa names
-        self.taxa_names = self._get_taxa_list()
+    # def shelve_file(self, filename_list):
+    #     """
+    #     Instead of completely removing the Alignment object, these are moved
+    #     to the shelve_alignments list.
+    #     :param filename_list: list with the names of the alignment objects to
+    #     be removed
+    #     """
+    #
+    #     for nm in filename_list:
+    #         nm_wext = basename(nm)
+    #         nm = basename(nm).split(".")[0]
+    #         if nm in self.alignments:
+    #             self.shelve_alignments[nm] = self.alignments[nm]
+    #             del self.alignments[nm]
+    #         self.partitions.remove_partition(file_name=nm_wext)
+    #
+    #     # Updates taxa names
+    #     self.taxa_names = self._get_taxa_list()
 
     def select_by_taxa(self, taxa_list, mode="strict"):
         """
@@ -2680,7 +2707,129 @@ class AlignmentList(Base):
                                         use_nexus_models=use_nexus_models,
                                         ns_pipe=ns_pipe)
 
+    def get_gene_table_stats(self, active_alignments=None):
+        """
+        Gets summary statistics for each individual gene for the gene table
+        view. Summary statistics have already been calculated in
+        get_summary_stats, so here we only get the active alignments for
+        showing. Therefore, this function should only be called after
+        get_summary_stats.
+        :param active_alignments: List, containing the names of the active
+        alignments from which he summary statistics will be retrieved
+        """
+
+        # Set table header
+        table = [["Gene name", "Number of sites", "Number of taxa",
+                  "Variable sites", "Informative sites", "Gaps",
+                  "Missing data"]]
+        # Table line keys matching summary_gene_table dict values
+        tl = ["nsites", "taxa", "var", "inf", "gap", "missing"]
+
+        if active_alignments and active_alignments != list(
+                self.alignments.keys()):
+            self.update_active_alignments(active_alignments)
+
+        summary_gene_table = dict((k.name, self.summary_gene_table[k.name])
+                                 for k in self.alignments.values())
+
+        # Populate table information
+        for k, v in sorted(summary_gene_table.items()):
+            # Add table line
+            table.append([k] + [summary_gene_table[k][x] for x in tl])
+
+        return summary_gene_table, table
+
     # Stats methods
+    def get_summary_stats(self, active_alignments=None):
+        """
+        Creates/Updates summary statistics for the active alignments.
+        :param active_alignments: List, containing names of the active
+        alignments from which the summary statistics will be retrieved
+        """
+
+        # Update active alignments if they changed since last update
+        if active_alignments and \
+                active_alignments != list(self.alignments.keys()):
+            self.update_active_alignments(active_alignments)
+
+        # Set table header for summary_stats
+        table = [["Genes", "Taxa", "Alignment length", "Gaps",
+                  "Gaps per gene", "Missing data", "Missing data per gene",
+                  "Variable sites", "Variable sites per gene",
+                  "Informative sites", "Informative sites per gene"]]
+        # Table line keys matching summary_stats for table completion
+        tl = ["genes", "taxa", "seq_len", "gaps", "avg_gaps", "missing",
+              "avg_missing", "variable", "avg_var", "informative", "avg_inf"]
+
+        # Get number of alignments
+        self.summary_stats["genes"] = len(self.alignments)
+
+        # Get number of taxa
+        self.summary_stats["taxa"] = len(self.taxa_names)
+
+        # Get statistics that require iteration over alignments
+        for aln in self.alignments.values():
+
+            # Get alignment size info
+            self.summary_stats["seq_len"] += aln.locus_length
+
+            cur_gap, cur_missing = 0, 0
+            cur_var, cur_inf = 0, 0
+
+            for col in aln.columns():
+
+                # Get missing data and gaps
+                if self.sequence_code[1] in col:
+                    self.summary_stats["missing"] += 1
+                    cur_missing += 1
+                if self.gap_symbol in col:
+                    self.summary_stats["gaps"] += 1
+                    cur_gap += 1
+
+                # Get variability information
+                # Filter missing data
+                col = Counter([i for i in col if i not in
+                               [self.sequence_code[1], self.gap_symbol]])
+
+                if col:
+                    # Get variable sites
+                    if len(col) > 1:
+                        self.summary_stats["variable"] += 1
+                        cur_var += 1
+
+                    # Delete most common
+                    del col[col.most_common()[0][0]]
+
+                    # If any of the remaining sites is present in more than two
+                    # taxa score the site as informative
+                    if any([x >= 2 for x in col.values()]):
+                        self.summary_stats["informative"] += 1
+                        cur_inf += 1
+
+            # Get values for current alignment for average calculations
+            self.summary_stats["avg_gaps"].append(cur_gap)
+            self.summary_stats["avg_missing"].append(cur_missing)
+            self.summary_stats["avg_var"].append(cur_var)
+            self.summary_stats["avg_inf"].append(cur_inf)
+
+            # Add information for summary_gene_table
+            if aln.name not in self.summary_gene_table:
+                self.summary_gene_table[aln.name]["nsites"] = aln.locus_length
+                self.summary_gene_table[aln.name]["taxa"] = len(aln.alignment)
+                self.summary_gene_table[aln.name]["var"] = cur_var
+                self.summary_gene_table[aln.name]["inf"] = cur_inf
+                self.summary_gene_table[aln.name]["gap"] = cur_gap
+                self.summary_gene_table[aln.name]["missing"] = cur_missing
+
+        # Get average values
+        for k in ["avg_gaps", "avg_missing", "avg_var", "avg_inf"]:
+            self.summary_stats[k] = round(np.mean(self.summary_stats[k]))
+
+        # Complete table information
+        table.append([self.summary_stats[x] for x in tl])
+
+        return dict(self.summary_stats), table
+
     @CheckData
     def gene_occupancy(self):
         """

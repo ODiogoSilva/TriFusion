@@ -8,7 +8,7 @@ ShowcaseScreen:
             id: sidepanel_container
             anchor_x: "left"
             size_hint_x: None
-            width: 430
+            width: 470
             ScrollView:
                 size_hint_x: None
                 width: 410
@@ -97,6 +97,7 @@ ShowcaseScreen:
                             OptsGrid:
                                 id: tree_data_opts
                                 grid_name: "Phylogenetic Tree Annotation"
+
                     Hseparator
                     BoxLayout:
                         orientation: "vertical"
@@ -181,6 +182,7 @@ ShowcaseScreen:
                                 background_normal: "data/backgrounds/refresh_bt.png"
                                 background_down: "data/backgrounds/refresh_bt.png"
                                 on_release:
+                                    if app.current_plt_idx:\
                                     app.stats_show_plot(*app.current_plt_idx)
 
         FloatLayout:
@@ -195,6 +197,34 @@ ShowcaseScreen:
                 background_normal: "data/backgrounds/tg_add_down.png" if self.pos[0] == self.pos_x_exp else "data/backgrounds/tg_remove_down.png"
                 on_release:
                     app.toggle_stats_panel()
+
+        FloatLayout:
+            size_hint_x: None
+            width: 0
+            TFButton:
+                id: sum_stats_bt
+                size_hint: None, None
+                size: 40, 40
+                pos: stats_panel.width, stats_panel.top - self.height - 45
+                background_normal: "data/backgrounds/summary_stats.png"
+                background_down: "data/backgrounds/summary_stats_down.png"
+                on_release:
+                    app.statistics_show_summary(force=True)
+
+#        FloatLayout:
+#            size_hint_x: None
+#            width: 0
+#
+#            ScatterLayout:
+#                size_hint: None, None
+#                size: 230, 40
+#                pos: stats_panel.width, stats_panel.top - self.width - 160
+#                rotation: 90
+#                TFButton:
+#                    text: "Summary statistics overview"
+#                    on_release:
+#                        app.statistics_show_summary(force=True)
+
 
         ScrollView:
             scroll_timeout: 0
