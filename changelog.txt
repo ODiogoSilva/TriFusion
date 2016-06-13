@@ -1,3 +1,11 @@
+### Upcoming release
+
+##### New Features
+- Added automatic calculation of summary statistics for the active data set when selecting the Statistics screen. All calculations are done in the background and can be canceled at any time. Summary statistics can be displayed for the overall data set or as a table with an entry for each gene.
+
+##### Bug Fixes
+-Corrected issue with table exportation in Statistics screen due to gray scale implementation
+
 ### v0.3.0
 
 ##### New Features

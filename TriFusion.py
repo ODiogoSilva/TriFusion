@@ -87,8 +87,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.0"
-    __build__ = "020616"
+    __version__ = "0.3.1"
+    __build__ = "130616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -256,6 +256,11 @@ if __name__ == "__main__":
         process_options = None
         process_height = None
 
+        # Attributes for Statistics summary stats
+        stats_summary = None
+        stats_table = None
+        MAX_TABLE_N = 50
+
         # Attribute for the widget containing the treeview showing the
         # operations queue
         operation_tv = ObjectProperty(None)
@@ -277,8 +282,11 @@ if __name__ == "__main__":
         # Dictionary with the plot methods and file names for each stats_idx
         stats_plt_method = {}
         # Storage of previous data sets. This is used to evaluate whether the
-        # plot methods should be run, or if they should be ignored
-        previous_sets = {"Files": [], "Taxa": []}
+        # plot methods should be run, or if they should be ignored. The Stats
+        # key refers to the previous active data sets when the stats summary
+        # statistics overview was performed. It should contain two lists,
+        # the first with the file set and the second with the taxa set
+        previous_sets = {"Files": [], "Taxa": [], "Stats": []}
         # This attribute will store the StatsToggleWgt when changing the screen
         # from Statistics. When the Statistics screen is back on active,
         # the widget can be restored with this var
@@ -345,6 +353,10 @@ if __name__ == "__main__":
         is_shift_pressed = BooleanProperty(False)
 
         mouse_position = ListProperty()
+
+        # Attribute that determines whether statistics background processes
+        # should be interrupted or not
+        interrupt_stats = BooleanProperty(True)
 
         ################################
         #
@@ -554,8 +566,8 @@ if __name__ == "__main__":
 
             # Execute cleaning function when exiting app
             Window.bind(on_request_close=lambda x:
-                self.check_action("Are you sure you want to quit?",
-                                  self._exit_clean))
+            self.check_action("Are you sure you want to quit?",
+                              self._exit_clean))
 
             Window.bind(on_stop=lambda x: self._exit_clean())
 
@@ -571,6 +583,9 @@ if __name__ == "__main__":
             self.process_grid_wgt = ProcessGeneral()
             # Create GridLayout instance for additional options of Process.
             self.process_options = AdditionalProcessContents()
+            # Create Summary stats box instance for Statistics screen
+            self.stats_summary = StatsSummary()
+            self.stats_table = GeneTable()
 
             # Initialize operation queue treeview in side panel
             self.operation_queue_init()
@@ -677,6 +692,16 @@ if __name__ == "__main__":
             if self.screen.name in self.plot_screens and \
                     self._popup not in self.root_window.children and \
                     self._subpopup not in self.root_window.children:
+
+                # Add exceptions here
+                try:
+                    if isinstance(self.screen.ids.plot_content.children[
+                                  0].children[0], StatsSummary) or \
+                            isinstance(self.screen.ids.plot_content.children[
+                                       0].children[0], GeneTable):
+                        return
+                except IndexError, ValueError:
+                    pass
 
                 motion = vals[2]
 
@@ -1564,92 +1589,106 @@ if __name__ == "__main__":
                             self.old_mouse_over in self.root_window.children:
                         self.root_window.remove_widget(self.old_mouse_over)
 
+            # Only do this when Statistics screen is on
+            if self.screen.name == "Statistics" and not self.show_side_panel \
+                    and not self._popup in self.root_window.children:
+                if self._determine_collision(self.screen.ids.sum_stats_bt, mp):
+                    collision = True
+                    create_fancy_label("Show summary statistics",
+                                       self.screen.ids.sum_stats_bt,
+                                       adjust_pos=True)
+
             # Only do this when plot screen is on
             if self.screen.name in self.plot_screens and self._popup not in \
                     self.root_window.children:
 
                 # Get PlotToolbar object
+                toolbar_wgt = None
                 try:
                     toolbar_wgt = [x for x in self.root_window.children
                                    if isinstance(x, OrtoPlotToolbar)][0]
                 except IndexError:
-                    toolbar_wgt = [x for x in self.root_window.children
-                                   if isinstance(x, StatsPlotToolbar)][0]
-
-                # For headless plot screens a back button is added to
-                # root_window
-                if self.screen.name == "plot":
-                    # Get back bt
-                    back_bt = [x for x in self.root_window.children
-                               if isinstance(x, BackButton)][0]
-
-                    if self._determine_collision(back_bt, mp):
-                        if back_bt.opacity != 1:
-                            Animation(
-                                opacity=1, d=.3, t="out_quart").start(back_bt)
-                    else:
-                        if back_bt.opacity == 1:
-                            Animation(
-                                opacity=.2, d=.3, t="out_quart").start(back_bt)
-
-                # Change toolbar opacity to become visible when collision is
-                # true
-                if self._determine_collision(toolbar_wgt, mp):
-                    if toolbar_wgt.opacity != 1:
-                        Animation(
-                            opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
-
-                else:
-                    if toolbar_wgt.opacity == 1:
-                        Animation(
-                            opacity=.2, d=.3, t="out_quart").start(toolbar_wgt)
-
-                if self.screen.name == "Statistics":
-
                     try:
-                        toggle_wgt = [x for x in self.root_window.children
-                                      if isinstance(x, StatsToggleWgt)][0]
-                        if self._determine_collision(toggle_wgt, mp):
-                            if toggle_wgt.opacity != 1:
-                                Animation(opacity=1, d=.3, t="out_quart"). \
-                                    start(toggle_wgt)
-                        else:
-                            if toggle_wgt.opacity == 1:
-                                Animation(opacity=.2, d=.3, t="out_quart"). \
-                                    start(toggle_wgt)
+                        toolbar_wgt = [x for x in self.root_window.children
+                                       if isinstance(x, StatsPlotToolbar)][0]
                     except IndexError:
-                        pass
+                        toolbar_wgt = None
 
-                # Check for collision with export figure or export table buttons
-                if self._determine_collision(toolbar_wgt.ids.export_fig, mp):
-                    collision = True
-                    if "Export as graphics" not in [x.id for x in
-                                                    self.root_window.children]:
-                        # Create fancy label
-                        create_fancy_label("Export as graphics",
-                                           toolbar_wgt.ids.export_fig,
-                                           line_c=(0.216, 0.67, 0.784, 1))
+                if toolbar_wgt:
+                    # For headless plot screens a back button is added to
+                    # root_window
+                    if self.screen.name == "plot":
+                        # Get back bt
+                        back_bt = [x for x in self.root_window.children
+                                   if isinstance(x, BackButton)][0]
 
-                elif self._determine_collision(toolbar_wgt.ids.export_table,
-                                               mp):
-                    collision = True
-                    if "Export as table" not in [x.id for x in
-                                                 self.root_window.children]:
-                        # Create fancy label
-                        create_fancy_label("Export as table",
-                                           toolbar_wgt.ids.export_table,
-                                           line_c=(0.216, 0.67, 0.784, 1))
+                        if self._determine_collision(back_bt, mp):
+                            if back_bt.opacity != 1:
+                                Animation(
+                                    opacity=1, d=.3, t="out_quart").start(back_bt)
+                        else:
+                            if back_bt.opacity == 1:
+                                Animation(
+                                    opacity=.2, d=.3, t="out_quart").start(back_bt)
 
-                if self.screen.name != "Statistics":
-                    if self._determine_collision(toolbar_wgt.ids.export_group,
-                                                 mp):
+                    # Change toolbar opacity to become visible when collision is
+                    # true
+                    if self._determine_collision(toolbar_wgt, mp):
+                        if toolbar_wgt.opacity != 1:
+                            Animation(
+                                opacity=1, d=.3, t="out_quart").start(toolbar_wgt)
+
+                    else:
+                        if toolbar_wgt.opacity == 1:
+                            Animation(
+                                opacity=.2, d=.3, t="out_quart").start(toolbar_wgt)
+
+                    if self.screen.name == "Statistics":
+
+                        try:
+                            toggle_wgt = [x for x in self.root_window.children
+                                          if isinstance(x, StatsToggleWgt)][0]
+                            if self._determine_collision(toggle_wgt, mp):
+                                if toggle_wgt.opacity != 1:
+                                    Animation(opacity=1, d=.3, t="out_quart"). \
+                                        start(toggle_wgt)
+                            else:
+                                if toggle_wgt.opacity == 1:
+                                    Animation(opacity=.2, d=.3, t="out_quart"). \
+                                        start(toggle_wgt)
+                        except IndexError:
+                            pass
+
+                    # Check for collision with export figure or export table buttons
+                    if self._determine_collision(toolbar_wgt.ids.export_fig, mp):
                         collision = True
-                        if "Export group" not in [x.id for x in
-                                                  self.root_window.children]:
+                        if "Export as graphics" not in [x.id for x in
+                                                        self.root_window.children]:
                             # Create fancy label
-                            create_fancy_label("Export group",
-                                               toolbar_wgt.ids.export_group,
+                            create_fancy_label("Export as graphics",
+                                               toolbar_wgt.ids.export_fig,
                                                line_c=(0.216, 0.67, 0.784, 1))
+
+                    elif self._determine_collision(toolbar_wgt.ids.export_table,
+                                                   mp):
+                        collision = True
+                        if "Export as table" not in [x.id for x in
+                                                     self.root_window.children]:
+                            # Create fancy label
+                            create_fancy_label("Export as table",
+                                               toolbar_wgt.ids.export_table,
+                                               line_c=(0.216, 0.67, 0.784, 1))
+
+                    if self.screen.name != "Statistics":
+                        if self._determine_collision(toolbar_wgt.ids.export_group,
+                                                     mp):
+                            collision = True
+                            if "Export group" not in [x.id for x in
+                                                      self.root_window.children]:
+                                # Create fancy label
+                                create_fancy_label("Export group",
+                                                   toolbar_wgt.ids.export_group,
+                                                   line_c=(0.216, 0.67, 0.784, 1))
 
             # Only do this in Orthology screen
             if (self.screen.name == "Orthology" and self.show_side_panel is
@@ -1766,6 +1805,10 @@ if __name__ == "__main__":
                 self.root.ids.sm.switch_to(self.load_screen(idx),
                                            direction=direct)
 
+            if self.current_screen == "Statistics":
+                # Generate or update statistics screen
+                self.statistics_show_summary()
+
         def go_previous_screen(self):
             """
             Method that returns to the previous screen, set by
@@ -1803,12 +1846,15 @@ if __name__ == "__main__":
                 self.disengage_groups()
 
             if basename(self.available_screens[idx]) == "Statistics.kv":
-                self.show_plot_toolbar(toolbar_type="stats")
                 self.screen.ids.taxa_dropdown.dismiss()
                 self.screen.ids.file_dropdown.dismiss()
                 # Add StatsToggleWidget, if present
-                if self.previous_stats_toggle:
-                    self.root_window.add_widget(self.previous_stats_toggle)
+                if isinstance(self.screen.ids.plot_content.children[0].
+                        children[0], Image):
+                    self.show_plot_toolbar(toolbar_type="stats")
+                    if self.previous_stats_toggle:
+                        self.root_window.add_widget(self.previous_stats_toggle)
+
 
             return self.screen
 
@@ -1992,6 +2038,7 @@ if __name__ == "__main__":
                     "The file {} already exists. Overwrite?".format(file_name),
                     methods[idx][0],
                     **{"args": methods[idx][1], "popup_level": 2})
+                self.dismiss_popup()
 
             else:
                 methods[idx][0](*methods[idx][1])
@@ -3972,7 +4019,13 @@ if __name__ == "__main__":
             self.dismiss_stats_toggle()
             self.previous_stats_toggle = None
             if self.screen.name == "Statistics":
-                self.screen.ids.plot_content.clear_widgets()
+                try:
+                    if not isinstance(self.screen.ids.plot_content.children[
+                                      0].children[0], NoDataLabel):
+                        self.screen.ids.plot_content.clear_widgets()
+                        self.screen.ids.plot_content.add_widget(NoDataLabel())
+                except IndexError:
+                    pass
                 self.screen.ids.gene_num.text = \
                     "Genes: [color=37abc8ff]N/A[/color]"
                 self.screen.ids.taxa_num.text = \
@@ -4954,6 +5007,237 @@ if __name__ == "__main__":
                     self.remove_all()
                     # Opens new data set
                     self.load_proteomes(project_dic[name][0])
+
+        def more_stats_table_bts(self):
+            """
+            Increases the MAX_TABLE_N attribute by 50 and adds more buttons
+            to the summary statistics gene table view
+            """
+
+            # Get results
+            with open(join(self.temp_dir, "table.pc"), "rb") as fh:
+                table = pickle.load(fh)
+
+            # Remove previous bt
+            self.stats_table.ids.table_grid.remove_widget(
+                self.stats_table.ids.table_grid.children[0])
+
+            for p, (k, v) in enumerate(sorted(table.items())):
+
+                if p <= self.MAX_TABLE_N:
+                    pass
+                elif self.MAX_TABLE_N + 25 >= p > self.MAX_TABLE_N:
+                    x = TableLine()
+                    x.ids.gn_name.text = "%s. %s" % (p, k)
+
+                    for t1, t2 in v.items():
+                        x.ids[t1].text = "%s" % t2
+
+                    self.stats_table.ids.table_grid.add_widget(x)
+
+                elif p > self.MAX_TABLE_N + 50:
+                    bt = MoreTableBt()
+                    self.stats_table.ids.table_grid.add_widget(bt)
+                    break
+
+            self.MAX_TABLE_N += 50
+
+        def statistics_show_summary(self, force=False, tp="stats"):
+            """
+            Creates a subprocess for calculating summary statistics for the
+            curently acitve data set. It will show either stats or table
+            mode, depending on the option provided in the 't' argument.
+            :param force: Bool, Clear all widgets from Stats scatter and show
+            summary
+            :param tp: string, Show overall summary statistics ('stats') or
+            summary statistics for each gene in table view ('table')
+            """
+
+            def display_stats(plt_wgt):
+
+                plt_wgt.clear_widgets()
+
+                # Get results
+                with open(join(self.temp_dir, "stats.pc"), "rb") as fh:
+                    stats, table = pickle.load(fh)
+
+                # Check for exceptions
+                if "exception" in stats:
+                    return self.dialog_floatcheck(stats["exception"], t="error")
+
+                # Populate cards content
+                for k, v in stats.items():
+                    self.stats_summary.ids[k].text = "%s" % v
+
+                # Add stats widget
+                plt_wgt.add_widget(self.stats_summary)
+
+                # Set table attribute
+                self.current_table = table
+
+            def display_table(plt_wgt):
+
+                # Force statistics side panel close
+                self.toggle_stats_panel(force_close=True)
+
+                # Clear main widget
+                plt_wgt.clear_widgets()
+
+                # Clear Table grid
+                self.stats_table.ids.table_grid.clear_widgets()
+
+                # Get results
+                with open(join(self.temp_dir, "table.pc"), "rb") as fh:
+                    table, td = pickle.load(fh)
+
+                # Check for exceptions
+                if "exception" in table:
+                    return self.dialog_floatcheck(table["exception"], t="error")
+
+                # Issue warning for large data sets
+                if len(table) > 50:
+                    self.dialog_floatcheck("WARNING: Large number of genes to "
+                        "display. Showing first 50 for now. For larger data "
+                        "sets it is recommended to use the 'export table' "
+                        "option", t="error")
+
+                # Populate content
+                for p, (k, v) in enumerate(sorted(table.items())):
+
+                    if p > self.MAX_TABLE_N:
+                        bt = MoreTableBt()
+                        self.stats_table.ids.table_grid.add_widget(bt)
+                        break
+
+                    # Create and populate TableLine
+                    x = TableLine()
+                    x.ids.gn_name.text = "%s. %s" % (p, k)
+
+                    for t1, t2 in v.items():
+                        x.ids[t1].text = "%s" % t2
+
+                    # Add TableLine to main grid
+                    self.stats_table.ids.table_grid.add_widget(x)
+
+                # Add Table widget
+                plt_wgt.add_widget(self.stats_table)
+
+                # Set table attribute
+                self.current_table = td
+
+            def check_process(p, ldg_wgt, plt_wgt, dt):
+
+                # When canceled  by the user
+                if self.interrupt_stats:
+                    Clock.unschedule(check_func)
+                    p.terminate()
+                    plt_wgt.clear_widgets()
+                    plt_wgt.add_widget(NoDataLabel())
+
+                if self.current_screen == "Statistics":
+
+                    if self.screen.ids.stats_panel.width == 0 or \
+                            self.screen.ids.stats_panel.width == 410:
+
+                        ldg_wgt.ids.img.rotation -= 10
+
+                if not p.is_alive():
+
+                    self.previous_sets["Stats"] = [file_set, taxa_set]
+
+                    if tp == "stats":
+                        display_stats(plt_wgt)
+                    elif tp == "table":
+                        display_table(plt_wgt)
+
+                    Clock.unschedule(check_func)
+                    p.terminate()
+
+            if not self.file_list:
+                return
+
+            # Check if any input alignments are active. If not, depends on
+            # whether there is a summary statistics widget already in
+            # display. If there is, ignore. If not, use the latest sum stats
+            # pickle object to quickly display the stats
+            if not self.active_file_list and self.file_list:
+                return self.dialog_floatcheck("No active files have been "
+                                              "selected", t="error")
+            else:
+                file_set_name = self.screen.ids.active_file_set.text
+                taxa_set_name = self.screen.ids.active_taxa_set.text
+
+                file_set, taxa_set = self.get_active_sets(file_set_name,
+                                                          taxa_set_name)
+
+                # There was no change in data set. Check whether there is a
+                # stats wdiget or not
+                if self.previous_sets["Stats"] == [file_set, taxa_set]:
+                    if isinstance(self.screen.ids.plot_content.children[
+                                      0].children[0], StatsSummary) and \
+                            tp == "stats":
+                        return
+                    elif isinstance(self.screen.ids.plot_content.children[
+                                      0].children[0], GeneTable) and \
+                            tp == "table":
+                        return
+                    else:
+                        # In this case, quickly display the stats last
+                        # calculated and stored in the pickle object
+                        if tp == "stats":
+                            display_stats(self.screen.ids.plot_content.
+                                          children[0])
+                        elif tp == "table":
+                            display_table(self.screen.ids.plot_content.
+                                          children[0])
+                        return
+
+                else:
+                    # Only add active sets as the previous AFTER completing
+                    # the calculations
+                    pass
+
+            # Check if plot has been previously loaded. If yes, ignore
+            if isinstance(self.screen.ids.plot_content.children[0].children[0],
+                          Image) and not force:
+                return
+
+            # Remove any potential widgets associated with stats plots
+            self.screen.ids.footer_box.clear_widgets()
+            self.dismiss_stats_toggle()
+            self.dismiss_plot_wgt()
+
+            # Clear scatterview for stats summary stats
+            self.screen.ids.plot_content.clear_widgets()
+
+            # Disable scale, translation and rotation of scatter
+            self.screen.ids.plot_content.do_scale = False
+            self.screen.ids.plot_content.do_translation = False
+            self.screen.ids.plot_content.do_rotation = False
+            self.screen.ids.plot_content.scale = 1
+            self.screen.ids.plot_content.pos = 0, 0
+
+            # Disable stats subprocess interruption. Being True by default
+            # and explicitly setting is to False when calculating summary
+            # stats makes it much more easier to interrupt by other
+            # actions/widgets
+            self.interrupt_stats = False
+
+            p = multiprocessing.Process(target=get_stats_summary,
+                                        kwargs={"aln_list": self.alignment_list,
+                                                "dest": self.temp_dir,
+                                                "active_file_set": file_set,
+                                                "active_taxa_set": taxa_set})
+
+            p.start()
+
+            # Add loading widget
+            ldg = StatsLoading()
+            self.screen.ids.plot_content.add_widget(ldg)
+
+            check_func = partial(check_process, p, ldg,
+                                 self.screen.ids.plot_content.children[0])
+            Clock.schedule_interval(check_func, .1)
 
         def statistics_populate_groups(self, ds_type):
             """
@@ -7837,6 +8121,9 @@ if __name__ == "__main__":
             else:
                 self.screen.ids.footer_box.clear_widgets()
 
+            # Add plot toolbar
+            self.show_plot_toolbar(toolbar_type="stats")
+
             self.load_plot(
                     join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
                     self.screen.ids.plot_content)
@@ -7977,6 +8264,38 @@ if __name__ == "__main__":
             self.screen.ids.taxa_num.text = \
                 "Taxa: [color=37abc8ff]{}[/color]". format(footer[1])
 
+        def get_active_sets(self, file_set_name=None, taxa_set_name=None):
+            """
+            Returns a tuple with the file set list as first element and taxa
+            set list as second element. List sets are only return for non
+            None arguments. If, for example, only file_set_name is provided,
+            then the return tuple will be ([file list], None)
+            :param file_set_name: string, name of file set
+            :param taxa_set_name: string, name of file set
+            """
+
+            if file_set_name:
+                if file_set_name == "All files":
+                    file_set = [basename(x) for x in self.file_list]
+                elif file_set_name == "Active files":
+                    file_set = [basename(x) for x in self.active_file_list]
+                else:
+                    file_set = self.file_groups[file_set_name]
+            else:
+                file_set = None
+
+            if taxa_set_name:
+                if taxa_set_name == "Active taxa":
+                    taxa_set = [x for x in self.active_taxa_list]
+                elif taxa_set_name == "All taxa":
+                    taxa_set = [x for x in self.alignment_list.taxa_names]
+                else:
+                    taxa_set = self.taxa_groups[taxa_set_name]
+            else:
+                taxa_set = None
+
+            return file_set, taxa_set
+
         def stats_show_plot(self, plt_idx, additional_args=None):
             """
             Wrapper that executes plot data gathering and execution. The method
@@ -7988,6 +8307,14 @@ if __name__ == "__main__":
             is the text property of the issuing button.
             :param additional_args:
             """
+
+            # Interrupt summary statistics, if running
+            self.interrupt_stats = True
+
+            # Reset scatter properties for plots
+            self.screen.ids.plot_content.do_scale = True
+            self.screen.ids.plot_content.do_translation = True
+            self.screen.ids.plot_content.do_rotation = True
 
             # Check whether there is data loaded
             if not self.file_list:
@@ -8007,19 +8334,8 @@ if __name__ == "__main__":
             # active_taxa_list, etc should not be directly assigned since
             # changes to these objects will also change the taxa_set,
             # and consequently, the self.previous_sets
-            if file_set_name == "All files":
-                file_set = [basename(x) for x in self.file_list]
-            elif file_set_name == "Active files":
-                file_set = [basename(x) for x in self.active_file_list]
-            else:
-                file_set = self.file_groups[file_set_name]
-
-            if taxa_set_name == "Active taxa":
-                taxa_set = [x for x in self.active_taxa_list]
-            elif taxa_set_name == "All taxa":
-                taxa_set = [x for x in self.alignment_list.taxa_names]
-            else:
-                taxa_set = self.taxa_groups[taxa_set_name]
+            file_set, taxa_set = self.get_active_sets(file_set_name,
+                                                      taxa_set_name)
 
             # List of gene specific plots. These are always removed
             gene_specific = {"Pairwise sequence similarity gn":
@@ -8416,6 +8732,10 @@ if __name__ == "__main__":
                     "%s file(s) successfully loaded" % len(selection),
                     t="info")
 
+                # If on statistics screen, issue the summary statistics overview
+                if self.current_screen == "Statistics":
+                    self.statistics_show_summary()
+
         def get_taxon_information(self, tx, aln_list):
             """
             Akin to the get_taxa_information method, but it only looks for
@@ -8797,7 +9117,7 @@ if __name__ == "__main__":
                 try:
                     if shared_ns.file_dialog:
                         self.dialog_fileoverwrite("File %s already exists" %
-                            basename(shared_ns.file_dialog))
+                                                  basename(shared_ns.file_dialog))
                         # This will prevent the dialog from being
                         # re-generated while the user chooses the option
                         shared_ns.file_dialog = None

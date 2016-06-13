@@ -62,6 +62,37 @@ def load_proc(aln_list, file_list, nm, dest):
         nm.exception = True
 
 
+def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set):
+    """
+    Runs the get_summary_stats method in the background and writes the output
+    in a pickle file
+    :param aln_list: AlignmentList object
+    :param dest: temporary file where stats will be written
+    :param active_file_set: list, with files to be included in summary
+    statistics
+    :param active_taxa_set: list, with taxa to be included in summary statistics
+    """
+
+    # Update alignment object according to active file and taxa sets
+    aln_list.update_active_alignments(active_file_set)
+    aln_list.remove_taxa(list(set(aln_list.taxa_names) - set(active_taxa_set)))
+
+    with open(join(dest, "stats.pc"), "wb") as fh_stats, \
+            open(join(dest, "table.pc"), "wb") as fh_table:
+
+        # Check if active data sets are not empty. If so, raise an exception
+        if aln_list.alignments == OrderedDict() or not aln_list.taxa_names:
+            for fh in [fh_stats, fh_table]:
+                pickle.dump({"exception": "Alignment is empty after file and "
+                                          "taxa filters"}, fh)
+            return
+
+        stats = aln_list.get_summary_stats()
+        table = aln_list.get_gene_table_stats()
+        pickle.dump(stats, fh_stats)
+        pickle.dump(table, fh_table)
+
+
 def background_process(f, ns, a):
     """
     Executes the func in the background and returns its value to the

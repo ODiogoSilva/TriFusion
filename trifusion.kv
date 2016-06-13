@@ -1402,6 +1402,11 @@
     size_hint_y: None
     height: 40
     color: (0.216, 0.67, 0.784, 1)
+    on_text:
+        try:\
+        self.text = "{0:,}".format(int(self.text))
+        except ValueError:\
+        pass
 
 <DescriptionLabelSmall@Label>:
     bold: True
@@ -2949,8 +2954,10 @@
                         # For save dialogs requiring file name, make this check
                         if self.text_io == "" and txt_box.height == 30: \
                         app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
-                        elif txt_box.height != 0: \
+                        elif txt_box.height != 0 and "bw" in txt_box.ids: \
                         app.check_file(sd_filechooser.path, filename, sd_filechooser.text, txt_box.ids.bw.children[-1].active)
+                        elif txt_box.height != 0:\
+                        app.check_file(sd_filechooser.path, filename, sd_filechooser.text)
 
                         # For save dialogs that do not require file names but require a file to be selected
                         elif sd_filechooser.text in root.file_required and not sd_filechooser.selection: \
@@ -4551,9 +4558,10 @@
     width: self.thickness + 2 * self.margin
     thickness: 1
     margin: 1
+    c: .5, .5, .5, 1
     canvas:
         Color:
-            rgb: .5, .5, .5
+            rgba: self.c
         Rectangle:
             pos: self.x + self.margin + 1, self.y + self.margin + 10
             size: self.thickness, self.height - 2 * self.margin - 20
@@ -5522,6 +5530,517 @@
                 text: "Cancel"
                 on_release:
                     root.cancel()
+
+<StatsLoading>:
+    orientation: "vertical"
+    Widget
+    BoxLayout:
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 20
+            AnchorLayout:
+                anchor_x: "center"
+                anchor_y: "center"
+                ScatterLayout:
+                    do_translation: False
+                    do_scale: False
+                    do_rotation: False
+                    id: img
+                    size_hint: None, None
+                    size: 100, 100
+                    Image:
+                        source: "data/backgrounds/spinner2.png"
+            Label:
+                text: "Summoning summary statistics"
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+                font_size: 20
+                size_hint_y: None
+                height: 30
+                color: (0.216, 0.67, 0.784, 1)
+
+            AnchorLayout:
+                anchor_x: "center"
+                anchor_y: "center"
+                size_hint_y: None
+                height: 30
+                TFButton:
+                    text: "Cancel"
+                    bold: True
+                    size_hint_x: None
+                    width: 150
+                    on_release:
+                        app.interrupt_stats = True
+    Widget:
+
+<TableCellTop@Label>:
+    bold: True
+    size_hint_x: None
+    width: 70
+    color: (0.216, 0.67, 0.784, 1)
+
+<TableCell@Label>:
+    size_hint_x: None
+    width: 70
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+
+<TableCellGrey@TableCell>:
+    canvas.before:
+        Color:
+            rgba: (.6, .6, .6, .3)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<TableCellGreen@TableCell>:
+    canvas.before:
+        Color:
+            rgba: .78, .91, .69, .3
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<TableCellOrange@TableCell>:
+    canvas.before:
+        Color:
+            rgba: 1, .8, .67, .3
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<MoreTableBt>:
+    size_hint_y: None
+    height: 40
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
+        TFButton:
+            size_hint: None, None
+            size: 150, 30
+            text: "Show more 25"
+            on_release:
+                app.more_stats_table_bts()
+
+<TableLine>:
+    size_hint_y: None
+    height: 40
+    Label:
+        id: gn_name
+        halign: "left"
+        valign: "middle"
+        text_size: self.width, self.height
+        shorten: True
+        shorten_from: "right"
+    Widget:
+        size_hint_x: None
+        width: 3
+    TableCellGrey:
+        id: nsites
+    Widget:
+        size_hint_x: None
+        width: 3
+    TableCellGrey:
+        id: taxa
+    Widget:
+        size_hint_x: None
+        width: 3
+    TableCellGreen:
+        id: var
+    Widget:
+        size_hint_x: None
+        width: 3
+    TableCellGreen:
+        id: inf
+    Widget:
+        size_hint_x: None
+        width: 3
+    TableCellOrange:
+        id: gap
+    Widget:
+        size_hint_x: None
+        width: 3
+    TableCellOrange:
+        id: missing
+
+<GeneTable>:
+    padding: 20
+    orientation: "vertical"
+    Label:
+        text: "Summary statistics gene table view"
+        bold: True
+        halign: "center"
+        valign: "middle"
+        text_size: self.size
+        font_size: 20
+        size_hint_y: None
+        height: 30
+        color: (0.216, 0.67, 0.784, 1)
+    Widget:
+        size_hint_y: None
+        height: 10
+
+    Label:
+        size_hint_y: None
+        height: 65
+        text: "[b][color=37abc8ff][size=18]Legend:[/size][/b][/color] [b][color=37abc8ff]N[/b][/color], number of sites; [b][color=37abc8ff]Taxa[/b][/color], number of taxa; [b][color=37abc8ff]V[/b][/color], number of variable sites; [b][color=37abc8ff]P[/b][/color], number of informative sites; [b][color=37abc8ff][/b][/color] number of gaps ('-'), [b][color=37abc8ff]M[/b][/color], number of missing data ('n')"
+        markup: True
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+
+    Hseparator
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        Label:
+            text: "Gene name"
+            bold: True
+            halign: "center"
+            valign: "middle"
+            text_size: self.width, 40
+            shorten: True
+            shorten_from: "right"
+            color: (0.216, 0.67, 0.784, 1)
+        Vseparator
+        TableCellTop:
+            text: "N"
+        Vseparator
+        TableCellTop:
+            text: "Taxa"
+        Vseparator
+        TableCellTop:
+            text: "V"
+        Vseparator
+        TableCellTop:
+            text: "P"
+        Vseparator
+        TableCellTop:
+            text: "Gap"
+        Vseparator
+        TableCellTop:
+            text: "M"
+    Hseparator
+
+    ScrollView:
+        bar_width: 10
+        scroll_type: ["bars", "content"]
+        id: grid_sv
+        GridLayout:
+            cols: 1
+            id: table_grid
+            size_hint_y: None
+            height: self.minimum_height
+
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
+        size_hint_y: None
+        height: 40
+        BoxLayout:
+            size_hint: None, None
+            size: 360, 40
+            spacing: 20
+            TFButton:
+                size_hint: None, None
+                size: 170, 30
+                text: "Display overall table"
+                bold: True
+                on_release:
+                    app.statistics_show_summary(True, "stats")
+            TFButton:
+                size_hint: None, None
+                size: 170, 30
+                text: "Export as table"
+                bold: True
+                on_release:
+                    app.dialog_filechooser("export_table")
+
+<StatsSummary>:
+    orientation: "vertical"
+    spacing: 10
+    padding: 15
+    Label:
+        text: "Summary statistics overview"
+        bold: True
+        halign: "center"
+        valign: "middle"
+        text_size: self.size
+        font_size: 20
+        size_hint_y: None
+        height: 30
+        color: (0.216, 0.67, 0.784, 1)
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: 110
+        padding: 10
+        id: bx1
+        canvas.before:
+            Color:
+                rgba: (0.1, 0.1, 0.1, .5)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        StackLayout:
+            canvas.after:
+                Color:
+                    rgb: (0.216, 0.67, 0.784, 1)
+                Line:
+                    width: 0.8
+                    cap: "round"
+                    joint: "round"
+                    rectangle: bx1.x,bx1.y,bx1.width,bx1.height
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Label:
+                text: "General information"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+
+        BoxLayout:
+            size_hint_y: None
+            height: 60
+            BoxLayout:
+                spacing: 10
+                Vseparator:
+                    thickness: 2
+                BoxLayout:
+                    orientation: "vertical"
+                    DescriptionLabelLarge:
+                        id: genes
+                    DescriptionLabelSmall:
+                        font_size: 14
+                        text: "Genes"
+            BoxLayout:
+                spacing: 10
+                Vseparator:
+                    thickness: 2
+                BoxLayout:
+                    orientation: "vertical"
+                    DescriptionLabelLarge:
+                        id: taxa
+                    DescriptionLabelSmall:
+                        font_size: 14
+                        text: "Taxa"
+            BoxLayout:
+                spacing: 10
+                Vseparator:
+                    thickness: 2
+                BoxLayout:
+                    orientation: "vertical"
+                    DescriptionLabelLarge:
+                        id: seq_len
+                    DescriptionLabelSmall:
+                        font_size: 14
+                        text: "Total alignment length"
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: 170
+        padding: 10
+        id: bx2
+        canvas.before:
+            Color:
+                rgba: (0.1, 0.1, 0.1, .5)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        StackLayout:
+            canvas.after:
+                Color:
+                    rgb: (0.216, 0.67, 0.784, 1)
+                Line:
+                    width: 0.8
+                    cap: "round"
+                    joint: "round"
+                    rectangle: bx2.x,bx2.y,bx2.width,bx2.height
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Label:
+                text: "Missing data information"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+
+        BoxLayout:
+            size_hint_y: None
+            spacing: 10
+            height: 120
+            orientation: "vertical"
+            BoxLayout:
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: gaps
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Gaps"
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: missing
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Missing data"
+            BoxLayout:
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: avg_gaps
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Gaps per gene"
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: avg_missing
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Missing data per gene"
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: 170
+        padding: 10
+        id: bx3
+        canvas.before:
+            Color:
+                rgba: (0.1, 0.1, 0.1, .5)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        StackLayout:
+            canvas.after:
+                Color:
+                    rgb: (0.216, 0.67, 0.784, 1)
+                Line:
+                    width: 0.8
+                    cap: "round"
+                    joint: "round"
+                    rectangle: bx3.x,bx3.y,bx3.width,bx3.height
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Label:
+                text: "Sequence variation information"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+
+        BoxLayout:
+            size_hint_y: None
+            spacing: 10
+            height: 120
+            orientation: "vertical"
+            BoxLayout:
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: variable
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Variable sites"
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: informative
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Informative sites"
+            BoxLayout:
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: avg_var
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Variable sites per gene"
+                BoxLayout:
+                    spacing: 10
+                    Vseparator:
+                        thickness: 2
+                    BoxLayout:
+                        orientation: "vertical"
+                        DescriptionLabelLarge:
+                            id: avg_inf
+                        DescriptionLabelSmall:
+                            font_size: 14
+                            text: "Informative sites per gene"
+
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
+        BoxLayout:
+            size_hint: None, None
+            size: 360, 60
+            spacing: 20
+            TFButton:
+                size_hint: None, None
+                size: 170, 30
+                text: "Display gene table"
+                bold: True
+                on_release:
+                    app.statistics_show_summary(True, "table")
+            TFButton:
+                size_hint: None, None
+                size: 170, 30
+                text: "Export as table"
+                bold: True
+                on_release:
+                    app.dialog_filechooser("export_table")
+
+    Widget
+
+
+<NoDataLabel>:
+    valign: "middle"
+    halign: "center"
+    text_size: self.size
+    markup: True
+    bold: True
+    color: .7, .7, .7, .7
+    text: "[size=34]No data to display[/size]\nPlease select an analysis from the left panel"
+
 
 <StatsPlotToolbar>
     orientation: "vertical"
