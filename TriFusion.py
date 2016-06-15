@@ -87,8 +87,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.1"
-    __build__ = "130616"
+    __version__ = "0.3.2"
+    __build__ = "150616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -1113,7 +1113,7 @@ if __name__ == "__main__":
 
             else:
                 self.dialog_floatcheck("WARNING: Path does not exist",
-                                       t="error")
+                                       t="warning")
                 return original_path
 
         @staticmethod
@@ -3217,7 +3217,7 @@ if __name__ == "__main__":
                 self.dialog_floatcheck(
                     "WARNING: Manual split in unavailable for partitions with "
                     "fragmented ranges.",
-                    t="error")
+                    t="warning")
 
         def partitions_change_name(self, partition_name, new_name):
             """
@@ -4869,7 +4869,7 @@ if __name__ == "__main__":
             if name in projects_dic:
                 return self.dialog_floatcheck(
                     "WARNING: Project with the same name is already present",
-                    t="error")
+                    t="warning")
 
             with open(self.projects_file, "wb") as projects_fh:
                 if self.file_list:
@@ -4998,7 +4998,7 @@ if __name__ == "__main__":
                     if [x for x in project_dic[name][0] if not os.path.isfile(
                             x)]:
                         self.dialog_floatcheck("WARNING: Some project "
-                            "files no longer exist", t="error")
+                            "files no longer exist", t="warning")
                     # Opens new dataset
                     self.load_files_subproc(project_dic[name][0])
 
@@ -5099,7 +5099,7 @@ if __name__ == "__main__":
                     self.dialog_floatcheck("WARNING: Large number of genes to "
                         "display. Showing first 50 for now. For larger data "
                         "sets it is recommended to use the 'export table' "
-                        "option", t="error")
+                        "option", t="warning", dl=10)
 
                 # Populate content
                 for p, (k, v) in enumerate(sorted(table.items())):
@@ -5822,7 +5822,7 @@ if __name__ == "__main__":
             if self.proteome_files and int(sp_filt) > len(self.proteome_files):
                 return self.dialog_floatcheck("WARNING: Minimum number of "
                                               "species larger than the provided"
-                                              " proteomes", t="error")
+                                              " proteomes", t="warning")
 
         def save_inflation(self, inflation_wgt):
             """
@@ -6134,7 +6134,7 @@ if __name__ == "__main__":
                 if set(exclude_taxa) == set(self.active_group.species_list):
                     return self.dialog_floatcheck(
                         "WARNING: At least one taxon must be included.",
-                        t="error")
+                        t="warning")
 
                 # Update attributes and remove taxa from group object
                 self.screen.ids.header_content.excluded_taxa = exclude_taxa
@@ -6193,7 +6193,7 @@ if __name__ == "__main__":
                         "WARNING: Current filters beyond the  maximum "
                         "accepted values. Adjusting gene  and species "
                         "thresholds to %s and %s,  respectively" %
-                        (gn_filt, sp_filt), t="error")
+                        (gn_filt, sp_filt), t="warning")
 
             # If no filter has been specified, but taxa removal changed the
             # maximum number of species and/or gene copies beyond the current
@@ -6218,7 +6218,7 @@ if __name__ == "__main__":
                     "values. Adjusting gene and species thresholds to %s and "
                     "%s, respectively" %
                     (self.screen.ids.gn_spin.value,
-                    self.screen.ids.sp_spin.value), t="error")
+                    self.screen.ids.sp_spin.value), t="warning")
 
             # Set the current plt_idx for update reference
             self.screen.ids.header_content.plt_idx = plt_idx
@@ -6754,7 +6754,7 @@ if __name__ == "__main__":
             if not self.output_formats:
                 return self.dialog_floatcheck(
                     "WARNING: Please choose at least one output format",
-                    t="error")
+                    t="warning")
 
             self.dismiss_popup()
 
@@ -6896,7 +6896,7 @@ if __name__ == "__main__":
                                "inheritance scalar"]):
                 if not i:
                     return self.dialog_floatcheck("WARNING: Please specify a "
-                                                  "{}".format(msg), t="error")
+                                                  "{}".format(msg), t="warning")
 
             self.ima2_options[1] = pop_string
             self.ima2_options[2] = mutation
@@ -7029,13 +7029,14 @@ if __name__ == "__main__":
             # Change background of used defined partition button
             self._popup.content.ids.use_parts.state = "normal"
 
-        def dialog_floatcheck(self, text, t):
+        def dialog_floatcheck(self, text, t, dl=5):
             """
             Creates a floating label with informative text on the right upper
             corner of the app. This is used for showing errors, warnings and
             general informative messages that fade in and fade out after a time
             :param t: string, with type of check. Can be either error or info
             :param text: string, text to appear in the label
+            :param dl: integer, duration of the float
             :return:
             """
 
@@ -7065,6 +7066,9 @@ if __name__ == "__main__":
             if t == "error":
                 check_wgt.cl = (1, .33, .33, 1)
                 check_wgt.line_cl = (1, 0, 0, 1)
+            elif t == "warning":
+                check_wgt.cl = (.93, .55, .09, 1)
+                check_wgt.line_cl = (1, .81, 0, 1)
             else:
                 check_wgt.cl = (.35, .63, .17, 1)
                 check_wgt.line_cl = (0.2, 1, 0.2, 1)
@@ -7075,7 +7079,7 @@ if __name__ == "__main__":
 
             # Set animations
             fade_in()
-            Clock.schedule_once(lambda arg: fade_out(), 5)
+            Clock.schedule_once(lambda arg: fade_out(), dl)
 
         def check_partitions_file(self):
             """
