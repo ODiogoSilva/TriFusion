@@ -559,7 +559,7 @@ class FileChooserM(FileChooserListView):
         is_hidden = self.file_system.is_hidden
         if not self.show_hidden:
             files = [x for x in files if not is_hidden(x)]
-        self.files[:] = files
+        self.files[:] += files
         total = len(files)
         wself = ref(self)
         for index, fn in enumerate(files):
