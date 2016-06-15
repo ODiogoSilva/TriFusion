@@ -34,7 +34,7 @@
     # hardcoded in it. The fix to this would be to update treeview to allow
     # multiple selection.
     selected: self.path in ctx.controller().selection
-    multiselect: True
+    multiselect: ctx.controller().multiselect
 
     orientation: 'horizontal'
     size_hint_y: None
@@ -47,7 +47,7 @@
         pos: root.pos
         canvas.before:
             Color:
-                rgba: (.4, .4, .4, .5) if root.selected else (0,0,0,0)
+                rgba: (.4, .4, .4, .5) if root.selected and root.multiselect else (0,0,0,0)
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -73,6 +73,7 @@
     on_subentry_to_entry: not args[2].locked and treeview.add_node(args[1], args[2])
     on_remove_subentry: args[2].nodes = []
     _ENTRY_TEMPLATE: "FileListEntryM"
+    multiselect: False
     BoxLayout:
         pos: root.pos
         size: root.size
@@ -104,6 +105,8 @@
         ScrollView:
             id: scrollview
             do_scroll_x: False
+            bar_width: 10
+            scroll_type: ["bars", "content"]
             Scatter:
                 do_rotation: False
                 do_scale: False
@@ -112,12 +115,14 @@
                 size_hint_y: None
                 TreeViewM:
                     id: treeview
+                    multiselect: root.multiselect
                     hide_root: True
                     size_hint_y: None
                     width: scrollview.width
                     height: self.minimum_height
-                    on_node_expand: root.controller.entry_subselect(args[1])
-                    on_node_collapse: root.controller.close_subselection(args[1])
+                    #on_node_expand: root.controller.entry_subselect(args[1])
+                    #on_node_collapse: root.controller.close_subselection(args[1]); root.controller.selection = [args[1].path]
+                    on_node_expand: root.controller.open_entry(args[1])
 
 
 #===============================================================================
@@ -2443,6 +2448,7 @@
                     id: sd_filechooser
                     previous_dir: []
                     text: "master"
+                    dirselect: True
                     multiselect: True
                     path: app.home_path
                     on_double_click:
@@ -3002,7 +3008,6 @@
                 previous_dir: []
                 text: "master"
                 dirselect: True
-                multiselect: True
                 path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
                 on_selection:
                     if txt_box.height == 30 and self.selection and not os.path.isdir(self.selection[0]): \
