@@ -1122,15 +1122,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="1902.1293"
-     inkscape:cy="-922.10699"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="-733.99744"
+     inkscape:cy="-1106.0664"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1362"
      inkscape:window-height="729"
-     inkscape:window-x="0"
+     inkscape:window-x="1920"
      inkscape:window-y="37"
      inkscape:window-maximized="0"
      showguides="false"
@@ -4599,5 +4599,17 @@
        style="fill:#ffffff;fill-opacity:1"
        inkscape:export-xdpi="25.266317"
        inkscape:export-ydpi="25.266317" />
+    <rect
+       style="fill:#ea8b18;fill-opacity:1;fill-rule:nonzero;stroke:#ffce00;stroke-width:10;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3050-2-7-3-05-2-2"
+       width="185.31654"
+       height="135.31654"
+       x="-1030.6583"
+       y="2216.7039"
+       ry="36.367188"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="18.43162"
+       inkscape:export-ydpi="18.43162"
+       rx="36.367188" />
   </g>
 </svg>

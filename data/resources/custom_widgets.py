@@ -33,9 +33,9 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.slider import Slider
-from kivy.clock import Clock
-from kivy.uix.checkbox import CheckBox
-from kivy.uix.filechooser import FileChooserListView, FileChooserIconView
+from kivy.uix.treeview import TreeView
+from kivy.uix.filechooser import FileChooserListView, FileChooserIconView, \
+    FileChooserLayout, FileChooserController
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
 from kivy.utils import get_hex_from_color
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
@@ -320,7 +320,39 @@ class FileChooserL(FileChooserListView):
             yield index, total, entry
 
 
-class FileChooserM(FileChooserIconView):
+class TreeViewM(TreeView):
+    """
+    Implementation of TreeViewNode widget to support multiple selection in
+    ListView filechoosers
+    """
+
+    multiselect = BooleanProperty(False)
+    """
+    Boolean to indicate whether multiple nodes may be selected.
+    """
+
+    def __init__(self, **kwargs):
+        super(TreeViewM, self).__init__(**kwargs)
+
+    def select_node(self, node):
+        '''Select a node in the tree.
+        '''
+        if node.no_selection:
+            return
+        else:
+            if self._selected_node:
+                self._selected_node.is_selected = False
+            # Ignore node selection on multiselect. Selection is done in the
+            # layout
+            if self.multiselect:
+                node.is_selected = False
+            else:
+                node.is_selected = True
+
+        self._selected_node = node
+
+
+class FileChooserM(FileChooserListView):
     """
     Modification of the FileChooserIconView widget that fixes n issue of path
     update when clicking in the parent directory and provides support for
@@ -427,7 +459,6 @@ class FileChooserM(FileChooserIconView):
         (internal) This method must be called by the template when an entry
         is touched by the user. Supports Shift+Clicking for multiple selection
         """
-
         if (
             'button' in touch.profile and touch.button in (
                 'scrollup', 'scrolldown', 'scrollleft', 'scrollright')):
