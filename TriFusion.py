@@ -87,7 +87,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.8"
+    __version__ = "0.3.9"
     __build__ = "160616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -213,6 +213,7 @@ if __name__ == "__main__":
 
         _popup = ObjectProperty(None)
         _subpopup = ObjectProperty(None)
+        _exit_popup = ObjectProperty(None)
 
         # Dictionary containing the values for the main process operations
         main_operations = DictProperty({
@@ -568,7 +569,7 @@ if __name__ == "__main__":
             # Execute cleaning function when exiting app
             Window.bind(on_request_close=lambda x:
             self.check_action("Are you sure you want to quit?",
-                              self._exit_clean))
+                              self._exit_clean, popup_level=3))
 
             Window.bind(on_stop=lambda x: self._exit_clean())
 
@@ -1936,8 +1937,8 @@ if __name__ == "__main__":
             :param func: final function if the users chooses to proceed
             :param bt_wgt: widget where the initial 'on_' event occurred
             :param args: list, of arguments to be passed on to func
-            :param popup_level: int, level of popup. 1 for _popup and 2 for
-            _subpopup
+            :param popup_level: int, level of popup. 1 for _popup, 2 for
+            _subpopup and 3 for exit popup
             :param check_wgt: Widget. Specified the check dialog widget
 
             Usage example:
@@ -1955,8 +1956,10 @@ if __name__ == "__main__":
 
             if popup_level == 1:
                 check_content = check_wgt(cancel=self.dismiss_popup)
-            else:
+            elif popup_level == 2:
                 check_content = check_wgt(cancel=self.dismiss_subpopup)
+            elif popup_level == 3:
+                check_content = check_wgt(cancel=self.dismiss_exit)
 
             if isinstance(check_content, CheckDialog):
                 # Set size
@@ -1991,13 +1994,20 @@ if __name__ == "__main__":
                 self.show_popup(title=title, content=check_content,
                                 size=size,
                                 separator_color=sep_color)
-            else:
+            elif popup_level == 2:
                 self._subpopup = CustomPopup(title=title,
                                              content=check_content,
                                              size=size,
                                              size_hint=(None, None),
                                              separator_color=sep_color)
                 self._subpopup.open()
+            elif popup_level == 3:
+                self._exit_popup = CustomPopup(title=title,
+                                               content=check_content,
+                                               size=size,
+                                               size_hint=(None, None),
+                                               separator_color=sep_color)
+                self._exit_popup.open()
 
             return True
 
@@ -6699,6 +6709,14 @@ if __name__ == "__main__":
                 self.root_window.remove_widget(rm_wgt)
             except IndexError:
                 pass
+
+        def dismiss_exit(self, *args):
+            """
+            Dismiss function for exit popup
+            """
+
+            if self._exit_popup:
+                self._exit_popup.dismiss()
 
         # ########################## PROCESS SCREEN ############################
 
