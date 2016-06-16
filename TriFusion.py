@@ -357,6 +357,7 @@ if __name__ == "__main__":
         # Attribute that determines whether statistics background processes
         # should be interrupted or not
         interrupt_stats = BooleanProperty(True)
+        lock_stats = BooleanProperty(False)
 
         ################################
         #
@@ -5153,6 +5154,7 @@ if __name__ == "__main__":
                     p.terminate()
                     plt_wgt.clear_widgets()
                     plt_wgt.add_widget(NoDataLabel())
+                    self.lock_stats = False
 
                 if self.current_screen == "Statistics":
 
@@ -5173,8 +5175,13 @@ if __name__ == "__main__":
 
                     Clock.unschedule(check_func)
                     p.terminate()
+                    self.lock_stats = False
 
             if not self.file_list:
+                return
+
+            # Ignore if a process is already running
+            if self.lock_stats:
                 return
 
             # Check if any input alignments are active. If not, depends on
@@ -5233,6 +5240,7 @@ if __name__ == "__main__":
             # stats makes it much more easier to interrupt by other
             # actions/widgets
             self.interrupt_stats = False
+            self.lock_stats = True
 
             p = multiprocessing.Process(target=get_stats_summary,
                                         kwargs={"aln_list": self.alignment_list,
