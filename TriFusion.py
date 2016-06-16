@@ -5111,7 +5111,7 @@ if __name__ == "__main__":
 
                     # Create and populate TableLine
                     x = TableLine()
-                    x.ids.gn_name.text = "%s. %s" % (p, k)
+                    x.ids.gn_name.text = "%s. %s" % (p + 1, k)
 
                     for t1, t2 in v.items():
                         x.ids[t1].text = "%s" % t2
