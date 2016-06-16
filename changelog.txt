@@ -8,6 +8,7 @@
 - Duration of float checks can now be changed
 - Replaced icon view filechoosers with list view filechoosers with multiple selection support
 - Added refresh button to all filechoosers
+- Added Cancel option when prompting for files with the same name as output
 
 ##### Bug Fixes
 - Corrected issue with table exportation in Statistics screen due to gray scale implementation

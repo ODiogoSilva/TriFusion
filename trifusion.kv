@@ -320,6 +320,13 @@
                 app.file_apply_all = True if dlg_chk.active else False
                 root.cancel()
 
+        TFOKButon:
+            text: "Cancel"
+            id: apply_bt
+            on_release:
+                app.interrupt_process_exe = True
+                root.cancel()
+
 <InputTextDialog>:
     orientation: "vertical"
     padding: 10
