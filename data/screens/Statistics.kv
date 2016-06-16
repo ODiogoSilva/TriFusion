@@ -1,3 +1,6 @@
+#:import StatsSummary data.resources.custom_widgets.StatsSummary
+#:import GeneTable data.resources.custom_widgets.GeneTable
+
 ShowcaseScreen:
     name: "Statistics"
     __safe_id: [taxa_dropdown.__self__, file_dropdown.__self__]
@@ -182,7 +185,9 @@ ShowcaseScreen:
                                 background_normal: "data/backgrounds/refresh_bt.png"
                                 background_down: "data/backgrounds/refresh_bt.png"
                                 on_release:
-                                    if app.current_plt_idx:\
+                                    if isinstance(plot_content.children[0].children[0], StatsSummary) or isinstance(plot_content.children[0].children[0], GeneTable):\
+                                    app.statistics_show_summary()
+                                    elif app.current_plt_idx:\
                                     app.stats_show_plot(*app.current_plt_idx)
 
         FloatLayout:
