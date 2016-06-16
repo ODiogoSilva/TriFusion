@@ -3360,7 +3360,7 @@ class AlignmentList(Base):
     @CheckData
     def sequence_similarity_gene(self, gene_name, window_size):
 
-        aln_obj = self.alignments[gene_name]
+        aln_obj = self.retrieve_alignment(gene_name)
 
         data = []
 
@@ -3480,7 +3480,7 @@ class AlignmentList(Base):
         :param window_size: size of the sliding window
         """
 
-        aln_obj = self.alignments[gene_name]
+        aln_obj = self.retrieve_alignment(gene_name)
 
         data = []
 
