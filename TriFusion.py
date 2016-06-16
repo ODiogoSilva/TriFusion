@@ -87,8 +87,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.3"
-    __build__ = "150616"
+    __version__ = "0.3.4"
+    __build__ = "160616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -1854,7 +1854,6 @@ if __name__ == "__main__":
                     self.show_plot_toolbar(toolbar_type="stats")
                     if self.previous_stats_toggle:
                         self.root_window.add_widget(self.previous_stats_toggle)
-
 
             return self.screen
 
@@ -5053,9 +5052,29 @@ if __name__ == "__main__":
             summary statistics for each gene in table view ('table')
             """
 
-            def display_stats(plt_wgt):
+            def prepare_display(plt_wgt):
 
+                # Clear main widget
                 plt_wgt.clear_widgets()
+
+                # Remove any potential widgets associated with stats plots
+                self.screen.ids.footer_box.clear_widgets()
+                self.dismiss_stats_toggle()
+                self.dismiss_plot_wgt()
+
+                # Remove any potential widgets associated with stats plots
+                self.screen.ids.footer_box.clear_widgets()
+                self.dismiss_stats_toggle()
+                self.dismiss_plot_wgt()
+
+                # Disable scale, translation and rotation of scatter
+                self.screen.ids.plot_content.do_scale = False
+                self.screen.ids.plot_content.do_translation = False
+                self.screen.ids.plot_content.do_rotation = False
+                self.screen.ids.plot_content.scale = 1
+                self.screen.ids.plot_content.pos = 0, 0
+
+            def display_stats(plt_wgt):
 
                 # Get results
                 with open(join(self.temp_dir, "stats.pc"), "rb") as fh:
@@ -5079,9 +5098,6 @@ if __name__ == "__main__":
 
                 # Force statistics side panel close
                 self.toggle_stats_panel(force_close=True)
-
-                # Clear main widget
-                plt_wgt.clear_widgets()
 
                 # Clear Table grid
                 self.stats_table.ids.table_grid.clear_widgets()
@@ -5145,6 +5161,7 @@ if __name__ == "__main__":
 
                     self.previous_sets["Stats"] = [file_set, taxa_set]
 
+                    prepare_display(plt_wgt)
                     if tp == "stats":
                         display_stats(plt_wgt)
                     elif tp == "table":
@@ -5163,6 +5180,10 @@ if __name__ == "__main__":
             if not self.active_file_list and self.file_list:
                 return self.dialog_floatcheck("No active files have been "
                                               "selected", t="error")
+            # Check if plot has been previously loaded. If yes, ignore
+            elif isinstance(self.screen.ids.plot_content.children[
+                    0].children[0], Image) and not force:
+                return
             else:
                 file_set_name = self.screen.ids.active_file_set.text
                 taxa_set_name = self.screen.ids.active_taxa_set.text
@@ -5185,9 +5206,13 @@ if __name__ == "__main__":
                         # In this case, quickly display the stats last
                         # calculated and stored in the pickle object
                         if tp == "stats":
+                            prepare_display(
+                                self.screen.ids.plot_content.children[0])
                             display_stats(self.screen.ids.plot_content.
                                           children[0])
                         elif tp == "table":
+                            prepare_display(
+                                self.screen.ids.plot_content.children[0])
                             display_table(self.screen.ids.plot_content.
                                           children[0])
                         return
@@ -5197,25 +5222,7 @@ if __name__ == "__main__":
                     # the calculations
                     pass
 
-            # Check if plot has been previously loaded. If yes, ignore
-            if isinstance(self.screen.ids.plot_content.children[0].children[0],
-                          Image) and not force:
-                return
-
-            # Remove any potential widgets associated with stats plots
-            self.screen.ids.footer_box.clear_widgets()
-            self.dismiss_stats_toggle()
-            self.dismiss_plot_wgt()
-
-            # Clear scatterview for stats summary stats
-            self.screen.ids.plot_content.clear_widgets()
-
-            # Disable scale, translation and rotation of scatter
-            self.screen.ids.plot_content.do_scale = False
-            self.screen.ids.plot_content.do_translation = False
-            self.screen.ids.plot_content.do_rotation = False
-            self.screen.ids.plot_content.scale = 1
-            self.screen.ids.plot_content.pos = 0, 0
+                prepare_display(self.screen.ids.plot_content.children[0])
 
             # Disable stats subprocess interruption. Being True by default
             # and explicitly setting is to False when calculating summary
