@@ -134,6 +134,13 @@ ShowcaseScreen:
                 Button:
                     size_hint_x: None
                     width: 30
+                    background_normal: "data/backgrounds/refresh2.png"
+                    background_down: "data/backgrounds/refresh2_down.png"
+                    on_release:
+                        icon_view_tab._update_files(path=icon_view_tab.path)
+                Button:
+                    size_hint_x: None
+                    width: 30
                     background_normal: "data/backgrounds/prev_dir.png"
                     background_down: "data/backgrounds/prev_dir.png"
                     on_release:

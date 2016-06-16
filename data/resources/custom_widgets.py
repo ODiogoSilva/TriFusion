@@ -207,6 +207,7 @@ class FileChooserL(FileChooserListView):
     def __init__(self, **kwargs):
         super(FileChooserL, self).__init__(**kwargs)
         self.register_event_type("on_double_click")
+        self.register_event_type("on_dir_entry")
 
     def on_double_click(self):
         """
@@ -215,12 +216,19 @@ class FileChooserL(FileChooserListView):
 
         pass
 
+    def on_dir_entry(self):
+        """
+        Event triggered when entering a directory
+        """
+        pass
+
     def open_entry(self, entry):
         """
         Modification of the open entry method so that when the entry.path is
         "../", the path is updated to the parent directory, instead of
         appending the entry.path
         """
+        self.dispatch("on_dir_entry")
         try:
             # Just check if we can list the directory. This is also what
             # _add_file does, so if it fails here, it would also fail later
