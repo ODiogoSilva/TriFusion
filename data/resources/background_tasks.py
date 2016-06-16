@@ -371,46 +371,50 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         argument
         """
 
-        if filename:
-            outfile = filename
-        else:
-            outfile = output_file
+        try:
+            if filename:
+                outfile = filename
+            else:
+                outfile = output_file
 
-        # The output file(s) will only be written after all the required
-        # operations have been concluded. The reason why there are two "if"
-        # statement for "concatenation" is that the input alignments must be
-        # concatenated before any other additional operations. If the
-        # first if statement did not exist, then all additional options would
-        # have to be manually written for both "conversion" and "concatenation".
-        #  As it is, when "concatenation", the aln_obj is firstly converted
-        # into the concatenated alignment, and then all additional
-        # operations are conducted in the same aln_obj
-        ns.msg = "Writing output"
+            # The output file(s) will only be written after all the required
+            # operations have been concluded. The reason why there are two "if"
+            # statement for "concatenation" is that the input alignments must be
+            # concatenated before any other additional operations. If the
+            # first if statement did not exist, then all additional options would
+            # have to be manually written for both "conversion" and "concatenation".
+            #  As it is, when "concatenation", the aln_obj is firstly converted
+            # into the concatenated alignment, and then all additional
+            # operations are conducted in the same aln_obj
+            ns.msg = "Writing output"
 
-        if isinstance(aln, Alignment):
-            aln.write_to_file(output_formats,
-                outfile if outfile else join(output_dir, "consensus"),
-                interleave=secondary_options["interleave"],
-                partition_file=create_partfile,
-                use_charset=use_nexus_partitions,
-                phy_truncate_names=phylip_truncate_name,
-                ld_hat=ld_hat,
-                ima2_params=ima2_params,
-                use_nexus_models=use_nexus_models,
-                ns_pipe=ns)
-        elif isinstance(aln, AlignmentList):
-            aln.write_to_file(
-                output_formats,
-                output_suffix=suffix_str,
-                interleave=secondary_options["interleave"],
-                partition_file=create_partfile,
-                output_dir=output_dir,
-                use_charset=use_nexus_partitions,
-                phy_truncate_names=phylip_truncate_name,
-                ld_hat=ld_hat,
-                ima2_params=ima2_params,
-                use_nexus_models=use_nexus_models,
-                ns_pipe=ns)
+            if isinstance(aln, Alignment):
+                aln.write_to_file(output_formats,
+                    outfile if outfile else join(output_dir, "consensus"),
+                    interleave=secondary_options["interleave"],
+                    partition_file=create_partfile,
+                    use_charset=use_nexus_partitions,
+                    phy_truncate_names=phylip_truncate_name,
+                    ld_hat=ld_hat,
+                    ima2_params=ima2_params,
+                    use_nexus_models=use_nexus_models,
+                    ns_pipe=ns)
+            elif isinstance(aln, AlignmentList):
+                aln.write_to_file(
+                    output_formats,
+                    output_suffix=suffix_str,
+                    interleave=secondary_options["interleave"],
+                    partition_file=create_partfile,
+                    output_dir=output_dir,
+                    use_charset=use_nexus_partitions,
+                    phy_truncate_names=phylip_truncate_name,
+                    ld_hat=ld_hat,
+                    ima2_params=ima2_params,
+                    use_nexus_models=use_nexus_models,
+                    ns_pipe=ns)
+
+        except IOError:
+            pass
 
     try:
         ns.msg = "Setting active data sets"

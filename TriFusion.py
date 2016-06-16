@@ -87,7 +87,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.9"
+    __version__ = "0.3.10"
     __build__ = "160616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -359,6 +359,10 @@ if __name__ == "__main__":
         # should be interrupted or not
         interrupt_stats = BooleanProperty(True)
         lock_stats = BooleanProperty(False)
+
+        # Attributes that determines whether the process execution subprocess
+        # is to be terminated by the user
+        interrupt_process_exe = BooleanProperty(True)
 
         ################################
         #
@@ -9146,7 +9150,15 @@ if __name__ == "__main__":
             module
             """
 
-            def check_process(p, dt):
+            def check_process(p, man, dt):
+
+                # Interrupt subporcess on user demand
+                if self.interrupt_process_exe:
+                    p.terminate()
+                    man.shutdown()
+                    Clock.unschedule(check_func)
+                    self.dismiss_all_popups()
+                    return
 
                 try:
                     content.ids.msg.text = shared_ns.msg
@@ -9188,10 +9200,14 @@ if __name__ == "__main__":
                     # If process execution ended with an error, issue warning.
                     try:
                         if shared_ns.exception == "EmptyAlignment":
+                            man.shutdown()
+                            p.terminate()
                             return self.dialog_floatcheck(
                                 "ERROR: The alignment is empty after applying "
                                 "filters", t="error")
                         elif shared_ns.exception == "Unknown":
+                            man.shutdown()
+                            p.terminate()
                             return self.dialog_floatcheck(
                                 "ERROR: Unexpected error when generating "
                                 "Process output. Check the app logs.",
@@ -9209,6 +9225,8 @@ if __name__ == "__main__":
                         if shared_ns.filtered_alns:
                             self.dialog_filter_report(shared_ns.filtered_alns,
                                                       shared_ns.proc_files)
+                        man.shutdown()
+                        p.terminate()
 
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
@@ -9251,6 +9269,10 @@ if __name__ == "__main__":
 
             p = multiprocessing.Process(target=process_execution,
                                         kwargs=process_kwargs)
+
+            # Remove lock from process execution subprocess
+            self.interrupt_process_exe = False
+
             p.start()
 
             self.dismiss_popup()
@@ -9258,7 +9280,7 @@ if __name__ == "__main__":
             self.show_popup(title="Process execution...", content=content,
                             size=(230, 200))
 
-            check_func = partial(check_process, p)
+            check_func = partial(check_process, p, manager)
             Clock.schedule_interval(check_func, .1)
 
 if __name__ == "__main__":
