@@ -87,7 +87,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.4"
+    __version__ = "0.3.5"
     __build__ = "160616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -1849,11 +1849,15 @@ if __name__ == "__main__":
                 self.screen.ids.taxa_dropdown.dismiss()
                 self.screen.ids.file_dropdown.dismiss()
                 # Add StatsToggleWidget, if present
-                if isinstance(self.screen.ids.plot_content.children[0].
-                        children[0], Image):
-                    self.show_plot_toolbar(toolbar_type="stats")
-                    if self.previous_stats_toggle:
-                        self.root_window.add_widget(self.previous_stats_toggle)
+                try:
+                    if isinstance(self.screen.ids.plot_content.children[0].
+                            children[0], Image):
+                        self.show_plot_toolbar(toolbar_type="stats")
+                        if self.previous_stats_toggle:
+                            self.root_window.add_widget(
+                                self.previous_stats_toggle)
+                except IndexError:
+                    pass
 
             return self.screen
 
