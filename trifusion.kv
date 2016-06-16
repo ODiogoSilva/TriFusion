@@ -2346,11 +2346,18 @@
             Button:
                 size_hint_x: None
                 width: 30
+                background_normal: "data/backgrounds/refresh2.png"
+                background_down: "data/backgrounds/refresh2_down.png"
+                on_release:
+                    sd_filechooser._update_files(path=sd_filechooser.path)
+            Button:
+                size_hint_x: None
+                width: 30
                 background_normal: "data/backgrounds/prev_dir.png"
                 background_down: "data/backgrounds/prev_dir.png"
                 on_release:
-                    if icon_view_tab.previous_dir:\
-                    icon_view_tab.path = icon_view_tab.previous_dir[-1]; icon_view_tab.previous_dir.pop(-1)
+                    if sd_filechooser.previous_dir:\
+                    sd_filechooser.path = sd_filechooser.previous_dir[-1]; sd_filechooser.previous_dir.pop(-1)
             Button:
                 size_hint_x: None
                 width: 30
@@ -2453,6 +2460,9 @@
                     path: app.home_path
                     on_double_click:
                         ok_bt.dispatch("on_release")
+                    on_dir_entry:
+                        text_filter.text = ""
+                        self.previous_dir.append(self.path)
 
                 BoxLayout:
                     size_hint_y: None
@@ -2909,6 +2919,13 @@
             Button:
                 size_hint_x: None
                 width: 30
+                background_normal: "data/backgrounds/refresh2.png"
+                background_down: "data/backgrounds/refresh2_down.png"
+                on_release:
+                    sd_filechooser._update_files(path=sd_filechooser.path)
+            Button:
+                size_hint_x: None
+                width: 30
                 background_normal: "data/backgrounds/prev_dir.png"
                 background_down: "data/backgrounds/prev_dir.png"
                 on_release:
@@ -3009,12 +3026,17 @@
                 text: "master"
                 dirselect: True
                 path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
+
                 on_selection:
                     if txt_box.height == 30 and self.selection and not os.path.isdir(self.selection[0]): \
                     text_input.text = self.selection[0].split(os.sep)[-1]
+
                 on_double_click:
                     if self.text in root.load_dlgs and self.text != "main_output": \
                     ok_bt.dispatch("on_release")
+
+                on_dir_entry:
+                    self.previous_dir.append(self.path)
 
 
         BoxLayout:
