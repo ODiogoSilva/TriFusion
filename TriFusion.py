@@ -5071,27 +5071,28 @@ if __name__ == "__main__":
             summary statistics for each gene in table view ('table')
             """
 
-            def prepare_display(plt_wgt):
+            def prepare_display(plt_wgt, scatter):
 
-                # Clear main widget
-                plt_wgt.clear_widgets()
+                if self.screen.name == "Statistics":
+                    # Clear main widget
+                    plt_wgt.clear_widgets()
 
-                # Remove any potential widgets associated with stats plots
-                self.screen.ids.footer_box.clear_widgets()
-                self.dismiss_stats_toggle()
-                self.dismiss_plot_wgt()
+                    # Remove any potential widgets associated with stats plots
+                    self.screen.ids.footer_box.clear_widgets()
+                    self.dismiss_stats_toggle()
+                    self.dismiss_plot_wgt()
 
-                # Remove any potential widgets associated with stats plots
-                self.screen.ids.footer_box.clear_widgets()
-                self.dismiss_stats_toggle()
-                self.dismiss_plot_wgt()
+                    # Remove any potential widgets associated with stats plots
+                    self.screen.ids.footer_box.clear_widgets()
+                    self.dismiss_stats_toggle()
+                    self.dismiss_plot_wgt()
 
-                # Disable scale, translation and rotation of scatter
-                self.screen.ids.plot_content.do_scale = False
-                self.screen.ids.plot_content.do_translation = False
-                self.screen.ids.plot_content.do_rotation = False
-                self.screen.ids.plot_content.scale = 1
-                self.screen.ids.plot_content.pos = 0, 0
+                    # Disable scale, translation and rotation of scatter
+                    scatter.do_scale = False
+                    scatter.do_translation = False
+                    scatter.do_rotation = False
+                    scatter.scale = 1
+                    scatter.pos = 0, 0
 
             def display_stats(plt_wgt):
 
@@ -5107,8 +5108,9 @@ if __name__ == "__main__":
                 for k, v in stats.items():
                     self.stats_summary.ids[k].text = "%s" % v
 
-                # Add stats widget
-                plt_wgt.add_widget(self.stats_summary)
+                # Add stats widget if in Screen
+                if self.screen.name == "Statistics":
+                    plt_wgt.add_widget(self.stats_summary)
 
                 # Set table attribute
                 self.current_table = table
@@ -5154,8 +5156,9 @@ if __name__ == "__main__":
                     # Add TableLine to main grid
                     self.stats_table.ids.table_grid.add_widget(x)
 
-                # Add Table widget
-                plt_wgt.add_widget(self.stats_table)
+                # Add Table widget if in screen
+                if self.screen.name == "Statistics":
+                    plt_wgt.add_widget(self.stats_table)
 
                 # Set table attribute
                 self.current_table = td
@@ -5181,7 +5184,7 @@ if __name__ == "__main__":
 
                     self.previous_sets["Stats"] = [file_set, taxa_set]
 
-                    prepare_display(plt_wgt)
+                    prepare_display(plt_wgt, scatter_wgt)
                     if tp == "stats":
                         display_stats(plt_wgt)
                     elif tp == "table":
@@ -5190,6 +5193,10 @@ if __name__ == "__main__":
                     Clock.unschedule(check_func)
                     p.terminate()
                     self.lock_stats = False
+
+            # Get Scatter widgets
+            scatter_wgt = self.screen.ids.plot_content
+            plot_wgt = self.screen.ids.plot_content.children[0]
 
             if not self.file_list:
                 return
@@ -5206,8 +5213,7 @@ if __name__ == "__main__":
                 return self.dialog_floatcheck("No active files have been "
                                               "selected", t="error")
             # Check if plot has been previously loaded. If yes, ignore
-            elif isinstance(self.screen.ids.plot_content.children[
-                    0].children[0], Image) and not force:
+            elif isinstance(plot_wgt.children[0], Image) and not force:
                 return
             else:
                 file_set_name = self.screen.ids.active_file_set.text
@@ -5217,29 +5223,23 @@ if __name__ == "__main__":
                                                           taxa_set_name)
 
                 # There was no change in data set. Check whether there is a
-                # stats wdiget or not
+                # stats widget or not
                 if self.previous_sets["Stats"] == [file_set, taxa_set]:
-                    if isinstance(self.screen.ids.plot_content.children[
-                                      0].children[0], StatsSummary) and \
+                    if isinstance(plot_wgt.children[0], StatsSummary) and \
                             tp == "stats":
                         return
-                    elif isinstance(self.screen.ids.plot_content.children[
-                                      0].children[0], GeneTable) and \
+                    elif isinstance(plot_wgt.children[0], GeneTable) and \
                             tp == "table":
                         return
                     else:
                         # In this case, quickly display the stats last
                         # calculated and stored in the pickle object
                         if tp == "stats":
-                            prepare_display(
-                                self.screen.ids.plot_content.children[0])
-                            display_stats(self.screen.ids.plot_content.
-                                          children[0])
+                            prepare_display(plot_wgt, scatter_wgt)
+                            display_stats(plot_wgt)
                         elif tp == "table":
-                            prepare_display(
-                                self.screen.ids.plot_content.children[0])
-                            display_table(self.screen.ids.plot_content.
-                                          children[0])
+                            prepare_display(plot_wgt, scatter_wgt)
+                            display_table(plot_wgt)
                         return
 
                 else:
@@ -5247,7 +5247,7 @@ if __name__ == "__main__":
                     # the calculations
                     pass
 
-                prepare_display(self.screen.ids.plot_content.children[0])
+                prepare_display(plot_wgt, scatter_wgt)
 
             # Disable stats subprocess interruption. Being True by default
             # and explicitly setting is to False when calculating summary
@@ -5266,7 +5266,7 @@ if __name__ == "__main__":
 
             # Add loading widget
             ldg = StatsLoading()
-            self.screen.ids.plot_content.add_widget(ldg)
+            scatter_wgt.add_widget(ldg)
 
             check_func = partial(check_process, p, ldg,
                                  self.screen.ids.plot_content.children[0])
