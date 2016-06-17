@@ -87,8 +87,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.10"
-    __build__ = "160616"
+    __version__ = "0.3.11"
+    __build__ = "170616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -185,11 +185,11 @@ if __name__ == "__main__":
 
         # Only the original input files. SHOULD NOT BE MODIFIED
         file_list = []
-        # Dynamic list containing only the activated files
+        # Dynamic list containing only the active files
         active_file_list = ListProperty()
         # Dictionary mapping file names to their corresponding full paths. This
         # attribute must exist, because some parts of the code need only the
-        # file  name instead of the full path, but a connection to the full
+        # file name instead of the full path, but a connection to the full
         # path must  be maintained for future reference
         filename_map = DictProperty()
 
@@ -357,12 +357,31 @@ if __name__ == "__main__":
 
         # Attribute that determines whether statistics background processes
         # should be interrupted or not
-        interrupt_stats = BooleanProperty(True)
         lock_stats = BooleanProperty(False)
 
-        # Attributes that determines whether the process execution subprocess
-        # is to be terminated by the user
-        interrupt_process_exe = BooleanProperty(True)
+        # Attributes used to determine is a specific background process
+        # should be terminated by the user. All values are set to True by
+        # default and their values only change on the start up of the
+        # appropriate function.
+
+        # For Statistics summary stats
+        terminate_stats = BooleanProperty(True)
+
+        # For process execution
+        terminate_process_exec = BooleanProperty(True)
+
+        # For generic background process
+        terminate_background = BooleanProperty(True)
+
+        # For file loading
+        terminate_load_files = BooleanProperty(True)
+
+        # For orthology search execution
+        terminate_orto_search = BooleanProperty(True)
+
+        # For orthology group export
+        terminate_group_export = BooleanProperty(True)
+
 
         ################################
         #
@@ -827,8 +846,9 @@ if __name__ == "__main__":
             """
 
             self.run_in_background(remove_tmp, self.stop, [self.temp_dir],
-                                   no_arg2=True, msg="Cleaning temporary "
-                                                     "files and exiting...")
+                                   no_arg2=True, cancel=False,
+                                   msg="Cleaning temporary files and "
+                                       "exiting...")
 
             return True
 
@@ -2065,7 +2085,8 @@ if __name__ == "__main__":
         # ########################## GENERAL USE ###############################
 
         def run_in_background(self, func, second_func, args1, args2=None,
-                              no_arg2=False, msg="Crunching data..."):
+                              no_arg2=False, msg="Crunching data...",
+                              cancel=True):
             """
             This method is intended to run time/resource consuming operations in
             the background, without freezing the app, and return the final
@@ -2087,6 +2108,8 @@ if __name__ == "__main__":
             :param no_arg2: Boolean. Whether func will return something to
             second_func
             :param msg: string, message to appear in waiting dialog.
+            :param cancel: Boolean, Shows a functional cancel button that
+            interrupts the background process, if True.
             """
 
             def check_process_status(p, second_function, args, man, dt):
@@ -2104,6 +2127,13 @@ if __name__ == "__main__":
                 second_function
                 :param man: Manager object.
                 """
+
+                if self.terminate_background:
+                    kill_proc_tree(p.pid)
+                    man.shutdown()
+                    Clock.unschedule(check_func)
+                    self.dismiss_popup()
+                    return
 
                 if not p.is_alive():
 
@@ -2137,12 +2167,18 @@ if __name__ == "__main__":
                     else:
                         second_function()
 
+            # Set up manager and shared name space to share information
+            # between background and main processes
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
 
-            second_process = multiprocessing.Process(
+            # Remove lock from background process
+            self.terminate_background = False
+
+            # Create process
+            p = multiprocessing.Process(
                 target=background_process, args=(func, shared_ns, args1))
-            second_process.start()
+            p.start()
 
             # Remove any possible previous popups
             self.dismiss_popup()
@@ -2150,11 +2186,24 @@ if __name__ == "__main__":
             content = CrunchData()
             # Set label
             content.ids.msg.text = msg
+
+            # Determine whether widget should have cancel option or not
+            if cancel:
+                # Set functionality of cancel button
+                size = (230, 230)
+                content.ids.cancel_bt.bind(
+                    on_release=lambda x: setattr(self, "terminate_background",
+                                                 True))
+            else:
+                # Remove cancel button
+                size = (230, 200)
+                content.ids.cancel_anc.remove_widget(content.ids.cancel_bt)
+
             # Create popup with waiting dialog
-            self.show_popup(title="", content=content, size=(230, 180))
+            self.show_popup(title="", content=content, size=size)
 
             # Schedule function that checks the process' pulse
-            check_func = partial(check_process_status, second_process,
+            check_func = partial(check_process_status, p,
                                  second_func, args2, manager)
             Clock.schedule_interval(check_func, .1)
 
@@ -5166,7 +5215,7 @@ if __name__ == "__main__":
             def check_process(p, ldg_wgt, plt_wgt, dt):
 
                 # When canceled  by the user
-                if self.interrupt_stats:
+                if self.terminate_stats:
                     Clock.unschedule(check_func)
                     p.terminate()
                     plt_wgt.clear_widgets()
@@ -5198,11 +5247,16 @@ if __name__ == "__main__":
             scatter_wgt = self.screen.ids.plot_content
             plot_wgt = self.screen.ids.plot_content.children[0]
 
+            # If no files have been loaded, ignore
             if not self.file_list:
                 return
 
-            # Ignore if a process is already running
+            # If a process is already running, ignore
             if self.lock_stats:
+                return
+
+            # Check if plot has been previously loaded. If yes, ignore
+            if isinstance(plot_wgt.children[0], Image) and not force:
                 return
 
             # Check if any input alignments are active. If not, depends on
@@ -5212,48 +5266,45 @@ if __name__ == "__main__":
             if not self.active_file_list and self.file_list:
                 return self.dialog_floatcheck("No active files have been "
                                               "selected", t="error")
-            # Check if plot has been previously loaded. If yes, ignore
-            elif isinstance(plot_wgt.children[0], Image) and not force:
-                return
-            else:
-                file_set_name = self.screen.ids.active_file_set.text
-                taxa_set_name = self.screen.ids.active_taxa_set.text
 
-                file_set, taxa_set = self.get_active_sets(file_set_name,
-                                                          taxa_set_name)
+            # Get currently active data sets
+            file_set_name = self.screen.ids.active_file_set.text
+            taxa_set_name = self.screen.ids.active_taxa_set.text
 
-                # There was no change in data set. Check whether there is a
-                # stats widget or not
-                if self.previous_sets["Stats"] == [file_set, taxa_set]:
-                    if isinstance(plot_wgt.children[0], StatsSummary) and \
-                            tp == "stats":
-                        return
-                    elif isinstance(plot_wgt.children[0], GeneTable) and \
-                            tp == "table":
-                        return
-                    else:
-                        # In this case, quickly display the stats last
-                        # calculated and stored in the pickle object
-                        if tp == "stats":
-                            prepare_display(plot_wgt, scatter_wgt)
-                            display_stats(plot_wgt)
-                        elif tp == "table":
-                            prepare_display(plot_wgt, scatter_wgt)
-                            display_table(plot_wgt)
-                        return
+            file_set, taxa_set = self.get_active_sets(file_set_name,
+                                                      taxa_set_name)
 
+            # Check if currently active data sets have changed since the last
+            #  calculation of summary statistics
+            if self.previous_sets["Stats"] == [file_set, taxa_set]:
+                # Active data sets are the same. If summary stats are already
+                # displayed, ignore
+                if isinstance(plot_wgt.children[0], StatsSummary) and \
+                        tp == "stats":
+                    return
+                elif isinstance(plot_wgt.children[0], GeneTable) and \
+                        tp == "table":
+                    return
+                # If summary stats are not displayed, then retrieve
+                # information from the pickle objects and draw the widgets
                 else:
-                    # Only add active sets as the previous AFTER completing
-                    # the calculations
-                    pass
+                    if tp == "stats":
+                        prepare_display(plot_wgt, scatter_wgt)
+                        display_stats(plot_wgt)
+                    elif tp == "table":
+                        prepare_display(plot_wgt, scatter_wgt)
+                        display_table(plot_wgt)
+                    return
 
-                prepare_display(plot_wgt, scatter_wgt)
+            # Prepare screen by removing any potential plot widgets and
+            # changing some properties of the scatter layout
+            prepare_display(plot_wgt, scatter_wgt)
 
             # Disable stats subprocess interruption. Being True by default
             # and explicitly setting is to False when calculating summary
             # stats makes it much more easier to interrupt by other
             # actions/widgets
-            self.interrupt_stats = False
+            self.terminate_stats = False
             self.lock_stats = True
 
             p = multiprocessing.Process(target=get_stats_summary,
@@ -5949,20 +6000,17 @@ if __name__ == "__main__":
             of the output filtered file
             """
 
-            # Close previous filechooser popup
-            self.dismiss_popup()
-
             def check_process(p, dt):
 
                 # Update dialog text
                 try:
-                    content.ids.msg.text = ns.act
+                    content.ids.msg.text = shared_ns.act
                 except AttributeError:
                     pass
 
                 # Update progress bar
                 try:
-                    content.ids.pb.value = ns.progress
+                    content.ids.pb.value = shared_ns.progress
                 except AttributeError:
                     pass
 
@@ -5970,7 +6018,7 @@ if __name__ == "__main__":
                 if not p.is_alive():
 
                     try:
-                        if ns.exception:
+                        if shared_ns.exception:
                             return self.dialog_floatcheck(
                                 "An unexpected error occurred when exporting "
                                 "orthologs. Check the app logs.", t="error")
@@ -5979,20 +6027,22 @@ if __name__ == "__main__":
 
                     Clock.unschedule(func)
                     self.dismiss_popup()
-                    if not ns.missed:
+                    if not shared_ns.missed:
                         self.dialog_floatcheck(
-                            "%s orthologs successfully exported" % ns.progress,
+                            "%s orthologs successfully exported" % shared_ns.progress,
                             t="info")
                     else:
                         self.dialog_floatcheck(
                             "%s orthologs exported. However, %s sequences "
                             "could not be retrieved!" %
-                            (ns.progress, ns.missed), t="info")
+                            (shared_ns.progress, shared_ns.missed), t="info")
 
             # Update orthology export directory, if necessary
             if output_dir != self.orto_export_dir:
                 self.orto_export_dir = output_dir
 
+            # Get active_group if not already defined by fetching the active
+            # group button in the Explore screen
             if not self.active_group:
                 group_id = [x.id for x in self.screen.ids.group_gl.children
                             if x.state == "down"][0]
@@ -6004,33 +6054,46 @@ if __name__ == "__main__":
 
             method_store = {
                 "group":
-                [self.active_group.export_filtered_group,
-                [self.sqldb, output_name, output_dir]],
+                    [self.active_group.export_filtered_group,
+                    [self.sqldb, output_name, output_dir]],
                 "protein":
-                [self.active_group.retrieve_sequences,
-                [self.sqldb, self.protein_db, output_dir]],
+                    [self.active_group.retrieve_sequences,
+                    [self.sqldb, self.protein_db, output_dir]],
                 "nucleotide":
-                [protein2dna.convert_group,
-                [self.cds_db, self.protein_db, self.active_group]]}
+                    [protein2dna.convert_group,
+                    [self.cds_db, self.protein_db, self.active_group]]}
+
             # Get method and args
             m = method_store[export_idx]
 
+            # Set up manager and shared name space to share information
+            # between background and main processes
             manager = multiprocessing.Manager()
-            ns = manager.Namespace()
+            shared_ns = manager.Namespace()
 
-            d = multiprocessing.Process(target=background_export_groups,
-                                        args=(m[0], ns, m[1]))
-            d.start()
+            # Remove lock from background process
+            self.terminate_group_export = False
+
+            # Create process
+            p = multiprocessing.Process(target=background_export_groups,
+                                        args=(m[0], shared_ns, m[1]))
+            p.start()
 
             # Remove any previous popups
             self.dismiss_all_popups()
-
+            # Create loading process dialog
             content = LoadProgressDialog()
             content.ids.pb.max = self.active_group.all_compliant
+            # Give functionality to cancel button
+            content.ids.close_bt.bind(
+                on_release=lambda i: setattr(self, "terminate_group_export",
+                                             True))
+
             self.show_popup(title="Exporting...", content=content,
                             size=(400, 250))
 
-            func = partial(check_process, d)
+            # Schedule function that checks the process' pulse
+            func = partial(check_process, p)
             Clock.schedule_interval(func, .1)
 
         def orto_report_dialog(self):
@@ -8354,7 +8417,7 @@ if __name__ == "__main__":
             """
 
             # Interrupt summary statistics, if running
-            self.interrupt_stats = True
+            self.terminate_stats = True
 
             # Reset scatter properties for plots
             self.screen.ids.plot_content.do_scale = True
@@ -8581,8 +8644,8 @@ if __name__ == "__main__":
             def check_proc(p, dt):
 
                 try:
-                    content.ids.pb.value = ns.progress
-                    content.ids.msg.text = ns.m
+                    content.ids.pb.value = shared_ns.progress
+                    content.ids.msg.text = shared_ns.m
                 except AttributeError:
                     pass
 
@@ -8592,14 +8655,14 @@ if __name__ == "__main__":
                     self.dismiss_popup()
 
                     try:
-                        if ns.exception == "multiple_type":
+                        if shared_ns.exception == "multiple_type":
                             return self.dialog_warning(
                                 "Multiple sequence types detected",
                                 "The selected input alignments contain more "
                                 "than one sequence type (DNA, RNA, Protein). "
                                 "Please select input files of the  same "
                                 "sequence type")
-                        if ns.exception:
+                        if shared_ns.exception:
                             return self.dialog_floatcheck(
                                 "Unexpected error when loading input data. "
                                 "Check app logs", t="error")
@@ -8608,16 +8671,19 @@ if __name__ == "__main__":
 
                     # The load_files method now receives the path to the
                     # pickle file containing the AlignmentList object
-                    self.load_files(file_list, join(self.temp_dir, "alns.pc"))
+                    self.load_files(file_list, join(temp_dir, "alns.pc"))
 
                     manager.shutdown()
                     p.terminate()
 
-                if content.proc_kill:
+                # Kill switch
+                if self.terminate_load_files:
+                    content.ids.msg.text = "Canceling..."
+                    kill_proc_tree(p.pid)
                     manager.shutdown()
-                    d.terminate()
                     self.dismiss_popup()
                     Clock.unschedule(func)
+                    shutil.rmtree(temp_dir)
 
             # To support for opening all files in one or more directories, all
             # entries in files will be checked if they are directories. If so,
@@ -8633,30 +8699,52 @@ if __name__ == "__main__":
 
             if not file_list:
                 return self.dialog_floatcheck("ERROR: No valid input files were"
-                    " provided", t="error")
+                                              " provided", t="error")
 
+            # Set a unique temporary directory for each loading operation.
+            # This greatly facilitates cleaning up when the user cancels the
+            # loading operation
+            c = 0
+            temp_dir = "import%s" % c
+            while os.path.exists(join(self.temp_dir, temp_dir)):
+                c += 1
+                temp_dir = "import%s" % c
+
+            temp_dir = join(self.temp_dir, temp_dir)
+            os.makedirs(temp_dir)
+
+            # Set up manager and shared name space to share information
+            # between background and main processes
             manager = multiprocessing.Manager()
-            ns = manager.Namespace()
+            shared_ns = manager.Namespace()
 
-            d = multiprocessing.Process(
+            # Remove lock from background process
+            self.terminate_load_files = False
+
+            # Create process
+            p = multiprocessing.Process(
                 target=load_proc,
-                args=(self.alignment_list, file_list, ns, self.temp_dir))
+                args=(self.alignment_list, file_list, shared_ns, temp_dir))
+            p.start()
 
-            d.start()
+            # Remove any possible previous popups
+            self.dismiss_popup()
 
-            time.sleep(.1)
-
-            if not d.is_alive():
-                alns = ns.alns
-                return self.load_files(file_list, alns)
-
+            # Create loading process dialog
             content = LoadProgressDialog()
             content.ids.msg.text = "Initializing"
             content.ids.pb.max = len(file_list)
+
+            # Give functionality to cancel button
+            content.ids.close_bt.bind(
+                on_release=lambda j: setattr(self, "terminate_load_files",
+                                             True))
+
             self.show_popup(title="Loading files", content=content,
                             size=(400, 300))
 
-            func = partial(check_proc, d)
+            # Schedule function that checks the process' pulse
+            func = partial(check_proc, p)
             Clock.schedule_interval(func, .1)
 
         def load_files(self, selection=None, aln_pickle=None):
@@ -9036,16 +9124,16 @@ if __name__ == "__main__":
                 """
 
                 # Updates progress dialog label
-                content.ids.msg.text = ns.t
+                content.ids.msg.text = shared_ns.t
                 # Updates progress bar
-                content.ids.pb.value = ns.c
+                content.ids.pb.value = shared_ns.c
 
                 # When the process finishes, close progress dialog and
                 #  unschedule this callback
                 if not p.is_alive():
 
                     try:
-                        if ns.exception:
+                        if shared_ns.exception:
                             return self.dialog_floatcheck(
                                 "Unexpected error when searching orthologs."
                                 " Check app logs", t="error")
@@ -9058,41 +9146,47 @@ if __name__ == "__main__":
 
                     Clock.unschedule(func)
                     self.dismiss_popup()
-                    self.dialog_search_report(ns.stats, ns.groups)
+                    self.dialog_search_report(shared_ns.stats, shared_ns.groups)
 
                     manager.shutdown()
                     p.terminate()
 
                 # Listens for cancel signal
-                if content.proc_kill:
-                    ns.k = False
-                    manager.shutdown()
+                if self.terminate_orto_search:
+                    shared_ns.k = False
                     kill_proc_tree(p.pid)
+                    manager.shutdown()
                     self.dismiss_popup()
                     Clock.unschedule(func)
 
                     # Clear sqlitedb
                     os.remove(join(self.temp_dir, "orthoDB.db"))
 
-            # Create Progression dialog
-            content = OrtoProgressDialog()
-            self.show_popup(title="Running Orthology Search", content=content,
-                            size=(400, 200))
+            # Change working directory
+            os.chdir(self.ortho_dir)
 
-            # Setup multiprocess
-            # The manager will allow shared variables between independent
-            # processes so that the progress dialog label can be updated with
-            #  the current pipeline status
+            # Create directory that will store intermediate files during
+            # orthology search
+            int_dir = "backstage_files"
+            if not os.path.exists(int_dir):
+                os.makedirs(int_dir)
+
+            os.chdir(int_dir)
+
+            # Set up manager and shared name space to share information
+            # between background and main processes
             manager = multiprocessing.Manager()
-            ns = manager.Namespace()
-            ns.k = True
+            shared_ns = manager.Namespace()
+            shared_ns.k = True
+
+            # Remove lock from background process
+            self.terminate_orto_search = False
 
             # Create Process instance
-            d = multiprocessing.Process(
-                name="daemon",
+            p = multiprocessing.Process(
                 target=orto_execution,
                 args=(
-                    ns,
+                    shared_ns,
                     self.temp_dir,
                     self.proteome_files,
                     self.protein_min_len,
@@ -9109,26 +9203,17 @@ if __name__ == "__main__":
                     self.sqldb,
                     self.ortho_dir,
                     self.usearch_db))
-            # This will make the process run in the background so that the app
-            # doesn't freeze
-            d.daemon = True
+            p.start()
 
-            # Change working directory
-            os.chdir(self.ortho_dir)
+            # Remove any possible previous popups
+            self.dismiss_popup()
+            # Create Progression dialog
+            content = OrtoProgressDialog()
+            self.show_popup(title="Running Orthology Search", content=content,
+                            size=(400, 200))
 
-            # Create directory that will store intermediate files during
-            # orthology search
-            int_dir = "backstage_files"
-            if not os.path.exists(int_dir):
-                os.makedirs(int_dir)
-
-            os.chdir(int_dir)
-
-            # Start pipeline in the background
-            d.start()
-
-            # Check status of pipeline and update progress dialog
-            func = partial(check_process, d)
+            # Schedule function that checks the process' pulse
+            func = partial(check_process, p)
             Clock.schedule_interval(func, .1)
 
         def dialog_fileoverwrite(self, msg):
@@ -9142,7 +9227,7 @@ if __name__ == "__main__":
             content.ids.dlg_text.text = msg
 
             self.show_popup(title="File already exists...", content=content,
-                            size=(450, 250))
+                            size=(450, 220))
 
         def process_exec(self):
             """
@@ -9153,8 +9238,8 @@ if __name__ == "__main__":
             def check_process(p, man, dt):
 
                 # Interrupt subporcess on user demand
-                if self.interrupt_process_exe:
-                    p.terminate()
+                if self.terminate_process_exec:
+                    kill_proc_tree(p.pid)
                     man.shutdown()
                     Clock.unschedule(check_func)
                     self.dismiss_all_popups()
@@ -9228,9 +9313,10 @@ if __name__ == "__main__":
                         man.shutdown()
                         p.terminate()
 
+            # Set up manager and shared name space to share information
+            # between background and main processes
             manager = multiprocessing.Manager()
             shared_ns = manager.Namespace()
-
             shared_ns.status = None
             shared_ns.apply_all = False
 
@@ -9267,19 +9353,27 @@ if __name__ == "__main__":
                 "temp_dir": str(self.temp_dir),
                 "ima2_params": list(self.ima2_options)}
 
+            # Remove lock from background process
+            self.terminate_process_exec = False
+
+            # Create process
             p = multiprocessing.Process(target=process_execution,
                                         kwargs=process_kwargs)
-
-            # Remove lock from process execution subprocess
-            self.interrupt_process_exe = False
-
             p.start()
 
+            # Remove any possible previous popups
             self.dismiss_popup()
+            # Create waiting dialog
             content = CrunchData()
+            # Give functionality to cancel button
+            content.ids.cancel_bt.bind(
+                on_release=lambda x: setattr(self,
+                                             "terminate_process_exec",
+                                             True))
             self.show_popup(title="Process execution...", content=content,
-                            size=(230, 200))
+                            size=(230, 230))
 
+            # Schedule function that checks the process' pulse
             check_func = partial(check_process, p, manager)
             Clock.schedule_interval(check_func, .1)
 

@@ -271,6 +271,22 @@
         text_size: self.size
         color: (0.216, 0.67, 0.784, 1)
 
+    AnchorLayout:
+        size_hint_y: None
+        height: 30
+        anchor_x: "center"
+        anchor_y: "center"
+        id: cancel_anc
+        TFButton:
+            size_hint_x: None
+            width: 150
+            text: "Cancel"
+            bold: True
+            id: cancel_bt
+    Widget:
+        size_hint_y: None
+        height: 10
+
 <FileOverwriteDialog>:
     orientation: "vertical"
     padding: 10
@@ -684,7 +700,6 @@
 <LoadProgressDialog>:
     padding: 10
     orientation: "vertical"
-    proc_kill: False
 
     Label:
         id: msg
@@ -706,8 +721,6 @@
             id: close_bt
             text: "Cancel"
             background_normal: "data/backgrounds/bt_process.png"
-            on_release:
-                root.proc_kill = True
 
 
 #===============================================================================
@@ -1734,7 +1747,6 @@
 <OrtoProgressDialog>:
     padding: 10
     orientation: "vertical"
-    proc_kill: False
 
     Label:
         id: msg
@@ -1758,7 +1770,7 @@
                 background_down: "data/backgrounds/bt_process_off.png"
                 text: "Cancel"
                 on_release:
-                    root.proc_kill = True
+                    app.terminate_orto_search = True
 
 <OrthoGraphicReport>:
     padding: 10
@@ -5702,7 +5714,7 @@
                     size_hint_x: None
                     width: 150
                     on_release:
-                        app.interrupt_stats = True
+                        app.terminate_stats = True
     Widget:
 
 <TableCellTop@Label>:
