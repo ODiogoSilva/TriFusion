@@ -154,7 +154,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         if nm.k:
             nm.t = "Running USearch. This may take a while..."
             nm.c = 4
-            ortho_pipe.allvsall_usearch("goodProteins.fasta", usearch_evalue,
+            ortho_pipe.allvsall_usearch("goodProteins_db", usearch_evalue,
                                         usearch_threads, usearch_output,
                                         usearch_bin=join(cur_dir, "data",
                                                          "resources",
@@ -178,8 +178,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             nm.t = "Dumping groups"
             nm.c = 8
             ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
-                                  group_prefix, bin_path=join(cur_dir, "ortho",
-                                                "orthomclMclToGroups"))
+                                  group_prefix)
         if nm.k:
             nm.t = "Filtering group files"
             nm.c = 9
@@ -190,7 +189,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
                                                                   sqldb,
                                                                 join(ortho_dir,
                                                          "backstage_files",
-                                                         "goodProteins.fasta"),
+                                                         "goodProteins_db"),
                                                                   temp_dir)
             # stats is a dictionary containing the inflation value as
             #  key and a list with the orthologs as value
