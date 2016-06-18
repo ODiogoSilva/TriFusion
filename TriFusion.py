@@ -5884,18 +5884,24 @@ if __name__ == "__main__":
             """
 
             try:
-                self.orto_max_gene = int(gene_filt)
 
-            except ValueError:
-                return self.dialog_floatcheck(
-                    "Invalid filter value: '%s'. Must be integer" % gene_filt,
-                    t="error")
-            try:
+                if int(gene_filt) <= 0:
+                    return self.dialog_floatcheck(
+                        "ERROR: Maximum number of gene copies must be higher "
+                        "than 0", t="error")
+
+                if int(sp_filt) <= 0:
+                    return self.dialog_floatcheck(
+                        "ERROR: Minimum number of taxa must be a positive "
+                        "value", t="error")
+
+                self.orto_max_gene = int(gene_filt)
                 self.orto_min_sp = int(sp_filt)
 
             except ValueError:
                 return self.dialog_floatcheck(
-                    "Invalid filter value: '%s'. Must be integer" % sp_filt,
+                    "ERROR: {} and {} must be real numbers".format(gene_filt,
+                                                                   sp_filt),
                     t="error")
 
             self.dismiss_popup()
