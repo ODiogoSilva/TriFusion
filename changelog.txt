@@ -10,6 +10,7 @@
 - Added refresh button to all filechoosers
 - Added Cancel option when prompting for files with the same name as output
 - Improved handling and termination of background process
+- Improved protein filter settings text check in Orthology Search
 
 ##### Bug Fixes
 - Corrected issue with table exportation in Statistics screen due to gray scale implementation

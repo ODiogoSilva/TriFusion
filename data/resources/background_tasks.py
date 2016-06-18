@@ -156,9 +156,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             nm.c = 4
             ortho_pipe.allvsall_usearch("goodProteins_db", usearch_evalue,
                                         usearch_threads, usearch_output,
-                                        usearch_bin=join(cur_dir, "data",
-                                                         "resources",
-                                                         "usearch_linux"))
+                                        usearch_bin="usearch")
         if nm.k:
             nm.t = "Parsing USEARCH output"
             nm.c = 5
