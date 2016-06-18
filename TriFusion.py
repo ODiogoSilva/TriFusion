@@ -5934,13 +5934,13 @@ if __name__ == "__main__":
 
             try:
                 # Check if max_stop value is between 0 and 100
-                if 0 < int(max_stop) > 100:
+                if 0 < float(max_stop) > 100:
                     return self.dialog_floatcheck(
                         "ERROR: Maximum codon stops value must be between 0 "
                         "and 100", t="error")
 
                 self.protein_min_len = abs(int(min_len))
-                self.protein_max_stop = abs(int(max_stop))
+                self.protein_max_stop = abs(int(float(max_stop)))
                 self.dismiss_popup()
             except ValueError:
                 return self.dialog_floatcheck(
