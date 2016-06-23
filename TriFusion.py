@@ -87,8 +87,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.11"
-    __build__ = "170616"
+    __version__ = "0.3.13"
+    __build__ = "230616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -4072,6 +4072,14 @@ if __name__ == "__main__":
             variables and attributes
             """
 
+            # Stop other background processes
+            self.terminate_stats = True
+            self.terminate_background = True
+            self.terminate_load_files = True
+
+            # Give time for processes to end
+            time.sleep(.1)
+
             self.alignment_list.clear_alignments()
             self.original_tx_inf.clear()
             self.active_tx_inf.clear()
@@ -5232,6 +5240,7 @@ if __name__ == "__main__":
                     plt_wgt.clear_widgets()
                     plt_wgt.add_widget(NoDataLabel())
                     self.lock_stats = False
+                    return
 
                 if self.current_screen == "Statistics":
 
