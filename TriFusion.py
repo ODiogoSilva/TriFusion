@@ -87,7 +87,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.13"
+    __version__ = "0.3.14"
     __build__ = "230616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -5656,6 +5656,8 @@ if __name__ == "__main__":
             plot index string for the single gene plot type
             """
 
+            print(args1, args2, active_bt, single_gene)
+
             content = StatsToggleWgt()
 
             if not single_gene and active_bt != "gene":
@@ -5670,12 +5672,6 @@ if __name__ == "__main__":
                 else:
                     content.ids.gene.text = "Single gene"
 
-            if args2:
-                content.args2 = args2
-
-            if args1:
-                content.args1 = args1
-
             for wgt_name in ["avg", "sp"]:
                 if wgt_name == active_bt:
                     content.ids[wgt_name].state = "down"
@@ -5683,6 +5679,16 @@ if __name__ == "__main__":
                 else:
                     content.ids[wgt_name].state = "normal"
                     content.ids[wgt_name].disabled = False
+
+            if args2:
+                content.args2 = args2
+            else:
+                content.ids.avg.disabled = True
+
+            if args1:
+                content.args1 = args1
+            else:
+                content.ids.sp.disabled = True
 
             self.previous_stats_toggle = content
 
