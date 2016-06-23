@@ -20,6 +20,7 @@ ShowcaseScreen:
                     text: "  Back"
                     bold: True
                     background_normal: "data/backgrounds/go_back_bt.png"
+                    background_down: "data/backgrounds/go_back_bt_down.png"
                     on_release:
                         app.go_previous_screen()
 
@@ -97,9 +98,10 @@ ShowcaseScreen:
                     valign: "middle"
                     bold: True
                     background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt.png"
+                    background_down: "data/backgrounds/refresh_bt_down.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt_down.png"
                     on_release:
                         if header_content.original_filt and header_content.original_filt != [int(gn_spin.value), int(sp_spin.value)]:\
-                        app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, str(gn_spin.value), str(sp_spin.value), None, False], None, False)
+                        app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, int(gn_spin.value), int(sp_spin.value), None, False], None, False, cancel=False)
 
 
 #                        StringInput:

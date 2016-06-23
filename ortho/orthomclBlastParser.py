@@ -3,6 +3,8 @@
 import os
 import sqlite3 as lite
 
+from decimal import Decimal
+
 VAR_LENGTH = 0
 VAR_TAXON = 1
 cur = None
@@ -112,12 +114,13 @@ def print_previous_subject(subject, db):
 
 # this (corrected) version of formatEvalue provided by Robson de Souza
 def format_evalue(evalue):
+    evalue = "{:.2E}".format(Decimal(evalue))
     if evalue == '0':
         return 0, 0
     if evalue.startswith('e'):
         evalue = '1' + evalue
 
-    return [round(float(x), 2) for x in evalue.split("e")]
+    return [round(float(x), 2) for x in evalue.split("E")]
 
 
 def non_overlapping_match(subject):

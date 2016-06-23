@@ -255,12 +255,17 @@
     orientation: "vertical"
     AnchorLayout:
         anchor_x: "center"
-        anchor_y: "top"
+        anchor_y: "center"
         size_hint_y: .6
-        Image:
-            size_hint: None, None
+        ScatterLayout:
+            do_translation: False
+            do_scale: False
+            do_rotation: False
             id: img
-            source: "data/backgrounds/image-loading.gif"
+            size_hint: None, None
+            size: 50, 50
+            Image:
+                source: "data/backgrounds/spinner2.png"
     Label:
         id: msg
         size_hint_y: .4
@@ -823,18 +828,21 @@
                 size_hint: None, None
                 size: 40, 40
                 background_normal: "data/backgrounds/zoom_in.png"
+                background_down: "data/backgrounds/zoom_in.png"
                 on_release:
                     app.screen.ids.plot_content.scale += .1
             Button
                 size_hint: None, None
                 size: 40, 40
                 background_normal: "data/backgrounds/zoom_out.png"
+                background_down: "data/backgrounds/zoom_out.png"
                 on_release:
                     app.screen.ids.plot_content.scale -= .1 if app.screen.ids.plot_content.scale > 0.5 else 0
             Button:
                 size_hint: None, None
                 size: 40, 40
                 background_normal: "data/backgrounds/fit_plot.png"
+                background_down: "data/backgrounds/fit_plot.png"
                 on_release:
                     app.screen.ids.plot_content.scale = 1
                     app.screen.ids.plot_content.pos = (0, 0)
@@ -843,6 +851,7 @@
                 size: 40, 40
                 id: export_group
                 background_normal: "data/backgrounds/export_group.png"
+                background_down: "data/backgrounds/export_group.png"
                 on_release:
                     app.dialog_export_groups()
             Button:
@@ -850,6 +859,7 @@
                 size: 40, 40
                 id: export_fig
                 background_normal: "data/backgrounds/export_fig.png"
+                background_down: "data/backgrounds/export_fig.png"
                 background_disabled_normal: "data/backgrounds/export_fig_disabled.png"
                 on_release:
                     app.dialog_filechooser("export_graphic")
@@ -858,6 +868,7 @@
                 size: 40, 40
                 id: export_table
                 background_normal: "data/backgrounds/export_table.png"
+                background_down: "data/backgrounds/export_table.png"
                 background_disabled_normal: "data/backgrounds/export_table_disabled.png"
                 on_release:
                     app.dialog_filechooser("export_table")
@@ -970,6 +981,8 @@
     padding: 10
     spacing: 10
     ScrollView:
+        bar_width: 8
+        scroll_type: ["bars", "content"]
         GridLayout:
             cols: 1
             padding: 10
@@ -1675,7 +1688,9 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Ok"
             on_release:
-                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, str(gene_txt.text), str(sp_txt.text), [str(app.active_group_name)] if not apply_chk.active else None, False], None, False)
+                filt = app.save_ortho_filters(str(gene_txt.text), str(sp_txt.text))
+                if type(filt) is tuple and len(filt) == 2:\
+                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
@@ -2216,7 +2231,11 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("database_name")
                 ProcessBt:
                     size_hint_x: None
                     width: root.bt_wdt
@@ -2248,7 +2267,7 @@
             DarkBox:
                 Label:
                     markup: True
-                    text: "[size=18][b]E-value cutoff[/b][/size]\n[size=13](default: AllVsAll.out)Set minimum necessary e-value cutoff to retain USEARCH hits.[/size]"
+                    text: "[size=18][b]E-value cutoff[/b][/size]\n[size=13]Set minimum necessary e-value cutoff to retain USEARCH hits.[/size]"
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
@@ -2288,7 +2307,11 @@
                     halign: "left"
                     valign: "middle"
                     text_size: self.size
-
+                InfoBt:
+                    width: 50
+                    height: 50
+                    on_release:
+                        app.dialog_general_info("inflation")
                 ProcessBt:
                     size_hint_x: None
                     width: root.bt_wdt
@@ -2477,6 +2500,9 @@
                     dirselect: True
                     multiselect: True
                     path: app.home_path
+                    f: "/*"
+                    filters: [self.path.encode("ascii")+self.f]
+                    filter_dirs: False
                     on_double_click:
                         ok_bt.dispatch("on_release")
                     on_dir_entry:
@@ -2511,8 +2537,9 @@
                         id: text_filter
                         multiline: False
                         on_text:
-                            if case_bt.state == "down": sd_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"
-                            if case_bt.state == "normal": sd_filechooser.f = "*"+self.text+"*"
+                            if case_bt.state == "down": sd_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
+                            if case_bt.state == "normal": sd_filechooser.f = "*"+self.text+"*"; sd_filechooser.filter_dirs = True
+                            if self.text == "": sd_filechooser.filter_dirs = False
 
                         on_text_validate:
                             focus = True
@@ -5322,6 +5349,13 @@
                     valign: "middle"
                     color: [.85, .85, .85, 1]
                     text_size: self.size
+                InfoBt:
+                    width: 20
+                    height: 20
+                    background_normal: "data/backgrounds/more_info_20px.png"
+                    background_down: "data/backgrounds/more_info_down_20px.png"
+                    on_release:
+                        app.dialog_general_info("gcoder")
                 Switch:
                     id: gcoder
                     size_hint_x: None
@@ -6285,6 +6319,8 @@
         on_release:
             app.stats_select_plot("Pairwise sequence similarity gn", "Pairwise sequence similarity sp", "Pairwise sequence similarity")
     HelpButton:
+        on_release:
+            app.dialog_general_info("pairwise_seq_similarity")
 
 
 <SegregatingSites>:
@@ -6293,6 +6329,8 @@
         on_release:
             app.stats_select_plot("Segregating sites gn", "Segregating sites sp", "Segregating sites")
     HelpButton:
+        on_release:
+            app.dialog_general_info("segregating_sites")
 
 <LVCorrelation>:
     TFButtonOff:
@@ -6300,6 +6338,8 @@
         on_release:
             app.stats_show_plot(self.text)
     HelpButton:
+        on_release:
+            app.dialog_general_info("len_pol_correlation")
 
 <TaxaDistribution>:
     TFButtonOff:
@@ -6307,6 +6347,8 @@
         on_release:
             app.stats_show_plot(self.text)
     HelpButton:
+        on_release:
+            app.dialog_general_info("info_taxa_frequency")
 
 <AFS>:
     TFButtonOff:
@@ -6317,6 +6359,8 @@
             else:\
             app.dialog_floatcheck("ERROR: This option is only available for nucleotide sequences", t="error")
     HelpButton:
+        on_release:
+            app.dialog_general_info("afs")
 
 ## Missing data
 
@@ -6326,14 +6370,18 @@
         on_release:
             app.stats_show_plot(self.text)
     HelpButton:
+        on_release:
+            app.dialog_general_info("gene_occupancy")
 
 
 <MissingOrto>:
     TFButtonOff:
-        text: "Distribution of missing genes"
+        text: "Distribution of missing taxa"
         on_release:
             app.stats_select_plot(None, "Distribution of missing orthologs", "Distribution of missing orthologs avg")
     HelpButton:
+        on_release:
+            app.dialog_general_info("missing_taxa")
 
 
 <MissingData>:
@@ -6342,6 +6390,8 @@
         on_release:
             app.stats_select_plot(None, "Distribution of missing data sp", "Distribution of missing data")
     HelpButton:
+        on_release:
+            app.dialog_general_info("missing_data")
 
 <CumulativeMissingOrto>:
     TFButtonOff:
@@ -6349,6 +6399,8 @@
         on_release:
             app.stats_show_plot(self.text)
     HelpButton:
+        on_release:
+            app.dialog_general_info("cumulative_missing")
 
 ## Outlier detection
 
@@ -6358,6 +6410,8 @@
         on_release:
             app.stats_select_plot(None, "Missing data outliers sp", "Missing data outliers")
     HelpButton:
+        on_release:
+            app.dialog_general_info("outliers_missing")
 
 <OutlierSegregating>:
     TFButtonOff:
@@ -6365,6 +6419,8 @@
         on_release:
             app.stats_select_plot(None, "Segregating sites outliers sp", "Segregating sites outliers")
     HelpButton:
+        on_release:
+            app.dialog_general_info("outliers_segregating")
 
 <OutlierSize>:
     TFButtonOff:
@@ -6372,6 +6428,8 @@
         on_release:
             app.stats_select_plot(None, "Sequence size outliers sp", "Sequence size outliers")
     HelpButton:
+        on_release:
+            app.dialog_general_info("outliers_size")
 
 #===============================================================================
 # ROOT SCREEN

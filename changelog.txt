@@ -12,12 +12,17 @@
 - Improved handling and termination of background process
 - Improved protein filter settings text check in Orthology Search
 - Improved ortholog filter settings text check in Orthology Search
+- Added option to remove upper limit in gene copy ortholog filter
+- Added option to provide minimum proportion of taxa for ortholog filter, instead of absolute value
+- Added Ctrl+f keybinding to bring focus to find text input in secondary filechooser
+- Completed Help texts in-App.
 
 ##### Bug Fixes
 - Corrected issue with table exportation in Statistics screen due to gray scale implementation
 - Fixed issue with single gene plots for non active alignments
 - Corrected behaviour of go to previous directory button in some filechoosers
 - Fixed issues with Exit popup.
+- Corrected bug with low e-values in Ortholog Search
 
 ### v0.3.0
 

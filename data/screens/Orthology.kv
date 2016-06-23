@@ -115,6 +115,11 @@ ShowcaseScreen:
                                     halign: "left"
                                     valign: "middle"
                                     text_size: self.size
+                                InfoBt:
+                                    width: 50
+                                    height: 50
+                                    on_release:
+                                        app.dialog_general_info("orthology_filters")
                                 BoxLayout:
                                     size_hint_x: None
                                     width: gl_orto_search.bt_wdt
@@ -135,6 +140,11 @@ ShowcaseScreen:
                                     halign: "left"
                                     valign: "middle"
                                     text_size: self.size
+                                InfoBt:
+                                    width: 50
+                                    height: 50
+                                    on_release:
+                                        app.dialog_general_info("orthology_output")
                                 ProcessBt:
                                     id: orto_dir
                                     text: "Select..." if not app.ortho_dir else app.ortho_dir

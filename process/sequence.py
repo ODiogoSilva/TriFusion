@@ -2966,7 +2966,7 @@ class AlignmentList(Base):
     @CheckData
     def missing_genes_average(self):
         """
-        Creates histogram data for average mssing genes
+        Creates histogram data for average missing taxa
         """
 
         data = []
@@ -2975,9 +2975,9 @@ class AlignmentList(Base):
             data.append(len(set(self.taxa_names) - set(aln.alignment.keys())))
 
         return {"data": data,
-                "title": "Distribution of missing genes",
-                "ax_names": ["Number of missing genes", "Frequency"],
-                "table_header": ["Number of missing genes", "Frequency"]}
+                "title": "Distribution of missing taxa",
+                "ax_names": ["Number of missing taxa", "Frequency"],
+                "table_header": ["Number of missing taxa", "Frequency"]}
 
     @CheckData
     def average_seqsize_per_species(self):

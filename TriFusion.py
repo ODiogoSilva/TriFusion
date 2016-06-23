@@ -960,6 +960,12 @@ if __name__ == "__main__":
             # Popup keybindings
             # ==================================================================
 
+            if self._popup in self.root_window.children:
+                if "text_filter" in self._popup.content.ids:
+                    # Ctrl + f toggles focus on find text input field
+                    if modifier == "ctrl" and key_code == 102:
+                        self._popup.content.ids.text_filter.focus = True
+
             if self._subpopup in self.root_window.children:
                 if "ok_bt" in self._subpopup.content.ids:
                     bn = "data/backgrounds/bt_process.png"
@@ -2128,6 +2134,9 @@ if __name__ == "__main__":
                 :param man: Manager object.
                 """
 
+                if "img" in self._popup.content.ids:
+                    self._popup.content.ids.img.rotation -= 10
+
                 if self.terminate_background:
                     kill_proc_tree(p.pid)
                     man.shutdown()
@@ -2198,9 +2207,11 @@ if __name__ == "__main__":
                 # Remove cancel button
                 size = (230, 200)
                 content.ids.cancel_anc.remove_widget(content.ids.cancel_bt)
+                content.remove_widget(content.ids.cancel_anc)
 
             # Create popup with waiting dialog
-            self.show_popup(title="", content=content, size=size)
+            self.show_popup(title="", content=content, size=size,
+                            separator_color=(0, 0, 0, 0))
 
             # Schedule function that checks the process' pulse
             check_func = partial(check_process_status, p,
@@ -5885,23 +5896,26 @@ if __name__ == "__main__":
 
             try:
 
-                if int(gene_filt) <= 0:
+                if int(gene_filt) < 0:
                     return self.dialog_floatcheck(
                         "ERROR: Maximum number of gene copies must be higher "
                         "than 0", t="error")
 
-                if int(sp_filt) <= 0:
+                if float(sp_filt) < 0:
                     return self.dialog_floatcheck(
                         "ERROR: Minimum number of taxa must be a positive "
                         "value", t="error")
 
                 self.orto_max_gene = int(gene_filt)
-                self.orto_min_sp = int(sp_filt)
+
+                if 0 < float(sp_filt) < 1:
+                    self.orto_min_sp = float(sp_filt)
+                else:
+                    self.orto_min_sp = int(sp_filt)
 
             except ValueError:
                 return self.dialog_floatcheck(
-                    "ERROR: {} and {} must be real numbers".format(gene_filt,
-                                                                   sp_filt),
+                    "ERROR: {} must be a real numbers".format(gene_filt),
                     t="error")
 
             self.dismiss_popup()
@@ -5913,6 +5927,8 @@ if __name__ == "__main__":
                 return self.dialog_floatcheck("WARNING: Minimum number of "
                                               "species larger than the provided"
                                               " proteomes", t="warning")
+
+            return self.orto_max_gene, self.orto_min_sp
 
         def save_inflation(self, inflation_wgt):
             """
@@ -6598,7 +6614,8 @@ if __name__ == "__main__":
                          [x for x in groups_obj.groups], True],
                         None,
                         False,
-                        msg="Setting up filters...")
+                        msg="Setting up filters...",
+                        cancel=False)
 
         def orthology_card(self, group_name=None, bt=None):
             """
@@ -6659,14 +6676,14 @@ if __name__ == "__main__":
                 sp_filter_plot = GaugePlot()
                 sp_filter_plot.txt = "After species filter"
                 sp_filter_plot.proportion = float(stats[3]) / float(stats[0])
-                sp_filter_plot.ortholog_num = str(stats[3])
+                sp_filter_plot.ortholog_num = "{0:,}".format(stats[3])
                 cards.ids.gauge_bx.add_widget(sp_filter_plot)
 
                 # Create gene filter plot and add to box
                 gn_filter_plot = GaugePlot()
                 gn_filter_plot.txt = "After gene filter"
                 gn_filter_plot.proportion = float(stats[2]) / float(stats[0])
-                gn_filter_plot.ortholog_num = str(stats[2])
+                gn_filter_plot.ortholog_num = "{0:,}".format(stats[2])
                 cards.ids.gauge_bx.add_widget(gn_filter_plot)
 
                 # Create final ortholog plot
@@ -6674,7 +6691,7 @@ if __name__ == "__main__":
                 final_ortholog_plot.txt = "Final orthologs"
                 final_ortholog_plot.proportion = float(stats[4]) / \
                     float(stats[0])
-                final_ortholog_plot.ortholog_num = str(stats[4])
+                final_ortholog_plot.ortholog_num = "{0:,}".format(stats[4])
                 cards.ids.gauge_bx.add_widget(final_ortholog_plot)
 
             # Add button to generate full report
@@ -7777,6 +7794,7 @@ if __name__ == "__main__":
 
             if idx == "new_folder":
                 self._subpopup = Popup(title=title, content=content,
+                                       auto_dismiss=False,
                                        size=(400, 150), size_hint=(None, None))
                 self._subpopup.open()
             else:

@@ -246,7 +246,7 @@ def filter_fasta(min_len, max_stop, db):
     FilterFasta.orthomcl_filter_fasta("compliantFasta", min_len, max_stop, db)
 
 
-def allvsall_usearch(goodproteins, eval, cpus, usearch_outfile,
+def allvsall_usearch(goodproteins, evalue, cpus, usearch_outfile,
                      usearch_bin="usearch"):
 
     print_col("Perfoming USEARCH All-vs-All (may take a while...)", GREEN, 1)
