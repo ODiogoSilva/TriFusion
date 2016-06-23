@@ -23,6 +23,7 @@
 - Corrected behaviour of go to previous directory button in some filechoosers
 - Fixed issues with Exit popup.
 - Corrected bug with low e-values in Ortholog Search
+- Corrected crash when loading a new project while calculating summary statistics
 
 ### v0.3.0
 

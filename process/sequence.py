@@ -435,9 +435,12 @@ class Alignment(Base):
         values() method of a dictionary
         """
 
-        for f in self.alignment.values():
-            with open(f) as fh:
-                yield "".join(fh.readlines())
+        try:
+            for f in self.alignment.values():
+                with open(f) as fh:
+                    yield "".join(fh.readlines())
+        except IOError:
+            pass
 
     def get_sequence(self, taxon):
         """
