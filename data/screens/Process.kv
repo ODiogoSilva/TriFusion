@@ -54,8 +54,13 @@ ShowcaseScreen:
                             valign: "middle"
                             text_size: self.size
                             size_hint_x: .7
-                            text: "  Reverse a concatenated file?"
+                            text: "  Revert a concatenated file?"
                             bold: True
+                        InfoBt:
+                            width: 30
+                            height: 30
+                            on_release:
+                                app.dialog_general_info("revert_concatenation")
                         ProcessBt:
                             id: rev_conc
                             size_hint_x: .3

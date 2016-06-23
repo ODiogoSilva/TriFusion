@@ -21,6 +21,7 @@ ShowcaseScreen:
                     text: "  Back"
                     bold: True
                     background_normal: "data/backgrounds/go_back_bt.png"
+                    background_down: "data/backgrounds/go_back_bt_down.png"
                     on_release:
                         app.go_previous_screen()
 
@@ -112,6 +113,7 @@ ShowcaseScreen:
                                 valign: "middle"
                                 bold: True
                                 background_normal: "data/backgrounds/taxa_filter_bt.png"
+                                background_down: "data/backgrounds/taxa_filter_bt_down.png"
                                 on_release:
                                     app.dialog_exclude_orto_taxa(header_content.plt_idx)
 
@@ -123,6 +125,7 @@ ShowcaseScreen:
                                 valign: "middle"
                                 bold: True
                                 background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt.png"
+                                background_down: "data/backgrounds/refresh_bt_down.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt_down.png"
                                 on_release:
                                     if header_content.original_filt and header_content.original_filt != [int(gn_spin.value), int(sp_spin.value)]:\
                                     app.orto_show_plot(app.active_group, header_content.plt_idx, filt=[int(gn_spin.value), int(sp_spin.value)])

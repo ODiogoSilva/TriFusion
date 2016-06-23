@@ -127,9 +127,12 @@ class GroupLight:
     def __init__(self, groups_file, gene_threshold=None,
                  species_threshold=None):
 
-        self.gene_threshold = int(gene_threshold) if gene_threshold else None
-        self.species_threshold = int(species_threshold) if species_threshold \
+        self.gene_threshold = gene_threshold if gene_threshold else None
+        self.species_threshold = species_threshold if species_threshold \
             else None
+
+        if type(self.species_threshold) is float:
+            self._get_sp_proportion()
 
         # Attribute containing the list of included species
         self.species_list = []
@@ -190,7 +193,8 @@ class GroupLight:
                 self.num_species_compliant += 1
                 self.all_compliant += 1
 
-            elif extra_copies <= self.gene_threshold and self.gene_threshold:
+            elif (extra_copies <= self.gene_threshold and
+                      self.gene_threshold) or self.gene_threshold == 0:
                 self.num_gene_compliant += 1
 
             elif len(cl) >= self.species_threshold and \
@@ -283,10 +287,24 @@ class GroupLight:
             self.num_gene_compliant, self.num_species_compliant, \
             self.all_compliant
 
+    def _get_sp_proportion(self):
+        """
+        When the species filter is a float value between 0 and 1, convert
+        this proportion into absolute values (rounded up), since filters were
+        already designed for absolutes.
+        """
+
+        self.species_threshold = int(self.species_threshold *
+                                     len(self.species_list))
+        print(self.species_threshold)
+
     def update_filters(self, gn_filter, sp_filter, update_stats=False):
 
-        self.gene_threshold = int(float(gn_filter))
-        self.species_threshold = int(float(sp_filter))
+        self.gene_threshold = gn_filter
+        self.species_threshold = sp_filter
+
+        if type(self.species_threshold) is float:
+            self._get_sp_proportion()
 
         if update_stats:
             self._reset_counter()
@@ -1455,7 +1473,7 @@ class MultiGroupsLight:
             self.get_multigroup_statistics(group_obj)
             pickle.dump(group_obj, open(self.groups[group_name], "wb"))
             # Update filter map
-            self.filters[group_name] = (gn_filter, sp_filter)
+            self.filters[group_name] = (gn_filter, group_obj.species_threshold)
 
     def get_multigroup_statistics(self, group_obj):
         """

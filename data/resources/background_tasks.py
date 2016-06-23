@@ -154,7 +154,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         if nm.k:
             nm.t = "Running USearch. This may take a while..."
             nm.c = 4
-            ortho_pipe.allvsall_usearch("goodProteins_db", usearch_evalue,
+            ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue,
                                         usearch_threads, usearch_output,
                                         usearch_bin="usearch")
         if nm.k:
@@ -187,7 +187,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
                                                                   sqldb,
                                                                 join(ortho_dir,
                                                          "backstage_files",
-                                                         "goodProteins_db"),
+                                                         usearch_db),
                                                                   temp_dir)
             # stats is a dictionary containing the inflation value as
             #  key and a list with the orthologs as value
@@ -573,12 +573,15 @@ def load_group_files(group_files, temp_dir):
 
 def orto_update_filters(ortho_groups, gn_filter, sp_filter,
                         group_names=None, default=False):
-    if group_names:
-        ortho_groups.update_filters(gn_filter, sp_filter, group_names,
-                                    default=default)
-    else:
-        ortho_groups.update_filters(gn_filter, sp_filter,
-                                    default=default)
+    try:
+        if group_names:
+            ortho_groups.update_filters(gn_filter, sp_filter, group_names,
+                                        default=default)
+        else:
+            ortho_groups.update_filters(gn_filter, sp_filter,
+                                        default=default)
+    except EOFError:
+        pass
     return [ortho_groups]
 
 
