@@ -35,6 +35,7 @@ import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
 import ortho.orthomclFilterFasta as FilterFasta
 import ortho.orthomclBlastParser as BlastParser
 import ortho.orthomclMclToGroups as MclGroups
+from ortho.error_handling import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Command line interface for "
@@ -175,7 +176,9 @@ def check_unique_field(proteome_file, verbose=False):
             return i
 
     else:
-        return None
+        raise NoUniqueField(
+            "The proteome file {} has no unique field".format(
+                os.path.basename(proteome_file)))
 
 
 def prep_fasta(proteome_file, code, unique_id, verbose=False):

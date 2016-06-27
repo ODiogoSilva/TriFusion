@@ -87,7 +87,7 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.15"
+    __version__ = "0.3.16"
     __build__ = "270616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
@@ -9169,23 +9169,28 @@ if __name__ == "__main__":
 
                 # When the process finishes, close progress dialog and
                 #  unschedule this callback
+
                 if not p.is_alive():
-
-                    try:
-                        if shared_ns.exception:
-                            return self.dialog_floatcheck(
-                                "Unexpected error when searching orthologs."
-                                " Check app logs", t="error")
-                    except:
-                        pass
-
-                    # Set the protein database file
-                    self.protein_db = join(self.ortho_dir, "backstage_files",
-                                           "goodProteins.fasta")
 
                     Clock.unschedule(func)
                     self.dismiss_popup()
-                    self.dialog_search_report(shared_ns.stats, shared_ns.groups)
+
+                    if shared_ns.exception:
+                        self.dialog_floatcheck(shared_ns.exception,
+                                               t="error")
+
+                    try:
+                        # Set the protein database file
+                        self.protein_db = join(self.ortho_dir,
+                                               "backstage_files",
+                                               "goodProteins.fasta")
+                        self.dialog_search_report(shared_ns.stats,
+                                                  shared_ns.groups)
+                    except:
+                        if not shared_ns.exception:
+                            self.dialog_floatcheck("Unexpected error when "
+                                                   "search orthologs. Check "
+                                                   "app logs.", t="error")
 
                     manager.shutdown()
                     p.terminate()

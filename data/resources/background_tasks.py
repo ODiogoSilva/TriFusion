@@ -1,5 +1,6 @@
 from process import data
 from process.error_handling import *
+from ortho.error_handling import *
 from process.sequence import AlignmentList, Alignment
 import orthomcl_pipeline as ortho_pipe
 from ortho import OrthomclToolbox as OrthoTool
@@ -193,9 +194,10 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             #  key and a list with the orthologs as value
             nm.stats = stats
             nm.groups = groups_obj
-    except:
+
+    except Exception as e:
         logging.exception("Unexpected exit in Orthology search")
-        nm.exception = True
+        nm.exception = str(e)
 
 
 def update_active_fileset(aln_obj, set_name, file_list, file_groups):
