@@ -112,7 +112,6 @@ def print_previous_subject(subject, db):
                  float(percent_match)])
 
 
-# this (corrected) version of formatEvalue provided by Robson de Souza
 def format_evalue(evalue):
     evalue = "{:.2E}".format(Decimal(evalue))
     if evalue == '0':
@@ -144,7 +143,7 @@ def non_overlapping_match(subject):
     for h in hsps:
         h = get_start_end(h)
         # does not extend
-        if h[end] < original[end]:
+        if h[end] <= original[end]:
             continue
         # overlaps
         if h[start] <= original[end]:
@@ -161,13 +160,14 @@ def non_overlapping_match(subject):
 
 # flip orientation if nec.
 def get_start_end(h):
-    start = h[0]
-    end = h[1]
+    start = int(h[0])
+    end = int(h[1])
     if start > end:
-        end = h[0]
-        start = h[1]
- 
-    return int(start), int(end)
+        aux = end
+        end = start
+        start = aux
+
+    return start, end
 
 
 def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
