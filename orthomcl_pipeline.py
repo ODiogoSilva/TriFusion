@@ -128,11 +128,12 @@ if __name__ == "__main__":
 
     arg = parser.parse_args()
 
+
 def install_schema(db_dir):
     """
     Install the schema for the mySQL database
 
-    :param output_dir: directory of sqlite database
+    :param db_dir: string, directory for the sqlite database
     """
 
     print_col("Creating sqlite database", GREEN, 1)
