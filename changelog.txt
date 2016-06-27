@@ -16,6 +16,7 @@
 - Added option to provide minimum proportion of taxa for ortholog filter, instead of absolute value
 - Added Ctrl+f keybinding to bring focus to find text input in secondary filechooser
 - Completed Help texts in-App.
+- Added information to orthoMCL pipeline log
 
 ##### Bug Fixes
 - Corrected issue with table exportation in Statistics screen due to gray scale implementation

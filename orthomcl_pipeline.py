@@ -140,7 +140,7 @@ def install_schema(db_dir):
     install_sqlite.execute(db_dir)
 
 
-def check_unique_field(proteome_file):
+def check_unique_field(proteome_file, verbose=False):
     """
     Checks the original proteome file for a field in the fasta header
     that is unique to all sequences
@@ -170,6 +170,8 @@ def check_unique_field(proteome_file):
 
             # The orthoMCL program uses an index starting from 1, so the +1 is
             #  a necessary adjustment
+            if verbose:
+                print_col("\t Using unique header field {}".format(i), GREEN, 1)
             return i
 
     else:
@@ -228,7 +230,7 @@ def adjust_fasta(file_list):
         code_name = proteome.split(os.path.sep)[-1].split(".")[0]
 
         # Check the unique ID field
-        unique_id = check_unique_field(proteome)
+        unique_id = check_unique_field(proteome, True)
 
         # Adjust fasta
         stg = prep_fasta(proteome, code_name, unique_id)
