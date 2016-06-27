@@ -17,6 +17,7 @@
 - Added Ctrl+f keybinding to bring focus to find text input in secondary filechooser
 - Completed Help texts in-App.
 - Added information to orthoMCL pipeline log
+- Added error handling when there is no unique field id on ortholog search
 
 ##### Bug Fixes
 - Corrected issue with table exportation in Statistics screen due to gray scale implementation
