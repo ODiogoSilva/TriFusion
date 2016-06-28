@@ -1088,20 +1088,25 @@ if __name__ == "__main__":
                     s = self._auto_completion(path)
                     path_wgt.text = s
 
-        def _common_path(self):
+        def _common_path(self, file_list=None):
             """
             Returns a string with the longest common path contained in the
             self.file_list dir. This is used by FileChoosers to open the nearest
             directory to their input files
             """
 
+            if file_list:
+                fl = file_list
+            else:
+                fl = self.file_list
+
             # Return None if there are no input files
-            if not self.file_list:
+            if not fl:
                 return
 
             # Get common path
             common_path = ""
-            for char in zip(*self.file_list):
+            for char in zip(*fl):
                 if len(set(char)) == 1:
                     common_path += "".join(set(char))
                 else:
@@ -2873,6 +2878,10 @@ if __name__ == "__main__":
                 self.original_file_inf = self.get_file_information(
                     mode="proteome")
                 self.populate_input_files(mode="proteome")
+
+            # Automatically set the default orthology directory as the same
+            # directory of the input files
+            self.ortho_dir = self._common_path(file_list)
 
             if list(bad_proteomes.values()) != [[], [], []]:
                 msg = ""
@@ -7443,6 +7452,8 @@ if __name__ == "__main__":
                 content.ids.txt_box.clear_widgets()
                 content.ids.txt_box.height = 0
                 title = "Choose destination directory for OrthoMCL output files"
+                if self.ortho_dir:
+                    content.ids.sd_filechooser.path = self.ortho_dir
 
             elif idx == "export_table":
                 title = "Export as table..."
