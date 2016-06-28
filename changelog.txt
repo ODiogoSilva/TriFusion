@@ -19,6 +19,7 @@
 - Added information to orthoMCL pipeline log
 - Added error handling when there is no unique field id on ortholog search
 - Removed PIL dependency for converting plots to grayscale
+- Prevented exit popup spamming.
 
 ##### Bug Fixes
 - Corrected issue with table exportation in Statistics screen due to gray scale implementation

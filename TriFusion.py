@@ -82,8 +82,8 @@ if __name__ == "__main__":
     from base.plotter import *
     from ortho.OrthomclToolbox import MultiGroups
 
-    __version__ = "0.3.16"
-    __build__ = "270616"
+    __version__ = "0.3.17"
+    __build__ = "280616"
     __author__ = "Diogo N. Silva"
     __copyright__ = "Diogo N. Silva"
     __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -1989,6 +1989,13 @@ if __name__ == "__main__":
             elif popup_level == 2:
                 check_content = check_wgt(cancel=self.dismiss_subpopup)
             elif popup_level == 3:
+
+                # Do nothing if exit popup already exists. The return True
+                # prevents the app from closing, since in that stage it will
+                # be listening to return False to close.
+                if self._exit_popup in self.root_window.children:
+                    return True
+
                 check_content = check_wgt(cancel=self.dismiss_exit)
 
             if isinstance(check_content, CheckDialog):
