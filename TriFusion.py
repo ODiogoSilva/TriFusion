@@ -9175,9 +9175,12 @@ if __name__ == "__main__":
                     Clock.unschedule(func)
                     self.dismiss_popup()
 
-                    if shared_ns.exception:
-                        self.dialog_floatcheck(shared_ns.exception,
-                                               t="error")
+                    try:
+                        if shared_ns.exception:
+                            self.dialog_floatcheck(shared_ns.exception,
+                                                   t="error")
+                    except:
+                        pass
 
                     try:
                         # Set the protein database file
