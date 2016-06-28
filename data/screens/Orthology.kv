@@ -1,5 +1,6 @@
 #:import orthology_storage data.resources.info_data.orthology_storage
 #:import get_active_group data.resources.background_tasks.get_active_group
+#:import os os
 
 ShowcaseScreen:
     name: "Orthology"
@@ -147,7 +148,7 @@ ShowcaseScreen:
                                         app.dialog_general_info("orthology_output")
                                 ProcessBt:
                                     id: orto_dir
-                                    text: "Select..." if not app.ortho_dir else app.ortho_dir
+                                    text: "Select..." if not app.ortho_dir else os.path.basename(app.ortho_dir)
                                     size_hint_x: None
                                     width: gl_orto_search.bt_wdt
                                     on_release:
