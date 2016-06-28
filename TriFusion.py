@@ -24,6 +24,7 @@ if __name__ == "__main__":
     from collections import OrderedDict
     from functools import partial
     from copy import deepcopy
+    from scipy import misc
     import multiprocessing
     import matplotlib
     import matplotlib.patches as patches
@@ -33,14 +34,8 @@ if __name__ == "__main__":
     import urllib
     import string
     import time
-    import sys
     import os
     from os import sep
-
-    if sys.platform in ["win32", "cygwin"]:
-        from PIL import Image as PImage
-    else:
-        import Image as PImage
 
     # freeze_support must be called here so that multiprocessing work
     # correctly on windows
@@ -2452,8 +2447,6 @@ if __name__ == "__main__":
             original colors (False) or grayscale (True)
             """
 
-            print(path, file_name, bw)
-
             temp_f = None
             f_path = join(path, file_name)
 
@@ -2472,7 +2465,8 @@ if __name__ == "__main__":
                                           bbox_inches="tight")
 
             if bw:
-                PImage.open(temp_f).convert("L").save(f_path)
+                image = misc.imread(temp_f, flatten=True)
+                misc.imsave(f_path, image)
                 os.remove(temp_f)
 
             self.dialog_floatcheck("Graphic successfully exported!", t="info")
@@ -5664,8 +5658,6 @@ if __name__ == "__main__":
             :param single_gene: dictionary, key must be "plt_idx", and value the
             plot index string for the single gene plot type
             """
-
-            print(args1, args2, active_bt, single_gene)
 
             content = StatsToggleWgt()
 
