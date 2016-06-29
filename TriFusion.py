@@ -37,6 +37,12 @@ if __name__ == "__main__":
     import os
     from os import sep
 
+    # Move to Application's directory. This is a way of avoiding encoding
+    # issues when the full path to the application's directory contains
+    # non-ASCII characters. This way, the cur_dir attribute will be always
+    # set to "."
+    os.chdir(os.path.dirname(__file__))
+
     # freeze_support must be called here so that multiprocessing work
     # correctly on windows
     multiprocessing.freeze_support()
@@ -176,7 +182,7 @@ if __name__ == "__main__":
         projects_file = StringProperty()
 
         # Getting current directory to fetch the screen kv files
-        cur_dir = dirname(__file__)
+        cur_dir = "."
 
         # Only the original input files. SHOULD NOT BE MODIFIED
         file_list = []
