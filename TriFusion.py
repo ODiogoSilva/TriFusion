@@ -34,6 +34,7 @@ if __name__ == "__main__":
     import urllib
     import string
     import time
+    import sys
     import os
     from os import sep
 
@@ -41,7 +42,10 @@ if __name__ == "__main__":
     # issues when the full path to the application's directory contains
     # non-ASCII characters. This way, the cur_dir attribute will be always
     # set to "."
-    os.chdir(os.path.dirname(__file__))
+    if getattr(sys, "frozen", False):
+        os.chdir(dirname(sys.executable))
+    elif __file__:
+        os.chdir(dirname(os.path.abspath(__file__)))
     print(os.getcwd())
 
     # freeze_support must be called here so that multiprocessing work
