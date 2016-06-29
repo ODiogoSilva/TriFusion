@@ -42,6 +42,7 @@ if __name__ == "__main__":
     # non-ASCII characters. This way, the cur_dir attribute will be always
     # set to "."
     os.chdir(os.path.dirname(__file__))
+    print(os.getcwd())
 
     # freeze_support must be called here so that multiprocessing work
     # correctly on windows
@@ -9444,4 +9445,4 @@ if __name__ == "__main__":
 
     multiprocessing.freeze_support()
 
-    TriFusionApp().run()
+    TriFusionApp(kv_file="trifusion.kv").run()
