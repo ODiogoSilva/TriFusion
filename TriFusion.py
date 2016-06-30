@@ -121,7 +121,39 @@ if __name__ == "__main__":
     # specific pattern for this  error and I could never replicate the bug,
     # but every now and then the app  would crash. The fix on lines 920-923
     # handles the KeyError exception by  returning the function.
-
+    # MEMO 3
+    # To avoid issues with non-ascii characters on the path of the binary
+    # file, some changes were performed on matplotlib and kivy files.
+    # .:Matplotlib:.
+    #   .: matplotlib/__init__.py :.
+    #      [l324](wrap()) Wrap the self.report() method around a try
+    #      statement and handle all exceptions attributing False to spoke
+    #      [l822](matplotlib_fname) hardcode the join() method with "mpl-data"
+    #   .: matplotlib/font_manager.py:.
+    #      [l1026](__init__()) Replace the "datapath" value of the rcParams
+    #      dictionary wit a relative path ->
+    #      rcParams["datapath"] = os.path.relpath(rcParams["datapath"])
+    #   .: matplotlib/mathtext.py:.
+    #      [l1013](StandardPsFonts()) Wrap the get_data_path() function call
+    #      with a relative path ->
+    #      basepath = os.path.join( os.path.relpath(get_data_path()),
+    #                              'fonts', 'afm' )
+    #   .: matplotlib/style/core.py:.
+    #      [l30] Same as previous ->
+    #      BASE_LIBRARY_PATH = os.path.join(
+    #          os.path.relpath(mpl.get_data_path()), 'stylelib')
+    # .:Kivy:.
+    #   .: kivy/atlas.py :.
+    #      [l206] Wrap the dirname(filename) in a relative path ->
+    #      d = os.path.relpath(dirname(filename))
+    #    .: kivy/core/text/text_sdl2.py :.
+    #      [l21](_get_font_id()) Replace the "font_name_r" value of the
+    #      self.options dictionary with a relative path ->
+    #      self.options['font_name_r'] = os.path.relpath(
+    #          self.options['font_name_r'])
+    #    .: kivy/core/window/window_sdl2.py :.
+    #       [l339](set_icon()) Wrap the filename variable in a relative path ->
+    #       self._win.set_window_icon(str(os.path.relpath(filename)))
 
     def kill_proc_tree(pid, include_parent=True):
         """
@@ -9448,5 +9480,19 @@ if __name__ == "__main__":
 if __name__ == "__main__":
 
     multiprocessing.freeze_support()
+
+    # This will handle the pointer to the kv file whether TriFusion is a
+    # one-file executable, a one-dir executable, or running from source.
+    if getattr(sys, "frozen", False):
+        # One-file
+        try:
+            kv_file = os.path.join(sys._MEIPASS, "trifusion.kv")
+            os.chdir(sys._MEIPASS)
+        # One-dir
+        except AttributeError:
+            kv_file = "trifusion.kv"
+    # Source
+    elif __file__:
+        kv_file = "trifusion.kv"
 
     TriFusionApp(kv_file="trifusion.kv").run()
