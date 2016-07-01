@@ -199,6 +199,7 @@ informative_storage = {
          "matrix that is appended at the end of the sequences. The "
          "codification of the gaps follows the method selected in the '[b]Gap "
          "coding method[/b]' option. "],
+
     # Statistics
     "info_sequence_size":
         ["[b]Distribution of sequence size - Help[/b]",
@@ -215,7 +216,7 @@ informative_storage = {
          "data) for the entire active data set.\n\n"
          "[b]y-axis:[/b] Absolute frequency of alignments\n"
          "[b]x-axis:[/b] Sequence size in nucleotides (DNA) or residues ("
-         "Protein"""],
+         "Protein)"],
     "info_nucleotide_proportion":
         ["[b]Nucleotide or residue proportion - Help[/b]",
          "[color=37abc8ff][b]Available options:[/color] Per species; Average["
