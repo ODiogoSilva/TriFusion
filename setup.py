@@ -19,7 +19,8 @@ setup(
               "trifusion.process",
               "trifusion.stats"],
     package_data={"trifusion": ["*.kv"],
-                  "trifusion.data.screens": ["*.kv"]},
+                  "trifusion.data.screens": ["*.kv"],
+                  "trifusion.data.backgrounds": ["*.png", "*.ico"]},
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),
     long_description=readme,
