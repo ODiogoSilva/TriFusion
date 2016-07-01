@@ -257,12 +257,11 @@ def allvsall_usearch(goodproteins, evalue, cpus, usearch_outfile,
 
     print_col("Perfoming USEARCH All-vs-All (may take a while...)", GREEN, 1)
 
-    FNULL = open(os.devnull, "w")
+    # FNULL = open(os.devnull, "w")
     x = subprocess.Popen([usearch_bin, "-ublast", goodproteins, "-db",
                           goodproteins, "-blast6out", usearch_outfile,
-                          "-evalue", str(eval), "--maxaccepts", "0",
-                          "-threads", str(cpus)], stdout=FNULL,
-                         stderr=subprocess.STDOUT).wait()
+                          "-evalue", str(evalue), "--maxaccepts", "0",
+                          "-threads", str(cpus)]).wait()
 
 
 def blast_parser(usearch_ouput, db_dir):

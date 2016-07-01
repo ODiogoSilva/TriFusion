@@ -5453,7 +5453,7 @@ if __name__ == "__main__":
             content.ids.content.text = body_str
 
             self.show_popup(title=title_str, content=content,
-                            size_hint=(.5, .5), close_bt=True)
+                            size=(500, 400), close_bt=True)
 
         def operation_queue_init(self):
             """
