@@ -33,9 +33,15 @@ import functools
 import sqlite3
 
 # TriFusion imports
-import process
-from process.base import *
-from process.data import Partitions
+
+try:
+    import process
+    from process.base import *
+    from process.data import Partitions
+except ImportError:
+    import trifusion.process as process
+    from trifusion.process.base import *
+    from trifusion.process.data import Partitions
 
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform

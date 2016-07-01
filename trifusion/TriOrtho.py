@@ -24,10 +24,16 @@ from argparse import RawDescriptionHelpFormatter
 from os.path import join
 import os
 
-from process.base import print_col, RED, GREEN, YELLOW
-from TriSeq import CleanUp
-from ortho import OrthomclToolbox as OT
-from ortho import protein2dna
+try:
+    from process.base import print_col, RED, GREEN, YELLOW
+    from TriSeq import CleanUp
+    from ortho import OrthomclToolbox as OT
+    from ortho import protein2dna
+except ImportError:
+    from trifusion.process.base import print_col, RED, GREEN, YELLOW
+    from trifusion.TriSeq import CleanUp
+    from trifusion.ortho import OrthomclToolbox as OT
+    from trifusion.ortho import protein2dna
 
 
 if __name__ == "__main__":
