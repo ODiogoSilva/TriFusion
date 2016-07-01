@@ -21,10 +21,17 @@ import time
 import argparse
 import configparser
 from glob import glob
-from process.sequence import *
-from base.plotter import *
-from TriSeq import CleanUp
-from process.base import print_col, GREEN, RED, YELLOW
+
+try:
+    from process.sequence import *
+    from base.plotter import *
+    from TriSeq import CleanUp
+    from process.base import print_col, GREEN, RED, YELLOW
+except ImportError:
+    from trifusion.process.sequence import *
+    from trifusion.base.plotter import *
+    from trifusion.TriSeq import CleanUp
+    from trifusion.process.base import print_col, GREEN, RED, YELLOW
 
 if __name__ == "__main__":
 

@@ -26,16 +26,29 @@ import traceback
 import argparse
 from os.path import abspath, join
 
-from process.base import print_col, GREEN, RED
-from ortho import OrthomclToolbox as OT
-import ortho.orthomclInstallSchema as install_sqlite
-import ortho.orthomclLoadBlast as load_blast2sqlite
-import ortho.orthomclPairs as make_pairs_sqlite
-import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
-import ortho.orthomclFilterFasta as FilterFasta
-import ortho.orthomclBlastParser as BlastParser
-import ortho.orthomclMclToGroups as MclGroups
-from ortho.error_handling import *
+try:
+    from process.base import print_col, GREEN, RED
+    from ortho import OrthomclToolbox as OT
+    import ortho.orthomclInstallSchema as install_sqlite
+    import ortho.orthomclLoadBlast as load_blast2sqlite
+    import ortho.orthomclPairs as make_pairs_sqlite
+    import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
+    import ortho.orthomclFilterFasta as FilterFasta
+    import ortho.orthomclBlastParser as BlastParser
+    import ortho.orthomclMclToGroups as MclGroups
+    from ortho.error_handling import *
+except ImportError:
+    from trifusion.process.base import print_col, GREEN, RED
+    from trifusion.ortho import OrthomclToolbox as OT
+    import trifusion.ortho.orthomclInstallSchema as install_sqlite
+    import trifusion.ortho.orthomclLoadBlast as load_blast2sqlite
+    import trifusion.ortho.orthomclPairs as make_pairs_sqlite
+    import trifusion.ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
+    import trifusion.ortho.orthomclFilterFasta as FilterFasta
+    import trifusion.ortho.orthomclBlastParser as BlastParser
+    import trifusion.ortho.orthomclMclToGroups as MclGroups
+    from trifusion.ortho.error_handling import *
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Command line interface for "

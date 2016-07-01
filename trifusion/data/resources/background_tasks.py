@@ -1,9 +1,17 @@
-from process import data
-from process.error_handling import *
-from ortho.error_handling import *
-from process.sequence import AlignmentList, Alignment
-import orthomcl_pipeline as ortho_pipe
-from ortho import OrthomclToolbox as OrthoTool
+try:
+    from process import data
+    from process.error_handling import *
+    from ortho.error_handling import *
+    from process.sequence import AlignmentList, Alignment
+    import orthomcl_pipeline as ortho_pipe
+    from ortho import OrthomclToolbox as OrthoTool
+except ImportError:
+    from trifusion.process import data
+    from trifusion.process.error_handling import *
+    from trifusion.ortho.error_handling import *
+    from trifusion.process.sequence import AlignmentList, Alignment
+    import trifusion.orthomcl_pipeline as ortho_pipe
+    from trifusion.ortho import OrthomclToolbox as OrthoTool
 
 from os.path import join, basename
 from collections import OrderedDict

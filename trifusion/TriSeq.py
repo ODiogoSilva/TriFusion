@@ -24,10 +24,17 @@ import time
 import argparse
 import traceback
 from glob import glob
-from process.base import print_col, RED, GREEN, YELLOW
-from process import sequence as seqset
-from process import data
-from process.error_handling import *
+
+try:
+    from process.base import print_col, RED, GREEN, YELLOW
+    from process import sequence as seqset
+    from process import data
+    from process.error_handling import *
+except ImportError:
+    from trifusion.process.base import print_col, RED, GREEN, YELLOW
+    from trifusion.process import sequence as seqset
+    from trifusion.process import data
+    from trifusion.process.error_handling import *
 
 
 if __name__ == "__main__":

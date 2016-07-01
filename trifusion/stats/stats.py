@@ -17,8 +17,11 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+try:
+    from process.sequence import Alignment
+except ImportError:
+    from trifusion.process.sequence import Alignment
 
-from process.sequence import Alignment
 from collections import OrderedDict
 import numpy as np
 import pygal

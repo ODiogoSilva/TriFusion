@@ -17,8 +17,12 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+try:
+    from process.error_handling import *
+except ImportError:
+    from trifusion.process.error_handling import *
+
 import sys
-from process.error_handling import *
 from collections import OrderedDict
 
 dna_chars = ["a", "t", "g", "c"]
