@@ -19,11 +19,12 @@
 
 try:
     from process.sequence import Alignment
+    from base.plotter import *
 except ImportError:
     from trifusion.process.sequence import Alignment
+    from trifusion.base.plotter import *
 
 from collections import OrderedDict
-from base.plotter import *
 import pickle
 import os
 import sqlite3
