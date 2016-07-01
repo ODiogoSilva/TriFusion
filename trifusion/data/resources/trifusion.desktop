@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=TriFusion
+Comment=Streamlining phylogenomic data gathering, processing and visualization
+Exec=/usr/bin/TriFusion
+Icon=trifusion-icon-128.png
+Type=Application
+Categories=Science;Application;

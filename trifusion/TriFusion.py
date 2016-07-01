@@ -900,8 +900,6 @@ class TriFusionApp(App):
                                msg="Cleaning temporary files and "
                                    "exiting...")
 
-        return True
-
     def _update_path(self, path):
         """
         This method updates the filechooser path when clicking on the path
