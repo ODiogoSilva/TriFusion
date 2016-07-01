@@ -47,6 +47,8 @@ def remove_tmp(temp_dir):
         except OSError:
             shutil.rmtree(join(temp_dir, i))
 
+    raise SystemExit
+
 
 def load_proc(aln_list, file_list, nm, dest):
     try:
