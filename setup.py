@@ -6,15 +6,6 @@ from setuptools import setup
 with open('README.md') as f:
     readme = f.read()
 
-install_requires = [
-    "matplotlib",
-    "psutil",
-    "scipy",
-    "configparser",
-    "seaborn",
-    "numpy",
-]
-
 setup(
     name="TriFusion",
     version="0.3.17",
@@ -30,7 +21,6 @@ setup(
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),
     long_description=readme,
-    install_requires=install_requires,
     url="https://github.com/ODiogoSilva/TriFusion",
     author="Diogo N Silva",
     author_email="odiogosilva@gmail.com",
