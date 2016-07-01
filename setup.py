@@ -18,6 +18,8 @@ setup(
               "trifusion.ortho",
               "trifusion.process",
               "trifusion.stats"],
+    package_data={"trifusion": ["*.kv"],
+                  "trifusion.data.screens": ["*.kv"]},
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),
     long_description=readme,
