@@ -81,16 +81,28 @@ from kivy.clock import Clock
 from kivy.uix.treeview import TreeView, TreeViewLabel
 
 # Local TriFusion imports
-from ortho import protein2dna
-from process.base import Base
-from process.error_handling import *
-from process.sequence import AlignmentList
-from data.resources.info_data import informative_storage
-from data.resources.background_tasks import *
-from data.resources.custom_widgets import *
-from data.resources.stats import *
-from base.plotter import *
-from ortho.OrthomclToolbox import MultiGroups
+try:
+    from ortho import protein2dna
+    from process.base import Base
+    from process.error_handling import *
+    from process.sequence import AlignmentList
+    from data.resources.info_data import informative_storage
+    from data.resources.background_tasks import *
+    from data.resources.custom_widgets import *
+    from data.resources.stats import *
+    from base.plotter import *
+    from ortho.OrthomclToolbox import MultiGroups
+except ImportError:
+    from trifusion.ortho import protein2dna
+    from trifusion.process.base import Base
+    from trifusion.process.error_handling import *
+    from trifusion.process.sequence import AlignmentList
+    from trifusion.data.resources.info_data import informative_storage
+    from trifusion.data.resources.background_tasks import *
+    from trifusion.data.resources.custom_widgets import *
+    from trifusion.data.resources.stats import *
+    from trifusion.base.plotter import *
+    from trifusion.ortho.OrthomclToolbox import MultiGroups
 
 __version__ = "0.3.17"
 __build__ = "280616"
