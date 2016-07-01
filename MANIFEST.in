@@ -3,3 +3,5 @@ include README.md
 include changelog.txt
 include trifusion/trifusion.kv
 include trifusion/data/screens/*.kv
+include trifusion/data/backgrounds/*.png
+include trifusion/data/backgrounds/*.ico
