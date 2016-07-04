@@ -31,6 +31,7 @@
 - Corrected bug with low e-values in Ortholog Search
 - Corrected crash when loading a new project while calculating summary statistics
 - Explicit disabling of stats plot type switch when a plot type is always inactive.
+- Suppress import warnings for command line versions
 
 ### v0.3.0
 

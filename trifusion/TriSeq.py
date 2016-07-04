@@ -17,24 +17,30 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-import os
-import sys
-import shutil
-import time
-import argparse
-import traceback
-from glob import glob
+import warnings
 
-try:
-    from process.base import print_col, RED, GREEN, YELLOW, CleanUp
-    from process import sequence as seqset
-    from process import data
-    from process.error_handling import *
-except ImportError:
-    from trifusion.process.base import print_col, RED, GREEN, YELLOW, CleanUp
-    from trifusion.process import sequence as seqset
-    from trifusion.process import data
-    from trifusion.process.error_handling import *
+# Suppress import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+
+    import os
+    import sys
+    import shutil
+    import time
+    import argparse
+    from glob import glob
+
+    try:
+        from process.base import print_col, RED, GREEN, YELLOW, CleanUp
+        from process import sequence as seqset
+        from process import data
+        from process.error_handling import *
+    except ImportError:
+        from trifusion.process.base import print_col, RED, GREEN, YELLOW,\
+            CleanUp
+        from trifusion.process import sequence as seqset
+        from trifusion.process import data
+        from trifusion.process.error_handling import *
 
 
 @CleanUp

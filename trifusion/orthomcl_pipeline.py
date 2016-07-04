@@ -17,37 +17,44 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-import os
-import time
-import codecs
-import subprocess
-import shutil
-import traceback
-import argparse
-from os.path import abspath, join
 
-try:
-    from process.base import print_col, GREEN, RED
-    from ortho import OrthomclToolbox as OT
-    import ortho.orthomclInstallSchema as install_sqlite
-    import ortho.orthomclLoadBlast as load_blast2sqlite
-    import ortho.orthomclPairs as make_pairs_sqlite
-    import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
-    import ortho.orthomclFilterFasta as FilterFasta
-    import ortho.orthomclBlastParser as BlastParser
-    import ortho.orthomclMclToGroups as MclGroups
-    from ortho.error_handling import *
-except ImportError:
-    from trifusion.process.base import print_col, GREEN, RED
-    from trifusion.ortho import OrthomclToolbox as OT
-    import trifusion.ortho.orthomclInstallSchema as install_sqlite
-    import trifusion.ortho.orthomclLoadBlast as load_blast2sqlite
-    import trifusion.ortho.orthomclPairs as make_pairs_sqlite
-    import trifusion.ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
-    import trifusion.ortho.orthomclFilterFasta as FilterFasta
-    import trifusion.ortho.orthomclBlastParser as BlastParser
-    import trifusion.ortho.orthomclMclToGroups as MclGroups
-    from trifusion.ortho.error_handling import *
+import warnings
+
+# Suppress import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+
+    import os
+    import time
+    import codecs
+    import subprocess
+    import shutil
+    import traceback
+    import argparse
+    from os.path import abspath, join
+
+    try:
+        from process.base import print_col, GREEN, RED
+        from ortho import OrthomclToolbox as OT
+        import ortho.orthomclInstallSchema as install_sqlite
+        import ortho.orthomclLoadBlast as load_blast2sqlite
+        import ortho.orthomclPairs as make_pairs_sqlite
+        import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
+        import ortho.orthomclFilterFasta as FilterFasta
+        import ortho.orthomclBlastParser as BlastParser
+        import ortho.orthomclMclToGroups as MclGroups
+        from ortho.error_handling import *
+    except ImportError:
+        from trifusion.process.base import print_col, GREEN, RED
+        from trifusion.ortho import OrthomclToolbox as OT
+        import trifusion.ortho.orthomclInstallSchema as install_sqlite
+        import trifusion.ortho.orthomclLoadBlast as load_blast2sqlite
+        import trifusion.ortho.orthomclPairs as make_pairs_sqlite
+        import trifusion.ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
+        import trifusion.ortho.orthomclFilterFasta as FilterFasta
+        import trifusion.ortho.orthomclBlastParser as BlastParser
+        import trifusion.ortho.orthomclMclToGroups as MclGroups
+        from trifusion.ortho.error_handling import *
 
 
 def install_schema(db_dir):
