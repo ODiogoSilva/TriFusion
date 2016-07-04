@@ -22,6 +22,7 @@
 - Prevented exit popup spamming.
 - Added setup.py and re-structured TriFusion package.
 - Added entry points for TriFusion GUI, and for command line versions of the three modules.
+- Added more information on Statistics plots
 
 ##### Bug Fixes
 - Corrected issue with table exportation in Statistics screen due to gray scale implementation
