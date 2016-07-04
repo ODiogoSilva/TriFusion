@@ -50,98 +50,6 @@ except ImportError:
     from trifusion.ortho.error_handling import *
 
 
-parser = argparse.ArgumentParser(description="Command line interface for "
-                                 "TriFusion Orthology search module")
-
-parser.add_argument("-in", dest="infile", type=str,
-                    required=True, help="Provide the path "
-                    "to the directory containing the proteome files")
-
-# Execution modes
-exec_modes = parser.add_argument_group("Execution modes")
-exec_modes.add_argument("-n", action="store_const", const=True,
-                        dest="normal",
-                        help="Complete run of the pipeline")
-exec_modes.add_argument("-a", action="store_const", const=True,
-                        dest="adjust",
-                        help="Only adjust proteome fasta files")
-exec_modes.add_argument("-na", action="store_const", const=True,
-                        dest="no_adjust",
-                        help="Complete run of the pipeline without "
-                        "adjusting fasta files")
-
-# Input formatting
-input_format = parser.add_argument_group("Input formatting")
-input_format.add_argument("-d", action="store_const", const=True,
-                          dest="code", help="Do not convert input proteome"
-                          " file names because the file names are already "
-                          "in code (e.g. Homo_sapiens.fas -> HoSap.fas")
-input_format.add_argument("-sep", dest="separator", help="Specify the "
-                          "separator in the input files (e.g. '_' is the"
-                          " separator in 'Homo_sapiens.fas'). This "
-                          "parameter is ignored if the '-d' option is set")
-
-# Search options
-search_opts = parser.add_argument_group("Ortholog search options")
-search_opts.add_argument("--min-length", dest="min_length", type=int,
-                         default=10, help="Set minimum length allowed "
-                         "for protein sequences (default is '%(default)s')")
-search_opts.add_argument("--max-stop", dest="max_stop", type=int,
-                         default=20, help="Set maximum percentage of "
-                         "stop codons in protein sequences (default is "
-                         "'%(default)s')")
-search_opts.add_argument("--db", dest="database",
-                         default="goodProteins", help="Name of search "
-                         "database (default is '%(default)s')")
-search_opts.add_argument("--search-out", dest="search_out",
-                         default="AllVsAll.out", help="Name of the "
-                         "search output file containing the All-vs-All "
-                         "protein comparisons")
-search_opts.add_argument("-evalue", dest="evalue", default=1E-5,
-                         help="Set the e-value cut off for search "
-                         "operation (default is '%(default)s')")
-search_opts.add_argument("-inflation", dest="inflation", nargs="+",
-                         default=["3"], choices=xrange(1, 6),
-                         help="Set inflation values for ortholog group"
-                         " clustering. Multiple values may be provided "
-                         "but values are limited to the range [1, 5]")
-
-# Output options
-output_opts = parser.add_argument_group("Output options")
-output_opts.add_argument("-o", dest="output_dir", default=os.getcwd(),
-                         help="Output directory")
-output_opts.add_argument("-prefix", dest="prefix", default="Ortholog",
-                         help="Set the prefix name for each ortholog "
-                         "cluster (default is '%(default)s')")
-output_opts.add_argument("-id", dest="id_num", type=int, default=1,
-                         help="Set the starting number for the ortholog "
-                         "clusters (default is '%(default)s')")
-output_opts.add_argument("--groups-file", dest="groups_file",
-                         default="groups", help="Set the name of the "
-                         "group files from the output of MCL (default is "
-                         "'%(default)s')")
-output_opts.add_argument("--min-species", dest="min_sp", default=1,
-                         type=int, help="Set the minimum number of "
-                         "species required for an ortholog cluster to be "
-                         "converted into protein sequence. This option "
-                         "will only affect the protein sequence files, "
-                         "not the group file output.")
-output_opts.add_argument("--max-gene-copy", dest="max_gn", default=100,
-                         type=int, help="Set the maximum number of gene "
-                         "copies from the same taxon for each ortholog "
-                         "cluster. This option will only affect the "
-                         "protein sequence files, not the group file "
-                         "output.")
-
-# Miscellaneous options
-misc_options = parser.add_argument_group("Miscellaneous options")
-misc_options.add_argument("-np", dest="cpus", default=1, help="Number of "
-                          "CPUs to be used during search operation ("
-                          "default is '%(default)s')")
-
-arg = parser.parse_args()
-
-
 def install_schema(db_dir):
     """
     Install the schema for the mySQL database
@@ -361,6 +269,102 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
 
 
 def main():
+
+    # The inclusion of the argument definition in main, makes it possible to
+    # import this file as a module and not triggering argparse. The
+    # alternative of using a if __name__ == "__main__" statement does not
+    # work well with the entry_points parameter of setup.py, since they call
+    # the main function but do nothing inside said statement.
+    parser = argparse.ArgumentParser(description="Command line interface for "
+        "TriFusion Orthology search module")
+
+    parser.add_argument("-in", dest="infile", type=str,
+                        required=True, help="Provide the path "
+                        "to the directory containing the proteome files")
+
+    # Execution modes
+    exec_modes = parser.add_argument_group("Execution modes")
+    exec_modes.add_argument("-n", action="store_const", const=True,
+                            dest="normal",
+                            help="Complete run of the pipeline")
+    exec_modes.add_argument("-a", action="store_const", const=True,
+                            dest="adjust",
+                            help="Only adjust proteome fasta files")
+    exec_modes.add_argument("-na", action="store_const", const=True,
+                            dest="no_adjust",
+                            help="Complete run of the pipeline without "
+                                 "adjusting fasta files")
+
+    # Input formatting
+    input_format = parser.add_argument_group("Input formatting")
+    input_format.add_argument("-d", action="store_const", const=True,
+                              dest="code", help="Do not convert input proteome"
+                              " file names because the file names are already "
+                              "in code (e.g. Homo_sapiens.fas -> HoSap.fas")
+    input_format.add_argument("-sep", dest="separator", help="Specify the "
+                              "separator in the input files (e.g. '_' is the"
+                              " separator in 'Homo_sapiens.fas'). This "
+                              "parameter is ignored if the '-d' option is set")
+
+    # Search options
+    search_opts = parser.add_argument_group("Ortholog search options")
+    search_opts.add_argument("--min-length", dest="min_length", type=int,
+                             default=10, help="Set minimum length allowed "
+                             "for protein sequences (default is '%(default)s')")
+    search_opts.add_argument("--max-stop", dest="max_stop", type=int,
+                             default=20, help="Set maximum percentage of "
+                             "stop codons in protein sequences (default is "
+                             "'%(default)s')")
+    search_opts.add_argument("--db", dest="database",
+                             default="goodProteins", help="Name of search "
+                             "database (default is '%(default)s')")
+    search_opts.add_argument("--search-out", dest="search_out",
+                             default="AllVsAll.out", help="Name of the "
+                             "search output file containing the All-vs-All "
+                             "protein comparisons")
+    search_opts.add_argument("-evalue", dest="evalue", default=1E-5,
+                             help="Set the e-value cut off for search "
+                             "operation (default is '%(default)s')")
+    search_opts.add_argument("-inflation", dest="inflation", nargs="+",
+                             default=["3"], choices=xrange(1, 6),
+                             help="Set inflation values for ortholog group"
+                             " clustering. Multiple values may be provided "
+                             "but values are limited to the range [1, 5]")
+
+    # Output options
+    output_opts = parser.add_argument_group("Output options")
+    output_opts.add_argument("-o", dest="output_dir", default=os.getcwd(),
+                             help="Output directory")
+    output_opts.add_argument("-prefix", dest="prefix", default="Ortholog",
+                             help="Set the prefix name for each ortholog "
+                             "cluster (default is '%(default)s')")
+    output_opts.add_argument("-id", dest="id_num", type=int, default=1,
+                             help="Set the starting number for the ortholog "
+                             "clusters (default is '%(default)s')")
+    output_opts.add_argument("--groups-file", dest="groups_file",
+                             default="groups", help="Set the name of the "
+                             "group files from the output of MCL (default is "
+                             "'%(default)s')")
+    output_opts.add_argument("--min-species", dest="min_sp", default=1,
+                             type=int, help="Set the minimum number of "
+                             "species required for an ortholog cluster to be "
+                             "converted into protein sequence. This option "
+                             "will only affect the protein sequence files, "
+                             "not the group file output.")
+    output_opts.add_argument("--max-gene-copy", dest="max_gn", default=100,
+                             type=int, help="Set the maximum number of gene "
+                             "copies from the same taxon for each ortholog "
+                             "cluster. This option will only affect the "
+                             "protein sequence files, not the group file "
+                             "output.")
+
+    # Miscellaneous options
+    misc_options = parser.add_argument_group("Miscellaneous options")
+    misc_options.add_argument("-np", dest="cpus", default=1, help="Number of "
+                              "CPUs to be used during search operation ("
+                              "default is '%(default)s')")
+
+    arg = parser.parse_args()
 
     # Crete temp directory
     tmp_dir = join(os.getcwd(), ".tmp")

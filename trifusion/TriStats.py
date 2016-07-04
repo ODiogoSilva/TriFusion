@@ -32,25 +32,6 @@ except ImportError:
     from trifusion.process.base import print_col, GREEN, RED, YELLOW, CleanUp
 
 
-parser = argparse.ArgumentParser(description="Command line interface for "
-                                 "TriFusion Statistics module")
-
-# Main execution
-main_exec = parser.add_argument_group("Main execution")
-main_exec.add_argument("-in", dest="infile", nargs="+",
-                       help="Provide the input files.")
-main_exec.add_argument("-o", dest="project_name",
-                       help="Name of the output directory")
-main_exec.add_argument("-cfg", dest="config_file",
-                       help="Name of the configuration file with the "
-                       "statistical analyses to be executed")
-main_exec.add_argument("--generate-cfg", dest="generate_cfg",
-                       action="store_const", const=True,
-                       help="Generates a configuration template file")
-
-arg = parser.parse_args()
-
-
 class HandledException(Exception):
     pass
 
@@ -112,28 +93,51 @@ sequence_size_outliers: species average
     template_fh.close()
 
 
-def main_checks():
+def main_checks(arg):
 
     if not arg.infile and not arg.generate_cfg:
         print_col("Must provide input data using the '-in' option", RED, 2)
 
 
-@CleanUp
 def main():
 
-    main_checks()
+    parser = argparse.ArgumentParser(description="Command line interface for "
+                                                 "TriFusion Statistics module")
+
+    # Main execution
+    main_exec = parser.add_argument_group("Main execution")
+    main_exec.add_argument("-in", dest="infile", nargs="+",
+                           help="Provide the input files.")
+    main_exec.add_argument("-o", dest="project_name",
+                           help="Name of the output directory")
+    main_exec.add_argument("-cfg", dest="config_file",
+                           help="Name of the configuration file with the "
+                                "statistical analyses to be executed")
+    main_exec.add_argument("--generate-cfg", dest="generate_cfg",
+                           action="store_const", const=True,
+                           help="Generates a configuration template file")
+
+    arg = parser.parse_args()
+
+    main_checks(arg)
+
+    stats_main(arg)
+
+
+@CleanUp
+def stats_main(args):
 
     print_col("Executing TriStats module at %s %s" % (
         time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN, 2)
 
-    if arg.generate_cfg:
+    if args.generate_cfg:
         print_col("Generating configuration template file", GREEN, 2)
         return generate_cfg_template()
 
     # Arguments
-    input_files = arg.infile
-    output_dir = arg.project_name
-    config_file = arg.config_file
+    input_files = args.infile
+    output_dir = args.project_name
+    config_file = args.config_file
 
     # Read configuration file
     print_col("Reading configuration file", GREEN, 2)
