@@ -19,12 +19,9 @@
 
 # Standard libraries imports
 from os.path import dirname, join, exists, expanduser, basename
-from collections import OrderedDict
 from functools import partial
-from copy import deepcopy
 from scipy import misc
 import multiprocessing
-import matplotlib
 import matplotlib.patches as patches
 import subprocess
 import psutil
@@ -78,7 +75,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
 from kivy.properties import ListProperty, DictProperty
 from kivy.clock import Clock
-from kivy.uix.treeview import TreeView, TreeViewLabel
+from kivy.uix.treeview import TreeViewLabel
 
 # Local TriFusion imports
 try:
@@ -104,8 +101,8 @@ except ImportError:
     from trifusion.base.plotter import *
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.3.17"
-__build__ = "280616"
+__version__ = "0.3.18"
+__build__ = "040716"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]

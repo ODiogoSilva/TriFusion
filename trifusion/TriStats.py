@@ -25,33 +25,34 @@ from glob import glob
 try:
     from process.sequence import *
     from base.plotter import *
-    from TriSeq import CleanUp
-    from process.base import print_col, GREEN, RED, YELLOW
+    from process.base import print_col, GREEN, RED, YELLOW, CleanUp
 except ImportError:
     from trifusion.process.sequence import *
     from trifusion.base.plotter import *
-    from trifusion.TriSeq import CleanUp
-    from trifusion.process.base import print_col, GREEN, RED, YELLOW
+    from trifusion.process.base import print_col, GREEN, RED, YELLOW, CleanUp
 
-if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Command line interface for "
-                                     "TriFusion Statistics module")
+parser = argparse.ArgumentParser(description="Command line interface for "
+                                 "TriFusion Statistics module")
 
-    # Main execution
-    main_exec = parser.add_argument_group("Main execution")
-    main_exec.add_argument("-in", dest="infile", nargs="+",
-                           help="Provide the input files.")
-    main_exec.add_argument("-o", dest="project_name",
-                           help="Name of the output directory")
-    main_exec.add_argument("-cfg", dest="config_file",
-                           help="Name of the configuration file with the "
-                           "statistical analyses to be executed")
-    main_exec.add_argument("--generate-cfg", dest="generate_cfg",
-                           action="store_const", const=True,
-                           help="Generates a configuration template file")
+# Main execution
+main_exec = parser.add_argument_group("Main execution")
+main_exec.add_argument("-in", dest="infile", nargs="+",
+                       help="Provide the input files.")
+main_exec.add_argument("-o", dest="project_name",
+                       help="Name of the output directory")
+main_exec.add_argument("-cfg", dest="config_file",
+                       help="Name of the configuration file with the "
+                       "statistical analyses to be executed")
+main_exec.add_argument("--generate-cfg", dest="generate_cfg",
+                       action="store_const", const=True,
+                       help="Generates a configuration template file")
 
-    arg = parser.parse_args()
+arg = parser.parse_args()
+
+
+class HandledException(Exception):
+    pass
 
 
 def generate_cfg_template():
@@ -75,7 +76,7 @@ def generate_cfg_template():
 # Options available: species average
 distribution_sequence_size: species average
 # Options available: species average
-proportion_nucleotides_residues: species average Ai
+proportion_nucleotides_residues: species average
 # Options available: average
 distribution_taxa_frequency: average
 
@@ -111,8 +112,16 @@ sequence_size_outliers: species average
     template_fh.close()
 
 
+def main_checks():
+
+    if not arg.infile and not arg.generate_cfg:
+        print_col("Must provide input data using the '-in' option", RED, 2)
+
+
 @CleanUp
 def main():
+
+    main_checks()
 
     print_col("Executing TriStats module at %s %s" % (
         time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN, 2)

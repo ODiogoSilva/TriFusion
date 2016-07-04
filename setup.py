@@ -41,6 +41,11 @@ setup(
     entry_points={
         "gui_scripts": [
             "TriFusion = trifusion.TriFusion:main"
+        ],
+        "console_scripts": [
+            "orthomcl_pipeline = trifusion.orthomcl_pipeline:main",
+            "TriSeq = trifusion.TriSeq:main",
+            "TriStats = trifusion.TriStats:main"
         ]
     },
 )
