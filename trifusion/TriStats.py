@@ -17,19 +17,25 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-import time
-import argparse
-import configparser
-from glob import glob
+import warnings
 
-try:
-    from process.sequence import *
-    from base.plotter import *
-    from process.base import print_col, GREEN, RED, YELLOW, CleanUp
-except ImportError:
-    from trifusion.process.sequence import *
-    from trifusion.base.plotter import *
-    from trifusion.process.base import print_col, GREEN, RED, YELLOW, CleanUp
+# Suppress import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+
+    import argparse
+    import configparser
+    from glob import glob
+
+    try:
+        from process.sequence import *
+        from base.plotter import *
+        from process.base import print_col, GREEN, RED, YELLOW, CleanUp
+    except ImportError:
+        from trifusion.process.sequence import *
+        from trifusion.base.plotter import *
+        from trifusion.process.base import print_col, GREEN, RED, YELLOW,\
+            CleanUp
 
 
 class HandledException(Exception):
