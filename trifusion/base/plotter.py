@@ -51,6 +51,38 @@ two_clr_list = [[0, .53, .66],
                 [.62, .80, .85]]
 
 
+class SetProps(object):
+    """
+    This decorator is use to automatically set several plot properties based
+    on the arguments provided to the plotting functions. In this way,
+    there is no need to write repetitive code in each function. The supported
+    arguments are:
+
+    .: ax_names: list, first element x-axis label; second element y-axis label
+    .: title: string, title of the plot
+    """
+
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, **kwargs):
+
+        res = self.func(**kwargs)
+
+        # Set axis names
+        if "ax_names" in kwargs:
+            if kwargs["ax_names"][0]:
+                plt.xlabel(kwargs["ax_names"][0])
+            if kwargs["ax_names"][1]:
+                plt.ylabel(kwargs["ax_names"][1])
+
+        # Set title
+        if "title" in kwargs:
+            plt.title(kwargs["title"])
+
+        return res
+
+
 def _add_labels(ax_names):
     """
     Wrapper to the add labels routine
@@ -64,7 +96,9 @@ def _add_labels(ax_names):
         plt.ylabel(ax_names[1])
 
 
-def scatter_plot(data, correlation=False, ax_names=None, table_header=None):
+@SetProps
+def scatter_plot(data, correlation=False, ax_names=None, table_header=None,
+                 title=None):
     """
     Builds a scatter plot from a 2D data list. Also calculates the
     correlation coefficient is requested.
@@ -95,9 +129,6 @@ def scatter_plot(data, correlation=False, ax_names=None, table_header=None):
     ax.set_xlim(0, max1 + (max1 * .1))
     ax.set_ylim(0, max2 + (max2 * .1))
 
-    if ax_names:
-        _add_labels(ax_names)
-
     # Calculate spearman's rank correlation coefficient and add it to the plot
     if correlation:
         rho, pval = spearmanr(data[0], data[1])
@@ -119,6 +150,7 @@ def scatter_plot(data, correlation=False, ax_names=None, table_header=None):
     return fig, None, table
 
 
+@SetProps
 def bar_plot(data, labels=None, title=None, ax_names=None,
              lgd_list=None, reverse_x=False, table_header=None):
     """
@@ -169,14 +201,6 @@ def bar_plot(data, labels=None, title=None, ax_names=None,
     else:
         lgd = None
 
-    # Set axis names
-    if ax_names:
-        _add_labels(ax_names)
-
-    # Set title
-    if title:
-        plt.title(title)
-
     # Set labels at the center of bars
     if labels:
         ax.set_xticks(np.arange(len(labels)))
@@ -206,7 +230,9 @@ def bar_plot(data, labels=None, title=None, ax_names=None,
     return fig, lgd, table
 
 
-def multi_bar_plot(data_list, labels=None, lgd_list=None):
+@SetProps
+def multi_bar_plot(data_list, labels=None, lgd_list=None, title=None,
+                   ax_names=None):
     """
     General purpose multiple bar plot with custom layout. Returns a pyplot
     object.
@@ -289,7 +315,8 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None):
     return fig, lgd
 
 
-def interpolation_plot(data):
+@SetProps
+def interpolation_plot(data, title=None, ax_names=None):
     """
     Creates a black and white interpolation plot from data, which must consist
     of a 0/1 matrix for absence/presence of taxa in genes
@@ -308,14 +335,13 @@ def interpolation_plot(data):
 
     ax.imshow(data, interpolation="none", cmap="Greys", aspect=ar)
 
-    ax.set_xlabel("Genes")
-    ax.set_ylabel("Taxa")
     ax.grid(False)
 
     return fig, None, None
 
 
-def stacked_bar_plot(data, labels, legend=None, table_header=None,
+@SetProps
+def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
                      ax_names=None, normalize=False, normalize_factor=None):
     """
     Creates a tight stacked bar plot
@@ -389,6 +415,7 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None,
     return fig, lgd, table
 
 
+@SetProps
 def box_plot(data, labels=None, title=None, ax_names=None):
     """
     Creates a boxplot from a data series
@@ -436,12 +463,6 @@ def box_plot(data, labels=None, title=None, ax_names=None):
     if labels:
         ax.set_xticklabels(labels, rotation=45, ha="right")
 
-    if title:
-        plt.title(title)
-
-    if ax_names:
-        _add_labels(ax_names)
-
     # Generate table structure
     table = [["", "1st Quartile", "Median", "3rd Quartile"]]
 
@@ -452,7 +473,7 @@ def box_plot(data, labels=None, title=None, ax_names=None):
     return fig, None, table
 
 
-def histogram_smooth(data, ax_names=None, table_header=None,
+def histogram_smooth(data, ax_names=None, table_header=None, title=None,
                      legend=None):
     """
     Creates a smooth line plot with colored areas with the same distribution
@@ -506,6 +527,9 @@ def histogram_smooth(data, ax_names=None, table_header=None,
         y, x = np.histogram(d, 100, (0., 1.))
         hist_data.append(y)
 
+    if title:
+        plt.title(title)
+
     # Populate table
     for i, d in zip(np.arange(0, 1, 0.01), zip(*hist_data)):
         table.append([i] + list(d))
@@ -513,6 +537,7 @@ def histogram_smooth(data, ax_names=None, table_header=None,
     return fig, None, table
 
 
+@SetProps
 def histogram_plot(data, title=None, ax_names=None, table_header=None,
                    real_bin_num=False):
     """
@@ -554,12 +579,6 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
                     shadow=True, framealpha=.8, fontsize="large")
     lgd.get_frame().set_facecolor("white")
 
-    if title:
-        plt.title(title)
-
-    if ax_names:
-        _add_labels(ax_names)
-
     # Generate table structure
     if table_header:
         table = [table_header]
@@ -585,7 +604,8 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     return fig, lgd, table
 
 
-def triangular_heat(data, labels, color_label=None):
+@SetProps
+def triangular_heat(data, labels, color_label=None, title=None):
     """
     Creates a triangular heatmap plot based on an array of triangular shape,
     or with a masked triangle
@@ -644,7 +664,9 @@ def triangular_heat(data, labels, color_label=None):
     return fig, None, table
 
 
-def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None):
+@SetProps
+def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None,
+                          title=None):
     """
     Creates a density distribution for data and highlights outliers
     :param data: 1D array containing data points
@@ -669,9 +691,6 @@ def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None):
     lgd = ax.legend(frameon=True, loc=2, fancybox=True, shadow=True,
                     framealpha=.8, prop={"weight": "bold"})
 
-    if ax_names:
-        _add_labels(ax_names)
-
     if outliers_labels:
         table = [[x] for x in outliers_labels]
     else:
@@ -680,7 +699,9 @@ def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None):
     return fig, lgd, table
 
 
-def sliding_window(data, window_size, ax_names=None, table_header=None):
+@SetProps
+def sliding_window(data, window_size, ax_names=None, table_header=None,
+                   title=None):
     """
     Creates a sliding window plot
     :param data:

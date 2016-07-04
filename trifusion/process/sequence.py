@@ -828,7 +828,7 @@ class Alignment(Base):
         :param consensus_type: string, from the list above.
         """
 
-        from process.base import iupac
+        from trifusion.process.base import iupac
 
         # If sequence type is first sequence
         if consensus_type == "First sequence":
@@ -2854,7 +2854,9 @@ class AlignmentList(Base):
 
         data = np.transpose(data)
 
-        return {"data": data}
+        return {"data": data,
+                "ax_names": ["Genes", "Taxa"],
+                "title": "Gene occupancy"}
 
     @CheckData
     def missing_data_distribution(self):
@@ -2893,6 +2895,7 @@ class AlignmentList(Base):
         data = [x for x in data_storage.values()]
 
         return {"data": data,
+                "title": "Distribution of missing data",
                 "legend": legend,
                 "ax_names": ["Proportion", "Number of genes"],
                 "table_header": ["Bin"] + legend}
@@ -2940,6 +2943,7 @@ class AlignmentList(Base):
                           data_storage.values()]])
 
         return {"data": data,
+                "title": "Distribution of missing data per species",
                 "labels": list(data_storage.keys()),
                 "legend": legend,
                 "table_header": ["Taxon", "Gaps", "%", "Missing", "%", "Data",
@@ -3094,10 +3098,14 @@ class AlignmentList(Base):
 
         data = np.array(data)
 
+        title = "Nucleotide proportions" if self.sequence_code[0] == "DNA" \
+            else "Amino acid proportions"
+
         ax_ylabel = "Nucleotide" if self.sequence_code[0] == "DNA" \
             else "Amino acid"
 
         return {"data": data,
+                "title": title,
                 "labels": list(data_storage.keys()),
                 "legend": legend,
                 "ax_names": ["Taxa", ax_ylabel],
@@ -3364,6 +3372,7 @@ class AlignmentList(Base):
         self._get_similarity("disconnect")
 
         return {"data": data,
+                "title": "Average pair-wise sequence similarity",
                 "labels": list(taxa_pos)}
 
     @CheckData
@@ -3395,6 +3404,8 @@ class AlignmentList(Base):
                 data.append(np.mean(window_similarities))
 
         return {"data": data,
+                "title": "Sequence similarity sliding window for gene %s"
+                         % gene_name,
                 "window_size": window_size,
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
@@ -3510,6 +3521,8 @@ class AlignmentList(Base):
             data.append(segregating_sites)
 
         return {"data": data,
+                "title": "Number of segregating sites sliding window for "
+                         "gene %s" % gene_name,
                 "window_size": window_size,
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
@@ -3535,6 +3548,8 @@ class AlignmentList(Base):
             data_length.append(aln.locus_length)
 
         return {"data": [data_length, data_inf],
+                "title": "Correlation between alignment length and number of "
+                         "variable sites",
                 "ax_names": ["Alignment length", "Informative sites"],
                 "table_header": ["Alignment length", "Informative sites"],
                 "correlation": True}
@@ -3627,6 +3642,7 @@ class AlignmentList(Base):
             data.append(len(aln.alignment))
 
         return {"data": data,
+                "title": "Distribution of taxa frequency",
                 "ax_names": ["Number of taxa", "Frequency"],
                 "title": "Distribution of taxa frequency",
                 "table_header": ["Number of taxa", "Frequency"],
@@ -3651,16 +3667,17 @@ class AlignmentList(Base):
             size_storage.append((float(len(aln.alignment)) / taxa) * 100)
 
         labels = []
-        for i in xrange(0, 100, 5):
+        for i in xrange(0, 105, 5):
 
             # Get percentage
             data.append(len([x for x in size_storage if x > i]))
             labels.append(str(i))
 
         return {"data": [data],
+                "title": "Gene frequency for decreasing values of missing "
+                         "data",
                 "labels": labels,
-                "ax_names": ["Missing genes percentage", "Frequency"],
-                "title": "Cumulative distribution of missing genes",
+                "ax_names": ["Minimum taxa representation", "Gene frequency"],
                 "table_header": ["Percentage", "Frequency"]}
 
     @staticmethod
@@ -3726,6 +3743,7 @@ class AlignmentList(Base):
             data_points)])
 
         return {"data": data_points,
+                "title": "Missing data outlier gene detection",
                 "outliers": outliers_points,
                 "outliers_labels": outliers_labels,
                 "ax_names": ["Proportion of missing data", "Frequency"]}
@@ -3777,6 +3795,7 @@ class AlignmentList(Base):
         outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
 
         return {"data": data_points,
+                "title": "Missing data outlier taxa detection",
                 "outliers": outliers_points,
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of missing data", "Frequency"]}
@@ -3820,6 +3839,7 @@ class AlignmentList(Base):
         outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
 
         return {"data": data_points,
+                "title": "Sequence variation outlier gene detection",
                 "outliers": outliers_points,
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
@@ -3875,6 +3895,7 @@ class AlignmentList(Base):
         self._get_similarity("disconnect")
 
         return {"data": data_points,
+                "title": "Sequence variation outlier taxa detection",
                 "outliers": outliers_points,
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
@@ -3912,6 +3933,7 @@ class AlignmentList(Base):
             data_points)])
 
         return {"data": data_points,
+                "title": "Sequence size outlier gene detection",
                 "outliers": outliers_points,
                 "outliers_labels": outliers_labels,
                 "ax_names": ["Sequence size", "Frequency"]}
@@ -3954,6 +3976,7 @@ class AlignmentList(Base):
         outlier_labels = list(data_labels[self._mad_based_outlier(data_points)])
 
         return {"data": data_points,
+                "title": "Sequence size outlier taxa detection",
                 "outliers": outliers_points,
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Sequence size", "Frequency"]}
