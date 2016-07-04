@@ -17,7 +17,6 @@ from os.path import join, basename
 from collections import OrderedDict
 from copy import deepcopy
 import logging
-import os
 import shutil
 import cPickle as pickle
 
