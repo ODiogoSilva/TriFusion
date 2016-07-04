@@ -26,212 +26,182 @@ import traceback
 from glob import glob
 
 try:
-    from process.base import print_col, RED, GREEN, YELLOW
+    from process.base import print_col, RED, GREEN, YELLOW, CleanUp
     from process import sequence as seqset
     from process import data
     from process.error_handling import *
 except ImportError:
-    from trifusion.process.base import print_col, RED, GREEN, YELLOW
+    from trifusion.process.base import print_col, RED, GREEN, YELLOW, CleanUp
     from trifusion.process import sequence as seqset
     from trifusion.process import data
     from trifusion.process.error_handling import *
 
 
-if __name__ == "__main__":
+parser = argparse.ArgumentParser(description="Command line interface for "
+                                 "TriFusion Process module")
 
-    parser = argparse.ArgumentParser(description="Command line interface for "
-                                     "TriFusion Process module")
+# Main execution
+main_exec = parser.add_argument_group("Main execution")
+main_exec.add_argument("-in", dest="infile", nargs="+", help="Provide the "
+                       "input file name. If multiple files are provided"
+                       ", please separated the names with spaces")
+main_exec.add_argument("-if", dest="input_format", default="guess",
+                       choices=["fasta", "nexus", "phylip", "guess"],
+                       help="Format of the input file(s). The default is "
+                       "'guess' in which the program tries to guess "
+                       "the input format and genetic code automatically")
+main_exec.add_argument("-of", dest="output_format", nargs="+",
+                       default="nexus",
+                       choices=["nexus", "phylip", "fasta", "mcmctree",
+                                "ima2", "stockholm", "gphocs"],
+                       help="Format of the output file(s). You may select "
+                       "multiple output formats simultaneously (default is"
+                       " '%(default)s')")
+main_exec.add_argument("-o", dest="outfile", help="Name of the output file")
 
-    # Main execution
-    main_exec = parser.add_argument_group("Main execution")
-    main_exec.add_argument("-in", dest="infile", nargs="+", help="Provide the "
-                           "input file name. If multiple files are provided"
-                           ", please separated the names with spaces")
-    main_exec.add_argument("-if", dest="input_format", default="guess",
-                           choices=["fasta", "nexus", "phylip", "guess"],
-                           help="Format of the input file(s). The default is "
-                           "'guess' in which the program tries to guess "
-                           "the input format and genetic code automatically")
-    main_exec.add_argument("-of", dest="output_format", nargs="+",
-                           default="nexus",
-                           choices=["nexus", "phylip", "fasta", "mcmctree",
-                                    "ima2", "stockholm", "gphocs"],
-                           help="Format of the output file(s). You may select "
-                           "multiple output formats simultaneously (default is"
-                           " '%(default)s')")
-    main_exec.add_argument("-o", dest="outfile", help="Name of the output file")
+# Alternative modes
+alternative = parser.add_argument_group("Alternative execution modes")
+alternative.add_argument("-c", dest="conversion", action="store_const",
+                         const=True, help="Used for conversion of the "
+                         "input files passed as arguments with the -in "
+                         "option. This flag precludes the usage of the -o "
+                         "option, as the output file name is automatically "
+                         "generated based on the input file name")
+alternative.add_argument("-r", dest="reverse", help="Reverse a concatenated"
+                         " file into its original single locus "
+                         "alignments. A partition file similar to the "
+                         "one read by RAxML must be provided")
+alternative.add_argument("-z", "--zorro-suffix", dest="zorro", type=str,
+                         help="Use this option if you wish to concatenate "
+                         "auxiliary Zorro files associated with each "
+                         "alignment. Provide the sufix for the concatenated"
+                         " zorro file")
+alternative.add_argument("-p", "--partition-file", dest="partition_file",
+                         type=str, help="Using this option and providing "
+                         "the partition file will convert it between a "
+                         "RAxML or Nexus format")
+alternative.add_argument("-s", dest="select", nargs="*", help="Selects "
+                         "alignments containing the provided taxa "
+                         "(separate multiple taxa with whitespace)")
+alternative.add_argument("--collapse", dest="collapse",
+                         action="store_const",
+                         const=True, default=False, help="Use this flag if "
+                         "you would like to collapse the input "
+                         "alignment(s) into unique haplotypes")
+alternative.add_argument("--gcoder", dest="gcoder", action="store_const",
+                         const=True, default=False, help="Use this flag to "
+                         "code the gaps of the alignment into a binary "
+                         "state  matrix that is appended to the end of "
+                         "the alignment")
+alternative.add_argument("--consensus", dest="consensus", nargs=1,
+                         choices=["First sequence", "IUPAC", "Soft mask",
+                                  "Remove"],
+                         help="Creates a consensus of the final alignments"
+                         " specifying how variation is handled")
+alternative.add_argument("--consensus-single-file",
+                         dest="consensus_single", action="store_const",
+                         const=True, default=False, help="Merges "
+                         "consensus sequences in a single file")
 
-    # Alternative modes
-    alternative = parser.add_argument_group("Alternative execution modes")
-    alternative.add_argument("-c", dest="conversion", action="store_const",
-                             const=True, help="Used for conversion of the "
-                             "input files passed as arguments with the -in "
-                             "option. This flag precludes the usage of the -o "
-                             "option, as the output file name is automatically "
-                             "generated based on the input file name")
-    alternative.add_argument("-r", dest="reverse", help="Reverse a concatenated"
-                             " file into its original single locus "
-                             "alignments. A partition file similar to the "
-                             "one read by RAxML must be provided")
-    alternative.add_argument("-z", "--zorro-suffix", dest="zorro", type=str,
-                             help="Use this option if you wish to concatenate "
-                             "auxiliary Zorro files associated with each "
-                             "alignment. Provide the sufix for the concatenated"
-                             " zorro file")
-    alternative.add_argument("-p", "--partition-file", dest="partition_file",
-                             type=str, help="Using this option and providing "
-                             "the partition file will convert it between a "
-                             "RAxML or Nexus format")
-    alternative.add_argument("-s", dest="select", nargs="*", help="Selects "
-                             "alignments containing the provided taxa "
-                             "(separate multiple taxa with whitespace)")
-    alternative.add_argument("--collapse", dest="collapse",
-                             action="store_const",
-                             const=True, default=False, help="Use this flag if "
-                             "you would like to collapse the input "
-                             "alignment(s) into unique haplotypes")
-    alternative.add_argument("--gcoder", dest="gcoder", action="store_const",
-                             const=True, default=False, help="Use this flag to "
-                             "code the gaps of the alignment into a binary "
-                             "state  matrix that is appended to the end of "
-                             "the alignment")
-    alternative.add_argument("--consensus", dest="consensus", nargs=1,
-                             choices=["First sequence", "IUPAC", "Soft mask",
-                                      "Remove"],
-                             help="Creates a consensus of the final alignments"
-                             " specifying how variation is handled")
-    alternative.add_argument("--consensus-single-file",
-                             dest="consensus_single", action="store_const",
-                             const=True, default=False, help="Merges "
-                             "consensus sequences in a single file")
+filter_g = parser.add_argument_group("Filter options")
+filter_g.add_argument("--missing-filter", dest="m_filter", nargs=2,
+                      help="Use this  option if you wish to filter the"
+                      " alignment's missing data. Along with this "
+                      "option provide the threshold percentages for "
+                      "gap and missing data, respectively (e.g. -filter "
+                      "50 75 - filters alignments columns with more "
+                      "than 50%% of gap+missing data and columns with "
+                      "more than 75%% of true missing data)")
+filter_g.add_argument("--min-taxa", dest="min_taxa",
+                      type=float, help="Set the minimum percentage "
+                      "of taxa that needs to be present in an "
+                      "alignment")
+filter_g.add_argument("--contain-taxa", dest="contain_filter", help="Only "
+                      "processes alignments that contain the specified "
+                      "taxa")
+filter_g.add_argument("--exclude-taxa", dest="exclude_filter", help="Only "
+                      "process alignments that do NOT contain the "
+                      "specified taxa")
+filter_g.add_argument("--codon-filter", dest="codon_filter", nargs="*",
+                      choices=["1", "2", "3"], help="Include only the "
+                      "codon positions specified by this option (DNA only)")
+filter_g.add_argument("--variable-filter", dest="var_filter",
+                      help="Provide minimum and maximum values of "
+                      "variable sites for each alignment. Filters "
+                      "alignments with a number of variable sites outside "
+                      "the specified range")
+filter_g.add_argument("--informative-filter", dest="inf_filter",
+                      help="Provide minimum and maximum values of "
+                      "informative sites for each alignment. Filters "
+                      "alignments with a number of informative sites "
+                      "outside the specified range")
 
-    filter_g = parser.add_argument_group("Filter options")
-    filter_g.add_argument("--missing-filter", dest="m_filter", nargs=2,
-                          help="Use this  option if you wish to filter the"
-                          " alignment's missing data. Along with this "
-                          "option provide the threshold percentages for "
-                          "gap and missing data, respectively (e.g. -filter "
-                          "50 75 - filters alignments columns with more "
-                          "than 50%% of gap+missing data and columns with "
-                          "more than 75%% of true missing data)")
-    filter_g.add_argument("--min-taxa", dest="min_taxa",
-                          type=float, help="Set the minimum percentage "
-                          "of taxa that needs to be present in an "
-                          "alignment")
-    filter_g.add_argument("--contain-taxa", dest="contain_filter", help="Only "
-                          "processes alignments that contain the specified "
-                          "taxa")
-    filter_g.add_argument("--exclude-taxa", dest="exclude_filter", help="Only "
-                          "process alignments that do NOT contain the "
-                          "specified taxa")
-    filter_g.add_argument("--codon-filter", dest="codon_filter", nargs="*",
-                          choices=["1", "2", "3"], help="Include only the "
-                          "codon positions specified by this option (DNA only)")
-    filter_g.add_argument("--variable-filter", dest="var_filter",
-                          help="Provide minimum and maximum values of "
-                          "variable sites for each alignment. Filters "
-                          "alignments with a number of variable sites outside "
-                          "the specified range")
-    filter_g.add_argument("--informative-filter", dest="inf_filter",
-                          help="Provide minimum and maximum values of "
-                          "informative sites for each alignment. Filters "
-                          "alignments with a number of informative sites "
-                          "outside the specified range")
+# Formatting options
+formatting = parser.add_argument_group("Formatting options")
+formatting.add_argument("-model", dest="model_phy", default="LG",
+                        choices=["DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG",
+                                 "RTREV", "CPREV", "VT", "BLOSUM62",
+                                 "MTMAM", "LG"],
+                        help="This option only applies for the "
+                        "concatenation  of protein data into phylip "
+                        "format. Specify the model for all partitions "
+                        "defined in the partition file  (default is '%("
+                        "default)s')")
+formatting.add_argument("-interleave", dest="interleave",
+                        action="store_const", const="interleave",
+                        default=False, help="Specify this  option to "
+                        "write output files in interleave format "
+                        "(currently only supported for nexus files")
+formatting.add_argument("--ima2-params", dest="ima2_params", nargs="*",
+                        help="Provide 4 additional arguments needed to "
+                        "write the output in a format compliant with "
+                        "IMa2. The order of the required arguments "
+                        "(separated by whitespace is as follows: "
+                             "[(1) File name of population mapping]"
+                             "[(2) Population tree]"
+                             "[(3) Mutational model]"
+                             "[(4) Inheritance Scalar]. "
+                        "Additional notes: (1) The  population mapping "
+                        "file is a simple .csv file  containing two "
+                        "columns separated by a semi-colon, "
+                        "in which the first column contains the taxon name "
+                        "and the second column contains the corresponding "
+                        "population name; (2) The order of the population "
+                        "names in the population tree must be the same as "
+                        "the order in the file with the population mapping")
 
-    # Formatting options
-    formatting = parser.add_argument_group("Formatting options")
-    formatting.add_argument("-model", dest="model_phy", default="LG",
-                            choices=["DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG",
-                                     "RTREV", "CPREV", "VT", "BLOSUM62",
-                                     "MTMAM", "LG"],
-                            help="This option only applies for the "
-                            "concatenation  of protein data into phylip "
-                            "format. Specify the model for all partitions "
-                            "defined in the partition file  (default is '%("
-                            "default)s')")
-    formatting.add_argument("-interleave", dest="interleave",
-                            action="store_const", const="interleave",
-                            default=False, help="Specify this  option to "
-                            "write output files in interleave format "
-                            "(currently only supported for nexus files")
-    formatting.add_argument("--ima2-params", dest="ima2_params", nargs="*",
-                            help="Provide 4 additional arguments needed to "
-                            "write the output in a format compliant with "
-                            "IMa2. The order of the required arguments "
-                            "(separated by whitespace is as follows: "
-                                 "[(1) File name of population mapping]"
-                                 "[(2) Population tree]"
-                                 "[(3) Mutational model]"
-                                 "[(4) Inheritance Scalar]. "
-                            "Additional notes: (1) The  population mapping "
-                            "file is a simple .csv file  containing two "
-                            "columns separated by a semi-colon, "
-                            "in which the first column contains the taxon name "
-                            "and the second column contains the corresponding "
-                            "population name; (2) The order of the population "
-                            "names in the population tree must be the same as "
-                            "the order in the file with the population mapping")
+# Data manipulation
+manipulation = parser.add_argument_group("Data manipulation")
+manipulation.add_argument("-rm", dest="remove", nargs="*", help="Removes "
+                          "the  specified taxa from the final alignment. "
+                          "Unwanted  taxa my be provided in a csv file "
+                          "containing 1  column with a species name in "
+                          "each line or they may be specified in the "
+                          "command line and separated  by whitespace")
+manipulation.add_argument("-grep", dest="grep", nargs="*", help="The "
+                          "inverse  of the -rm command. It removes all "
+                          "taxa from the  alignment except for the ones "
+                          "specified with this option. Taxa names may be "
+                          "specified in a csv file containing 1 column "
+                          "with a species name in each line or in the "
+                          "command line separated by whitespace")
+manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*",
+                          help="Provide taxon names/number for the "
+                          "outgroup  (This option is only supported for "
+                          "NEXUS output format files)")
 
-    # Data manipulation
-    manipulation = parser.add_argument_group("Data manipulation")
-    manipulation.add_argument("-rm", dest="remove", nargs="*", help="Removes "
-                              "the  specified taxa from the final alignment. "
-                              "Unwanted  taxa my be provided in a csv file "
-                              "containing 1  column with a species name in "
-                              "each line or they may be specified in the "
-                              "command line and separated  by whitespace")
-    manipulation.add_argument("-grep", dest="grep", nargs="*", help="The "
-                              "inverse  of the -rm command. It removes all "
-                              "taxa from the  alignment except for the ones "
-                              "specified with this option. Taxa names may be "
-                              "specified in a csv file containing 1 column "
-                              "with a species name in each line or in the "
-                              "command line separated by whitespace")
-    manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*",
-                              help="Provide taxon names/number for the "
-                              "outgroup  (This option is only supported for "
-                              "NEXUS output format files)")
+utilities = parser.add_argument_group("Utilities")
+utilities.add_argument("--get-taxa", dest="get_taxa",
+                       action="store_const", const=True,
+                       default=False, help="Writes all taxa"
+                       " names into a .csv file")
 
-    utilities = parser.add_argument_group("Utilities")
-    utilities.add_argument("--get-taxa", dest="get_taxa",
-                           action="store_const", const=True,
-                           default=False, help="Writes all taxa"
-                           " names into a .csv file")
+miscellaneous = parser.add_argument_group("Miscellaneous")
+miscellaneous.add_argument("-quiet", dest="quiet", action="store_const",
+                           const=True, default=False, help="Removes all "
+                           "terminal output")
 
-    miscellaneous = parser.add_argument_group("Miscellaneous")
-    miscellaneous.add_argument("-quiet", dest="quiet", action="store_const",
-                               const=True, default=False, help="Removes all "
-                               "terminal output")
-
-    arg = parser.parse_args()
-
-
-class CleanUp(object):
-
-    def __init__(self, func):
-        self.func = func
-        self.idx = 0 if self.func.__name__ == "main_parser" else 2
-
-    def __call__(self, *args):
-
-        try:
-            start_time = time.time()
-            self.func(*args)
-            print_col("Program execution successfully completed in %s seconds" %
-                      (round(time.time() - start_time, 2)), GREEN, self.idx)
-        # The broad exception handling is used to remove the temporary
-        # directory under any circumstances
-        except:
-            traceback.print_exc()
-            # Removing temporary directory, if any
-            if os.path.exists(".tmp"):
-                shutil.rmtree(".tmp")
-
-            print_col("Program exited with errors!", RED, self.idx)
-
-        # Removing temporary directory, if any
-        if os.path.exists(".tmp"):
-            shutil.rmtree(".tmp")
+arg = parser.parse_args()
 
 
 @CleanUp

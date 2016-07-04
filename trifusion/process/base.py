@@ -22,6 +22,10 @@ try:
 except ImportError:
     from trifusion.process.error_handling import *
 
+import traceback
+import shutil
+import os
+import time
 import sys
 from collections import OrderedDict
 
@@ -61,6 +65,34 @@ iupac_rev = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
 iupac_conv = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
               "b": "cgt", "n": "acgt", "h": "act", "y": "ct", "w": "at",
               "k": "gt", "a": "aa", "t": "tt", "c": "cc", "g": "gg"}
+
+
+class CleanUp(object):
+
+    def __init__(self, func):
+        self.func = func
+        self.idx = 0 if self.func.__name__ == "main_parser" else 2
+
+    def __call__(self, *args):
+
+        try:
+            start_time = time.time()
+            self.func(*args)
+            print_col("Program execution successfully completed in %s seconds" %
+                      (round(time.time() - start_time, 2)), GREEN, self.idx)
+        # The broad exception handling is used to remove the temporary
+        # directory under any circumstances
+        except:
+            traceback.print_exc()
+            # Removing temporary directory, if any
+            if os.path.exists(".tmp"):
+                shutil.rmtree(".tmp")
+
+            print_col("Program exited with errors!", RED, self.idx)
+
+        # Removing temporary directory, if any
+        if os.path.exists(".tmp"):
+            shutil.rmtree(".tmp")
 
 
 def merger(ranges):
