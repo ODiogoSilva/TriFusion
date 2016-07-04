@@ -38,7 +38,7 @@ informative_storage = {
     "orthology_filters":
         ["[b]Orthology filters - Help[/b]",
          "These filters are applied at the end of the ortholog search for each"
-         "specified inflation value "
+         " specified inflation value "
          "and determine which ortholog clusters are selected according to "
          "their number of gene copies and taxa. They can be latter modified in"
          " the Orthology Explore tab to evaluate their effect on the final "
@@ -257,8 +257,8 @@ informative_storage = {
          "heat map matrix with the sequence similarity values for each "
          "pair-wise combination of taxa. Sequence similarity values are color"
          " coded according to the color bar at the right of the plot.\n\n"
-         "[b]y-axis:[/b] Taxon names\n"
-         "[b]x-axis:[/b] Taxon names\n\n"
+         "[b]y-axis:[/b] Taxa names\n"
+         "[b]x-axis:[/b] Taxa names\n\n"
          "[color=37abc8ff][b]Average[/color][/b]: Plots an histogram with the"
          " distribution of sequence similarity values across the "
          "active data set. Each entry in the histogram corresponds to "
@@ -278,8 +278,8 @@ informative_storage = {
          "heat map matrix with the number of segregating sites for each "
          "pair-wise combination of taxa. The number of segregating sites are "
          "color coded according to the color bar at the right of the plot.\n\n"
-         "[b]y-axis:[/b] Taxon names\n"
-         "[b]x-axis:[/b] Taxon names\n\n"
+         "[b]y-axis:[/b] Taxa names\n"
+         "[b]x-axis:[/b] Taxa names\n\n"
          "[color=37abc8ff][b]Average[/color][/b]: Plots an histogram with the"
          " distribution of the number of segregating sites, in absolute "
          "values or percentage, across the "
@@ -305,6 +305,7 @@ informative_storage = {
         ["[b]Allele frequency spectrum - Help[/b]",
          "[color=37abc8ff][b]Available options:[/color] Single gene, Average["
          "/b]\n\n"
+         "[b](Nucleotide sequence only)[/b]\n\n"
          "[color=37abc8ff][b]Single gene[/color][/b]: Creates the "
          "distribution of allele frequencies for a single gene.\n\n"
          "[b]y-axis:[/b] Frequency of occurrence\n"
@@ -331,7 +332,7 @@ informative_storage = {
          "in several alignments will tend to have more white spaces. "
          "Conversely, dense data sets with very few missing taxa will have "
          "fewer white spaces.\n\n"
-         "[b]y-axis:[/b] Taxa index, each line represents on taxon\n"
+         "[b]y-axis:[/b] Taxa index, each line represents one taxon\n"
          "[b]x-axis:[/b] Alignment index, each column represents an alignment"],
     "missing_taxa":
         ["[b]Distribution of missing taxa - Help[/b]",
@@ -339,8 +340,8 @@ informative_storage = {
          "/b]\n\n"
          "[color=37abc8ff][b]Per species[/color][/b]: Plots the distribution "
          "of the number of genes missing for each taxon.\n\n"
-         "[b]y-axis[/b] Frequency, number of genes missing for a given taxon\n"
-         "[b]x-axis[/b] Taxon name.\n\n"
+         "[b]y-axis:[/b] Frequency, number of genes missing for a given taxon\n"
+         "[b]x-axis:[/b] Taxa names.\n\n"
          "[color=37abc8ff][b]Average[/color][/b]: Plots the distribution of "
          "the number of taxa missing for each alignment across the entire "
          "active data set.\n\n"
@@ -356,7 +357,7 @@ informative_storage = {
          "where a given taxon is missing from an alignment, this will score "
          "100% of missing data for that alignment.\n\n"
          "[b]y-axis:[/b] Proportion\n"
-         "[b]x-axis:[/b] Taxon name\n\n"
+         "[b]x-axis:[/b] Taxa names\n\n"
          "[color=37abc8ff][b]Average[/color][/b]: Creates a smooth line "
          "histogram for three data categories: Gaps, Missing data "
          "and effective Data. For each alignment in the active data set, "
@@ -374,16 +375,15 @@ informative_storage = {
          "[b]y-axis: [/b]Frequency, number of genes\n"
          "[b]x-axis: [/b]Proportion, for each of the three categories"],
     "cumulative_missing":
-        ["[b]Cumulative distribution of missing genes - Help[/b]",
+        ["[b]Cumulative distribution of missing taxa - Help[/b]",
          "[color=37abc8ff][b]Available options:[/color] Average[/b]\n\n"
          "[color=37abc8ff][b]Average[/color][/b]: Plots the number of genes "
-         "available when applying a range of  consecutive minimum taxa "
-         "representation thresholds. This range spans from 0% (No minimum taxa "
-         "threshold) up to 100% (Alignments with no missing data) with steps "
-         "of 5%. This plot can be extremely useful when trying to decide the "
-         "optimal value for the 'minimum taxa representation' filter, "
-         "that is, the value that best compromises the amount of missing taxa "
-         "allowed in the data set and the number of alignments filtered.\n\n"
+         "available when applying a consecutive minimum taxa representation "
+         "filters. This range spans from 0% (All values of missing data "
+         "allowed) up to 100% (Alignments with no missing data) with steps "
+         "of 5%. This plot can be useful when trying to decide the "
+         "the best value for the minimum taxa representation filter that "
+         "minimizes missing data and maximized effective data.\n\n"
          "[b]y-axis:[/b] Frequency, number of alignments\n"
          "[b]x-axis:[/b] Minimum taxa representation threshold, in percentage"],
     "outliers_missing":
