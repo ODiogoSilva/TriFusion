@@ -101,7 +101,7 @@ except ImportError:
     from trifusion.base.plotter import *
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.3.21"
+__version__ = "0.4.0"
 __build__ = "050716"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -680,7 +680,7 @@ class TriFusionApp(App):
         # the app assuming they are alignments
         if sys.argv[1:]:
             Clock.schedule_once(
-                lambda dt: self.load_files_startup(sys.argv[1:]), .5)
+                lambda dt: self.load_files_startup(sys.argv[1:]), .1)
 
         """
         ------------------------ METHOD NOMENCLATURE GUIDE -----------------
