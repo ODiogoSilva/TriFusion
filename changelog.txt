@@ -33,6 +33,7 @@
 - Corrected crash when loading a new project while calculating summary statistics
 - Explicit disabling of stats plot type switch when a plot type is always inactive.
 - Suppress import warnings for command line versions
+- Handled secondary process exception when exiting the application
 
 ### v0.3.0
 
