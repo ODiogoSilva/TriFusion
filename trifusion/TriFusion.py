@@ -101,8 +101,8 @@ except ImportError:
     from trifusion.base.plotter import *
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.3.20"
-__build__ = "040716"
+__version__ = "0.3.21"
+__build__ = "050716"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -2211,7 +2211,11 @@ class TriFusionApp(App):
                 except:
                     pass
 
-                val = shared_ns.val
+                try:
+                    val = shared_ns.val
+                except AttributeError:
+                    val = None
+
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
 
