@@ -24,6 +24,14 @@ setup(
                   "trifusion.data.screens": ["*.kv"],
                   "trifusion.data.backgrounds": ["*.png", "*.ico"],
                   "trifusion.data.resources": [".desktop"]},
+    install_requires=[
+        "seaborn",
+        "configparser",
+        "matplotlib",
+        "numpy",
+        "psutil",
+        "scipy",
+    ],
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),
     long_description=readme,
