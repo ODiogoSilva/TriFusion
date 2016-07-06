@@ -34,6 +34,7 @@
 - Explicit disabling of stats plot type switch when a plot type is always inactive.
 - Suppress import warnings for command line versions
 - Handled secondary process exception when exiting the application
+- Fixed issue that calls main twice
 
 ### v0.3.0
 

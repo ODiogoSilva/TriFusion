@@ -1,7 +1,9 @@
-import ez_setup
-ez_setup.use_setuptools()
-
-from setuptools import setup
+try:
+    from setuptools import setup
+except ImportError:
+    import ez_setup
+    ez_setup.use_setuptools()
+    from setuptools import setup
 
 with open('README.md') as f:
     readme = f.read()

@@ -102,7 +102,7 @@ except ImportError:
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
 __version__ = "0.4.0"
-__build__ = "050716"
+__build__ = "060716"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -9509,5 +9509,5 @@ def main():
 
     TriFusionApp(kv_file="trifusion.kv").run()
 
-
-main()
+if __name__ == "__main__":
+    main()
