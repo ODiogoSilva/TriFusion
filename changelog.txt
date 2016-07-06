@@ -1,4 +1,4 @@
-### Upcoming release
+### v0.4.0
 
 ##### New Features
 - Added automatic calculation of summary statistics for the active data set when selecting the Statistics screen. All calculations are done in the background and can be canceled at any time. Summary statistics can be displayed for the overall data set or as a table with an entry for each gene
