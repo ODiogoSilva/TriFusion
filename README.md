@@ -31,7 +31,7 @@ Executing the TriFusion installer may generate a warning from SmartScreen. To by
 
 TriFusion is regularly updated with new features and bug fixes. These will be perodically added to the executable versions but if you wish to stay on the bleeding edge of the application's development, TriFusion can also be installed directly from source using package managers and/or python setuptools.
 
-[Instructions on how to install TriFusion from source](). (Go ahead, it won't bite.)
+[Instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install_from_source). (Go ahead, it won't bite.)
 
 ### How to use
 
