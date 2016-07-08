@@ -5,61 +5,63 @@ TriFusion is a GUI and command line application designed to streamline the workf
 
 TriFusion is an open source, cross-platform application written in [Python 2.7](https://www.python.org/) and using the [Kivy](https://github.com/kivy/kivy) framework to construct graphical interface.
 
-### What can TriFusion do for you
+### Installation
 
-The application is roughly divided into three main modules: 
+#### Executables binaries
 
-- **Orthology**: Detect and visualize of orthologs, co-orthologs and recent paralogs from complete genomes with just a few clicks
-- **Process**: Convert or concatenate alignments of Protein/DNA/RNA into several output formats (fasta, phylip, nexus, mcmctree, IMa2) in addition to a number of secondary operations (collapsing, gap coding, filtering, etc.)
-- **Statistics**: Visualize your data set using several plotting operations.
+The latest stable release of TriFusion can be installed as a standalone application using one of the following installers, depending on you operating system. 
 
-For a complete overview of the features for each module, please refer to the manual (Coming soon).
+##### Linux
 
-### Executables
+- [Debian package based](https://en.wikipedia.org/wiki/Category:Debian-based_distributions): [trifusion-bin.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.0/trifusion-bin-0.4.0.deb)
 
-[Linux executable (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-linux_current.zip)
+- [RPM package based](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions): [trifusion-bin.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.0/trifusion-bin-0.4.0.rpm)
 
-[Windows installer (V.0.1.1)](https://github.com/ODiogoSilva/TriFusion/releases/download/v0.1.1/TriFusion-windows_current.msi)
+- [ArchLinux/Manjaro](https://wiki.archlinux.org/index.php/Arch_based_distributions): [trifusion-bin](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR
 
-##### Note for Windows 8.x and 10 users:
+##### Windows
 
-Executing the TriFusion installer may generate a warning from SmartScreen. To circumvent this issue, click the "More info" label and then "Run anyway".
+- [Windows installer]()
 
-### Installation from source
+###### Note for Windows 8.x and 10 users:
 
-TriFusion is regularly updated with new features and bug fixes. These will eventually be added into the executable versions but if you wish to stay on the bleeding edge of the application's development (at the cost of potential creeping bugs), use the git version. The dependencies required to run TriFusion follow below.
+Executing the TriFusion installer may generate a warning from SmartScreen. To bypass this issue, click the "More info" label and then "Run anyway".
 
-#### Dependencies
+#### Installation from source
 
-Python 2.7 is required to run TriFusion. It should already be present in most Unix operating systems but not on Windows. For Windows users, I recommend installing a python distribution package (such as [Anaconda](https://www.continuum.io/downloads#_windows)) that already comes with several required python libraries. Alternatively, the vanilla Python installer can be downloaded [here](https://www.python.org/downloads/).
+TriFusion is regularly updated with new features and bug fixes. These will be perodically added to the executable versions but if you wish to stay on the bleeding edge of the application's development, TriFusion can also be installed directly from source using package managers and/or python setuptools.
 
-Assuming python is already installed, the following libraries are required:
+[Instructions on how to install TriFusion from source](). (Go ahead, it won't bite.)
 
-- `kivy` 
-- `matplotlib` (included in Anaconda)
-- `numpy` (included in Anaconda)
-- `psutil` (included in Anaconda)
-- `scipy` (included in Anaconda)
-- `configparser`
-- `seaborn`
+### How to use
 
-These can be easily installed using `pip`:
+#### GUI version
 
-```
-pip install kivy matplotlib numpy psutil scipy seaborn
-```
+##### Windows
 
-##### Note for Windows users
+TriFusion should be available in the Start Menu, ready to launch.
 
-Installation of Kivy on Windows machines, requires a few more commands that are explained in [kivy's webpage](https://kivy.org/docs/installation/installation-windows.html#installation). Shortly, Kivy's dependencies must be installed beforehand:
+##### Linux
 
-```
-python -m pip install docutils pygments pypiwin32 kivy.deps.sdl2 kivy.deps.glew
-```
+If TriFusion was installed using package managers, a TriFusion shortcut should have been created and available using your distribution's application launcher (Under the Science category). Alternatively, TriFusion can be executed from the terminal with the command `TriFusion`.
 
-### Know issues
+#### Command line versions
 
-When using the executable version of TriFusion make sure its path does not contain non-ASCII characters, otherwise the app will not open. This issue is currently being fixed.
+Command line versions for each of the three modules in TriFusion are only available when installing the program from source. Once installed, each module can be executed in the terminal using the following commands:
+
+- Orthology search module:
+
+    `orthomcl_pipeline`
+
+- Process module:
+
+    `TriSeq`
+
+- Statistics module:
+
+    `TriStats`
+
+For more information on the command line versions, see the manual.
 
 ### Documentation
 
