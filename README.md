@@ -13,15 +13,15 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 ##### Linux
 
-- [Debian package based](https://en.wikipedia.org/wiki/Category:Debian-based_distributions): [trifusion-bin-0.4.0.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.0/trifusion-bin-0.4.0.deb)
+- [Debian package based](https://en.wikipedia.org/wiki/Category:Debian-based_distributions): [trifusion-bin-0.4.0-linux.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.0/trifusion-bin-0.4.0-linux.deb)
 
-- [RPM package based](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions): [trifusion-bin-0.4.0.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.0/trifusion-bin-0.4.0.rpm)
+- [RPM package based](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions): [trifusion-bin-0.4.0-linux.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.0/trifusion-bin-0.4.0-linux.rpm)
 
 - [ArchLinux/Manjaro](https://wiki.archlinux.org/index.php/Arch_based_distributions): [trifusion-bin-0.4.0](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR
 
 ##### Windows
 
-- [TriFusion-0.4.0.msi]()
+- [TriFusion-0.4.0-windows64.msi](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.0/TriFusion-0.4.0-windows64.msi)
 - [TriFusion-0.4.0-32bit.msi]()
 
 ###### Note for Windows 8.x and 10 users:
