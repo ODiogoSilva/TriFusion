@@ -9,7 +9,7 @@ TriFusion is an open source, cross-platform application written in [Python 2.7](
 
 #### Executables binaries
 
-The latest stable release of TriFusion can be installed as a standalone application using one of the following installers, depending on you operating system. 
+The latest stable release of TriFusion can be installed as a standalone application using one of the following installers.
 
 ##### Linux
 
@@ -21,17 +21,25 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 ##### Windows
 
-- [Windows installer]()
+- [TriFusion-0.4.0.msi]()
+- [TriFusion-0.4.0-32bit.msi]()
 
 ###### Note for Windows 8.x and 10 users:
 
-Executing the TriFusion installer may generate a warning from SmartScreen. To bypass this issue, click the "More info" label and then "Run anyway".
+Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".
 
 #### Installation from source
 
-TriFusion is regularly updated with new features and bug fixes. These will be perodically added to the executable versions but if you wish to stay on the bleeding edge of the application's development, TriFusion can also be installed directly from source using package managers and/or python setuptools.
+TriFusion can be installed directly from source (whether from the latest stable release or from the git version), which has its advantages:
 
-[Instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install_from_source). (Go ahead, it won't bite.)
+- Stay on the bleeding edge of the application's development (Git version)
+
+- Minimize the application size install
+
+- Modify the code any way you want. Contributions are welcome.
+
+
+[Here are instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install_from_source). (Go ahead, it won't bite.)
 
 ### How to use
 
