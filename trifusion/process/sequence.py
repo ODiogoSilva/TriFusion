@@ -1905,38 +1905,8 @@ class AlignmentList(Base):
         c = 0
         # if type(alignment_list[0]) is str:
         if alignment_list:
-            for alignment in alignment_list:
 
-                if shared_namespace:
-                    shared_namespace.progress = c
-                    shared_namespace.m = alignment.split(sep)[-1]
-                    c += 1
-
-                alignment_object = Alignment(alignment, dest=dest)
-
-                # Check for badly formatted alignments
-                if isinstance(alignment_object.e, InputError):
-                    self.bad_alignments.append(alignment_object.path)
-                elif isinstance(alignment_object.e,
-                                AlignmentUnequalLength):
-                    self.non_alignments.append(alignment_object.path)
-                    print("Warning: Sequences of unequal length detected"
-                          " in file {}".format(alignment_object.name))
-
-                # Check for duplicate alignments
-                elif alignment_object.path in [x.path for x in
-                                             self.alignments.values()]:
-                    self.duplicate_alignments.append(alignment_object.name)
-                else:
-                    # Get seq code
-                    if not self.sequence_code:
-                        self.sequence_code = alignment_object.sequence_code
-
-                    self.alignments[alignment_object.name] = alignment_object
-                    self.set_partition(alignment_object)
-                    self.filename_list.append(alignment_object.name)
-
-        self.taxa_names = self._get_taxa_list()
+            self.add_alignment_files(alignment_list, dest=self.dest)
 
     def __iter__(self):
         """
@@ -2118,9 +2088,20 @@ class AlignmentList(Base):
         the sequence data of the Alignment object
         """
 
-        self.dest = dest
+        # Overwrite temporary directory
+        if dest:
+            self.dest = dest
 
-        # Check for duplicates
+        # Set current working directory if dest not set
+        if not self.dest:
+            self.dest = "."
+
+        # Check for duplicates among current file list
+        for f in [x for x, y in Counter(file_name_list).items() if y > 1]:
+            self.duplicate_alignments.append(f)
+            file_name_list.remove(f)
+
+        # Check for duplicates between current file list and previous file list
         for i in set(self.path_list).intersection(set(file_name_list)):
             self.duplicate_alignments.append(i)
             file_name_list.remove(i)
@@ -2132,10 +2113,10 @@ class AlignmentList(Base):
             multiprocessing.cpu_count() else multiprocessing.cpu_count()
 
         if shared_namespace:
-            jobs = [[x.tolist(), dest, y, shared_namespace] for y, x in
+            jobs = [[x.tolist(), self.dest, y, shared_namespace] for y, x in
                 enumerate(np.array_split(np.array(file_name_list), njobs))]
         else:
-            jobs = [[x.tolist(), dest, y, None] for y, x in enumerate(
+            jobs = [[x.tolist(), self.dest, y, None] for y, x in enumerate(
                 np.array_split(np.array(file_name_list), njobs))]
         # Execute alignment reading in parallel
         multiprocessing.Pool(njobs).map(
@@ -2143,7 +2124,7 @@ class AlignmentList(Base):
 
         # Read the pickle files with the saved Alignment objects
         for i in range(njobs):
-            fh = open(join(dest, "Worker{}.pc".format(i)), "rb")
+            fh = open(join(self.dest, "Worker{}.pc".format(i)), "rb")
             while 1:
                 try:
                     aln = pickle.load(fh)
@@ -2172,7 +2153,7 @@ class AlignmentList(Base):
 
                 except EOFError:
                     fh.close()
-                    os.remove(join(dest, "Worker{}.pc".format(i)))
+                    os.remove(join(self.dest, "Worker{}.pc".format(i)))
                     break
 
         self.taxa_names = self._get_taxa_list()

@@ -5,7 +5,7 @@
 ##### Process
 
 - Fixed issue with locus size update after filtering missing taxa.
-
+- Fixed duplicate detection in Process file loading.
 
 ### v0.4.0
 
