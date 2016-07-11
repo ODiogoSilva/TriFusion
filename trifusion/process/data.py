@@ -450,7 +450,7 @@ class Partitions():
             # in some other partition, and no codon partitions were provided
             # using the "codon" argument, then it should be an undefined codon
             # partition and should be added to an existing partition
-            if locus_range[1] <= self.counter and not codon:
+            if locus_range[1] <= self.counter and codon:
 
                 # Find the parent partition
                 parent_partition = self._find_parent(locus_range[1])
