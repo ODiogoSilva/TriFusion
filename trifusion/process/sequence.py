@@ -675,8 +675,6 @@ class Alignment(Base):
                     except IndexError:
                         sequence = ""
 
-                    print(join(self.dest, self.sname))
-
                     with open(self.alignment[taxa], "w") as fh:
                         fh.write(sequence)
 
@@ -1086,7 +1084,6 @@ class Alignment(Base):
          data are removed """
 
         taxa_number = float(len(self.alignment))
-        self.old_locus_length = len(list(self.alignment.values())[0])
 
         filtered_cols = []
 
@@ -1104,8 +1101,8 @@ class Alignment(Base):
                                   taxa_number) * float(100)
             total_missing_proportion = gap_proportion + missing_proportion
 
-            if total_missing_proportion <= gap_threshold or \
-                    missing_proportion <= missing_threshold:
+            if gap_proportion <= gap_threshold and \
+                    total_missing_proportion <= missing_threshold:
 
                 filtered_cols.append(1)
 
@@ -1121,9 +1118,10 @@ class Alignment(Base):
                 seq = "".join(fh.readlines())
 
             with open(f, "w") as fh:
-                fh.write("".join(compress(seq, filtered_cols)))
+                new_seq = "".join(compress(seq, filtered_cols))
+                fh.write(new_seq)
 
-        self.locus_length = len(seq)
+        self.locus_length = len(new_seq)
 
     def filter_missing_data(self, gap_threshold, missing_threshold,
                             fork=False):
@@ -1148,6 +1146,7 @@ class Alignment(Base):
 
         self._filter_terminals()
         self._filter_columns(gap_threshold, missing_threshold)
+
 
     @staticmethod
     def _test_range(s, min_val, max_val):
