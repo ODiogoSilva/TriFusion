@@ -86,7 +86,7 @@ class LoadAlignmentsTest(unittest.TestCase):
         shutil.rmtree("no_data")
 
 
-class AlignmentManipuationTest(unittest.TestCase):
+class AlignmentManipulationTest(unittest.TestCase):
 
     def setUp(self):
 
