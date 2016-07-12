@@ -1922,6 +1922,9 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
             aln.remove_alignment()
 
+        for aln in self.shelve_alignments.values():
+            aln.remove_alignment()
+
         self.alignments = {}
         self.shelve_alignments = {}
         self.bad_alignments = []
