@@ -1,12 +1,18 @@
 ### Upcoming release (v0.5.0)
 
+#### Improvements
+
+##### Process
+
+- More informative missing data filter dialog.
+
 #### Bug Fixes
 
 ##### Process
 
 - Fixed issue with locus size update after filtering missing taxa.
 - Fixed duplicate detection in Process file loading.
-- Fixed bug when adding partitions to current AlignmentList
+- Fixed bug when adding partitions to current AlignmentList.
 
 ### v0.4.0
 

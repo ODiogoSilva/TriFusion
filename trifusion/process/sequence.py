@@ -1902,7 +1902,6 @@ class AlignmentList(Base):
         # Set partitions object
         self.partitions = Partitions()
 
-        c = 0
         # if type(alignment_list[0]) is str:
         if alignment_list:
 
@@ -1934,6 +1933,17 @@ class AlignmentList(Base):
         self.non_alignments = []
         self.sequence_code = None
         self.path_list = []
+        self.filtered_alignments = OrderedDict([("By minimum taxa", None),
+                                                ("By taxa", None),
+                                                ("By variable sites", None),
+                                                ("By informative sites", None)])
+        self.summary_stats = {"genes": 0, "taxa": 0, "seq_len": 0, "gaps": 0,
+                              "avg_gaps": [], "missing": 0, "avg_missing": [],
+                              "variable": 0, "avg_var": [], "informative": 0,
+                              "avg_inf": []}
+        self.summary_gene_table = defaultdict(dict)
+        self.dest = None
+        self.pw_data = None
 
     def update_active_alignments(self, aln_list):
         """

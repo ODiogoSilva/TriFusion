@@ -101,8 +101,8 @@ except ImportError:
     from trifusion.base.plotter import *
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.3"
-__build__ = "110716"
+__version__ = "0.4.4"
+__build__ = "120716"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -7570,7 +7570,7 @@ class TriFusionApp(App):
         content.ids.gap_filter.active = self.secondary_options["gap_filter"]
 
         self.show_popup(title="Set filter thresholds", content=content,
-                        size=(400, 470))
+                        size=(400, 490))
 
     def dialog_variationfilter(self):
         """
