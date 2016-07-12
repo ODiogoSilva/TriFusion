@@ -1053,7 +1053,9 @@ class Alignment(Base):
         complete_gap_list = []
 
         # Get the complete list of unique gap positions in the alignment
-        for taxa, seq in self.alignment.items():
+        for taxa in self.alignment:
+
+            seq = self.get_sequence(taxa)
 
             current_list = gap_listing(seq)
             complete_gap_list += [gap for gap in current_list if gap not in
@@ -1061,8 +1063,14 @@ class Alignment(Base):
 
         # This will add the binary matrix of the unique gaps listed at the
         # end of each alignment sequence
-        for taxa, seq in self.alignment.items():
-            self.alignment[taxa] = gap_binary_generator(seq, complete_gap_list)
+        for taxa in self.alignment:
+
+            seq = self.get_sequence(taxa)
+
+            final_seq = gap_binary_generator(seq, complete_gap_list)
+
+            with open(self.alignment[taxa], "w") as fh:
+                fh.write(final_seq)
 
         self.restriction_range = "%s-%s" % (int(self.locus_length),
                                             len(complete_gap_list) +
