@@ -1200,10 +1200,10 @@ class Alignment(Base):
         if max_val and min_val and s >= min_val and s <= max_val:
             return True
         # If only min_val was specified, check if s is higher
-        elif not max_val and s >= min_val:
+        elif max_val is None and s >= min_val:
             return True
         # If only max_val was specified, check if s is lower
-        elif not min_val and s <= max_val:
+        elif min_val is None and s <= max_val:
             return True
         else:
             return False
@@ -1237,10 +1237,10 @@ class Alignment(Base):
             # Add these tests so that the method may exit earlier if the
             # conditions are met, precluding the analysis of the entire
             # alignment
-            if min_val and s >= min_val and not max_val:
+            if min_val and s >= min_val and max_val is None:
                 return True
 
-            if max_val and s > max_val and not min_val:
+            if max_val and s > max_val and min_val is None:
                 return False
 
         return self._test_range(s, min_val, max_val)
@@ -1355,9 +1355,6 @@ class Alignment(Base):
 
         :param ns_pipe: To connect with the app for file overwrite issues,
         provide the NameSpace object.
-
-        :param file_status: list, with two list items. First is files to be
-        written, second is files to be skipped
         """
 
         # If this function is called in the AlignmentList class, there may
@@ -1380,6 +1377,8 @@ class Alignment(Base):
         # written there
         if output_dir:
             output_file = join(output_dir, output_file)
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
 
         # Stores suffixes for each format
         format_ext = {"ima2": ".txt",
@@ -2270,8 +2269,8 @@ class AlignmentList(Base):
         # files are not overwritten. If dest is not provided, temp files will
         # be created on the current working directory
         if dest and alignment_name:
-            if not os.path.exists(join(dest, alignment_name + "_conc")):
-                os.makedirs(join(dest, alignment_name + "_conc"))
+            if not os.path.exists(join(dest, alignment_name)):
+                os.makedirs(join(dest, alignment_name))
         else:
             dest = "./"
 
@@ -2282,7 +2281,7 @@ class AlignmentList(Base):
         # Initializing alignment dict to store the alignment information
         if alignment_name:
             concatenation = OrderedDict(
-                [(key, join(dest, alignment_name + "_conc", key + ".seq")) for
+                [(key, join(dest, alignment_name, key + ".seq")) for
                     key in self.taxa_names])
         else:
             concatenation = OrderedDict(
