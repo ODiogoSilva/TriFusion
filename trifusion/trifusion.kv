@@ -4253,7 +4253,7 @@
 
     BoxLayout:
         size_hint_y: None
-        height: 140
+        height: 160
         spacing: 5
         padding: 10
         orientation: "vertical"
@@ -4269,7 +4269,7 @@
                     rectangle: intra_aln_bx.x,intra_aln_bx.y,intra_aln_bx.width,intra_aln_bx.height
 
         Label:
-            text: "Gap threshold"
+            text: "Gap percentage allowed"
             bold: True
             size_hint_y: None
             height: 20
@@ -4310,7 +4310,7 @@
                 color: (0.216, 0.67, 0.784, 1)
 
         Label:
-            text: "Missing data threshold"
+            text: "Missing data percentage allowed"
             bold: True
             size_hint_y: None
             height: 20
@@ -4350,6 +4350,25 @@
                 bold: True
                 color: (0.216, 0.67, 0.784, 1)
 
+        BoxLayout:
+            size_hint_y: None
+            height: 20
+            Label:
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+                text: "<- NO missing data"
+                color: app._blue
+                font_size: 12
+            Label:
+                halign: "right"
+                valign: "middle"
+                text_size: self.size
+                bold: True
+                text: "ALL missing data ->"
+                color: app._blue
+                font_size: 12
 
     BoxLayout:
         size_hint_y: None
