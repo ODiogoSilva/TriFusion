@@ -2358,7 +2358,7 @@ class AlignmentList(Base):
         for k, alignment_obj in list(self.alignments.items()):
             if len(alignment_obj.alignment) < \
                     (float(min_taxa) / 100.) * len(self.taxa_names):
-                del self.alignments[k]
+                self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By minimum taxa"] += 1
 
@@ -2388,7 +2388,7 @@ class AlignmentList(Base):
             # taxa_list
             if filter_mode == "Contain":
                 if set(taxa_list) - set(list(alignment_obj.alignment)) != set():
-                    del self.alignments[k]
+                    self.update_active_alignment(k, "shelve")
                     self.partitions.remove_partition(
                         file_name=alignment_obj.path)
                     self.filtered_alignments["By taxa"] += 1
@@ -2397,7 +2397,7 @@ class AlignmentList(Base):
             if filter_mode == "Exclude":
                 if any((x for x in taxa_list
                         if x in list(alignment_obj.alignment))):
-                    del self.alignments[k]
+                    self.update_active_alignment(k, "shelve")
                     self.partitions.remove_partition(
                         file_name=alignment_obj.path)
                     self.filtered_alignments["By taxa"] += 1
@@ -2472,7 +2472,7 @@ class AlignmentList(Base):
         for k, alignment_obj in list(self.alignments.items()):
 
             if not alignment_obj.filter_segregating_sites(min_val, max_val):
-                del self.alignments[k]
+                self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By variable sites"] += 1
 
@@ -2491,7 +2491,7 @@ class AlignmentList(Base):
         for k, alignment_obj in list(self.alignments.items()):
 
             if not alignment_obj.filter_informative_sites(min_val, max_val):
-                del self.alignments[k]
+                self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By informative sites"] += 1
 
