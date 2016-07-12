@@ -19,6 +19,7 @@
 - Fixed issue that prevented correct sequence collapsing.
 - Fixed issue with gap coding.
 - Fixed temporary directory setting for reverse concatenation.
+- Fixed 0 values for variation filters
 
 ### v0.4.0
 
