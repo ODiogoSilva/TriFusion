@@ -13,11 +13,12 @@
 - Fixed issue with locus size update after filtering missing taxa.
 - Fixed duplicate detection in Process file loading.
 - Fixed bug when adding partitions to current AlignmentList.
-- Fixed exception handling when loading empty alignments
-- Fixed float calculations when filtering by taxa minimum
-- Added alignment cleaning for shelved alignments
-- Fixed issue that prevented correct sequence collapsing
-- Fixed issue with gap coding
+- Fixed exception handling when loading empty alignments.
+- Fixed float calculations when filtering by taxa minimum.
+- Added alignment cleaning for shelved alignments.
+- Fixed issue that prevented correct sequence collapsing.
+- Fixed issue with gap coding.
+- Fixed temporary directory setting for reverse concatenation.
 
 ### v0.4.0
 

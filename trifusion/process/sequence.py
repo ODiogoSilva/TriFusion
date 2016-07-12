@@ -38,7 +38,9 @@ try:
     import process
     from process.base import *
     from process.data import Partitions
+    from process.base import iupac
 except ImportError:
+    from trifusion.process.base import iupac
     import trifusion.process as process
     from trifusion.process.base import *
     from trifusion.process.data import Partitions
@@ -848,8 +850,6 @@ class Alignment(Base):
         :param consensus_type: string, from the list above.
         """
 
-        from trifusion.process.base import iupac
-
         # If sequence type is first sequence
         if consensus_type == "First sequence":
             self.alignment = OrderedDict([("consensus",
@@ -958,10 +958,15 @@ class Alignment(Base):
         partitions set in self.partitions and returns an AlignmentList object
         """
 
-        concatenated_aln = AlignmentList([], dest=self.dest)
+        if not dest:
+            dest = self.dest
+
+        concatenated_aln = AlignmentList([], dest=dest)
         alns = []
 
         for name, part_range in self.partitions:
+
+            name = name.split(".")[0]
 
             current_dic = OrderedDict()
             for taxon, f in self.alignment.items():
@@ -970,10 +975,10 @@ class Alignment(Base):
 
                 # If sub_seq is not empty (only gaps or missing data)
                 if sub_seq.replace(self.sequence_code[1], "") != "":
-                    if not os.path.exists(join(self.dest, name)):
-                        os.makedirs(join(self.dest, name))
+                    if not os.path.exists(join(dest, name)):
+                        os.makedirs(join(dest, name))
 
-                    current_dic[taxon] = join(self.dest, name, taxon + ".seq")
+                    current_dic[taxon] = join(dest, name, taxon + ".seq")
 
                     with open(current_dic[taxon], "w") as fh:
                         fh.write(sub_seq)
