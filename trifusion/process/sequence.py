@@ -89,6 +89,7 @@ class pairwise_cache(object):
 
             self.con.commit()
             self.c.close()
+            self.c = None
 
             return
 
@@ -2774,7 +2775,7 @@ class AlignmentList(Base):
             self.update_active_alignments(active_alignments)
 
         summary_gene_table = dict((k.name, self.summary_gene_table[k.name])
-                                 for k in self.alignments.values())
+                                  for k in self.alignments.values())
 
         # Populate table information
         for k, v in sorted(summary_gene_table.items()):
