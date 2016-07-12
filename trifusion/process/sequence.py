@@ -460,6 +460,15 @@ class Alignment(Base):
         else:
             raise KeyError
 
+    def _clear_alignment_temp(self):
+        """
+        Clears temporary files and alignment dict object
+        """
+
+        for taxon, f in self.alignment.items():
+            os.remove(f)
+            del self.alignment[taxon]
+
     def remove_alignment(self, remove_active=False):
         """
         Removes all temporary sequence files for the alignment object
@@ -774,7 +783,7 @@ class Alignment(Base):
                                       list(self.alignment.items())])
 
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
-                 haplotype_name="Hap", dest="./"):
+                 haplotype_name="Hap", dest=None):
         """
         Collapses equal sequences into haplotypes. This method changes
         the alignment variable and only returns a dictionary with the
@@ -788,26 +797,39 @@ class Alignment(Base):
         :param haplotype_name: String, Custom name of the haplotypes
         """
 
+        if not dest:
+            dest = self.dest
+
         collapsed_dic, correspondence_dic = OrderedDict(), OrderedDict()
         counter = 1
 
+        # Get collapsed alignment
         for taxa, seq in self.alignment.items():
+            seq = self.get_sequence(taxa)
             if seq in collapsed_dic:
                 collapsed_dic[seq].append(taxa)
             else:
                 collapsed_dic[seq] = [taxa]
 
+        # Clear current alignments
+        self._clear_alignment_temp()
+
+        # Create new alignment structure and temp files
         self.alignment = OrderedDict()
         for seq, taxa_list in collapsed_dic.items():
+
             haplotype = "%s_%s" % (haplotype_name, counter)
-            self.alignment[haplotype] = seq
+            self.alignment[haplotype] = join(dest, haplotype + ".seq")
+            with open(self.alignment[haplotype], "w") as fh:
+                fh.write(seq)
+
             correspondence_dic[haplotype] = taxa_list
             counter += 1
 
         if write_haplotypes is True:
             # If no output file for the haplotype correspondence is provided,
             # use the input alignment name as reference
-            if haplotypes_file is None:
+            if not haplotypes_file:
                 haplotypes_file = self.name.split(".")[0]
             self.write_loci_correspondence(correspondence_dic, haplotypes_file,
                                            dest)
@@ -2609,7 +2631,8 @@ class AlignmentList(Base):
         for alignment_obj in self.alignments.values():
             if write_haplotypes:
                 # Set name for haplotypes file
-                output_file = alignment_obj.name.split(".")[0] + haplotypes_file
+                output_file = alignment_obj.name.split(".")[0] + \
+                              "_" + haplotypes_file
                 alignment_obj.collapse(haplotypes_file=output_file,
                                        haplotype_name=haplotype_name, dest=dest)
             else:
