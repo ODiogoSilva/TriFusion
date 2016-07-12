@@ -15,6 +15,7 @@
 - Fixed bug when adding partitions to current AlignmentList.
 - Fixed exception handling when loading empty alignments
 - Fixed float calculations when filtering by taxa minimum
+- Added alignment cleaning for shelved alignments
 
 ### v0.4.0
 
