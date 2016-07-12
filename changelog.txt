@@ -17,6 +17,7 @@
 - Fixed float calculations when filtering by taxa minimum
 - Added alignment cleaning for shelved alignments
 - Fixed issue that prevented correct sequence collapsing
+- Fixed issue with gap coding
 
 ### v0.4.0
 
