@@ -303,7 +303,7 @@ class Alignment(Base):
             if dest:
                 self.dest = dest
             else:
-                self.dest = ""
+                self.dest = "."
 
             # Create temporary directory to store sequences for the
             # current alignment object
@@ -1146,7 +1146,6 @@ class Alignment(Base):
 
         self._filter_terminals()
         self._filter_columns(gap_threshold, missing_threshold)
-
 
     @staticmethod
     def _test_range(s, min_val, max_val):
@@ -2143,6 +2142,8 @@ class AlignmentList(Base):
                         self.bad_alignments.append(aln.path)
                     elif isinstance(aln.e, AlignmentUnequalLength):
                         self.non_alignments.append(aln.path)
+                    elif isinstance(aln.e, EmptyAlignment):
+                        self.bad_alignments.append(aln.path)
 
                     else:
                         # Get seq code
@@ -2161,9 +2162,15 @@ class AlignmentList(Base):
                         self.filename_list.append(aln.name)
                         self.path_list.append(aln.path)
 
-                except EOFError:
+                # Handle all known exceptions here, to close filehandle and
+                # remove temporary pickle file
+                except (EOFError, MultipleSequenceTypes) as e:
                     fh.close()
                     os.remove(join(self.dest, "Worker{}.pc".format(i)))
+                    # Ignores the EOFError, which is normal, and raise the
+                    # exception for upstream handling
+                    if type(e) != EOFError:
+                        raise e
                     break
 
         self.taxa_names = self._get_taxa_list()
@@ -2313,7 +2320,7 @@ class AlignmentList(Base):
 
         for k, alignment_obj in list(self.alignments.items()):
             if len(alignment_obj.alignment) < \
-                    (min_taxa / 100) * len(self.taxa_names):
+                    (float(min_taxa) / 100.) * len(self.taxa_names):
                 del self.alignments[k]
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By minimum taxa"] += 1
