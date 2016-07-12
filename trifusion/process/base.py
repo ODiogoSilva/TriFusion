@@ -218,9 +218,7 @@ class Base:
         else:
             return InputError("Unknown input file format.")
         if sequence.replace("-", "") == "":
-            print("\nAlignment file %s has no sequence or the first sequence "
-                  "is empty. Please check the file." % reference_file)
-            raise SystemExit
+            return EmptyAlignment("Alignment is empty")
 
         # Guessing the genetic code
         code = self.guess_code(sequence)

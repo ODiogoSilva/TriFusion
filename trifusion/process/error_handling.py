@@ -43,7 +43,7 @@ class InputError(Exception):
 
 
 class EmptyAlignment(Exception):
-    def __init__(self, value):
+    def __init__(self, value="Alignment is empty"):
         self.value = value
 
     def __str__(self):
