@@ -26,6 +26,16 @@ concatenated_small_par = [
     "BaseConcatenation_part.File"
 ]
 
+concatenated_small_parNex = [
+    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion/tests/data/"
+    "BaseConcatenation_part.nex"
+]
+
+concatenated_smallCodon_parNex = [
+    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion/tests/data/"
+    "BaseConcatenationCodon_part.nex"
+]
+
 dna_data_fas = [
     "/home/diogo/Diogo/Science/Scripts/packages/TriFusion"
     "/trifusion/tests/data/BaseConc1.fas",
@@ -131,4 +141,14 @@ variable_data = [
 gcode_data = [
     "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion/tests/"
     "data/gcoding.phy"
+]
+
+models_nexus_data = [
+    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion/tests/"
+    "data/models.nex"
+]
+
+models_codon_nexus_data = [
+    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion/tests/"
+    "data/models_codon.nex"
 ]
