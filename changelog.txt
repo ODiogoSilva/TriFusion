@@ -20,6 +20,7 @@
 - Fixed issue with gap coding.
 - Fixed temporary directory setting for reverse concatenation.
 - Fixed 0 values for variation filters
+- Fixed issue when adding partitions to existing alignments
 
 ### v0.4.0
 
