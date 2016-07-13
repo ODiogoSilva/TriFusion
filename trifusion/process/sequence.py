@@ -648,8 +648,8 @@ class Alignment(Base):
 
                 # If substitution models are specified using the lset or prset
                 # commands, this will parse the model parameters
-                if line.lower().strip().startswith("lset") or \
-                        line.lower().strip().startswith("prset"):
+                if ("lset" in line.lower() or "prset" in line.lower()) and \
+                        counter == 2:
                     self.partitions.parse_nexus_model(line)
 
             # If no partitions have been added during the parsing of the nexus

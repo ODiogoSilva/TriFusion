@@ -799,7 +799,8 @@ class Partitions():
         # Set codon models
         else:
             for p in plist:
-                # Change the partition in self.partitions to have codon partitions
+                # Change the partition in self.partitions to have codon
+                # partitions
                 st_idx = self.partitions[p][0][0]
                 self.partitions[p][1] = [st_idx + x for x in range(3)]
                 self.models[p][1] = models
