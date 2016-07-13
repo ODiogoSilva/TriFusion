@@ -8,9 +8,9 @@
 #:import StringProperty kivy.properties.StringProperty
 #:import AnchorLayout kivy.uix.anchorlayout.AnchorLayout
 #:import ListProperty kivy.properties.ListProperty
-#:import load_group_files data.resources.background_tasks.load_group_files
-#:import orto_update_filters data.resources.background_tasks.orto_update_filters
-#: import TreeViewM data.resources.custom_widgets.TreeViewM
+#:import load_group_files trifusion.data.resources.background_tasks.load_group_files
+#:import orto_update_filters trifusion.data.resources.background_tasks.orto_update_filters
+#: import TreeViewM trifusion.data.resources.custom_widgets.TreeViewM
 #:import Clock kivy.clock.Clock
 
 
@@ -445,6 +445,7 @@
         orientation: "vertical"
         size_hint_y: None
         height: 120
+        spacing: 5
         Label:
             size_hint_y: None
             height: 30
@@ -458,6 +459,11 @@
             text: "TriFusion"
             color: [47 / 255., 167 / 255., 212 / 255., 1.]
             bold: True
+        BoxLayout:
+            size_hint_y: None
+            height: 128
+            Image:
+                source: "data/backgrounds/trifusion-icon-128.png"
         Label:
             size_hint_y: None
             height: 30
@@ -474,9 +480,6 @@
             valign: "middle"
             text_size: self.size
             text: "[b]Development team:[/b] Diogo N. Silva, Fernando Alves"
-    BoxLayout:
-        Image:
-            source: "data/backgrounds/CoBiG2_Logo_Small.png"
     Label:
         size_hint_y: None
         height: 20
