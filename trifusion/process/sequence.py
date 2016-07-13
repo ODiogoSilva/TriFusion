@@ -2066,7 +2066,7 @@ class AlignmentList(Base):
         for aln_obj in self.alignments.values():
             aln_obj.stop_action_alignment()
 
-    def set_partition(self, alignment_obj):
+    def set_partition_from_alignment(self, alignment_obj):
         """
         Updates the partition object with the provided alignment_obj
         :param alignment_obj: Alignment object
@@ -2113,7 +2113,7 @@ class AlignmentList(Base):
                         self.sequence_code = alignment_obj.sequence_code
 
                     self.alignments[alignment_obj.name] = alignment_obj
-                    self.set_partition(alignment_obj)
+                    self.set_partition_from_alignment(alignment_obj)
                     self.filename_list.append(alignment_obj.name)
             else:
                 # Get seq code
@@ -2121,7 +2121,7 @@ class AlignmentList(Base):
                     self.sequence_code = alignment_obj.sequence_code
 
                 self.alignments[alignment_obj.name] = alignment_obj
-                self.set_partition(alignment_obj)
+                self.set_partition_from_alignment(alignment_obj)
                 self.filename_list.append(alignment_obj.name)
 
         self.taxa_names = self._get_taxa_list()
@@ -2196,7 +2196,7 @@ class AlignmentList(Base):
                                     aln.sequence_code[0]))
 
                         self.alignments[aln.name] = aln
-                        self.set_partition(aln)
+                        self.set_partition_from_alignment(aln)
                         self.filename_list.append(aln.name)
                         self.path_list.append(aln.path)
 
@@ -2441,7 +2441,7 @@ class AlignmentList(Base):
 
             alignment_obj.locus_length = len(filtered_seq)
 
-            self.set_partition(alignment_obj)
+            self.set_partition_from_alignment(alignment_obj)
 
     def filter_missing_data(self, gap_threshold, missing_threshold):
         """
