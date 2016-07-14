@@ -28,6 +28,7 @@ from os.path import join, basename, splitext
 from itertools import compress
 import fileinput
 import multiprocessing
+from multiprocessing.pool import ThreadPool
 import cPickle as pickle
 import functools
 import sqlite3
@@ -2165,7 +2166,7 @@ class AlignmentList(Base):
             jobs = [[x.tolist(), self.dest, y, None] for y, x in enumerate(
                 np.array_split(np.array(file_name_list), njobs))]
         # Execute alignment reading in parallel
-        multiprocessing.Pool(njobs).map(
+        ThreadPool(njobs).map(
             read_alns, jobs)
 
         # Read the pickle files with the saved Alignment objects
