@@ -13,11 +13,11 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 ##### Linux
 
-- [Debian package based](https://en.wikipedia.org/wiki/Category:Debian-based_distributions): [trifusion-bin-0.4.11-linux.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb)
+- Debian package based [See list](https://en.wikipedia.org/wiki/Category:Debian-based_distributions): [trifusion-bin-0.4.11-linux.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb)
 
-- [RPM package based](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions): [trifusion-bin-0.4.11-linux.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm)
+- RPM package based [See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions): [trifusion-bin-0.4.11-linux.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm)
 
-- [ArchLinux/Manjaro](https://wiki.archlinux.org/index.php/Arch_based_distributions): [trifusion-bin-0.4.11](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR
+- ArchLinux/Manjaro [See list](https://wiki.archlinux.org/index.php/Arch_based_distributions): [trifusion-bin-0.4.11](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR
 
 ##### Windows
 
