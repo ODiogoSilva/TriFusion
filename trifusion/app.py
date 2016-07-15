@@ -102,8 +102,8 @@ except ImportError:
     from trifusion.base.plotter import *
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.11"
-__build__ = "130716"
+__version__ = "0.4.12"
+__build__ = "150716"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -163,39 +163,6 @@ __status__ = "Development"
 #    .: kivy/core/window/window_sdl2.py :.
 #       [l339](set_icon()) Wrap the filename variable in a relative path ->
 #       self._win.set_window_icon(str(os.path.relpath(filename)))
-
-
-def kill_proc_tree(pid, include_parent=True):
-    """
-    Some multiprocessing child process may spawn aditional processes using
-    subprocess. This function terminates all processes in a tree when the
-    user cancels an action
-    :param pid: process id
-    :param include_parent: bool. Whether or not to kill the parent process
-    along with its child processes
-    :return:
-    """
-
-    parent = psutil.Process(pid)
-    for child in parent.children(recursive=True):
-        child.kill()
-    if include_parent:
-        parent.kill()
-
-
-class StoppableThread(threading.Thread):
-    """Thread class with a stop() method. The thread itself has to check
-    regularly for the stopped() condition."""
-
-    def __init__(self, **kwargs):
-        super(StoppableThread, self).__init__(**kwargs)
-        self._stop = threading.Event()
-
-    def stop(self):
-        self._stop.set()
-
-    def stopped(self):
-        return self._stop.isSet()
 
 # ==============================================================================
 #                                  EXCEPTIONS
@@ -2218,7 +2185,6 @@ class TriFusionApp(App):
                 self._popup.content.ids.img.rotation -= 10
 
             if self.terminate_background:
-                # kill_proc_tree(p.pid)
                 man.shutdown()
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
