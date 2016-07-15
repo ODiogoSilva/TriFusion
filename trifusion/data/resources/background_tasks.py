@@ -571,6 +571,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             main_aln.stop_action_alignment()
 
+    except IOError:
+        main_aln.stop_action_alignment()
+        return
+
     except EmptyAlignment:
         logging.exception("Empty alignment")
         ns.exception = "EmptyAlignment"
