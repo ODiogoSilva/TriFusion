@@ -50,7 +50,7 @@ setup(
                  "Topic :: Scientific/Engineering :: Bio-Informatics"],
     entry_points={
         "gui_scripts": [
-            "TriFusion = trifusion.TriFusion:main"
+            "TriFusion = trifusion.TriFusion:gui_exec"
         ],
         "console_scripts": [
             "orthomcl_pipeline = trifusion.orthomcl_pipeline:main",
