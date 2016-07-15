@@ -182,6 +182,21 @@ def kill_proc_tree(pid, include_parent=True):
     if include_parent:
         parent.kill()
 
+
+class StoppableThread(threading.Thread):
+    """Thread class with a stop() method. The thread itself has to check
+    regularly for the stopped() condition."""
+
+    def __init__(self, **kwargs):
+        super(StoppableThread, self).__init__(**kwargs)
+        self._stop = threading.Event()
+
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.isSet()
+
 # ==============================================================================
 #                                  EXCEPTIONS
 # ==============================================================================
@@ -2196,7 +2211,7 @@ class TriFusionApp(App):
                 self._popup.content.ids.img.rotation -= 10
 
             if self.terminate_background:
-                kill_proc_tree(p.pid)
+                # kill_proc_tree(p.pid)
                 man.shutdown()
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
@@ -2224,7 +2239,7 @@ class TriFusionApp(App):
                 # otherwise the data pipe will prevent the process from
                 # closing
                 man.shutdown()
-                p.terminate()
+                p.join()
 
                 # Checks if there is a second function to run and whether
                 # there are additional arguments for secondary function
@@ -2247,8 +2262,8 @@ class TriFusionApp(App):
         self.terminate_background = False
 
         # Create process
-        p = multiprocessing.Process(
-            target=background_process, args=(func, shared_ns, args1))
+        p = threading.Thread(
+                target=background_process, args=(func, shared_ns, args1))
         p.start()
 
         # Remove any possible previous popups
@@ -5301,7 +5316,8 @@ class TriFusionApp(App):
             # When canceled  by the user
             if self.terminate_stats:
                 Clock.unschedule(check_func)
-                p.terminate()
+                # p.terminate()
+                print(dir(p))
                 plt_wgt.clear_widgets()
                 plt_wgt.add_widget(NoDataLabel())
                 self.lock_stats = False
@@ -8777,15 +8793,14 @@ class TriFusionApp(App):
                 self.load_files(file_list, join(temp_dir, "alns.pc"))
 
                 manager.shutdown()
+                p.join()
 
             # Kill switch
             if self.terminate_load_files:
                 content.ids.msg.text = "Canceling..."
-                kill_proc_tree(p.pid)
                 manager.shutdown()
                 self.dismiss_popup()
                 Clock.unschedule(func)
-                shutil.rmtree(temp_dir)
 
         # To support for opening all files in one or more directories, all
         # entries in files will be checked if they are directories. If so,
@@ -8824,8 +8839,9 @@ class TriFusionApp(App):
         self.terminate_load_files = False
 
         # Create process
-        p = threading.Thread(target=load_proc,
-                             args=(self.alignment_list, file_list, shared_ns, temp_dir))
+        p = StoppableThread(
+                target=load_proc,
+                args=(self.alignment_list, file_list, shared_ns, temp_dir))
 
         p.start()
 
