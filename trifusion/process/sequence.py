@@ -149,6 +149,7 @@ class CheckData(object):
         """
         return functools.partial(self.__call__, obj)
 
+
 class AlignmentException(Exception):
     pass
 
@@ -2172,57 +2173,58 @@ class AlignmentList(Base):
             p.map(read_alns, jobs)
             # Terminate pool processes
             p.terminate()
+
+            # Read the pickle files with the saved Alignment objects
+            for i in range(njobs):
+                fh = open(join(self.dest, "Worker{}.pc".format(i)), "rb")
+                while 1:
+                    try:
+                        aln = pickle.load(fh)
+
+                        if isinstance(aln.e, InputError):
+                            self.bad_alignments.append(aln.path)
+                        elif isinstance(aln.e, AlignmentUnequalLength):
+                            self.non_alignments.append(aln.path)
+                        elif isinstance(aln.e, EmptyAlignment):
+                            self.bad_alignments.append(aln.path)
+
+                        else:
+                            # Get seq code
+                            if not self.sequence_code:
+                                self.sequence_code = aln.sequence_code
+                            # Check for multiple sequence types. If True,
+                            # raise Exception
+                            elif self.sequence_code[0] != aln.sequence_code[0]:
+                                raise MultipleSequenceTypes("Multiple sequence "
+                                    "types detected: {} and {}".format(
+                                        self.sequence_code[0],
+                                        aln.sequence_code[0]))
+
+                            self.alignments[aln.name] = aln
+                            self.set_partition_from_alignment(aln)
+                            self.filename_list.append(aln.name)
+                            self.path_list.append(aln.path)
+
+                    # Handle all known exceptions here, to close filehandle and
+                    # remove temporary pickle file
+                    except (EOFError, MultipleSequenceTypes) as e:
+                        fh.close()
+                        os.remove(join(self.dest, "Worker{}.pc".format(i)))
+                        # Ignores the EOFError, which is normal, and raise the
+                        # exception for upstream handling
+                        if type(e) != EOFError:
+                            raise e
+                        break
+
+            self.taxa_names = self._get_taxa_list()
+
+            if shared_namespace:
+                shared_namespace.m = "Updating App structures"
+
         except IOError:
             p.terminate()
             shutil.rmtree(self.dest)
             return
-
-        # Read the pickle files with the saved Alignment objects
-        for i in range(njobs):
-            fh = open(join(self.dest, "Worker{}.pc".format(i)), "rb")
-            while 1:
-                try:
-                    aln = pickle.load(fh)
-
-                    if isinstance(aln.e, InputError):
-                        self.bad_alignments.append(aln.path)
-                    elif isinstance(aln.e, AlignmentUnequalLength):
-                        self.non_alignments.append(aln.path)
-                    elif isinstance(aln.e, EmptyAlignment):
-                        self.bad_alignments.append(aln.path)
-
-                    else:
-                        # Get seq code
-                        if not self.sequence_code:
-                            self.sequence_code = aln.sequence_code
-                        # Check for multiple sequence types. If True,
-                        # raise Exception
-                        elif self.sequence_code[0] != aln.sequence_code[0]:
-                            raise MultipleSequenceTypes("Multiple sequence "
-                                "types detected: {} and {}".format(
-                                    self.sequence_code[0],
-                                    aln.sequence_code[0]))
-
-                        self.alignments[aln.name] = aln
-                        self.set_partition_from_alignment(aln)
-                        self.filename_list.append(aln.name)
-                        self.path_list.append(aln.path)
-
-                # Handle all known exceptions here, to close filehandle and
-                # remove temporary pickle file
-                except (EOFError, MultipleSequenceTypes) as e:
-                    fh.close()
-                    os.remove(join(self.dest, "Worker{}.pc".format(i)))
-                    # Ignores the EOFError, which is normal, and raise the
-                    # exception for upstream handling
-                    if type(e) != EOFError:
-                        raise e
-                    break
-
-        self.taxa_names = self._get_taxa_list()
-
-        if shared_namespace:
-            shared_namespace.m = "Updating App structures"
 
     def retrieve_alignment(self, name):
         """

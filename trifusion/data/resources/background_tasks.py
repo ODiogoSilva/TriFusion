@@ -67,6 +67,9 @@ def load_proc(aln_list, file_list, nm, dest):
     except MultipleSequenceTypes:
         nm.exception = "multiple_type"
 
+    except IOError:
+        return
+
     except:
         logging.exception("Unexpected error when loading input data")
         nm.exception = True
