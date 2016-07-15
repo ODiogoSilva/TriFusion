@@ -8839,7 +8839,7 @@ class TriFusionApp(App):
         self.terminate_load_files = False
 
         # Create process
-        p = StoppableThread(
+        p = threading.Thread(
                 target=load_proc,
                 args=(self.alignment_list, file_list, shared_ns, temp_dir))
 
@@ -9280,7 +9280,6 @@ class TriFusionApp(App):
             # Listens for cancel signal
             if self.terminate_orto_search:
                 shared_ns.k = False
-                kill_proc_tree(p.pid)
                 manager.shutdown()
                 self.dismiss_popup()
                 Clock.unschedule(func)
@@ -9309,7 +9308,7 @@ class TriFusionApp(App):
         self.terminate_orto_search = False
 
         # Create Process instance
-        p = multiprocessing.Process(
+        p = threading.Thread(
             target=orto_execution,
             args=(
                 shared_ns,

@@ -207,6 +207,9 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             nm.stats = stats
             nm.groups = groups_obj
 
+    except IOError:
+        return
+
     except Exception as e:
         logging.exception("Unexpected exit in Orthology search")
         nm.exception = str(e)
