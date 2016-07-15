@@ -1,6 +1,7 @@
 #:import orthology_storage data.resources.info_data.orthology_storage
 #:import get_active_group data.resources.background_tasks.get_active_group
 #:import os os
+#:import sys sys
 
 ShowcaseScreen:
     name: "Orthology"
@@ -34,6 +35,7 @@ ShowcaseScreen:
                 state: "down"
                 disabled: True
                 id: search
+                disabled: True if sys.platform in ["win32", "cygwin"] else False
                 on_release:
                     orto_car.load_slide(orto_car.slides[0])
             MainSideBt:
