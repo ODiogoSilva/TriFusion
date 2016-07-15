@@ -2165,9 +2165,17 @@ class AlignmentList(Base):
         else:
             jobs = [[x.tolist(), self.dest, y, None] for y, x in enumerate(
                 np.array_split(np.array(file_name_list), njobs))]
-        # Execute alignment reading in parallel
-        ThreadPool(njobs).map(
-            read_alns, jobs)
+
+        p = ThreadPool(njobs)
+        try:
+            # Execute alignment reading in parallel
+            p.map(read_alns, jobs)
+            # Terminate pool processes
+            p.terminate()
+        except IOError:
+            p.terminate()
+            shutil.rmtree(self.dest)
+            return
 
         # Read the pickle files with the saved Alignment objects
         for i in range(njobs):
