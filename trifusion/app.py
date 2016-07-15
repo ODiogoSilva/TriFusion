@@ -9362,9 +9362,11 @@ class TriFusionApp(App):
 
         def check_process(p, man, dt):
 
+            if "img" in self._popup.content.ids:
+                self._popup.content.ids.img.rotation -= 10
+
             # Interrupt subporcess on user demand
             if self.terminate_process_exec:
-                kill_proc_tree(p.pid)
                 man.shutdown()
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
@@ -9436,7 +9438,7 @@ class TriFusionApp(App):
                         self.dialog_filter_report(shared_ns.filtered_alns,
                                                   shared_ns.proc_files)
                     man.shutdown()
-                    p.terminate()
+                    p.join()
 
         # Set up manager and shared name space to share information
         # between background and main processes
@@ -9482,8 +9484,8 @@ class TriFusionApp(App):
         self.terminate_process_exec = False
 
         # Create process
-        p = multiprocessing.Process(target=process_execution,
-                                    kwargs=process_kwargs)
+        p = threading.Thread(target=process_execution,
+                             kwargs=process_kwargs)
         p.start()
 
         # Remove any possible previous popups
