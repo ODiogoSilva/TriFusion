@@ -1,3 +1,24 @@
+### v0.4.12
+
+This update is mainly to fix slow downs on subprocess spawning on Windows.
+
+#### Improvements
+
+##### General
+
+- Migrated from multiprocessing to threading to spawn background tasks. This should result in a major performance increase in Windows and similar performance in Linux.
+
+#### Bug Fixes
+
+##### Orthology
+
+- Removed Orthology Search operation, for now.
+
+##### Process
+
+- Corrected process execution waiting dialog animation.
+
+
 ### v0.4.11
 
 #### Improvements
@@ -19,8 +40,8 @@
 - Fixed issue that prevented correct sequence collapsing.
 - Fixed issue with gap coding.
 - Fixed temporary directory setting for reverse concatenation.
-- Fixed 0 values for variation filters
-- Fixed issue when adding partitions to existing alignments
+- Fixed 0 values for variation filters.
+- Fixed issue when adding partitions to existing alignments.
 
 ### v0.4.0
 
