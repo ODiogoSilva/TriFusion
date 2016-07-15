@@ -2,6 +2,6 @@
 
 if __name__ == "__main__":
 
-    from app import main
+    from trifusion.app import main
 
     main()
