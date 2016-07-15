@@ -1907,6 +1907,13 @@ class TriFusionApp(App):
             # Generate or update statistics screen
             self.statistics_show_summary()
 
+        if self.current_screen == "Orthology" and \
+                sys.platform in ["win32", "cygwin"]:
+            self.screen.ids.explore.dispatch("on_release")
+            self.screen.ids.explore.state = "down"
+            self.screen.ids.op_box.remove_widget(
+                self.screen.ids.search)
+
     def go_previous_screen(self):
         """
         Method that returns to the previous screen, set by
