@@ -6158,6 +6158,7 @@ class TriFusionApp(App):
                         "%s orthologs exported. However, %s sequences "
                         "could not be retrieved!" %
                         (shared_ns.progress, shared_ns.missed), t="info")
+                p.join()
 
         # Update orthology export directory, if necessary
         if output_dir != self.orto_export_dir:
@@ -6197,8 +6198,8 @@ class TriFusionApp(App):
         self.terminate_group_export = False
 
         # Create process
-        p = multiprocessing.Process(target=background_export_groups,
-                                    args=(m[0], shared_ns, m[1]))
+        p = threading.Thread(target=background_export_groups,
+                             args=(m[0], shared_ns, m[1]))
         p.start()
 
         # Remove any previous popups
