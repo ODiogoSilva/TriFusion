@@ -16,7 +16,9 @@ def createSimilarSequencesTable(cur):
         EVALUE_MANT FLOAT,\
         EVALUE_EXP INT,\
         PERCENT_IDENTITY FLOAT,\
-        PERCENT_MATCH FLOAT)")
+        PERCENT_MATCH FLOAT,\
+        PRIMARY KEY(QUERY_ID, SUBJECT_ID)\
+        )")
 
     cur.execute("CREATE INDEX ss_qtaxexp_ix\
         ON SimilarSequences(query_id, subject_taxon_id,\
@@ -121,4 +123,4 @@ if __name__ == "__main__":
     execute("./")
 
 
-__author__ = "Fernando Alves"
+__author__ = "Fernando Alves and Diogo N. Silva"

@@ -14,13 +14,17 @@ def execute(db_dir, similar_seqs_file):
         file_handle = open(similar_seqs_file)
 
         for line in file_handle:
-            if line.strip() != "":
+            if line.strip() != "" and line:
                 f = line.split("\t")
-                l = (f[0], f[1], f[2], f[3], float(f[4]), int(f[5]),
-                     float(f[6]), float(f[7]))
-
-            cur.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, "
+                
+                l = (f[0], f[1], f[2], f[3], float(f[4]), float(f[5]),
+                    float(f[6]), float(f[7]))
+                
+                cur.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, "
                             "?, ? ,?, ?)", l)
 
 
-__author__ = "Fernando Alves"
+if __name__ == "__main__":
+    execute(".", "sss_nodups.txt")
+
+__author__ = "Fernando Alves and Diogo N. Silva"

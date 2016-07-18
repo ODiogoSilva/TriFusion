@@ -81,7 +81,7 @@ def printMclAbcFile (cur, filename):
             if row == None:
                 break
 
-            file.write(row[0]+"\t"+row[1]+"\t"+str((float(row[2]) * 1000 + .5)/100)+"\n")
+            file.write(row[0]+"\t"+row[1]+"\t"+str((float(row[2]) * 1000 + .5)/1000)+"\n")
 
 
 def execute(db_dir):
@@ -95,9 +95,11 @@ def execute(db_dir):
 
         printInparalogsFile(cur, "inparalogs.txt")
 
-        printOrthologsFile(cur, "coorthologs.txt")
+        printCoOrthologsFile(cur, "coorthologs.txt")
 
         printMclAbcFile(cur, "mclInput")
 
+if __name__ == "__main__":
+    execute(".")
 
-__author__ = "Fernando Alves"
+__author__ = "Fernando Alves and Diogo N. Silva"

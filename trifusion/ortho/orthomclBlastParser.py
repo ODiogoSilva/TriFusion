@@ -83,17 +83,17 @@ def get_taxon_and_length(subject, genes):
         subject["queryTaxon"]
     except KeyError:
         print ("couldn't find taxon for gene " + subject["queryId"])
-
+        
     return subject["queryLength"] < subject["subjectLength"]
 
 
-def print_previous_subject(subject, db, teste_fh):
+def print_previous_subject(subject, db):
 
     non_overlap = non_overlapping_match(subject)
 
-    percent_ident = '{0:.3g}'.format(
-        (float(subject["totalIdentities"]) /
-         float(subject["totalLength"]) * 10 + .5) / 10)
+    percent_ident = '{0:.4g}'.format(
+        int((float(subject["totalIdentities"]) /
+         float(subject["totalLength"]) * 10 + .5)) / 10)
     
     shorter_length = subject["queryLength"] if subject["queryShorter"] \
         else subject["subjectLength"]
@@ -101,32 +101,21 @@ def print_previous_subject(subject, db, teste_fh):
     percent_match = '{0:.3g}'.format((float(non_overlap) /
                                       float(shorter_length) * 1000 + .5) / 10)
 
-    teste_fh.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-        subject["queryId"],
-        subject["subjectId"],
-        subject["queryTaxon"],
-        subject["subjectTaxon"],
-        float(subject["evalueMant"]),
-        int(subject["evalueExp"]),
-        float(percent_ident),
-        float(percent_match)
-    ))
-
-    db.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, ?, ? ,?, ?)",
+    db.execute("INSERT OR IGNORE INTO SimilarSequences VALUES(?, ?, ?, ?, ?, ? ,?, ?)",
                 [subject["queryId"],
-                 subject["subjectId"],
-                 subject["queryTaxon"],
-                 subject["subjectTaxon"],
-                 float(subject["evalueMant"]),
-                 int(subject["evalueExp"]),
-                 float(percent_ident),
-                 float(percent_match)])
-
+                subject["subjectId"],
+                subject["queryTaxon"],
+                subject["subjectTaxon"],
+                float(subject["evalueMant"]),
+                int(subject["evalueExp"]),
+                float(percent_ident),
+                float(percent_match)])
+    
 
 def format_evalue(evalue):
-    evalue = "{:.2E}".format(Decimal(evalue))
     if evalue == '0':
         return 0, 0
+    evalue = "{:.2E}".format(Decimal(evalue))
     if evalue.startswith('e'):
         evalue = '1' + evalue
 
@@ -137,20 +126,14 @@ def non_overlapping_match(subject):
 
     # flatten lists
     hsps = subject["hspspans"]
-    hsps.sort(key=lambda x: x[0])
+    hsps.sort(key=lambda x: int(x[0]))
     original = hsps.pop(0)
 
-    if subject["queryId"] == "anpro|25" and subject["subjectId"] == \
-            "anpro|3726":
-        print(hsps)
-
-    original = (int(original[0]), int(original[1]))
+    if not original:
+        return 0
 
     start = 0
     end = 1
-    
-    if not original:
-        return 0
 
     original = get_start_end(original)
     length = 0
@@ -166,10 +149,10 @@ def non_overlapping_match(subject):
             original = (original[start], h[end])
         # there is a gap in between
         else:
-            length = original[end] - original[start] + 1
+            length += (original[end] - original[start]) + 1
             original = (h[start], h[end])
 
-    length += original[end] - original[start] + 1 # deal with the last one 
+    length += (original[end] - original[start]) + 1 # deal with the last one
     return length
 
 
@@ -178,9 +161,7 @@ def get_start_end(h):
     start = int(h[0])
     end = int(h[1])
     if start > end:
-        aux = end
-        end = start
-        start = aux
+        return end, start
 
     return start, end
 
@@ -196,14 +177,11 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
         # parse fasta files
         genes = get_genes(fasta_dir)
         blast_fh = open(blast_file, "r")
-        teste_fh = open("similarseqs.txt", "w")
 
         prev_subjectid = ''
         prev_queryid = ''
         # hash to hold subject info
         subject = {}
-
-        # tup_storage = []
 
         for line in blast_fh:
             splitted = line.split()
@@ -218,29 +196,28 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
             subject_end = splitted[9]
             evalue = splitted[10]
 
-            # if query_id + subject_id not in tup_storage:
+            if query_id != prev_queryid or subject_id != prev_subjectid:
 
-                # tup_storage.append(query_id + subject_id)
                 # print previous subject
-            if subject:
-                print_previous_subject(subject, cur, teste_fh)
+                if subject:
+                    print_previous_subject(subject, cur)
 
-            # initialize new one from first HSP
-            prev_subjectid = subject_id
-            prev_queryid = query_id
+                # initialize new one from first HSP
+                prev_subjectid = subject_id
+                prev_queryid = query_id
 
-            # from first hsp
-            tup = format_evalue(evalue)
+                # from first hsp
+                tup = format_evalue(evalue)
 
-            subject = {"queryId": query_id}
-            subject["subjectId"] = subject_id
-            subject["queryShorter"] = get_taxon_and_length(subject, genes)
+                subject = {"queryId": query_id}
+                subject["subjectId"] = subject_id
+                subject["queryShorter"] = get_taxon_and_length(subject, genes)
 
-            subject["evalueMant"] = tup[0]
-            subject["evalueExp"] = tup[1]
-            subject["totalIdentities"] = 0
-            subject["totalLength"] = 0
-            subject["hspspans"] = []
+                subject["evalueMant"] = tup[0]
+                subject["evalueExp"] = tup[1]
+                subject["totalIdentities"] = 0
+                subject["totalLength"] = 0
+                subject["hspspans"] = []
 
             # get additional info from subsequent HSPs
             hspspan = (subject_start, subject_end)
@@ -250,9 +227,13 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
             subject["totalIdentities"] += float(percent_identity) * length
             subject["totalLength"] += length
 
-        print_previous_subject(subject, cur, teste_fh)
+        print_previous_subject(subject, cur, fh)
 
-    #con.close()
+    fh.close()
 
 
-__author__ = "Fernando Alves"
+if __name__ == "__main__":
+    orthomcl_blast_parser("AllVsAll.out", "compliantFasta", ".")
+
+
+__author__ = "Fernando Alves and Diogo N. Silva"
