@@ -21,8 +21,8 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 ##### Windows
 
-- [TriFusion-0.4.11 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-0.4.11-windows64.msi)
-- [TriFusion-0.4.0-32bit.msi]()
+- [TriFusion-0.4.12 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows64.msi)
+- [TriFusion-0.4.12 32bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows32.msi)
 
 ###### Note for Windows 8.x and 10 users:
 
