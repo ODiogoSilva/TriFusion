@@ -333,9 +333,6 @@ def coorthologs (cur):
         select sequence_id_a, sequence_id_b from InParalog\
         union\
         select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from InParalog")
-    
-    cur.execute("select count(*) from InParalog2Way")
-    print(cur.fetchone())
 
 ######################################################################
 
@@ -351,9 +348,6 @@ def coorthologs (cur):
         select sequence_id_a, sequence_id_b from Ortholog\
         union\
         select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from Ortholog")
-    
-    cur.execute("select count(*) from Ortholog2Way")
-    print(cur.fetchone())
 
 ######################################################################
 
@@ -366,9 +360,6 @@ def coorthologs (cur):
         from Ortholog2Way o, InParalog2Way ip2, InParalog2Way ip1\
         where ip1.sequence_id_b = o.sequence_id_a\
         and o.sequence_id_b = ip2.sequence_id_a")
-    
-    cur.execute("select count(*) from InplgOrthoInplg")
-    print(cur.fetchone())
 
 ##################################################################
 
@@ -376,10 +367,7 @@ def coorthologs (cur):
         select ip.sequence_id_a, o.sequence_id_b\
         from InParalog2Way ip, Ortholog2Way o\
         where ip.sequence_id_b = o.sequence_id_a")
-    
-    cur.execute("select count(*) from InParalogOrtholog")
-    print(cur.fetchone())
-
+ 
 ##################################################################
 
     cur.execute("create table CoOrthologCandidate as\
@@ -389,10 +377,7 @@ def coorthologs (cur):
         from (select sequence_id_a, sequence_id_b from InplgOrthoInplg\
         union\
         select sequence_id_a, sequence_id_b from InParalogOrtholog) t")
-    
-    cur.execute("select count(*) from CoOrthologCandidate")
-    print(cur.fetchone())
-
+ 
 ######################################################################
 
     cur.execute("create table CoOrthNotOrtholog as\
@@ -402,9 +387,6 @@ def coorthologs (cur):
         ON cc.sequence_id_a = o.sequence_id_a\
         AND cc.sequence_id_b = o.sequence_id_b\
         WHERE o.sequence_id_a IS NULL")
-    
-    cur.execute("select count(*) from CoOrthNotOrtholog")
-    print(cur.fetchone())
 
 #####################################################################
 
@@ -432,9 +414,6 @@ def coorthologs (cur):
         and ba.evalue_exp <= -5\
         and ba.percent_match >= 50")
     
-    cur.execute("select count(*) from CoOrthologTemp")
-    print(cur.fetchone())
-
 ######################################################################
 
     orthologTaxonSub(cur, 'co')
@@ -458,22 +437,6 @@ def execute(db_dir):
 
         inparalogs(cur)
         coorthologs(cur)
-        
-        cur.execute("select count(*) from CoOrtholog")
-        print("CoOrtholog")
-        print(cur.fetchone())
-        cur.execute("select count(*) from InParalog")
-        print("InParalog")
-        print(cur.fetchone())
-        cur.execute("select count(*) from InterTaxonMatch")
-        print("InterTaxonMatch")
-        print(cur.fetchone())
-        cur.execute("select count(*) from Ortholog")
-        print("Ortholog")
-        print(cur.fetchone())
-        cur.execute("select count(*) from SimilarSequences")
-        print("SS")
-        print(cur.fetchone())
 
 
 if __name__ == '__main__':

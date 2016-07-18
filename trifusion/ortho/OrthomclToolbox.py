@@ -950,7 +950,6 @@ class Group ():
                         ax_names=["Number of taxa", "Ortholog frequency"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
                       dpi=400)
-        print("here")
 
         # Create table
         table_list = [["Number of species", "Ortholog frequency"]]

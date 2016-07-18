@@ -227,9 +227,7 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
             subject["totalIdentities"] += float(percent_identity) * length
             subject["totalLength"] += length
 
-        print_previous_subject(subject, cur, fh)
-
-    fh.close()
+        print_previous_subject(subject, cur)
 
 
 if __name__ == "__main__":
