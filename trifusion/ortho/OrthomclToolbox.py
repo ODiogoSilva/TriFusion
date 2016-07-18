@@ -17,14 +17,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-try:
-    from process.sequence import Alignment
-    from base.plotter import *
-except ImportError:
-    from trifusion.process.sequence import Alignment
-    from trifusion.base.plotter import *
+from process.sequence import Alignment
 
 from collections import OrderedDict
+from base.plotter import *
 import pickle
 import os
 import sqlite3

@@ -188,11 +188,12 @@ def orthologs(cur):
 
 ######################################################################
 
-    orthologTaxonSub(cur, '');
+    orthologTaxonSub(cur, '')
 
 ######################################################################
 
-    normalizeOrthologsSub(cur, '', "Ortholog");
+    normalizeOrthologsSub(cur, '', "Ortholog")
+
 
 ################################################################################
 ############################### InParalogs ####################################
@@ -223,17 +224,7 @@ def inparalogs (cur):
     cur.execute("create unique index ust_qids_ix on UniqSimSeqsQueryId (query_id)")
 
 ###########################################################################
-#
-#"""    cur.execute("CREATE TABLE BetterHit(\
-#        QUERY_ID TEXT,\
-#        SUBJECT_ID TEXT,\
-#        taxon_id TEXT,\
-#        EVALUE_EXP INT,\
-#        EVALUE_MANT REAL,\
-#        PRIMARY KEY (QUERY_ID, SUBJECT_ID)\
-#        )")
-#"""
-#    cur.execute("insert or ignore into BetterHit \
+
     cur.execute("CREATE TABLE BetterHit as\
         select s.query_id, s.subject_id,\
         s.query_taxon_id as taxon_id,\
@@ -342,6 +333,9 @@ def coorthologs (cur):
         select sequence_id_a, sequence_id_b from InParalog\
         union\
         select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from InParalog")
+    
+    cur.execute("select count(*) from InParalog2Way")
+    print(cur.fetchone())
 
 ######################################################################
 
@@ -357,6 +351,9 @@ def coorthologs (cur):
         select sequence_id_a, sequence_id_b from Ortholog\
         union\
         select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from Ortholog")
+    
+    cur.execute("select count(*) from Ortholog2Way")
+    print(cur.fetchone())
 
 ######################################################################
 
@@ -369,6 +366,9 @@ def coorthologs (cur):
         from Ortholog2Way o, InParalog2Way ip2, InParalog2Way ip1\
         where ip1.sequence_id_b = o.sequence_id_a\
         and o.sequence_id_b = ip2.sequence_id_a")
+    
+    cur.execute("select count(*) from InplgOrthoInplg")
+    print(cur.fetchone())
 
 ##################################################################
 
@@ -376,6 +376,9 @@ def coorthologs (cur):
         select ip.sequence_id_a, o.sequence_id_b\
         from InParalog2Way ip, Ortholog2Way o\
         where ip.sequence_id_b = o.sequence_id_a")
+    
+    cur.execute("select count(*) from InParalogOrtholog")
+    print(cur.fetchone())
 
 ##################################################################
 
@@ -386,6 +389,9 @@ def coorthologs (cur):
         from (select sequence_id_a, sequence_id_b from InplgOrthoInplg\
         union\
         select sequence_id_a, sequence_id_b from InParalogOrtholog) t")
+    
+    cur.execute("select count(*) from CoOrthologCandidate")
+    print(cur.fetchone())
 
 ######################################################################
 
@@ -396,6 +402,9 @@ def coorthologs (cur):
         ON cc.sequence_id_a = o.sequence_id_a\
         AND cc.sequence_id_b = o.sequence_id_b\
         WHERE o.sequence_id_a IS NULL")
+    
+    cur.execute("select count(*) from CoOrthNotOrtholog")
+    print(cur.fetchone())
 
 #####################################################################
 
@@ -422,101 +431,17 @@ def coorthologs (cur):
         and ba.subject_id = candidate.sequence_id_a\
         and ba.evalue_exp <= -5\
         and ba.percent_match >= 50")
+    
+    cur.execute("select count(*) from CoOrthologTemp")
+    print(cur.fetchone())
 
 ######################################################################
 
-    orthologTaxonSub(cur, 'co');
+    orthologTaxonSub(cur, 'co')
 
 ######################################################################
 
-    normalizeOrthologsSub(cur, "Co", "CoOrtholog");
-
-    cur.execute("select count (*) from CoOrtholog")
-
-
-"""
-def runSql {
- my ($sql, $msg, $tag, $sampleTime, $tableToAnalyze) = @_;
-
- print LOGFILE "$sql\n\n" if $debug;
-
- my $stepNumber = $stepsHash->{$tag};
- die "invalid tag '$tag'" unless $stepNumber;
-
- if ($skipPast >= $stepNumber) {
-  print LOGFILE "... skipping '$tag'...\n\n";
-  return;
- }
-
- if ($clean ne 'only' && $clean ne 'all') {
-   my $t = time();
-
-   print LOGFILE localtime() . "  $msg (Benchmark dataset took $sampleTime for this step)\n";
-
-   my $stmt = $dbh->prepare($sql);
-   $stmt->execute();
-
-   &analyzeStats($tableToAnalyze) if ($tableToAnalyze);
-
-   my $tt = time() - $t;
-   my $hours = int($tt / 3600);
-   my $mins = int($tt / 60) % 60;
-   if ($hours == 0 && $mins == 0) {$mins = 1};
-   my $hoursStr = $hours? "$hours hours and " : "";
-   print LOGFILE localtime() . "  step '$tag' done ($hoursStr$mins mins)\n\n";
- }
-
- clean($tag) unless ($clean eq 'no');
-}
-
-def clean {
- my ($tag) = @_;
-
- my $cleanSqls = $cleanHash->{$tag};
- foreach my $cleanSql (@$cleanSqls) {
-  if ($cleanSql) {
-   $cleanSql =~ /(\w+) table (\w+)/i || die "invalid clean sql '$cleanSql'";
-   my $action = $1;
-   my $table = $2;
-   next if ($action eq 'drop' && &tableAlreadyDropped($table));
-   my $stmt = $dbh->prepare($cleanSql);
-   print LOGFILE localtime() . "  cleaning: $cleanSql\n";
-   $stmt->execute();
-   print LOGFILE localtime() . "  done\n";
-  }
- }
-}
-
-def tableAlreadyDropped {
- my ($table) = @_;
-
- my Ortholog = $base->getConfig("orthologTable");
- my CoOrtholog = $base->getConfig("coOrthologTable");
- my InParalog= $base->getConfig("inParalogTable");
-
- $table = Ortholog if $table eq 'Ortholog';
- $table = CoOrtholog if $table eq 'CoOrtholog';
- $table = InParalogif $table eq 'InParalog';
- my $sql;
- if ($base->getConfig("dbVendor") eq 'oracle') {
-  $table = uc($table);
-    cur.execute("select table_name from all_tables where table_name = '$table'";
- } else {
-    cur.execute("show tables like '$table'";
- }
- my $stmt = $dbh->prepare($sql);
- $stmt->execute();
- while ($stmt->fetchrow()) { return 0};
- return 1;
-}
-
-
-def cleanall {
-  foreach my $tag (keys (%$cleanHash)) {
-    clean($tag);
-  }
-}
-"""
+    normalizeOrthologsSub(cur, "Co", "CoOrtholog")
 
 
 def execute(db_dir):
@@ -533,9 +458,26 @@ def execute(db_dir):
 
         inparalogs(cur)
         coorthologs(cur)
+        
+        cur.execute("select count(*) from CoOrtholog")
+        print("CoOrtholog")
+        print(cur.fetchone())
+        cur.execute("select count(*) from InParalog")
+        print("InParalog")
+        print(cur.fetchone())
+        cur.execute("select count(*) from InterTaxonMatch")
+        print("InterTaxonMatch")
+        print(cur.fetchone())
+        cur.execute("select count(*) from Ortholog")
+        print("Ortholog")
+        print(cur.fetchone())
+        cur.execute("select count(*) from SimilarSequences")
+        print("SS")
+        print(cur.fetchone())
+
 
 if __name__ == '__main__':
-    execute("/home/fernando-work/.config/trifusion/tmp/")
+    execute(".")
 
 
-__author__ = "Fernando Alves"
+__author__ = "Fernando Alves and Diogo N. Silva"
