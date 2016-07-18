@@ -9,4 +9,8 @@ def gui_exec():
 
 if __name__ == "__main__":
 
+    import multiprocessing
+
+    multiprocessing.freeze_support()
+
     gui_exec()
