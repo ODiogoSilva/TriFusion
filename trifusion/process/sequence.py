@@ -513,23 +513,54 @@ class Alignment(Base):
             header = file_handle.readline().split()
             self.locus_length = int(header[1])
             self.partitions.set_length(self.locus_length)
+            # Gather taxa numeration for interleave formats
+            taxa_pos = {}
+            c = 0
             for line in file_handle:
                 try:
-                    taxa = line.split()[0].replace(" ", "")
-                    taxa = self.rm_illegal(taxa)
 
-                    self.alignment[taxa] = join(self.dest, self.sname,
-                                                taxa + ".seq")
-                    try:
-                        sequence = line.split()[1].strip().lower()
-                    except IndexError:
-                        sequence = ""
-                    with open(self.alignment[taxa], "w") as fh:
-                        fh.write(sequence)
+                    # This code block will reset the counter for interleave
+                    # files whenever there ir an empty line. This will assume
+                    # that there are no empty lines during the first lines
+                    if line.strip() == "":
+                        c = 0
+
+                    # Check if current line has "taxa sequence" scheme.
+                    # If not, assume interleave
+                    l = line.strip().split()
+
+                    if len(l) >= 2:
+
+                        taxa = line.split()[0].replace(" ", "")
+                        taxa = self.rm_illegal(taxa)
+
+                        # Add taxa to numeration variable for interleave parsing
+                        taxa_pos[c] = taxa
+                        c += 1
+
+                        self.alignment[taxa] = join(self.dest, self.sname,
+                                                    taxa + ".seq")
+                        try:
+                            sequence = "".join(line.split()[1:]).strip().lower()
+                        except IndexError:
+                            sequence = ""
+                        with open(self.alignment[taxa], "w") as fh:
+                            fh.write(sequence)
+                    # Assume interleave here
+                    elif len(l) == 1:
+
+                        # Get taxa for current sequence based on counter.
+                        # This counter resets at every empty line in the file
+                        taxa = taxa_pos[c]
+                        c += 1
+
+                        # Write sequence to file
+                        sequence = l[0].lower()
+                        with open(self.alignment[taxa], "a") as fh:
+                            fh.write(sequence)
+
                 except IndexError:
                     pass
-
-                    # TODO: Read phylip interleave
 
             # Updating partitions object
             self.partitions.add_partition(self.name, self.locus_length,

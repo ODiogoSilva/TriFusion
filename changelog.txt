@@ -1,3 +1,11 @@
+### [Upcoming release]
+
+#### Improvements
+
+##### Process
+
+- Interleave phylip input format is now supported
+
 ### v0.4.12
 
 This update is mainly to fix slow downs on subprocess spawning on Windows.
