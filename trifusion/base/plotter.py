@@ -65,9 +65,9 @@ class SetProps(object):
     def __init__(self, func):
         self.func = func
 
-    def __call__(self, **kwargs):
+    def __call__(self, *args, **kwargs):
 
-        res = self.func(**kwargs)
+        res = self.func(*args, **kwargs)
 
         # Set axis names
         if "ax_names" in kwargs:
