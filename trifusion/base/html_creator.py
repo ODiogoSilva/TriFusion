@@ -18,8 +18,9 @@
 #  MA 02110-1301, USA.
 
 title_index = 0
-img_index = 1
-desc_index = 2
+subcat_index = 1
+img_index = 2
+desc_index = 3
 
 class HtmlTemplate:
     """
@@ -58,8 +59,10 @@ class HtmlTemplate:
         }\n\
         span {\n\
             min-width: 5em;\n\
-            margin-top: 3em;\n\
             padding-right: 1em;\n\
+        }\n\
+        a {\n\
+            padding-left: 0.3em;\n\
         }\n\
         .img-wrapper {\n\
             display: inline-block;\n\
@@ -70,21 +73,21 @@ class HtmlTemplate:
     <script type=\"text/javascript\">\n\
         var images = ["
         #add images names
-        for (_, img, _) in self.data[:-1]:
+        for (_, _, img, _) in self.data[:-1]:
             html += "\"" + img + "\","
-        html += "\"" + self.data[-1][1] + "\"];\n"
+        html += "\"" + self.data[-1][img_index] + "\"];\n"
 
         #add descriptions
         html += "\t\tvar descriptions = ["
-        for (_, _, desc) in self.data[:-1]:
+        for (_, _, _, desc) in self.data[:-1]:
             html += "\"" + desc + "\","
-        html += "\"" + self.data[-1][2] + "\"];\n"
+        html += "\"" + self.data[-1][desc_index] + "\"];\n"
 
         #add titles
         html += "\t\tvar titles = ["
-        for (title, _, _) in self.data[:-1]:
+        for (title, _, _, _) in self.data[:-1]:
             html += "\"" + title + "\","
-        html += "\"" + self.data[-1][0] + "\"];\n"
+        html += "\"" + self.data[-1][title_index] + "\"];\n"
 
         #add data changing funtion
         html += "\t\tfunction changeImage(index){\n\
@@ -106,18 +109,23 @@ class HtmlTemplate:
             <span>\n"
 
         #for each image add code to change them
+        last_cat = ""
         for x in xrange(len(self.data)):
+            cat = self.data[x][subcat_index]
+            if last_cat != cat:
+                html += "\t\t\t\t<br><h3>" + cat + "</h3></br>\n"
+                last_cat = cat
             html += "\t\t\t\t<a href=\"#\" onclick=\"changeImage(" + str(x) + ")\">" + self.data[x][title_index] + "</a></p>\n"
 
         #insert remainder html
         html += "\t\t\t</span>\n\
             <div class=\"img-wrapper\">\n\
-                <img id=\"img_place\" src=\"Figures/" + self.data[0][1] + "\"/>\n\
+                <img id=\"img_place\" src=\"Figures/" + self.data[0][img_index] + "\"/>\n\
            </div>\n\
         </div>\n\
     </div>\n\
     <h2>Description</h2>\n\
-    <span id=\"desc_place\">" + self.data[0][2] + "</span>\n\
+    <span id=\"desc_place\">" + self.data[0][desc_index] + "</span>\n\
 </body>\n\
 </html>"
 
@@ -126,7 +134,7 @@ class HtmlTemplate:
         output_handle.close()
 
 if __name__ == "__main__":
-    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("ay ay", "Species_copy_number.png", "desc"), ("ay ay ay", "Species_coverage.png", "desc2")])
+    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("ay ay", "cat1", "Species_copy_number.png", "desc"), ("ay ay", "cat1", "Species_copy_number.png", "desc"), ("ay ay ay", "cat2", "Species_coverage.png", "desc2"), ("ay ay", "cat2", "Species_copy_number.png", "desc")])
     html.write_file()
 
 __author__ = "Diogo N. Silva and Fernando Alves"

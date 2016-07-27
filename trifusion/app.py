@@ -6232,6 +6232,9 @@ class TriFusionApp(App):
         for command in MultiGroups.calls:
             getattr(active_group_light, command)(fig_dir)
 
+        html = HtmlTemplate(dir, "Orthology report", orthology_plots)
+        html.write_file()
+
     def orto_compare_groups(self, groups_objs=None, selected_groups=None):
         """
         Switches to the orthology group comparison screen and presents the
