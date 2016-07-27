@@ -6222,9 +6222,15 @@ class TriFusionApp(App):
         :param dir: string, path to directory where the report will be
         generated
         """
+
+        # Create directory that will store figures
+        fig_dir = join(dir, "Figures")
+        if not os.path.exists(fig_dir):
+            os.makedirs(fig_dir)
+
         active_group_light = self.get_active_group_light()
         for command in MultiGroups.calls:
-            getattr(active_group_light, command)(dir)
+            getattr(active_group_light, command)(fig_dir)
 
     def orto_compare_groups(self, groups_objs=None, selected_groups=None):
         """
