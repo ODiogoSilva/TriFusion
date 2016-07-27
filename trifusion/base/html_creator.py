@@ -45,19 +45,17 @@ class HtmlTemplate:
      <style type=\"text/css\">\n\
         .flex-container {\n\
             display: -webkit-flex;\n\
-            display: -ms-flexbox;\n\
-            display: -moz-box;\n\
-            display: -webkit-box;\n\
+            display: -ms-flex;\n\
+            display: -moz-flex;\n\
             display: flex;\n\
             -webkit-flex-direction: row;\n\
             flex-direction: row;\n\
         }\n\
         .flex-item {\n\
             display: -webkit-flex;\n\
-            display: -ms-flexbox;\n\
-            display: -moz-box;\n\
-            display: -webkit-box;\n\
-            display:flex;\n\
+            display: -ms-flex;\n\
+            display: -moz-flex;\n\
+            display: flex;\n\
             margin: 3px;\n\
             padding: 0 0 10px;\n\
         }\n\
