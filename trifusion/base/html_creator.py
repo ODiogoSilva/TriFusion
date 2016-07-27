@@ -45,20 +45,27 @@ class HtmlTemplate:
      <style type=\"text/css\">\n\
         .flex-container {\n\
             display: -webkit-flex;\n\
+            display: -ms-flexbox;\n\
+            display: -moz-box;\n\
+            display: -webkit-box;\n\
             display: flex;\n\
             -webkit-flex-direction: row;\n\
             flex-direction: row;\n\
         }\n\
         .flex-item {\n\
+            display: -webkit-flex;\n\
+            display: -ms-flexbox;\n\
+            display: -moz-box;\n\
+            display: -webkit-box;\n\
             display:flex;\n\
             margin: 3px;\n\
-            padding: 10px 0 0 10px;\n\
+            padding: 0 0 10px;\n\
         }\n\
         .flex-item img{\n\
             width: 100%;\n\
         }\n\
         span {\n\
-            min-width: 5em;\n\
+            min-width: 8em;\n\
             padding-right: 1em;\n\
         }\n\
         a {\n\
@@ -93,7 +100,7 @@ class HtmlTemplate:
         html += "\t\tfunction changeImage(index){\n\
                 var img = document.getElementById(\"img_place\");\n\
                 img.src = \"Figures/\" + images[index];\n\
-                document.getElementById(\"desc_place\").textContent = descriptions[index];\n\
+                document.getElementById(\"desc_place\").innerHTML = descriptions[index];\n\
                 document.getElementById(\"subtitle\").textContent = titles[index];\n\
             }\n\
     </script>\n"
@@ -134,7 +141,7 @@ class HtmlTemplate:
         output_handle.close()
 
 if __name__ == "__main__":
-    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("ay ay", "cat1", "Species_copy_number.png", "desc"), ("ay ay", "cat1", "Species_copy_number.png", "desc"), ("ay ay ay", "cat2", "Species_coverage.png", "desc2"), ("ay ay", "cat2", "Species_copy_number.png", "desc")])
+    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("ay ay", "cat1", "Species_copy_number.png", "desc <b> cenas </b> "), ("ay ay", "cat1", "Species_copy_number.png", "desc <b> cenas </b> "), ("ay ay ay", "cat2", "Species_coverage.png", "desc2"), ("ay ay", "cat2", "Species_copy_number.png", "desc")])
     html.write_file()
 
 __author__ = "Diogo N. Silva and Fernando Alves"
