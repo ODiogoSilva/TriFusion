@@ -19,46 +19,108 @@
 
 
 class HtmlTemplate:
-    def __init__(self):
-        self.hcontents = []
-        self.bcontents = []
+    """
+    Data must be a list of tuples (title, image, description)
+    """
+    def __init__(self, folder, data):
+        if not folder.endswith("/"):
+            folder += "/"
+        self.folder = folder
+        self.data = data
 
-    def add_title(self, title):
-        htitle = "<title> %s </title>\n" % title
-        self.hcontents.extend([htitle])
+    def write_file(self):
+        if not self.data:
+            return None
 
-    def add_text(self, text):
-        """ Adds plain text to body (no tags) """
-        content = text
-        self.bcontents.extend([content])
+        #add header, styles basic html info
+        html = "<!DOCTYPE html>\n\
+<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n\
+<html>\n\
+<head>\n\
+     <style type=\"text/css\">\n\
+        .flex-container {\n\
+            display: -webkit-flex;\n\
+            display: flex;\n\
+            -webkit-flex-direction: row;\n\
+            flex-direction: row;\n\
+        }\n\
+        .flex-item {\n\
+            display:flex;\n\
+            margin: 3px;\n\
+            padding: 10px 0 0 10px;\n\
+        }\n\
+        .flex-item img{\n\
+            width: 100%;\n\
+        }\n\
+        span {\n\
+            min-width: 5em;\n\
+            margin-top: 3em;\n\
+            padding-right: 1em;\n\
+        }\n\
+        .img-wrapper {\n\
+            display: inline-block;\n\
+            overflow: hidden;\n\
+            border: 1px solid gray;\n\
+        }\n\
+    </style>\n\
+    <script type=\"text/javascript\">\n\
+        var images = ["
+        #add images names
+        for (_, img, _) in self.data[:-1]:
+            html += "\"" + img + "\","
+        html += "\"" + self.data[-1][1] + "\"];\n"
 
-    def add_single_plot(self, heading, plot_file, heading_level="1"):
-        """ Adds single plot with heading """
-        head = "<h%s> %s </h1>\n" % (heading_level, heading)
-        plot = "<figure> <embed type='image/svg+xml' src='%s' /> </figure>\n" %\
-               plot_file
-        self.bcontents.extend([head, plot])
+        #add descriptions
+        html += "\t\tvar descriptions = ["
+        for (_, _, desc) in self.data[:-1]:
+            html += "\"" + desc + "\","
+        html += "\"" + self.data[-1][2] + "\"];\n"
 
-    #def add_plot_grid(self):
-        #""" TODO """
+        #add titles
+        html += "\t\tvar titles = ["
+        for (title, _, _) in self.data[:-1]:
+            html += "\"" + title + "\","
+        html += "\"" + self.data[-1][0] + "\"];\n"
 
-    def write_file(self, file_name):
-        string = """<!DOCTYPE html>
-<html>
-    <head>
-    %s
-    </head>
-    <body style='background-color:#eeeeee'>
-    <h1> Alignments Report </h1>
-    <p> Alignment report results ran on #DATE using options #OPTIONS
-    %s
-    </body>
-</html>
+        #add data changing funtion
+        html += "\t\tfunction changeImage(index){\n\
+                var img = document.getElementById(\"img_place\");\n\
+                img.src = images[index];\n\
+                document.getElementById(\"desc_place\").textContent = descriptions[index];\n\
+                document.getElementById(\"title\").textContent = titles[index];\n\
+            }\n\
+    </script>\n"
 
-        """ % ("\n".join(self.hcontents), "\n".join(self.bcontents))
+        #add actual html
+        #place 1st image visible by default
+        html += "</head>\n\
+<body>\n\
+    <h2 id=\"title\">" + self.data[0][0] + "</h2>\n\
+    <div class=\"flex-container\">\n\
+        <div class=\"flex-item\">\n\
+            <span>\n"
 
-        output_handle = open(file_name + ".html", "w")
-        output_handle.write(string)
+        #for each image add code to change them
+        for x in xrange(len(self.data)):
+            html += "\t\t\t\t<a href=\"#\" onclick=\"changeImage(" + str(x) + ")\">Img #" + str(x) + "</a></p>\n"
+
+        #insert remainder html
+        html += "\t\t\t</span>\n\
+            <div class=\"img-wrapper\">\n\
+                <img id=\"img_place\" src=\"" + self.data[0][1] + "\"/>\n\
+           </div>\n\
+        </div>\n\
+    </div>\n\
+    <span id=\"desc_place\">" + self.data[0][2] + "</span>\n\
+</body>\n\
+</html>"
+
+        output_handle = open(self.folder + "index2.html", "w")
+        output_handle.write(html)
         output_handle.close()
 
-__author__ = "Diogo N. Silva"
+if __name__ == "__main__":
+    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", [("ay ay", "Species_copy_number.png", "desc"), ("ay ay ay", "Species_coverage.png", "desc2")])
+    html.write_file()
+
+__author__ = "Diogo N. Silva and Fernando Alves"
