@@ -1013,7 +1013,7 @@ class Group ():
         return b_plt, lgd, table_list
 
     def bar_species_coverage(self, dest="./", filt=False,
-                            output_file_name="Species_coverage"):
+                             output_file_name="Species_coverage"):
         """
         Creates a stacked bar plot with the proportion of
         :return:
