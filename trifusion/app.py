@@ -89,6 +89,7 @@ try:
     from data.resources.custom_widgets import *
     from data.resources.stats import *
     from base.plotter import *
+    from base.html_creator import HtmlTemplate
     from ortho.OrthomclToolbox import MultiGroups
 except ImportError:
     from trifusion.ortho import protein2dna
@@ -100,6 +101,7 @@ except ImportError:
     from trifusion.data.resources.custom_widgets import *
     from trifusion.data.resources.stats import *
     from trifusion.base.plotter import *
+    from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
 __version__ = "0.4.14"
