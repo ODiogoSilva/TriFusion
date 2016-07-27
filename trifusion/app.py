@@ -102,8 +102,8 @@ except ImportError:
     from trifusion.base.plotter import *
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.13"
-__build__ = "190716"
+__version__ = "0.4.14"
+__build__ = "270716"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]

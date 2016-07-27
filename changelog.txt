@@ -6,6 +6,10 @@
 
 - Interleave phylip input format is now supported
 
+##### Orthology
+
+- Added full report generation in HTML for Orthology graphical exploration
+
 ### v0.4.12
 
 This update is mainly to fix slow downs on subprocess spawning on Windows.
