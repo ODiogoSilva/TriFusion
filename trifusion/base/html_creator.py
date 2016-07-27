@@ -17,15 +17,19 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+title_index = 0
+img_index = 1
+desc_index = 2
 
 class HtmlTemplate:
     """
     Data must be a list of tuples (title, image, description)
     """
-    def __init__(self, folder, data):
+    def __init__(self, folder, title, data):
         if not folder.endswith("/"):
             folder += "/"
         self.folder = folder
+        self.title = title
         self.data = data
 
     def write_file(self):
@@ -85,9 +89,9 @@ class HtmlTemplate:
         #add data changing funtion
         html += "\t\tfunction changeImage(index){\n\
                 var img = document.getElementById(\"img_place\");\n\
-                img.src = images[index];\n\
+                img.src = \"Figures/\" + images[index];\n\
                 document.getElementById(\"desc_place\").textContent = descriptions[index];\n\
-                document.getElementById(\"title\").textContent = titles[index];\n\
+                document.getElementById(\"subtitle\").textContent = titles[index];\n\
             }\n\
     </script>\n"
 
@@ -95,22 +99,24 @@ class HtmlTemplate:
         #place 1st image visible by default
         html += "</head>\n\
 <body>\n\
-    <h2 id=\"title\">" + self.data[0][0] + "</h2>\n\
+    <h1 >" + self.title + "</h1>\
+    <h2 id=\"subtitle\">" + self.data[0][0] + "</h2>\n\
     <div class=\"flex-container\">\n\
         <div class=\"flex-item\">\n\
             <span>\n"
 
         #for each image add code to change them
         for x in xrange(len(self.data)):
-            html += "\t\t\t\t<a href=\"#\" onclick=\"changeImage(" + str(x) + ")\">Img #" + str(x) + "</a></p>\n"
+            html += "\t\t\t\t<a href=\"#\" onclick=\"changeImage(" + str(x) + ")\">" + self.data[x][title_index] + "</a></p>\n"
 
         #insert remainder html
         html += "\t\t\t</span>\n\
             <div class=\"img-wrapper\">\n\
-                <img id=\"img_place\" src=\"" + self.data[0][1] + "\"/>\n\
+                <img id=\"img_place\" src=\"Figures/" + self.data[0][1] + "\"/>\n\
            </div>\n\
         </div>\n\
     </div>\n\
+    <h2>Description</h2>\n\
     <span id=\"desc_place\">" + self.data[0][2] + "</span>\n\
 </body>\n\
 </html>"
@@ -120,7 +126,7 @@ class HtmlTemplate:
         output_handle.close()
 
 if __name__ == "__main__":
-    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", [("ay ay", "Species_copy_number.png", "desc"), ("ay ay ay", "Species_coverage.png", "desc2")])
+    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("ay ay", "Species_copy_number.png", "desc"), ("ay ay ay", "Species_coverage.png", "desc2")])
     html.write_file()
 
 __author__ = "Diogo N. Silva and Fernando Alves"
