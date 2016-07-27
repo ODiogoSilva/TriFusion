@@ -84,7 +84,7 @@ try:
     from process.base import Base
     from process.error_handling import *
     from process.sequence import AlignmentList
-    from data.resources.info_data import informative_storage
+    from data.resources.info_data import *
     from data.resources.background_tasks import *
     from data.resources.custom_widgets import *
     from data.resources.stats import *
@@ -95,7 +95,7 @@ except ImportError:
     from trifusion.process.base import Base
     from trifusion.process.error_handling import *
     from trifusion.process.sequence import AlignmentList
-    from trifusion.data.resources.info_data import informative_storage
+    from trifusion.data.resources.info_data import *
     from trifusion.data.resources.background_tasks import *
     from trifusion.data.resources.custom_widgets import *
     from trifusion.data.resources.stats import *
