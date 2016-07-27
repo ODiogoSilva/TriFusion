@@ -516,8 +516,8 @@ orthology_plots = [
      "Orthologs with a single gene copy effectively represent single "
      "copy genes. We recommend creating this plot without applying a maximum "
      "gene copy filter in order to get the full distribution of the data set."
-     "\n\n"
-     "<b>x-axis:</b> Number of maximum gene copies\n"
+     "<br/><br/>"
+     "<b>x-axis:</b> Number of maximum gene copies<br/>"
      "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Species distribution",
      "Species focused",
@@ -528,8 +528,8 @@ orthology_plots = [
      "taxa is determined by the minimum taxa representation filter. In the "
      "absence of a minimum taxa representation filter, it is entirely "
      "possible to have groups with a single taxon, which represent"
-     "clusters of recent paralogs for that taxon.\n\n"
-     "<b>x-axis:</b> Number of taxa\n"
+     "clusters of recent paralogs for that taxon.<br/><br/>"
+     "<b>x-axis:</b> Number of taxa<br/>"
      "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Data coverage per species",
      "Species focused",
@@ -543,8 +543,8 @@ orthology_plots = [
      "(Therefore, these amounts can also be viewed as proportions.) This "
      "analysis will NOT take into account the number of gaps that will be "
      "generated after the alignment procedure. The horizontal dashed line "
-     "represents the mean available data for the data set.\n\n"
-     "<b>x-axis:</b> Taxon\n"
+     "represents the mean available data for the data set.<br/><br/>"
+     "<b>x-axis:</b> Taxon<br/>"
      "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Distribution of gene copy per taxa",
      "Species focused",
@@ -552,8 +552,8 @@ orthology_plots = [
      "Displays the number of gene copies for each taxon. Here, only ortholog "
      "clusters with multiple copies for a given taxa are taken into account. "
      "If a taxon has only single copies in the entire data set, it scores 0."
-     "\n\n"
-     "<b>x-axis:</b> Taxon\n"
+     "<br/><br/>"
+     "<b>x-axis:</b> Taxon<br/>"
      "<b>y-axis:</b> Number of gene copies (above single copy)")
 ]
 
