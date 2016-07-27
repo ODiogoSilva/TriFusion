@@ -501,5 +501,60 @@ orthology_storage = {
     "Taxa gene copies": "Cumulative number of multiple gene copies per taxon"
 }
 
+# Informative text for Orthology plots. Information for each plot is provided
+#  as a tuple of three elements: (title, category, figure name, description)
+orthology_plots = [
+    ("Distribution of maximum gene copies",
+     "Gene focused",
+     "Gene_copy_distribution.png",
+     "Displays the number of orthologs in function of the maximum number of "
+     "gene copies. Here, the number of gene copies in each ortholog cluster is "
+     "obtained from the taxa with the highest number of gene copies. "
+     "Therefore, if an ortholog cluster with 10 taxa has a single copy "
+     "for 9 taxa and 10 copies for 1 taxon, that ortholog cluster scores a "
+     "value of 10. "
+     "Orthologs with a single gene copy effectively represent single "
+     "copy genes. We recommend creating this plot without applying a maximum "
+     "gene copy filter in order to get the full distribution of the data set."
+     "\n\n"
+     "[b]x-axis:[/b] Number of maximum gene copies\n"
+     "[b]y-axis:[/b] Frequency of ortholog groups"),
+    ("Species distribution",
+     "Species focused",
+     "Species_distribution.png",
+     "Displays the number of orthologs in function of the exact number of "
+     "unique taxa represented in a given ortholog. Here, taxa represented by "
+     "multiple copies are scored only once but the range of the number of "
+     "taxa is determined by the minimum taxa representation filter. In the "
+     "absence of a minimum taxa representation filter, it is entirely "
+     "possible to have groups with a single taxon, which represent"
+     "clusters of recent paralogs for that taxon.\n\n"
+     "[b]x-axis:[/b] Number of taxa\n"
+     "[b]y-axis:[/b] Frequency of ortholog groups"),
+    ("Data coverage per species",
+     "Species focused",
+     "Species_coverage.png",
+     "Displays the amount of available and missing ortholog groups for each "
+     "taxon. The number of available genes is displayed as dark blue bars, "
+     "while the number of missing genes is displayed as light blue bars. Given "
+     "the fact that we are dealing with non-aligned data, this will "
+     "simply score the number of genes available for a given taxa in relation "
+     "to the total number of ortholog cluster for the current filters. "
+     "(Therefore, these amounts can also be viewed as proportions.) This "
+     "analysis will NOT take into account the number of gaps that will be "
+     "generated after the alignment procedure. The horizontal dashed line "
+     "represents the mean available data for the data set.\n\n"
+     "[b]x-axis:[/b] Taxon\n"
+     "[b]y-axis:[/b] Frequency of ortholog groups"),
+    ("Distribution of gene copy per taxa",
+     "Species focused",
+     "Species_copy_number.png",
+     "Displays the number of gene copies for each taxon. Here, only ortholog "
+     "clusters with multiple copies for a given taxa are taken into account. "
+     "If a taxon has only single copies in the entire data set, it scores 0."
+     "\n\n"
+     "[b]x-axis:[/b] Taxon\n"
+     "[b]y-axis:[/b] Number of gene copies (above single copy)")
+]
 
 __author__ = "Diogo N. Silva"
