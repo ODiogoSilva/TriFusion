@@ -517,8 +517,8 @@ orthology_plots = [
      "copy genes. We recommend creating this plot without applying a maximum "
      "gene copy filter in order to get the full distribution of the data set."
      "\n\n"
-     "[b]x-axis:[/b] Number of maximum gene copies\n"
-     "[b]y-axis:[/b] Frequency of ortholog groups"),
+     "<b>x-axis:</b> Number of maximum gene copies\n"
+     "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Species distribution",
      "Species focused",
      "Species_distribution.png",
@@ -529,8 +529,8 @@ orthology_plots = [
      "absence of a minimum taxa representation filter, it is entirely "
      "possible to have groups with a single taxon, which represent"
      "clusters of recent paralogs for that taxon.\n\n"
-     "[b]x-axis:[/b] Number of taxa\n"
-     "[b]y-axis:[/b] Frequency of ortholog groups"),
+     "<b>x-axis:</b> Number of taxa\n"
+     "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Data coverage per species",
      "Species focused",
      "Species_coverage.png",
@@ -544,8 +544,8 @@ orthology_plots = [
      "analysis will NOT take into account the number of gaps that will be "
      "generated after the alignment procedure. The horizontal dashed line "
      "represents the mean available data for the data set.\n\n"
-     "[b]x-axis:[/b] Taxon\n"
-     "[b]y-axis:[/b] Frequency of ortholog groups"),
+     "<b>x-axis:</b> Taxon\n"
+     "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Distribution of gene copy per taxa",
      "Species focused",
      "Species_copy_number.png",
@@ -553,8 +553,8 @@ orthology_plots = [
      "clusters with multiple copies for a given taxa are taken into account. "
      "If a taxon has only single copies in the entire data set, it scores 0."
      "\n\n"
-     "[b]x-axis:[/b] Taxon\n"
-     "[b]y-axis:[/b] Number of gene copies (above single copy)")
+     "<b>x-axis:</b> Taxon\n"
+     "<b>y-axis:</b> Number of gene copies (above single copy)")
 ]
 
 __author__ = "Diogo N. Silva"
