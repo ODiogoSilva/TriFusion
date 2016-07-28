@@ -63,7 +63,7 @@ class HtmlTemplate:
             width: 100%;\n\
         }\n\
         span {\n\
-            min-width: 8em;\n\
+            width: 20em;\n\
             padding-right: 1em;\n\
         }\n\
         a {\n\
@@ -139,7 +139,33 @@ class HtmlTemplate:
         output_handle.close()
 
 if __name__ == "__main__":
-    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("ay ay", "cat1", "Species_copy_number.png", "desc <b> cenas </b> "), ("ay ay", "cat1", "Species_copy_number.png", "desc <b> cenas </b> "), ("ay ay ay", "cat2", "Species_coverage.png", "desc2"), ("ay ay", "cat2", "Species_copy_number.png", "desc")])
+    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("Distribution of maximum gene copies", "cat1", "Species_copy_number.png", "[color=37abc8ff][b]Available options:[/color] Single gene, Average["
+         "/b]\n\n"
+         "[b](Nucleotide sequence only)[/b]\n\n"
+         "[color=37abc8ff][b]Single gene[/color][/b]: Plots the "
+         "distribution of allele frequencies for a single gene.\n\n"
+         "[b]y-axis:[/b] Frequency of occurrence\n"
+         "[b]x-axis:[/b] Derived allele frequency\n\n"
+         "[color=37abc8ff][b]Average[/color][/b]: Creates the distribution of "
+         "allele frequencies across the active data set. For each alignment, "
+         "the distribution of the derived allele frequency is calculated and "
+         "compiled into a single data matrix that depicts the distribution of "
+         "allele frequencies for the entire data set.\n\n"
+         "[b]y-axis:[/b] Frequency of occurrence\n"
+         "[b]x-axis:[/b] Derived allele frequency\n"), ("Distribution of gene copy per taxa", "cat1", "Species_copy_number.png", "[color=37abc8ff][b]Available options:[/color] Single gene, Average["
+         "/b]\n\n"
+         "[b](Nucleotide sequence only)[/b]\n\n"
+         "[color=37abc8ff][b]Single gene[/color][/b]: Plots the "
+         "distribution of allele frequencies for a single gene.\n\n"
+         "[b]y-axis:[/b] Frequency of occurrence\n"
+         "[b]x-axis:[/b] Derived allele frequency\n\n"
+         "[color=37abc8ff][b]Average[/color][/b]: Creates the distribution of "
+         "allele frequencies across the active data set. For each alignment, "
+         "the distribution of the derived allele frequency is calculated and "
+         "compiled into a single data matrix that depicts the distribution of "
+         "allele frequencies for the entire data set.\n\n"
+         "[b]y-axis:[/b] Frequency of occurrence\n"
+         "[b]x-axis:[/b] Derived allele frequency\n"), ("Species distribution", "cat2", "Species_coverage.png", "desc2"), ("Data coverage per species", "cat2", "Species_copy_number.png", "desc")])
     html.write_file()
 
 __author__ = "Diogo N. Silva and Fernando Alves"
