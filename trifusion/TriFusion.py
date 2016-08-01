@@ -3,7 +3,10 @@
 
 def gui_exec():
 
-    from trifusion.app import main
+    try:
+        from trifusion.app import main
+    except ImportError:
+        from app import main
 
     main()
 
