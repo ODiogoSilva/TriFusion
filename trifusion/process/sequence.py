@@ -2114,15 +2114,18 @@ class AlignmentList(Base):
         """
 
         # Update partitions object
+        # NOTE: The use_counter argument is set to False here so that when
+        # the locus_range is provided, the counter does not interfere with the
+        # ranges.
         if not alignment_obj.partitions.is_single():
             for k, v in alignment_obj.partitions:
                 self.partitions.add_partition(
                     k, locus_range=v[0], codon=v[1],
-                    use_counter=True, file_name=alignment_obj.path,
+                    use_counter=False, file_name=alignment_obj.path,
                     model_cls=alignment_obj.partitions.models[k])
         else:
             self.partitions.add_partition(
-                alignment_obj.name,use_counter=True,
+                alignment_obj.name, use_counter=True,
                 file_name=alignment_obj.path, length=alignment_obj.locus_length,
                 model_cls=alignment_obj.partitions.models[alignment_obj.name])
 
