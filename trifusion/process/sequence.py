@@ -2015,6 +2015,13 @@ class AlignmentList(Base):
         self.dest = None
         self.pw_data = None
 
+    def _reset_summary_stats(self):
+
+        self.summary_stats = {"genes": 0, "taxa": 0, "seq_len": 0, "gaps": 0,
+                              "avg_gaps": [], "missing": 0, "avg_missing": [],
+                              "variable": 0, "avg_var": [], "informative": 0,
+                              "avg_inf": []}
+
     def update_active_alignments(self, aln_list):
         """
         Updates the self.alignments and self.shelve_alignments attributes.
@@ -2772,13 +2779,17 @@ class AlignmentList(Base):
                              self.partitions.partitions_alignments.items() if
                              alignment_obj.path in y][0]
             except IndexError:
-                part_name = [x for x, y in
-                             self.partitions.partitions_alignments.items() if
-                             alignment_obj.name in y][0]
+                try:
+                    part_name = [x for x, y in
+                                 self.partitions.partitions_alignments.items()
+                                 if alignment_obj.name in y][0]
+                except IndexError:
+                    part_name = None
 
             # Get model from partitions
-            m = self.partitions.models[part_name]
-            alignment_obj.partitions.set_model(alignment_obj.name, m[1])
+            if part_name:
+                m = self.partitions.models[part_name]
+                alignment_obj.partitions.set_model(alignment_obj.name, m[1])
 
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
@@ -2846,6 +2857,9 @@ class AlignmentList(Base):
         # Table line keys matching summary_stats for table completion
         tl = ["genes", "taxa", "seq_len", "gaps", "avg_gaps", "missing",
               "avg_missing", "variable", "avg_var", "informative", "avg_inf"]
+
+        # Reset summary_stats
+        self._reset_summary_stats()
 
         # Get number of alignments
         self.summary_stats["genes"] = len(self.alignments)
