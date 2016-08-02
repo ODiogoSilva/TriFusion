@@ -63,7 +63,7 @@ class HtmlTemplate:
             width: 100%;\n\
         }\n\
         span {\n\
-            width: 15em;\n\
+            width: 20em;\n\
             padding-right: 1em;\n\
         }\n\
         a {\n\
