@@ -63,7 +63,7 @@ class HtmlTemplate:
             width: 100%;\n\
         }\n\
         span {\n\
-            width: 20em;\n\
+            width: 15em;\n\
             padding-right: 1em;\n\
         }\n\
         a {\n\
@@ -101,13 +101,30 @@ class HtmlTemplate:
                 document.getElementById(\"desc_place\").innerHTML = descriptions[index];\n\
                 document.getElementById(\"subtitle\").textContent = titles[index];\n\
             }\n\
+        window.zoomedIn = false;\n\
+        function cenas() {\n\
+            var el = this, elp = document.getElementById(\"zoom-container\");\n\
+            var zoomContainer = document.getElementById(\"img_wrapper\");\n\
+            if (window.zoomedIn) {\n\
+                elp.setAttribute(\"style\", \"overflow: auto\");\n\
+                zoomContainer.setAttribute(\"style\", \"transform :\");\n\
+                window.zoomedIn = false;\n\
+            } else {\n\
+                var top = el.offsetTop;\n\
+                var left = el.offsetLeft - 0.25*zoomContainer.clientWidth;\n\
+                var tro = (Math.abs(elp.offsetTop - el.offsetTop) > 0) ? \"bottom\" : \"top\";\n\
+                tro += (Math.abs(elp.offsetLeft - el.offsetLeft) > 0) ? \" right\" : \" left\";\n\
+                zoomContainer.setAttribute(\"style\", \"transform-origin: \"+ tro + \" 0px; transform: scale(2);\");\n\
+                window.zoomedIn = true;\n\
+            }\n\
+        }\n\
     </script>\n"
 
         #add actual html
         #place 1st image visible by default
         html += "</head>\n\
 <body>\n\
-    <h1 >" + self.title + "</h1>\
+    <h1 >" + self.title + "</h1>\n\
     <h2 id=\"subtitle\">" + self.data[0][0] + "</h2>\n\
     <div class=\"flex-container\">\n\
         <div class=\"flex-item\">\n\
@@ -124,8 +141,10 @@ class HtmlTemplate:
 
         #insert remainder html
         html += "\t\t\t</span>\n\
-            <div class=\"img-wrapper\">\n\
-                <img id=\"img_place\" src=\"Figures/" + self.data[0][img_index] + "\"/>\n\
+            <div id=\"zoom-container\">\n\
+                <div id=\"img_wrapper\" class=\"img-wrapper\">\n\
+                    <img id=\"img_place\" src=\"Figures/" + self.data[0][img_index] + "\" onclick=\"cenas()\" />\n\
+                </div>\n\
            </div>\n\
         </div>\n\
     </div>\n\
@@ -139,33 +158,7 @@ class HtmlTemplate:
         output_handle.close()
 
 if __name__ == "__main__":
-    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("Distribution of maximum gene copies", "cat1", "Species_copy_number.png", "[color=37abc8ff][b]Available options:[/color] Single gene, Average["
-         "/b]\n\n"
-         "[b](Nucleotide sequence only)[/b]\n\n"
-         "[color=37abc8ff][b]Single gene[/color][/b]: Plots the "
-         "distribution of allele frequencies for a single gene.\n\n"
-         "[b]y-axis:[/b] Frequency of occurrence\n"
-         "[b]x-axis:[/b] Derived allele frequency\n\n"
-         "[color=37abc8ff][b]Average[/color][/b]: Creates the distribution of "
-         "allele frequencies across the active data set. For each alignment, "
-         "the distribution of the derived allele frequency is calculated and "
-         "compiled into a single data matrix that depicts the distribution of "
-         "allele frequencies for the entire data set.\n\n"
-         "[b]y-axis:[/b] Frequency of occurrence\n"
-         "[b]x-axis:[/b] Derived allele frequency\n"), ("Distribution of gene copy per taxa", "cat1", "Species_copy_number.png", "[color=37abc8ff][b]Available options:[/color] Single gene, Average["
-         "/b]\n\n"
-         "[b](Nucleotide sequence only)[/b]\n\n"
-         "[color=37abc8ff][b]Single gene[/color][/b]: Plots the "
-         "distribution of allele frequencies for a single gene.\n\n"
-         "[b]y-axis:[/b] Frequency of occurrence\n"
-         "[b]x-axis:[/b] Derived allele frequency\n\n"
-         "[color=37abc8ff][b]Average[/color][/b]: Creates the distribution of "
-         "allele frequencies across the active data set. For each alignment, "
-         "the distribution of the derived allele frequency is calculated and "
-         "compiled into a single data matrix that depicts the distribution of "
-         "allele frequencies for the entire data set.\n\n"
-         "[b]y-axis:[/b] Frequency of occurrence\n"
-         "[b]x-axis:[/b] Derived allele frequency\n"), ("Species distribution", "cat2", "Species_coverage.png", "desc2"), ("Data coverage per species", "cat2", "Species_copy_number.png", "desc")])
+    html = HtmlTemplate("/home/fernando-work/Documents/trihtml", "Orthology exploration report", [("Distribution of maximum gene copies", "cat1", "Species_copy_number.png", " Derived allele frequency"), ("Species distribution", "cat2", "Species_coverage.png", "desc2"), ("Data coverage per species", "cat2", "Species_copy_number.png", "desc")])
     html.write_file()
 
 __author__ = "Diogo N. Silva and Fernando Alves"
