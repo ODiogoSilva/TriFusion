@@ -4,9 +4,14 @@ import os
 import unittest
 from data_files import *
 
-from trifusion.process.sequence import AlignmentList
-from trifusion.process.error_handling import *
-from trifusion.process.data import Partitions
+try:
+    from process.sequence import AlignmentList
+    from process.error_handling import *
+    from process.data import Partitions
+except ImportError:
+    from trifusion.process.sequence import AlignmentList
+    from trifusion.process.error_handling import *
+    from trifusion.process.data import Partitions
 
 
 class SeconaryOpsTest(unittest.TestCase):
