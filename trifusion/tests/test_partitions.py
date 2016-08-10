@@ -6,9 +6,14 @@ import unittest
 from data_files import *
 from collections import OrderedDict
 
-from trifusion.process.sequence import AlignmentList
-from trifusion.process.error_handling import *
-from trifusion.process.data import Partitions
+try:
+    from process.sequence import AlignmentList
+    from process.error_handling import *
+    from process.data import Partitions
+except ImportError:
+    from trifusion.process.sequence import AlignmentList
+    from trifusion.process.error_handling import *
+    from trifusion.process.data import Partitions
 
 
 class ExpectingTestCase(unittest.TestCase):
@@ -34,6 +39,7 @@ class ExpectingTestCase(unittest.TestCase):
                 self._num_expectations, a, b) + msg
             self._fail(self.failureException(msg))
         self._num_expectations += 1
+
 
 class PartitonsTest(ExpectingTestCase):
 

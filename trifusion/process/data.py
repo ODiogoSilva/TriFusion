@@ -447,8 +447,8 @@ class Partitions():
         elif locus_range:
 
             if use_counter:
-                locus_range = (self.counter + locus_range[0] + 1,
-                               self.counter + locus_range[1])
+                locus_range = (self.counter,
+                               self.counter + locus_range[1] - locus_range[0])
 
             # If the maximum range of the current partition is already included
             # in some other partition, and no codon partitions were provided
@@ -499,14 +499,9 @@ class Partitions():
                 except KeyError:
                     self.partitions_alignments[name] = [file_name if file_name
                                                         else name]
-                if use_counter:
-                    self.partitions[name] = [(self.counter + locus_range[0],
-                                             self.counter + locus_range[1]),
-                                             codon]
 
-                else:
-                    self.partitions[name] = [(locus_range[0], locus_range[1]),
-                                             codon]
+                self.partitions[name] = [(locus_range[0], locus_range[1]),
+                                         codon]
 
                 self.counter = locus_range[1] + 1
 
