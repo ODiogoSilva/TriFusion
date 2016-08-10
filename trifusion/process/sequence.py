@@ -2139,7 +2139,7 @@ class AlignmentList(Base):
             for k, v in alignment_obj.partitions:
                 self.partitions.add_partition(
                     k, locus_range=v[0], codon=v[1],
-                    use_counter=False, file_name=alignment_obj.path,
+                    use_counter=True, file_name=alignment_obj.path,
                     model_cls=alignment_obj.partitions.models[k])
         else:
             self.partitions.add_partition(

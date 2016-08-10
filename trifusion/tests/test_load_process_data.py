@@ -6,7 +6,10 @@ import unittest
 from collections import OrderedDict
 from data_files import *
 
-from trifusion.process.sequence import AlignmentList, Alignment
+try:
+    from process.sequence import AlignmentList, Alignment
+except ImportError:
+    from trifusion.process.sequence import AlignmentList, Alignment
 
 
 def compare_inst(inst1, inst2, blacklist=None):
