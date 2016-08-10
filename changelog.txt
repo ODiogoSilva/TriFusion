@@ -21,6 +21,10 @@
 - Added several checks when splitting a partition manually
 - Fixed crash when importing data set group from file
 
+##### Orthology
+
+- Fixed awkward button behavior on Operations panel
+
 ### v0.4.12
 
 This update is mainly to fix slow downs on subprocess spawning on Windows.
