@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.18"
+__version__ = "0.4.19"
 __build__ = "100816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -3292,6 +3292,15 @@ class TriFusionApp(App):
         new partition
         """
 
+        # Check whether any of the new partition names already exist. Issue
+        # an error if so
+        if [x for x in new_names if x in
+                self.alignment_list.partitions.partitions]:
+            return self.dialog_floatcheck("ERROR: Duplicate partition names "
+                                          "deteced: {}".format(
+                " ".join([x for x in new_names if x if
+                self.alignment_list.partitions.partitions])), t="error")
+
         # Get active partition
         active_partition = [x.text for x in
                             self.root.ids.partition_sl.children
@@ -3334,8 +3343,8 @@ class TriFusionApp(App):
                 wgt.disabled = True
             content.ids.manual_slider.max = 0
         else:
-            content.ids.manual_slider.min = int(part_range[0][0])
-            content.ids.manual_slider.max = int(part_range[0][1])
+            content.ids.manual_slider.min = int(part_range[0][0]) + 1
+            content.ids.manual_slider.max = int(part_range[0][1]) + 1
 
         # If partition contains only one file, disable automatic split by
         #  files
@@ -3344,7 +3353,7 @@ class TriFusionApp(App):
             content.ids.auto_split_bt.disabled = True
 
         self.show_popup(title="Split partition", content=content,
-                        size=(400, 320))
+                        size=(420, 320))
 
         if not isinstance(part_range[0], tuple):
             self.dialog_floatcheck(
@@ -3704,7 +3713,7 @@ class TriFusionApp(App):
         # Get partition length
         part_range = (y[0] for x, y in self.alignment_list.partitions
                       if x == part_name)
-        part_len = sum([x[1] - x[0] for x in flatter(part_range)])
+        part_len = sum([x[1] - x[0] + 1 for x in flatter(part_range)])
         content.ids.partition_lenght.text = "{}bp".format(part_len)
 
         # If there are codon partitions
@@ -7697,6 +7706,38 @@ class TriFusionApp(App):
             corrected_val = 0
         else:
             corrected_val = int(x)
+        return True, corrected_val
+
+    @staticmethod
+    def check_partition_split(value, prange):
+        """
+        Method that validates the text input for manual split of partitions.
+        Ensures that the input can be converted to int, and whether it is
+        inside the available range.
+        """
+
+        try:
+            # Check if value can be converted to int
+            x = int(value)
+        except ValueError:
+            try:
+                # Check if value can be converted to int by removing
+                # all non digits.
+                x = value
+                all = string.maketrans("", "")
+                nodigs = all.translate(all, string.digits)
+                x = x.encode("ascii", "ignore")
+                x = int(x.translate(all, nodigs))
+            except ValueError:
+                return False
+
+        if x > prange[1]:
+            corrected_val = prange[1]
+        elif x < prange[0]:
+            corrected_val = prange[0]
+        else:
+            corrected_val = x
+
         return True, corrected_val
 
     def dialog_execution(self):

@@ -3389,21 +3389,27 @@
         FieldLabel:
             text: "Manual split"
         BoxLayout:
-            spacing: 20
+            spacing: 5
             size_hint_y: None
             height: 30
             Label:
                 size_hint_x: None
-                width: 10
+                width: 30
                 font_size: 12
-                text: str(int(manual_slider.min) + 1)
+                text: str(int(manual_slider.min))
             MySlider:
                 id: manual_slider
             Label:
                 size_hint_x: None
-                width: 10
+                width: 30
                 font_size: 12
                 text: str(int(manual_slider.max))
+            TFTextInput:
+                size_hint_x: None
+                width: 50
+                text: str(int(manual_slider.value))
+                on_text_validate:
+                    if app.check_partition_split(self.text, (manual_slider.min, manual_slider.max)): val = app.check_partition_split(self.text, (manual_slider.min, manual_slider.max))[1]; manual_slider.value = val; self.text = str(val)
 
         Widget:
             size_hint_y: None
@@ -3443,7 +3449,20 @@
                 size_hint_x: None
                 width: 100
                 on_release:
-                    app.partitions_split([(int(manual_slider.min), int(manual_slider.value)), (int(manual_slider.value + 1), int(manual_slider.max))], [part1.text, part2.text])
+                    # Check if both partition names were provided
+                    if not part1.text or not part2.text: \
+                    app.dialog_floatcheck("ERROR: Please provide the name for both manual partitions", t="error")
+
+                    # Check whether the split position is not in the extremes
+                    elif manual_slider.value == manual_slider.min or manual_slider.value == manual_slider.max: \
+                    app.dialog_floatcheck("ERROR: Split position cannot be the minimum or maximum value of the current partition", t="error")
+
+                    # Check if partition names are different
+                    elif part1.text == part2.text: \
+                    app.dialog_floatcheck("ERROR: Partition names must be different", t="error")
+
+                    else: \
+                    app.partitions_split([(int(manual_slider.min) - 1, int(manual_slider.value - 1)), (int(manual_slider.value), int(manual_slider.max))], [part1.text, part2.text])
             TFOKButon:
                 text: "Cancel"
                 id: cancel_bt

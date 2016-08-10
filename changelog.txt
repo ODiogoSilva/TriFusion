@@ -5,6 +5,7 @@
 ##### Process
 
 - Interleave phylip input format is now supported
+- Added text field to introduce split position when splitting partitions
 - More informative error message when importing inconsistent partition file
 
 ##### Orthology
@@ -17,6 +18,7 @@
 
 - Fixed bad loading of certain partitions schemes
 - More robust parser of nexus partitions files
+- Added several checks when splitting a partition manually
 
 ### v0.4.12
 
