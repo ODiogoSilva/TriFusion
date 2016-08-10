@@ -513,23 +513,52 @@ class Alignment(Base):
             header = file_handle.readline().split()
             self.locus_length = int(header[1])
             self.partitions.set_length(self.locus_length)
+            taxa_num = int(header[0])
+
+            # These three following attributes allow the support for
+            # interleave phylip files
             # Gather taxa numeration for interleave formats
             taxa_pos = {}
+            # Flags whether the current line should be parsed for taxon name
+            taxa_gather = True
+            # Counter that makes the correspondence between the current line
+            # and the appropriate taxon
             c = 0
             for line in file_handle:
+
+                # Ignore empty lines
+                if line.strip() == "":
+                    continue
+
+                # The counter is reset when surpassing the number of
+                # expected taxa.
+                if c + 1 > taxa_num:
+                    c = 0
+                    taxa_gather = False
+
                 try:
 
-                    # This code block will reset the counter for interleave
-                    # files whenever there ir an empty line. This will assume
-                    # that there are no empty lines during the first lines
-                    if line.strip() == "":
-                        c = 0
+                    # Here, assume that all lines with taxon names have
+                    # already been processed, since he taxa_pos variable
+                    # already has the same number as the expected taxa in the
+                    #  phylip header
+                    if not taxa_gather:
 
-                    # Check if current line has "taxa sequence" scheme.
-                    # If not, assume interleave
-                    l = line.strip().split()
+                        # Get taxa for current sequence based on counter.
+                        taxa = taxa_pos[c]
+                        c += 1
 
-                    if len(l) >= 2:
+                        # Write sequence to file
+                        sequence = "".join(line.strip().split()).lower()
+                        with open(self.alignment[taxa], "a") as fh:
+                            fh.write(sequence)
+
+                    # To support interleave phylip, while the taxa_pos
+                    # variable has not reached the expected number of taxa
+                    # provided in header[0], treat the line as the first
+                    # lines of the phylip where the first field is the taxon
+                    # name
+                    elif taxa_gather:
 
                         taxa = line.split()[0].replace(" ", "")
                         taxa = self.rm_illegal(taxa)
@@ -541,22 +570,11 @@ class Alignment(Base):
                         self.alignment[taxa] = join(self.dest, self.sname,
                                                     taxa + ".seq")
                         try:
-                            sequence = "".join(line.split()[1:]).strip().lower()
+                            sequence = "".join(line.strip().split()[1:]).\
+                                strip().lower()
                         except IndexError:
                             sequence = ""
                         with open(self.alignment[taxa], "w") as fh:
-                            fh.write(sequence)
-                    # Assume interleave here
-                    elif len(l) == 1:
-
-                        # Get taxa for current sequence based on counter.
-                        # This counter resets at every empty line in the file
-                        taxa = taxa_pos[c]
-                        c += 1
-
-                        # Write sequence to file
-                        sequence = l[0].lower()
-                        with open(self.alignment[taxa], "a") as fh:
                             fh.write(sequence)
 
                 except IndexError:
