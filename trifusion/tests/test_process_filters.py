@@ -5,8 +5,12 @@ import unittest
 from collections import OrderedDict
 from data_files import *
 
-from trifusion.process.sequence import AlignmentList
-from trifusion.process.error_handling import *
+try:
+    from process.sequence import AlignmentList
+    from process.error_handling import *
+except ImportError:
+    from trifusion.process.sequence import AlignmentList
+    from trifusion.process.error_handling import *
 
 
 class AlignmentMissingFiltersTest(unittest.TestCase):
