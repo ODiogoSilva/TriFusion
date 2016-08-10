@@ -19,6 +19,7 @@
 - Fixed bad loading of certain partitions schemes
 - More robust parser of nexus partitions files
 - Added several checks when splitting a partition manually
+- Fixed crash when importing data set group from file
 
 ### v0.4.12
 
