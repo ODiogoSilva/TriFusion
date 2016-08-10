@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.19"
+__version__ = "0.4.20"
 __build__ = "100816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -4879,6 +4879,11 @@ class TriFusionApp(App):
         else:
             dataset_wgt = None
 
+        # This resets the dataset_wgt if its not the correct instance. This
+        # happens, for example, when setting data set from file
+        if not isinstance(dataset_wgt, DataSetTriageDialog):
+            dataset_wgt = None
+
         if ds_type == "taxa":
             # Make core changes by populating self.taxa_groups dictionary
             self.taxa_groups[name] = []
@@ -4910,6 +4915,9 @@ class TriFusionApp(App):
 
         # If dataset dialog is still active, add the new group
         if dataset_wgt:
+
+            print(dataset_wgt)
+            print(dataset_wgt.ids)
 
             # Remove original button when not groups have been previously
             # added
