@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.21"
+__version__ = "0.4.22"
 __build__ = "100816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -169,6 +169,32 @@ __status__ = "Development"
 # ==============================================================================
 #                                  EXCEPTIONS
 # ==============================================================================
+
+
+def kill_proc_tree(pid, include_parent=True):
+    """
+    Some multiprocessing child process may spawn aditional processes using
+    subprocess. This function terminates all processes in a tree when the
+    user cancels an action
+    :param pid: process id
+    :param include_parent: bool. Whether or not to kill the parent process
+    along with its child processes
+    :return:
+    """
+
+    parent = psutil.Process(pid)
+    for child in parent.children(recursive=True):
+        child.kill()
+    if include_parent:
+        parent.kill()
+
+
+# Determines whether Threading or Multiprocessing is going to be used to
+# spawn background operations.
+if sys.platform in ["win32", "cygwin"]:
+    sub_func = threading.Thread
+else:
+    sub_func = multiprocessing.Process
 
 
 class InputTypeError(Exception):
@@ -2187,6 +2213,8 @@ class TriFusionApp(App):
                 self._popup.content.ids.img.rotation -= 10
 
             if self.terminate_background:
+                if sys.platform not in ["win32", "cygwin"]:
+                    kill_proc_tree(p.pid)
                 man.shutdown()
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
@@ -2214,7 +2242,10 @@ class TriFusionApp(App):
                 # otherwise the data pipe will prevent the process from
                 # closing
                 man.shutdown()
-                p.join()
+                if sys.platform in ["win32", "cygwin"]:
+                    p.join()
+                else:
+                    p.terminate()
 
                 # Checks if there is a second function to run and whether
                 # there are additional arguments for secondary function
@@ -2237,8 +2268,7 @@ class TriFusionApp(App):
         self.terminate_background = False
 
         # Create process
-        p = threading.Thread(
-                target=background_process, args=(func, shared_ns, args1))
+        p = sub_func(target=background_process, args=(func, shared_ns, args1))
         p.start()
 
         # Remove any possible previous popups
@@ -5308,8 +5338,8 @@ class TriFusionApp(App):
             # When canceled  by the user
             if self.terminate_stats:
                 Clock.unschedule(check_func)
-                # p.terminate()
-                print(dir(p))
+                if sys.platform not in ["win32", "cygwin"]:
+                    p.terminate()
                 plt_wgt.clear_widgets()
                 plt_wgt.add_widget(NoDataLabel())
                 self.lock_stats = False
@@ -5333,6 +5363,10 @@ class TriFusionApp(App):
                     display_table(plt_wgt)
 
                 Clock.unschedule(check_func)
+                if sys.platform in ["win32", "cygwin"]:
+                    p.join()
+                else:
+                    p.terminate()
                 self.lock_stats = False
 
         # Get Scatter widgets
@@ -5399,11 +5433,11 @@ class TriFusionApp(App):
         self.terminate_stats = False
         self.lock_stats = True
 
-        p = threading.Thread(target=get_stats_summary,
-                             kwargs={"aln_list": self.alignment_list,
-                                     "dest": self.temp_dir,
-                                     "active_file_set": file_set,
-                                     "active_taxa_set": taxa_set})
+        p = sub_func(target=get_stats_summary,
+                     kwargs={"aln_list": self.alignment_list,
+                             "dest": self.temp_dir,
+                             "active_file_set": file_set,
+                             "active_taxa_set": taxa_set})
 
         p.start()
 
@@ -6143,7 +6177,10 @@ class TriFusionApp(App):
                         "%s orthologs exported. However, %s sequences "
                         "could not be retrieved!" %
                         (shared_ns.progress, shared_ns.missed), t="info")
-                p.join()
+                if sys.platform in ["win32", "cygwin"]:
+                    p.join()
+                else:
+                    p.terminate()
 
         # Update orthology export directory, if necessary
         if output_dir != self.orto_export_dir:
@@ -6183,8 +6220,8 @@ class TriFusionApp(App):
         self.terminate_group_export = False
 
         # Create process
-        p = threading.Thread(target=background_export_groups,
-                             args=(m[0], shared_ns, m[1]))
+        p = sub_func(target=background_export_groups,
+                     args=(m[0], shared_ns, m[1]))
         p.start()
 
         # Remove any previous popups
@@ -8825,11 +8862,17 @@ class TriFusionApp(App):
                 self.load_files(file_list, join(temp_dir, "alns.pc"))
 
                 manager.shutdown()
-                p.join()
+                if sys.platform in ["win32", "cygwin"]:
+                    p.join()
+                else:
+                    p.terminate()
 
             # Kill switch
             if self.terminate_load_files:
                 content.ids.msg.text = "Canceling..."
+                if sys.platform not in ["win32", "cygwin"]:
+                    p.terminate()
+                    kill_proc_tree(p.pid)
                 manager.shutdown()
                 self.dismiss_popup()
                 Clock.unschedule(func)
@@ -8871,7 +8914,7 @@ class TriFusionApp(App):
         self.terminate_load_files = False
 
         # Create process
-        p = threading.Thread(
+        p = sub_func(
                 target=load_proc,
                 args=(self.alignment_list, file_list, shared_ns, temp_dir))
 
@@ -9307,12 +9350,18 @@ class TriFusionApp(App):
                                                "app logs.", t="error")
 
                 manager.shutdown()
-                p.terminate()
+                if sys.platform in ["win32", "cygwin"]:
+                    p.join()
+                else:
+                    p.terminate()
 
             # Listens for cancel signal
             if self.terminate_orto_search:
                 shared_ns.k = False
                 manager.shutdown()
+                if sys.platform in ["win32", "cygwin"]:
+                    p.terminate()
+                    kill_proc_tree(p.pid)
                 self.dismiss_popup()
                 Clock.unschedule(func)
 
@@ -9340,7 +9389,7 @@ class TriFusionApp(App):
         self.terminate_orto_search = False
 
         # Create Process instance
-        p = threading.Thread(
+        p = sub_func(
             target=orto_execution,
             args=(
                 shared_ns,
@@ -9400,6 +9449,9 @@ class TriFusionApp(App):
             # Interrupt subporcess on user demand
             if self.terminate_process_exec:
                 man.shutdown()
+                if sys.platform not in ["win32", "cygwin"]:
+                    p.terminate()
+                    kill_proc_tree(p.pid)
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
                 return
@@ -9440,6 +9492,11 @@ class TriFusionApp(App):
                 self.file_overwrite = None
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
+
+                if sys.platform in ["win32", "cygwin"]:
+                    p.join()
+                else:
+                    p.terminate()
 
                 # If process execution ended with an error, issue warning.
                 try:
@@ -9516,7 +9573,7 @@ class TriFusionApp(App):
         self.terminate_process_exec = False
 
         # Create process
-        p = threading.Thread(target=process_execution,
+        p = sub_func(target=process_execution,
                              kwargs=process_kwargs)
         p.start()
 
