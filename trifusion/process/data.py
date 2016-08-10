@@ -286,7 +286,9 @@ class Partitions():
 
         elif partition_format == "nexus":
             for line in part_file:
-                self.read_from_nexus_string(line)
+                # Ignore empty lines
+                if line.strip() != "":
+                    self.read_from_nexus_string(line)
 
     def read_from_nexus_string(self, string, file_name=None):
         """
@@ -295,29 +297,35 @@ class Partitions():
         :param file_name: string. Name of the current file name
         """
 
-        fields = string.split("=")
-        partition_name = fields[0].split()[1].strip()
+        try:
+            fields = string.split("=")
+            partition_name = fields[0].split()[1].strip()
 
-        # If this list has 2 elements, it should be a simple gene partition
-        # If it has 3 elements, it should be a codon partition
-        partition_full = re.split(r"[-\\]", fields[1].strip().replace(";", ""))
+            # If this list has 2 elements, it should be a simple gene partition
+            # If it has 3 elements, it should be a codon partition
+            partition_full = re.split(r"[-\\]", fields[1].strip().
+                                      replace(";", ""))
 
-        # If partition is defined using "." notation to mean full length
-        if partition_full[1] == ".":
-            if self.partition_length:
-                partition_range = [int(partition_full[0]) - 1,
-                                   self.partition_length - 1]
+            # If partition is defined using "." notation to mean full length
+            if partition_full[1] == ".":
+                if self.partition_length:
+                    partition_range = [int(partition_full[0]) - 1,
+                                       self.partition_length - 1]
+                else:
+                    raise PartitionException("The length of the locus must be "
+                                             "provided when partitions are "
+                                             "defined using '.' notation to "
+                                             "mean full length")
             else:
-                raise PartitionException("The length of the locus must be "
-                                         "provided when partitions are defined"
-                                         " using '.' notation to mean full"
-                                         " length")
-        else:
-            partition_range = [int(partition_full[0]) - 1,
-                               int(partition_full[1]) - 1]
+                partition_range = [int(partition_full[0]) - 1,
+                                   int(partition_full[1]) - 1]
 
-        self.add_partition(partition_name, locus_range=partition_range,
-                           file_name=file_name)
+            self.add_partition(partition_name, locus_range=partition_range,
+                            file_name=file_name)
+        # If, for some reason, the current line cannot be interpreted as a
+        # charset line, ignore it.
+        except IndexError:
+            pass
 
     def get_partition_names(self):
         """
