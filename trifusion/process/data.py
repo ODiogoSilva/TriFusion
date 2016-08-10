@@ -264,6 +264,11 @@ class Partitions():
         # TODO: Add suport for codon partitions in raxml format
         if partition_format == "raxml":
             for line in part_file:
+
+                # Ignore empty lines
+                if line.strip() == "":
+                    continue
+
                 # A wrongly formated raxml partition file may be provided, in
                 # which case an IndexError exception will be raised. This will
                 # handle that exception

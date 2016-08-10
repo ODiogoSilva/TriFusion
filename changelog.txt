@@ -5,6 +5,7 @@
 ##### Process
 
 - Interleave phylip input format is now supported
+- More informative error message when importing inconsistent partition file
 
 ##### Orthology
 
