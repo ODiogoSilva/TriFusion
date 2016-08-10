@@ -29,6 +29,7 @@ from itertools import compress
 import fileinput
 import multiprocessing
 from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import Pool
 import cPickle as pickle
 import functools
 import sqlite3
@@ -2229,7 +2230,11 @@ class AlignmentList(Base):
             jobs = [[x.tolist(), self.dest, y, None] for y, x in enumerate(
                 np.array_split(np.array(file_name_list), njobs))]
 
-        p = ThreadPool(njobs)
+        if sys.platform in ["win32", "cygwin"]:
+            p = ThreadPool(njobs)
+        else:
+            p = Pool(njobs)
+
         try:
             # Execute alignment reading in parallel
             p.map(read_alns, jobs)

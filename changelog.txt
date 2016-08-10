@@ -4,27 +4,28 @@
 
 ##### Process
 
-- Interleave phylip input format is now supported
-- Added text field to introduce split position when splitting partitions
-- More informative error message when importing inconsistent partition file
+- Interleave phylip input format is now supported.
+- Added text field to introduce split position when splitting partitions.
+- More informative error message when importing inconsistent partition file.
+- Usage of Threading or Multiprocessing changes dynamically depending on OS. This mainly means better performance on Unix.
 
 ##### Orthology
 
-- Added full report generation in HTML for Orthology graphical exploration
+- Added full report generation in HTML for Orthology graphical exploration.
 
 #### Bug Fixes
 
 ##### Process
 
-- Fixed bad loading of certain partitions schemes
-- More robust parser of nexus partitions files
-- Added several checks when splitting a partition manually
-- Fixed crash when importing data set group from file
+- Fixed bad loading of certain partitions schemes.
+- More robust parser of nexus partitions files.
+- Added several checks when splitting a partition manually.
+- Fixed crash when importing data set group from file.
 
 ##### Orthology
 
 - Fixed awkward button behavior on Operations panel
-
+.
 ### v0.4.12
 
 This update is mainly to fix slow downs on subprocess spawning on Windows.
