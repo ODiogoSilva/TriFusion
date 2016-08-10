@@ -24,7 +24,8 @@
 
 ##### Orthology
 
-- Fixed awkward button behavior on Operations panel
+- Fixed awkward button behavior on Operations panel.
+- Fixed issue with protein database name when exporting groups after a Search operation.
 .
 ### v0.4.12
 

@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.22"
+__version__ = "0.4.23"
 __build__ = "100816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -9340,7 +9340,7 @@ class TriFusionApp(App):
                     # Set the protein database file
                     self.protein_db = join(self.ortho_dir,
                                            "backstage_files",
-                                           "goodProteins.fasta")
+                                           self.usearch_db)
                     self.dialog_search_report(shared_ns.stats,
                                               shared_ns.groups)
                 except:
