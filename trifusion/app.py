@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.17"
+__version__ = "0.4.18"
 __build__ = "100816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -7308,9 +7308,7 @@ class TriFusionApp(App):
 
         # Check for the validity of the partitions file
         if isinstance(aln_er, data.InvalidPartitionFile):
-            return self.dialog_floatcheck(
-                "The provided partitions in the partition file do not match"
-                " the selected alignment", t="error")
+            return self.dialog_floatcheck(str(aln_er), t="error")
         else:
             return True
 
