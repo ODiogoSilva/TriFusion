@@ -2954,6 +2954,20 @@ class AlignmentList(Base):
         for k in ["avg_gaps", "avg_missing", "avg_var", "avg_inf"]:
             self.summary_stats[k] = round(np.mean(self.summary_stats[k]))
 
+        # Get percentage values for missing data
+        total = self.summary_stats["seq_len"] * self.summary_stats["taxa"]
+        for k in ["gaps", "missing"]:
+            n = self.summary_stats[k]
+            percentage = round((float(n) / float(total)) * 100, 2)
+            self.summary_stats[k] = "{0:,} ({1}%)".format(n, percentage)
+
+        # Get percentage values for variation
+        for k in ["variable", "informative"]:
+            n = self.summary_stats[k]
+            percentage = round((float(n) /
+                                float(self.summary_stats["seq_len"])) * 100, 2)
+            self.summary_stats[k] = "{0:,} ({1}%)".format(n, percentage)
+
         # Complete table information
         table.append([self.summary_stats[x] for x in tl])
 

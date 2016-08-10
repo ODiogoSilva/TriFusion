@@ -13,6 +13,10 @@
 
 - Added full report generation in HTML for Orthology graphical exploration.
 
+#### Statistics
+
+- Added percentage values to some summary statistics.
+
 #### Bug Fixes
 
 ##### Process
