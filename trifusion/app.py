@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.24"
+__version__ = "0.4.25"
 __build__ = "110816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -8284,6 +8284,8 @@ class TriFusionApp(App):
             [histogram_plot, "distribution_taxa_frequency.png"],
             "Allele Frequency Spectrum":
             [histogram_plot, "allele_frequency_spectrum.png"],
+            "Allele Frequency Spectrum prop":
+            [histogram_plot, "allele_frequency_spectrum_prop.png"],
             "Allele Frequency Spectrum gn":
             [histogram_plot, "allele_frequency_spectrum_gn.png"],
             "Missing data outliers":
@@ -8343,7 +8345,10 @@ class TriFusionApp(App):
 
         # List of plots with a switcher between absolute values and
         # proportions
-        prop_plots = [["Segregating sites"], ["Segregating sites prop"]]
+        prop_plots = [["Segregating sites",
+                       "Allele Frequency Spectrum"],
+                      ["Segregating sites prop",
+                       "Allele Frequency Spectrum prop"]]
 
         # List of plots with outlier footer
         outlier_plots = ["Missing data outliers",
