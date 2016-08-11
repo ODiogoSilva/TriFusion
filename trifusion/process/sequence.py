@@ -3689,7 +3689,7 @@ class AlignmentList(Base):
                 "correlation": True}
 
     @CheckData
-    def allele_frequency_spectrum(self):
+    def allele_frequency_spectrum(self, proportions=False):
         """
         Generates data for the allele frequency spectrum of the entire
         alignment data set. Here, multiple alignments are effectively treated
@@ -3708,17 +3708,24 @@ class AlignmentList(Base):
 
             for column in zip(*aln.sequences()):
 
-                # Remove gaps and missing characters
-                column = Counter([iupac_conv[x] for x in column if
+                col = [iupac_conv[x] for x in column if
                                   x != aln.sequence_code[1] and
-                                  x != self.gap_symbol])
+                                  x != self.gap_symbol]
+                col_len = len(col)
+
+                # Remove gaps and missing characters
+                column = Counter(col)
 
                 # Consider only bi-allelic SNPs
                 if len(column) == 2:
                     # Remove most common and check the length of the remaining
                     del column[column.most_common()[0][0]]
                     # Append number of derived alleles
-                    data.append(sum(column.values()))
+                    if proportions:
+                        data.append(float(sum(column.values())) /
+                                    float(col_len))
+                    else:
+                        data.append(sum(column.values()))
 
         return {"data": data,
                 "title": "Allele frequency spectrum",

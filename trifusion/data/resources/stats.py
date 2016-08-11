@@ -66,6 +66,12 @@ stats_compliant = {
      "active_bt": "avg",
      "single_gene": {"plt_idx": "Allele Frequency Spectrum gn"}},
 
+    "Allele Frequency Spectrum prop":
+        {"args1": None,
+         "args2": None,
+         "active_bt": "avg",
+         "single_gene": {"plt_idx": "Allele Frequency Spectrum gn"}},
+
     "Allele Frequency Spectrum gn":
     {"args1": None,
      "args2": {"plt_idx": "Allele Frequency Spectrum"},

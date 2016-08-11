@@ -16,6 +16,7 @@
 #### Statistics
 
 - Added percentage values to some summary statistics.
+- Allele frequency spectrum plot now available in MAF proportions.
 
 #### Bug Fixes
 
