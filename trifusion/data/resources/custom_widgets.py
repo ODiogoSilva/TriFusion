@@ -257,12 +257,8 @@ class FileChooserL(FileChooserListView):
             return False
 
         _dir = self.file_system.is_dir(entry.path)
-        dirselect = self.dirselect
 
-        if _dir and dirselect and touch.is_double_tap:
-            self.open_entry(entry)
-            return
-        elif not _dir and touch.is_double_tap:
+        if not _dir and touch.is_double_tap:
             self.dispatch("on_double_click")
 
         if self.multiselect:
