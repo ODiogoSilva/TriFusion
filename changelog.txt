@@ -25,6 +25,10 @@
 
 #### Bug Fixes
 
+##### General
+
+- Fixed double directory entry on secondary filechoosers
+
 ##### Process
 
 - Fixed bad loading of certain partitions schemes.
