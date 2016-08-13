@@ -2487,6 +2487,8 @@
                                 app.save_bookmark(sd_filechooser.path, bookmark_gl, sd_filechooser)
 
                 ScrollView:
+                    bar_width: 10
+                    scroll_type: ["bars"]
                     GridLayout:
                         size_hint_y: None
                         height: sum([x.height + 10 for x in self.children]) / 2
@@ -3064,6 +3066,8 @@
                                 app.save_bookmark(sd_filechooser.path, bookmark_gl, sd_filechooser)
 
                 ScrollView:
+                    bar_width: 10
+                    scroll_type: ["bars"]
                     GridLayout:
                         size_hint_y: None
                         height: sum([x.height + 10 for x in self.children]) / 2
