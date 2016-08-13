@@ -2589,7 +2589,7 @@ class TriFusionApp(App):
         content.build = __build__
 
         self.show_popup(title="About TriFusion", content=content,
-                        close_bt=True, size=(400, 370))
+                        close_bt=True, size=(480, 410))
 
     def sidepanel_on_touch(self, touch):
         """
