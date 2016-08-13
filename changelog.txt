@@ -5,6 +5,7 @@
 ##### General
 
 - Better handling of warning/error float checks
+- Improved warning dialog
 
 ##### Process
 

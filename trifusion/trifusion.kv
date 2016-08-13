@@ -1313,11 +1313,13 @@
     orientation: "vertical"
     spacing: 10
     ScrollView:
+        bar_width: 10
+        scroll_type: ["bars", "content"]
         GridLayout:
             cols: 1
             padding: 10
             size_hint_y: None
-            height: warning_l.texture_size[1] * 10
+            height: self.minimum_height
 
             Label:
                 id: warning_l
