@@ -10,7 +10,7 @@ with open('README.md') as f:
 
 setup(
     name="TriFusion",
-    version="0.4.25",
+    version="0.4.26",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",

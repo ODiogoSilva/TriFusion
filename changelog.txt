@@ -2,6 +2,10 @@
 
 #### Improvements
 
+##### General
+
+- Better handling of warning/error float checks
+
 ##### Process
 
 - Interleave phylip input format is now supported.

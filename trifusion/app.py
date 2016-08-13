@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.25"
+__version__ = "0.4.26"
 __build__ = "110816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -7304,21 +7304,61 @@ class TriFusionApp(App):
             Animation(opacity=1, d=.5, t="out_quart").start(rm_wgt)
 
         def fade_out():
-            Animation(opacity=0, d=.5, t="out_quart").start(check_wgt)
-            Animation(opacity=0, d=.5, t="out_quart").start(rm_wgt)
+            # Get height of warning
+            h = check_wgt.height
+            pos_h = check_wgt.pos[1]
+
+            Animation(opacity=0, d=.2, t="out_quart").start(check_wgt)
+            Animation(opacity=0, d=.2, t="out_quart").start(rm_wgt)
             Clock.schedule_once(
-                lambda dt: self.root_window.remove_widget(check_wgt), 1)
+                lambda dt: self.root_window.remove_widget(check_wgt), .2)
             Clock.schedule_once(
-                lambda dt: self.root_window.remove_widget(rm_wgt), 1)
+                lambda dt: self.root_window.remove_widget(rm_wgt), .2)
+
+            # Check if any warnings are still present. If so, update vertical
+            # position
+            current_floats = [i for i in self.root_window.children
+                              if isinstance(i, WarningFloat)]
+            current_x = [i for i in self.root_window.children
+                         if isinstance(i, RemoveFloat)]
+
+            if len(current_floats) > 1:
+
+                for wgt in current_floats + current_x:
+                    if pos_h > wgt.pos[1]:
+                        pos = (wgt.pos[0], wgt.pos[1] + 15 + h)
+                        Animation(pos=pos, t="out_quart").start(wgt)
+
+        # The spacing variable will be updated depending on the number of
+        # warning floats present in the root window.
+        spacing = 0
+
+        # Check if float is already present.
+        try:
+            wf = [x for x in self.root_window.children
+                  if isinstance(x, WarningFloat)]
+
+            # If a warning with the same text is already present, ignore
+            if [x for x in wf if x.text == text]:
+                return
+
+            # Else, update the spacing according to the number of floats
+            # present
+            spacing += sum([x.height + 15 for x in wf])
+
+        except IndexError:
+            pass
 
         # Get position from root window
         x, y = self.root_window.size
 
         # Create widget
         check_wgt = WarningFloat(text=text, opacity=0, markup=True)
-        check_wgt.root_pos = [x, y]
+        check_wgt.texture_update()
+        check_wgt.pos = x - check_wgt.size[0] - 20, \
+            y - check_wgt.size[1] - 60 - spacing
         # Create remove button
-        rm_wgt = RemoveFloat(pos=(x - 38, y - 75), opacity=0)
+        rm_wgt = RemoveFloat(pos=(x - 38, y - 75 - spacing), opacity=0)
         rm_wgt.bind(on_release=lambda arg: fade_out())
 
         # Determine background color
