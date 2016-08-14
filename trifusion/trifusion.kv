@@ -2814,12 +2814,23 @@
                                     size: self.size
                             GridLayout:
                                 id: select_grid
+                                text: "select"
                                 cols:1
                                 size_hint_y: None
                                 height: 0
                         Widget:
                             size_hint_y: None
-                            height: 15
+                            height: 7.5
+                        Label:
+                            size_hint_y: None
+                            height: 20
+                            id: select_lbl
+                            bold: True
+                            color: (.4, .4, .4, 1)
+                            text: "0 of {} selected".format(len(select_grid.children))
+                        Widget:
+                            size_hint_y: None
+                            height: 7.5
 
                     BoxLayout:
                         orientation: "vertical"
@@ -2886,12 +2897,24 @@
                                     size: self.size
                             GridLayout:
                                 id: all_grid
+                                text: "all"
                                 cols:1
                                 size_hint_y: None
                                 height: 0
                         Widget:
                             size_hint_y: None
-                            height: 15
+                            height: 5
+                        Label:
+                            size_hint_y: None
+                            id: all_lbl
+                            height: 20
+                            bold: True
+                            text: "0 of {} selected".format(len(all_grid.children))
+                            color: (.5, .5, .5, 1)
+                        Widget:
+                            size_hint_y: None
+                            height: 5
+
         BoxLayout:
             size_hint_y: None
             height: 30
