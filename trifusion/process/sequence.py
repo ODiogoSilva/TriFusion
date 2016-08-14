@@ -41,11 +41,13 @@ try:
     from process.base import *
     from process.data import Partitions
     from process.base import iupac
+    from process.data import PartitionException
 except ImportError:
     from trifusion.process.base import iupac
     import trifusion.process as process
     from trifusion.process.base import *
     from trifusion.process.data import Partitions
+    from trifusion.process.data import PartitionException
 
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
@@ -2398,7 +2400,10 @@ class AlignmentList(Base):
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
-            self.partitions.remove_partition(file_name=aln_obj.path)
+            try:
+                self.partitions.remove_partition(file_name=aln_obj.path)
+            except PartitionException:
+                pass
 
         # Remove previous temp sequence files
         if remove_temp:
