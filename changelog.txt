@@ -49,6 +49,8 @@
 ##### Statistics
 
 - Fixed active group selection when selecting the data set.
+- Fixed issue with temporary directory creation when using the command line version.
+
 ### v0.4.12
 
 This update is mainly to fix slow downs on subprocess spawning on Windows.
