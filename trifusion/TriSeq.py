@@ -50,6 +50,10 @@ def main_parser(alignment_list, arg):
     print_col("Executing TriSeq module at %s %s" % (
         time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN)
 
+    # Create temp directory
+    if not os.path.exists(".tmp"):
+        os.makedirs(".tmp")
+
     # Defining main variables
     conversion = arg.conversion
     output_format = arg.output_format
