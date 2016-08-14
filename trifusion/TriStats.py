@@ -140,6 +140,10 @@ def stats_main(args):
         print_col("Generating configuration template file", GREEN, 2)
         return generate_cfg_template()
 
+    # Create temporary directory
+    if not os.path.exists(".tmp"):
+        os.makedirs(".tmp")
+
     # Arguments
     input_files = args.infile
     output_dir = args.project_name
