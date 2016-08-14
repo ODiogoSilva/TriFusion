@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.30"
+__version__ = "0.4.31"
 __build__ = "140816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -5606,9 +5606,6 @@ class TriFusionApp(App):
         proc_node = self.operation_tv.add_node(
             TreeViewLabel(text="Process Operations", bold=True,
                           font_size=20, color=(.3, .3, 1, 1)))
-        stat_node = self.operation_tv.add_node(
-            TreeViewLabel(text="Statistics Operations", bold=True,
-                          font_size=20, color=(.3, 1, .3, .2)))
 
         # Main subnodes for Process
         main_op_node = self.operation_tv.add_node(TreeViewLabel(
@@ -5627,7 +5624,7 @@ class TriFusionApp(App):
 
         # Save main nodes
         self.main_nodes = {"ortho": ortho_node, "proc": proc_node,
-                           "stat": stat_node, "proc_main": main_op_node,
+                           "proc_main": main_op_node,
                            "proc_form": format_node,
                            "proc_sec": secondary_op_node,
                            "main_file": main_file}
@@ -9653,7 +9650,6 @@ class TriFusionApp(App):
                         self.dialog_filter_report(shared_ns.filtered_alns,
                                                   shared_ns.proc_files)
                     man.shutdown()
-                    p.join()
 
         # Set up manager and shared name space to share information
         # between background and main processes
