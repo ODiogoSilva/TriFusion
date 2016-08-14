@@ -39,6 +39,7 @@
 - More robust parser of nexus partitions files.
 - Added several checks when splitting a partition manually.
 - Fixed crash when importing data set group from file.
+- Fixed issue with temporary directory creation when using the command line version.
 
 ##### Orthology
 
