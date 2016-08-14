@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.28"
+__version__ = "0.4.29"
 __build__ = "140816"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -5528,6 +5528,17 @@ class TriFusionApp(App):
         'files'
         """
 
+        def set_dd_txt(txt, wgt):
+            """
+            Using this function instead of lamdba to set the callback on the
+            on_release event of the dropdown buttons ensures that each button
+            has each unique callback and it's not overwritte (as in the lamdba)
+            :param txt: string, text provided to select() method
+            :param wgt: dummy argument, required because of how the bind()
+            method works
+            """
+            dd_wgt.select(txt)
+
         if ds_type == "taxa":
             dd_wgt = self.screen.ids.taxa_dropdown
             grid_children = \
@@ -5555,7 +5566,7 @@ class TriFusionApp(App):
                     text=g, size_hint_y=None, height=40, bold=True,
                     background_normal=join("data", "backgrounds",
                                            "spinner_opt.png"))
-                dd_bt.bind(on_release=lambda y: dd_wgt.select(g))
+                dd_bt.bind(on_release=partial(set_dd_txt, g))
                 dd_wgt.add_widget(dd_bt)
 
     def dialog_general_info(self, idx):

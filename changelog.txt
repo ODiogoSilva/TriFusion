@@ -4,10 +4,10 @@
 
 ##### General
 
-- Better handling of warning/error float checks
-- Improved warning dialog
-- Added multi selection for taxa and file data set groups with shift+clicking
-- Added label with selection information for data set group dialog
+- Better handling of warning/error float checks.
+- Improved warning dialog.
+- Added multi selection for taxa and file data set groups with shift+clicking.
+- Added label with selection information for data set group dialog.
 
 ##### Process
 
@@ -29,8 +29,8 @@
 
 ##### General
 
-- Fixed double directory entry on secondary filechoosers
-- Fixed issue with Apply button in data set group creation
+- Fixed double directory entry on secondary filechoosers.
+- Fixed issue with Apply button in data set group creation.
 
 ##### Process
 
@@ -43,6 +43,10 @@
 
 - Fixed awkward button behavior on Operations panel.
 - Fixed issue with protein database name when exporting groups after a Search operation.
+
+##### Statistics
+
+- Fixed active group selection when selecting the data set.
 .
 ### v0.4.12
 
