@@ -7,6 +7,7 @@
 - Better handling of warning/error float checks
 - Improved warning dialog
 - Added multi selection for taxa and file data set groups with shift+clicking
+- Added label with selection information for data set group dialog
 
 ##### Process
 

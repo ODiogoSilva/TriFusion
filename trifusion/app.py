@@ -4031,6 +4031,22 @@ class TriFusionApp(App):
             elif value.state == "down":
                 bt.state = "down"
 
+        # Update labels for data set creator dialog
+        # Get dialog
+        if isinstance(self._popup.content, TaxaGroupDialog):
+            dlg = self._popup.content
+        else:
+            dlg = self._subpopup.content
+
+        if parent_obj.text == "all":
+            lbl = dlg.ids.all_lbl
+        else:
+            lbl = dlg.ids.select_lbl
+
+        lbl.text = "{} of {} selected".format(len([x for x in bt_list if
+                                                   x.state == "down"]),
+                                              len(bt_list))
+
         self.prev_tb = value
 
     def toggle_selection(self, value):
