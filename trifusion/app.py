@@ -4984,7 +4984,7 @@ class TriFusionApp(App):
 
         # This resets the dataset_wgt if its not the correct instance. This
         # happens, for example, when setting data set from file
-        if not isinstance(dataset_wgt, DataSetTriageDialog):
+        if not isinstance(dataset_wgt, TaxaGroupDialog):
             dataset_wgt = None
 
         if ds_type == "taxa":
@@ -5018,9 +5018,6 @@ class TriFusionApp(App):
 
         # If dataset dialog is still active, add the new group
         if dataset_wgt:
-
-            print(dataset_wgt)
-            print(dataset_wgt.ids)
 
             # Remove original button when not groups have been previously
             # added
