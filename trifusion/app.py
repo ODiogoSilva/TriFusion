@@ -3988,12 +3988,10 @@ class TriFusionApp(App):
     def toggle_multi_selection(self, value):
         """
         Adds multiple selection using shift+click for general purpose lists
-        of toggle buttons
+        of toggle buttons in data set creator
         """
 
         def get_selection(bt, bt_list):
-
-            print(self.prev_tb)
 
             if self.is_shift_pressed:
 
@@ -4757,6 +4755,7 @@ class TriFusionApp(App):
             # Add buttons to the sink widget in the desired order
             for tx in sorted(sink_bts, reverse=True):
                 bt = ToggleButton(text=tx, size_hint_y=None, height=30)
+                bt.bind(on_release=self.toggle_multi_selection)
                 self.add_dataset_bt(bt, sink_wgt, ds_type)
 
     def taxagroups_show_taxa(self, name_wgt):
