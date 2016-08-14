@@ -30,6 +30,7 @@
 ##### General
 
 - Fixed double directory entry on secondary filechoosers
+- Fixed issue with Apply button in data set group creation
 
 ##### Process
 
