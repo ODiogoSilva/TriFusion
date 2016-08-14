@@ -411,6 +411,10 @@ class TriFusionApp(App):
     # pressed
     is_shift_pressed = BooleanProperty(False)
 
+    # Attribute that stores the previous button for general purpose multi
+    # selection of toggle buttons using shift clicking
+    prev_tb = None
+
     mouse_position = ListProperty()
 
     # Attribute that determines whether statistics background processes
@@ -3981,6 +3985,56 @@ class TriFusionApp(App):
         # Close file handle
         export_file.close()
 
+    def toggle_multi_selection(self, value):
+        """
+        Adds multiple selection using shift+click for general purpose lists
+        of toggle buttons
+        """
+
+        def get_selection(bt, bt_list):
+
+            print(self.prev_tb)
+
+            if self.is_shift_pressed:
+
+                if not self.prev_tb:
+                    return [bt]
+
+                # For possible exceptions where prev_tb is not in button
+                # list, return only the selected button and reset the prev_tb
+                # attribute
+                elif self.prev_tb not in bt_list:
+                    self.prev_tb = None
+                    return [bt]
+
+                start = bt_list.index(self.prev_tb)
+                stop = bt_list.index(bt)
+
+                if start < stop:
+                    return bt_list[start:stop + 1]
+                else:
+                    return bt_list[stop:start + 1]
+
+            else:
+                return [bt]
+
+        # Get the parent layout object
+        parent_obj = value.parent
+
+        bt_list = parent_obj.children[::-1]
+
+        sel = get_selection(value, bt_list)
+
+        for bt in sel:
+
+            if value.state == "normal":
+                bt.state = "normal"
+
+            elif value.state == "down":
+                bt.state = "down"
+
+        self.prev_tb = value
+
     def toggle_selection(self, value):
         """
         Adds functionality for the file and taxa toggle buttons in the side
@@ -4590,10 +4644,14 @@ class TriFusionApp(App):
             title = "Create file groups"
             group_list = sorted(self.file_groups.keys())
 
+        # Reset previous button for multi selection support
+        self.prev_tb = None
+
         # Populate the gridlayout for all entries
         for i in bt_list:
             # Create togglebutton for each entry
             bt = ToggleButton(text=i, size_hint_y=None, height=30)
+            bt.bind(on_release=self.toggle_multi_selection)
             self.add_dataset_bt(bt, content.ids.all_grid, ds_type)
 
         # Populate created groups, if any
