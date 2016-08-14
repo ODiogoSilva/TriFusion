@@ -31,6 +31,7 @@
 
 - Fixed double directory entry on secondary filechoosers.
 - Fixed issue with Apply button in data set group creation.
+- Fixed view queue button behaviour in Orthology and Process screens
 
 ##### Process
 
@@ -47,7 +48,6 @@
 ##### Statistics
 
 - Fixed active group selection when selecting the data set.
-.
 ### v0.4.12
 
 This update is mainly to fix slow downs on subprocess spawning on Windows.
