@@ -27,7 +27,7 @@ setup(
     install_requires=[
         "seaborn",
         "configparser",
-        "matplotlib <= 1.4.3",
+        "matplotlib",
         "numpy",
         "psutil",
         "scipy",
