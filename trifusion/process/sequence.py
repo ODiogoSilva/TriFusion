@@ -2207,7 +2207,7 @@ class AlignmentList(Base):
 
         # Set current working directory if dest not set
         if not self.dest:
-            self.dest = "."
+            self.dest = "./"
 
         # Check for duplicates among current file list
         for f in [x for x, y in Counter(file_name_list).items() if y > 1]:
