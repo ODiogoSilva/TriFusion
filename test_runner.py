@@ -9,6 +9,7 @@ import trifusion.tests.test_secondary_ops as secondary_ops
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
 
+# Add test suites
 suite.addTests(loader.loadTestsFromModule(load_process_data))
 suite.addTests(loader.loadTestsFromModule(partitions))
 suite.addTests(loader.loadTestsFromModule(process_filters))
