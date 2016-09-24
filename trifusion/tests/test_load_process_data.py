@@ -168,8 +168,7 @@ class AlignmentManipulationTest(unittest.TestCase):
                                        dest=".")
         aln.write_to_file(["fasta"], "test")
 
-        with open("/home/diogo/Diogo/Science/Scripts/packages/TriFusion/"
-                  "trifusion/tests/data/BaseConcatenation.fas") as fh1, \
+        with open("trifusion/tests/data/BaseConcatenation.fas") as fh1, \
                 open("test.fas") as fh2:
             self.assertEqual(fh1.read(), fh2.read())
 
