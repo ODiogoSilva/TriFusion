@@ -31,8 +31,7 @@ concatenated_smallCodon_parNex = [
 ]
 
 dna_data_fas = [
-    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion"
-    "/trifusion/tests/data/BaseConc1.fas",
+    "trifusion/tests/data/BaseConc1.fas",
     "trifusion/tests/data/BaseConc2.fas",
     "trifusion/tests/data/BaseConc3.fas",
     "trifusion/tests/data/BaseConc4.fas",
@@ -42,8 +41,7 @@ dna_data_fas = [
 ]
 
 dna_data_phy = [
-    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion"
-    "/trifusion/tests/data/BaseConc1.phy",
+    "trifusion/tests/data/BaseConc1.phy",
     "trifusion/tests/data/BaseConc2.phy",
     "trifusion/tests/data/BaseConc3.phy",
     "trifusion/tests/data/BaseConc4.phy",
@@ -53,8 +51,7 @@ dna_data_phy = [
 ]
 
 dna_data_nex = [
-    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion"
-    "/trifusion/tests/data/BaseConc1.nex",
+    "trifusion/tests/data/BaseConc1.nex",
     "trifusion/tests/data/BaseConc2.nex",
     "trifusion/tests/data/BaseConc3.nex",
     "trifusion/tests/data/BaseConc4.nex",
@@ -64,8 +61,7 @@ dna_data_nex = [
 ]
 
 dna_data_stc = [
-    "/home/diogo/Diogo/Science/Scripts/packages/TriFusion"
-    "/trifusion/tests/data/BaseConc1.stockholm",
+    "trifusion/tests/data/BaseConc1.stockholm",
     "trifusion/tests/data/BaseConc2.stockholm",
     "trifusion/tests/data/BaseConc3.stockholm",
     "trifusion/tests/data/BaseConc4.stockholm",
