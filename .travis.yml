@@ -21,7 +21,7 @@ install:
     - python setup.py install
 
 script:
-    - nosetests --with-coverage
+    - nosetests --with-coverage --cover-package=trifusion
 
 after_success:
     - coveralls
