@@ -26,10 +26,8 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
     def test_filter_default(self):
 
         self.aln_obj.add_alignment_files(
-            ["/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data.phy",
-             "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data2.phy"]
+            ["trifusion/tests/data/missing_data.phy",
+             "trifusion/tests/data/missing_data2.phy"]
         )
         self.aln_obj.filter_missing_data(25, 50)
 
@@ -42,10 +40,8 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
     def test_filter_and_concat(self):
 
         self.aln_obj.add_alignment_files(
-            ["/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data.phy",
-             "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data2.phy"]
+            ["trifusion/tests/data/missing_data.phy",
+             "trifusion/tests/data/missing_data2.phy"]
         )
 
         self.aln_obj.filter_missing_data(25, 50)
@@ -60,10 +56,8 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
     def test_no_filters(self):
 
         self.aln_obj.add_alignment_files(
-            ["/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data.phy",
-             "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data2.phy"]
+            ["trifusion/tests/data/missing_data.phy",
+             "trifusion/tests/data/missing_data2.phy"]
         )
 
         self.aln_obj.filter_missing_data(100, 100)
@@ -77,10 +71,8 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
     def test_no_missing(self):
 
         self.aln_obj.add_alignment_files(
-            ["/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data.phy",
-             "/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data2.phy"]
+            ["trifusion/tests/data/missing_data.phy",
+             "trifusion/tests/data/missing_data2.phy"]
         )
         self.aln_obj.filter_missing_data(0, 0)
 
@@ -93,8 +85,7 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
     def test_no_data_aln_default_filters(self):
 
         self.aln_obj.add_alignment_files(
-            ["/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data3.phy"]
+            ["trifusion/tests/data/missing_data3.phy"]
         )
 
         self.aln_obj.filter_missing_data(25, 50)
@@ -108,8 +99,7 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
     def test_no_data_aln_no_filters(self):
 
         self.aln_obj.add_alignment_files(
-            ["/home/diogo/Diogo/Science/Scripts/packages/TriFusion/trifusion"
-             "/tests/data/missing_data3.phy"]
+            ["trifusion/tests/data/missing_data3.phy"]
         )
 
         self.aln_obj.filter_missing_data(100, 100)
@@ -184,9 +174,7 @@ class AlignmentTaxaFilters(unittest.TestCase):
         self.aln_obj.add_alignment_files(dna_data_fas)
 
         self.aln_obj.filter_by_taxa("Contain",
-                                    "/home/diogo/Diogo/Science/Scripts/"
-                                    "packages/TriFusion/trifusion/tests/"
-                                    "data/filter_taxa.txt")
+                                    "trifusion/tests/data/filter_taxa.txt")
 
         self.assertEqual(len(self.aln_obj.alignments), 2)
 
