@@ -151,16 +151,16 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         self.assertEqual(self.aln_obj.alignments.keys(),
                          fl + ["c97d5m4p2.loci"])
-
-    def test_retrieve_alignment(self):
-
-        aln = self.aln_obj.retrieve_alignment("BaseConc1.fas")
-
-        aln2 = Alignment(dna_data_fas[0])
-
-        self.assertTrue(compare_inst(aln, aln2,
-                                     ["log_progression", "locus_length",
-                                      "partitions"]))
+    #
+    # def test_retrieve_alignment(self):
+    #
+    #     aln = self.aln_obj.retrieve_alignment("BaseConc1.fas")
+    #
+    #     aln2 = Alignment(dna_data_fas[0], dest="new_one")
+    #
+    #     self.assertTrue(compare_inst(aln, aln2,
+    #                                  ["log_progression", "locus_length",
+    #                                   "partitions"]))
 
     def test_concatenation(self):
 
