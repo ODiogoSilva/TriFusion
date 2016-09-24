@@ -15,6 +15,11 @@ install:
     - pip install numpy
     - pip install matplotlib
     - pip install pandas
+    - pip install python-coveralls
+    - pip install coverage
+    - pip install nose
     - python setup.py install
+    - nosetests --with-coverage
 
-script: "python test_runner.py"
+after_success:
+    - coveralls
