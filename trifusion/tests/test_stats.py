@@ -29,16 +29,17 @@ class SeconaryOpsTest(unittest.TestCase):
         sum_table, table_data = self.aln_obj.get_summary_stats()
 
         self.assertEqual([sum_table, table_data],
-                         [{'missing': 5, 'taxa': 24, 'genes': 7,
-                           'informative': 0, 'gaps': 0, 'avg_gaps': 0.0,
-                           'avg_missing': 1.0, 'variable': 7, 'seq_len': 595,
-                           'avg_var': 1.0, 'avg_inf': 0.0},
+                         [{'missing': '5 (0.04%)', 'taxa': 24, 'genes': 7,
+                           'informative': '0 (0.0%)', 'gaps': '0 (0.0%)',
+                           'avg_gaps': 0.0, 'avg_missing': 1.0, 'variable': '7 (1.18%)',
+                           'seq_len': 595, 'avg_var': 1.0, 'avg_inf': 0.0},
                           [['Genes', 'Taxa', 'Alignment length', 'Gaps',
                             'Gaps per gene', 'Missing data',
                             'Missing data per gene', 'Variable sites',
                             'Variable sites per gene', 'Informative sites',
                             'Informative sites per gene'],
-                           [7, 24, 595, 0, 0.0, 5, 1.0, 7, 1.0, 0, 0.0]]])
+                           [7, 24, 595, '0 (0.0%)', 0.0, '5 (0.04%)', 1.0,
+                            '7 (1.18%)', 1.0, '0 (0.0%)', 0.0]]])
 
     def test_summary_stats_one_active(self):
 
@@ -46,16 +47,17 @@ class SeconaryOpsTest(unittest.TestCase):
             "BaseConc1.fas"])
 
         self.assertEqual([sum_table, table_data],
-                         [{'missing': 1, 'taxa': 24, 'genes': 1,
-                           'informative': 0, 'gaps': 0, 'avg_gaps': 0.0,
-                           'avg_missing': 1.0, 'variable': 1, 'seq_len': 85,
-                           'avg_var': 1.0, 'avg_inf': 0.0},
+                         [{'missing': '1 (0.05%)', 'taxa': 24, 'genes': 1,
+                           'informative': '0 (0.0%)', 'gaps': '0 (0.0%)',
+                           'avg_gaps': 0.0, 'avg_missing': 1.0, 'variable': '1 (1.18%)',
+                           'seq_len': 85, 'avg_var': 1.0, 'avg_inf': 0.0},
                           [['Genes', 'Taxa', 'Alignment length', 'Gaps',
                             'Gaps per gene', 'Missing data',
                             'Missing data per gene', 'Variable sites',
                             'Variable sites per gene', 'Informative sites',
                             'Informative sites per gene'],
-                           [1, 24, 85, 0, 0.0, 1, 1.0, 1, 1.0, 0, 0.0]]])
+                           [1, 24, 85, '0 (0.0%)', 0.0, '1 (0.05%)', 1.0,
+                            '1 (1.18%)', 1.0, '0 (0.0%)', 0.0]]])
 
     def test_no_data(self):
 
