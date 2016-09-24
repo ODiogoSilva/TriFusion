@@ -13,6 +13,8 @@ before_install:
 
 # Install packages
 install:
-    - python2 setup.py install
+    - pip install scipy
+    - pip install numpy
+    - python setup.py install
 
 script: "python test_runner.py"
