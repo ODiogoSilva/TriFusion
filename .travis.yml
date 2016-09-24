@@ -3,11 +3,10 @@ language: python
 python:
     - "2.7"
 
-addons:
-    apt:
-        packages:
-            - python2-scipy
-            - python2-numpy
+before_install:
+    - sudo apt-get update -q
+    - sudo apt-get install python2-numpy
+    - sudo apt-get install python2-scipy
 
 # Install packages
 install:
