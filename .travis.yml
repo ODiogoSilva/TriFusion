@@ -1,15 +1,13 @@
 language: python
 
 python:
-    - "2.7_with_system_site_packages"
+    - "2.7"
 
-virtualenv:
-    system_site_packages: true
-
-# Setup anaconda
-before_install:
-    - sudo apt-get update
-    - sudo apt-get install -qq python2-numpy python2-scipy
+addons:
+  apt:
+    packages:
+    - python2-scipy
+    - python2-numpy
 
 # Install packages
 install:
