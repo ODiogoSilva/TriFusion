@@ -11,6 +11,6 @@ addons:
 
 # Install packages
 install:
-    - python setup.py install
+    - python2 setup.py install
 
 script: "python test_runner.py"
