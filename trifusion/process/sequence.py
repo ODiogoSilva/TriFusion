@@ -2292,7 +2292,7 @@ class AlignmentList(Base):
 
         except IOError:
             p.terminate()
-            shutil.rmtree(self.dest)
+            #shutil.rmtree(self.dest)
             return
 
     def retrieve_alignment(self, name):
