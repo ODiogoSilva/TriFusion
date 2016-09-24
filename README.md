@@ -1,6 +1,8 @@
 ## TriFusion
 
 [![Build Status](https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master)](https://travis-ci.org/ODiogoSilva/TriFusion)
+[![Code Health](https://landscape.io/github/ODiogoSilva/TriFusion/master/landscape.svg?style=flat)](https://landscape.io/github/ODiogoSilva/TriFusion/master)
+
 
 ###### Streamlining phylogenomic data gathering, processing and visualization
 
