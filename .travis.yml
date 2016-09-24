@@ -5,8 +5,8 @@ python:
 
 before_install:
     - sudo apt-get update -q
-    - sudo apt-get install python2-numpy
-    - sudo apt-get install python2-scipy
+    - sudo apt-get install python-numpy
+    - sudo apt-get install python-scipy
 
 # Install packages
 install:
