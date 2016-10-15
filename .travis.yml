@@ -23,5 +23,3 @@ install:
 script:
     - nosetests --with-coverage --cover-package=trifusion
 
-after_success:
-    - coveralls
