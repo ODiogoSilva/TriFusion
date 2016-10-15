@@ -37,7 +37,6 @@ with warnings.catch_warnings():
         from process.base import print_col, GREEN, RED
         from ortho import OrthomclToolbox as OT
         import ortho.orthomclInstallSchema as install_sqlite
-        import ortho.orthomclLoadBlast as load_blast2sqlite
         import ortho.orthomclPairs as make_pairs_sqlite
         import ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
         import ortho.orthomclFilterFasta as FilterFasta
@@ -48,7 +47,6 @@ with warnings.catch_warnings():
         from trifusion.process.base import print_col, GREEN, RED
         from trifusion.ortho import OrthomclToolbox as OT
         import trifusion.ortho.orthomclInstallSchema as install_sqlite
-        import trifusion.ortho.orthomclLoadBlast as load_blast2sqlite
         import trifusion.ortho.orthomclPairs as make_pairs_sqlite
         import trifusion.ortho.orthomclDumpPairsFiles as dump_pairs_sqlite
         import trifusion.ortho.orthomclFilterFasta as FilterFasta
@@ -84,9 +82,9 @@ def check_unique_field(proteome_file, verbose=False):
             header = line[1:].strip()
             # Store header in list format
             header_list.append(header.split("|"))
-    else:
-        # Get the size of the header fields
-        header_field_size = len(header.split("|"))
+
+    # Get the size of the header fields
+    header_field_size = len(header.split("|"))
 
     for i in range(header_field_size):
         temp_list = []
@@ -102,10 +100,9 @@ def check_unique_field(proteome_file, verbose=False):
                 print_col("\t Using unique header field {}".format(i), GREEN, 1)
             return i
 
-    else:
-        raise NoUniqueField(
-            "The proteome file {} has no unique field".format(
-                os.path.basename(proteome_file)))
+    # Ideally, a unique field should be found before this code. If not, raise exception
+    raise NoUniqueField("The proteome file {} has no unique field".format(
+        os.path.basename(proteome_file)))
 
 
 def prep_fasta(proteome_file, code, unique_id, verbose=False):
@@ -163,7 +160,8 @@ def adjust_fasta(file_list):
         unique_id = check_unique_field(proteome, True)
 
         # Adjust fasta
-        stg = prep_fasta(proteome, code_name, unique_id)
+        # stg = prep_fasta(proteome, code_name, unique_id)
+        prep_fasta(proteome, code_name, unique_id)
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
@@ -185,7 +183,7 @@ def allvsall_usearch(goodproteins, evalue, cpus, usearch_outfile,
     print_col("Perfoming USEARCH All-vs-All (may take a while...)", GREEN, 1)
 
     # FNULL = open(os.devnull, "w")
-    x = subprocess.Popen([usearch_bin, "-ublast", goodproteins, "-db",
+    _ = subprocess.Popen([usearch_bin, "-ublast", goodproteins, "-db",
                           goodproteins, "-blast6out", usearch_outfile,
                           "-evalue", str(evalue), "--maxaccepts", "0",
                           "-threads", str(cpus)]).wait()
@@ -219,7 +217,7 @@ def mcl(inflation_list):
 
     FNULL = open(os.devnull, "w")
     for val in inflation_list:
-        x = subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_"
+        _ = subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_"
             + val.replace(".", "")], shell=True, stdout=FNULL,
             stderr=subprocess.STDOUT).wait()
 
@@ -387,7 +385,7 @@ def main():
         # Arguments
         input_dir = arg.infile
         output_dir = arg.output_dir
-        name_separator = arg.separator
+        # name_separator = arg.separator
         min_length = arg.min_length
         max_percent_stop = arg.max_stop
         database_name = join(os.getcwd(), output_dir, "backstage_files",
