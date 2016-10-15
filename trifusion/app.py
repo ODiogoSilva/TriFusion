@@ -3327,13 +3327,14 @@ class TriFusionApp(App):
         """
 
         # Check whether any of the new partition names already exist. Issue
-        # an error if so
-        if [x for x in new_names if x in
-                self.alignment_list.partitions.partitions]:
-            return self.dialog_floatcheck("ERROR: Duplicate partition names "
-                                          "deteced: {}".format(
-                " ".join([x for x in new_names if x if
-                self.alignment_list.partitions.partitions])), t="error")
+        # an error if so.
+        if new_names:
+            if [x for x in new_names if x in
+                    self.alignment_list.partitions.partitions]:
+                return self.dialog_floatcheck("ERROR: Duplicate partition names "
+                                              "deteced: {}".format(
+                    " ".join([x for x in new_names if x if
+                    self.alignment_list.partitions.partitions])), t="error")
 
         # Get active partition
         active_partition = [x.text for x in
