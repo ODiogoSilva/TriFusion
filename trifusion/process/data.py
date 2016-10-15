@@ -367,7 +367,7 @@ class Partitions():
             # Determining if value contains only the range or the substitution
             # model as well
             if len(v) > 1:
-                self.add_partition(k, locus_range=v[0], model=v[1])
+                self.add_partition(k, locus_range=v[0])
             else:
                 self.add_partition(k, locus_range=v[0])
 
