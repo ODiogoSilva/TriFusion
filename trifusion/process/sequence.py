@@ -1027,7 +1027,7 @@ class Alignment(Base):
             name = name.split(".")[0]
 
             current_dic = OrderedDict()
-            for taxon, f in self.alignment.items():
+            for taxon, _ in self.alignment.items():
                 seq = self.get_sequence(taxon)
                 sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
@@ -1146,7 +1146,7 @@ class Alignment(Base):
         :return:
         """
 
-        for taxa, f in self.alignment.items():
+        for _, f in self.alignment.items():
 
             with open(f) as fh:
                 seq = "".join(fh.readlines())
@@ -1216,8 +1216,7 @@ class Alignment(Base):
 
         self.locus_length = len(new_seq)
 
-    def filter_missing_data(self, gap_threshold, missing_threshold,
-                            fork=False):
+    def filter_missing_data(self, gap_threshold, missing_threshold):
         """
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
@@ -1232,9 +1231,6 @@ class Alignment(Base):
 
         :param gap_threshold: int ranging from 0 to 100.
         :param missing_threshold: int ranging from 0 to 100.
-        :param fork: boolean. If True, in addition to performing the
-        filtering in the action_alignment it will also perform it on the
-        original alignment and write the output file.
         """
 
         self._filter_terminals()
@@ -1605,9 +1601,10 @@ class Alignment(Base):
                         out_file.write("%s %s\n" % (
                             key[:cut_space_phy].ljust(seq_space_phy),
                             seq.upper()))
-                    else:
-                        out_file.write("\n")
-                        counter = i
+
+                    out_file.write("\n")
+                    counter = i
+
             else:
                 for key, f in alignment.items():
                     with open(f) as fh:
@@ -1754,9 +1751,10 @@ class Alignment(Base):
                                        key[:cut_space_nex].ljust(
                                          seq_space_nex),
                                        seq[counter:counter + 90]))
-                    else:
-                        out_file.write("\n")
-                        counter = i
+
+                    out_file.write("\n")
+                    counter = i
+
                 else:
                     # Only do this when the alignment is bigger than 90
                     # characters. Otherwise, it will be written entirely on
@@ -2864,7 +2862,7 @@ class AlignmentList(Base):
                                   for k in self.alignments.values())
 
         # Populate table information
-        for k, v in sorted(summary_gene_table.items()):
+        for k in sorted(summary_gene_table):
             # Add table line
             table.append([k] + [summary_gene_table[k][x] for x in tl])
 
@@ -3790,7 +3788,6 @@ class AlignmentList(Base):
         return {"data": data,
                 "title": "Distribution of taxa frequency",
                 "ax_names": ["Number of taxa", "Frequency"],
-                "title": "Distribution of taxa frequency",
                 "table_header": ["Number of taxa", "Frequency"],
                 "real_bin_num": True}
 

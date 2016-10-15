@@ -113,8 +113,8 @@ def merger(ranges):
             yield last_start, previous
             previous = en
             last_start = st
-    else:
-        yield last_start, en
+
+    yield last_start, en
 
 
 def has_colours(stream):
@@ -149,7 +149,7 @@ def print_col(text, color, i=0):
         raise SystemExit
 
 
-class Base:
+class Base(object):
 
     def autofinder(self, reference_file):
         """ Autodetect the type of file to be parsed. Based on headers """
@@ -392,7 +392,7 @@ class Base:
         return storage
 
 
-class Progression():
+class Progression(object):
 
     def record(self, name, obj_size, window_size=50):
 
@@ -408,7 +408,6 @@ class Progression():
 
         # If there is a previous message in the output, erase it
         try:
-            self.msg
             sys.stdout.write("\r" + " " * len(self.msg))
         except AttributeError:
             pass

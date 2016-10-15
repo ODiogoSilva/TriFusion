@@ -30,11 +30,9 @@ from itertools import chain
 from collections import Counter
 import seaborn as sns
 
-"""
-Set of 10 easily distinguishable colors that will be used when generating plots
-to ensure consistency in color usage. In case more than 10 colors are required
-(ugh...) they will be randomly generated henceforth.
-"""
+# Set of 10 easily distinguishable colors that will be used when generating plots
+# to ensure consistency in color usage. In case more than 10 colors are required
+# (ugh...) they will be randomly generated henceforth.
 
 clr_list = [[0, .53, .66],  # light blue
             [1, .16, .16],     # light red
@@ -566,7 +564,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     else:
         bins = len(c_data)
 
-    vals, b, patches = plt.hist(data, bins, histtype="stepfilled",
+    vals, b, _ = plt.hist(data, bins, histtype="stepfilled",
                                 color=clr_list[0])
 
     plt.axvline(np.mean(data), linewidth=2, color="r", alpha=.8,
@@ -594,8 +592,8 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
         for b, v in zip(b, vals):
             table.append(["{} - {}".format(int(c), int(b)), v])
             c = b + 1
-        else:
-            table.append(["{} - {}".format(int(c), max_data), vals[-1]])
+
+        table.append(["{} - {}".format(int(c), max_data), vals[-1]])
 
     else:
         for p, val in zip(b, vals):

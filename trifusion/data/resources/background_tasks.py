@@ -121,7 +121,7 @@ def background_process(f, ns, a):
             val = f()
         ns.val = val
     except Exception:
-        logging.exception("Unexpected exit in {}".format(f.__name__))
+        logging.exception("Unexpected exit in %s" % f.__name__)
         ns.exception = True
 
 
@@ -141,7 +141,7 @@ def background_export_groups(f, nm, a):
 
 
 def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
-                   protein_max_stop, cur_dir, usearch_evalue,
+                   protein_max_stop, usearch_evalue,
                    usearch_threads, usearch_output, mcl_inflation,
                    ortholog_prefix, group_prefix, orto_max_gene,
                    orto_min_sp, sqldb, ortho_dir, usearch_db):

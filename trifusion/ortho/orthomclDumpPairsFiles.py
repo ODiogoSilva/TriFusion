@@ -10,18 +10,22 @@ def printInparalogsFile (cur, filename):
         from InParalog\
         order by taxon_id, sequence_id_a, sequence_id_b asc")
 
-    file = open(filename, "w")
+    file_fh = open(filename, "w")
 
-    with file:
+    with file_fh:
         while True:
 
             row = cur.fetchone()
-            if row == None:
+            if row is None:
                 break
 
-            file.write(row[1]+"\t"+row[2]+"\t"+str((float(row[3]) * 1000 + .5)/1000)+"\n")
+            file_fh.write("{}\t{}\t{}\n".format(row[1],
+                                                row[2],
+                                                str((float(row[3]) * 1000 + .5) / 1000)))
+
 
 ################################################################
+
 
 def printOrthologsFile (cur, filename):
 
@@ -29,18 +33,21 @@ def printOrthologsFile (cur, filename):
         from Ortholog\
         order by taxon_id_a, taxon_id_b, sequence_id_a, sequence_id_b asc")
 
-    file = open(filename, "w")
+    file_fh = open(filename, "w")
 
-    with file:
+    with file_fh:
         while True:
 
             row = cur.fetchone()
-            if row == None:
+            if row is None:
                 break
 
-            file.write(row[2]+"\t"+row[3]+"\t"+str((float(row[4]) * 1000 + .5)/1000)+"\n")
+            file_fh.write("{}\t{}\t{}\n".format(row[2],
+                                                row[3],
+                                                str((float(row[4]) * 1000 + .5) / 1000)))
 
 ################################################################
+
 
 def printCoOrthologsFile (cur, filename):
 
@@ -48,18 +55,21 @@ def printCoOrthologsFile (cur, filename):
         from CoOrtholog\
         order by taxon_id_a, taxon_id_b, sequence_id_a, sequence_id_b asc")
 
-    file = open(filename, "w")
+    file_fh = open(filename, "w")
 
-    with file:
+    with file_fh:
         while True:
 
             row = cur.fetchone()
-            if row == None:
+            if row is None:
                 break
 
-            file.write(row[2]+"\t"+row[3]+"\t"+str((float(row[4]) * 1000 + .5)/1000)+"\n")
+            file_fh.write("{}\t{}\t{}\n".format(row[2],
+                                                row[3],
+                                                str((float(row[4]) * 1000 + .5) / 1000)))
 
 ################################################################
+
 
 def printMclAbcFile (cur, filename):
 
@@ -72,16 +82,18 @@ def printMclAbcFile (cur, filename):
         select sequence_id_a, sequence_id_b, normalized_score\
         from CoOrtholog")
 
-    file = open(filename, "w")
+    file_fh = open(filename, "w")
 
-    with file:
+    with file_fh:
         while True:
 
             row = cur.fetchone()
-            if row == None:
+            if row is None:
                 break
 
-            file.write(row[0]+"\t"+row[1]+"\t"+str((float(row[2]) * 1000 + .5)/1000)+"\n")
+            file_fh.write("{}\t{}\t{}\n".format(row[0],
+                                                row[1],
+                                                str((float(row[2]) * 1000 + .5) / 1000)))
 
 
 def execute(db_dir):

@@ -34,7 +34,7 @@ import random
 import string
 
 
-class Cluster:
+class Cluster(object):
     """ Object for clusters of the OrthoMCL groups file. It is useful to set a
      number of attributes that will make subsequent filtration and
      processing much easier """
@@ -123,7 +123,7 @@ class OrthoGroupException(Exception):
     pass
 
 
-class GroupLight:
+class GroupLight(object):
     """
     Analogous to Group object but with several changes to reduce memory usage
     """
@@ -241,11 +241,11 @@ class GroupLight:
         for cl in self.groups():
 
             # Retrieve the field containing the ortholog sequences
-            cl_name, sequence_field = cl.split(":")
+            sequence_field = cl.split(":")[1]
 
             # Update species frequency list
             sp_freq = Counter((x.split("|")[0] for x in
-                                                   sequence_field.split()))
+                              sequence_field.split()))
 
             self.species_frequency.append(sp_freq)
 
@@ -386,8 +386,8 @@ class GroupLight:
                                                                vals[1]))
                     except TypeError:
                         pass
-                else:
-                    output_handle.close()
+
+                output_handle.close()
 
         conn.close()
 
@@ -423,7 +423,7 @@ class GroupLight:
         data = list(data.values())
 
         # Sort lists
-        x_labels, y_vals = (list(x) for x in zip(*sorted(zip(x_labels, data))))
+        x_labels = (list(x) for x in zip(*sorted(zip(x_labels, data))))[0]
 
         # Convert label to strings
         x_labels = [str(x) for x in x_labels]
@@ -508,7 +508,7 @@ class GroupLight:
 
         lgd_list = ["Available data", "Missing data"]
 
-        b_plt, lgd, table = bar_plot(data, x_labels, lgd_list=lgd_list,
+        b_plt, lgd, _ = bar_plot(data, x_labels, lgd_list=lgd_list,
                                      ax_names=[None, "Ortholog frequency"],
                                      reverse_x=False)
 
@@ -542,7 +542,7 @@ class GroupLight:
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data]]
 
-        b_plt, lgd, table = bar_plot(data, x_labels, reverse_x=False,
+        b_plt, lgd, _ = bar_plot(data, x_labels, reverse_x=False,
                                      ax_names=[None, "Gene copies"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
                       dpi=200)
@@ -550,7 +550,7 @@ class GroupLight:
         return b_plt, lgd, None
 
 
-class Group ():
+class Group(object):
     """ This represents the main object of the orthomcl toolbox module. It is
      initialized with a file name of a orthomcl groups file and provides
      several methods that act on that group file. To process multiple Group
@@ -909,8 +909,7 @@ class Group ():
                 elif mode == "dict":
                     seq_storage[cluster.name].append([sequence_id.split("|")[0],
                                                       seq])
-            else:
-                output_handle.close()
+            output_handle.close()
 
         if mode == "dict":
             return seq_storage
@@ -949,9 +948,9 @@ class Group ():
         x_labels = [str(x) for x in x_labels]
 
         # Create plot
-        b_plt, lgd = bar_plot([y_vals], x_labels,
-                        title="Taxa frequency distribution",
-                        ax_names=["Number of taxa", "Ortholog frequency"])
+        b_plt, lgd, _ = bar_plot([y_vals], x_labels,
+                                 title="Taxa frequency distribution",
+                                 ax_names=["Number of taxa", "Ortholog frequency"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
                       dpi=400)
 
@@ -998,7 +997,7 @@ class Group ():
         x_labels = [str(x) for x in x_labels]
 
         # Create plot
-        b_plt, lgd = bar_plot([y_vals], x_labels,
+        b_plt, lgd, _ = bar_plot([y_vals], x_labels,
                     title="Gene copy distribution",
                     ax_names=["Number of gene copies", "Ortholog frequency"],
                     reverse_x=False)
@@ -1039,7 +1038,7 @@ class Group ():
 
         lgd_list = ["Available data", "Missing data"]
 
-        b_plt, lgd = bar_plot(data, xlabels, lgd_list=lgd_list,
+        b_plt, lgd, _ = bar_plot(data, xlabels, lgd_list=lgd_list,
                               ax_names=[None, "Ortholog frequency"])
         b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
                       dpi=200)
@@ -1047,12 +1046,10 @@ class Group ():
         return b_plt, lgd, ""
 
 
-class MultiGroups ():
+class MultiGroups(object):
     """ Creates an object composed of multiple Group objects """
 
-    """
-    The report calls available
-    """
+    # The report calls available
     calls = ['bar_genecopy_distribution',
              'bar_species_distribution',
              'bar_species_coverage',
@@ -1176,7 +1173,8 @@ class MultiGroups ():
                 group_obj.update_filters(gn_filter, sp_filter)
                 # Update filter map
                 self.filters[group_name] = (gn_filter, sp_filter)
-            for gname, group_obj in self.multiple_groups.items():
+
+            for group_name, group_obj in self.multiple_groups.items():
                 # Define filters
                 gn_filter = gn_filter if not default else 1
                 sp_filter = sp_filter if not default else \
@@ -1308,7 +1306,7 @@ class MultiGroups ():
         print(counter)
 
 
-class MultiGroupsLight:
+class MultiGroupsLight(object):
     """
     Creates an object composed of multiple Group objects like MultiGroups.
     However, instead of storing the groups in memory, these are shelved in
@@ -1444,7 +1442,7 @@ class MultiGroupsLight:
         :param multigroup_obj: MultiGroup object
         """
 
-        for gname, group_obj in multigroup_obj:
+        for _, group_obj in multigroup_obj:
             self.add_group(group_obj)
 
     def update_filters(self, gn_filter, sp_filter, group_names=None,
