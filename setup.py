@@ -5,15 +5,12 @@ except ImportError:
     ez_setup.use_setuptools()
     from setuptools import setup
 
-# Import version
-from trifusion.app import __version__
-
 with open('README.md') as f:
     readme = f.read()
 
 setup(
     name="TriFusion",
-    version="{}-1".format(__version__),
+    version="0.4.34-1",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
