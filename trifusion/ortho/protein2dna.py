@@ -96,12 +96,14 @@ def create_db(f_list, dest="./"):
     for f in f_list:
         handle = open(f, encoding="latin1")
         seq = ""
+        header = ""
         for line in handle:
             if line.startswith(">"):
                 if seq != "":
                     aa_seq = translate(seq)
                     output_handle.write(">%s\n%s\n" % (header, aa_seq))
                     id_dic[header] = seq
+
                 header = line.strip()[1:].replace(" ", ";;")
                 seq = ""
             else:

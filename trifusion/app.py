@@ -104,8 +104,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.33"
-__build__ = "140816"
+__version__ = "0.4.34"
+__build__ = "151016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -7372,10 +7372,9 @@ class TriFusionApp(App):
         Creates a floating label with informative text on the right upper
         corner of the app. This is used for showing errors, warnings and
         general informative messages that fade in and fade out after a time
-        :param t: string, with type of check. Can be either error or info
         :param text: string, text to appear in the label
+        :param t: string, with type of check. Can be either error or info
         :param dl: integer, duration of the float
-        :return:
         """
 
         def fade_in():
@@ -8650,8 +8649,7 @@ class TriFusionApp(App):
                                  self.current_plt_idx[1])
 
             self.dialog_floatcheck(
-                "{} outliers where removed".format(len(self.current_table),
-                                                   ds_type), t="info")
+                "{} outliers where removed".format(len(self.current_table)), t="info")
 
         if operation == "export":
             self.dialog_filechooser("export_table")
