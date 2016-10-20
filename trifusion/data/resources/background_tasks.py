@@ -469,6 +469,13 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             ns.msg = "Reverse concatenating"
             main_aln = reverse_concatenation(main_aln)
         # Filtering
+        if secondary_options["collapse_filter"]:
+            # If the the collapse filter is active, perform this
+            # filtering first. This is because the filter will allow 0% of
+            # missing data, which will always be as stringent or more than any
+            # missing data filter set.
+            main_aln.filter_missing_data(0, 0)
+
         if secondary_operations["filter"] and not \
                 secondary_options["filter_file"]:
             ns.msg = "Filtering alignment(s)"

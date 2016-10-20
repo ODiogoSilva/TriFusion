@@ -16,6 +16,7 @@
 - More informative error message when importing inconsistent partition file.
 - Usage of Threading or Multiprocessing changes dynamically depending on OS. This mainly means better performance on Unix.
 - Custom directories for ZORRO weight files can now be provided.
+- Added option to ignore (remove) sites with missing data when collapsing
 
 ##### Orthology
 

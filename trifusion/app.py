@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.35"
+__version__ = "0.4.36"
 __build__ = "201016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -289,6 +289,7 @@ class TriFusionApp(App):
     secondary_options = DictProperty([("interleave", False),
                                       ("zorro", False),
                                       ("collapse_file", False),
+                                      ("collapse_filter", False),
                                       ("filter_file", False),
                                       ("taxa_filter", False),
                                       ("codon_filter", False),
