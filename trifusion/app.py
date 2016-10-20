@@ -653,8 +653,8 @@ class TriFusionApp(App):
 
         # Execute cleaning function when exiting app
         Window.bind(on_request_close=lambda x:
-        self.check_action("Are you sure you want to quit?",
-                          self._exit_clean, popup_level=3))
+                    self.check_action("Are you sure you want to quit?",
+                                      self._exit_clean, popup_level=3))
 
         Window.bind(on_stop=lambda x: self._exit_clean())
 
@@ -7798,7 +7798,7 @@ class TriFusionApp(App):
                 filt_wgt.ids.gf_txt.text = str(val)
             elif val == 0:
                 filt_wgt.ids.gf_box.size_hint_x = 0.00001
-                filt_wgt.ids.gf_text2.text = "0"
+                filt_wgt.ids.gf_txt2.text = "0"
             else:
                 filt_wgt.ids.gf_box.size_hint_x = 0.00001
                 filt_wgt.ids.gf_txt2.text = "Not applied"
