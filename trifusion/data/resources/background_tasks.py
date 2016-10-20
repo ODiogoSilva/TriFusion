@@ -348,13 +348,13 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         :param aln: AlignmentList object
         """
 
-        aln = aln.concatenate(alignment_name=basename(output_file),
-                              dest=temp_dir, remove_temp=remove_temp)
-
         if secondary_options["zorro"]:
             ns.msg = "Concatenating ZORRO files"
             zorro_data = data.Zorro(aln, zorro_suffix)
             zorro_data.write_to_file(output_file)
+
+        aln = aln.concatenate(alignment_name=basename(output_file),
+                              dest=temp_dir, remove_temp=remove_temp)
 
         return aln
 

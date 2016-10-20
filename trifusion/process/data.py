@@ -18,7 +18,8 @@
 #  MA 02110-1301, USA.
 
 import re
-from os.path import basename
+from os.path import basename, splitext, join
+from os import sep
 from collections import OrderedDict
 
 
@@ -842,27 +843,35 @@ class Partitions():
         return 0
 
 
-class Zorro ():
+class Zorro(object):
 
-    def __init__(self, alignment_list, suffix="_zorro.out"):
+    def __init__(self, alignment_list, suffix="_zorro.out", zorro_dir=None):
+        """
+        :param alignment_list: AlignmentList object
+        :param suffix: sting. The suffix that should be appended to the name of each
+        inut alignment file to match the ZORRO weight file
+        :param zorro_dir: String. If None, the directory of the ZORRO files will be the
+        same as the input files. If a string is provided, then use the ZORRO weight
+        files in the specified path.
+        """
 
-        def zorro2rax(alignment_list):
-            """ Function that converts the floating point numbers contained
-            in the original zorro output files into integers that can be
-            interpreted by RAxML. If multiple alignment files are provided,
-            it also concatenates them in the same order """
-            weigths_storage = []
-            for alignment_file in alignment_list:
-                # This assumes that the prefix of the
-                zorro_file = alignment_file.split(".")[0] + self.suffix
-                # alignment file is shared with the corresponding zorro file
-                zorro_handle = open(zorro_file)
-                weigths_storage += [round(float(weigth.strip())) for
-                                    weigth in zorro_handle]
-            return weigths_storage
-
+        self.weigth_values = []
         self.suffix = suffix
-        self.weigth_values = zorro2rax(alignment_list)
+
+        print([x.path for x in alignment_list.alignments.values()])
+
+        for file_path in [x.path for x in alignment_list.alignments.values()]:
+            # If zorro_dir is provided, use the specified path
+            if zorro_dir:
+                zorro_file = splitext(file_path.split(sep)[-1])[0]
+                zorro_file = "{}{}.txt".format(join(zorro_dir, zorro_file), suffix)
+            # If zorro_dir is not provided, use the same path as the input alignment
+            else:
+                zorro_file = file_path.split(".")[0] + self.suffix + ".txt"
+            # alignment file is shared with the corresponding zorro file
+            zorro_handle = open(zorro_file)
+            self.weigth_values += [int(round(float(weigth.strip()))) for
+                                   weigth in zorro_handle]
 
     def write_to_file(self, output_file):
         """ Creates a concatenated file with the zorro weights for the

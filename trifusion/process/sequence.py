@@ -2314,6 +2314,13 @@ class AlignmentList(Base):
         return iter(alignment.alignment for alignment in
                     self.alignments.values())
 
+    def iter_alignment_files(self):
+        """
+        :return: Iterable with the file names for each Alignment object
+        """
+
+        return iter(alignment.path for alignment in self.alignments.values())
+
     def write_taxa_to_file(self):
         """
         Compiles the taxa names of all alignments and writes them in a single

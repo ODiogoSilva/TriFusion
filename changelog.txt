@@ -15,6 +15,7 @@
 - Added text field to introduce split position when splitting partitions.
 - More informative error message when importing inconsistent partition file.
 - Usage of Threading or Multiprocessing changes dynamically depending on OS. This mainly means better performance on Unix.
+- Custom directories for ZORRO weight files can now be provided.
 
 ##### Orthology
 
@@ -40,6 +41,11 @@
 - Added several checks when splitting a partition manually.
 - Fixed crash when importing data set group from file.
 - Fixed issue with temporary directory creation when using the command line version.
+- Fixed conversion of ZORRO weight files into integers (as RAxML requests)
+- Fixed issue where ZORRO files were not correctly located
+- Fixed issue where ZORRO settings could be set without a valid suffix string
+- Fixed issue where ZORRO file checking was performed even when the switch
+was OFF
 
 ##### Orthology
 

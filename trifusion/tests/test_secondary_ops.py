@@ -1,11 +1,12 @@
 #!/usr/bin/python2
 
+import os
 import shutil
 import unittest
 from data_files import *
 
 from trifusion.process.sequence import AlignmentList
-from trifusion.process.data import Partitions
+from trifusion.process.data import Partitions, Zorro
 
 
 class SeconaryOpsTest(unittest.TestCase):
@@ -153,6 +154,38 @@ class SeconaryOpsTest(unittest.TestCase):
         self.assertEqual(len(alns.alignments), 7)
 
         shutil.rmtree("test_conc")
+
+    def test_zorro(self):
+
+        self.aln_obj.add_alignment_files(zorro_data_fas)
+
+        # Generate zorro output
+        zorro_data = Zorro(self.aln_obj, "_zorro")
+        zorro_data.write_to_file("test")
+
+        # Read zorro and reference files
+        zorro_content = open("test_zorro.out").read()
+        reference = open(zorro_out).read()
+
+        self.assertEqual(zorro_content, reference)
+
+        os.remove("test_zorro.out")
+
+    def test_zorro_with_dir(self):
+
+        self.aln_obj.add_alignment_files(zorro_data_fas)
+
+        # Generate zorro output
+        zorro_data = Zorro(self.aln_obj, "_zorro", "trifusion/tests/data/")
+        zorro_data.write_to_file("test")
+
+        # Read zorro and reference files
+        zorro_content = open("test_zorro.out").read()
+        reference = open(zorro_out).read()
+
+        self.assertEqual(zorro_content, reference)
+
+        os.remove("test_zorro.out")
 
 
 # class MultipleSeconaryOpsTest(unittest.TestCase):

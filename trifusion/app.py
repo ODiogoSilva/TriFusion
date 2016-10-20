@@ -18,7 +18,7 @@
 #  MA 02110-1301, USA.
 
 # Standard libraries imports
-from os.path import dirname, join, exists, expanduser, basename
+from os.path import dirname, join, exists, expanduser, basename, splitext
 from functools import partial
 from scipy import misc
 import multiprocessing
@@ -104,8 +104,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.34"
-__build__ = "151016"
+__version__ = "0.4.35"
+__build__ = "201016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -592,6 +592,7 @@ class TriFusionApp(App):
 
     # Attribute for ZORRO settings
     zorro_suffix = StringProperty("")
+    zorro_dir = StringProperty("")
 
     # Attribute storing the haplotype prefix
     hap_prefix = StringProperty("Hap")
@@ -5759,6 +5760,7 @@ class TriFusionApp(App):
         self.codon_filter_settings = [True, True, True]
         self.hap_prefix = "Hap"
         self.zorro_suffix = ""
+        self.zorro_dir = ""
         self.process_grid_wgt.ids.consensus_mode.text = \
             "IUPAC" if self.sequence_types != "Protein" else "Soft mask"
 
@@ -7021,7 +7023,7 @@ class TriFusionApp(App):
 
     # ########################## PROCESS SCREEN ############################
 
-    def save_file(self, path, file_name=None, idx=None):
+    def save_file(self, path, file_name=None, idx=None, auto_close=True):
         """
         Adds functionality to the save button in the output file chooser. It
         gathers information on the specified path through filechooser, file
@@ -7034,6 +7036,8 @@ class TriFusionApp(App):
         :param file_name: string. file name only
         :param idx: string. An id of where the filechooser is calling. This
         allows the addition of custom behaviours for different dialogs
+        :param auto_close: Boolean. When True, the dismiss_popup method is called in
+        the end of the function
         """
 
         if idx == "main_output":
@@ -7068,7 +7072,11 @@ class TriFusionApp(App):
         elif idx == "ima2_popfile":
             self.ima2_options[0] = path
 
-        self.dismiss_popup()
+        elif idx == "zorro_dir":
+            self.zorro_dir = path
+
+        if auto_close:
+            self.dismiss_popup()
 
     def save_format(self, value):
         """
@@ -7322,13 +7330,25 @@ class TriFusionApp(App):
         :param suffix: string, suffix of the ZORRO files
         """
 
-        # Check if the zorro files exist
-        for f in self.active_file_list:
-            f = sep.join(f.split(".")[0:-1])
-            f = "%s%s.txt" % (f, suffix)
-            if not os.path.isfile(f):
-                return self.dialog_floatcheck(
-                    "ERROR: File %s does not exist" % f, t="error")
+        # Only perform file checking is switch is active
+        if self._popup.content.ids.zorro_switch.active:
+
+            # Check if the zorro files exist
+            for f in self.active_file_list:
+                # Check if a specific directory for the ZORRO files has been
+                # specified. If so, get only the file name of the
+                # active_file_list and use the zorro_dir to provide the path
+                if self.zorro_dir:
+                    f = splitext(f.split(sep)[-1])[0]
+                    f = "{}{}.txt".format(join(self.zorro_dir, f), suffix)
+                # If zorro_dir is not specified, assume that the ZORRO files
+                # are in he same working directory of the input files
+                else:
+                    f = sep.join(f.split(".")[0:-1])
+                    f = "%s%s.txt" % (f, suffix)
+                if not os.path.isfile(f):
+                    return self.dialog_floatcheck(
+                        "ERROR: File %s does not exist" % f, t="error")
 
         self.update_process_switch(
             "zorro", self._popup.content.ids.zorro_switch.active)
@@ -7632,19 +7652,27 @@ class TriFusionApp(App):
 
         self._subpopup.open()
 
-    def dialog_filechooser(self, idx=None):
+    def dialog_filechooser(self, idx=None, popup_level=1):
         """
         Generates a file chooser popup for the user to select an output file
 
         :param idx: string. An id of where the filechooser is calling. This
         allows the addition of custom behaviours for different dialogs
+        :param popup_level: int, level of popup. 1 for _popup, 2 for
+        _subpopup and 3 for exit popup
         """
+
+        # Determines cancel action depending on popup_level
+        cancel = self.dismiss_popup if popup_level == 1 else self.dismiss_subpopup
 
         # Lists the idx that require the selection of file extensions
         idx_with_ext = ["export_graphic"]
 
+        # Lists the idx that do not required file name
+        idx_no_file = ["ortho_dir", "zorro_dir"]
+
         # Inherits the layout defined in the .kv file under <SaveDialog>
-        content = SaveDialog(cancel=self.dismiss_popup,
+        content = SaveDialog(cancel=cancel,
                              bookmark_init=self.bookmark_init)
 
         # Add extension selection spinner, if idx in idx_with_ext
@@ -7655,6 +7683,11 @@ class TriFusionApp(App):
             content.ids.txt_box.add_widget(ext_spinner)
             content.ids.txt_box.add_widget(bw_box)
             content.ids.txt_box.ids["bw"] = bw_box
+
+        # Remove file name text input if idx in idx_no_file
+        if idx in idx_no_file:
+            content.ids.txt_box.clear_widgets()
+            content.ids.txt_box.height = 0
 
         # Custom behaviour for main output file chooser dialog
         if idx == "main_output":
@@ -7673,8 +7706,6 @@ class TriFusionApp(App):
 
         # Custom behaviour for orthology output directory
         elif idx == "ortho_dir":
-            content.ids.txt_box.clear_widgets()
-            content.ids.txt_box.height = 0
             title = "Choose destination directory for OrthoMCL output files"
             if self.ortho_dir:
                 content.ids.sd_filechooser.path = self.ortho_dir
@@ -7684,6 +7715,9 @@ class TriFusionApp(App):
 
         elif idx == "export_graphic":
             title = "Export as graphic..."
+
+        elif idx == "zorro_dir":
+            title = "Choose directory with ZORRO weight files"
 
         else:
             content.ids.txt_box.clear_widgets()
@@ -7695,7 +7729,12 @@ class TriFusionApp(App):
         # know which output file is this
         content.ids.sd_filechooser.text = idx
 
-        self.show_popup(title=title, content=content)
+        if popup_level == 1:
+            self.show_popup(title=title, content=content)
+        elif popup_level == 2:
+            self._subpopup = CustomPopup(title=title,
+                                         content=content)
+            self._subpopup.open()
 
     def dialog_taxafilter(self):
         """
@@ -8105,7 +8144,7 @@ class TriFusionApp(App):
         content.ids.zorro_txt.text = self.zorro_suffix
 
         self.show_popup(title="ZORRO support", content=content,
-                        size=(350, 200))
+                        size=(400, 260))
 
     def save_text(self, text, idx):
         """
