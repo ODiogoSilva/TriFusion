@@ -5177,8 +5177,6 @@
                     width: root.process_bt_wdt
                     id: collapse
                     on_active:
-                        if self.active == True: root.ids.hapbt.disabled = False; root.ids.collapse_file.disabled = False
-                        if self.active == False: root.ids.hapbt.disabled = True; root.ids.collapse_file.disabled = True
                         app.update_process_switch("collapse", self.active)
 
             DarkBox:
@@ -5194,9 +5192,28 @@
                     id: collapse_file
                     size_hint_x: None
                     width: root.process_bt_wdt
-                    disabled: True
+                    disabled: True if not collapse.active else False
                     on_active:
                         app.update_process_switch("collapse_file", self.active)
+
+            Hseparator
+
+            DarkBox:
+                height: 70
+                Label:
+                    markup: True
+                    id: test2
+                    text: "[size=18][b]Ignore missing data[/b][/size]\n[size=13] Sites containing missing data are removed before collapsing. This is effectively equivalent to setting filters to 0% of gap and missing data allowed. This may not be ideal for alignments with high proportion of missing data.[/size]"
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                CheckBox:
+                    size_hint_x: None
+                    width: root.process_bt_wdt
+                    id: hap_filt
+                    disabled: True if not collapse.active else False
+                    on_release:
+                        app.update_process_switch("collapse_filter", self.active)
 
             Hseparator
 
@@ -5212,7 +5229,7 @@
                     size_hint_x: None
                     width: root.process_bt_wdt
                     id: hapbt
-                    disabled: True
+                    disabled: True if not collapse.active else False
                     text: "Hap"
                     background_normal: "data/backgrounds/bt_process.png"
                     background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
