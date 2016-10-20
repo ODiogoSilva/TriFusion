@@ -40,6 +40,16 @@ dna_data_fas = [
     "trifusion/tests/data/BaseConc7.fas"
 ]
 
+zorro_data_fas = [
+    "trifusion/tests/data/BaseConc1.fas",
+    "trifusion/tests/data/BaseConc2.fas",
+    "trifusion/tests/data/BaseConc3.fas",
+    "trifusion/tests/data/BaseConc4.fas",
+    "trifusion/tests/data/BaseConc5.fas"
+]
+
+zorro_out = "trifusion/tests/data/zorro.out"
+
 dna_data_phy = [
     "trifusion/tests/data/BaseConc1.phy",
     "trifusion/tests/data/BaseConc2.phy",

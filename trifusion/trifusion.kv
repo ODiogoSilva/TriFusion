@@ -3174,6 +3174,8 @@
                         app.dialog_floatcheck(text="WARNING: Please select a file", t="error");
 
                         # For save dialogs that do not require file names
+                        elif sd_filechooser.text == "zorro_dir" and txt_box.height == 0:\
+                        app.save_file(sd_filechooser.path, idx = sd_filechooser.text, auto_close=False); root.cancel()
                         elif sd_filechooser.text == "ima2_popfile" and txt_box.height == 0:\
                         app.save_file(sd_filechooser.selection[0], idx=sd_filechooser.text)
                         elif sd_filechooser.text == "orto_report" and txt_box.height == 0:\
@@ -3199,8 +3201,8 @@
                         elif sd_filechooser.text == "files" or sd_filechooser.text == "taxa" and txt_box.height == 0: \
                         root.cancel(); app.dataset_file = sd_filechooser.selection[0]; app.dialog_text("Name of the data set group", sd_filechooser.text)
                         # Close dialog
-#                        if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text not in root.no_auto_close: \
-#                        root.cancel()
+#                       if self.text_io != "" or txt_box.height == 0 and sd_filechooser.text not in root.no_auto_close: \
+#                       root.cancel()
 
                 TFOKButon:
                     id: cancel_bt
@@ -3889,13 +3891,45 @@
             valign: "middle"
             halign: "left"
             text_size: self.size
-            size_hint_x: .5
             text: "ZORRO files suffix:"
             bold: True
         TFTextInput:
             id: zorro_txt
             multiline: False
-            size_hint_x: .5
+            size_hint_x: None
+            disabled: True if not zorro_switch.active else False
+            width: 150
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        orientation: "vertical"
+        spacing: 3
+        BoxLayout:
+            Label:
+                valign: "middle"
+                halign: "left"
+                text_size: self.size
+                text: "ZORRO files directory:"
+                bold: True
+            TFButton:
+                id: zorro_dir
+                size_hint_x: None
+                width: 150
+                text: "Select" if not app.zorro_dir else os.path.basename(app.zorro_dir)
+                disabled: True if not zorro_switch.active else False
+                on_release:
+                    app.dialog_filechooser("zorro_dir", popup_level=2)
+
+        Label:
+            size_hint_y: None
+            valign: "middle"
+            halign: "right"
+            bold: True
+            text_size: self.size
+            height: 15
+            font_size: 12
+            color: (.7,.7,.7,1)
+            text: "By default, the directory is the same of the input alignments" if not app.zorro_dir else ""
 
     BoxLayout:
         orientation: "horizontal"
@@ -3905,7 +3939,9 @@
             text: "Ok"
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
-            on_release: app.save_zorro_settings(zorro_txt.text)
+            on_release:
+                if not zorro_txt.text: app.dialog_floatcheck("ERROR: A valid suffix string must be provided", t="error"); zorro_txt.focus = True
+                else: app.save_zorro_settings(zorro_txt.text)
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
