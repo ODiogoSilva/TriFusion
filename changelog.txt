@@ -8,6 +8,8 @@
 - Improved warning dialog.
 - Added multi selection for taxa and file data set groups with shift+clicking.
 - Added label with selection information for data set group dialog.
+- Added extension label in certain file choosers that require file name
+definition
 
 ##### Process
 

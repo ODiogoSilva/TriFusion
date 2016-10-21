@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.37"
+__version__ = "0.4.38"
 __build__ = "211016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -2062,8 +2062,7 @@ class TriFusionApp(App):
             check_content = check_wgt(cancel=self.dismiss_popup)
         elif popup_level == 2:
             check_content = check_wgt(cancel=self.dismiss_subpopup)
-        elif popup_level == 3:
-
+        else:
             # Do nothing if exit popup already exists. The return True
             # prevents the app from closing, since in that stage it will
             # be listening to return False to close.
@@ -2101,17 +2100,10 @@ class TriFusionApp(App):
                 check_content.ids.check_ok.bind(
                     on_release=lambda val: func())
 
-        if popup_level == 1:
+        if popup_level in [1, 2]:
             self.show_popup(title=title, content=check_content,
-                            size=size,
+                            size=size, popup_level=popup_level,
                             separator_color=sep_color)
-        elif popup_level == 2:
-            self._subpopup = CustomPopup(title=title,
-                                         content=check_content,
-                                         size=size,
-                                         size_hint=(None, None),
-                                         separator_color=sep_color)
-            self._subpopup.open()
         elif popup_level == 3:
             self._exit_popup = CustomPopup(title=title,
                                            content=check_content,
@@ -2145,6 +2137,8 @@ class TriFusionApp(App):
             [self.export_names, [path, file_name], ".txt"],
             "export_table":
             [self.export_table, [path, file_name], ".csv"],
+            "export_outliers":
+            [self.export_table, [path, file_name, ".txt"], ".txt"],
             "export_graphic":
             [self.export_graphic, [path, file_name, bw], ""],
             "group":
@@ -2156,6 +2150,8 @@ class TriFusionApp(App):
             p = join(unicode(path, "utf8"), file_name + methods[idx][2])
         except TypeError:
             p = join(path, file_name + methods[idx][2])
+
+        print(p, idx)
 
         if os.path.exists(p) and idx != "main_output":
 
@@ -2559,7 +2555,7 @@ class TriFusionApp(App):
 
         self.dialog_floatcheck("Graphic successfully exported!", t="info")
 
-    def export_table(self, path, file_name, warning_dlg=True):
+    def export_table(self, path, file_name, ext=".csv", warning_dlg=True):
         """
         Saves the current_table list attribute to a .csv file.
         :param path: string, path to final directory
@@ -2569,7 +2565,7 @@ class TriFusionApp(App):
         """
 
         # Create table file object handle
-        table_handle = open(join(path, file_name + ".csv"), "w")
+        table_handle = open(join(path, file_name + ext), "w")
 
         # Writing table. Each entry in self.current_table should represent a
         # line in the table
@@ -3586,7 +3582,7 @@ class TriFusionApp(App):
 
         if self.taxa_groups:
             for nm in self.taxa_groups:
-                bt = TFButton(text=nm)
+                bt = TFButton(text=nm, size_hint_y=None, height=30)
                 bt.bind(on_release=self.select_taxa_group)
                 content.ids.rev_inlist.add_widget(bt)
 
@@ -3594,9 +3590,8 @@ class TriFusionApp(App):
             bt = TFButton(text="No groups defined", disabled=True)
             content.ids.rev_inlist.add_widget(bt)
 
-        self._subpopup = Popup(title="Select taxa group", content=content,
-                               size_hint=(.4, .8))
-        self._subpopup.open()
+        self.show_popup(title="Select taxa group", content=content,
+                        size_hint=(.4, .8), popup_level=2)
 
     def select_taxa_group(self, bt):
         """
@@ -3963,7 +3958,7 @@ class TriFusionApp(App):
         # Create file object
         export_file = open(join(path, file_name) + ".txt", "w")
 
-        if self.export_mode[0] == "file":
+        if self.export_mode[0] == "files":
             # Export all files
             if self.export_mode[1] == "all":
                 for x in self.file_list:
@@ -3987,6 +3982,11 @@ class TriFusionApp(App):
 
         # Close file handle
         export_file.close()
+
+        # Issue success message
+        self.dialog_floatcheck("Successfully exported {} {}.".format(
+            self.export_mode[1], self.export_mode[0]),
+                               t="info")
 
     def toggle_multi_selection(self, value):
         """
@@ -4682,12 +4682,9 @@ class TriFusionApp(App):
         content.ds_type = ds_type
 
         # Show dialog
-        if popup_level == 1:
-            self.show_popup(title=title, content=content, size=(900, 600))
-        else:
-            self._subpopup = Popup(title=title, content=content,
-                                   size=(900, 600), size_hint=(None, None))
-            self._subpopup.open()
+
+        self.show_popup(title=title, content=content, size=(900, 600),
+                        popup_level=popup_level)
 
     def add_dataset_bt(self, bt, wgt, ds_type):
         """
@@ -6935,7 +6932,8 @@ class TriFusionApp(App):
     # ########################## POPUP OPS #################################
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
-                   separator_color=None, close_bt=None):
+                   separator_color=None, close_bt=None,
+                   popup_level=1):
         """
         General purpose method to create a popup widget
         :param title: string. Title of the popup
@@ -6944,6 +6942,11 @@ class TriFusionApp(App):
         :param size: tuple. The absolute size for the popup. If this
         argument is used, the size_hint will be ignored
         :param separator_color: List with rgb color of popup separator
+        :param close_bt: Boolean. If True, Adds a (X) button to the top
+        right of the popup that dismisses the popup
+        :param popup_level: int. Determines the level of the popup. Two
+        values are currently supported. 1 assigns the popup to _popup; 2
+        assigns the popup to _subpopup
         """
 
         # This prevents defining a mutable argument.
@@ -6952,24 +6955,31 @@ class TriFusionApp(App):
 
         # Ignore size_hint is absolute size is provided
         if size:
-            self._popup = CustomPopup(title="[b]%s[/b]" % title,
+            popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size=size,
                 size_hint=(None, None), auto_dismiss=False,
                 separator_color=separator_color,
                 title_color=separator_color)
         else:
-            self._popup = CustomPopup(title="[b]%s[/b]" % title,
+            popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size_hint=size_hint,
                 auto_dismiss=False,
                 separator_color=separator_color,
                 title_color=separator_color)
-        self._popup.open()
+
+        popup_obj.open()
+
+        if popup_level == 1:
+            self._popup = popup_obj
+        else:
+            self._subpopup = popup_obj
 
         if close_bt:
             pos = ((self.root.width / 2) + (self._popup.size[0] / 2) - 25,
                    (self.root.height / 2) + (self._popup.size[1] / 2) - 25)
             rm_wgt = CloseFloat(pos=pos, opacity=1)
-            rm_wgt.bind(on_release=self.dismiss_popup)
+            rm_wgt.bind(on_release=self.dismiss_popup if popup_level == 1 else
+                        self.dismiss_subpopup)
             self.root_window.add_widget(rm_wgt)
 
     def dismiss_all_popups(self, *args):
@@ -7272,13 +7282,8 @@ class TriFusionApp(App):
 
         title = "IMa2 additional options"
 
-        if popup_level == 1:
-            self.show_popup(title=title,
-                            content=content, size=(380, 310))
-        else:
-            self._subpopup = Popup(title=title, content=content,
-                                   size=(380, 310), size_hint=(None, None))
-            self._subpopup.open()
+        self.show_popup(title=title, content=content, size=(380, 310),
+                        popup_level=popup_level)
 
     def dialog_nexus_extra(self):
         """
@@ -7290,10 +7295,8 @@ class TriFusionApp(App):
         content.ids.nexus_check.active = self.use_nexus_partitions
         content.ids.nexus_model_check.active = self.use_nexus_models
 
-        self._subpopup = Popup(title="Nexus extra options", content=content,
-                               size=(500, 210), size_hint=(None, None))
-
-        self._subpopup.open()
+        self.show_popup(title="Nexus extra options", content=content,
+                        size=(500, 210), popup_level=2)
 
     def dialog_phylip_extra(self):
         """
@@ -7305,11 +7308,9 @@ class TriFusionApp(App):
         content.ids.part_check.active = self.create_partfile
         content.ids.trunc_names_check.active = self.phylip_truncate_name
 
-        self._subpopup = Popup(title="Phylip extra options",
-                               content=content, size=(400, 230),
-                               size_hint=(None, None))
-
-        self._subpopup.open()
+        self.show_popup(title="Phylip extra options",
+                        content=content, size=(400, 230),
+                        popup_level=2)
 
     def dialog_fasta_extra(self):
         """
@@ -7320,10 +7321,8 @@ class TriFusionApp(App):
 
         content.ids.ldhat_check.active = self.ld_hat
 
-        self._subpopup = Popup(title="Fasta extra options", content=content,
-                               size=(400, 160), size_hint=(None, None))
-
-        self._subpopup.open()
+        self.show_popup(title="Fasta extra options", content=content,
+                        size=(400, 160), popup_level=2)
 
     def save_zorro_settings(self, suffix):
         """
@@ -7606,10 +7605,10 @@ class TriFusionApp(App):
                 bt.bind(on_release=partial(set_infile, infile))
                 content.ids.rev_inlist.add_widget(bt)
 
-        self._subpopup = Popup(title="Choose input file", content=content,
-                               size_hint=(.5, .8))
-
-        self._subpopup.open()
+        self.show_popup(title="Choose input file",
+                        content=content,
+                        size_hint=(.5, .8),
+                        popup_level=2)
 
     def dialog_reverse_concatenation(self, title="Choose input file"):
         """
@@ -7667,10 +7666,9 @@ class TriFusionApp(App):
         content.ids.txt_box.height = 0
         content.ids.txt_box.clear_widgets()
 
-        self._subpopup = Popup(title="Choose partition file",
-                               content=content, size_hint=(.9, .9))
-
-        self._subpopup.open()
+        self.show_popup(title="Choose partition file",
+                        content=content, size_hint=(.9, .9),
+                        popup_level=2)
 
     def dialog_filechooser(self, idx=None, popup_level=1):
         """
@@ -7683,17 +7681,42 @@ class TriFusionApp(App):
         """
 
         # Determines cancel action depending on popup_level
-        cancel = self.dismiss_popup if popup_level == 1 else self.dismiss_subpopup
+        cancel = self.dismiss_popup if popup_level == 1 else \
+            self.dismiss_subpopup
 
         # Lists the idx that require the selection of file extensions
         idx_with_ext = ["export_graphic"]
 
         # Lists the idx that do not required file name
-        idx_no_file = ["ortho_dir", "zorro_dir"]
+        idx_no_file = ["ortho_dir", "zorro_dir", "protein_db"]
+
+        # Maps idx for which an extension label is provided in the filechooser
+        # The key is the idx, the value is the extension to appear in the label
+        idx_ext_label = {"export_outliers": ".txt",
+                         "export_table": ".csv",
+                         "export": ".txt"}
 
         # Inherits the layout defined in the .kv file under <SaveDialog>
         content = SaveDialog(cancel=cancel,
                              bookmark_init=self.bookmark_init)
+
+        # Maps the filechooser idx to the corresponding title
+        title_map = {
+            "main_output":
+                "Choose destination directory of output file(s)",
+            "export":
+                "Choose file for exportation",
+            "export_table":
+                "Export as table...",
+            "export_graphic":
+                "Export as graphic...",
+            "zorro_dir":
+                "Choose directory with ZORRO weight files",
+            "protein_db":
+                "Choose protein sequence database file",
+            "export_outliers":
+                "Export outliers..."
+        }
 
         # Add extension selection spinner, if idx in idx_with_ext
         if idx in idx_with_ext:
@@ -7709,6 +7732,12 @@ class TriFusionApp(App):
             content.ids.txt_box.clear_widgets()
             content.ids.txt_box.height = 0
 
+        # Add extension label if idx in idx_ext_label
+        if idx in idx_ext_label:
+            ext_label = ExtLabel()
+            ext_label.text = idx_ext_label[idx]
+            content.ids.txt_box.add_widget(ext_label)
+
         # Custom behaviour for main output file chooser dialog
         if idx == "main_output":
             # If the main operation is conversion or reverse concatenation,
@@ -7717,12 +7746,8 @@ class TriFusionApp(App):
                     self.main_operations["reverse_concatenation"]:
                 content.ids.txt_box.clear_widgets()
                 content.ids.txt_box.height = 0
-                title = "Choose destination directory of output file(s)"
             else:
-                title = "Choose output file"
-
-        elif idx == "export":
-            title = "Choose file for exportation"
+                title_map["main_output"] = "Choose output file"
 
         # Custom behaviour for orthology output directory
         elif idx == "ortho_dir":
@@ -7730,31 +7755,13 @@ class TriFusionApp(App):
             if self.ortho_dir:
                 content.ids.sd_filechooser.path = self.ortho_dir
 
-        elif idx == "export_table":
-            title = "Export as table..."
-
-        elif idx == "export_graphic":
-            title = "Export as graphic..."
-
-        elif idx == "zorro_dir":
-            title = "Choose directory with ZORRO weight files"
-
-        else:
-            content.ids.txt_box.clear_widgets()
-            content.ids.txt_box.height = 0
-            title = "Choose protein sequence database file"
-
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to
         # know which output file is this
         content.ids.sd_filechooser.text = idx
 
-        if popup_level == 1:
-            self.show_popup(title=title, content=content)
-        elif popup_level == 2:
-            self._subpopup = CustomPopup(title=title,
-                                         content=content)
-            self._subpopup.open()
+        self.show_popup(title=title_map[idx], content=content,
+                        popup_level=popup_level)
 
     def dialog_taxafilter(self):
         """
@@ -8134,13 +8141,12 @@ class TriFusionApp(App):
             content.ids.txt_dlg.select_all()
 
         if idx == "new_folder":
-            self._subpopup = Popup(title=title, content=content,
-                                   auto_dismiss=False,
-                                   size=(400, 150), size_hint=(None, None))
-            self._subpopup.open()
+            popup_level = 20
         else:
-            self.show_popup(title=title, content=content,
-                            size=(400, 150))
+            popup_level = 1
+
+        self.show_popup(title=title, content=content, popup_level=popup_level,
+                        size=(400, 150))
 
     def dialog_warning(self, msg1, msg2):
 
@@ -8149,12 +8155,10 @@ class TriFusionApp(App):
             "[b][color=#ff5555ff][size=18]%s[/size][/color][/b]\n\n%s" %\
             (msg1, msg2)
 
-        self._subpopup = CustomPopup(
-            title="[b][color=#ff5555ff]Error![/color][/b]",
-            content=content, size=(550, 300), size_hint=(None, None),
-            separator_color=[255 / 255., 85 / 255., 85 / 255., 1.])
-
-        self._subpopup.open()
+        self.show_popup(title="[b]Error![/b]", content=content,
+                        size=(550, 300),
+                        separator_color=[255 / 255., 85 / 255., 85 / 255., 1.],
+                        popup_level=2)
 
     def dialog_zorro(self):
 
@@ -8711,7 +8715,7 @@ class TriFusionApp(App):
                 "{} outliers where removed".format(len(self.current_table)), t="info")
 
         if operation == "export":
-            self.dialog_filechooser("export_table")
+            self.dialog_filechooser("export_outliers")
 
         if operation == "view":
 
