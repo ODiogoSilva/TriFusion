@@ -16,7 +16,8 @@
 - More informative error message when importing inconsistent partition file.
 - Usage of Threading or Multiprocessing changes dynamically depending on OS. This mainly means better performance on Unix.
 - Custom directories for ZORRO weight files can now be provided.
-- Added option to ignore (remove) sites with missing data when collapsing
+- Added option to ignore (remove) sites with missing data when collapsing.
+- Revamped the reverse concatenation dialog to make it more intuitive.
 
 ##### Orthology
 
@@ -33,7 +34,8 @@
 
 - Fixed double directory entry on secondary filechoosers.
 - Fixed issue with Apply button in data set group creation.
-- Fixed view queue button behaviour in Orthology and Process screens
+- Fixed view queue button behaviour in Orthology and Process screens.
+- Fixed crash with Add Bookmark keybinding in main filechooser.
 
 ##### Process
 
@@ -42,11 +44,13 @@
 - Added several checks when splitting a partition manually.
 - Fixed crash when importing data set group from file.
 - Fixed issue with temporary directory creation when using the command line version.
-- Fixed conversion of ZORRO weight files into integers (as RAxML requests)
-- Fixed issue where ZORRO files were not correctly located
-- Fixed issue where ZORRO settings could be set without a valid suffix string
+- Fixed conversion of ZORRO weight files into integers (as RAxML requests).
+- Fixed issue where ZORRO files were not correctly located.
+- Fixed issue where ZORRO settings could be set without a valid suffix string.
 - Fixed issue where ZORRO file checking was performed even when the switch
-was OFF
+was OFF.
+- Fixed faulty deactivation of user define partitions option in the reverse
+concatenation dialog.
 
 ##### Orthology
 
@@ -72,7 +76,7 @@ This update is mainly to fix slow downs on subprocess spawning on Windows.
 
 ##### Orthology
 
-- Removed Orthology Search operation, for now.
+- Removed Orthology Complement operation, for now.
 
 ##### Process
 
