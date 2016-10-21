@@ -390,6 +390,15 @@
     text: ".png"
     values: [".png", ".svg", ".pdf"]
 
+<ExtLabel>:
+    size_hint_x: None
+    width: 80
+    color: (.7,.7,.7,1)
+    halign: "left"
+    valign: "middle"
+    text_size: self.size
+    bold: True
+
 <BWCheck>:
     size_hint_x: None
     width: 110
@@ -599,7 +608,7 @@
                     app.sidepanel_remove_moreopts()
                     app.dialog_filechooser("export")
                     if root.ds_type == "Files": \
-                    app.export_mode = ("file", "all")
+                    app.export_mode = ("files", "all")
                     else:\
                     app.export_mode = ("taxa", "all")
 
@@ -615,7 +624,7 @@
                     app.sidepanel_remove_moreopts()
                     app.dialog_filechooser("export")
                     if root.ds_type == "Files":\
-                    app.export_mode = ("file", "selected")
+                    app.export_mode = ("files", "selected")
                     else:\
                     app.export_mode = ("taxa", "selected")
 

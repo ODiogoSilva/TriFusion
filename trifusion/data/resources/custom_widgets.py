@@ -745,6 +745,10 @@ class ExtSpinner(Spinner):
     pass
 
 
+class ExtLabel(Label):
+    pass
+
+
 class BWCheck(BoxLayout):
     pass
 
