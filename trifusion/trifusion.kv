@@ -4066,65 +4066,69 @@
                 if self.active == True: app.update_main_operations("reverse_concatenation")
                 if self.active == False: app.update_main_operations("concatenation"); use_parts.state = "normal"
 
-        BoxLayout:
-            spacing: 10
+        Accordion:
             size_hint_y: None
-            height: 155
-            BoxLayout:
-                orientation: "vertical"
-                spacing: 10
-                TFOKButon:
-                    id: part_file
-                    background_normal: "data/backgrounds/bt_process_off.png"
-                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-                    halign: "center"
-                    valign: "middle"
-                    shorten: True
-                    shorten_from: "left"
-                    text_size: self.size
-                    text: "Select partition file"
-                    disabled: False if rev_conc.active else True
-                    size_hint_y: None
-                    height: 70
-                    on_release:
-                        app.dialog_load_partfile()
-                TFOKButon:
-                    id: rev_infile
-                    background_normal: "data/backgrounds/bt_process_off.png"
-                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-                    text: "Select file to reverse concatenate"
-                    halign: "center"
-                    valign: "middle"
-                    text_size: self.size
-                    disabled: False if rev_conc.active else True
-                    size_hint_y: None
-                    height: 70
-                    on_release:
-                        app.dialog_reverse_inlist()
-            Label:
-                size_hint_x: None
-                width: 30
-                text: "OR"
-                bold: True
-                color: (0.216, 0.67, 0.784, 1)
-            AnchorLayout:
-                TGOKToggleButton:
-                    id: use_parts
-                    background_normal: "data/backgrounds/bt_process_off.png"
-                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-                    halign: "center"
-                    valign: "middle"
-                    shorten: True
-                    shorten_from: "left"
-                    text_size: self.size
-                    text: "Use defined partitions"
-                    size_hint_y: None
-                    height: 70
-                    disabled: False if rev_conc.active else True
-                    on_release:
-                        app.use_app_partitions = True if self.state == "down" else False
-                        part_file.background_normal = "data/backgrounds/bt_process_off.png"; part_file.text = "Select partition file"; app.partitions_file = ""
-                        rev_infile.background_normal = "data/backgrounds/bt_process_off.png"; app.rev_infile = ""; rev_infile.text = "Select file to reverse concatenate"
+            height: 165
+            AccordionItem:
+                title: "Manual selection"
+                id: manual
+                BoxLayout:
+                    spacing: 10
+                    padding: 10
+                    BoxLayout:
+                        orientation: "vertical"
+                        spacing: 10
+                        TFOKButon:
+                            id: part_file
+                            background_normal: "data/backgrounds/bt_process_off.png"
+                            background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                            halign: "center"
+                            valign: "middle"
+                            shorten: True
+                            shorten_from: "left"
+                            text_size: self.size
+                            text: "Select partition file"
+                            disabled: False if rev_conc.active else True
+                            size_hint_y: None
+                            height: 70
+                            on_release:
+                                app.dialog_load_partfile()
+                        TFOKButon:
+                            id: rev_infile
+                            background_normal: "data/backgrounds/bt_process_off.png"
+                            background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                            text: "Select file to reverse concatenate"
+                            halign: "center"
+                            valign: "middle"
+                            text_size: self.size
+                            disabled: False if rev_conc.active else True
+                            size_hint_y: None
+                            height: 70
+                            on_release:
+                                app.dialog_reverse_inlist()
+
+            AccordionItem:
+                title: "Use defined partitons"
+                id: defined
+                AnchorLayout:
+                    padding: 10
+                    TGOKToggleButton:
+                        id: use_parts
+                        background_normal: "data/backgrounds/bt_process_off.png"
+                        background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                        halign: "center"
+                        valign: "middle"
+                        shorten: True
+                        shorten_from: "left"
+                        text_size: self.size
+                        text: "Use defined partitions"
+                        size_hint_y: None
+                        height: 70
+                        disabled: False if rev_conc.active else True
+                        on_release:
+                            app.use_app_partitions = True if self.state == "down" else False
+                            part_file.background_normal = "data/backgrounds/bt_process_off.png"; part_file.text = "Select partition file"; app.partitions_file = ""
+                            rev_infile.background_normal = "data/backgrounds/bt_process_off.png"; app.rev_infile = ""; rev_infile.text = "Select file to reverse concatenate"
 
     BoxLayout:
         size_hint_y: None

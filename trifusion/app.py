@@ -104,8 +104,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.36"
-__build__ = "201016"
+__version__ = "0.4.37"
+__build__ = "211016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -7381,9 +7381,14 @@ class TriFusionApp(App):
 
         self.partitions_file = partfile
 
+        # Update partition file button
         self._popup.content.ids.part_file.text = basename(partfile)
         self._popup.content.ids.part_file.background_normal = \
             "data/backgrounds/bt_process.png"
+
+        # Deactivate user defined partitions
+        self._popup.content.ids.use_parts.state = "normal"
+        self.use_app_partitions = False
 
         # Change background of used defined partition button
         self._popup.content.ids.use_parts.state = "normal"
@@ -7580,10 +7585,15 @@ class TriFusionApp(App):
 
         def set_infile(txt, wgt):
 
+            # Update file to reverse concatenate button
             self.rev_infile = txt
             self._popup.content.ids.rev_infile.background_normal = \
                 "data/backgrounds/bt_process.png"
             self._popup.content.ids.rev_infile.text = basename(txt)
+            # Deactivate use defined partitions
+            self._popup.content.ids.use_parts.state = "down"
+            self.use_app_partitions = False
+
             self.dismiss_subpopup()
 
         if self.file_list:
@@ -7621,6 +7631,8 @@ class TriFusionApp(App):
             content.ids.part_file.background_normal = \
                 "data/backgrounds/bt_process.png"
             content.ids.part_file.text = basename(self.partitions_file)
+            content.ids.defined.collapse = True
+            content.ids.manual.collapse = False
 
         # Check if input file to reverse concatenate was already selected.
         #  If so, update the corresponding button
@@ -7630,6 +7642,13 @@ class TriFusionApp(App):
             content.ids.rev_infile.text = basename(self.rev_infile)
 
         self.show_popup(title=title, content=content, size=(450, 360))
+
+        if self.use_app_partitions:
+            content.ids.defined.collapse = False
+            content.ids.manual.collapse = True
+        else:
+            content.ids.manual.collapse = False
+            content.ids.defined.collapse = True
 
     def dialog_load_partfile(self):
 
