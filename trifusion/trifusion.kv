@@ -3142,6 +3142,7 @@
             height: 30
             spacing: 5
             Label:
+                id: txt_label
                 size_hint_x: None
                 width: 100
                 bold: True
@@ -3168,13 +3169,16 @@
                         # If an extension spinner is present in the dialog, append it to the text_input
                         if sd_filechooser.text == "export_graphic": \
                         filename = text_input.text + txt_box.ids.ext.text;
-                        elif txt_box.height == 30: \
+                        elif txt_box.height == 30 and txt_label.text == "File name:": \
                         filename = text_input.text
                         # For save dialogs requiring file name, make this check
-                        if self.text_io == "" and txt_box.height == 30: \
+                        if self.text_io == "" and txt_box.height == 30 and txt_label.text == "File name:": \
                         app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
                         elif txt_box.height != 0 and "bw" in txt_box.ids: \
                         app.check_file(sd_filechooser.path, filename, sd_filechooser.text, txt_box.ids.bw.children[-1].active)
+                        # When converting
+                        elif txt_box.height != 0 and txt_label.text == "Suffix:" and sd_filechooser.text == "main_output":\
+                        app.save_file(sd_filechooser.path, suffix = text_input.text, idx = sd_filechooser.text); root.cancel()
                         elif txt_box.height != 0:\
                         app.check_file(sd_filechooser.path, filename, sd_filechooser.text)
 
@@ -3189,8 +3193,6 @@
                         app.save_file(sd_filechooser.selection[0], idx=sd_filechooser.text)
                         elif sd_filechooser.text == "orto_report" and txt_box.height == 0:\
                         app.run_in_background(app.orto_generate_report, None, [sd_filechooser.path], None, False, "Generating full report...")
-                        elif sd_filechooser.text == "main_output" and txt_box.height == 0: \
-                        app.save_file(sd_filechooser.path, idx = sd_filechooser.text); root.cancel()
                         elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
                         app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
                         elif sd_filechooser.text == "protein_db" and txt_box.height == 0: \

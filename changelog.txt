@@ -20,6 +20,8 @@ definition
 - Custom directories for ZORRO weight files can now be provided.
 - Added option to ignore (remove) sites with missing data when collapsing.
 - Revamped the reverse concatenation dialog to make it more intuitive.
+- A suffix can now be provided to the output files of the Conversion main
+operation.
 
 ##### Orthology
 

@@ -267,7 +267,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                       partitions_file, output_formats, create_partfile,
                       use_nexus_partitions, use_nexus_models,
                       phylip_truncate_name, output_dir, use_app_partitions,
-                      consensus_type, ld_hat, temp_dir, ima2_params):
+                      consensus_type, ld_hat, temp_dir, ima2_params,
+                      conversion_suffix):
     """
     Process execution function
     :param ns: Namespace object
@@ -375,14 +376,17 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         return aln
 
-    def writer(aln, filename=None, suffix_str=""):
+    def writer(aln, filename=None, suffix_str="", conv_suffix=""):
         """
         Wrapper for the output writing operations
         :param aln: AlignmentList object
         :param filename: string. If provided, it will overwrite the output_file
         :param suffix_str: string. Provides the suffix for the AlignmentList
-        write_to_file method
-        argument
+        write_to_file method argument
+        :param conv_suffix: string. Provides the suffix provided for
+        the conversion of files. This suffix will allway precede the
+        suffix_str, which is meant to apply suffixes specific to secondary
+        operations.
         """
 
         try:
@@ -393,13 +397,13 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             # The output file(s) will only be written after all the required
             # operations have been concluded. The reason why there are two "if"
-            # statement for "concatenation" is that the input alignments must be
-            # concatenated before any other additional operations. If the
-            # first if statement did not exist, then all additional options would
-            # have to be manually written for both "conversion" and "concatenation".
-            #  As it is, when "concatenation", the aln_obj is firstly converted
-            # into the concatenated alignment, and then all additional
-            # operations are conducted in the same aln_obj
+            # statement for "concatenation" is that the input alignments must
+            # be concatenated before any other additional operations. If the
+            # first if statement did not exist, then all additional options
+            # would have to be manually written for both "conversion" and
+            # "concatenation". As it is, when "concatenation", the aln_obj is
+            # firstly converted into the concatenated alignment, and then all
+            # additional operations are conducted in the same aln_obj
             ns.msg = "Writing output"
 
             if isinstance(aln, Alignment):
@@ -417,6 +421,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 aln.write_to_file(
                     output_formats,
                     output_suffix=suffix_str,
+                    conversion_suffix=conv_suffix,
                     interleave=secondary_options["interleave"],
                     partition_file=create_partfile,
                     output_dir=output_dir,
@@ -501,7 +506,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             main_aln = consensus(main_aln)
 
         # Writing main output
-        writer(main_aln)
+        writer(main_aln, conv_suffix=conversion_suffix)
 
         main_aln.stop_action_alignment()
 
@@ -537,7 +542,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 writer(main_aln, filename=filename)
             else:
                 writer(main_aln, suffix_str=suffix,
-                       filename=filename if filename else None)
+                       conv_suffix=conversion_suffix)
 
             main_aln.stop_action_alignment()
 
@@ -563,6 +568,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 suffix = "_collapsed"
 
                 main_aln.collapse(haplotype_name=hap_prefix,
+                                  conversion_suffix=conversion_suffix,
                                   dest=output_dir)
 
             elif op == "gcoder":
@@ -574,7 +580,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 filename = output_file + suffix
                 writer(main_aln, filename=filename)
             else:
-                writer(main_aln, suffix_str=suffix)
+                writer(main_aln, suffix_str=suffix,
+                       conv_suffix=conversion_suffix)
 
             main_aln.stop_action_alignment()
 

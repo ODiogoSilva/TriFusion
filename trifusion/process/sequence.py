@@ -437,7 +437,11 @@ class Alignment(Base):
         """
 
         for f in self.alignment.values():
-            os.remove(f)
+            try:
+                os.remove(f)
+            except OSError:
+                print(f)
+                pass
 
         self.alignment = OrderedDict(
             [(tx, splitext(f)[0] + ".seq")
@@ -840,7 +844,7 @@ class Alignment(Base):
                                       list(self.alignment.items())])
 
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
-                 haplotype_name="Hap", dest=None):
+                 haplotype_name="Hap", dest=None, conversion_suffix=""):
         """
         Collapses equal sequences into haplotypes. This method changes
         the alignment variable and only returns a dictionary with the
@@ -852,6 +856,8 @@ class Alignment(Base):
         :param haplotypes_file: String, Name of the haplotype list mapping file
         referenced in write_haplotypes
         :param haplotype_name: String, Custom name of the haplotypes
+        :param conversion_suffix: string. The provided suffix for file
+        conversion
         """
 
         if not dest:
@@ -887,7 +893,7 @@ class Alignment(Base):
             # If no output file for the haplotype correspondence is provided,
             # use the input alignment name as reference
             if not haplotypes_file:
-                haplotypes_file = self.name.split(".")[0]
+                haplotypes_file = self.name.split(".")[0] + conversion_suffix
             self.write_loci_correspondence(correspondence_dic, haplotypes_file,
                                            dest)
 
@@ -2713,7 +2719,7 @@ class AlignmentList(Base):
             alignment_obj.code_gaps()
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
-                 haplotype_name="Hap", dest="./"):
+                 haplotype_name="Hap", dest="./", conversion_suffix=""):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
@@ -2732,12 +2738,14 @@ class AlignmentList(Base):
             if write_haplotypes:
                 # Set name for haplotypes file
                 output_file = alignment_obj.name.split(".")[0] + \
-                              "_" + haplotypes_file
+                              conversion_suffix + haplotypes_file
                 alignment_obj.collapse(haplotypes_file=output_file,
-                                       haplotype_name=haplotype_name, dest=dest)
+                                       haplotype_name=haplotype_name,
+                                       dest=dest)
             else:
                 alignment_obj.collapse(write_haplotypes=False,
-                                       haplotype_name=haplotype_name, dest=dest)
+                                       haplotype_name=haplotype_name,
+                                       dest=dest)
 
     def consensus(self, consensus_type, single_file=False):
         """
@@ -2785,7 +2793,8 @@ class AlignmentList(Base):
     def write_to_file(self, output_format, output_suffix="", interleave=False,
                       outgroup_list=None, partition_file=True, output_dir=None,
                       use_charset=True, phy_truncate_names=False, ld_hat=None,
-                      ima2_params=None, use_nexus_models=True, ns_pipe=None):
+                      ima2_params=None, use_nexus_models=True, ns_pipe=None,
+                      conversion_suffix=""):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -2806,11 +2815,16 @@ class AlignmentList(Base):
         object will be written in the nexus output format
         :param phy_truncate_names: Boolean. Whether names in phylip output
         format should be truncated to 10 characters or not.
+        :param conversion_suffix: string. Provides the suffix provided for
+        the conversion of files. This suffix will allway precede the
+        output_suffix, which is meant to apply suffixes specific to secondary
+        operations.
         """
 
         for alignment_obj in self.alignments.values():
 
-            output_file_name = alignment_obj.name.split(".")[0] + output_suffix
+            output_file_name = alignment_obj.name.split(".")[0] + \
+                conversion_suffix + output_suffix
 
             # Get partition name for current alignment object
             try:

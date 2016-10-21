@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.38"
+__version__ = "0.4.39"
 __build__ = "211016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -529,6 +529,7 @@ class TriFusionApp(App):
     # files.
     output_file = StringProperty("")
     output_dir = StringProperty("")
+    conversion_suffix = StringProperty("")
 
     # Attribute storing active output formats. Fasta is True by default
     output_formats = ListProperty(["fasta"])
@@ -4265,6 +4266,9 @@ class TriFusionApp(App):
         self.current_plt_idx = []
         self.current_plot = None
         self.current_table = None
+        self.output_dir = ""
+        self.output_file = ""
+        self.conversion_suffix = ""
 
         # Clear Statistics screen scatter, if screen is active
         self.dismiss_stats_toggle()
@@ -7034,7 +7038,8 @@ class TriFusionApp(App):
 
     # ########################## PROCESS SCREEN ############################
 
-    def save_file(self, path, file_name=None, idx=None, auto_close=True):
+    def save_file(self, path, file_name=None, idx=None, auto_close=True,
+                  suffix=""):
         """
         Adds functionality to the save button in the output file chooser. It
         gathers information on the specified path through filechooser, file
@@ -7049,6 +7054,8 @@ class TriFusionApp(App):
         allows the addition of custom behaviours for different dialogs
         :param auto_close: Boolean. When True, the dismiss_popup method is called in
         the end of the function
+        :param suffix: string. Allow the addition of a suffix to the file name
+        or to be save in an attribute
         """
 
         if idx == "main_output":
@@ -7069,6 +7076,7 @@ class TriFusionApp(App):
                 except TypeError:
                     self.output_dir = path
                 self.process_grid_wgt.ids.conv.text = basename(path)
+                self.conversion_suffix = suffix
 
         elif idx == "ortho_dir":
             self.ortho_dir = path
@@ -7744,8 +7752,13 @@ class TriFusionApp(App):
             # remove the TextInput asking for the file name
             if self.main_operations["conversion"] or \
                     self.main_operations["reverse_concatenation"]:
-                content.ids.txt_box.clear_widgets()
-                content.ids.txt_box.height = 0
+                content.ids.txt_label.text = "Suffix:"
+                if self.conversion_suffix:
+                    content.ids.text_input.text = self.conversion_suffix
+                else:
+                    content.ids.text_input.hint_text = \
+                        "Suffix that will be appended to each output file " \
+                        "name. You may leave empty."
             else:
                 title_map["main_output"] = "Choose output file"
 
@@ -9737,6 +9750,7 @@ class TriFusionApp(App):
             "codon_filter_settings": list(self.codon_filter_settings),
             "variation_filter_settings": list(self.variation_filter),
             "output_file": self.output_file,
+            "conversion_suffix": self.conversion_suffix,
             "rev_infile": str(self.rev_infile),
             "main_operations": dict(self.main_operations),
             "zorro_suffix": str(self.zorro_suffix),
