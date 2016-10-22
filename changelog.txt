@@ -40,6 +40,9 @@ operation.
 - Fixed issue with Apply button in data set group creation.
 - Fixed view queue button behaviour in Orthology and Process screens.
 - Fixed crash with Add Bookmark keybinding in main filechooser.
+- Fixed duplicate prevention routine when adding new partitions
+- Fixed faulty partition removal when removing an alignment with multiple
+partitions
 
 ##### Process
 

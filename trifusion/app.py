@@ -104,7 +104,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.39"
+__version__ = "0.4.40"
 __build__ = "211016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -3157,7 +3157,18 @@ class TriFusionApp(App):
                     self.root.ids.file_sl.add_widget(LoadMoreBt())
                 return
 
-    def sidepanel_add_bts(self, idx, tab_name):
+    def sidepanel_add_bts(self, idx, tab_name, partition_fls=None):
+        """
+        Wrapper that adds buttons to the corresponding File, Taxa or
+        Partitions panel. Also prevents duplicates from being entered and
+        adds buttons for mouse over events.
+        :param idx: string. Identifier of the current item. It will be the
+        name of the button
+        :param tab_name: string. Identifies in which side panel gridlayout
+        the button will be added
+        :param partition_fls: string. Only for Partitions tab_name. Includes
+        full path of the alignment for the partition.
+        """
 
         # Set attributes to be added
         if tab_name == "Files":
@@ -3177,7 +3188,8 @@ class TriFusionApp(App):
 
             # Create buttons
             if tab_name == "Partitions":
-                bt, inf_bt, x_bt = self.sidepanel_create_part_bts(idx)
+                bt, inf_bt, x_bt = self.sidepanel_create_part_bts(
+                    [idx, partition_fls])
             else:
                 bt, inf_bt, x_bt = self.sidepanel_create_bts(idx)
 
@@ -3273,8 +3285,10 @@ class TriFusionApp(App):
             if self.count_partitions <= self.MAX_PARTITION_BUTTON:
 
                 self.count_partitions += 1
+
                 # Create partition buttons
-                self.sidepanel_add_bts([partition, fls], "Partitions")
+                self.sidepanel_add_bts(partition, "Partitions",
+                                       partition_fls=fls)
 
             else:
                 self.root.ids.partition_sl.add_widget(LoadMoreBt())
@@ -9166,6 +9180,10 @@ class TriFusionApp(App):
         if aln_pickle:
             with open(aln_pickle, "rb") as fh:
                 aln_list = pickle.load(fh)
+
+        if not aln_pickle:
+            return self.dialog_floatcheck("ERROR: Internal alignment "
+                                          "reference not found", t="error")
 
         # Check for consistency in sequence type across alignments
         if self.sequence_types:
