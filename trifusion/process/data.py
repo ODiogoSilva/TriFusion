@@ -533,8 +533,8 @@ class Partitions():
 
         def rm_part(nm):
             """
-            Remove a partition from self.partitions and update the ranges of the
-            remaining partitions
+            Remove a partition from self.partitions and update the ranges of
+            the remaining partitions
             """
 
             del self.partitions[nm]
@@ -594,8 +594,12 @@ class Partitions():
 
         if file_name:
 
+            # Set file_found to True, when there is a match. If no match is
+            # found, raise a PartitionException at the end of the loop.
+            file_found = False
             for part, file_list in self.partitions_alignments.items():
                 if file_name in file_list:
+                    file_found = True
                     # If the partitions consists only of the provided file,
                     # Remove the entire partition
                     if len(file_list) == 1:
@@ -605,9 +609,7 @@ class Partitions():
                     else:
                         self.partitions_alignments[part].remove(file_name)
 
-                    return
-
-            else:
+            if not file_found:
                 raise PartitionException("%s file does not belong to any"
                                          "partition" % file_name)
 
