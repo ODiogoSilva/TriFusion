@@ -30,6 +30,10 @@ concatenated_smallCodon_parNex = [
     "trifusion/tests/data/BaseConcatenationCodon_part.nex"
 ]
 
+phylip_interleave = [
+    "trifusion/tests/data/teste_interleave.phy"
+]
+
 dna_data_fas = [
     "trifusion/tests/data/BaseConc1.fas",
     "trifusion/tests/data/BaseConc2.fas",
@@ -116,4 +120,8 @@ models_nexus_data = [
 
 models_codon_nexus_data = [
     "trifusion/tests/data/models_codon.nex"
+]
+
+taxa_to_remove = [
+    "trifusion/tests/data/taxa_to_remove.txt"
 ]

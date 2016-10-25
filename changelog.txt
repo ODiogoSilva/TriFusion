@@ -58,6 +58,8 @@ partitions
 was OFF.
 - Fixed faulty deactivation of user define partitions option in the reverse
 concatenation dialog.
+- Corrected phylip interleave output.
+- Fixes issues with taxa removal for AlignmentList objects for command line
 
 ##### Orthology
 

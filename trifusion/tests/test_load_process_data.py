@@ -47,7 +47,8 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_fas(self):
 
-        single_aln = Alignment(dna_data_fas[0])
+        single_aln = Alignment(dna_data_fas[0], dest="test")
+        shutil.rmtree("test")
 
     def test_load_phy(self):
 
@@ -55,7 +56,13 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_phy(self):
 
-        single_aln = Alignment(dna_data_phy[0])
+        single_aln = Alignment(dna_data_phy[0], dest="test")
+        shutil.rmtree("test")
+
+    def test_load_single_interleave_phy(self):
+
+        single_aln = Alignment(phylip_interleave[0], dest="test")
+        shutil.rmtree("test")
 
     def test_load_nex(self):
 
@@ -63,7 +70,8 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_nex(self):
 
-        single_aln = Alignment(dna_data_nex[0])
+        single_aln = Alignment(dna_data_nex[0], dest="test")
+        shutil.rmtree("test")
 
     def test_load_stc(self):
 
@@ -71,7 +79,8 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_stc(self):
 
-        single_aln = Alignment(dna_data_stc[0])
+        single_aln = Alignment(dna_data_stc[0], dest="test")
+        shutil.rmtree("test")
 
     def test_load_loci(self):
 
@@ -79,7 +88,8 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_loci(self):
 
-        single_aln = Alignment(dna_data_loci[0])
+        single_aln = Alignment(dna_data_loci[0], dest="test")
+        shutil.rmtree("test")
 
     def test_load_nexus_par(self):
 
@@ -171,6 +181,58 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         self.assertEqual(self.aln_obj.alignments.keys(),
                          fl + ["c97d5m4p2.loci"])
+
+    def test_remove_taxa_from_list(self):
+
+        taxa_list = [
+            "1285_RAD_original",
+            "130a_RAD_original",
+            "137a_RAD_original",
+            "1427_RAD_original",
+            "167a_RAD_original"
+        ]
+
+        expected_taxa = [tx for tx in self.aln_obj.taxa_names if
+                         tx not in taxa_list]
+
+        self.aln_obj.remove_taxa(taxa_list)
+
+        self.assertEqual(self.aln_obj.taxa_names, expected_taxa)
+
+    def test_remove_taxa_from_file(self):
+
+        taxa_list = [
+            "1285_RAD_original",
+            "130a_RAD_original",
+            "137a_RAD_original",
+            "1427_RAD_original",
+            "167a_RAD_original"
+        ]
+
+        expected_taxa = [tx for tx in self.aln_obj.taxa_names if
+                         tx not in taxa_list]
+
+        self.aln_obj.remove_taxa(taxa_to_remove)
+
+        self.assertEqual(self.aln_obj.taxa_names, expected_taxa)
+
+    def test_remove_taxa_from_list_inverse(self):
+
+        taxa_list = [
+            "1285_RAD_original",
+            "130a_RAD_original",
+            "137a_RAD_original",
+            "1427_RAD_original",
+            "167a_RAD_original"
+        ]
+
+        expected_taxa = [tx for tx in self.aln_obj.taxa_names if
+                         tx not in taxa_list]
+
+        self.aln_obj.remove_taxa(taxa_list, mode="inverse")
+
+        self.assertEqual(self.aln_obj.taxa_names, taxa_list)
+
     #
     # def test_retrieve_alignment(self):
     #

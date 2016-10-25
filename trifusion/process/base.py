@@ -244,24 +244,6 @@ class Base(object):
 
         return taxa_list
 
-    def partition_format(self, partition_file):
-        """ Tries to guess the format of the partition file (Whether it is
-        Nexus of RAxML"s) """
-        file_handle = open(partition_file)
-
-        # Skips first empty lines, if any
-        header = file_handle.readline()
-        while header.startswith("\n"):
-            header = next(file_handle)
-
-        fields = header.split()
-        if fields[0].lower() == "charset":
-            p_format = "nexus"
-        else:
-            p_format = "phylip"
-
-        return p_format
-
     def guess_code(self, sequence):
         """ Function that guesses the code of the molecular sequences (i.e.,
         DNA or Protein) based on the first sequence of a reference file """
@@ -296,44 +278,6 @@ class Base(object):
         duplicated_taxa = [x for x, y in collections.Counter(taxa_list).items()
                            if y > 1]
         return duplicated_taxa
-
-    def check_format(self, input_alignment, alignment_format):
-        """ This function performs some very basic checks to see if the format
-         of the input file is in accordance to the input file format
-         specified when the script is executed """
-        input_handle = open(input_alignment)
-        line = input_handle.readline()
-        while line.strip() == "":
-            line = next(input_handle)
-
-        if alignment_format == "fasta":
-            if line.strip()[0] != ">":
-                print("File not in Fasta format. First non-empty line of the"
-                      " input file %s does not start with ">". Please verify "
-                      "the file, or the input format settings\nExiting..." %
-                      input_alignment)
-                raise SystemExit
-
-        elif alignment_format == "nexus":
-            if line.strip().lower() != "#nexus":
-                print("File not in Nexus format. First non-empty line of the"
-                      " input file %s does not start with "#NEXUS". Please "
-                      "verify the file, or the input format settings\n"
-                      "Exiting..." % input_alignment)
-                raise SystemExit
-
-        elif alignment_format == "phylip":
-            try:
-                header = line.strip().split()
-                int(header[0])
-                int(header[1])
-            except:
-                print("File not in correct Phylip format. First non-empty "
-                      "line of the input file %s does not start with two "
-                      "integers separated by whitespace. Please verify the "
-                      "file, or the input format settings\nExiting..." %
-                      input_alignment)
-                raise SystemExit
 
     def check_sizes(self, alignment_dic, current_file):
         """ This will make two sanity checks of the alignment contained in
