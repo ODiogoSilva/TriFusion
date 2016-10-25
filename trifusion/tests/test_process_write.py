@@ -5,10 +5,43 @@ import shutil
 import unittest
 from data_files import *
 
-from trifusion.process.sequence import AlignmentList
+from trifusion.process.sequence import AlignmentList, Alignment
 from trifusion.process.base import Base
 
 x = Base()
+
+
+class ProcessWriteSinglesTest(unittest.TestCase):
+
+    def setUp(self):
+
+        self.aln_obj = Alignment(dna_data_fas[0], dest="test")
+
+        if not os.path.exists("output"):
+            os.makedirs("output")
+
+        self.output_file = os.path.join("output", "test")
+
+    def tearDown(self):
+
+        self.aln_obj = None
+        shutil.rmtree("test")
+        shutil.rmtree("output")
+
+    def test_write_gphocs(self):
+
+        self.aln_obj.write_to_file(["gphocs"],
+                                   self.output_file)
+
+    def test_write_mcmctree(self):
+
+        self.aln_obj.write_to_file(["mcmctree"],
+                                    self.output_file)
+
+    def test_write_nexus(self):
+
+        self.aln_obj.write_to_file(["nexus"],
+                                   self.output_file)
 
 
 class ProcessWriteTest(unittest.TestCase):
@@ -39,6 +72,11 @@ class ProcessWriteTest(unittest.TestCase):
             self.assertEqual(x.autofinder(self.output_file + ".fas")[0],
                              "fasta")
 
+    def test_write_fasta_interleave(self):
+
+        self.aln_obj.write_to_file(["fasta"], self.output_file,
+                                   interleave=True)
+
     def test_write_nexus(self):
 
         self.aln_obj.write_to_file(["nexus"],
@@ -48,6 +86,11 @@ class ProcessWriteTest(unittest.TestCase):
                                          self.output_file + ".nex")):
             self.assertEqual(x.autofinder(self.output_file + ".nex")[0],
                              "nexus")
+
+    def test_write_nexus_interleave(self):
+
+        self.aln_obj.write_to_file(["nexus"], self.output_file,
+                                   interleave=True)
 
     def test_write_mcmctree(self):
 
