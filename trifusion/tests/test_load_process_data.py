@@ -44,27 +44,42 @@ class LoadAlignmentsTest(unittest.TestCase):
     def test_load_fas(self):
 
         self.aln_obj = AlignmentList(dna_data_fas)
-        self.assertEqual(True, True)
+
+    def test_load_single_fas(self):
+
+        single_aln = Alignment(dna_data_fas[0])
 
     def test_load_phy(self):
 
         self.aln_obj = AlignmentList(dna_data_phy)
-        self.assertEqual(True, True)
+
+    def test_load_single_phy(self):
+
+        single_aln = Alignment(dna_data_phy[0])
 
     def test_load_nex(self):
 
         self.aln_obj = AlignmentList(dna_data_nex)
-        self.assertEqual(True, True)
+
+    def test_load_single_nex(self):
+
+        single_aln = Alignment(dna_data_nex[0])
 
     def test_load_stc(self):
 
         self.aln_obj = AlignmentList(dna_data_stc)
-        self.assertEqual(True, True)
+
+    def test_load_single_stc(self):
+
+        single_aln = Alignment(dna_data_stc[0])
 
     def test_load_loci(self):
 
         self.aln_obj = AlignmentList(dna_data_loci)
-        self.assertEqual(True, True)
+
+    def test_load_single_loci(self):
+
+        single_aln = Alignment(dna_data_loci[0])
 
     def test_load_nexus_par(self):
 
