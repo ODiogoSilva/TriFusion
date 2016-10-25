@@ -84,6 +84,16 @@ class ProcessWriteTest(unittest.TestCase):
         self.aln_obj.write_to_file(["gphocs"],
                                    self.output_file)
 
+    def test_write_ima2(self):
+
+        ima2_params = [ima2_pop_file,
+                       "(1,2):3)4:5",
+                       "IS",
+                       "1"]
+
+        self.aln_obj.write_to_file(["ima2"], self.output_file,
+                                   ima2_params=ima2_params)
+
     def test_write_interleave(self):
 
         self.aln_obj.write_to_file(["phylip"],

@@ -34,6 +34,8 @@ phylip_interleave = [
     "trifusion/tests/data/teste_interleave.phy"
 ]
 
+ima2_pop_file = "trifusion/tests/data/pop_file.txt"
+
 dna_data_fas = [
     "trifusion/tests/data/BaseConc1.fas",
     "trifusion/tests/data/BaseConc2.fas",
