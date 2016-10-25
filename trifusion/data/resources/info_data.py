@@ -37,13 +37,14 @@ informative_storage = {
     # Orthology
     "orthology_filters":
         ["[b]Orthology filters - Help[/b]",
-         "These filters are applied at the end of the ortholog search for each"
+         "These filters are applied at the end of the Orthology Search "
+         "operation for each"
          " specified inflation value "
          "and determine which ortholog clusters are selected according to "
-         "their number of gene copies and taxa. They can be latter modified in"
+         "their number of gene copies and taxa. They can be later modified in"
          " the Orthology Explore tab to evaluate their effect on the final "
          "number of ortholog clusters."
-         ":\n\n- [b]Maximum number of genes copies[/b]: "
+         "\n\n- [b]Maximum number of genes copies[/b]: "
          "Sets the maximum number of gene copies in each ortholog cluster. To "
          "remove any upper limit on the number of gene copies, set this value "
          "to 0.\n\n- [b]Minimum number of taxa[/b]: Sets the minimum number of "

@@ -104,8 +104,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.40"
-__build__ = "211016"
+__version__ = "0.4.41"
+__build__ = "251016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -7737,7 +7737,9 @@ class TriFusionApp(App):
             "protein_db":
                 "Choose protein sequence database file",
             "export_outliers":
-                "Export outliers..."
+                "Export outliers...",
+            "ortho_dir":
+                "Choose orthology search output directory..."
         }
 
         # Add extension selection spinner, if idx in idx_with_ext
@@ -9613,7 +9615,7 @@ class TriFusionApp(App):
                 self.proteome_files,
                 self.protein_min_len,
                 self.protein_max_stop,
-                self.cur_dir,
+                #self.cur_dir,
                 self.usearch_evalue,
                 self.screen.ids.usearch_threads.text,
                 self.usearch_output,
