@@ -1604,9 +1604,14 @@ class Alignment(Base):
                         with open(f) as fh:
                             seq = "".join(fh.readlines())[counter:i]
 
-                        out_file.write("%s %s\n" % (
-                            key[:cut_space_phy].ljust(seq_space_phy),
-                            seq.upper()))
+                        # Only include taxa names in the first block. The
+                        # remaining blocks should only have sequence
+                        if not counter:
+                            out_file.write("%s %s\n" % (
+                                key[:cut_space_phy].ljust(seq_space_phy),
+                                seq.upper()))
+                        else:
+                            out_file.write("%s\n" % (seq.upper()))
 
                     out_file.write("\n")
                     counter = i
@@ -2598,16 +2603,29 @@ class AlignmentList(Base):
             ..:inverse: removes all but the specified taxa
         """
 
+        # Checking if taxa_list is an input csv file:
+        try:
+            file_handle = open(taxa_list[0])
+
+            taxa_list = self.read_basic_csv(file_handle)
+
+        # If not, then the method's argument is already the final list
+        except (IOError, IndexError):
+            pass
+
         for alignment_obj in list(self.alignments.values()):
             alignment_obj.remove_taxa(taxa_list, mode=mode)
 
         # Updates taxa names
-        for tx in taxa_list:
-            try:
-                self.taxa_names.remove(tx)
-            except ValueError:
-                # TODO: log a warning
-                pass
+        if mode == "remove":
+            for tx in taxa_list:
+                try:
+                    self.taxa_names.remove(tx)
+                except ValueError:
+                    # TODO: log a warning
+                    pass
+        elif mode == "inverse":
+            self.taxa_names = [tx for tx in taxa_list if tx in self.taxa_names]
 
     def change_taxon_name(self, old_name, new_name):
         """
