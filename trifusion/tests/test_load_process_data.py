@@ -175,6 +175,17 @@ class AlignmentManipulationTest(unittest.TestCase):
         os.remove("test.fas")
         shutil.rmtree("test")
 
+    def test_start_stop_action_alignment(self):
+
+        self.aln_obj = AlignmentList(dna_data_fas)
+
+        original_data = self.aln_obj.alignments
+
+        self.aln_obj.start_action_alignment()
+        self.aln_obj.stop_action_alignment()
+
+        self.assertEqual(original_data, self.aln_obj.alignments)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -423,7 +423,7 @@ class GroupLight(object):
         data = list(data.values())
 
         # Sort lists
-        x_labels = (list(x) for x in zip(*sorted(zip(x_labels, data))))[0]
+        x_labels = [list(x) for x in zip(*sorted(zip(x_labels, data)))][0]
 
         # Convert label to strings
         x_labels = [str(x) for x in x_labels]
