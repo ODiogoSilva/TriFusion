@@ -104,8 +104,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.42"
-__build__ = "251016"
+__version__ = "0.4.43"
+__build__ = "271016"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus"]
@@ -783,6 +783,11 @@ class TriFusionApp(App):
                 self._popup not in self.root_window.children and \
                 self._subpopup not in self.root_window.children:
 
+            # Ignore if in statistics screen and sidepanel expanded
+            if self.screen.name == "Statistics" and \
+                        self.screen.ids.stats_panel.width == 410:
+                return
+
             # Add exceptions here
             try:
                 if isinstance(self.screen.ids.plot_content.children[
@@ -940,7 +945,7 @@ class TriFusionApp(App):
 
         key_code = vals[1]
 
-        if key_code == 306:
+        if key_code == 305:
             self.is_control_pressed = False
 
         if key_code == 304:
