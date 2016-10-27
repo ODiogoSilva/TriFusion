@@ -43,6 +43,7 @@ operation.
 - Fixed duplicate prevention routine when adding new partitions
 - Fixed faulty partition removal when removing an alignment with multiple
 partitions
+- Fixed faulty behaviour with plot screen zoom using mouse wheel
 
 ##### Process
 
