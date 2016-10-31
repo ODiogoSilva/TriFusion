@@ -67,6 +67,7 @@ concatenation dialog.
 
 - Fixed awkward button behavior on Operations panel.
 - Fixed issue with protein database name when exporting groups after a Search operation.
+- Corrected minimum taxa representation proportion conversion
 
 ##### Statistics
 

@@ -135,9 +135,6 @@ class GroupLight(object):
         self.species_threshold = species_threshold if species_threshold \
             else None
 
-        if type(self.species_threshold) is float:
-            self._get_sp_proportion()
-
         # Attribute containing the list of included species
         self.species_list = []
         # Attribute that will contain taxa to be excluded from analyses
@@ -166,6 +163,9 @@ class GroupLight(object):
         self.filtered_groups = []
 
         self._parse_groups()
+
+        if type(self.species_threshold) is float:
+            self._get_sp_proportion()
 
     def groups(self):
         """
@@ -300,7 +300,6 @@ class GroupLight(object):
 
         self.species_threshold = int(self.species_threshold *
                                      len(self.species_list))
-        print(self.species_threshold)
 
     def update_filters(self, gn_filter, sp_filter, update_stats=False):
 
