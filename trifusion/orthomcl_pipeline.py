@@ -331,7 +331,8 @@ def main():
                              help="Set the e-value cut off for search "
                              "operation (default is '%(default)s')")
     search_opts.add_argument("-inflation", dest="inflation", nargs="+",
-                             default=["3"], choices=xrange(1, 6),
+                             default=["3"],
+                             choices=[str(x) for x in xrange(1, 6)],
                              help="Set inflation values for ortholog group"
                              " clustering. Multiple values may be provided "
                              "but values are limited to the range [1, 5]")
@@ -351,7 +352,7 @@ def main():
                              "group files from the output of MCL (default is "
                              "'%(default)s')")
     output_opts.add_argument("--min-species", dest="min_sp", default=1,
-                             type=int, help="Set the minimum number of "
+                             type=float, help="Set the minimum number of "
                              "species required for an ortholog cluster to be "
                              "converted into protein sequence. This option "
                              "will only affect the protein sequence files, "
