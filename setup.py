@@ -5,12 +5,35 @@ except ImportError:
     ez_setup.use_setuptools()
     from setuptools import setup
 
+import sys
+
 with open('README.md') as f:
     readme = f.read()
 
+
+def mcl_data_files():
+    """
+    Automatically detects the platform and sets the appropriate mcl binary
+    """
+
+    data_file = None
+
+    print(sys.platform)
+
+    if sys.platform in ["linux2"]:
+        data_file = ["trifusion/data/resources/mcl/linux/mcl"]
+
+    elif sys.platform in ["win32", "cygwin"]:
+        data_file = ["trifusion/data/resources/mcl/windows/mcl64.exe"]
+
+    return data_file
+
+
+mcl_file = mcl_data_files()
+
 setup(
     name="TriFusion",
-    version="0.4.46-1",
+    version="0.4.47-1",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
@@ -48,7 +71,7 @@ setup(
                  "Operating System :: Microsoft :: Windows",
                  "Programming Language:: Python:: 2:: Only",
                  "Topic :: Scientific/Engineering :: Bio-Informatics"],
-    scripts=["trifusion/data/resources/mcl/bin/mcl"],
+    scripts=mcl_file,
     entry_points={
         "gui_scripts": [
             "TriFusion = trifusion.TriFusion:gui_exec"
