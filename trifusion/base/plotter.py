@@ -525,9 +525,6 @@ def histogram_smooth(data, ax_names=None, table_header=None, title=None,
         y, x = np.histogram(d, 100, (0., 1.))
         hist_data.append(y)
 
-    if title:
-        plt.title(title)
-
     # Populate table
     for i, d in zip(np.arange(0, 1, 0.01), zip(*hist_data)):
         table.append([i] + list(d))

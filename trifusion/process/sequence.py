@@ -3548,7 +3548,7 @@ class AlignmentList(Base):
         self._get_similarity("disconnect")
 
         return {"data": data,
-                "title": "Average pair-wise sequence similarity",
+                "color_label": "Pairwise sequence similarity",
                 "labels": list(taxa_pos)}
 
     @CheckData
