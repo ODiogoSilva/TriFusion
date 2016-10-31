@@ -9824,13 +9824,26 @@ def main():
     # This will handle the pointer to the kv file whether TriFusion is a
     # one-file executable, a one-dir executable, or running from source.
     if getattr(sys, "frozen", False):
+
+        # Get relative path of mcl binary
+        mcl_path = None
+        if sys.platform == "linux2":
+            mcl_path = os.path.join("data", "resources", "mcl", "linux", "mcl")
+        elif sys.platform in ["win32", "cygwin"]:
+            mcl_path = os.path.join("data", "resources", "mcl", "windows",
+                                    "mcl")
+
         # One-file
         try:
+            # Get main kv file
             kv_file = os.path.join(sys._MEIPASS, "trifusion.kv")
             os.chdir(sys._MEIPASS)
+            # Get mcl executable path
+            mcl_file = os.path.join(sys._MEIPASS, mcl_path)
         # One-dir
         except AttributeError:
             kv_file = "trifusion.kv"
+            mcl_file = mcl_path
     # Source
     elif __file__:
         kv_file = "trifusion.kv"
