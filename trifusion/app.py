@@ -9848,6 +9848,8 @@ def main():
     elif __file__:
         kv_file = "trifusion.kv"
 
+    print(mcl_file)
+
     TriFusionApp(kv_file="trifusion.kv").run()
 
 if __name__ == "__main__":
