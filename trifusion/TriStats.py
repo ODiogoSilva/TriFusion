@@ -172,107 +172,107 @@ def stats_main(args):
     # Variable mapping each available option with the appropriate statistics
     # and plotting methods
     func_map = {
-        ("General Information", "distribution_sequence_size", "species"):
+        ("general information", "distribution_sequence_size", "species"):
             [alignments.average_seqsize_per_species,
              (box_plot, "avg_seqsize_species.png")],
 
-        ("General Information", "distribution_sequence_size", "average"):
+        ("general information", "distribution_sequence_size", "average"):
             [alignments.average_seqsize,
              (histogram_plot, "avg_seqsize.png")],
 
-        ("General Information", "proportion_nucleotides_residues", "species"):
+        ("general information", "proportion_nucleotides_residues", "species"):
             [alignments.characters_proportion_per_species,
              (stacked_bar_plot, "char_proportions_sp.png")],
 
-        ("General Information", "proportion_nucleotides_residues", "average"):
+        ("general information", "proportion_nucleotides_residues", "average"):
             [alignments.characters_proportion,
              (bar_plot, "char_proportions.png")],
 
-        ("General Information", "distribution_taxa_frequency", "average"):
+        ("general information", "distribution_taxa_frequency", "average"):
             [alignments.taxa_distribution,
              (histogram_plot, "distribution_taxa_frequency.png")],
 
-        ("Polymorphism and Variation", "sequence_similarity", "species"):
+        ("polymorphism and variation", "sequence_similarity", "species"):
             [alignments.sequence_similarity_per_species,
              (triangular_heat, "similarity_distribution_sp.png")],
 
-        ("Polymorphism and Variation", "sequence_similarity", "average"):
+        ("polymorphism and variation", "sequence_similarity", "average"):
             [alignments.sequence_similarity,
              (histogram_plot, "similarity_distribution.png")],
 
-        ("Polymorphism and Variation", "sequence_similarity", "gene"):
+        ("polymorphism and variation", "sequence_similarity", "gene"):
             [alignments.sequence_similarity_gene,
              (sliding_window, "similarity_distribution_gn.png")],
 
-        ("Polymorphism and Variation", "segregating_sites", "species"):
+        ("polymorphism and variation", "segregating_sites", "species"):
             [alignments.sequence_segregation_per_species,
              (triangular_heat, "segregating_sites_sp.png")],
 
-        ("Polymorphism and Variation", "segregating_sites", "average"):
+        ("polymorphism and variation", "segregating_sites", "average"):
             [alignments.sequence_segregation,
              (histogram_plot, "segregating_sites.png")],
 
-        ("Polymorphism and Variation", "segregating_sites", "gene"):
+        ("polymorphism and variation", "segregating_sites", "gene"):
             [alignments.sequence_segregation_gene,
              (sliding_window, "segregating_sites_gn.png")],
 
-        ("Polymorphism and Variation", "alignment_pol_correlation", "average"):
+        ("polymorphism and variation", "alignment_pol_correlation", "average"):
             [alignments.length_polymorphism_correlation,
              (scatter_plot, "length_polymorphism_correlation.png")],
 
-        ("Polymorphism and Variation", "allele_frequency_spectrum", "average"):
+        ("polymorphism and variation", "allele_frequency_spectrum", "average"):
             [alignments.allele_frequency_spectrum,
              (histogram_plot, "allele_frequency_spectrum.png")],
 
-        ("Polymorphism and Variation", "allele_frequency_spectrum", "gene"):
+        ("polymorphism and variation", "allele_frequency_spectrum", "gene"):
             [alignments.allele_frequency_spectrum_gene,
              (histogram_plot, "allele_frequency_spectrum_gn.png")],
 
-        ("Missing Data", "gene_occupancy", "average"):
+        ("missing data", "gene_occupancy", "average"):
             [alignments.gene_occupancy,
              (interpolation_plot, "gene_occupancy.png")],
 
-        ("Missing Data", "distribution_missing_genes", "species"):
+        ("missing data", "distribution_missing_genes", "species"):
             [alignments.missing_genes_per_species,
              (bar_plot, "missing_gene_distribution.png")],
 
-        ("Missing Data", "distribution_missing_genes", "average"):
+        ("missing data", "distribution_missing_genes", "average"):
             [alignments.missing_genes_average,
              (histogram_plot, "missing_gene_distribution_avg.png")],
 
-        ("Missing Data", "distribution_missing_data", "species"):
+        ("missing data", "distribution_missing_data", "species"):
             [alignments.missing_data_per_species,
              (stacked_bar_plot, "missing_data_distribution_sp.png")],
 
-        ("Missing Data", "distribution_missing_data", "average"):
+        ("missing data", "distribution_missing_data", "average"):
             [alignments.missing_data_distribution,
              (histogram_smooth, "missing_data_distribution.png")],
 
-        ("Missing Data", "cumulative_distribution_missing_genes", "average"):
+        ("missing data", "cumulative_distribution_missing_genes", "average"):
             [alignments.cumulative_missing_genes,
              (bar_plot, "cumulative_distribution_missing_genes.png")],
 
-        ("Outlier Detection", "missing_data_outliers", "species"):
+        ("outlier detection", "missing_data_outliers", "species"):
             [alignments.outlier_missing_data_sp,
              (outlier_densisty_dist, "Missing_data_outliers_sp.png")],
 
-        ("Outlier Detection", "missing_data_outliers", "average"):
+        ("outlier detection", "missing_data_outliers", "average"):
             [alignments.outlier_missing_data,
              (outlier_densisty_dist, "Missing_data_outliers.png")],
 
-        ("Outlier Detection", "segregating_sites_outliers", "species"):
+        ("outlier detection", "segregating_sites_outliers", "species"):
             [alignments.outlier_segregating_sp,
              (outlier_densisty_dist, "Segregating_sites_outliers_sp.png")],
 
-        ("Outlier Detection", "segregating_sites_outliers", "average"):
+        ("outlier detection", "segregating_sites_outliers", "average"):
             [alignments.outlier_segregating,
              (outlier_densisty_dist, "Segregating_sites_outliers.png")],
 
-        ("Outlier Detection", "sequence_size_outliers", "species"):
+        ("outlier detection", "sequence_size_outliers", "species"):
             [alignments.outlier_sequence_size_sp,
              (outlier_densisty_dist, "Sequence_size_outliers_sp.png")],
 
-        ("Outlier Detection", "sequence_size_outliers", "average"):
+        ("outlier detection", "sequence_size_outliers", "average"):
             [alignments.outlier_sequence_size,
              (outlier_densisty_dist, "Sequence_size_outliers.png")]
     }
@@ -284,7 +284,8 @@ def stats_main(args):
         for option, val in settings.items(section):
             for i in val.split():
 
-                # Check if current option is available or suported
+                section = section.lower()
+                # Check if current option is available or supported
                 if (section, option, i) in func_map:
                     print_col("Generating plot for option: %s - %s - %s" %
                               (section, option, i), GREEN, 2)

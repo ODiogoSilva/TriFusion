@@ -31,6 +31,7 @@ operation.
 
 - Added percentage values to some summary statistics.
 - Allele frequency spectrum plot now available in MAF proportions.
+- Options in TriStats configuration file are now case insensitive.
 
 #### Bug Fixes
 
