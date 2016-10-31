@@ -10,7 +10,7 @@ with open('README.md') as f:
 
 setup(
     name="TriFusion",
-    version="0.4.45-1",
+    version="0.4.46-1",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
@@ -48,6 +48,7 @@ setup(
                  "Operating System :: Microsoft :: Windows",
                  "Programming Language:: Python:: 2:: Only",
                  "Topic :: Scientific/Engineering :: Bio-Informatics"],
+    scripts=["trifusion/data/resources/mcl/bin/mcl"],
     entry_points={
         "gui_scripts": [
             "TriFusion = trifusion.TriFusion:gui_exec"

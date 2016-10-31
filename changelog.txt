@@ -10,6 +10,7 @@
 - Added label with selection information for data set group dialog.
 - Added extension label in certain file choosers that require file name
 definition
+- Added mcl to distribution
 
 ##### Process
 
