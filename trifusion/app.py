@@ -104,8 +104,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.47"
-__build__ = "311016"
+__version__ = "0.4.48"
+__build__ = "21116"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -1217,7 +1217,7 @@ class TriFusionApp(App):
             return join(path, os.path.commonprefix(dirlist))
 
         else:
-            self.dialog_floatcheck("WARNING: Path does not exist",
+            self.dialog_floatcheck("Path does not exist",
                                    t="warning")
             return original_path
 
@@ -1837,7 +1837,7 @@ class TriFusionApp(App):
                 fc_wgt.previous_dir.append(fc_wgt.path)
             else:
                 return self.dialog_floatcheck(
-                    "ERROR: Directory does not exist", t="error")
+                    "Directory does not exist", t="error")
 
         label = PathLabel()
         txt = PathText(id="path_editor")
@@ -3321,7 +3321,7 @@ class TriFusionApp(App):
 
         if name in self.alignment_list.partitions.partitions:
             return self.dialog_floatcheck(
-                "ERROR: A partition named %s already exists." % name,
+                "A partition named %s already exists." % name,
                 t="error")
 
         self.alignment_list.partitions.merge_partitions(
@@ -3349,7 +3349,7 @@ class TriFusionApp(App):
         if new_names:
             if [x for x in new_names if x in
                     self.alignment_list.partitions.partitions]:
-                return self.dialog_floatcheck("ERROR: Duplicate partition names "
+                return self.dialog_floatcheck("Duplicate partition names "
                                               "deteced: {}".format(
                     " ".join([x for x in new_names if x if
                     self.alignment_list.partitions.partitions])), t="error")
@@ -3410,7 +3410,7 @@ class TriFusionApp(App):
 
         if not isinstance(part_range[0], tuple):
             self.dialog_floatcheck(
-                "WARNING: Manual split in unavailable for partitions with "
+                "Manual split in unavailable for partitions with "
                 "fragmented ranges.",
                 t="warning")
 
@@ -5149,7 +5149,7 @@ class TriFusionApp(App):
         # Check for project name duplicates
         if name in projects_dic:
             return self.dialog_floatcheck(
-                "WARNING: Project with the same name is already present",
+                "Project with the same name is already present",
                 t="warning")
 
         with open(self.projects_file, "wb") as projects_fh:
@@ -5278,7 +5278,7 @@ class TriFusionApp(App):
                 # Check if files are present
                 if [x for x in project_dic[name][0] if not os.path.isfile(
                         x)]:
-                    self.dialog_floatcheck("WARNING: Some project "
+                    self.dialog_floatcheck("Some project "
                         "files no longer exist", t="warning")
                 # Opens new dataset
                 self.load_files_subproc(project_dic[name][0])
@@ -5396,7 +5396,7 @@ class TriFusionApp(App):
 
             # Issue warning for large data sets
             if len(table) > 50:
-                self.dialog_floatcheck("WARNING: Large number of genes to "
+                self.dialog_floatcheck("Large number of genes to "
                     "display. Showing first 50 for now. For larger data "
                     "sets it is recommended to use the 'export table' "
                     "option", t="warning", dl=10)
@@ -6119,12 +6119,12 @@ class TriFusionApp(App):
 
             if int(gene_filt) < 0:
                 return self.dialog_floatcheck(
-                    "ERROR: Maximum number of gene copies must be higher "
+                    "Maximum number of gene copies must be higher "
                     "than 0", t="error")
 
             if float(sp_filt) < 0:
                 return self.dialog_floatcheck(
-                    "ERROR: Minimum number of taxa must be a positive "
+                    "Minimum number of taxa must be a positive "
                     "value", t="error")
 
             self.orto_max_gene = int(gene_filt)
@@ -6136,7 +6136,7 @@ class TriFusionApp(App):
 
         except ValueError:
             return self.dialog_floatcheck(
-                "ERROR: {} must be a real numbers".format(gene_filt),
+                "{} must be a real numbers".format(gene_filt),
                 t="error")
 
         self.dismiss_popup()
@@ -6145,7 +6145,7 @@ class TriFusionApp(App):
         # greater that the number of proteome input files (which should
         # represent a single species each) this will issue a warning.
         if self.proteome_files and int(sp_filt) > len(self.proteome_files):
-            return self.dialog_floatcheck("WARNING: Minimum number of "
+            return self.dialog_floatcheck("Minimum number of "
                                           "species larger than the provided"
                                           " proteomes", t="warning")
 
@@ -6179,7 +6179,7 @@ class TriFusionApp(App):
             # Check if max_stop value is between 0 and 100
             if 0 < float(max_stop) > 100:
                 return self.dialog_floatcheck(
-                    "ERROR: Maximum codon stops value must be between 0 "
+                    "Maximum codon stops value must be between 0 "
                     "and 100", t="error")
 
             self.protein_min_len = abs(int(min_len))
@@ -6187,7 +6187,7 @@ class TriFusionApp(App):
             self.dismiss_popup()
         except ValueError:
             return self.dialog_floatcheck(
-                "ERROR: {} and {} must be "
+                "{} and {} must be "
                 "numbers".format(min_len, max_stop), t="error")
 
     def dialog_export_groups(self):
@@ -6485,7 +6485,7 @@ class TriFusionApp(App):
             # If all taxa were excluded issue a warning and do nothing more
             if set(exclude_taxa) == set(self.active_group.species_list):
                 return self.dialog_floatcheck(
-                    "WARNING: At least one taxon must be included.",
+                    "At least one taxon must be included.",
                     t="warning")
 
             # Update attributes and remove taxa from group object
@@ -6542,7 +6542,7 @@ class TriFusionApp(App):
             # If any of the filters had to be adjusted, issue a warning
             if gn_filt != filt[0] or sp_filt != filt[1]:
                 self.dialog_floatcheck(
-                    "WARNING: Current filters beyond the  maximum "
+                    "Current filters beyond the  maximum "
                     "accepted values. Adjusting gene  and species "
                     "thresholds to %s and %s,  respectively" %
                     (gn_filt, sp_filt), t="warning")
@@ -6566,7 +6566,7 @@ class TriFusionApp(App):
 
             # Issue warning that the filters were adjusted
             self.dialog_floatcheck(
-                "WARNING: Current filters beyond the maximum accepted "
+                "Current filters beyond the maximum accepted "
                 "values. Adjusting gene and species thresholds to %s and "
                 "%s, respectively" %
                 (self.screen.ids.gn_spin.value,
@@ -7137,7 +7137,7 @@ class TriFusionApp(App):
 
         if not self.output_formats:
             return self.dialog_floatcheck(
-                "WARNING: Please choose at least one output format",
+                "Please choose at least one output format",
                 t="warning")
 
         self.dismiss_popup()
@@ -7279,7 +7279,7 @@ class TriFusionApp(App):
                            "mutation model",
                            "inheritance scalar"]):
             if not i:
-                return self.dialog_floatcheck("WARNING: Please specify a "
+                return self.dialog_floatcheck("Please specify a "
                                               "{}".format(msg), t="warning")
 
         self.ima2_options[1] = pop_string
@@ -7375,7 +7375,7 @@ class TriFusionApp(App):
                     f = "%s%s.txt" % (f, suffix)
                 if not os.path.isfile(f):
                     return self.dialog_floatcheck(
-                        "ERROR: File %s does not exist" % f, t="error")
+                        "File %s does not exist" % f, t="error")
 
         self.update_process_switch(
             "zorro", self._popup.content.ids.zorro_switch.active)
@@ -7432,29 +7432,33 @@ class TriFusionApp(App):
         def fade_in():
             Animation(opacity=1, d=.5, t="out_quart").start(check_wgt)
             Animation(opacity=1, d=.5, t="out_quart").start(rm_wgt)
+            Animation(opacity=1, d=.5, t="out_quart").start(ico_wgt)
 
         def fade_out():
             # Get height of warning
             h = check_wgt.height
             pos_h = check_wgt.pos[1]
 
-            Animation(opacity=0, d=.2, t="out_quart").start(check_wgt)
-            Animation(opacity=0, d=.2, t="out_quart").start(rm_wgt)
+            for wgt in [check_wgt, rm_wgt, ico_wgt]:
+                Animation(opacity=0, d=.2, t="out_quart").start(wgt)
+
             Clock.schedule_once(
                 lambda dt: self.root_window.remove_widget(check_wgt), .2)
             Clock.schedule_once(
                 lambda dt: self.root_window.remove_widget(rm_wgt), .2)
+            Clock.schedule_once(
+                lambda dt: self.root_window.remove_widget(ico_wgt), .2)
 
             # Check if any warnings are still present. If so, update vertical
             # position
             current_floats = [i for i in self.root_window.children
-                              if isinstance(i, WarningFloat)]
-            current_x = [i for i in self.root_window.children
-                         if isinstance(i, RemoveFloat)]
+                              if isinstance(i, WarningFloat) or
+                              isinstance(i, RemoveFloat) or
+                              isinstance(i, IconFloat)]
 
             if len(current_floats) > 1:
 
-                for wgt in current_floats + current_x:
+                for wgt in current_floats:
                     if pos_h > wgt.pos[1]:
                         pos = (wgt.pos[0], wgt.pos[1] + 15 + h)
                         Animation(pos=pos, t="out_quart").start(wgt)
@@ -7490,21 +7494,25 @@ class TriFusionApp(App):
         # Create remove button
         rm_wgt = RemoveFloat(pos=(x - 38, y - 75 - spacing), opacity=0)
         rm_wgt.bind(on_release=lambda arg: fade_out())
+        # Create icon float
+        ico_wgt = IconFloat(pos=(check_wgt.pos[0] - 20,
+                                 check_wgt.pos[1] + (check_wgt.height / 2)
+                                 - 10), opacity=0)
 
         # Determine background color
-        if t == "error":
-            check_wgt.cl = (1, .33, .33, 1)
-            check_wgt.line_cl = (1, 0, 0, 1)
-        elif t == "warning":
-            check_wgt.cl = (.93, .55, .09, 1)
-            check_wgt.line_cl = (1, .81, 0, 1)
+        if t in ["error", "warning"]:
+            check_wgt.background_src = "data/backgrounds/red_noise.png"
+            ico_wgt.icon_src = "data/backgrounds/warning_icon.png"
         else:
-            check_wgt.cl = (.35, .63, .17, 1)
-            check_wgt.line_cl = (0.2, 1, 0.2, 1)
+            check_wgt.background_src = "data/backgrounds/green_noise.png"
+            ico_wgt.icon_src = "data/backgrounds/check_icon.png"
+            ico_wgt.size = (20, 16)
+            ico_wgt.pos[1] += 2
 
         # Add widget
         self.root_window.add_widget(check_wgt)
         self.root_window.add_widget(rm_wgt)
+        self.root_window.add_widget(ico_wgt)
 
         # Set animations
         fade_in()
@@ -8011,7 +8019,7 @@ class TriFusionApp(App):
 
         if not self.active_file_list:
             return self.dialog_floatcheck(
-                "ERROR: No input files were loaded or are active",
+                "No input files were loaded or are active",
                 t="error")
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
@@ -8028,7 +8036,7 @@ class TriFusionApp(App):
                 "operation:[/color][/size][/b] %s" % main_op
         except IndexError:
             return self.dialog_floatcheck(
-                "ERROR: Please select a main operation", t="error")
+                "Please select a main operation", t="error")
 
         # Get secondary operations
         secondary_op = [nm for nm, bl in self.secondary_operations.items()
@@ -8052,7 +8060,7 @@ class TriFusionApp(App):
             # Check if an output directory has been selected
             if self.output_file == "":
                 return self.dialog_floatcheck(
-                    "ERROR: No output file has been selected", t="error")
+                    "No output file has been selected", t="error")
 
             out_file = basename(self.output_file)
             add_files = [out_file + "_" + nm for nm, bl in
@@ -8067,7 +8075,7 @@ class TriFusionApp(App):
             # Check if an output file has been selected
             if self.output_dir == "":
                 return self.dialog_floatcheck(
-                    "ERROR: No output directory has been selected",
+                    "No output directory has been selected",
                     t="error")
             try:
                 # Check for additional files
@@ -8082,18 +8090,18 @@ class TriFusionApp(App):
             # are no input files
             except AttributeError:
                 return self.dialog_floatcheck(
-                    "ERROR: No input files havebeen selected", t="error")
+                    "No input files havebeen selected", t="error")
 
         if main_op == "reverse_concatenation":
             if self.output_dir == "":
                 return self.dialog_floatcheck(
-                    "ERROR: No output directory has been selected",
+                    "No output directory has been selected",
                     t="error")
 
         if main_op == "reverse_concatenation" and not self.rev_infile and \
                 len(self.file_list) > 1:
             return self.dialog_floatcheck(
-                "ERROR: Reverse concatenation using partitions defined in "
+                "Reverse concatenation using partitions defined in "
                 "the app requires only one input alignment. Please select"
                 " a single file to reverse concatenate in the Reverse "
                 "concatenate settings", t="error")
@@ -8107,7 +8115,7 @@ class TriFusionApp(App):
 
         except AttributeError:
             return self.dialog_floatcheck(
-                "ERROR: No input files have been selected", t="error")
+                "No input files have been selected", t="error")
 
         # Check if main operation is reverse concatenation and if the active
         # taxa set smaller than the complete set. If so, issue a warning
@@ -8228,7 +8236,7 @@ class TriFusionApp(App):
                 self.usearch_evalue = text
             except ValueError:
                 return self.dialog_floatcheck(
-                    "ERROR: e-value must be a number", t="error")
+                    "E-value must be a number", t="error")
 
         elif idx == "orto_group":
             self.ortholog_prefix = text
@@ -8453,7 +8461,7 @@ class TriFusionApp(App):
 
         if isinstance(plot_data, EmptyAlignment):
             return self.dialog_floatcheck(
-                "ERROR: Active alignment is empty", t="error")
+                "Active alignment is empty", t="error")
 
         # Dismiss stats toggle widget, if present
         self.dismiss_stats_toggle()
@@ -8523,7 +8531,7 @@ class TriFusionApp(App):
                 if plot_data["exception"] is EmptyData:
                     self.screen.ids.plot_content.clear_widgets()
                     return self.dialog_floatcheck(
-                        "ERROR: No data available for plotting", t="error")
+                        "No data available for plotting", t="error")
 
             # Set new plot attributes
             self.current_plot, self.current_lgd, self.current_table = \
@@ -9109,7 +9117,7 @@ class TriFusionApp(App):
                 file_list.append(i)
 
         if not file_list:
-            return self.dialog_floatcheck("ERROR: No valid input files were"
+            return self.dialog_floatcheck("No valid input files were"
                                           " provided", t="error")
 
         # Set a unique temporary directory for each loading operation.
@@ -9189,7 +9197,7 @@ class TriFusionApp(App):
                 aln_list = pickle.load(fh)
 
         if not aln_pickle:
-            return self.dialog_floatcheck("ERROR: Internal alignment "
+            return self.dialog_floatcheck("Internal alignment "
                                           "reference not found", t="error")
 
         # Check for consistency in sequence type across alignments
@@ -9727,13 +9735,13 @@ class TriFusionApp(App):
                         man.shutdown()
                         p.terminate()
                         return self.dialog_floatcheck(
-                            "ERROR: The alignment is empty after applying "
+                            "The alignment is empty after applying "
                             "filters", t="error")
                     elif shared_ns.exception == "Unknown":
                         man.shutdown()
                         p.terminate()
                         return self.dialog_floatcheck(
-                            "ERROR: Unexpected error when generating "
+                            "Unexpected error when generating "
                             "Process output. Check the app logs.",
                             t="error")
                 except:
@@ -9821,6 +9829,8 @@ def main():
 
     multiprocessing.freeze_support()
 
+    print(getattr(sys, "frozen", False))
+
     # This will handle the pointer to the kv file whether TriFusion is a
     # one-file executable, a one-dir executable, or running from source.
     if getattr(sys, "frozen", False):
@@ -9844,11 +9854,11 @@ def main():
         except AttributeError:
             kv_file = "trifusion.kv"
             mcl_file = mcl_path
+
+        print(mcl_file)
     # Source
     elif __file__:
         kv_file = "trifusion.kv"
-
-    print(mcl_file)
 
     TriFusionApp(kv_file="trifusion.kv").run()
 
