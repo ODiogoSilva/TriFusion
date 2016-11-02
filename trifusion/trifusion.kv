@@ -643,30 +643,42 @@
     text_size: (self.size[0], None)
     height: self.texture_size[1]
     pos: self.root_pos[0] - self.size[0] - 20, self.root_pos[1] - self.size[1] - 60
-    cl: (.7, .33, .33, 1)
     line_cl: (1, 0.3, 0.3, 1)
+    background_src: ""
     bold: True
     canvas.before:
         Color:
-            rgba: self.cl
+            rgba: (1,1,1,1)
         Rectangle:
-            pos: self.pos
-            size: self.size
+            source: self.background_src
+            pos: (root.pos[0] - 30, root.pos[1])
+            size: (root.size[0] + 30, root.size[1])
     StackLayout:
         canvas.after:
             Color:
-                rgb: root.line_cl
+                rgb: (0.7, 0.7, 0.7, .9)
             Line:
                 width: 1.1
                 cap: "round"
                 joint: "round"
-                rectangle: root.x,root.y,root.width,root.height
+                rectangle: root.x - 30,root.y,root.width+30,root.height
 
 <RemoveFloat>:
     size_hint: None, None
     background_normal: "data/backgrounds/round_remove.png"
     background_down: "data/backgrounds/round_remove.png"
     size: 25, 25
+
+<IconFloat>:
+    size_hint: None, None
+    size: 20, 20
+    icon_src: ""
+    canvas.after:
+        Rectangle:
+            source: self.icon_src
+            pos: self.pos
+            size: self.size
+
 
 <CloseFloat>:
     pos: ((app.root.width / 2) + (app._popup.width / 2) - 25, (app.root.height / 2) + (app._popup.height / 2) - 25)
@@ -2937,12 +2949,12 @@
                 on_release:
                     # Check for empty selected group
                     if not select_grid.children: \
-                    app.dialog_floatcheck("ERROR: Cannot create an empty data set group", t="error")
+                    app.dialog_floatcheck("Cannot create an empty data set group", t="error")
                     # Check for duplicate group name for taxa and file dialogs
                     elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
-                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
                     elif root.ds_type == "files" and root.ids.group_name.text in app.file_groups: \
-                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
                     # Save group and quit dialog
                     elif root.ds_type == "taxa" and select_grid.children: \
                     root.cancel(); app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
@@ -2956,12 +2968,12 @@
                 on_release:
                     # Check for empty selected group
                     if not select_grid.children: \
-                    app.dialog_floatcheck("ERROR: Cannot create an empty data set group", t="error")
+                    app.dialog_floatcheck("Cannot create an empty data set group", t="error")
                     # Check for duplicate group name for taxa and file dialogs
                     elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
-                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
                     elif root.ds_type == "files" and root.ids.group_name.text in app.file_groups: \
-                    app.dialog_floatcheck("ERROR: Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
                     ## Save group
                     elif root.ds_type == "taxa" and select_grid.children: \
                     app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
@@ -3173,7 +3185,7 @@
                         filename = text_input.text
                         # For save dialogs requiring file name, make this check
                         if self.text_io == "" and txt_box.height == 30 and txt_label.text == "File name:": \
-                        app.dialog_floatcheck(text="WARNING: Please provide a file name", t="error")
+                        app.dialog_floatcheck(text="Please provide a file name", t="error")
                         elif txt_box.height != 0 and "bw" in txt_box.ids: \
                         app.check_file(sd_filechooser.path, filename, sd_filechooser.text, txt_box.ids.bw.children[-1].active)
                         # When converting
@@ -3184,7 +3196,7 @@
 
                         # For save dialogs that do not require file names but require a file to be selected
                         elif sd_filechooser.text in root.file_required and not sd_filechooser.selection: \
-                        app.dialog_floatcheck(text="WARNING: Please select a file", t="error");
+                        app.dialog_floatcheck(text="Please select a file", t="error");
 
                         # For save dialogs that do not require file names
                         elif sd_filechooser.text == "zorro_dir" and txt_box.height == 0:\
@@ -3501,15 +3513,15 @@
                 on_release:
                     # Check if both partition names were provided
                     if not part1.text or not part2.text: \
-                    app.dialog_floatcheck("ERROR: Please provide the name for both manual partitions", t="error")
+                    app.dialog_floatcheck("Please provide the name for both manual partitions", t="error")
 
                     # Check whether the split position is not in the extremes
                     elif manual_slider.value == manual_slider.min or manual_slider.value == manual_slider.max: \
-                    app.dialog_floatcheck("ERROR: Split position cannot be the minimum or maximum value of the current partition", t="error")
+                    app.dialog_floatcheck("Split position cannot be the minimum or maximum value of the current partition", t="error")
 
                     # Check if partition names are different
                     elif part1.text == part2.text: \
-                    app.dialog_floatcheck("ERROR: Partition names must be different", t="error")
+                    app.dialog_floatcheck("Partition names must be different", t="error")
 
                     else: \
                     app.partitions_split([(int(manual_slider.min) - 1, int(manual_slider.value - 1)), (int(manual_slider.value), int(manual_slider.max))], [part1.text, part2.text])
@@ -3951,7 +3963,7 @@
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
-                if not zorro_txt.text: app.dialog_floatcheck("ERROR: A valid suffix string must be provided", t="error"); zorro_txt.focus = True
+                if not zorro_txt.text: app.dialog_floatcheck("A valid suffix string must be provided", t="error"); zorro_txt.focus = True
                 else: app.save_zorro_settings(zorro_txt.text)
         TFOKButon:
             id: cancel_bt
@@ -5159,7 +5171,7 @@
                         if app.active_file_list: \
                         app.dialog_zorro()
                         else: \
-                        app.dialog_floatcheck("ERROR: No input files have been selected to use this option", t="error")
+                        app.dialog_floatcheck("No input files have been selected to use this option", t="error")
 
     TabbedPanelItem:
         id: collapse_tab
@@ -5664,7 +5676,7 @@
                 app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]})
 
                 else: \
-                app.dialog_floatcheck("ERROR: Please select a gene.", t="error")
+                app.dialog_floatcheck("Please select a gene.", t="error")
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
@@ -6518,7 +6530,7 @@
             if app.sequence_types == "DNA":\
             app.stats_select_plot("Allele Frequency Spectrum gn", None, "Allele Frequency Spectrum")
             else:\
-            app.dialog_floatcheck("ERROR: This option is only available for nucleotide sequences", t="error")
+            app.dialog_floatcheck("This option is only available for nucleotide sequences", t="error")
     HelpButton:
         on_release:
             app.dialog_general_info("afs")

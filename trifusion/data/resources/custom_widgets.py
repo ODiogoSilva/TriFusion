@@ -953,6 +953,10 @@ class RemoveFloat(Button):
     pass
 
 
+class IconFloat(BoxLayout):
+    pass
+
+
 class CloseFloat(RemoveFloat):
     """
     A Simple (X) float button akin to the RemoveFloat widget. This widget was
