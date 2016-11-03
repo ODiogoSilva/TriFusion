@@ -211,14 +211,16 @@ def dump_pairs(db_dir):
     dump_pairs_sqlite.execute(db_dir)
 
 
-def mcl(inflation_list):
+def mcl(inflation_list, mcl_file="mcl"):
 
     print_col("Running mcl algorithm", GREEN, 1)
 
     FNULL = open(os.devnull, "w")
     for val in inflation_list:
-        _ = subprocess.Popen(["mcl mclInput --abc -I " + val + " -o mclOutput_"
-            + val.replace(".", "")], shell=True, stdout=FNULL,
+        _ = subprocess.Popen([
+                "{} mclInput --abc -I {} -o mclOutput_{}".format(
+                    mcl_file, val, val.replace(".", "")
+                )], shell=True, stdout=FNULL,
             stderr=subprocess.STDOUT).wait()
 
 

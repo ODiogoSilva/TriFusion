@@ -232,6 +232,69 @@
                 joint: "round"
                 rectangle: root.x,root.y,root.width,root.height
 
+<FixButton>:
+    bold: True
+    text: "Fix it"
+    background_normal: ""
+    background_color: 0,0,0,0
+    StackLayout:
+        canvas.after:
+            Color:
+                rgb: (1,1,1,1)
+            Line:
+                cap: "none"
+                joint: "round"
+                close: True
+                width: 1.2
+                rectangle: root.x,root.y, root.width, root.height
+
+<DialogMCLFix>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    Label:
+        halign: "justify"
+        valign: "middle"
+        text_size: self.size
+        markup: True
+        text: "The MCL software is either not installed or reachable by TriFusion. Please ensure that you have downloaded and installed the MCL software from the website:\n\n[ref=http://micans.org/mcl/]http://micans.org/mcl/[/ref]\n\nWhen MCL is installed, provide the executable file via the button bellow."
+        on_ref_press:
+            import webbrowser
+            webbrowser.open(args[1])
+    AnchorLayout:
+        size_hint_y: None
+        height: 40
+        TFButton:
+            size_hint: None, None
+            size: 200, 40
+            text: "Search MCL executable"
+            on_release:
+                app.dialog_filechooser("mcl_fix", 2)
+                root.cancel()
+
+<DialogUSEARCHFix>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    Label:
+        halign: "justify"
+        valign: "middle"
+        text_size: self.size
+        markup: True
+        text: "The USEARCH software is either not installed or reachable by TriFusion. Please ensure that you have downloaded and installed the USEARCH software from the website:\n\n[ref=http://www.drive5.com/usearch/download.html]http://www.drive5.com/usearch/download.html[/ref]\n\nIf USEARCH is already installed, provide the executable file via the button bellow."
+        on_ref_press:
+            import webbrowser
+            webbrowser.open(args[1])
+    AnchorLayout:
+        size_hint_y: None
+        height: 40
+        TFButton:
+            size_hint: None, None
+            size: 220, 40
+            text: "Search USEARCH executable"
+            on_release:
+                app.dialog_filechooser("usearch_fix", 2)
+                root.cancel()
 
 <ProjectOrtoBt>:
     size_hint: None, None
@@ -2250,6 +2313,44 @@
             spacing: 5
             opacity: 1
 
+            DarkBox:
+                BoxLayout:
+                    id: usearch_check
+                    padding: 10, 0
+                    spacing: 10
+                    background_src: "data/backgrounds/green_noise.png"
+                    canvas.before:
+                        Color:
+                            rgba: 1,1,1,1
+                        Rectangle:
+                            source: self.background_src
+                            pos: self.pos
+                            size: self.size
+                    BoxLayout:
+                        id: usearch_check_ico
+                        size_hint_x: None
+                        width: 20
+                        icon_src: "data/backgrounds/check_icon.png"
+                        icon_size: (20, 16)
+                        canvas:
+                            Rectangle:
+                                source: self.icon_src
+                                size: self.icon_size
+                                pos: (self.pos[0], self.pos[1] + 15)
+
+                    Label:
+                        id: usearch_check_lbl
+                        bold: True
+                        text: "USEARCH is installed and reachable"
+                        halign: "left"
+                        valign: "middle"
+                        text_size: self.size
+                    BoxLayout:
+                        padding: 7.5
+                        size_hint_x: None
+                        width: 150
+                        id: usearch_fix
+
             LightBox:
                 Label:
                     markup: True
@@ -2325,6 +2426,44 @@
             padding: 5
             spacing: 5
             opacity: 1
+
+            DarkBox:
+                BoxLayout:
+                    id: mcl_check
+                    padding: 10, 0
+                    spacing: 10
+                    background_src: "data/backgrounds/green_noise.png"
+                    canvas.before:
+                        Color:
+                            rgba: 1,1,1,1
+                        Rectangle:
+                            source: self.background_src
+                            pos: self.pos
+                            size: self.size
+                    BoxLayout:
+                        id: mcl_check_ico
+                        size_hint_x: None
+                        width: 20
+                        icon_src: "data/backgrounds/check_icon.png"
+                        icon_size: (20, 16)
+                        canvas:
+                            Rectangle:
+                                source: self.icon_src
+                                size: self.icon_size
+                                pos: (self.pos[0], self.pos[1] + 15)
+
+                    Label:
+                        id: mcl_check_lbl
+                        bold: True
+                        text: "MCL is installed and reachable"
+                        halign: "left"
+                        valign: "middle"
+                        text_size: self.size
+                    BoxLayout:
+                        padding: 7.5
+                        size_hint_x: None
+                        width: 150
+                        id: mcl_fix_box
 
             LightBox:
                 Label:
@@ -2995,7 +3134,7 @@
     # button to Load
     load_dlgs: ["import_partitions", "partition_file", "select_from_file", "remove_from_file"]
     no_auto_close: ["protein", "nucleotide", "group", "taxa", "files", "main_output", "export", "export_table", "group", "export_graphic"]
-    file_required: ["protein_db", "import_partitions", "partition_file", "select_from_file", "remove_from_file", "files"]
+    file_required: ["protein_db", "import_partitions", "partition_file", "select_from_file", "remove_from_file", "files", "mcl_fix", "usearch_fix"]
     bw: False
     BoxLayout:
         size: root.size
@@ -3199,6 +3338,8 @@
                         app.dialog_floatcheck(text="Please select a file", t="error");
 
                         # For save dialogs that do not require file names
+                        elif (sd_filechooser.text == "mcl_fix" or sd_filechooser.text == "usearch_fix") and txt_box.height == 0:\
+                        app.save_file(sd_filechooser.selection[0], idx = sd_filechooser.text, auto_close=False)
                         elif sd_filechooser.text == "zorro_dir" and txt_box.height == 0:\
                         app.save_file(sd_filechooser.path, idx = sd_filechooser.text, auto_close=False); root.cancel()
                         elif sd_filechooser.text == "ima2_popfile" and txt_box.height == 0:\
