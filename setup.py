@@ -33,7 +33,7 @@ mcl_file = mcl_data_files()
 
 setup(
     name="TriFusion",
-    version="0.4.49-1",
+    version="0.4.50-1",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",

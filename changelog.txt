@@ -49,6 +49,7 @@ Orthology section (usearch and mcl).
 - Fixed faulty partition removal when removing an alignment with multiple
 partitions
 - Fixed faulty behaviour with plot screen zoom using mouse wheel
+- Fixed interactive path references in secondary filechoosers
 
 ##### Process
 
