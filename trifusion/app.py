@@ -105,7 +105,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.49"
+__version__ = "0.4.50"
 __build__ = "03116"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -1062,8 +1062,12 @@ class TriFusionApp(App):
             self.screen.ids.icon_view_tab.path = path
         # When in popup, do this
         except AttributeError:
-            self._popup.content.ids.path_bx.children[0].text = path
-            self._popup.content.ids.sd_filechooser.path = path
+            try:
+                self._popup.content.ids.path_bx.children[0].text = path
+                self._popup.content.ids.sd_filechooser.path = path
+            except AttributeError:
+                self._subpopup.content.ids.path_bx.children[0].text = path
+                self._subpopup.content.ids.sd_filechooser.path = path
 
     def _release_events(self, *vals):
         """
