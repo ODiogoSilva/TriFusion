@@ -28,6 +28,7 @@ import psutil
 import pickle
 import urllib
 import string
+import stat
 import time
 import sys
 import os
@@ -104,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.48"
-__build__ = "21116"
+__version__ = "0.4.49"
+__build__ = "03116"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -195,6 +196,8 @@ if sys.platform in ["win32", "cygwin"]:
     sub_func = threading.Thread
 else:
     sub_func = multiprocessing.Process
+
+MCL_FILE = None
 
 
 class InputTypeError(Exception):
@@ -463,11 +466,13 @@ class TriFusionApp(App):
     orto_export_dir = StringProperty("")
 
     # USEARCH database
+    usearch_file = StringProperty("")
     usearch_db = StringProperty("goodProteins_db")
     usearch_output = StringProperty("AllVsAll.out")
     usearch_evalue = StringProperty("0.00001")
 
     # MCL/Groups attributes
+    mcl_file = StringProperty("")
     ortholog_prefix = StringProperty("My_group")
     group_prefix = StringProperty("group")
     mcl_inflation = ListProperty(["3"])
@@ -667,6 +672,8 @@ class TriFusionApp(App):
 
         # Orthology widgets
         self.ortho_search_options = OrthologySearchGrid()
+        # Check for orthology programs
+        self._check_orto_programs()
 
         # Process widgets
         # Creating GridLayout instance for general options of Process
@@ -826,6 +833,128 @@ class TriFusionApp(App):
                 os.remove(join(self.temp_dir, i))
             except OSError:
                 shutil.rmtree(join(self.temp_dir, i))
+
+    def _check_exec(self, path, program):
+        """
+        Checks the execution of the MCL software from a given path. If the MCL
+        is correct, returns True
+        """
+
+        msg = {"mcl": b"mcl",
+               "usearch": "usearch"}
+
+        # First, try to execute the file directly from the path
+        try:
+            res, _ = subprocess.Popen([path, "--version"],
+                                      stdout=subprocess.PIPE).communicate()
+
+            return res.startswith(msg[program])
+
+        except OSError as e:
+            # This exception may occur because the file is not executable
+            if e.errno == 13:
+
+                try:
+                    # Make the file executable
+                    st = os.stat(path)
+                    os.chmod(path, st.st_mode | stat.S_IEXEC)
+
+                    res, _ = subprocess.Popen(
+                        [path, "--version"],
+                        stdout=subprocess.PIPE).communicate()
+
+                    return res.startswith(msg[program])
+
+                except OSError:
+                    # The provided file is not executable and TriFusion does
+                    # not have permissions to change that.
+                    return False
+            else:
+                # The first OSError exception could not be handled. Fail the
+                # executable check
+                return False
+
+    def _check_orto_programs(self):
+        """
+        Checks if the USEARCH and MCL programs are installed and reachable.
+        1. Check if executables are in the app_dir
+        2. Check if executables are callable from subprocess
+        3. If both checks fail, modify ortho_search_grid to highlight the
+        problem.
+        """
+
+        # Check if MCL_FILE has been set. This happens when running TriFusion
+        # from the executable binary.
+        if MCL_FILE:
+            self.mcl_file = MCL_FILE
+        # Check MCL in app_dir
+        if os.path.exists(join(self.user_data_dir, "mcl")):
+            self.mcl_file = join(self.user_data_dir, "mcl")
+        else:
+            # If not in app_dir check is its reachable system-wide by
+            # subprocess
+            try:
+                subprocess.call(["mcl"])
+                self.mcl_file = "mcl"
+            # MCL software not reachable. Modify attributes and
+            # orto_search_grid
+            except OSError:
+                self.ortho_search_options.ids.mcl_check.background_src = \
+                    "data/backgrounds/red_noise.png"
+                self.ortho_search_options.ids.mcl_check_ico.icon_src = \
+                    "data/backgrounds/warning_icon.png"
+                self.ortho_search_options.ids.mcl_check_ico.icon_size = \
+                    (20, 20)
+                self.ortho_search_options.ids.mcl_check_lbl.text = \
+                    "MCL is not installed or reachable"
+                fix_bt = FixButton()
+                fix_bt.bind(on_release=lambda x: self.dialog_mcl_fix())
+                self.ortho_search_options.ids.mcl_fix_box.add_widget(fix_bt)
+
+        # CHeck USEARCH in app_dir
+        if os.path.exists(join(self.user_data_dir, "usearch")):
+            self.usearch_file = join(self.user_data_dir, "usearch")
+        else:
+            # If not in app_dir check is its reachable system-wide by
+            # subprocess
+            try:
+                subprocess.call(["usearch"])
+                self.usearch_file = "usearch"
+            # MCL software not reachable. Modify attributes and
+            # orto_search_grid
+            except OSError:
+                self.ortho_search_options.ids.usearch_check.background_src = \
+                    "data/backgrounds/red_noise.png"
+                self.ortho_search_options.ids.usearch_check_ico.icon_src = \
+                    "data/backgrounds/warning_icon.png"
+                self.ortho_search_options.ids.usearch_check_ico.icon_size = \
+                    (20, 20)
+                self.ortho_search_options.ids.usearch_check_lbl.text = \
+                    "USEARCH is not installed or reachable"
+                fix_bt = FixButton()
+                fix_bt.bind(on_release=lambda x: self.dialog_usearch_fix())
+                self.ortho_search_options.ids.usearch_fix.add_widget(fix_bt)
+
+    def dialog_mcl_fix(self):
+        """
+        Opens a dialog with information for fixing the missing MCL executable
+        """
+
+        content = DialogMCLFix(cancel=self.dismiss_popup)
+
+        self.show_popup(title="MCL troubleshooting...", content=content,
+                        size=(400, 330), close_bt=True)
+
+    def dialog_usearch_fix(self):
+        """
+        Opens a dialog with information for fixing the missing USEARCH
+        executable
+        """
+
+        content = DialogUSEARCHFix(cancel=self.dismiss_popup)
+
+        self.show_popup(title="USEARCH troubleshooting...", content=content,
+                        size=(400, 330), close_bt=True)
 
     def load_files_startup(self, file_list):
         """
@@ -7113,6 +7242,54 @@ class TriFusionApp(App):
         elif idx == "zorro_dir":
             self.zorro_dir = path
 
+        elif idx == "mcl_fix":
+            # Copy new mcl_file to app_dir
+            if self._check_exec(path, "mcl"):
+                # Copy mcl executable to app dir
+                shutil.copyfile(path, join(self.user_data_dir, "mcl"))
+                self.mcl_file = join(self.user_data_dir, "mcl")
+                # Make it executable
+                st = os.stat(self.mcl_file)
+                os.chmod(self.mcl_file, st.st_mode | stat.S_IEXEC)
+                self.dismiss_all_popups()
+                # Set the orthology fields to green
+                self.ortho_search_options.ids.mcl_check.background_src = \
+                    "data/backgrounds/green_noise.png"
+                self.ortho_search_options.ids.mcl_check_ico.icon_src = \
+                    "data/backgrounds/check_icon.png"
+                self.ortho_search_options.ids.mcl_check_ico.icon_size = \
+                    (20, 16)
+                self.ortho_search_options.ids.mcl_check_lbl.text = \
+                    "MCL is installed and reachable"
+                self.ortho_search_options.ids.mcl_fix_box.clear_widgets()
+            else:
+                self.dialog_floatcheck("The provided MCL executable does "
+                                       "not seem to be correct.", t="error")
+
+        elif idx == "usearch_fix":
+            # Copy new mcl_file to app_dir
+            if self._check_exec(path, "usearch"):
+                # Copy mcl executable to app dir
+                shutil.copyfile(path, join(self.user_data_dir, "usearch"))
+                self.usearch_file = join(self.user_data_dir, "usearch")
+                # Make it executable
+                st = os.stat(self.usearch_file)
+                os.chmod(self.usearch_file, st.st_mode | stat.S_IEXEC)
+                self.dismiss_all_popups()
+                # Set the orthology fields to green
+                self.ortho_search_options.ids.usearch_check.background_src = \
+                    "data/backgrounds/green_noise.png"
+                self.ortho_search_options.ids.usearch_check_ico.icon_src = \
+                    "data/backgrounds/check_icon.png"
+                self.ortho_search_options.ids.usearch_check_ico.icon_size = \
+                    (20, 16)
+                self.ortho_search_options.ids.usearch_check_lbl.text = \
+                    "USEARCH is installed and reachable"
+                self.ortho_search_options.ids.usearch_fix.clear_widgets()
+            else:
+                self.dialog_floatcheck("The provided USEARCH executable does "
+                                       "not seem to be correct.", t="error")
+
         if auto_close:
             self.dismiss_popup()
 
@@ -7723,7 +7900,8 @@ class TriFusionApp(App):
         idx_with_ext = ["export_graphic"]
 
         # Lists the idx that do not required file name
-        idx_no_file = ["ortho_dir", "zorro_dir", "protein_db"]
+        idx_no_file = ["ortho_dir", "zorro_dir", "protein_db", "mcl_fix",
+                       "usearch_fix"]
 
         # Maps idx for which an extension label is provided in the filechooser
         # The key is the idx, the value is the extension to appear in the label
@@ -7752,7 +7930,11 @@ class TriFusionApp(App):
             "export_outliers":
                 "Export outliers...",
             "ortho_dir":
-                "Choose orthology search output directory..."
+                "Choose orthology search output directory...",
+            "mcl_fix":
+                "Select the MCL executable...",
+            "usearch_fix":
+                "Select the USEARCH executable..."
         }
 
         # Add extension selection spinner, if idx in idx_with_ext
@@ -9503,6 +9685,14 @@ class TriFusionApp(App):
                 "Please specify an output directory for orthology results",
                 t="error")
 
+        # Check for the USEARCH executable
+        if not self.usearch_file:
+            return self.dialog_usearch_fix()
+
+        # check for the MCL executable
+        if not self.mcl_file:
+            return self.dialog_mcl_fix()
+
         content = OrtoExecutionDialog(cancel=self.dismiss_popup)
 
         content.ids.gene_filter.text = \
@@ -9629,9 +9819,11 @@ class TriFusionApp(App):
                 self.protein_min_len,
                 self.protein_max_stop,
                 #self.cur_dir,
+                self.usearch_file,
                 self.usearch_evalue,
                 self.screen.ids.usearch_threads.text,
                 self.usearch_output,
+                self.mcl_file,
                 self.mcl_inflation,
                 self.ortholog_prefix,
                 self.group_prefix,
@@ -9829,7 +10021,7 @@ def main():
 
     multiprocessing.freeze_support()
 
-    print(getattr(sys, "frozen", False))
+    global MCL_FILE
 
     # This will handle the pointer to the kv file whether TriFusion is a
     # one-file executable, a one-dir executable, or running from source.
@@ -9849,13 +10041,12 @@ def main():
             kv_file = os.path.join(sys._MEIPASS, "trifusion.kv")
             os.chdir(sys._MEIPASS)
             # Get mcl executable path
-            mcl_file = os.path.join(sys._MEIPASS, mcl_path)
+            MCL_FILE = os.path.join(sys._MEIPASS, mcl_path)
         # One-dir
         except AttributeError:
             kv_file = "trifusion.kv"
-            mcl_file = mcl_path
+            MCL_FILE = mcl_path
 
-        print(mcl_file)
     # Source
     elif __file__:
         kv_file = "trifusion.kv"

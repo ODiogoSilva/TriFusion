@@ -141,8 +141,8 @@ def background_export_groups(f, nm, a):
 
 
 def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
-                   protein_max_stop, usearch_evalue,
-                   usearch_threads, usearch_output, mcl_inflation,
+                   protein_max_stop, usearch_file, usearch_evalue,
+                   usearch_threads, usearch_output, mcl_file, mcl_inflation,
                    ortholog_prefix, group_prefix, orto_max_gene,
                    orto_min_sp, sqldb, ortho_dir, usearch_db):
     """
@@ -169,7 +169,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             nm.c = 4
             ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue,
                                         usearch_threads, usearch_output,
-                                        usearch_bin="usearch")
+                                        usearch_bin=usearch_file)
         if nm.k:
             nm.t = "Parsing USEARCH output"
             nm.c = 5
@@ -184,7 +184,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         if nm.k:
             nm.t = "Running MCL"
             nm.c = 7
-            ortho_pipe.mcl(mcl_inflation)
+            ortho_pipe.mcl(mcl_inflation, mcl_file=mcl_file)
         if nm.k:
             nm.t = "Dumping groups"
             nm.c = 8

@@ -985,6 +985,18 @@ class WarningFloat(Label):
     pass
 
 
+class FixButton(Button):
+    pass
+
+
+class DialogMCLFix(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
+class DialogUSEARCHFix(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class InfoPopup(BoxLayout):
     """
     Dialog for help texts that can be accessed for several options using the
