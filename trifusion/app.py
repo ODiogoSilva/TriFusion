@@ -105,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.50"
-__build__ = "03116"
+__version__ = "0.4.51"
+__build__ = "04116"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -9793,16 +9793,11 @@ class TriFusionApp(App):
                 # Clear sqlitedb
                 os.remove(join(self.temp_dir, "orthoDB.db"))
 
-        # Change working directory
-        os.chdir(self.ortho_dir)
-
         # Create directory that will store intermediate files during
         # orthology search
-        int_dir = "backstage_files"
+        int_dir = join(self.ortho_dir, "backstage_files")
         if not os.path.exists(int_dir):
             os.makedirs(int_dir)
-
-        os.chdir(int_dir)
 
         # Set up manager and shared name space to share information
         # between background and main processes

@@ -158,56 +158,58 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         if nm.k:
             nm.t = "Adjusting Fasta Files"
             nm.c = 2
-            ortho_pipe.adjust_fasta(proteome_files)
+            ortho_pipe.adjust_fasta(proteome_files, ortho_dir)
         if nm.k:
             nm.t = "Filtering Fasta Files"
             nm.c = 3
             ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
-                                    usearch_db)
+                                    usearch_db, ortho_dir)
         if nm.k:
             nm.t = "Running USearch. This may take a while..."
             nm.c = 4
-            ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue,
+            ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
                                         usearch_threads, usearch_output,
                                         usearch_bin=usearch_file)
         if nm.k:
             nm.t = "Parsing USEARCH output"
             nm.c = 5
-            ortho_pipe.blast_parser(usearch_output,
+            ortho_pipe.blast_parser(usearch_output, ortho_dir,
                                     db_dir=temp_dir)
         if nm.k:
             nm.t = "Obtaining Pairs"
             nm.c = 6
             ortho_pipe.pairs(temp_dir)
         if nm.k:
-            ortho_pipe.dump_pairs(temp_dir)
+            ortho_pipe.dump_pairs(temp_dir, ortho_dir)
         if nm.k:
             nm.t = "Running MCL"
             nm.c = 7
-            ortho_pipe.mcl(mcl_inflation, mcl_file=mcl_file)
+            ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file)
         if nm.k:
             nm.t = "Dumping groups"
             nm.c = 8
             ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
-                                  group_prefix)
+                                  group_prefix, ortho_dir)
         if nm.k:
             nm.t = "Filtering group files"
             nm.c = 9
-            stats, groups_obj = ortho_pipe.export_filtered_groups(mcl_inflation,
-                                                                  group_prefix,
-                                                                  orto_max_gene,
-                                                                  orto_min_sp,
-                                                                  sqldb,
-                                                                join(ortho_dir,
-                                                         "backstage_files",
-                                                         usearch_db),
-                                                                  temp_dir)
+            stats, groups_obj = ortho_pipe.export_filtered_groups(
+                mcl_inflation,
+                group_prefix,
+                orto_max_gene,
+                orto_min_sp,
+                sqldb,
+                join(ortho_dir, "backstage_files", usearch_db),
+                temp_dir,
+                ortho_dir)
             # stats is a dictionary containing the inflation value as
             #  key and a list with the orthologs as value
             nm.stats = stats
             nm.groups = groups_obj
 
-    except IOError:
+    except IOError as e:
+        nm.exception = str(e)
+        logging.exception(e)
         return
 
     except Exception as e:
