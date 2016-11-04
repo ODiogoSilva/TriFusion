@@ -144,13 +144,14 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     return seq_storage
 
 
-def adjust_fasta(file_list):
+def adjust_fasta(file_list, dest):
 
     print_col("Adjusting proteome files", GREEN, 1)
 
     # Create compliant fasta directory
-    if not os.path.exists("compliantFasta"):
-        os.makedirs("compliantFasta")
+    cf_dir = join(dest, "backstage_files", "compliantFasta")
+    if not os.path.exists(cf_dir):
+        os.makedirs(cf_dir)
 
     for proteome in file_list:
         # Get code for proteome
@@ -167,33 +168,46 @@ def adjust_fasta(file_list):
                             ".fasta"
 
         shutil.move(proteome.split(".")[0] + "_mod.fas",
-                    os.path.join("compliantFasta", protome_file_name))
+                    join(cf_dir, protome_file_name))
 
 
-def filter_fasta(min_len, max_stop, db):
+def filter_fasta(min_len, max_stop, db, dest):
 
     print_col("Filtering proteome files", GREEN, 1)
 
-    FilterFasta.orthomcl_filter_fasta("compliantFasta", min_len, max_stop, db)
+    cp_dir = join(dest, "backstage_files", "compliantFasta")
+
+    FilterFasta.orthomcl_filter_fasta(cp_dir, min_len, max_stop, db, dest)
 
 
-def allvsall_usearch(goodproteins, evalue, cpus, usearch_outfile,
+def allvsall_usearch(goodproteins, evalue, dest, cpus, usearch_outfile,
                      usearch_bin="usearch"):
 
     print_col("Perfoming USEARCH All-vs-All (may take a while...)", GREEN, 1)
 
     # FNULL = open(os.devnull, "w")
-    _ = subprocess.Popen([usearch_bin, "-ublast", goodproteins, "-db",
-                          goodproteins, "-blast6out", usearch_outfile,
-                          "-evalue", str(evalue), "--maxaccepts", "0",
-                          "-threads", str(cpus)]).wait()
+    _ = subprocess.Popen([usearch_bin,
+                          "-ublast",
+                          join(dest, "backstage_files", goodproteins),
+                          "-db",
+                          join(dest, "backstage_files", goodproteins),
+                          "-blast6out",
+                          join(dest, "backstage_files", usearch_outfile),
+                          "-evalue", str(evalue),
+                          "--maxaccepts",
+                          "0",
+                          "-threads",
+                          str(cpus)]).wait()
 
 
-def blast_parser(usearch_ouput, db_dir):
+def blast_parser(usearch_ouput, dest, db_dir):
 
     print_col("Parsing BLAST output", GREEN, 1)
 
-    BlastParser.orthomcl_blast_parser(usearch_ouput, "compliantFasta", db_dir)
+    BlastParser.orthomcl_blast_parser(
+        join(dest, "backstage_files", usearch_ouput),
+        join(dest, "backstage_files", "compliantFasta"),
+        db_dir)
 
 
 def pairs(db_dir):
@@ -203,49 +217,50 @@ def pairs(db_dir):
     make_pairs_sqlite.execute(db_dir)
 
 
-def dump_pairs(db_dir):
+def dump_pairs(db_dir, dest):
 
     print_col("Dump files from the database produced by the orthomclPairs "
               "program", GREEN, 1)
 
-    dump_pairs_sqlite.execute(db_dir)
+    dump_pairs_sqlite.execute(db_dir, dest)
 
 
-def mcl(inflation_list, mcl_file="mcl"):
+def mcl(inflation_list, dest, mcl_file="mcl"):
 
     print_col("Running mcl algorithm", GREEN, 1)
+    mcl_input = join(dest, "backstage_files", "mclInput")
+    mcl_output = join(dest, "backstage_files", "mclOutput_")
 
     FNULL = open(os.devnull, "w")
     for val in inflation_list:
         _ = subprocess.Popen([
-                "{} mclInput --abc -I {} -o mclOutput_{}".format(
-                    mcl_file, val, val.replace(".", "")
+                "{} {} --abc -I {} -o {}{}".format(
+                    mcl_file, mcl_input, val, mcl_output, val.replace(".", "")
                 )], shell=True, stdout=FNULL,
             stderr=subprocess.STDOUT).wait()
 
 
-def mcl_groups(inflation_list, mcl_prefix, start_id, group_file):
+def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest):
 
     print_col("Dumping groups", GREEN, 1)
 
     # Create a results directory
-    results_dir = os.path.join("..", "Orthology_results")
+    results_dir = join(dest, "Orthology_results")
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
+
+    mcl_output = join(dest, "backstage_files", "mclOutput_")
 
     for val in inflation_list:
         MclGroups.mcl_to_groups(
             mcl_prefix,
             start_id,
-            "mclOutput_" + val.replace(".", ""),
+            mcl_output + val.replace(".", ""),
             os.path.join(results_dir, group_file + "_" + str(val) + ".txt"))
-
-    # Change working directory to results directory
-    os.chdir(results_dir)
 
 
 def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
-                           db, tmp_dir):
+                           db, tmp_dir, dest):
 
     print_col("Exporting filtered groups to protein sequence files", GREEN, 1)
 
@@ -255,21 +270,23 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
     for val in inflation_list:
         # Create a directory that will store the results for the current
         # inflation value
-        inflation_dir = "Inflation%s" % val
+        inflation_dir = join(dest, "Orthology_results", "Inflation%s" % val)
         if not os.path.exists(inflation_dir):
             os.makedirs(inflation_dir)
 
+        group_file = join(dest, "Orthology_results",
+                          group_prefix + "_%s.txt" % val)
+
         # Create Group object
-        group_obj = OT.GroupLight(group_prefix + "_%s.txt" % val, gene_t, sp_t)
+        group_obj = OT.GroupLight(group_file, gene_t, sp_t)
         # Add group to the MultiGroups object
         groups_obj.add_group(group_obj)
         # Export filtered groups and return stats to present in the app
         stats = group_obj.basic_group_statistics()
         # Retrieve fasta sequences from the filtered groups
-        os.chdir(inflation_dir)
-        group_obj.retrieve_sequences(sqldb, db, "Orthologs")
+        group_obj.retrieve_sequences(sqldb, db, dest=join(inflation_dir,
+                                                          "Orthologs"))
         os.remove(sqldb)
-        os.chdir("..")
         stats_storage[val] = stats
 
     return stats_storage, groups_obj

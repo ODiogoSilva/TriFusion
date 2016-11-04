@@ -96,22 +96,26 @@ def printMclAbcFile (cur, filename):
                                                 str((float(row[2]) * 1000 + .5) / 1000)))
 
 
-def execute(db_dir):
+def execute(db_dir, dest):
     con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
     with con:
 
         cur = con.cursor()
 
-        printOrthologsFile(cur, "orthologs.txt")
+        printOrthologsFile(cur, os.path.join(dest, "backstage_files",
+                                             "orthologs.txt"))
 
-        printInparalogsFile(cur, "inparalogs.txt")
+        printInparalogsFile(cur, os.path.join(dest, "backstage_files",
+                                              "inparalogs.txt"))
 
-        printCoOrthologsFile(cur, "coorthologs.txt")
+        printCoOrthologsFile(cur, os.path.join(dest, "backstage_files",
+                                               "coorthologs.txt"))
 
-        printMclAbcFile(cur, "mclInput")
+        printMclAbcFile(cur, os.path.join(dest, "backstage_files",
+                                          "mclInput"))
 
 if __name__ == "__main__":
-    execute(".")
+    execute(".", ".")
 
 __author__ = "Fernando Alves and Diogo N. Silva"
