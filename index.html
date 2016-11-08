@@ -7,6 +7,14 @@
     <meta name="description" content="Trifusion : Streamlining phylogenomic data gathering, processing and visualization">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/slideshow.css" media="screen">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css">
+    <!-- TOC -->
+    <script src="javascripts/jquery-3.1.1.min.js"></script>
+    <script src="javascripts/jquery-ui.js"></script>
+    <script src="javascripts/jquery.tocify.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="stylesheets/jquery.tocify.css" />
 
     <title>Trifusion</title>
   </head>
@@ -15,8 +23,10 @@
 
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
+      <img id="tf-logo" src="images/trifusion-icon-256.png">
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/ODiogoSilva/TriFusion">View on GitHub</a>
+
 
           <h1 id="project_title">Trifusion</h1>
           <h2 id="project_tagline">Streamlining phylogenomic data gathering, processing and visualization</h2>
@@ -28,68 +38,218 @@
         </header>
     </div>
 
+<div id="toc"></div>
+
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h2>
-<a id="trifusion" class="anchor" href="#trifusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TriFusion</h2>
 
 <p><a href="https://travis-ci.org/ODiogoSilva/TriFusion"><img src="https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master" alt="Build Status"></a>
 <a href="https://landscape.io/github/ODiogoSilva/TriFusion/master"><img src="https://landscape.io/github/ODiogoSilva/TriFusion/master/landscape.svg?style=flat" alt="Code Health"></a>
 <a href="https://codecov.io/gh/ODiogoSilva/TriFusion"><img src="https://codecov.io/gh/ODiogoSilva/TriFusion/branch/master/graph/badge.svg" alt="codecov"></a></p>
 
-<h6>
-<a id="streamlining-phylogenomic-data-gathering-processing-and-visualization" class="anchor" href="#streamlining-phylogenomic-data-gathering-processing-and-visualization" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Streamlining phylogenomic data gathering, processing and visualization</h6>
-
-<p><img align="right" height="256" src="https://github.com/ODiogoSilva/TriFusion/blob/43a41005ee8b1f69d7ae04684b0a0e595c527b4f/trifusion/data/backgrounds/trifusion-icon-256.png?raw=true"></p>
-
 <p>TriFusion is a GUI and command line application designed to streamline the workflow of phylogenomic projects. With the dramatic increase in size of data sets for phylogenetics and population genetics, programming has become a crucial tool to gather, process and analyze the data. However, this may still represent a hurdle that precludes the execution of such projects by a broader range of researchers. TriFusion aims to mitigate this issue by providing a user-friendly visual interface that empowers users without any programming knowledge with a set of tools and operations that can handle large sets of data.</p>
 
 <p>TriFusion is an open source, cross-platform application written in <a href="https://www.python.org/">Python 2.7</a> and using the <a href="https://github.com/kivy/kivy">Kivy</a> framework to construct graphical interface.</p>
 
-<h3>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
+<hr>
+<h3>Installation</h3>
 
-<h4>
-<a id="executables-binaries" class="anchor" href="#executables-binaries" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Executables binaries</h4>
+<div class="w3-container">
 
-<p>The latest stable release of TriFusion can be installed as a standalone application using one of the following installers.</p>
+  <div class="w3-row">
+    <a href="javascript:void(0)" onclick="openTab(event, 'Windows');">
+      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center w3-border-tfblue">Windows</div>
+    </a>
+    <a href="javascript:void(0)" onclick="openTab(event, 'Ubuntu');">
+      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">Ubuntu/Debian</div>
+    </a>
+    <a href="javascript:void(0)" onclick="openTab(event, 'RPM-based');">
+      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">RPM</div>
+    </a>
+    <a href="javascript:void(0)" onclick="openTab(event, 'ArchLinux');">
+      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">ArchLinux</div>
+    </a>
+  </div>
 
-<h5>
-<a id="linux" class="anchor" href="#linux" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Linux</h5>
+  <div id="Windows" class="w3-container tab">
+    <h4>Installers</h4>
 
-<ul>
-<li><p>Debian package based (<a href="https://en.wikipedia.org/wiki/Category:Debian-based_distributions">See list</a>): <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb">trifusion-bin-0.4.11-linux.deb</a></p></li>
-<li><p>RPM package based (<a href="https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions">See list</a>): <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm">trifusion-bin-0.4.11-linux.rpm</a></p></li>
-<li><p>ArchLinux/Manjaro (<a href="https://wiki.archlinux.org/index.php/Arch_based_distributions">See list</a>): <a href="https://aur.archlinux.org/packages/trifusion-bin/">trifusion-bin-0.4.11</a> is available on AUR</p></li>
-</ul>
+    <p> Installers with the latest stable release are available with 32 and 64 bits versions: </p>
 
-<h5>
-<a id="windows" class="anchor" href="#windows" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Windows</h5>
+  <div id="download-section">
+    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows64.msi" id="down-left"> <i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 64 bit </a>
+    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows32.msi"id="down-right"> <i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 32 bit </a>
+  </div>
 
-<ul>
-<li><a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows64.msi">TriFusion-0.4.12 64bit installer</a></li>
-<li><a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows32.msi">TriFusion-0.4.12 32bit installer</a></li>
-</ul>
+  <h6>Note for Windows 8.x and 10 users:</h6>
+  <p>Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".</p>
+  </div>
 
-<h6>
-<a id="note-for-windows-8x-and-10-users" class="anchor" href="#note-for-windows-8x-and-10-users" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Note for Windows 8.x and 10 users:</h6>
+  <div id="Ubuntu" class="w3-container tab">
+    <h4>Debian package</h4>
+    <p>A debian package with the latest stable release is available for Debian based distributions, using the software center or simply by double-clicking</p>
 
-<p>Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".</p>
+    <div id ="download-section">
 
-<h4>
-<a id="installation-from-source" class="anchor" href="#installation-from-source" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation from source</h4>
+      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb" id="down-center"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion debian</a>
 
-<p>TriFusion can be installed directly from source (whether from the latest stable release or from the git version), which has its advantages:</p>
+    </div>
 
-<ul>
-<li><p>Stay on the bleeding edge of the application's development (Git version)</p></li>
-<li><p>Minimize the application size install</p></li>
-<li><p>Modify the code any way you want. Contributions are welcome.</p></li>
-</ul>
+    <h4>PPA (Ubuntu)</h4>
 
-<p><a href="https://github.com/ODiogoSilva/TriFusion/wiki/Install_from_source">Here are instructions on how to install TriFusion from source</a>. (Go ahead, it won't bite.)</p>
+    <ul>
+      <li> Add one of the following PPAs:</li>
+        <pre><code class="shell"># Stable release
+sudo add-apt-repository ppa:o-diogosilva/trifusion
+# Daily release
+sudo add-apt-repository ppa:o-diogosilva/trifusion-daily</code></pre>
+      <li> Update your package list: </li>
+      <pre><code class="shell">sudo apt update</code></pre>
+      <li>Install/Update TriFusion:</li>
+      <pre><code class="shell">sudo apt install trifusion</code></pre>
+    </ul>
+    <h4>PPA (Debian)</h4>
 
+    <ul>
+      <li>Add one of the following PPAs manually to the sources.list file</li>
+      <pre><code class="shell"># Stable release
+http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main
+# Daily release
+http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main</code></pre>
+      <li>Add the GPG key to your apt keyring</li>
+      <pre><code class="shell">sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D4F1E8E6</code></pre>
+      <li>Refresh your package list and install TriFusion</li>
+      <pre><code class="shell">sudo apt-get update && sudo apt-get install trifusion</code></pre>
+    </ul>
+  </div>
+
+  <div id="RPM-based" class="w3-container tab">
+    <h4>RPM package</h4>
+    <p>A package with the latest stable release is available for RPM based distributions, using the software center or simply by double-clicking</p>
+
+
+    <div id="download-section">
+      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm" id="down-center"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion RPM</a>
+    </div>
+
+    <!-- <ul style="list-style: none;">
+      <li><a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm"><i class="fa fa-download" aria-hidden="true"></i>  trifusion-bin-0.4.11-linux.rpm</a></p></li></li>
+    </ul> -->
+
+    <h4>Build from source</h4>
+    <p>Before installing TriFusion, you will need to install kivy:</p>
+    <pre><code class="shell">dnf install python-pip python-devel redhat-rpm-config freeglut-devel SDL*
+pip install cython==0.23
+pip install kivy</code></pre>
+  <p>Then, <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-0.4.11-linux.rpm">download</a> the latest RPM release of TriFusion and install it as a regular RPM package. Note that the RPM package is not in any repository yet, which means that it will not received updates of the latest version of TriFusion from GitHub. However, it's possible to stay on the bleeding edge of the development by following these steps:</p>
+  <ul>
+    <li>After installing the RPM package, remove ONLY the TriFusion package, but leave the dependencies installed. For example, in Fedora:</li>
+    <pre><code class="shell">dnf remove TriFusion</code></pre>
+    <li>Clone the git repository of TriFusion to your computer</li>
+    <pre><code class="shell">git clone https://github.com/ODiogoSilva/TriFusion.git</code></pre>
+    <li>In a terminal, navigate to TriFusion's directory and execute:</li>
+    <pre><code class="shell">sudo python setup.py install</code></pre>
+  </ul>
+  <p>Since all dependencies are already installed, this will install only the most recent version of TriFusion. To keep TriFusion up to date afterwards, you'll just need to pull the most recent code and re-install it.</p>
+  <pre><code class="shell">git pull
+sudo python setup.py install --force</code></pre>
+  </div>
+
+  <div id="ArchLinux" class="w3-container tab">
+    <h4>AUR packages</h4>
+    <p>There are three <a href="https://aur.archlinux.org/">AUR</a> packages for TriFusion:</p>
+    <ul>
+      <li><a href="https://aur.archlinux.org/packages/trifusion/">trifusion</a> - The latest stable version of TriFusion, based on source code.</li>
+      <li><a href="https://aur.archlinux.org/packages/trifusion-bin/">trifusion-bin</a> - The latest version of TriFusion. Installs a large binary package, but does not require dependencies to be installed, as all the necessary libs are bundled with the distributed binary.</li>
+      <li><a href="https://aur.archlinux.org/packages/trifusion-git/">trifusion-git</a> - The bleeding edge version directly from git. Requires dependencies to be installed, as it is also source code based.</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+
+<h3>Feature Overview</h3>
+
+<div class="slideshow-container">
+  <div class="mySlides fade">
+    <img src="figures/tf_main.png" style="width:100%">
+    <div class="text">Welcome to TriFusion. Easily switch between each of the three main models using the top bar</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_orto_search.png" style="width:100%">
+    <div class="text">Searching orthologous sequences across multiple proteome files has never been easier with the Orthology Search operation</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_orto_explore.png" style="width:100%">
+    <div class="text">Easily explore the results of orthologs search using several graphical and filtering tools in the Orthology Explore operation</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_sidepanel.png" style="width:100%">
+    <div class="text">Quickly visualize and edit all loaded data, including files, taxa and partitions</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_models.png" style="width:100%">
+    <div class="text">Freely change several aspects of the alignment's partitions, including codon sub-partitions and substitution models</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_process.png" style="width:100%">
+    <div class="text">Take advantage of the numerous processing operations that can be applied to your input alignment files. Convert,concatenate, collapse, filter, create consensus and code gaps and more! </div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_stats_init.png" style="width:100%">
+    <div class="text">Visualize your data painlessly, even with thousands of alignments, using the Statistics module. Choose one of the many analyses available across four thematic categories</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_gene_table.png" style="width:100%">
+    <div class="text">Check summary statistics for the whole data set AND for each individual alignment. All data can be easily exported into table format</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_stats.png" style="width:100%">
+    <div class="text">Most options in the Statistics module generate publication ready plots that allow you to quickly and interactively visualize your data. All graphics can be exported as figures or in table format.</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_stats2.png" style="width:100%">
+    <div class="text">Most options in the Statistics module generate publication ready plots that allow you to quickly and interactively visualize your data. All graphics can be exported as figures or in table format.</div>
+  </div>
+
+  <div class="mySlides fade">
+    <img src="figures/tf_stats3.png" style="width:100%">
+    <div class="text">Most options in the Statistics module generate publication ready plots that allow you to quickly and interactively visualize your data. All graphics can be exported as figures or in table format.</div>
+  </div>
+
+
+  <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+  <a class="next" onclick="plusSlides(1)">&#10095;</a>
+</div>
+<br>
+
+<div style="text-align:center">
+  <span class="dot" onclick="currentSlide(1)"></span>
+  <span class="dot" onclick="currentSlide(2)"></span>
+  <span class="dot" onclick="currentSlide(3)"></span>
+  <span class="dot" onclick="currentSlide(4)"></span>
+  <span class="dot" onclick="currentSlide(5)"></span>
+  <span class="dot" onclick="currentSlide(6)"></span>
+  <span class="dot" onclick="currentSlide(7)"></span>
+  <span class="dot" onclick="currentSlide(8)"></span>
+  <span class="dot" onclick="currentSlide(9)"></span>
+  <span class="dot" onclick="currentSlide(10)"></span>
+  <span class="dot" onclick="currentSlide(11)"></span>
+</div>
+
+
+
+<hr>
 <h3>
 <a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use</h3>
 
@@ -155,7 +315,92 @@
       </footer>
     </div>
 
-    
+<script>
+    $(function() {
+      $("#toc").tocify({
+        selectors: "h3"
+      });})
+</script>
+
+<script>
+    <!-- For figure slideshow -->
+    var slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+      showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+      showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+      var i;
+      var slides = document.getElementsByClassName("mySlides");
+      var dots = document.getElementsByClassName("dot");
+      if (n > slides.length) {slideIndex = 1}
+      if (n < 1) {slideIndex = slides.length}
+      for (i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
+      }
+      for (i = 0; i < dots.length; i++) {
+          dots[i].className = dots[i].className.replace(" active", "");
+      }
+      slides[slideIndex-1].style.display = "block";
+      dots[slideIndex-1].className += " active";
+    }
+    <!-- For tabbed installation panel -->
+    function openTab(evt, tabName) {
+      var i, x, tablinks;
+      x = document.getElementsByClassName("tab");
+      for (i = 0; i < x.length; i++) {
+         x[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablink");
+      if (typeof evt !== "undefined") {
+        for (i = 0; i < x.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" w3-border-tfblue", "");
+        }
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.firstElementChild.className += " w3-border-tfblue";
+    }
+    openTab(event, "Windows")
+
+</script>
+
+<script>
+// $.fn.followTo = function (pos) {
+//     var $this = this,
+//         $window = $(window);
+//
+//     $window.scroll(function (e) {
+//         if ($window.scrollTop() < pos) {
+//             $this.css({
+//                 position: 'absolute',
+//                 top: pos
+//             });
+//         } else {
+//             $this.css({
+//                 position: 'fixed',
+//                 top: 50
+//             });
+//         }
+//     });
+// };
+// $("#toc").followTo(250)
+$(window).scroll(function(){
+    $("#toc").css("top", Math.max(50, 300 - $(this).scrollTop()));
+});
+</script>
+
+<script>
+  $(function() {
+  // Calls the selectBoxIt method on your HTML select box and updates the showEffect option
+    var toc = $("#toc").tocify({ theme: "none" });
+  });
+</script>
 
   </body>
 </html>
