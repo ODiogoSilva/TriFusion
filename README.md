@@ -82,7 +82,7 @@ For more information on the command line versions, see the manual.
 
 ### Documentation
 
-User guide coming soon!
+You can download TriFusion User Guide [here](https://github.com/ODiogoSilva/TriFusion/blob/master/docs/manual.pdf)
 
 ### Citation
 
