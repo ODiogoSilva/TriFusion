@@ -1,8 +1,15 @@
 /* Slideshow container */
 .slideshow-container {
-  width: 100%;
-  min-width: 100%;
+  max-height: 100%;
+  max-width: 100%;
   position: relative;
+}
+
+#slide {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  background-color: #f2f2f2;
 }
 
 /* Next & previous buttons */
@@ -58,10 +65,10 @@
   color: #f2f2f2;
   font-size: 15px;
   font-weight: bold;
+  width: 98%;
   padding: 8px 12px;
   position: bottom;
   bottom: 8px;
-  width: 100%;
   text-align: center;
 }
 
@@ -107,3 +114,4 @@
   from {opacity: .4}
   to {opacity: 1}
 }
+

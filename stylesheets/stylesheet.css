@@ -108,7 +108,6 @@ p {
 }
 
 footer p {
-  color: #f2f2f2;
 }
 
 a {
@@ -131,7 +130,6 @@ a {
 a:hover, a:focus {text-decoration: underline;}
 
 footer a {
-  color: #F2F2F2;
   text-decoration: underline;
 }
 
@@ -381,7 +379,7 @@ Full-Width Styles
 }
 
 #footer_wrap {
-  background: #212121;
+  height: -200px;
 }
 
 
@@ -456,6 +454,79 @@ Small Device Styles
 .w3-text-center{text-align: center!important}
 .w3-border-tfblue,.w3-hover-border-tfblue:hover{border-color:#37abc8!important}
 
+.feature-container {
+  border:3px solid #37abc8;
+  border-radius: 5px
+}
+
+.feature-container:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.feature-tab {
+  width: 33.33333%;
+  float:left;
+  text-align: center;
+  color: #37abc8;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: 6px solid #37abc8;
+}
+
+.feature-tab:hover {
+  background-color: rgba(55, 171, 200, 0.2)!important;
+}
+
+.feature-selected {
+  background-color: #37abc8!important;
+  color: white!important;
+  text-shadow: 2px 3px 10px #000;
+}
+
+.feature-selected:hover{
+  background-color: #37abc8!important;
+}
+
+.feature-content {
+  padding: 0.5em 8px;
+}
+
+.feature-subtitle {
+  color: #37abc8;
+  font-size: 18px;
+  text-align: center;
+  font-weight: bold;
+  padding: 0 15% 0 15%;
+}
+
+.feature-text {
+  padding: 0 100px 0 10px;
+  background: #37abc8;
+  color: #f2f2f2;
+  font-size: 18px;
+  font-weight: bold;
+  top: -10%;
+  padding: 8px 12px;
+  text-align: center;
+  position: relative;
+}
+
+.feature-text-right {
+  left: 17px;
+}
+
+.feature-text-left {
+  right: 17px;
+}
+
+#img-feature{
+  padding: 0px;
+  width: 100%;
+  background-color: #aaa;
+}
+
 #download-section {
   width: 110%;
   height: 60px;
@@ -500,3 +571,4 @@ Small Device Styles
 .shell {
   padding: 2px
 }
+
