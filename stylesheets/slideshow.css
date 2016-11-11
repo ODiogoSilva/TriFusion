@@ -61,15 +61,13 @@
 /* Caption text */
 .text {
   border-radius: 10px;
-  background: #37abc8;
-  color: #f2f2f2;
-  font-size: 15px;
+  
+  font-size: 14px;
   font-weight: bold;
   width: 98%;
   padding: 8px 12px;
-  position: bottom;
-  bottom: 8px;
-  text-align: center;
+  position: relative;
+  bottom: 20px;
 }
 
 /* Number text (1/3 etc) */

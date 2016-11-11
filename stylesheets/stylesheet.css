@@ -498,14 +498,14 @@ Small Device Styles
   font-size: 18px;
   text-align: center;
   font-weight: bold;
-  padding: 0 15% 0 15%;
+  padding: 0 5% 0 5%;
 }
 
 .feature-text {
   padding: 0 100px 0 10px;
   background: #37abc8;
   color: #f2f2f2;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   top: -10%;
   padding: 8px 12px;
