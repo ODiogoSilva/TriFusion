@@ -1,0 +1,48 @@
+\BOOKMARK [1][-]{section.1}{About TriFusion}{}% 1
+\BOOKMARK [1][-]{section.2}{Downloading and Installing TriFusion}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Installation from source}{section.2}% 3
+\BOOKMARK [1][-]{section.3}{Getting help}{}% 4
+\BOOKMARK [1][-]{section.4}{Feature Overview}{}% 5
+\BOOKMARK [2][-]{subsection.4.1}{Orthology}{section.4}% 6
+\BOOKMARK [3][-]{section*.3}{Detection of putative orthologs}{subsection.4.1}% 7
+\BOOKMARK [4][-]{section*.4}{Application of filters to ortholog groups}{section*.3}% 8
+\BOOKMARK [4][-]{section*.5}{Full graphical report of orthology search results}{section*.3}% 9
+\BOOKMARK [4][-]{section*.6}{Ability to import multiple independent search runs}{section*.3}% 10
+\BOOKMARK [4][-]{section*.7}{Automatic conversion of ortholog groups into protein and nucleotide sequence files}{section*.3}% 11
+\BOOKMARK [2][-]{subsection.4.2}{Process}{section.4}% 12
+\BOOKMARK [3][-]{section*.8}{Handling of large alignment data matrices, made easy}{subsection.4.2}% 13
+\BOOKMARK [4][-]{section*.9}{Performs basic conversion/concatenation operations}{section*.8}% 14
+\BOOKMARK [4][-]{section*.10}{A diverse portfolio of secondary operations}{section*.8}% 15
+\BOOKMARK [4][-]{section*.11}{Collapsing alignments}{section*.8}% 16
+\BOOKMARK [4][-]{section*.12}{Creating consensus alignments}{section*.8}% 17
+\BOOKMARK [4][-]{section*.13}{Filters, Filters and more Filters}{section*.8}% 18
+\BOOKMARK [4][-]{section*.14}{Gap coding}{section*.8}% 19
+\BOOKMARK [4][-]{section*.15}{Creation of data subsets}{section*.8}% 20
+\BOOKMARK [4][-]{section*.16}{Set gene partitions, codon partitions and substitution models}{section*.8}% 21
+\BOOKMARK [4][-]{section*.17}{Revert a concatenated alignmnet}{section*.8}% 22
+\BOOKMARK [4][-]{section*.18}{Concatenation of alignment weight files}{section*.8}% 23
+\BOOKMARK [2][-]{subsection.4.3}{Statistics}{section.4}% 24
+\BOOKMARK [3][-]{section*.19}{Visualize your data set focusing on single genes, taxa or genes}{subsection.4.3}% 25
+\BOOKMARK [4][-]{section*.20}{Get summary statistics and general alignment information instantly}{section*.19}% 26
+\BOOKMARK [4][-]{section*.21}{General information plots}{section*.19}% 27
+\BOOKMARK [4][-]{section*.22}{Polymorphism and variation plots}{section*.19}% 28
+\BOOKMARK [4][-]{section*.23}{Missing data plots}{section*.19}% 29
+\BOOKMARK [4][-]{section*.24}{Outlier detection plots}{section*.19}% 30
+\BOOKMARK [4][-]{section*.25}{Publication ready figures and tables}{section*.19}% 31
+\BOOKMARK [4][-]{section*.26}{Plot fast switching}{section*.19}% 32
+\BOOKMARK [1][-]{section.5}{TriFusion Interface}{}% 33
+\BOOKMARK [2][-]{subsection.5.1}{Import data}{section.5}% 34
+\BOOKMARK [2][-]{subsection.5.2}{Creating data sets}{section.5}% 35
+\BOOKMARK [2][-]{subsection.5.3}{Project management}{section.5}% 36
+\BOOKMARK [1][-]{section.6}{Orthology module - GUI}{}% 37
+\BOOKMARK [2][-]{subsection.6.1}{Search operation}{section.6}% 38
+\BOOKMARK [3][-]{subsubsection.6.1.1}{Import data}{subsection.6.1}% 39
+\BOOKMARK [3][-]{subsubsection.6.1.2}{Search operation main options}{subsection.6.1}% 40
+\BOOKMARK [4][-]{section*.27}{Threads}{subsubsection.6.1.2}% 41
+\BOOKMARK [4][-]{section*.28}{Ortholog filters}{subsubsection.6.1.2}% 42
+\BOOKMARK [3][-]{subsubsection.6.1.3}{Search operation additional options}{subsection.6.1}% 43
+\BOOKMARK [1][-]{section.7}{Orthology module - Command line}{}% 44
+\BOOKMARK [1][-]{section.8}{Process module - GUI}{}% 45
+\BOOKMARK [1][-]{section.9}{Process module - Command line}{}% 46
+\BOOKMARK [1][-]{section.10}{Statistics module - GUI}{}% 47
+\BOOKMARK [1][-]{section.11}{Statistics module - Command line}{}% 48

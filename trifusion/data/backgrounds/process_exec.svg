@@ -1114,6 +1114,85 @@
          x="-1552.0994"
          y="729.0672" />
     </clipPath>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       id="filter4217"
+       inkscape:label="filter1">
+      <feTurbulence
+         id="feTurbulence4221"
+         type="fractalNoise"
+         baseFrequency="0.46300000000000002" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4185"
+       id="linearGradient4159-6"
+       x1="517.57361"
+       y1="267.3801"
+       x2="517.57361"
+       y2="57.315594"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1204.1146,-697.48386)" />
+    <linearGradient
+       id="linearGradient4185"
+       inkscape:collect="always">
+      <stop
+         id="stop4187"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:0.21786492" />
+      <stop
+         id="stop4189"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient10133"
+       id="linearGradient4159"
+       x1="560"
+       y1="58.076488"
+       x2="560"
+       y2="263.79077"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1204.1872,-697.40036)" />
+    <filter
+       style="color-interpolation-filters:sRGB"
+       id="filter4217-6"
+       inkscape:label="filter1">
+      <feTurbulence
+         id="feTurbulence4221-2"
+         type="fractalNoise"
+         baseFrequency="0.46300000000000002" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       id="filter4217-0"
+       inkscape:label="filter1">
+      <feTurbulence
+         id="feTurbulence4221-9"
+         type="fractalNoise"
+         baseFrequency="0.46300000000000002" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4185"
+       id="linearGradient4159-6-3"
+       x1="517.57361"
+       y1="267.3801"
+       x2="517.57361"
+       y2="57.315594"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1215.4019,-989.3167)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient10133"
+       id="linearGradient4159-62"
+       x1="560"
+       y1="58.076488"
+       x2="560"
+       y2="263.79077"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1215.457,-989.5758)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -1122,17 +1201,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="135.83209"
-     inkscape:cy="-1990.8078"
+     inkscape:zoom="0.125"
+     inkscape:cx="-1270.2506"
+     inkscape:cy="1534.8765"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1916"
-     inkscape:window-height="1041"
+     inkscape:window-width="1920"
+     inkscape:window-height="1048"
      inkscape:window-x="0"
-     inkscape:window-y="37"
-     inkscape:window-maximized="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true" />
   <metadata
@@ -1151,6 +1230,18 @@
      inkscape:label="Camada 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect3050-2-7-3-0-0-1-2-3"
+       width="134.67111"
+       height="134.67111"
+       x="-61.678703"
+       y="3411.8171"
+       ry="0"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="18.949738"
+       inkscape:export-ydpi="18.949738"
+       rx="0" />
     <rect
        style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:#37abc8;stroke-width:7.81105709;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect3050-2-7-3-0-0-1-8"
@@ -4791,5 +4882,126 @@
        style="fill:#37abc8;fill-opacity:1"
        inkscape:export-xdpi="20.149721"
        inkscape:export-ydpi="20.149721" />
+    <path
+       id="path5042-6"
+       d="m 39.591802,3470.9897 -25.63127,0 0,-25.6312 c 0,-1.2874 -1.042723,-2.3302 -2.33012,-2.3302 l -13.980701,0 c -1.2873858,0 -2.330109,1.0428 -2.330109,2.3302 l 0,25.6312 -25.631268,0 c -1.287398,0 -2.330121,1.0428 -2.330121,2.3301 l 0,13.9807 c 0,1.2875 1.042723,2.3301 2.330121,2.3301 l 25.631268,0 0,25.6313 c 0,1.2873 1.0427232,2.3301 2.330109,2.3301 l 13.980701,0 c 1.287397,0 2.33012,-1.0428 2.33012,-2.3301 l 0,-25.6313 25.63127,0 c 1.287385,0 2.33012,-1.0426 2.33012,-2.3301 l 0,-13.9807 c 0,-1.2873 -1.042735,-2.3301 -2.33012,-2.3301 z"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff;fill-opacity:1"
+       inkscape:export-xdpi="18.949738"
+       inkscape:export-ydpi="18.949738" />
+    <rect
+       style="opacity:1;fill:#37abc8;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:7.34588242;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3050-2-7-3-0-3-14-6-6-3"
+       width="126.651"
+       height="126.651"
+       x="-247.3255"
+       y="3413.0366"
+       ry="0"
+       inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusion/data/backgrounds/check_cancel.png"
+       inkscape:export-xdpi="21.318426"
+       inkscape:export-ydpi="21.318426"
+       rx="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.62495232px;line-height:125%;font-family:'Jungle Fever NF';-inkscape-font-specification:'Jungle Fever NF';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-208.91245"
+       y="3507.8623"
+       id="text4894"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4896"
+         x="-208.91245"
+         y="3507.8623"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:82.81190491px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';fill:#ffffff">1</tspan></text>
+    <rect
+       style="opacity:1;fill:#ff5555;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4136"
+       width="1545.7142"
+       height="214.28571"
+       x="939.90326"
+       y="-640.75177"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <rect
+       style="opacity:0.43800001;fill:url(#linearGradient4159);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4136-3"
+       width="1545.7142"
+       height="214.28571"
+       x="939.90155"
+       y="-640.7525"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <rect
+       style="opacity:0.58999999;fill:url(#linearGradient4159-6);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4136-3-3"
+       width="1545.7142"
+       height="214.28571"
+       x="939.82892"
+       y="-640.836"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <rect
+       style="opacity:0.26600001;fill:#ff8080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter4217)"
+       id="rect4136-3-3-9"
+       width="1545.7142"
+       height="214.28571"
+       x="-112.85712"
+       y="337.21936"
+       rx="0"
+       ry="0"
+       transform="matrix(0.83325321,0,0,0.83261322,1162.8676,-903.51646)"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <rect
+       style="opacity:1;fill:#aade87;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4136-8"
+       width="1545.7142"
+       height="214.28571"
+       x="951.11438"
+       y="-932.66357"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <rect
+       style="opacity:0.43800001;fill:url(#linearGradient4159-62);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4136-3-7"
+       width="1545.7142"
+       height="214.28571"
+       x="951.17139"
+       y="-932.92786"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <rect
+       style="opacity:0.58999999;fill:url(#linearGradient4159-6-3);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4136-3-3-92"
+       width="1545.7142"
+       height="214.28571"
+       x="951.11621"
+       y="-932.66882"
+       rx="0"
+       ry="0"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <rect
+       style="opacity:0.26600001;fill:#ff8080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.13199997;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter4217-0)"
+       id="rect4136-3-3-9-0"
+       width="1545.7142"
+       height="214.28571"
+       x="-112.85712"
+       y="337.21936"
+       rx="0"
+       ry="0"
+       transform="matrix(0.83325321,0,0,0.83261322,1174.076,-1195.3798)"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
   </g>
 </svg>
