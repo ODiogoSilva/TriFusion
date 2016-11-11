@@ -1,483 +1,224 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Trifusion : Streamlining phylogenomic data gathering, processing and visualization">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-    <link rel="stylesheet" type="text/css" href="stylesheets/slideshow.css" media="screen">
-    <!-- Fonts -->
-    <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css">
-    <!-- TOC -->
-    <script src="javascripts/jquery-3.1.1.min.js"></script>
-    <script src="javascripts/jquery-ui.js"></script>
-    <script src="javascripts/jquery.tocify.min.js"></script>
-    <link type="text/css" rel="stylesheet" href="stylesheets/jquery.tocify.css"/>
-    <link type="text/css" rel="stylesheet" href="stylesheets/features.css"/>
+    <title>TriFusion - Streamlining phylogenomic data gathering, processing and visualization</title>
 
-    <title>Trifusion</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" type="text/css" href="fonts/font-awesome/css/font-awesome.css">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!--<link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">-->
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!--<script src="../../assets/js/ie-emulation-modes-warning.js"></script>-->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+    <link href="css/stylesheet.css" rel="stylesheet">
   </head>
-
+<!-- NAVBAR
+================================================== -->
   <body>
+    <div class="navbar-wrapper">
+      <div class="container">
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-      <img id="tf-logo" src="images/trifusion-icon-256.png">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/ODiogoSilva/TriFusion">View on GitHub</a>
+        <nav class="navbar navbar-static-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a href="#" class="navbar-left"><img id="logo" src="images/trifusion-icon-256.png"></a>
+              <a class="navbar-brand" href="#" style="font-weight: bold; color: #37abc8">TriFusion</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#marketing-header" id="navbar">Installation</a></li>
+                <li><a href="#featurette">Features</a></li>
+                <li><a href="#usage">Usage</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
 
-
-          <h1 id="project_title">Trifusion</h1>
-          <h2 id="project_tagline">Streamlining phylogenomic data gathering, processing and visualization</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/ODiogoSilva/TriFusion/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/ODiogoSilva/TriFusion/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-<div id="toc"></div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-
-<h3>Overview</h3>
-
-<p><a href="https://travis-ci.org/ODiogoSilva/TriFusion"><img src="https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master" alt="Build Status"></a>
-<a href="https://landscape.io/github/ODiogoSilva/TriFusion/master"><img src="https://landscape.io/github/ODiogoSilva/TriFusion/master/landscape.svg?style=flat" alt="Code Health"></a>
-<a href="https://codecov.io/gh/ODiogoSilva/TriFusion"><img src="https://codecov.io/gh/ODiogoSilva/TriFusion/branch/master/graph/badge.svg" alt="codecov"></a></p>
-
-<p>TriFusion is a GUI and command line application designed to streamline the workflow of phylogenomic projects. With the dramatic increase in size of data sets for phylogenetics and population genetics, programming has become a crucial tool to gather, process and analyze the data. However, this may still represent a hurdle that precludes the execution of such projects by a broader range of researchers. TriFusion aims to mitigate this issue by providing a user-friendly visual interface that empowers users without any programming knowledge with a set of tools and operations that can handle large sets of data.</p>
-
-<p>TriFusion is an open source, cross-platform application written in <a href="https://www.python.org/">Python 2.7</a> and using the <a href="https://github.com/kivy/kivy">Kivy</a> framework to construct graphical interface.</p>
-
-<hr>
-<h3>Installation</h3>
-
-<div class="w3-container">
-
-  <div class="w3-row">
-    <a href="javascript:void(0)" onclick="openTab(event, 'Windows');">
-      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center w3-border-tfblue">Windows</div>
-    </a>
-    <a href="javascript:void(0)" onclick="openTab(event, 'Ubuntu');">
-      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">Ubuntu/Debian</div>
-    </a>
-    <a href="javascript:void(0)" onclick="openTab(event, 'RPM-based');">
-      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">RPM</div>
-    </a>
-    <a href="javascript:void(0)" onclick="openTab(event, 'ArchLinux');">
-      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">ArchLinux</div>
-    </a>
-  </div>
-
-  <div id="Windows" class="w3-container tab">
-    <h4>Installers</h4>
-
-    <p> Installers with the latest stable release are available with 32 and 64 bits versions: </p>
-
-  <div id="download-section">
-    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows64.msi" id="down-left"> <i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 64 bit </a>
-    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows32.msi"id="down-right"> <i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 32 bit </a>
-  </div>
-
-  <h6>Note for Windows 8.x and 10 users:</h6>
-  <p>Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".</p>
-  </div>
-
-  <div id="Ubuntu" class="w3-container tab">
-    <h4>Debian package</h4>
-    <p>A debian package with the latest stable release is available for Debian based distributions, using the software center or simply by double-clicking</p>
-
-    <div id ="download-section">
-
-      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb" id="down-center"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion debian</a>
-
-    </div>
-
-    <h4>PPA (Ubuntu)</h4>
-
-    <ul>
-      <li> Add one of the following PPAs:</li>
-        <pre><code class="shell"># Stable release
-sudo add-apt-repository ppa:o-diogosilva/trifusion
-# Daily release
-sudo add-apt-repository ppa:o-diogosilva/trifusion-daily</code></pre>
-      <li> Update your package list: </li>
-      <pre><code class="shell">sudo apt update</code></pre>
-      <li>Install/Update TriFusion:</li>
-      <pre><code class="shell">sudo apt install trifusion</code></pre>
-    </ul>
-    <h4>PPA (Debian)</h4>
-
-    <ul>
-      <li>Add one of the following PPAs manually to the sources.list file</li>
-      <pre><code class="shell"># Stable release
-http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main
-# Daily release
-http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main</code></pre>
-      <li>Add the GPG key to your apt keyring</li>
-      <pre><code class="shell">sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D4F1E8E6</code></pre>
-      <li>Refresh your package list and install TriFusion</li>
-      <pre><code class="shell">sudo apt-get update && sudo apt-get install trifusion</code></pre>
-    </ul>
-  </div>
-
-  <div id="RPM-based" class="w3-container tab">
-    <h4>RPM package</h4>
-    <p>A package with the latest stable release is available for RPM based distributions, using the software center or simply by double-clicking</p>
-
-
-    <div id="download-section">
-      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm" id="down-center"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion RPM</a>
-    </div>
-
-    <!-- <ul style="list-style: none;">
-      <li><a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm"><i class="fa fa-download" aria-hidden="true"></i>  trifusion-bin-0.4.11-linux.rpm</a></p></li></li>
-    </ul> -->
-
-    <h4>Build from source</h4>
-    <p>Before installing TriFusion, you will need to install kivy:</p>
-    <pre><code class="shell">dnf install python-pip python-devel redhat-rpm-config freeglut-devel SDL*
-pip install cython==0.23
-pip install kivy</code></pre>
-  <p>Then, <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-0.4.11-linux.rpm">download</a> the latest RPM release of TriFusion and install it as a regular RPM package. Note that the RPM package is not in any repository yet, which means that it will not received updates of the latest version of TriFusion from GitHub. However, it's possible to stay on the bleeding edge of the development by following these steps:</p>
-  <ul>
-    <li>After installing the RPM package, remove ONLY the TriFusion package, but leave the dependencies installed. For example, in Fedora:</li>
-    <pre><code class="shell">dnf remove TriFusion</code></pre>
-    <li>Clone the git repository of TriFusion to your computer</li>
-    <pre><code class="shell">git clone https://github.com/ODiogoSilva/TriFusion.git</code></pre>
-    <li>In a terminal, navigate to TriFusion's directory and execute:</li>
-    <pre><code class="shell">sudo python setup.py install</code></pre>
-  </ul>
-  <p>Since all dependencies are already installed, this will install only the most recent version of TriFusion. To keep TriFusion up to date afterwards, you'll just need to pull the most recent code and re-install it.</p>
-  <pre><code class="shell">git pull
-sudo python setup.py install --force</code></pre>
-  </div>
-
-  <div id="ArchLinux" class="w3-container tab">
-    <h4>AUR packages</h4>
-    <p>There are three <a href="https://aur.archlinux.org/">AUR</a> packages for TriFusion:</p>
-    <ul>
-      <li><a href="https://aur.archlinux.org/packages/trifusion/">trifusion</a> - The latest stable version of TriFusion, based on source code.</li>
-      <li><a href="https://aur.archlinux.org/packages/trifusion-bin/">trifusion-bin</a> - The latest version of TriFusion. Installs a large binary package, but does not require dependencies to be installed, as all the necessary libs are bundled with the distributed binary.</li>
-      <li><a href="https://aur.archlinux.org/packages/trifusion-git/">trifusion-git</a> - The bleeding edge version directly from git. Requires dependencies to be installed, as it is also source code based.</li>
-    </ul>
-  </div>
-</div>
-
-<hr>
-
-
-<h3>Feature Overview</h3>
-
-<!--
-<div class="feature-container">
-  <div class="w3-row">
-    <a href="javascript:void(0)" onclick="openFeature(event, 'Orthology');">
-      <div class="feature-tab feattablink feature-selected">
-        <span style="font-size: 22px;">Orthology</span><br>
-        <span style="font-size: 13px;">Gather and explore orthologs </span>
-      </div>
-    </a>
-    <a href="javascript:void(0)" onclick="openFeature(event, 'Process');">
-      <div class="feature-tab feattablink">
-        <span style="font-size: 22px;">Process</span><br>
-        <span style="font-size: 13px;">Manipulate alignment data</span>
-      </div>
-    </a>
-    <a href="javascript:void(0)" onclick="openFeature(event, 'Statistics');">
-      <div class="feature-tab feattablink">
-        <span style="font-size: 22px;">Statistics</span><br>
-        <span style="font-size: 13px;">Visualize your data</span>
-      </div>
-    </a>
-  </div>
-
-  <div class="feature-content">
-  
-    <div id="Orthology" class="w3-container feattab">
-
-      <div class="feature-subtitle">Detect ortholog sequences across multiple species... with just a few clicks!</div>
-      
-      <div>
-        <img src="figures/tf_orto_search.png" id="img-feature">
-      </div>
-
-      <div class="feature-subtitle">Given multiple proteome files, TriFusion uses the OrthoMCL framework in conjunction with USEARCH and MCL to quickly identify ortholog groups.</div>
-
-      <div>
-        <img src="figures/tf_orto_explore.png" id="img-feature">
-      </div>
-
-      <div class="feature-subtitle">
-      Easily explore the results of orthologs search using several graphical and filtering tools in the Orthology Explore operation
-      </div>
-
-      <div id="Process" class="feattab">
-          Some Process text
-      </div>
-
-      <div id="Statistics" class="feattab">
-        Some Statistics text
       </div>
     </div>
-  </div>
-
-</div>
 
 
-<br>
--->
-
-<div class="slideshow-container">
-  <div class="mySlides fade">
-    <img src="figures/tf_main.png" id="slide">
-      <div class="text">Welcome to TriFusion. Easily switch between each of the three main models using the top bar</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_orto_search.png" id="slide">
-    <div class="text">Searching orthologous sequences across multiple proteome files has never been easier with the Orthology Search operation</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_orto_explore.png" id="slide">
-    <div class="text">Easily explore the results of orthologs search using several graphical and filtering tools in the Orthology Explore operation</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_sidepanel.png" id="slide">
-    <div class="text">Quickly visualize and edit all loaded data, including files, taxa and partitions</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_models.png" id="slide">
-    <div class="text">Freely change several aspects of the alignment's partitions, including codon sub-partitions and substitution models</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_process.png" id="slide">
-    <div class="text">Take advantage of the numerous processing operations that can be applied to your input alignment files. Convert,concatenate, collapse, filter, create consensus and code gaps and more! </div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_stats_init.png" id="slide">
-    <div class="text">Visualize your data painlessly, even with thousands of alignments, using the Statistics module. Choose one of the many analyses available across four thematic categories</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_gene_table.png" id="slide">
-    <div class="text">Check summary statistics for the whole data set AND for each individual alignment. All data can be easily exported into table format</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_stats.png" id="slide">
-    <div class="text">Most options in the Statistics module generate publication ready plots that allow you to quickly and interactively visualize your data. All graphics can be exported as figures or in table format.</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_stats2.png" id="slide">
-    <div class="text">Most options in the Statistics module generate publication ready plots that allow you to quickly and interactively visualize your data. All graphics can be exported as figures or in table format.</div>
-  </div>
-
-  <div class="mySlides fade">
-    <img src="figures/tf_stats3.png" id="slide">
-    <div class="text">Most options in the Statistics module generate publication ready plots that allow you to quickly and interactively visualize your data. All graphics can be exported as figures or in table format.</div>
-  </div>
-
-
-  <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-  <a class="next" onclick="plusSlides(1)">&#10095;</a>
-</div>
-<br>
-
-<div style="text-align:center">
-  <span class="dot" onclick="currentSlide(1)"></span>
-  <span class="dot" onclick="currentSlide(2)"></span>
-  <span class="dot" onclick="currentSlide(3)"></span>
-  <span class="dot" onclick="currentSlide(4)"></span>
-  <span class="dot" onclick="currentSlide(5)"></span>
-  <span class="dot" onclick="currentSlide(6)"></span>
-  <span class="dot" onclick="currentSlide(7)"></span>
-  <span class="dot" onclick="currentSlide(8)"></span>
-  <span class="dot" onclick="currentSlide(9)"></span>
-  <span class="dot" onclick="currentSlide(10)"></span>
-  <span class="dot" onclick="currentSlide(11)"></span>
-</div>
-
-
-
-<hr>
-<h3>
-<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use</h3>
-
-<h4>
-<a id="gui-version" class="anchor" href="#gui-version" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GUI version</h4>
-
-<h5>
-<a id="windows-1" class="anchor" href="#windows-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Windows</h5>
-
-<p>TriFusion should be available in the Start Menu, ready to launch.</p>
-
-<h5>
-<a id="linux-1" class="anchor" href="#linux-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Linux</h5>
-
-<p>If TriFusion was installed using package managers, a TriFusion shortcut should have been created and available using your distribution's application launcher (Under the Science category). Alternatively, TriFusion can be executed from the terminal with the command <code>TriFusion</code>.</p>
-
-<h4>
-<a id="command-line-versions" class="anchor" href="#command-line-versions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Command line versions</h4>
-
-<p>Command line versions for each of the three modules in TriFusion are only available when installing the program from source. Once installed, each module can be executed in the terminal using the following commands:</p>
-
-<ul>
-<li>
-<p>Orthology search module:</p>
-
-<p><code>orthomcl_pipeline</code></p>
-</li>
-<li>
-<p>Process module:</p>
-
-<p><code>TriSeq</code></p>
-</li>
-<li>
-<p>Statistics module:</p>
-
-<p><code>TriStats</code></p>
-</li>
-</ul>
-
-<p>For more information on the command line versions, see the manual.</p>
-
-<h3>
-<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Documentation</h3>
-
-<p>User guide coming soon!</p>
-
-<h3>
-<a id="citation" class="anchor" href="#citation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Citation</h3>
-
-<p>When using OrthoMCL to find ortholog clusters, please cite the original software:</p>
-
-<p>Fischer, S., Brunk, B. P., Chen, F., Gao, X., Harb, O. S., Iodice, J. B., Shanmugam, D., Roos, D. S. and Stoeckert, C. J. Using OrthoMCL to Assign Proteins to OrthoMCL-DB Groups or to Cluster Proteomes Into New Ortholog Groups Current Protocols in Bioinformatics. 2011 35:6.12.1–6.12.19.</p>
-
-<p>Coming soon!</p>
-      </section>
+    <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide" data-ride="carousel">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner" role="listbox">
+        <div class="item active">
+          <img class="first-slide" src="images/tf_main_slide.png" alt="First slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>TriFusion</h1>
+              <h3>Phylogenomic data gathering, processing and visualization for everyone!</h3>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <img class="second-slide" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="Second slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>TriFusion</h1>
+              <h3>Some subheader text</h3>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <img class="third-slide" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="Third slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>TriFusion</h1>
+              <h3>Some subheader text</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
     </div>
+    <!-- /.carousel -->
 
-<!-- FOOTER  -->
-<!-- <div id="footer_wrap" class="outer">
-  <footer class="inner">
-    <p class="copyright">Trifusion maintained by <a href="https://github.com/ODiogoSilva">ODiogoSilva</a></p>
-    <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-  </footer>
-</div> -->
+    <div id=marketing-header>Get Started on TriFusion</div>
 
-<script>
-    $(function() {
-      $("#toc").tocify({
-        selectors: "h3,h5"
-      });})
-</script>
+    <div class="container marketing">
 
-<script>
-    <!-- For figure slideshow -->
-    var slideIndex = 1;
-    showSlides(slideIndex);
-
-    function plusSlides(n) {
-      showSlides(slideIndex += n);
-    }
-
-    function currentSlide(n) {
-      showSlides(slideIndex = n);
-    }
-
-    function showSlides(n) {
-      var i;
-      var slides = document.getElementsByClassName("mySlides");
-      var dots = document.getElementsByClassName("dot");
-      if (n > slides.length) {slideIndex = 1}
-      if (n < 1) {slideIndex = slides.length}
-      for (i = 0; i < slides.length; i++) {
-          slides[i].style.display = "none";
-      }
-      for (i = 0; i < dots.length; i++) {
-          dots[i].className = dots[i].className.replace(" active", "");
-      }
-      slides[slideIndex-1].style.display = "block";
-      dots[slideIndex-1].className += " active";
-    }
+      <!-- Three columns of text below the carousel -->
+      <div class="row">
+        <div class="col-lg-4">
+          <i class="fa fa-arrow-circle-o-down" id="main-icons" aria-hidden="true"></i>
+          <h2>Download</h2>
+          <p>Download installers are available for Windows and several Unix distro's</p>
+          <p><a class="btn btn-default" href="#" role="button">Get TriFusion &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-4">
+          <i class="fa fa-book" id="main-icons" aria-hidden="true"></i>
+          <h2>User Guide</h2>
+          <p>Get the lattest documentation on the full features of TriFusion, how to operate GUI and command line versions of TriFusion, and more!</p>
+          <p><a class="btn btn-default" href="#" role="button">Download guide &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+        <div class="col-lg-4">
+          <i class="fa fa-github" id="main-icons" aria-hidden="true"></i>
+          <h2>View on GitHub</h2>
+          <p>TriFusion is free software and the source code is hosted on GitHub</p>
+          <p><a class="btn btn-default" href="#" role="button">View source &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+      </div><!-- /.row -->
 
 
-    <!-- For tabbed installation panel -->
-    function openTab(evt, tabName) {
-      var i, x, tablinks;
-      x = document.getElementsByClassName("tab");
-      for (i = 0; i < x.length; i++) {
-         x[i].style.display = "none";
-      }
-      tablinks = document.getElementsByClassName("tablink");
-      if (typeof evt !== "undefined") {
-        for (i = 0; i < x.length; i++) {
-          tablinks[i].className = tablinks[i].className.replace(" w3-border-tfblue", "");
-        }
-      }
-      document.getElementById(tabName).style.display = "block";
-      evt.currentTarget.firstElementChild.className += " w3-border-tfblue";
-    }
-    openTab(event, "Windows")
+      <!-- START THE FEATURETTES -->
 
-    <!-- For tabbed feature panel -->
-    function openFeature(evt, tabName) {
-      var i, x, tablinks;
-      x = document.getElementsByClassName("feattab");
-      for (i = 0; i < x.length; i++) {
-         x[i].style.display = "none";
-      }
-      tablinks = document.getElementsByClassName("feattablink");
-      if (typeof evt !== "undefined") {
-        for (i = 0; i < x.length; i++) {
-          tablinks[i].className = tablinks[i].className.replace(" feature-selected", "");
-        }
-      }
-      document.getElementById(tabName).style.display = "block";
-      evt.currentTarget.firstElementChild.className += " feature-selected";
-    }
+      <hr class="featurette-divider" id="featurette">
 
-</script>
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Handling phylogenomic data <span class="text-muted">is much easier now.</span></h2>
+          <p class="lead">Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text .</p>
+        </div>
+        <div class="col-md-5">
+          <img class="featurette-image img-responsive center-block" src="images/tf_main.png" alt="Generic placeholder image">
+        </div>
+      </div>
 
-<script>openFeature(event, 'Orthology')</script>
+      <hr class="featurette-divider">
 
-<script>
-// $.fn.followTo = function (pos) {
-//     var $this = this,
-//         $window = $(window);
-//
-//     $window.scroll(function (e) {
-//         if ($window.scrollTop() < pos) {
-//             $this.css({
-//                 position: 'absolute',
-//                 top: pos
-//             });
-//         } else {
-//             $this.css({
-//                 position: 'fixed',
-//                 top: 50
-//             });
-//         }
-//     });
-// };
-// $("#toc").followTo(250)
-$(window).scroll(function(){
-    $("#toc").css("top", Math.max(50, 300 - $(this).scrollTop()));
+      <div class="row featurette">
+        <div class="col-md-7 col-md-push-5">
+          <h2 class="featurette-heading">Gather and explore orthologs from multiple proteomes <span class="text-muted">with just a few clicks.</span></h2>
+          <p class="lead">Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text </p>
+        </div>
+        <div class="col-md-5 col-md-pull-7">
+          <img class="featurette-image img-responsive center-block" data-src="holder.js/500x500/auto" alt="Generic placeholder image">
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Convert, concatenate, filter. <span class="text-muted">and much more!</span></h2>
+          <p class="lead">Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text Some text </p>
+        </div>
+        <div class="col-md-5">
+          <img class="featurette-image img-responsive center-block" data-src="holder.js/500x500/auto" alt="Generic placeholder image">
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <!-- /END THE FEATURETTES -->
+
+
+      <!-- FOOTER -->
+      <footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; Diogo N Silva.
+      </footer>
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="javascripts/bootstrap.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </body>
+
+<script type="text/javascript">
+  $('navbar').on("click", "#marketing-header", function(){
+    $('html, body').animate({
+        scrollTop: $( $(this).attr('href') ).offset().top
+    }, 500);
+    return false;
 });
 </script>
 
-  </body>
 </html>
