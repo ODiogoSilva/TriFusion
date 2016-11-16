@@ -8,6 +8,10 @@ body {
   color: #5a5a5a;
 }
 
+.modalh {
+  font-weight: bold;
+  color: #37abc8;
+}
 
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
@@ -193,4 +197,27 @@ body {
   .featurette-heading {
     margin-top: 120px;
   }
+}
+
+.w3-container:after,.w3-panel:after,.w3-row:after,.w3-row-padding:after,.w3-topnav:after,.w3-clear:after,.w3-btn-group:before,.w3-btn-group:after,.w3-btn-bar:before,.w3-btn-bar:after
+{content:"";display:table;clear:both}
+.w3-container{padding:0.5em 8px}
+.w3-row-padding,.w3-row-padding>.w3-half,.w3-row-padding>.w3-third,.w3-row-padding>.w3-twothird,.w3-row-padding>.w3-threequarter,.w3-row-padding>.w3-quarter,w3-fifth,.w3-row-padding>.w3-col{padding:0 8px}
+.w3-col.s12,.w3-half,.w3-third,.w3-twothird,.w3-threequarter,.w3-quarter,.w3-fifth{width:99.99999%}
+.w3-col.l3,.w3-quarter{width:24.5555%}
+.w3-col.m3,.w3-quarter{width:24.5555%}
+.w3-col,.w3-half,.w3-third,.w3-twothird,.w3-threequarter,.w3-quarter,.w3-fifth{float:left}
+.w3-topbar{border-top:6px solid #ccc!important}.w3-bottombar{border-bottom:6px solid #ccc!important}
+.w3-light-grey,.w3-hover-light-grey:hover,.w3-light-gray,.w3-hover-light-gray:hover{color:#000!important;background-color:#f1f1f1!important}
+.w3-hover-purple,.w3-hover-deep-purple,.w3-hover-red,.w3-hover-sand,.w3-hover-teal,.w3-hover-yellow,.w3-hover-white,.w3-hover-black,.w3-hover-grey,.w3-hover-light-grey,.w3-hover-dark-grey,.w3-hover-text-amber,.w3-hover-text-aqua,.w3-hover-text-blue,.w3-hover-text-light-blue,
+.w3-padding-medium,.w3-padding,.w3-form{padding:8px 16px!important}
+.w3-text-center{text-align: center!important;font-weight: bold!important; font-size: 18px!important; color: #37abc8!important;}
+.w3-border-tfblue,.w3-hover-border-tfblue:hover{border-color:#37abc8!important}
+
+#download-section {
+  text-align: center;
+}
+
+.btn-space {
+  margin-right: 50px;
 }
