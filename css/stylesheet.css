@@ -11,6 +11,23 @@ body {
 .modalh {
   font-weight: bold;
   color: #37abc8;
+  font-family: 'Jura', sans-serif;
+}
+
+.modal-header {
+  background-color: #37abc8;
+  color: white;
+}
+
+.modal-title {
+  font-weight: bold;
+  font-size: 24px;
+  font-family: 'Jura', sans-serif;
+}
+
+#system-info {
+  font-weight: bold;
+  color: grey;
 }
 
 /* CUSTOMIZE THE NAVBAR
@@ -148,7 +165,7 @@ body {
 ------------------------- */
 
 .featurette-divider {
-  margin: 80px 0; /* Space out the Bootstrap <hr> more */
+  margin: 30px 0; /* Space out the Bootstrap <hr> more */
 }
 
 /* Thin out the marketing headings */
@@ -211,7 +228,7 @@ body {
 .w3-light-grey,.w3-hover-light-grey:hover,.w3-light-gray,.w3-hover-light-gray:hover{color:#000!important;background-color:#f1f1f1!important}
 .w3-hover-purple,.w3-hover-deep-purple,.w3-hover-red,.w3-hover-sand,.w3-hover-teal,.w3-hover-yellow,.w3-hover-white,.w3-hover-black,.w3-hover-grey,.w3-hover-light-grey,.w3-hover-dark-grey,.w3-hover-text-amber,.w3-hover-text-aqua,.w3-hover-text-blue,.w3-hover-text-light-blue,
 .w3-padding-medium,.w3-padding,.w3-form{padding:8px 16px!important}
-.w3-text-center{text-align: center!important;font-weight: bold!important; font-size: 18px!important; color: #37abc8!important;}
+.w3-text-center{text-align: center!important;font-weight: bold!important; font-size: 20px!important; color: #37abc8!important; font-family: 'Jura', sans-serif;}
 .w3-border-tfblue,.w3-hover-border-tfblue:hover{border-color:#37abc8!important}
 
 #download-section {

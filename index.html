@@ -137,13 +137,13 @@
           <i class="fa fa-book" id="main-icons" aria-hidden="true"></i>
           <h2>User Guide</h2>
           <p>Get the lattest documentation on the full features of TriFusion, how to operate GUI and command line versions of TriFusion, and more!</p>
-          <button type="button" class="btn btn-info" style="font-weight: bold">Download guide</button>
+          <a href="https://github.com/ODiogoSilva/TriFusion/raw/master/docs/manual.pdf" type="button" class="btn btn-info" style="font-weight: bold">Download guide</a>
         </div><!-- /.col-lg-4 -->
         <div class="col-lg-4">
           <i class="fa fa-github" id="main-icons" aria-hidden="true"></i>
           <h2>View on GitHub</h2>
           <p>TriFusion is free software and the source code is hosted on GitHub</p>
-          <button type="button" class="btn btn-info" style="font-weight: bold">View Source</button>
+          <a href="https://github.com/ODiogoSilva/TriFusion" type="button" class="btn btn-info" style="font-weight: bold">View Source</a>
         </div><!-- /.col-lg-4 -->
       </div><!-- /.row -->
 
@@ -158,7 +158,6 @@
             </div>
             <div class="modal-body">
               <div class="w3-container">
-
                 <div class="w3-row">
                   <a href="javascript:void(0)" onclick="openTab(event, 'Windows');">
                     <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center w3-border-tfblue">Windows</div>
@@ -175,30 +174,30 @@
                 </div>
 
                 <div id="Windows" class="w3-container tab">
-                  <h4 class="modalh">Installers</h3>
+                  <h3 class="modalh">Installers</h3>
 
                   <p> Installers with the latest stable release are available with 32 and 64 bits versions: </p>
 
                 <div id="download-section">
-                    <button type="button " class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 64 bit</button>
-                    <button type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 32 bit</button>
+                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows64.msi" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 64bit</a>
+                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows32.msi" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 32bit</a>
                 </div>
                 <br>
-                <h5 class="modalh">Note for Windows 8.x and 10 users:</h4>
+                <h4 class="modalh">Note for Windows 8.x and 10 users:</h4>
                 <p>Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".</p>
                 </div>
 
                 <div id="Ubuntu" class="w3-container tab">
-                  <h4 class="modalh">Debian package</h4>
+                  <h3 class="modalh">Debian package</h4>
                   <p>A debian package with the latest stable release is available for Debian based distributions, using the software center or simply by double-clicking</p>
 
                   <div id ="download-section">
 
-                    <button type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.deb</button>
+                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.deb</a>
 
                   </div>
 
-                  <h4 class="modalh">PPA (Ubuntu)</h4>
+                  <h3 class="modalh">PPA (Ubuntu)</h4>
 
                   <ul>
                     <li> Add one of the following PPAs:</li>
@@ -211,7 +210,7 @@ sudo add-apt-repository ppa:o-diogosilva/trifusion-daily</code></pre>
                     <li>Install/Update TriFusion:</li>
                     <pre><code class="shell">sudo apt install trifusion</code></pre>
                   </ul>
-                  <h4 class="modalh">PPA (Debian)</h4>
+                  <h3 class="modalh">PPA (Debian)</h4>
 
                   <ul>
                     <li>Add one of the following PPAs manually to the sources.list file</li>
@@ -227,19 +226,19 @@ http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main</code></pre>
                 </div>
 
                 <div id="RPM-based" class="w3-container tab">
-                  <h4 class="modalh">RPM package</h4>
+                  <h3 class="modalh">RPM package</h4>
                   <p>A package with the latest stable release is available for RPM based distributions, using the software center or simply by double-clicking</p>
 
 
                   <div id="download-section">
-                    <button type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.rpm</button>
+                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.rpm</a>
                   </div>
 
                   <!-- <ul style="list-style: none;">
                     <li><a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm"><i class="fa fa-download" aria-hidden="true"></i>  trifusion-bin-0.4.11-linux.rpm</a></p></li></li>
                   </ul> -->
 
-                  <h4 class="modalh">Build from source</h4>
+                  <h3 class="modalh">Build from source</h4>
                   <p>Before installing TriFusion, you will need to install kivy:</p>
                   <pre><code class="shell">dnf install python-pip python-devel redhat-rpm-config freeglut-devel SDL*
 pip install cython==0.23
@@ -259,7 +258,7 @@ sudo python setup.py install --force</code></pre>
                 </div>
 
                 <div id="ArchLinux" class="w3-container tab">
-                  <h4 class="modalh">AUR packages</h4>
+                  <h3 class="modalh">AUR packages</h4>
                   <p>There are three <a href="https://aur.archlinux.org/">AUR</a> packages for TriFusion:</p>
                   <ul>
                     <li><a href="https://aur.archlinux.org/packages/trifusion/">trifusion</a> - The latest stable version of TriFusion, based on source code.</li>
@@ -280,7 +279,8 @@ sudo python setup.py install --force</code></pre>
       <!-- START THE FEATURETTES -->
 
       <hr class="featurette-divider" id="featurette">
-
+    <div id=marketing-header>Features</div>
+    
       <div class="row featurette">
         <div class="col-md-7">
           <h2 class="featurette-heading">Handling phylogenomic data <span class="text-muted">is much easier now.</span></h2>
@@ -352,20 +352,6 @@ $(document).on('click', '#smooth-link', function(event){
         scrollTop: $( $.attr(this, 'href') ).offset().top
     }, 500);
 });
-</script>
-
-<!-- Get OS for download buttons -->
-<script type="text/javascript">
-var OSName="Unknown OS";
-if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
-if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
-if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
-if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
-
-var OSarch="32"
-if (navigator.userAgent.indexOf("WOW64") != -1|| 
-    navigator.userAgent.indexOf("Win64") != -1 ) OSarch="64";
-/*document.getElementById('download-bt').innerHTML = OSName + OSarch;*/
 </script>
 
 <script>
