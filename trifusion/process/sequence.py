@@ -327,7 +327,8 @@ class Alignment(Base):
                 self.input_format, self.sequence_code = self.autofinder(
                     input_alignment)
 
-                # In case the input format is specified, overwrite the attribute
+                # In case the input format is specified, overwrite the
+                # attribute
                 if input_format:
                     self.input_format = input_format
 
@@ -2110,7 +2111,8 @@ class AlignmentList(Base):
 
         full_taxa = []
 
-        for alignment in self.alignments.values():
+        for alignment in self.alignments.values() + \
+                self.shelve_alignments.values():
             diff = set(alignment.iter_taxa()) - set(full_taxa)
             if diff != set():
                 full_taxa.extend(diff)
@@ -2652,7 +2654,7 @@ class AlignmentList(Base):
                 self.alignments[nm].remove_alignment()
                 del self.alignments[nm]
             elif nm in self.shelve_alignments:
-                self.alignments[nm].remove_alignment()
+                self.shelve_alignments[nm].remove_alignment()
                 del self.shelve_alignments[nm]
             self.partitions.remove_partition(file_name=nm_path)
 

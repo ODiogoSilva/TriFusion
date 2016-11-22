@@ -105,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.51"
-__build__ = "04116"
+__version__ = "0.4.52"
+__build__ = "221116"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -2988,7 +2988,7 @@ class TriFusionApp(App):
 
     def sidepanel_remove_moreopts(self):
         """
-        Removes widgets from the moreoptions dialog
+        Removes widgets from the more options dialog
         """
 
         for wgt in [x for x in self.root_window.children if
@@ -3134,6 +3134,7 @@ class TriFusionApp(App):
         # If taxa were removed during the update, remove those buttons too
         removed_taxa = list(set(self.active_taxa_list) - set(
             self.alignment_list.taxa_names))
+
         if removed_taxa:
             for i in removed_taxa:
                 # Get the corresponding buttons:
@@ -4253,14 +4254,13 @@ class TriFusionApp(App):
             self.active_proteome_files
 
         # Changes concerning the files tab
-
         if parent_obj == self.root.ids.file_sl:
-            # When button is normal (unselected) remove from active list
 
             sel = get_selection(value, "Files")
 
             for b in sel:
 
+                # When button is normal (unselected) remove from active list
                 if value.state == "normal":
 
                     try:
@@ -5915,7 +5915,7 @@ class TriFusionApp(App):
         self.hap_prefix = "Hap"
         self.zorro_suffix = ""
         self.zorro_dir = ""
-        self.process_grid_wgt.ids.consensus_mode.text = \
+        self.process_options.ids.consensus_mode.text = \
             "IUPAC" if self.sequence_types != "Protein" else "Soft mask"
 
         # Clear output file

@@ -50,6 +50,7 @@ Orthology section (usearch and mcl).
 partitions
 - Fixed faulty behaviour with plot screen zoom using mouse wheel
 - Fixed interactive path references in secondary filechoosers
+- Fixed wrong taxa removal when removing files
 
 ##### Process
 
@@ -66,7 +67,8 @@ was OFF.
 - Fixed faulty deactivation of user define partitions option in the reverse
 concatenation dialog.
 - Corrected phylip interleave output.
-- Fixes issues with taxa removal for AlignmentList objects for command line
+- Fixed issues with taxa removal for AlignmentList objects for command line
+- Fixed Clear Options processing.
 
 ##### Orthology
 
