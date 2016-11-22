@@ -79,6 +79,19 @@ body {
   margin-bottom: 60px;
 }
 
+.carousel-indicators > li {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    margin: 10px;
+    text-indent: 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: inset 1px 1px 1px 1px rgba(1,1,1,.8); 
+}
+
 /* Since positioning the image, we need to help out the caption */
 .carousel-caption {
   position: absolute;
