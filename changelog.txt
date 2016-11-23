@@ -82,6 +82,7 @@ concatenation dialog.
 
 - Fixed active group selection when selecting the data set.
 - Fixed issue with temporary directory creation when using the command line version.
+- Fixed outlier removal.
 
 ### v0.4.12
 
