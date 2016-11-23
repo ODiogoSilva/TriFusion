@@ -105,7 +105,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.53"
+__version__ = "0.4.54"
 __build__ = "231116"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -8931,7 +8931,7 @@ class TriFusionApp(App):
             # The removal of taxa/files uses the export_table function to
             # dump the outliers into a file and then the
             # remove_bt_from_file function to remove them form the app
-            self.export_table(self.temp_dir, "outlier_temp", False)
+            self.export_table(self.temp_dir, "outlier_temp", warning_dlg=False)
 
             self.remove_bt_from_file(ds_type, join(self.temp_dir,
                                                    "outlier_temp.csv"))
@@ -8944,7 +8944,8 @@ class TriFusionApp(App):
                                  self.current_plt_idx[1])
 
             self.dialog_floatcheck(
-                "{} outliers where removed".format(len(self.current_table)), t="info")
+                "{} outliers where removed".format(len(self.current_table)),
+                t="info")
 
         if operation == "export":
             self.dialog_filechooser("export_outliers")
