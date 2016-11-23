@@ -105,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.52"
-__build__ = "221116"
+__version__ = "0.4.53"
+__build__ = "231116"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -4453,8 +4453,12 @@ class TriFusionApp(App):
         self.screen.ids.card_gl.clear_widgets()
 
         # Resets ortho_groups object
+        # Formal clearing of ortho_groups and temporary files
         self.ortho_groups.clear_groups()
+        # Resets the ortho_groups variable so that new loadings will start anew
+        self.ortho_groups = None
         self.ortho_group_files = []
+        self.proteome_files = []
 
     def remove_groups(self, value):
         """

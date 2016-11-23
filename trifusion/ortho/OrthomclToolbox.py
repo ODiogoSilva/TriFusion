@@ -1392,6 +1392,7 @@ class MultiGroupsLight(object):
         self.filters = {}
         self.max_extra_copy = {}
         self.species_number = []
+        self.gene_threshold = self.species_threshold = 0
 
     def add_group(self, group_obj):
         """
