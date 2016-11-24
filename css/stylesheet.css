@@ -248,6 +248,9 @@ b {
   .featurette-heading {
     font-size: 50px;
   }
+}
+
+@media (max-width: 767px) {
   .carousel-caption h1 {
     font-size: 50px;
   }
