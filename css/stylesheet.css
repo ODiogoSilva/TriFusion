@@ -248,8 +248,8 @@ b {
   .featurette-heading {
     font-size: 50px;
   }
-  .carousel-caption > h1 {
-    font-size: 60px;
+  .carousel-caption h1 {
+    font-size: 50px;
   }
 }
 
