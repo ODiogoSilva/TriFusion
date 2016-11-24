@@ -126,7 +126,7 @@ body {
 }
 
 .carousel-caption > h3 {
-	font-size: 30px;
+	font-size: 20px;
 	color: #404040;
 	font-family: 'Jura', sans-serif;
 }
@@ -250,6 +250,9 @@ b {
   }
   .carousel-caption h1 {
     font-size: 75px;
+  }
+  .carousel-caption h3 {
+    font-size: 30px;
   }
 }
 
