@@ -101,12 +101,16 @@ body {
   box-shadow: 0px 0px 0px #fff
 }
 
+.carousel-control {
+  max-width: 150px;
+}
+
 .carousel-caption > h1 {
 	color: #37abc8;
 	font-weight: bold;
-	font-size: 60px;
+	font-size: 75px;
 	font-family: 'Jura', sans-serif;
-	margin-bottom: 70px;
+	margin-bottom: 100px;
 }
 
 .carousel-caption > h3 {
@@ -118,7 +122,7 @@ body {
 /* Declare heights because of positioning of img element */
 .carousel .item {
   height: 700px;
-  background-color: #f2f2f2;
+  background-color: rgba(0,0,0,0)!important;
 }
 .carousel-inner > .item > img {
   max-width: 100%
@@ -127,12 +131,12 @@ body {
   padding-left: 10%;
   padding-right: 10%;*/
   position: absolute;
-  top: 15px;
+  top: 0px;
   bottom: 0;
   left: 0;
   right: 0;
   margin: auto;
-  opacity: .2;
+  opacity: .35;
   max-height: 700px!important;
 }
 
@@ -186,6 +190,14 @@ body {
   font-weight: 300px;
   line-height: 1;
   letter-spacing: -1px;
+}
+
+.lead {
+  text-align: justify;
+}
+
+b {
+  color: grey;
 }
 
 
