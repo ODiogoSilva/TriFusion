@@ -56,11 +56,23 @@ body {
 }
 
 .navbar-nav > li {
-	padding-right: 30px;
-	padding-right: 30px;
+  margin-left: 20px;
 	font-weight: bold;
 	font-family: 'Jura', sans-serif;
 	font-size: 20px;
+}
+
+ .navbar-nav > li > a:focus {
+  background-color: rgba(1,1,1,0)!important;
+  color: #37abc8;
+}
+
+.navbar-nav > li > a:hover{
+  background-color: rgba(1,1,1,0.1)!important;
+}
+
+.bottom-bar {
+  border-bottom:6px solid rgba(1,1,1,0)!important;
 }
 
 #logo {
@@ -235,6 +247,9 @@ b {
 
   .featurette-heading {
     font-size: 50px;
+  }
+  .carousel-caption > h1 {
+    font-size: 60px;
   }
 }
 
