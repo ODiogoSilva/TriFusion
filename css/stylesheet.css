@@ -219,7 +219,7 @@ b {
 /* RESPONSIVE CSS
 -------------------------------------------------- */
 
-@media (min-width: 1000px) {
+@media only screen and (min-width: 1000px) {
   /* Navbar positioning foo */
   .navbar-wrapper {
     margin-top: 20px;
