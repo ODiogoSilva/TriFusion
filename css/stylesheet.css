@@ -251,7 +251,7 @@ b {
 }
 
 @media (max-width: 767px) {
-  .carousel-caption h1 {
+  .carousel-caption > h1 {
     font-size: 50px;
   }
 }
