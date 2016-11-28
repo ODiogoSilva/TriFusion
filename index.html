@@ -40,7 +40,7 @@
 <!-- NAVBAR
 ================================================== -->
   <body>
-    <div class="navbar-wrapper">
+    <div class="navbar-wrapper" id="home">
       <div class="container">
 
         <nav class="navbar navbar-static-top">
@@ -57,7 +57,7 @@
                 <li class="active bottom-bar w3-hover-border-tfblue"><a href="#" id="smooth-link">Home</a></li>
                 <li class="bottom-bar w3-hover-border-tfblue"><a href="#marketing-header" id="smooth-link">Installation</a></li>
                 <li class="bottom-bar w3-hover-border-tfblue"><a href="#featurette" id="smooth-link">Features</a></li>
-                <li class="bottom-bar w3-hover-border-tfblue"><a href="#usage">Usage</a></li>
+                <li class="bottom-bar w3-hover-border-tfblue"><a href="#tutorials" id="smooth-link">Tutorials</a></li>
                   </ul>
                 </li>
               </ul>
@@ -170,7 +170,7 @@
         <div class="col-lg-4">
           <i class="fa fa-github" id="main-icons" aria-hidden="true"></i>
           <h2>View on GitHub</h2>
-          <p>TriFusion is and will always be free software (Under GPLv3). Feel free to view and modify the source code, hosted on GitHub.</p>
+          <p>TriFusion is and will always be free software (under GPLv3 license). Feel free to view and modify the source code, hosted on GitHub.</p>
           <a href="https://github.com/ODiogoSilva/TriFusion" target="_blank" type="button" class="btn btn-info" style="font-weight: bold">View Source</a>
         </div><!-- /.col-lg-4 -->
       </div><!-- /.row -->
@@ -307,6 +307,7 @@ sudo python setup.py install --force</code></pre>
       <!-- START THE FEATURETTES -->
 
       <hr class="featurette-divider" id="featurette">
+      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
     <div id=marketing-header>Features</div>
     
       <div class="row featurette">
@@ -320,6 +321,7 @@ sudo python setup.py install --force</code></pre>
       </div>
 
       <hr class="featurette-divider">
+      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
 
       <div class="row featurette">
         <div class="col-md-7 col-md-push-5 ">
@@ -332,11 +334,12 @@ sudo python setup.py install --force</code></pre>
       </div>
 
       <hr class="featurette-divider">
+      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
 
       <div class="row featurette">
         <div class="col-md-7">
           <h2 class="featurette-heading">Convert, concatenate, filter, collapse alignments <span class="text-muted">and so much more!</span></h2>
-          <p class="lead">TriFusion offers a wide variety of useful and common operations that can be quickly and easily applied to <b>thousands of alignment files</b>. Want to collapse identical sequences into haplotypes? <b>Check!</b> Want to filter alignments with excess of missing data? <b>Check!</b> Want to remove certain codon positions? <b>Check!</b> Want to create a consensus from multiple sequences in an alignments? <b>Check!</b> See the user manual to the complete set of operations that you can do.</p>
+          <p class="lead">TriFusion offers a wide variety of useful and common operations that can be quickly and easily applied to <b>thousands of alignment files</b>. Want to collapse identical sequences into haplotypes? <b>Check!</b> Want to filter alignments with excess of missing data? <b>Check!</b> Want to remove certain codon positions? <b>Check!</b> Want to create a consensus from multiple sequences in an alignments? <b>Check!</b> See the user manual for the complete set of operations that you can do.</p>
         </div>
         <div class="col-md-5">
           <img class="featurette-image img-responsive center-block" style="margin-top: 10%" src="images/tf_process_montage.png" alt="Generic placeholder image">
@@ -344,6 +347,7 @@ sudo python setup.py install --force</code></pre>
       </div>
 
       <hr class="featurette-divider">
+      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
 
       <div class="row featurette">
         <div class="col-md-7 col-md-push-5 ">
@@ -355,14 +359,47 @@ sudo python setup.py install --force</code></pre>
         </div>
       </div>
 
-      <hr class="featurette-divider">
-
       <!-- /END THE FEATURETTES -->
 
+    <hr class="featurette-divider" id="tutorials">
+    <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+
+      <!-- START THE TUTORIALS -->
+
+    <div id=marketing-header>Tutorials</div>
+
+    <p class="lead">Jump right in into TriFusion using any of the following quick start guides. These are sorted according to TriFusion's three main modules: </p>
+
+    <h2>Orthology</h2>
+
+    <ul class="lead">
+      <li>Installation of third party software (USEARCH and MCL).<p class="small-link">[pdf; html]</p></li>
+      <li>Basic search of orthologs among X proteome files. <p class="small-link">[pdf; html]</p></li>
+      <li>Import and explore multiple orthology search results. <p class="small-link">[pdf; html]</p></li>
+      <li>Export ortholog groups into protein and nucleotide sequence files. <p class="small-link">[pdf; html]</p></li>
+    </ul>
+
+    <h2>Process</h2>
+
+    <ul class="lead">
+      <li>Creating and using active data set groups. <p class="small-link">[pdf; html]</p></li>
+      <li>Basic conversion and concatenation of multiple alignment files. <p class="small-link">[pdf; html]</p></li>
+      <li>Applying secondary operations (collapse, consensus, filtering, gap coding). <p class="small-link">[pdf; html]</p></li>
+      <li>Reverting a concatenated file. <p class="small-link">[pdf; html]</p></li>
+      <li>Working with partitions and substitution models: How to load and export data. <p class="small-link">[pdf; html]</p></li>
+    </ul>
+
+    <h2>Statistics</h2>
+
+    <ul  class="lead">
+      <li>Walkthrough on how to visualize your data, change and update the active data set and taking advantage of fast plot switching. <p class="small-link">[pdf; html]</p></li>
+    </ul>
+
+    <!-- /END THE TUTORIALS -->
 
       <!-- FOOTER -->
       <footer>
-        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
         <p>&copy; Diogo N Silva.
       </footer>
 

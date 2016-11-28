@@ -211,6 +211,14 @@ body {
   text-align: justify;
 }
 
+.lead > li {
+  margin-bottom: 10px;
+}
+
+.small-link {
+  font-size: 16px;
+}
+
 b {
   color: grey;
 }
