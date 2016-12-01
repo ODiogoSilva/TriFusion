@@ -147,7 +147,7 @@ def main_parser(alignment_list, arg):
     # Filter by alignments that contain taxa
     if arg.contain_filter:
         print_col("Filtering alignment(s) including a taxa group", GREEN)
-        alignments.filter_by_taxa("Contain", arg.contain_filter)
+        alignments.filter_by_taxa("Containing", arg.contain_filter)
 
     # Filter by alignments that exclude taxa
     if arg.exclude_filter:
