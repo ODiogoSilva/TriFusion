@@ -335,7 +335,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         # Pipe the information on the filtered alignments to the main process
         # only if it was applied a filter that changes the final alignments
-        if any(aln.filtered_alignments.values()):
+        if set(aln.filtered_alignments.values()) != {None}:
             ns.filtered_alns = aln.filtered_alignments
 
         # Some filter configurations may result in empty final alignment

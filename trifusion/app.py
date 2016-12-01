@@ -105,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.54"
-__build__ = "231116"
+__version__ = "0.4.55"
+__build__ = "011216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -8084,7 +8084,8 @@ class TriFusionApp(App):
         if final_alns:
             content.ids.final_txt.text = str(final_alns)
         else:
-            content.ids.final_txt2.text = 0
+            content.ids.final_box.size_hint_x = 0.00001
+            content.ids.final_txt2.text = "0"
 
         # Set graphics for each filter
         for f, val in filtered_stats.items():
