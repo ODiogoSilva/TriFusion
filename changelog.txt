@@ -71,6 +71,7 @@ concatenation dialog.
 - Fixed Clear Options processing.
 - Fixed issue with taxa filtering not working.
 - Fixed issue when 0 alignments were filtered, even though at least one filter was active.
+- Fixed issue with relative paths when loading files from terminal.
 
 ##### Orthology
 

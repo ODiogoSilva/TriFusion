@@ -39,11 +39,11 @@ from os import sep
 # issues when the full path to the application's directory contains
 # non-ASCII characters. This way, the cur_dir attribute will be always
 # set to "."
+called_dir = os.getcwd()
 if getattr(sys, "frozen", False):
     os.chdir(dirname(sys.executable))
 elif __file__:
     os.chdir(dirname(os.path.abspath(__file__)))
-print(os.getcwd())
 
 # freeze_support must be called here so that multiprocessing work
 # correctly on windows
@@ -105,7 +105,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.55"
+__version__ = "0.4.56"
 __build__ = "011216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -9307,6 +9307,12 @@ class TriFusionApp(App):
                                  if os.path.isfile(join(i, x))])
             elif os.path.isfile(i):
                 file_list.append(i)
+            else:
+                # If the file has not been found, try joining the called_dir
+                # path with the file name
+                mod_path = join(called_dir, os.path.split(i)[1])
+                if os.path.isfile(mod_path):
+                    file_list.append(mod_path)
 
         if not file_list:
             return self.dialog_floatcheck("No valid input files were"
