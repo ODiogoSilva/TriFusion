@@ -105,7 +105,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.56"
+__version__ = "0.4.57"
 __build__ = "011216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -2443,7 +2443,7 @@ class TriFusionApp(App):
 
     # ###################### BOOKMARKS OPERATIONS ##########################
 
-    def bookmark_init(self, wgt, dev_wgt, fc_wgt):
+    def bookmark_init(self, wgt, dev_wgt, fc_wgt, popup_level=1):
         """
         This will create a pickle file containing a list with the bookmarks
         for the file chooser menu. If no file exists, it will create an
@@ -2453,6 +2453,8 @@ class TriFusionApp(App):
         :param wgt: Widget object where the bookmark button will be
         :param dev_wgt: Widget object where the system bookmarks will be
         :param fc_wgt: Filechooser widget associated with the bookmarks
+        :param popup_level: int, specifies the level of the check_action popup
+         that appears when attempting to remove a bookmark
         """
 
         if exists(self.bm_file):
@@ -2460,7 +2462,7 @@ class TriFusionApp(App):
             # Retrieving the bookmark path list from the self.bookmarks
             bk_list = self.bookmarks[0]
             for bk in bk_list:
-                self.add_bookmark_bt(bk, wgt, fc_wgt)
+                self.add_bookmark_bt(bk, wgt, fc_wgt, popup_level=popup_level)
 
         else:
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
@@ -2544,7 +2546,8 @@ class TriFusionApp(App):
             self.add_bookmark_bt(path, wgt, fc_wgt)
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
-    def add_bookmark_bt(self, bk, wgt, fc_wgt, name=None, rm_bt=True):
+    def add_bookmark_bt(self, bk, wgt, fc_wgt, name=None, rm_bt=True,
+                        popup_level=1):
         """
         This will add a bookmark button, along with its removal button. Only
         a bookmark path will be necessary.
@@ -2562,6 +2565,8 @@ class TriFusionApp(App):
         :param rm_bt: Boolean, If True, a removal button will be added with
         the bookmark, else the removal button will not be added. The latter
         case is used for System devices bookmarks.
+        :param popup_level: int, specifies the level of the check_action popup
+         that appears when attempting to remove a bookmark
         """
 
         bookmark_name = basename(bk)
@@ -2591,7 +2596,8 @@ class TriFusionApp(App):
             xbt.bind(on_release=partial(self.check_action,
                                         "Are you sure you want to remove"
                                         " this bookmark?",
-                                        self.remove_bookmark_bt))
+                                        self.remove_bookmark_bt,
+                                        popup_level=popup_level))
             wgt.add_widget(xbt)
 
     def bookmark_load(self, value, wgt):

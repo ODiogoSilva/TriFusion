@@ -693,7 +693,7 @@ class ExportGraphics(BoxLayout):
         super(ExportGraphics, self).__init__(**kwargs)
 
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
-                                self.ids.sd_filechooser)
+                                self.ids.sd_filechooser, popup_level=2)
 
 
 class StatsLoading(BoxLayout):
@@ -935,7 +935,7 @@ class LoadMultipleDialog(BoxLayout):
         super(LoadMultipleDialog, self).__init__(**kwargs)
 
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
-                                self.ids.sd_filechooser)
+                                self.ids.sd_filechooser, popup_level=2)
 
 
 class CloseBox(BoxLayout):
@@ -1176,7 +1176,7 @@ class SaveDialog(FloatLayout):
         super(SaveDialog, self).__init__(**kwargs)
 
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
-                                self.ids.sd_filechooser)
+                                self.ids.sd_filechooser, popup_level=2)
 
 
 class SplitPartitions(BoxLayout):
