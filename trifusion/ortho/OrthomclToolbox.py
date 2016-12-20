@@ -315,9 +315,20 @@ class GroupLight(object):
                 self._apply_filter(cl)
 
     def retrieve_sequences(self, sqldb, protein_db, dest="./",
-                           shared_namespace=None):
+                           shared_namespace=None, outfile=None):
+        """
 
-        if not os.path.exists(dest):
+        :param sqldb: srting. Path to sqlite database file
+        :param protein_db: string. Path to protein database file
+        :param dest: string. Directory where sequences will be exported
+        :param shared_namespace: Namespace object to communicate with
+        TriFusion's main process
+        :param outfile: If set, all sequeces will be instead saved in a
+        single output file. This is used for the nucleotide sequence export
+        :return:
+        """
+
+        if not os.path.exists(dest) and not outfile:
             os.makedirs(dest)
 
         if shared_namespace:
@@ -354,8 +365,12 @@ class GroupLight(object):
 
         if shared_namespace:
             shared_namespace.act = "Fetching sequences"
-            shared_namespace.progress = 0
+            shared_namespace.good = 0
             shared_namespace.loci = 0
+
+        # Set single output file, if option is set
+        if outfile:
+            output_handle = open(join(dest, outfile), "w")
 
         # Fetching sequences
         for line, cl in zip(self.groups(), self.species_frequency):
@@ -364,14 +379,16 @@ class GroupLight(object):
             if self._get_compliance(cl) == (1, 1):
 
                 if shared_namespace:
-                    shared_namespace.progress += 1
+                    shared_namespace.good += 1
 
                 # Retrieve sequences from current cluster
                 fields = line.split(":")
 
                 # Open file
-                cl_name = fields[0]
-                output_handle = open(os.path.join(dest, cl_name) + ".fas", "w")
+                if not outfile:
+                    cl_name = fields[0]
+                    output_handle = open(os.path.join(dest, cl_name) + ".fas",
+                                         "w")
 
                 seqs = fields[-1].split()
                 for i in seqs:
@@ -380,13 +397,20 @@ class GroupLight(object):
                               format(table_name), (i,))
                     vals = c.fetchone()
                     # Handles cases where the sequence could not be retrieved
+                    # If outfile is set, output_handle will be a single file
+                    # for all groups. If not, it will represent an individual
+                    # group file
                     try:
                         output_handle.write(">{}\n{}\n".format(vals[0],
                                                                vals[1]))
                     except TypeError:
                         pass
 
-                output_handle.close()
+                if not outfile:
+                    output_handle.close()
+
+        if outfile:
+            output_handle.close()
 
         conn.close()
 

@@ -105,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.57"
-__build__ = "011216"
+__version__ = "0.4.58"
+__build__ = "201216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -487,7 +487,7 @@ class TriFusionApp(App):
 
     # Attributes for exporting groups as protein/nucleotides
     protein_db = StringProperty("")
-    cds_db = StringProperty("")
+    cds_db = ListProperty("")
 
     # Attribute containing the path to the proteome files
     proteome_files = []
@@ -6415,13 +6415,14 @@ class TriFusionApp(App):
                 self.dismiss_popup()
                 if not shared_ns.missed:
                     self.dialog_floatcheck(
-                        "%s orthologs successfully exported" % shared_ns.progress,
+                        "%s orthologs successfully exported" % shared_ns.good,
                         t="info")
                 else:
                     self.dialog_floatcheck(
                         "%s orthologs exported. However, %s sequences "
-                        "could not be retrieved!" %
-                        (shared_ns.progress, shared_ns.missed), t="info")
+                        "could not be retrieved! Missed sequence headers "
+                        "were stored in missed_sequences.log" %
+                        (shared_ns.good, shared_ns.missed), t="info")
                 if sys.platform in ["win32", "cygwin"]:
                     p.join()
                 else:
@@ -6445,13 +6446,14 @@ class TriFusionApp(App):
         method_store = {
             "group":
                 [self.active_group.export_filtered_group,
-                [self.sqldb, output_name, output_dir]],
+                 [self.sqldb, output_name, output_dir]],
             "protein":
                 [self.active_group.retrieve_sequences,
-                [self.sqldb, self.protein_db, output_dir]],
+                 [self.sqldb, self.protein_db, output_dir]],
             "nucleotide":
                 [protein2dna.convert_group,
-                [self.cds_db, self.protein_db, self.active_group]]}
+                 [self.sqldb, self.cds_db, self.protein_db,
+                  self.active_group, self.usearch_file, output_dir]]}
 
         # Get method and args
         m = method_store[export_idx]
@@ -7247,6 +7249,9 @@ class TriFusionApp(App):
         elif idx == "protein_db":
             self.protein_db = path[0]
 
+        elif idx == "cds_db":
+            self.cds_db = path
+
         elif idx == "orto_export_dir":
             self.orto_export_dir = path
 
@@ -7915,7 +7920,7 @@ class TriFusionApp(App):
 
         # Lists the idx that do not required file name
         idx_no_file = ["ortho_dir", "zorro_dir", "protein_db", "mcl_fix",
-                       "usearch_fix"]
+                       "usearch_fix", "cds_db"]
 
         # Maps idx for which an extension label is provided in the filechooser
         # The key is the idx, the value is the extension to appear in the label
@@ -7941,6 +7946,8 @@ class TriFusionApp(App):
                 "Choose directory with ZORRO weight files",
             "protein_db":
                 "Choose protein sequence database file",
+            "cds_db":
+                "Choose cds/transcript sequence database file(s)",
             "export_outliers":
                 "Export outliers...",
             "ortho_dir":
@@ -7992,6 +7999,9 @@ class TriFusionApp(App):
             title = "Choose destination directory for OrthoMCL output files"
             if self.ortho_dir:
                 content.ids.sd_filechooser.path = self.ortho_dir
+
+        if idx == "cds_db":
+            content.ids.sd_filechooser.multiselect = True
 
         # Save output file for conversion/concatenation purposes
         # Providing this operation will allow the filechooser widget to

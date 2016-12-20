@@ -28,6 +28,7 @@ sequences and then tries to match them to the original protein sequences.
 
 from os.path import join
 import subprocess
+import os
 
 dna_map = {
     'ATA': 'I', 'ATC': 'I', 'ATT': 'I', 'ATG': 'M',
@@ -94,7 +95,7 @@ def create_db(f_list, dest="./"):
     id_dic = {}
 
     for f in f_list:
-        handle = open(f, encoding="latin1")
+        handle = open(f)
         seq = ""
         header = ""
         for line in handle:
@@ -160,7 +161,7 @@ def create_query_from_dict(protein_dict):
     return query_db
 
 
-def pair_search(dest="./"):
+def pair_search(usearch_bin, dest="./"):
     """
     This will use USEARCH to search for translated transcript sequences
     identical to the original protein files
@@ -170,8 +171,9 @@ def pair_search(dest="./"):
     db_path = join(dest, "transcripts.fas")
     out_path = join(dest, "pairs.out")
 
-    subprocess.Popen(["usearch -usearch_global %s -db %s -id 1 -maxaccepts"
-                      " .9 -blast6out %s" % (query_path, db_path, out_path)],
+    subprocess.Popen(["%s -usearch_global %s -db %s -id 1 -maxaccepts"
+                      " .9 -blast6out %s" % (usearch_bin, query_path, db_path,
+                                             out_path)],
                      shell=True).wait()
 
 
@@ -192,32 +194,38 @@ def get_pairs(dest="./"):
     return pair_db
 
 
-def convert_protein_file(pairs, query_db, id_db, output_dir,
-                         outfile_suffix="_dna.fa"):
+def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
     """
     A given protein file will be converted into their corresponding nucleotide
     sequences using a previously set database using the create_db function
     :return:
     """
 
-    bad = 0
+    # Create handle for file storing bad sequence headers.
+    bad_file = open(join(output_dir, "missed_sequences.log"), "w")
 
-    for infile, vals in query_db.items():
+    for line, cl in zip(group_obj.groups(), group_obj.species_frequency):
 
-        output_file = join(output_dir, infile.split(".")[0] + outfile_suffix)
+        if group_obj._get_compliance(cl) == (1, 1):
 
-        f_handle = open(output_file, "w")
+            fields = line.split(":")
+            orto_name = fields[0]
+            seq_headers = fields[-1].split()
 
-        for i in vals:
-            if i in pairs:
-                seq = id_db[pairs[i]]
-                f_handle.write(">%s\n%s\n" % (i.replace(";;", " "), seq))
-            else:
-                bad += 1
+            f_handle = open(join(output_dir, orto_name) + ".fas", "w")
+
+            for h in seq_headers:
+                if h in pairs:
+                    seq = id_db[pairs[h]]
+                    shared_ns.good += 1
+                    f_handle.write(">%s\n%s\n" % (h.replace(";;", " "), seq))
+                else:
+                    shared_ns.missed += 1
+                    bad_file.write("{}\t{}\n".format(orto_name, h))
 
 
-def convert_group(cds_file_list, protein_db, group_sequences,
-                  shared_namespace=None):
+def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
+                  usearch_bin, output_dir, shared_namespace=None):
     """
     Convenience function that wraps all required operations to convert protein
     to nucleotide files from a Group object
@@ -225,25 +233,36 @@ def convert_group(cds_file_list, protein_db, group_sequences,
 
     if shared_namespace:
         shared_namespace.act = "Creating database"
+        shared_namespace.missed = 0
+        shared_namespace.good = 0
     # Create database
-    id_db = create_db(cds_file_list)
+    id_db = create_db(cds_file_list, output_dir)
 
     if shared_namespace:
         shared_namespace.act = "Creating query"
-    # Create query for USEARCH
-    seq_dict = group_sequences.retrieve_sequences(protein_db, mode="dict")
-    query_db = create_query_from_dict(seq_dict)
-    # Execute search
 
+    # Create query for USEARCH
+    group_sequences.retrieve_sequences(sqldb, protein_db, output_dir,
+                                       outfile="query.fas")
+
+    # Execute search
     if shared_namespace:
         shared_namespace.act = "Performing search"
-    pair_search()
-    pair_db = get_pairs()
+    pair_search(usearch_bin, output_dir)
+    pair_db = get_pairs(output_dir)
     # Convert files
 
     if shared_namespace:
             shared_namespace.act = "Converting to nucleotide"
-    convert_protein_file(pair_db, query_db, id_db)
+    convert_protein_file(pair_db, group_sequences, id_db, output_dir,
+                         shared_namespace)
 
+    # Remove temporary files
+    temp_files = [join(output_dir, "query.fas"),
+                  join(output_dir, "transcripts.fas"),
+                  join(output_dir, "pairs.out")]
+
+    for f in temp_files:
+        os.remove(f)
 
 __author__ = "Diogo N. Silva"
