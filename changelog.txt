@@ -52,6 +52,7 @@ partitions.
 - Fixed interactive path references in secondary filechoosers.
 - Fixed wrong taxa removal when removing files.
 - Fixed issue with filechooser popup removal after trying to remove a bookmark.
+- Fixed double directory entry on some filechoosers.
 
 ##### Process
 

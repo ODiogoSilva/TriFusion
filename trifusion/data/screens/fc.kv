@@ -164,24 +164,23 @@ ShowcaseScreen:
                     background_down: "data/backgrounds/bt_process.png"
                     on_release: icon_view_tab.selection = []
 
-            ScrollView:
-                BoxLayout:
-                    FileChooserM:
-                        id: icon_view_tab
-                        dirselect: True
-                        multiselect: True
-                        previous_dir: []
-                        f: "/*"
-                        filters: [self.path.encode("ascii")+self.f]
-                        filter_dirs: False
 
-                        on_double_click:
-                            if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc(icon_view_tab.selection)
-                            if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes(icon_view_tab.selection)
+            FileChooserM:
+                id: icon_view_tab
+                dirselect: True
+                multiselect: True
+                previous_dir: []
+                f: "/*"
+                filters: [self.path.encode("ascii")+self.f]
+                filter_dirs: False
 
-                        on_dir_entry:
-                            text_filter.text = ""
-                            self.previous_dir.append(self.path)
+                on_double_click:
+                    if icon_view_tab.selection and aln_type.state == "down": app.load_files_subproc(icon_view_tab.selection)
+                    if icon_view_tab.selection and prot_type.state == "down": app.load_proteomes(icon_view_tab.selection)
+
+                on_dir_entry:
+                    text_filter.text = ""
+                    self.previous_dir.append(self.path)
 
 #                    FloatLayout:
 #                        size_hint: None, None
