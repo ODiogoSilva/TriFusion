@@ -458,6 +458,14 @@ class FileChooserM(FileChooserListView):
                 self.path = join(self.path, entry.path)
                 self.selection = []
 
+    def entry_released(self, entry, touch):
+        '''
+        Overides the entry_released method to prevent double entries when
+        double clicking a directory without multiselect.
+        '''
+        pass
+
+
     def entry_touched(self, entry, touch):
         """
         (internal) This method must be called by the template when an entry
@@ -530,7 +538,7 @@ class FileChooserM(FileChooserListView):
                     self.selection.append(entry.path)
         else:
             if _dir and not self.dirselect:
-                self.open_entry(entry)
+                self.open_entry
                 return
             self.selection = [entry.path, ]
 
