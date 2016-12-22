@@ -11,7 +11,7 @@ single_dna = [
 ]
 
 concatenated_medium_nexus = [
-    "trifusion/tests/data/Base614.nex"
+    "trifusion/tests/data/BaseConcatenation.nex"
 ]
 
 concatenated_small_phy = [
