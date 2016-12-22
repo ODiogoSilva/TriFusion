@@ -28,7 +28,7 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 - RPM package based ([See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions)): [trifusion-bin-0.4.11-linux.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm)
 
-- ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [trifusion-bin-0.4.11](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR
+- ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [trifusion-bin-0.4.11](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
 
 ##### Windows
 
