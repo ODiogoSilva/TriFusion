@@ -54,6 +54,7 @@ partitions.
 - Fixed issue with filechooser popup removal after trying to remove a bookmark.
 - Fixed double directory entry on some filechoosers.
 - Fixed issue when adding and removing bookmarks in secondary filechoosers.
+- Fixed crash when selecting files from text file that contained non compliant entries.
 
 ##### Process
 

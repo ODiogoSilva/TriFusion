@@ -105,7 +105,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.60"
+__version__ = "0.4.61"
 __build__ = "221216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -4718,9 +4718,9 @@ class TriFusionApp(App):
                     bt.state = "normal"
 
                 self.active_file_list = [self.filename_map[x] for x in
-                                         selection]
+                                         selection if x in self.filename_map]
                 self.alignment_list.update_active_alignments(
-                    [x for x in selection if x in self.filename_map[x]])
+                    [x for x in selection if x in self.filename_map])
 
                 self.update_file_label()
 
