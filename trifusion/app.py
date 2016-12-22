@@ -105,7 +105,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.59"
+__version__ = "0.4.60"
 __build__ = "221216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
@@ -2481,7 +2481,8 @@ class TriFusionApp(App):
                             # urllib will ensure special characters with
                             # punctuation are correctly showed
                             bk = urllib.unquote(bk)
-                            self.save_bookmark(bk, wgt, fc_wgt)
+                            self.save_bookmark(bk, wgt, fc_wgt,
+                                               popup_level=popup_level)
 
         # Get main paths for linux
         if sys.platform in ["linux", "linux2"]:
@@ -2520,7 +2521,7 @@ class TriFusionApp(App):
                     self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False,
                                          name=os.path.splitdrive(d)[0])
 
-    def save_bookmark(self, path, wgt, fc_wgt):
+    def save_bookmark(self, path, wgt, fc_wgt, popup_level=1):
         """
         This adds functionality to the FileChooser "Add bookmark" button. It
         will grab the selected path and add it to a storage list that
@@ -2529,6 +2530,8 @@ class TriFusionApp(App):
         :param path: String containing the path of the bookmark
         :param wgt: Widget where the bookmark will be added
         :param fc_wgt: FileChooser widget that the bookmark will affect
+        :param popup_level: int, specifies the level of the check_action popup
+         that appears when attempting to remove a bookmark
         """
 
         # Load bookmarks object
@@ -2543,7 +2546,7 @@ class TriFusionApp(App):
             new_map = {basename(path): path}
             self.bookmarks[1] = dict(list(self.bookmarks[1].items()) +
                                      list(new_map.items()))
-            self.add_bookmark_bt(path, wgt, fc_wgt)
+            self.add_bookmark_bt(path, wgt, fc_wgt, popup_level=popup_level)
             pickle.dump(self.bookmarks, open(self.bm_file, "wb"))
 
     def add_bookmark_bt(self, bk, wgt, fc_wgt, name=None, rm_bt=True,
