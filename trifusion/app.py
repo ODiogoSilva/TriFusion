@@ -105,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.61"
-__build__ = "221216"
+__version__ = "0.4.62"
+__build__ = "231216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -5144,10 +5144,10 @@ class TriFusionApp(App):
         root_wgts = self.root_window.children
         if [x for x in root_wgts if isinstance(x, Popup)]:
             dataset_wgt = [x for x in root_wgts if
-                           isinstance(x, Popup)][0].content
+                           isinstance(x, Popup)][-1].content
         elif [x for x in root_wgts if isinstance(x, CustomPopup)]:
             dataset_wgt = [x for x in root_wgts if
-                           isinstance(x, CustomPopup)][0].content
+                           isinstance(x, CustomPopup)][-1].content
         else:
             dataset_wgt = None
 
@@ -5160,6 +5160,9 @@ class TriFusionApp(App):
             # Make core changes by populating self.taxa_groups dictionary
             self.taxa_groups[name] = []
             group_list = self.taxa_groups[name]
+            # This list will be used to ensure that when groups are provided
+            # via text file, only compliant entries are saved
+            check_list = self.alignment_list.taxa_names
             # Set the grid layout where the group button is to be added
             grid_layout = self.root.ids.taxa_group_grid
             # Set dropdown widget
@@ -5172,6 +5175,9 @@ class TriFusionApp(App):
             # Make core changes by populating self.file_groups dictionary
             self.file_groups[name] = []
             group_list = self.file_groups[name]
+            # This list will be used to ensure that when groups are provided
+            # via text file, only compliant entries are saved
+            check_list = list(self.filename_map.keys())
             # Set the grid layout where the group button is to be added
             grid_layout = self.root.ids.file_group_grid
             # Set dropdown widget
@@ -5180,7 +5186,8 @@ class TriFusionApp(App):
         if group_file:
             with open(self.dataset_file) as fh:
                 for line in fh:
-                    group_list.append(line.strip())
+                    if line.strip() in check_list:
+                        group_list.append(line.strip())
         else:
             for bt in source_wgt.children:
                 group_list.append(bt.text)
@@ -5212,34 +5219,35 @@ class TriFusionApp(App):
 
         # App changes by adding two buttons for the taxa group
         # Taxa button itself
-        bt = Button(text=name, size_hint=(.8, None), height=30, id=name,
-                    background_normal="data/backgrounds/bt_process.png",
-                    background_down="data/backgrounds/bt_process_off.png",
-                    bold=True)
-        bt.bind(on_release=self.taxagroups_show_taxa)
-        # Removal button
-        x_bt = Button(size_hint=(None, None), width=30, border=(0, 0, 0, 0),
-                      height=30, id="%sX" % name,
-                      background_normal=join("data", "backgrounds",
-                                             "remove_bt.png"))
-        x_bt.bind(on_release=partial(self.check_action,
-                                     "Are you sure you want to remove this"
-                                     " group?",
-                                     self.remove_taxa_group))
+        if name not in [x .text for x in grid_layout.children]:
+            bt = Button(text=name, size_hint=(.8, None), height=30, id=name,
+                        background_normal="data/backgrounds/bt_process.png",
+                        background_down="data/backgrounds/bt_process_off.png",
+                        bold=True)
+            bt.bind(on_release=self.taxagroups_show_taxa)
+            # Removal button
+            x_bt = Button(size_hint=(None, None), width=30,
+                          border=(0, 0, 0, 0), height=30, id="%sX" % name,
+                          background_normal=join("data", "backgrounds",
+                                                 "remove_bt.png"))
+            x_bt.bind(on_release=partial(self.check_action,
+                                         "Are you sure you want to remove this"
+                                         " group?",
+                                         self.remove_taxa_group))
 
-        # Add buttons to gridlayout
-        for i in [bt, x_bt]:
-            grid_layout.add_widget(i)
+            # Add buttons to gridlayout
+            for i in [bt, x_bt]:
+                grid_layout.add_widget(i)
 
-        # Create separator between dropdown items
-        dd_bt = Button(text=name, size_hint_y=None, height=40, bold=True,
-                       background_normal=join("data", "backgrounds",
-                                              "spinner_opt.png"))
-        dd_bt.bind(on_release=lambda y: dd_wgt.select(name))
-        dd_wgt.add_widget(dd_bt)
+            # Create separator between dropdown items
+            dd_bt = Button(text=name, size_hint_y=None, height=40, bold=True,
+                           background_normal=join("data", "backgrounds",
+                                                  "spinner_opt.png"))
+            dd_bt.bind(on_release=lambda y: dd_wgt.select(name))
+            dd_wgt.add_widget(dd_bt)
 
-        # Update gridlayout height
-        grid_layout.height += 40
+            # Update gridlayout height
+            grid_layout.height += 40
 
     def projects_init(self):
         """
