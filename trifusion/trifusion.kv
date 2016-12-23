@@ -3094,9 +3094,9 @@
                     # Check for duplicate group name for taxa and file dialogs
                     elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
                     #app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
-                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2)
+                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2); root.cancel()
                     elif root.ds_type == "files" and root.ids.group_name.text in app.file_groups: \
-                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2)
+                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2); root.cancel()
                     # Save group and quit dialog
                     elif root.ds_type == "taxa" and select_grid.children: \
                     root.cancel(); app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
