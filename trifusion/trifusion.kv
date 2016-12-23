@@ -3093,9 +3093,10 @@
                     app.dialog_floatcheck("Cannot create an empty data set group", t="error")
                     # Check for duplicate group name for taxa and file dialogs
                     elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
-                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    #app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2)
                     elif root.ds_type == "files" and root.ids.group_name.text in app.file_groups: \
-                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2)
                     # Save group and quit dialog
                     elif root.ds_type == "taxa" and select_grid.children: \
                     root.cancel(); app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
@@ -3112,9 +3113,9 @@
                     app.dialog_floatcheck("Cannot create an empty data set group", t="error")
                     # Check for duplicate group name for taxa and file dialogs
                     elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
-                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2)
                     elif root.ds_type == "files" and root.ids.group_name.text in app.file_groups: \
-                    app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
+                    app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(root.ids.group_name.text), func=app.save_dataset_group, args=[root.ids.select_grid, root.ids.group_name.text, root.ds_type], popup_level=2)
                     ## Save group
                     elif root.ds_type == "taxa" and select_grid.children: \
                     app.save_dataset_group(root.ids.select_grid, root.ids.group_name.text, root.ds_type)
@@ -4141,7 +4142,13 @@
             on_release:
                 if root.text == "new_folder": \
                 app.create_folder(txt_dlg.text)
-                elif root.text == "files" or root.text == "taxa": \
+                elif root.text == "files" and txt_dlg.text in app.file_groups: \
+                app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(txt_dlg.text), func=app.save_dataset_group, args=[None, txt_dlg.text, root.text, True], popup_level=2)
+                elif root.text == "files" and txt_dlg.text not in app.file_groups: \
+                app.save_dataset_group(None, txt_dlg.text, root.text, True)
+                elif root.text == "taxa" and txt_dlg.text in app.taxa_groups: \
+                app.check_action(text="The group '{}' already exists. Do you wish to modify it?".format(txt_dlg.text), func=app.save_dataset_group, args=[None, txt_dlg.text, root.text, True], popup_level=2)
+                elif root.text == "taxa" and txt_dlg.text not in app.taxa_groups: \
                 app.save_dataset_group(None, txt_dlg.text, root.text, True)
                 elif root.text == "project": \
                 app.save_project(txt_dlg.text)

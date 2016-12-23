@@ -9,9 +9,10 @@
 - Added multi selection for taxa and file data set groups with shift+clicking.
 - Added label with selection information for data set group dialog.
 - Added extension label in certain file choosers that require file name
-definition
-- Added mcl (linux and windows 64bit) to distribution
-- Improve layout of floating errors, warnings and checks
+definition.
+- Added mcl (linux and windows 64bit) to distribution.
+- Improve layout of floating errors, warnings and checks.
+- Modifying previously created data set groups is now possible.
 
 ##### Process
 
