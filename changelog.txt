@@ -16,7 +16,7 @@ definition.
 
 ##### Process
 
-- Interleave phylip input format is now supported.
+- Interleave Phylip input format is now supported.
 - Added text field to introduce split position when splitting partitions.
 - More informative error message when importing inconsistent partition file.
 - Usage of Threading or Multiprocessing changes dynamically depending on OS. This mainly means better performance on Unix.
