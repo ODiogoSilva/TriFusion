@@ -323,6 +323,8 @@ class TriFusionApp(App):
     stats_summary = None
     stats_table = None
     MAX_TABLE_N = 50
+    gene_table_selection = []
+    gene_master_table = []
 
     # Attribute for the widget containing the treeview showing the
     # operations queue
@@ -4430,6 +4432,8 @@ class TriFusionApp(App):
         self.output_dir = ""
         self.output_file = ""
         self.conversion_suffix = ""
+        self.gene_table_selection = None
+        self.gene_master_table = []
 
         # Clear Statistics screen scatter, if screen is active
         self.dismiss_stats_toggle()
@@ -5538,7 +5542,7 @@ class TriFusionApp(App):
             self.toggle_stats_panel(force_close=True)
 
             # Clear Table grid
-            self.stats_table.ids.table_grid.clear_widgets()
+            self.stats_table = GeneTable()
 
             # Get results
             with open(join(self.temp_dir, "table.pc"), "rb") as fh:
@@ -5555,23 +5559,7 @@ class TriFusionApp(App):
                     "sets it is recommended to use the 'export table' "
                     "option", t="warning", dl=10)
 
-            # Populate content
-            for p, (k, v) in enumerate(sorted(table.items())):
-
-                if p > self.MAX_TABLE_N:
-                    bt = MoreTableBt()
-                    self.stats_table.ids.table_grid.add_widget(bt)
-                    break
-
-                # Create and populate TableLine
-                x = TableLine()
-                x.ids.gn_name.text = "%s. %s" % (p + 1, k)
-
-                for t1, t2 in v.items():
-                    x.ids[t1].text = "%s" % t2
-
-                # Add TableLine to main grid
-                self.stats_table.ids.table_grid.add_widget(x)
+            self.search_add_gene_table_line(table)
 
             # Add Table widget if in screen
             if self.screen.name == "Statistics":
@@ -5579,6 +5567,7 @@ class TriFusionApp(App):
 
             # Set table attribute
             self.current_table = td
+            self.gene_table = table
 
         def check_process(p, ldg_wgt, plt_wgt, dt):
 
@@ -5695,6 +5684,87 @@ class TriFusionApp(App):
         check_func = partial(check_process, p, ldg,
                              self.screen.ids.plot_content.children[0])
         Clock.schedule_interval(check_func, .1)
+
+    def search_add_gene_table_line(self, gene_table):
+        """
+        Wraps the creation of gene table lines into the table_grid widget.
+        :param gene_table
+        :return:
+        """
+
+        for p, (k, v) in enumerate(sorted(gene_table.items())):
+
+            if p > self.MAX_TABLE_N:
+                bt = MoreTableBt()
+                self.stats_table.ids.table_grid.add_widget(bt)
+                break
+
+            # Create and populate TableLine
+            x = TableLine()
+            x.ids.gn_name.text = "%s. %s" % (p + 1, k)
+
+            for t1, t2 in v.items():
+                x.ids[t1].text = "%s" % t2
+
+            # Add TableLine to main grid
+            self.stats_table.ids.table_grid.add_widget(x)
+
+    def search_statistics_gene_table(self, s):
+        """
+        Searches the summary statistic gene table view, according to the
+        provided string.
+        :param s: string. Used to search alignment names.
+        """
+
+        # Store the master gene table on another attribute, so that it can be
+        # later retrieved
+        self.gene_master_table = self.current_table[:]
+
+        # Info for new table data
+        table = [["Gene name", "Number of sites", "Number of taxa",
+                  "Variable sites", "Informative sites", "Gaps",
+                  "Missing data"]]
+        # Table line keys matching summary_gene_table dict values
+        tl = ["nsites", "taxa", "var", "inf", "gap", "missing"]
+
+        # clear gene table widget
+        self.stats_table.ids.table_grid.clear_widgets()
+
+        # Search the gene table object for gene names matching the provided
+        # string
+        self.gene_table_selection = dict((gene, vals) for gene, vals in
+                                         self.gene_table.items() if s in gene)
+
+        self.search_add_gene_table_line(self.gene_table_selection)
+
+        # Create new table data
+        for k in sorted(self.gene_table_selection):
+            # Add table line
+            table.append([k] + [self.gene_table_selection[k][x] for x in tl])
+
+        self.current_table = table
+
+    def search_statistics_clear(self):
+        """
+        Clears the search in the gene table summary statistics
+        """
+
+        # Only do this if there is an active selection being displayed
+        if self.gene_table_selection:
+            # Clear gene_table widget
+            self.stats_table.ids.table_grid.clear_widgets()
+
+            # Re-populate with original genes
+            self.search_add_gene_table_line(self.gene_table)
+
+            # Reset gene_table_selection
+            self.gene_table_selection = None
+
+            # Reset search field hint text
+            self.stats_table.ids.gn_txt.text = ""
+
+            # Set the current_table attribute to the total gene list
+            self.current_table = self.gene_master_table[:]
 
     def statistics_populate_groups(self, ds_type):
         """
