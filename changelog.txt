@@ -29,7 +29,7 @@ operation.
 ##### Orthology
 
 - Added full report generation in HTML for Orthology graphical exploration.
-- Added checks and troubleshooting for the two softwares requires in the
+- Added checks and troubleshooting for the two software requires in the
 Orthology section (usearch and mcl).
 
 #### Statistics
