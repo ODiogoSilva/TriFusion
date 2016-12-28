@@ -6186,12 +6186,44 @@
 
     Label:
         size_hint_y: None
-        height: 65
+        height: 60
         text: "[b][color=37abc8ff][size=18]Legend:[/size][/b][/color] [b][color=37abc8ff]N[/b][/color], number of sites; [b][color=37abc8ff]Taxa[/b][/color], number of taxa; [b][color=37abc8ff]V[/b][/color], number of variable sites; [b][color=37abc8ff]P[/b][/color], number of informative sites; [b][color=37abc8ff][/b][/color] number of gaps ('-'), [b][color=37abc8ff]M[/b][/color], number of missing data ('n')"
         markup: True
         halign: "left"
         valign: "middle"
         text_size: self.size
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: 0.8, 0.8, 0.8, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Button:
+            size_hint_x: None
+            width: 30
+            background_normal: "data/backgrounds/search_bt.png"
+            background_down: "data/backgrounds/search_bt.png"
+            on_release:
+                app.search_statistics_gene_table(gn_txt.text)
+        TFTextInput:
+            background_color: (1, 1, 1, 0)
+            foreground_color: (.1, .1, .1, .51)
+            hint_text: "Search alignments..."
+            multiline: False
+            id: gn_txt
+            on_text_validate:
+                app.search_statistics_gene_table(gn_txt.text)
+        Button:
+            size_hint_x: None
+            width: 30
+            background_normal: "data/backgrounds/clear_bt.png"
+            background_down: "data/backgrounds/clear_bt.png"
+            on_release:
+                app.search_statistics_clear()
 
     Hseparator
     BoxLayout:
