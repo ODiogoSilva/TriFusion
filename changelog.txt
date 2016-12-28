@@ -83,9 +83,9 @@ concatenation dialog.
 
 - Fixed awkward button behavior on Operations panel.
 - Fixed issue with protein database name when exporting groups after a Search operation.
-- Corrected minimum taxa representation proportion conversion
-- Fixed relatie paths issue when executing Orthology search
-- Fixed filter issues when loading new groups files after complete group removal
+- Corrected minimum taxa representation proportion conversion.
+- Fixed relatie paths issue when executing Orthology search.
+- Fixed filter issues when loading new groups files after complete group removal.
 - Fixed inability to export groups as nucleotide sequences.
 
 ##### Statistics
