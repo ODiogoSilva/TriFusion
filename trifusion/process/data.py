@@ -143,12 +143,16 @@ class Partitions():
         alignments are contained in a given partition and support multi
         alignment partitions. An example would be:
 
-        self.partitions_alignments = {"PartitionA": ["FileA.fas"], "PartitionB":
-            ["FileB.fas", "FileC.fas"]}
+        self.partitions_alignments = {"PartitionA": ["FileA.fas"],
+                                      "PartitionB": ["FileB.fas", "FileC.fas"]}
 
         """
 
         self.partitions_alignments = OrderedDict()
+
+        """
+        """
+        self.alignments_range = OrderedDict()
 
         """
         The self.models attribute will contain the same key list as
@@ -195,9 +199,11 @@ class Partitions():
 
         return iter(self.partitions.items())
 
-    def reset(self):
+    def reset(self, keep_alignments_range=False):
         """
         Clears partitions and resets object to __init__ state
+        :param keep_alignments_range: boolean.If True, the alignments_range
+        attribute will not reverse to the init stats
         :return:
         """
 
@@ -207,6 +213,8 @@ class Partitions():
         self.partitions_alignments = OrderedDict()
         self.models = OrderedDict()
         self.counter = 0
+        if not keep_alignments_range:
+            self.alignments_range = OrderedDict()
 
     def iter_files(self):
 
@@ -257,6 +265,9 @@ class Partitions():
         partitions
         """
 
+        # Resets previous partitions (except alignments_range)
+        self.reset(keep_alignments_range=True)
+
         # Get the format of the partition file
         partition_format = self._get_file_format(partitions_file)
 
@@ -270,7 +281,7 @@ class Partitions():
                 if line.strip() == "":
                     continue
 
-                # A wrongly formated raxml partition file may be provided, in
+                # A wrongly formatted raxml partition file may be provided, in
                 # which case an IndexError exception will be raised. This will
                 # handle that exception
                 try:
@@ -283,9 +294,14 @@ class Partitions():
                     partition_range_temp = fields[1].split("=")[1]
                     partition_range = [int(x) - 1 for x in
                                        partition_range_temp.strip().split("-")]
+                    # Check which alignment file contains the current partition
+                    file_name = [x for x, y in self.alignments_range.items() if
+                                 partition_range[0] in xrange(*y) and
+                                 partition_range[1] - 1 in xrange(*y)][0]
                     # Add information to partitions storage
                     self.add_partition(partition_name,
-                                       locus_range=partition_range)
+                                       locus_range=partition_range,
+                                       file_name=file_name)
                 except IndexError:
                     return InvalidPartitionFile("Badly formatted partitions "
                                                 "file")
@@ -326,8 +342,13 @@ class Partitions():
                 partition_range = [int(partition_full[0]) - 1,
                                    int(partition_full[1]) - 1]
 
+            # Check which alignment file contains the current partition
+            file_name = [x for x, y in self.alignments_range.items() if
+                         partition_range[0] in xrange(*y) and
+                         partition_range[1] in xrange(*y)][0]
+
             self.add_partition(partition_name, locus_range=partition_range,
-                            file_name=file_name)
+                               file_name=file_name)
         # If, for some reason, the current line cannot be interpreted as a
         # charset line, ignore it.
         except IndexError:
@@ -430,6 +451,7 @@ class Partitions():
 
         """
 
+        # Check for duplicate names in partitions
         if name in self.partitions:
             if auto_correct_name:
                 c = 1
@@ -441,6 +463,21 @@ class Partitions():
 
         # When length is provided
         if length:
+            # Add to or update alignments_range attribute. This will store the
+            # original range of the alignment
+            if file_name:
+                if file_name in self.alignments_range:
+                    current_range = [self.counter, self.counter + (length - 1)]
+                    # If start position is earlier than before, update
+                    if current_range[0] < self.alignments_range[file_name][0]:
+                        self.alignments_range[file_name][0] = current_range[0]
+                    # If stop position if later than before, update
+                    if current_range[1] > self.alignments_range[file_name][1]:
+                        self.alignments_range[file_name][1] = current_range[1]
+                else:
+                    self.alignments_range[file_name] = [
+                        self.counter, self.counter + (length - 1)]
+
             # Add partition to index list
             self.partitions_index.append([name, 0])
             # Add partition to alignment list
@@ -463,6 +500,17 @@ class Partitions():
             if use_counter:
                 locus_range = (self.counter,
                                self.counter + locus_range[1] - locus_range[0])
+
+            # Add to or update alignments_range attribute. This will store the
+            # original range of the alignment
+            if file_name:
+                if file_name in self.alignments_range:
+                    if locus_range[0] < self.alignments_range[file_name][0]:
+                        self.alignments_range[file_name][0] = locus_range[0]
+                    if locus_range[1] > self.alignments_range[file_name][1]:
+                        self.alignments_range[file_name][1] = locus_range[1]
+                else:
+                    self.alignments_range[file_name] = list(locus_range)
 
             # If the maximum range of the current partition is already included
             # in some other partition, and no codon partitions were provided
