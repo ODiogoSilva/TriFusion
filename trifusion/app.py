@@ -105,7 +105,7 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.65"
+__version__ = "0.5.0"
 __build__ = "301216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
