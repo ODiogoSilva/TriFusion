@@ -295,9 +295,17 @@ class Partitions():
                     partition_range = [int(x) - 1 for x in
                                        partition_range_temp.strip().split("-")]
                     # Check which alignment file contains the current partition
-                    file_name = [x for x, y in self.alignments_range.items() if
+                    if self.alignments_range:
+                        try:
+                            file_name = \
+                                [x for x, y in self.alignments_range.items() if
                                  partition_range[0] in xrange(*y) and
                                  partition_range[1] - 1 in xrange(*y)][0]
+                        except IndexError:
+                            file_name = None
+                    else:
+                        file_name = None
+
                     # Add information to partitions storage
                     self.add_partition(partition_name,
                                        locus_range=partition_range,
@@ -328,6 +336,7 @@ class Partitions():
             partition_full = re.split(r"[-\\]", fields[1].strip().
                                       replace(";", ""))
 
+            print(partition_full)
             # If partition is defined using "." notation to mean full length
             if partition_full[1] == ".":
                 if self.partition_length:
@@ -343,9 +352,13 @@ class Partitions():
                                    int(partition_full[1]) - 1]
 
             # Check which alignment file contains the current partition
-            file_name = [x for x, y in self.alignments_range.items() if
-                         partition_range[0] in xrange(*y) and
-                         partition_range[1] in xrange(*y)][0]
+            if self.alignments_range:
+                try:
+                    file_name = [x for x, y in self.alignments_range.items() if
+                                 partition_range[0] in xrange(*y) and
+                                 partition_range[1] in xrange(*y)][0]
+                except IndexError:
+                    pass
 
             self.add_partition(partition_name, locus_range=partition_range,
                                file_name=file_name)
