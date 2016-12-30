@@ -105,8 +105,8 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
-__version__ = "0.4.64"
-__build__ = "281216"
+__version__ = "0.4.65"
+__build__ = "301216"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -3584,7 +3584,6 @@ class TriFusionApp(App):
         :param partition_file: string, path to partition file
         """
 
-        self.alignment_list.partitions.reset()
         self.alignment_list.partitions.read_from_file(partition_file)
 
         # Clear partitions

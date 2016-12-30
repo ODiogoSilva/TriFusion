@@ -78,6 +78,7 @@ concatenation dialog.
 - Fixed issue with taxa filtering not working.
 - Fixed issue when 0 alignments were filtered, even though at least one filter was active.
 - Fixed issue with relative paths when loading files from terminal.
+- Fixed wrong attribution of alignment files to partitions when importing from file.
 
 ##### Orthology
 
