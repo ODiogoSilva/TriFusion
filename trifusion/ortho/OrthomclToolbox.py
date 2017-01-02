@@ -339,7 +339,7 @@ class GroupLight(object):
         # Connect to database
         conn = sqlite3.connect(sqldb)
         c = conn.cursor()
-        table_name = "".join(protein_db.split(os.sep)).replace(".", "")
+        table_name = "".join([x for x in protein_db if x.isalnum()])
 
         # Create table if it does not exist
         if not c.execute("SELECT name FROM sqlite_master WHERE type='table' AND"

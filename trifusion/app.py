@@ -24,6 +24,7 @@ from scipy import misc
 import multiprocessing
 import matplotlib.patches as patches
 import subprocess
+import platform
 import psutil
 import pickle
 import urllib
@@ -106,7 +107,7 @@ except ImportError:
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
 __version__ = "0.5.0"
-__build__ = "301216"
+__build__ = "020117"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
@@ -885,33 +886,66 @@ class TriFusionApp(App):
         problem.
         """
 
+        # The mcl executable requires the .exe extension in windows to
+        # work properly
+        if sys.platform in ["win32", "cygwin"]:
+            mcl_string = "mcl.exe"
+        else:
+            mcl_string = "mcl"
+
+
         # Check if MCL_FILE has been set. This happens when running TriFusion
         # from the executable binary.
         if MCL_FILE:
             self.mcl_file = MCL_FILE
         # Check MCL in app_dir
-        if os.path.exists(join(self.user_data_dir, "mcl")):
-            self.mcl_file = join(self.user_data_dir, "mcl")
+        elif os.path.exists(join(self.user_data_dir, mcl_string)):
+            self.mcl_file = join(self.user_data_dir, mcl_string)
+        # Check MCL in package directory, if running from source
+        elif os.path.exists(join(os.getcwd(), "data", "resources", "mcl")):
+            mcl_dir = join(os.getcwd(), "data", "resources", "mcl")
+            # For Windows
+            if sys.platform in ["win32", "cygwin"]:
+                # For Windows 64bit
+                if platform.architecture()[0] == "64bit":
+                    mcl_path = join(mcl_dir, "windows", "mcl64.exe")
+                    dll_path = join(mcl_dir, "windows", "cygwin1.dll")
+                    # Copy mcl executable to trifusion dir
+                    shutil.copyfile(mcl_path, join(self.user_data_dir,
+                                                   mcl_string))
+                    mcl_file = join(self.user_data_dir, mcl_string)
+                    # Copy dll necessary in windows version
+                    shutil.copyfile(dll_path, join(self.user_data_dir,
+                                                   "cygwin1.dll"))
+                    # Make mcl executable
+                    st = os.stat(mcl_file)
+                    os.chmod(mcl_file, st.st_mode | stat.S_IEXEC)
+                    # Test mcl executable
+                    if self._check_exec(mcl_file, "mcl"):
+                        self.mcl_file = mcl_file
         else:
             # If not in app_dir check is its reachable system-wide by
             # subprocess
             try:
                 subprocess.call(["mcl"])
-                self.mcl_file = "mcl"
-            # MCL software not reachable. Modify attributes and
-            # orto_search_grid
+                self.mcl_file = mcl_string
             except OSError:
-                self.ortho_search_options.ids.mcl_check.background_src = \
-                    "data/backgrounds/red_noise.png"
-                self.ortho_search_options.ids.mcl_check_ico.icon_src = \
-                    "data/backgrounds/warning_icon.png"
-                self.ortho_search_options.ids.mcl_check_ico.icon_size = \
-                    (20, 20)
-                self.ortho_search_options.ids.mcl_check_lbl.text = \
-                    "MCL is not installed or reachable"
-                fix_bt = FixButton()
-                fix_bt.bind(on_release=lambda x: self.dialog_mcl_fix())
-                self.ortho_search_options.ids.mcl_fix_box.add_widget(fix_bt)
+                pass
+
+        # If the mcl file could not be found through any of the previous
+        #  methods, modify the attributes of the orto_search_grid.
+        if not self.mcl_file:
+            self.ortho_search_options.ids.mcl_check.background_src = \
+                "data/backgrounds/red_noise.png"
+            self.ortho_search_options.ids.mcl_check_ico.icon_src = \
+                "data/backgrounds/warning_icon.png"
+            self.ortho_search_options.ids.mcl_check_ico.icon_size = \
+                (20, 20)
+            self.ortho_search_options.ids.mcl_check_lbl.text = \
+                "MCL is not installed or reachable"
+            fix_bt = FixButton()
+            fix_bt.bind(on_release=lambda x: self.dialog_mcl_fix())
+            self.ortho_search_options.ids.mcl_fix_box.add_widget(fix_bt)
 
         # CHeck USEARCH in app_dir
         if os.path.exists(join(self.user_data_dir, "usearch")):
@@ -2048,13 +2082,6 @@ class TriFusionApp(App):
         if self.current_screen == "Statistics":
             # Generate or update statistics screen
             self.statistics_show_summary()
-
-        if self.current_screen == "Orthology" and \
-                sys.platform in ["win32", "cygwin"]:
-            self.screen.ids.explore.dispatch("on_release")
-            self.screen.ids.explore.state = "down"
-            self.screen.ids.op_box.remove_widget(
-                self.screen.ids.search)
 
     def go_previous_screen(self):
         """
@@ -6263,6 +6290,7 @@ class TriFusionApp(App):
                         size=(400, 470))
 
     def dialog_import_groups(self):
+
         """
         Creates filechooser dialog to select group files to be imported
         """
@@ -7342,11 +7370,19 @@ class TriFusionApp(App):
             self.zorro_dir = path
 
         elif idx == "mcl_fix":
+
+            # The mcl executable requires the .exe extension in windows to
+            # work properly
+            if sys.platform in ["win32", "cygwin"]:
+                mcl_string = "mcl.exe"
+            else:
+                mcl_string = "mcl"
+
             # Copy new mcl_file to app_dir
             if self._check_exec(path, "mcl"):
                 # Copy mcl executable to app dir
-                shutil.copyfile(path, join(self.user_data_dir, "mcl"))
-                self.mcl_file = join(self.user_data_dir, "mcl")
+                shutil.copyfile(path, join(self.user_data_dir, mcl_string))
+                self.mcl_file = join(self.user_data_dir, mcl_string)
                 # Make it executable
                 st = os.stat(self.mcl_file)
                 os.chmod(self.mcl_file, st.st_mode | stat.S_IEXEC)
@@ -7366,17 +7402,18 @@ class TriFusionApp(App):
                                        "not seem to be correct.", t="error")
 
         elif idx == "usearch_fix":
-            # Copy new mcl_file to app_dir
-            if self._check_exec(path, "usearch"):
+            # Copy new usearch_file to app_dir
+            shutil.copyfile(path, join(self.user_data_dir, "usearch"))
+            self.usearch_file = join(self.user_data_dir, "usearch")
+            # Make it executable
+            st = os.stat(self.usearch_file)
+            os.chmod(self.usearch_file, st.st_mode | stat.S_IEXEC)
+            if self._check_exec(self.usearch_file, "usearch"):
                 # Copy mcl executable to app dir
-                shutil.copyfile(path, join(self.user_data_dir, "usearch"))
-                self.usearch_file = join(self.user_data_dir, "usearch")
-                # Make it executable
-                st = os.stat(self.usearch_file)
-                os.chmod(self.usearch_file, st.st_mode | stat.S_IEXEC)
+
                 self.dismiss_all_popups()
                 # Set the orthology fields to green
-                self.ortho_search_options.ids.usearch_check.background_src = \
+                self.ortho_search_options.ids.usearch_check.background_src =\
                     "data/backgrounds/green_noise.png"
                 self.ortho_search_options.ids.usearch_check_ico.icon_src = \
                     "data/backgrounds/check_icon.png"
@@ -7386,7 +7423,10 @@ class TriFusionApp(App):
                     "USEARCH is installed and reachable"
                 self.ortho_search_options.ids.usearch_fix.clear_widgets()
             else:
-                self.dialog_floatcheck("The provided USEARCH executable does "
+                os.remove(self.usearch_file)
+                self.usearch_file = ""
+                self.dialog_floatcheck("The provided USEARCH executable"
+                                       " does "
                                        "not seem to be correct.", t="error")
 
         if auto_close:

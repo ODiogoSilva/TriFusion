@@ -233,11 +233,13 @@ def mcl(inflation_list, dest, mcl_file="mcl"):
 
     FNULL = open(os.devnull, "w")
     for val in inflation_list:
-        _ = subprocess.Popen([
-                "{} {} --abc -I {} -o {}{}".format(
-                    mcl_file, mcl_input, val, mcl_output, val.replace(".", "")
-                )], shell=True, stdout=FNULL,
-            stderr=subprocess.STDOUT).wait()
+        x = subprocess.Popen([mcl_file,
+                             mcl_input,
+                             "--abc",
+                             "-I",
+                             val,
+                             "-o",
+                             mcl_output + val.replace(".", "")]).wait()
 
 
 def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest):
