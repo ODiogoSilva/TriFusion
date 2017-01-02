@@ -209,7 +209,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
     except IOError as e:
         nm.exception = str(e)
-        logging.exception(e)
+        print(e)
         return
 
     except Exception as e:
