@@ -40,11 +40,9 @@ def remove_tmp(temp_dir):
     Removes all temporary files in temp directory
     :param temp_dir: string, path to trifusion's temporary directory
     """
-    for i in os.listdir(temp_dir):
-        try:
-            os.remove(join(temp_dir, i))
-        except OSError:
-            shutil.rmtree(join(temp_dir, i))
+
+    if os.listdir(temp_dir):
+        shutil.rmtree(temp_dir)
 
     raise SystemExit
 

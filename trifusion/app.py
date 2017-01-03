@@ -622,10 +622,6 @@ class TriFusionApp(App):
         self.icon = join(self.cur_dir, "data", "backgrounds",
                          "trifusion-icon-64.png")
 
-        # Create temporary directory for transient files if it doesn't exist
-        if not os.path.exists(join(self.user_data_dir, "tmp")):
-            os.makedirs(join(self.user_data_dir, "tmp"))
-
         self.temp_dir = join(self.user_data_dir, "tmp")
         self.log_file = join(self.user_data_dir, "log", "error.out")
         self.bm_file = join(self.user_data_dir, "bookmarks")
@@ -831,11 +827,9 @@ class TriFusionApp(App):
         :return:
         """
 
-        for i in os.listdir(self.temp_dir):
-            try:
-                os.remove(join(self.temp_dir, i))
-            except OSError:
-                shutil.rmtree(join(self.temp_dir, i))
+        if os.listdir(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+            os.makedirs(join(self.user_data_dir, "tmp"))
 
     def _check_exec(self, path, program):
         """
