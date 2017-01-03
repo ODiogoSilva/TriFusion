@@ -41,10 +41,10 @@ def remove_tmp(temp_dir):
     :param temp_dir: string, path to trifusion's temporary directory
     """
 
-    if os.listdir(temp_dir):
+    if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
-    raise SystemExit
+    return 1
 
 
 def load_proc(aln_list, file_list, nm, dest):
@@ -253,8 +253,8 @@ def update_active_taxaset(aln_obj, set_name, active_taxa_list, taxa_groups):
     else:
         tx_set = taxa_groups[set_name]
 
-    # Remove taxa
-    aln_obj.remove_taxa(list(set(aln_obj.taxa_names) - set(tx_set)))
+    # Update active taxa
+    aln_obj.update_taxa_names(tx_set)
     return aln_obj
 
 
@@ -585,18 +585,27 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             main_aln.stop_action_alignment()
 
+        # Resets the taxa_names attribute of the aln_obj to include all taxa
+        aln_object.update_taxa_names(all_taxa=True)
+
     except IOError:
         main_aln.stop_action_alignment()
+        # Resets the taxa_names attribute of the aln_obj to include all taxa
+        aln_object.update_taxa_names(all_taxa=True)
         return
 
     except EmptyAlignment:
         logging.exception("Empty alignment")
+        # Resets the taxa_names attribute of the aln_obj to include all taxa
+        aln_object.update_taxa_names(all_taxa=True)
         ns.exception = "EmptyAlignment"
 
     except:
         # Log traceback in case any unexpected error occurs. See
         # self.log_file for whereabouts of the traceback
         logging.exception("Unexpected exit in Process execution")
+        # Resets the taxa_names attribute of the aln_obj to include all taxa
+        aln_object.update_taxa_names(all_taxa=True)
         ns.exception = "Unknown"
 
 

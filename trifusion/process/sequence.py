@@ -1964,6 +1964,11 @@ class AlignmentList(Base):
         self.taxa_names = []
 
         """
+        List with non active taxa
+        """
+        self.shelved_taxa = []
+
+        """
         Lists the Alignment.name attributes of the current AlignmentList object
         """
         self.filename_list = []
@@ -2034,6 +2039,7 @@ class AlignmentList(Base):
         self.partitions = Partitions()
         self.filename_list = []
         self.taxa_names = []
+        self.shelved_taxa = []
         self.non_alignments = []
         self.sequence_code = None
         self.path_list = []
@@ -2094,6 +2100,33 @@ class AlignmentList(Base):
 
         # Update taxa names
         self.taxa_names = self._get_taxa_list()
+
+    def update_taxa_names(self, taxa_list=None, all_taxa=False):
+        """
+        Shelves all taxa names, except those specified in taxa_list. This
+        method should only be used when performing Process tasks, and was
+        designed so that changes in the active taxa set are reversible
+        :param taxa_list: list. List of active taxa
+        :param all_taxa: boolean. If True, activates all taxa
+        """
+
+        # Activate only taxa specified by taxa_list
+        if taxa_list:
+            for tx in self.taxa_names:
+                if tx not in taxa_list:
+                    self.taxa_names.remove(tx)
+                    self.shelved_taxa.append(tx)
+
+            for tx in self.shelved_taxa:
+                if tx in taxa_list:
+                    self.shelved_taxa.remove(tx)
+                    self.taxa_names.append(tx)
+
+        # Activate all taxa
+        if all_taxa:
+            for tx in self.shelved_taxa:
+                self.taxa_names.append(tx)
+                self.shelved_taxa.remove(tx)
 
     def format_list(self):
         """
@@ -2301,9 +2334,10 @@ class AlignmentList(Base):
             if shared_namespace:
                 shared_namespace.m = "Updating App structures"
 
-        except IOError:
+        except IOError as e:
             p.terminate()
             #shutil.rmtree(self.dest)
+            print(e)
             return
 
     def retrieve_alignment(self, name):
