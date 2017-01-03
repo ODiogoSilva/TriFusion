@@ -171,11 +171,17 @@ def pair_search(usearch_bin, dest="./"):
     db_path = join(dest, "transcripts.fas")
     out_path = join(dest, "pairs.out")
 
-    subprocess.Popen(["%s -usearch_global %s -db %s -id 1 -maxaccepts"
-                      " .9 -blast6out %s" % (usearch_bin, query_path, db_path,
-                                             out_path)],
-                     shell=True).wait()
-
+    subprocess.Popen([usearch_bin,
+                      "-usearch_global",
+                      query_path,
+                      "-db",
+                      db_path,
+                      "-id",
+                      "1",
+                      "-maxaccepts",
+                      ".9",
+                      "-blast6out",
+                      out_path]).wait()
 
 def get_pairs(dest="./"):
     """
