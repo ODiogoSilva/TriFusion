@@ -827,7 +827,7 @@ class TriFusionApp(App):
         :return:
         """
 
-        if os.listdir(self.temp_dir):
+        if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
             os.makedirs(join(self.user_data_dir, "tmp"))
 
