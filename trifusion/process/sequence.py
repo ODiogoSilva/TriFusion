@@ -1023,47 +1023,81 @@ class Alignment(Base):
         partitions set in self.partitions and returns an AlignmentList object
         """
 
+        alns = []
+
+        def create_alignment_object(part_name, part_range, aln_dic,
+                                    part_length):
+
+            current_partition = Partitions()
+            current_partition.add_partition(part_name,
+                                            part_range[1] - part_range[0])
+
+            aln_obj = Alignment(aln_dic,
+                                input_format=self.input_format,
+                                partitions=current_partition,
+                                alignment_name=part_name,
+                                dest=self.dest,
+                                locus_length=part_length)
+
+            alns.append(aln_obj)
+
         if not dest:
             dest = self.dest
 
         concatenated_aln = AlignmentList([], dest=dest)
-        alns = []
 
         for name, part_range in self.partitions:
 
             name = name.split(".")[0]
-
             current_dic = OrderedDict()
-            for taxon, _ in self.alignment.items():
-                seq = self.get_sequence(taxon)
-                sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
-                # If sub_seq is not empty (only gaps or missing data)
-                if sub_seq.replace(self.sequence_code[1], "") != "":
-                    if not os.path.exists(join(dest, name)):
-                        os.makedirs(join(dest, name))
+            if part_range[1]:
+                for i in range(3):
+                    current_dic = OrderedDict()
+                    for taxon, _ in self.alignment.items():
+                        seq = self.get_sequence(taxon)
+                        sub_seq = seq[part_range[0][0]:
+                                      part_range[0][1] + 1][i::3]
 
-                    current_dic[taxon] = join(dest, name, taxon + ".seq")
+                        # If sub_seq is not empty (only gaps or
+                        # missing data)
+                        if sub_seq.replace(self.sequence_code[1], "") \
+                                != "":
+                            if not os.path.exists(join(dest,
+                                                       name + str(i))):
+                                os.makedirs(join(dest, name + str(i)))
 
-                    with open(current_dic[taxon], "w") as fh:
-                        fh.write(sub_seq)
+                            current_dic[taxon] = join(dest, name + str(i),
+                                                      taxon + ".seq")
 
-            current_partition = Partitions()
-            current_partition.add_partition(name, part_range[0][1] -
-                                            part_range[0][0])
+                            with open(current_dic[taxon], "w") as fh:
+                                fh.write(sub_seq)
 
-            # Check if current alignment object is not empty. This may occur
-            # when reverse concatenating an alignment with a taxa subset
-            # selected.
-            if current_dic == OrderedDict():
-                continue
+                    if current_dic != OrderedDict():
+                        create_alignment_object(name + str(i),
+                                                part_range[0],
+                                                current_dic,
+                                                len(sub_seq))
+            else:
+                for taxon, _ in self.alignment.items():
 
-            current_aln = Alignment(current_dic, input_format=self.input_format,
-                                    partitions=current_partition,
-                                    alignment_name=name, dest=self.dest,
-                                    locus_length=len(sub_seq))
+                    sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
-            alns.append(current_aln)
+                    # If sub_seq is not empty (only gaps or missing data)
+                    if sub_seq.replace(self.sequence_code[1], "") != "":
+                        if not os.path.exists(join(dest, name)):
+                            os.makedirs(join(dest, name))
+
+                        current_dic[taxon] = join(dest, name,
+                                                  taxon + ".seq")
+
+                        with open(current_dic[taxon], "w") as fh:
+                            fh.write(sub_seq)
+
+                if current_dic != OrderedDict:
+                    create_alignment_object(name, part_range[0],
+                                            current_dic,
+                                            len(sub_seq))
 
         concatenated_aln.add_alignments(alns, ignore_paths=True)
 
@@ -1765,7 +1799,7 @@ class Alignment(Base):
                                        seq[counter:counter + 90]))
 
                     out_file.write("\n")
-                    counter = i
+                    counter = i + 90
 
                 else:
                     # Only do this when the alignment is bigger than 90
@@ -1780,7 +1814,7 @@ class Alignment(Base):
                             out_file.write("%s %s\n" % (
                                            key[:cut_space_nex].ljust(
                                              seq_space_nex),
-                                           seq[i + 90:self.locus_length]))
+                                           seq[counter:self.locus_length]))
                         else:
                             out_file.write("\n")
                 out_file.write(";\n\tend;")
