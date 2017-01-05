@@ -513,9 +513,9 @@ class Alignment(Base):
 
         file_handle = open(input_alignment)
 
-        # ======================================================================
+        # =====================================================================
         # PARSING PHYLIP FORMAT
-        # ======================================================================
+        # =====================================================================
 
         if alignment_format == "phylip":
             # Get the number of taxa and sequence length from the file header
@@ -526,13 +526,13 @@ class Alignment(Base):
 
             # These three following attributes allow the support for
             # interleave phylip files
-            # Gather taxa numeration for interleave formats
-            taxa_pos = {}
             # Flags whether the current line should be parsed for taxon name
             taxa_gather = True
             # Counter that makes the correspondence between the current line
             # and the appropriate taxon
             c = 0
+            # Stores sequence data that will be provided to database
+            sequence_data = []
             for line in file_handle:
 
                 # Ignore empty lines
@@ -553,14 +553,18 @@ class Alignment(Base):
                     #  phylip header
                     if not taxa_gather:
 
-                        # Get taxa for current sequence based on counter.
-                        taxa = taxa_pos[c]
-                        c += 1
+                        # Joint multiple batches of sequence
+                        # Remove any possible whitespace by splitting
+                        # according to whitespace. This also ensures that
+                        # sequence is always a list when added to
+                        # sequence_data
+                        sequence = line.strip().lower().split()
 
-                        # Write sequence to file
-                        sequence = "".join(line.strip().split()).lower()
-                        with open(self.alignment[taxa], "a") as fh:
-                            fh.write(sequence)
+                        # Extended sequence list for the current taxa
+                        # based on the c index
+                        sequence_data[c][1].extend(sequence)
+
+                        c += 1
 
                     # To support interleave phylip, while the taxa_pos
                     # variable has not reached the expected number of taxa
@@ -572,30 +576,38 @@ class Alignment(Base):
                         taxa = line.split()[0].replace(" ", "")
                         taxa = self.rm_illegal(taxa)
 
-                        # Add taxa to numeration variable for interleave parsing
-                        taxa_pos[c] = taxa
+                        # Add counter for interleave processing
                         c += 1
 
-                        self.alignment[taxa] = join(self.dest, self.sname,
-                                                    taxa + ".seq")
                         try:
-                            sequence = "".join(line.strip().split()[1:]).\
-                                strip().lower()
+                            # Joint multiple batches of sequence
+                            # Remove any possible whitespace by splitting
+                            # according to whitespace. This also ensures that
+                            # sequence is always a list when added to
+                            # sequence_data
+                            sequence = line.strip().lower().split()[1:]
                         except IndexError:
-                            sequence = ""
-                        with open(self.alignment[taxa], "w") as fh:
-                            fh.write(sequence)
+                            sequence = [""]
+
+                        sequence_data.append((taxa, sequence))
 
                 except IndexError:
                     pass
+
+            # Having sequences extended in a list and in the end converting to
+            # strings is much faster than having strings from the beginning
+            sequence_data = [(x, "".join(y)) for x, y in sequence_data]
+
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+                self.table_name), sequence_data)
 
             # Updating partitions object
             self.partitions.add_partition(self.name, self.locus_length,
                                           file_name=self.path)
 
-        # ======================================================================
+        # =====================================================================
         # PARSING FASTA FORMAT
-        # ======================================================================
+        # =====================================================================
         elif alignment_format == "fasta":
             sequence = []
             seq_data = []
