@@ -285,6 +285,14 @@ class Alignment(Base):
         self.taxa_list = None
 
         """
+        Attribute that will store the index of the taxa in the sql database.
+        This index is stored in a dictionary instead of being retrieved
+        from the index position of the taxa_list list because taxa may
+        be removed (which would mess up the link between the two indexes)
+        """
+        self.taxa_idx = None
+
+        """
         Sets the full path of the current alignment and other name attributes,
         based on the provided input_alignment argument
         """
@@ -321,8 +329,10 @@ class Alignment(Base):
                 "SELECT name FROM sqlite_master WHERE type='table' AND"
                 " name='{}'".format(self.table_name)).fetchall():
 
-            self.cur.execute("CREATE TABLE {}(taxon TEXT, seq TEXT)".format(
-                self.table_name))
+            self.cur.execute("CREATE TABLE {}("
+                             "txId INT,"
+                             "taxon TEXT,"
+                             "seq TEXT)".format(self.table_name))
             self.cur.execute("PRAGMA synchronous = OFF")
 
             # Get alignment format and code. Sequence code is a tuple of
@@ -509,7 +519,8 @@ class Alignment(Base):
         The read_alignment method is run when the class is initialized to
         parse an alignment and set all the basic attributes of the class.
 
-        :param input_alignment: string. File name containing the input alignment
+        :param input_alignment: string. File name containing the input
+        alignment
 
         :param alignment_format: string. Format of the input file. It can be
         one of three: "fasta", "nexus", "phylip"
@@ -522,7 +533,7 @@ class Alignment(Base):
 
         # =====================================================================
         # PARSING PHYLIP FORMAT
-        # =====================================================================
+        # ====================================================================
 
         if alignment_format == "phylip":
             # Get the number of taxa and sequence length from the file header
@@ -603,18 +614,19 @@ class Alignment(Base):
 
             # Having sequences extended in a list and in the end converting to
             # strings is much faster than having strings from the beginning
-            sequence_data = [(x, "".join(y)) for x, y in sequence_data]
+            sequence_data = [(p, x, "".join(y)) for p, (x, y) in
+                             enumerate(sorted(sequence_data))]
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             # Updating partitions object
             self.partitions.add_partition(self.name, self.locus_length,
                                           file_name=self.path)
 
-        # =====================================================================
+        # ====================================================================
         # PARSING FASTA FORMAT
-        # =====================================================================
+        # ====================================================================
         elif alignment_format == "fasta":
             sequence = []
             sequence_data = []
@@ -631,7 +643,11 @@ class Alignment(Base):
                     sequence.append(line.strip().lower().
                                     replace(" ", "").replace("*", ""))
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+            # Create index for sequence data
+            sequence_data = [(p, x, y) for p, (x, y) in
+                             enumerate(sorted(sequence_data))]
+
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             self.locus_length = len(sequence_data[0][1])
@@ -685,13 +701,10 @@ class Alignment(Base):
                                                   file_name=self.path)
                     locus_c += 1
 
-            # for tx, fh in self.alignment.items():
-            #     fh.close()
-            #     self.alignment[tx] = join(self.dest, self.sname, tx + ".seq")
-            sequence_data = [(tx, "".join(seq)) for tx, seq in
-                             sequence_data.items()]
+            sequence_data = [(p, tx, "".join(seq)) for p, (tx, seq) in
+                             enumerate(sorted(sequence_data.items()))]
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             self.partitions.set_length(self.locus_length)
@@ -714,14 +727,15 @@ class Alignment(Base):
 
                     # Convert sequence data for format to insert into
                     # database
-                    sequence_data = [(tx, "".join(seq)) for tx, seq in
-                                     sequence_data.items()]
+                    sequence_data = [(p, tx, "".join(seq)) for p, (tx, seq) in
+                                     enumerate(sorted(sequence_data.items()))]
 
                     self.locus_length = len(sequence_data[0][1])
                     self.partitions.set_length(self.locus_length)
 
-                    self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
-                        self.table_name), sequence_data)
+                    self.cur.executemany(
+                        "INSERT INTO {} VALUES (?, ?, ?)".format(
+                            self.table_name), sequence_data)
 
                 # Start parsing here
                 elif line.strip() != "" and counter == 1:
@@ -782,7 +796,10 @@ class Alignment(Base):
 
                     sequence_data.append((taxa, sequence))
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+            sequence_data = [(p, x, y) for p, (x, y) in
+                             enumerate(sorted(sequence_data))]
+
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             self.locus_length = len(sequence_data[0][1])
@@ -803,7 +820,8 @@ class Alignment(Base):
                 return
 
         # Checks for duplicate taxa
-        self.taxa_list = [x[0] for x in sequence_data]
+        self.taxa_list = [x[1] for x in sequence_data]
+        self.taxa_idx = dict((x[1], x[0]) for x in sequence_data)
 
         if len(self.taxa_list) != len(set(self.taxa_list)):
             duplicate_taxa = self.duplicate_taxa(taxa_list)
@@ -830,10 +848,15 @@ class Alignment(Base):
         """
 
         def remove(list_taxa):
-            self.taxa_list = [x for x in self.taxa_list if x not in list_taxa]
+            for tx in list_taxa:
+                self.taxa_list.remove(tx)
+                del self.taxa_idx[tx]
 
         def inverse(list_taxa):
-            self.taxa_list = [x for x in list_taxa if x in self.taxa_list]
+            for tx in self.taxa_list:
+                if tx not in list_taxa:
+                    self.taxa_list.remove(tx)
+                    del self.taxa_idx[tx]
 
         # Checking if taxa_list is an input csv file:
         try:
@@ -850,10 +873,20 @@ class Alignment(Base):
             inverse(taxa_list)
 
     def change_taxon_name(self, old_name, new_name):
+        """
+        Changes the taxon name of a particular taxon.
+        :param old_name: string. Original taxon name
+        :param new_name: string. New taxon name
+        """
 
-        self.alignment = OrderedDict([(new_name, seq) if taxon == old_name
-                                      else (taxon, seq) for taxon, seq in
-                                      list(self.alignment.items())])
+        # Change in taxa_list
+        self.taxa_list[self.taxa_list.index(old_name)] = new_name
+        # Change in the database
+        self.cur.execute("UPDATE {} SET taxon=? WHERE txId=?".format(
+            self.table_name), (new_name, self.taxa_idx[old_name]))
+        # Change in taxa_index
+        self.taxa_idx[new_name] = self.taxa_idx[old_name]
+        del self.taxa_idx[old_name]
 
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
                  haplotype_name="Hap", dest=None, conversion_suffix=""):

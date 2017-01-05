@@ -109,7 +109,11 @@ def loci_dataset():
 @Wrapper
 def nexus_dataset():
     print("Running Input test: nexus_dataset")
-    AlignmentList([nexus_file], sql_db=sql_path)
+    x = AlignmentList([nexus_file], sql_db=sql_path)
+    # x.remove_taxa(['999_RAD_original', '3305_RAD_original',
+    #                '3536_RAD_original', 'spa', 'spb', 'spc', 'spd'])
+    x.change_taxon_name("spa", "BADONG")
+    print(x.taxa_names)
 
 # Test10: Stockholm file
 @Wrapper
@@ -168,10 +172,10 @@ def collapse_alns(aln_obj):
 #cProfile.run("large_interleave_file()")
 #large_interleave_file()
 
-cProfile.run("loci_dataset()")
+# cProfile.run("loci_dataset()")
 # loci_dataset()
 
-# cProfile.run("nexus_dataset()")
+cProfile.run("nexus_dataset()")
 # nexus_dataset()
 
 # cProfile.run("stock_dataset()")
