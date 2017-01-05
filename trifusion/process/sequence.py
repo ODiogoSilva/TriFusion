@@ -379,7 +379,8 @@ class Alignment(Base):
 
     def __iter__(self):
         """
-        Iterate over Alignment objects
+        Generator of Alignment object.
+        :returns : tuple with (taxa, sequence)
         """
 
         for tx in self.taxa_list:
@@ -397,44 +398,14 @@ class Alignment(Base):
 
         self.input_format = input_format
 
-    def _set_alignment(self, alignment_dict):
-        """
-        Sets a new alignment dictionary to the Alignment object. This may be
-        useful when only the alignment dict of the object has to be modified
-        through other objects/functions
-
-        :param alignment_dict: OrderedDict, containing taxa names as keys
-        and sequences as values
-        """
-
-        if isinstance(alignment_dict, OrderedDict):
-            self.alignment = alignment_dict
-        else:
-            raise AlignmentException("Alignments manually added to the "
-                                     "Alignment object must be OrderedDict")
-
-    def _init_dicobj(self, dictionary_obj):
-        """
-        Internal method to set the alignment and other attributed when the
-        Alignment object is instantiated with an OrderedDict
-
-        :param dictionary_obj: OrderedDict, containing the taxa names as keys
-        and corresponding sequences as values
-        """
-
-        with open(list(dictionary_obj.values())[0]) as fh:
-            seq = "".join(fh.readlines())
-
-        self.sequence_code = self.guess_code(seq)
-        self.alignment = dictionary_obj
-
     def columns(self):
         """
-        Iterator over alignment columns
+       Generator that returns the alignment columns in a tuple
         """
 
-        for c in zip(*self.sequences()):
-            yield c
+        for i in zip(*[x[0] for x in self.cur.execute(
+                "SELECT seq from {}".format(self.table_name)).fetchall()]):
+            yield i
 
     def start_action_alignment(self):
         """
