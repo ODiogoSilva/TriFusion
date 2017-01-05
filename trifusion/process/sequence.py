@@ -280,6 +280,11 @@ class Alignment(Base):
         self.e = None
 
         """
+        Attribute that will store the taxa names.
+        """
+        self.taxa_list = None
+
+        """
         Sets the full path of the current alignment and other name attributes,
         based on the provided input_alignment argument
         """
@@ -798,7 +803,7 @@ class Alignment(Base):
                 return
 
         # Checks for duplicate taxa
-        taxa_list = [x[0] for x in sequence_data]
+        self.taxa_list = [x[0] for x in sequence_data]
 
         if len(taxa_list) != len(set(taxa_list)):
             duplicate_taxa = self.duplicate_taxa(taxa_list)
