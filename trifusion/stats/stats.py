@@ -139,7 +139,7 @@ class MultiReport:
 
         for report in self.report_list:
 
-            current_taxa = report.iter_taxa()
+            current_taxa = report.taxa_list
             if set(current_taxa) != species_set:
                 species_set = set(list(species_set) + current_taxa)
 

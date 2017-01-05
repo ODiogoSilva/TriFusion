@@ -9759,7 +9759,7 @@ class TriFusionApp(App):
 
                 # Get number of species
                 file_inf["n_taxa"] = len([x for x in
-                    aln.iter_taxa() if x in self.active_taxa_list])
+                    aln.taxa_list if x in self.active_taxa_list])
 
                 # Get if is alignment
                 file_inf["is_aln"] = str(aln.is_alignment)
