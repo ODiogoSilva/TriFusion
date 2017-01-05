@@ -423,11 +423,13 @@ class Alignment(Base):
         :param taxa: string. Taxon name. Must be in self.alignments
         """
 
-        if taxon in self.alignment:
-            with open(self.alignment[taxon]) as fh:
-                return "".join(fh.readlines())
+        if taxon in self.taxa_list:
+           return self.cur.execute(
+                "SELECT seq FROM {} WHERE txId=?".format(self.table_name),
+                (self.taxa_idx[taxon],)).fetchone()[0]
+
         else:
-            raise KeyError
+            return KeyError
 
     def _clear_alignment_temp(self):
         """
