@@ -746,11 +746,12 @@ class Alignment(Base):
                 self.partitions.add_partition(self.name, self.locus_length,
                                               file_name=self.path)
 
-        # ======================================================================
+        # =====================================================================
         # PARSING Stockholm FORMAT
-        # ======================================================================
+        # =====================================================================
         elif alignment_format == "stockholm":
 
+            sequence_data = []
             # Skip first header line
             next(file_handle)
 
@@ -767,20 +768,17 @@ class Alignment(Base):
                     taxa = line.split()[0].split("/")[0]
                     taxa = self.rm_illegal(taxa)
 
-                    self.alignment[taxa] = join(self.dest, self.sname,
-                                                taxa + ".seq")
-
                     try:
                         sequence = line.split()[1].strip().lower()
                     except IndexError:
                         sequence = ""
 
-                    with open(self.alignment[taxa], "w") as fh:
-                        fh.write(sequence)
+                    sequence_data.append((taxa, sequence))
 
-            with open(self.alignment[taxa]) as fh:
-                self.locus_length = len("".join(fh.readlines()))
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+                self.table_name), sequence_data)
 
+            self.locus_length = len(sequence_data[0][1])
             self.partitions.set_length(self.locus_length)
 
             # Updating partitions object
