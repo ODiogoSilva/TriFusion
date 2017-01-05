@@ -431,27 +431,12 @@ class Alignment(Base):
         else:
             return KeyError
 
-    def _clear_alignment_temp(self):
-        """
-        Clears temporary files and alignment dict object
-        """
-
-        for taxon, f in self.alignment.items():
-            os.remove(f)
-            del self.alignment[taxon]
-
     def remove_alignment(self, remove_active=False):
         """
-        Removes all temporary sequence files for the alignment object
-        :param remove_active: Boolean. If False, it will remove all temporary
-        files (both active and stopped). If True, it will only remove the active
+        Removes the alignment table from the sql database
         """
 
-        if remove_active:
-            for f in self.alignment.values():
-                os.remove(f)
-        else:
-            shutil.rmtree(join(self.dest, self.sname))
+        self.cur.execute("DROP TABLE {}".format(self.table_name))
 
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
@@ -2287,7 +2272,7 @@ class AlignmentList(Base):
                             self.sequence_code[0],
                             aln_obj.sequence_code[0]))
 
-                self.alignments[aln_obj.name] = aln_obj
+                self.alignments[aln_obj.path] = aln_obj
                 self.set_partition_from_alignment(aln_obj)
                 self.path_list.append(aln_obj.path)
 
@@ -2679,6 +2664,9 @@ class AlignmentList(Base):
         for alignment_obj in list(self.alignments.values()):
             alignment_obj.remove_taxa(taxa_list, mode=mode)
 
+        # Commit database changes
+        self.con.commit()
+
         # Updates taxa names
         if mode == "remove":
             for tx in taxa_list:
@@ -2698,6 +2686,9 @@ class AlignmentList(Base):
         for alignment_obj in list(self.alignments.values()):
             alignment_obj.change_taxon_name(old_name, new_name)
 
+        # Commit database changes
+        self.con.commit()
+
         # update taxa names
         self.taxa_names = [new_name if x == old_name else x
                            for x in self.taxa_names]
@@ -2709,15 +2700,17 @@ class AlignmentList(Base):
         be removed
         """
 
-        for nm_path in filename_list:
-            nm = nm_path.split(sep)[-1]
+        for nm in filename_list:
             if nm in self.alignments:
                 self.alignments[nm].remove_alignment()
                 del self.alignments[nm]
             elif nm in self.shelve_alignments:
                 self.shelve_alignments[nm].remove_alignment()
                 del self.shelve_alignments[nm]
-            self.partitions.remove_partition(file_name=nm_path)
+            self.partitions.remove_partition(file_name=nm)
+
+        # Commit changes to database
+        self.con.commit()
 
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
