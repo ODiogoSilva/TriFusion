@@ -87,13 +87,13 @@ def large_dataset():
 
 # Test 6: One single file
 @Wrapper
-@profile
+# @profile
 def large_file():
     print("Running Input test: large_file")
     AlignmentList([single_large], dest=benchmark_dir, sql_db=sql_path)
 
 @Wrapper
-@profile
+# @profile
 def large_interleave_file():
     print("Running Input test: large_interleave_file")
     AlignmentList([single_large_interleave], dest=benchmark_dir)
@@ -168,13 +168,13 @@ def collapse_alns(aln_obj):
 #cProfile.run("large_interleave_file()")
 #large_interleave_file()
 
-# cProfile.run("loci_dataset()")
+cProfile.run("loci_dataset()")
 # loci_dataset()
 
 # cProfile.run("nexus_dataset()")
 # nexus_dataset()
 
-cProfile.run("stock_dataset()")
+# cProfile.run("stock_dataset()")
 # stock_dataset()
 
 #cProfile.run("concat(aln_obj)")

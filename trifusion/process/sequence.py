@@ -42,12 +42,14 @@ try:
     from process.data import Partitions
     from process.base import iupac
     from process.data import PartitionException
+    from process.error_handling import DuplicateTaxa
 except ImportError:
     from trifusion.process.base import iupac
     import trifusion.process as process
     from trifusion.process.base import *
     from trifusion.process.data import Partitions
     from trifusion.process.data import PartitionException
+    from trifusion.process.error_handling import DuplicateTaxa
 
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
@@ -788,21 +790,21 @@ class Alignment(Base):
         file_handle.close()
 
         # Checks the size consistency of the alignment
-        # if size_check is True:
-        #     self.is_alignment = self.check_sizes(self.alignment,
-        #                                          input_alignment)
-        #     if not self.is_alignment:
-        #         self.e = AlignmentUnequalLength()
-        #         return
-        #
-        # # Checks for duplicate taxa
-        # if len(list(self.alignment)) != len(set(list(self.alignment))):
-        #     taxa = self.duplicate_taxa(self.alignment.keys())
-        #     self.log_progression.write("WARNING: Duplicated taxa have been "
-        #                                "found in file %s (%s). Please correct "
-        #                                "this problem and re-run the program\n"
-        #                                % (input_alignment, ", ".join(taxa)))
-        #     raise SystemExit
+        if size_check is True:
+            self.is_alignment = self.check_sizes(sequence_data,
+                                                 self.path)
+            if not self.is_alignment:
+                self.e = AlignmentUnequalLength()
+                return
+
+        # Checks for duplicate taxa
+        taxa_list = [x[0] for x in sequence_data]
+
+        if len(taxa_list) != len(set(taxa_list)):
+            duplicate_taxa = self.duplicate_taxa(taxa_list)
+            self.e = DuplicateTaxa("The following taxa were duplicated in"
+                                   " the alignment: {}".format(
+                "; ".join(duplicate_taxa)))
 
     def iter_taxa(self):
         """
