@@ -293,7 +293,7 @@ class Base(object):
         # Checking for taxa with empty sequences
         empty_taxa = []
         seq_list = []
-        for taxa, seq in sequence_data:
+        for _, taxa, seq in sequence_data:
 
             if seq == "":
                 empty_taxa.append(taxa)
