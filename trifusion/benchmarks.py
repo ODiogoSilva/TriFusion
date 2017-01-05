@@ -9,7 +9,8 @@ from process.sequence import AlignmentList
 from tests.data_files import dna_data_fas
 # Benchmarks for comparing file I/O vs. sqlite database for process operations
 
-benchmark_dir = "benchmark_tmp"
+benchmark_dir = "C:\Users\Diogo\Documents\Tests\output"
+sql_path = "C:\Users\Diogo\Documents\Tests\output\sequence.db"
 
 class Wrapper(object):
 
@@ -37,9 +38,11 @@ basidio9sp = [os.path.join("C:\Users\Diogo\Documents\TriFusion\Test_data\Process
 
 large = [os.path.join("C:\Users\Diogo\Documents\TriFusion\Test_data\Process\\7kloci", x) for x in os.listdir("C:\Users\Diogo\Documents\TriFusion\Test_data\Process\\7kloci")]
 
-single_large = "C:\Users\Diogo\Documents\TriFusion\Test_data\Process\single_big_file\c97d5m4p2_MM80.phy"
+single_large = "C:\Users\Diogo\Documents\TriFusion\Test_data\Process\single_big_file\c97d5m4p2_MM80_interleave.phy"
 
 single_large_interleave = "C:\Users\Diogo\Documents\TriFusion\Test_data\Process\single_big_file\c97d5m4p2_MM80_interleave.fas"
+
+loci_file = "C:\Users\Diogo\Documents\GitHub\TriFusion\\trifusion\\tests\data\c97d5m4p2.loci"
 
 ################################ Input ########################################
 
@@ -60,17 +63,17 @@ def seven_files():
 
 # Test 3: 614 files
 @Wrapper
-@profile
+#@profile
 def medium_dataset():
     print("Running Input test: medium_dataset")
-    AlignmentList(medium, dest=benchmark_dir)
+    AlignmentList(medium, dest=benchmark_dir, sql_db=sql_path)
 
 # Test 4: 3k files
 @Wrapper
-@profile
+#@profile
 def basidio9sp_dataset():
     print("Running Input test: basidio9sp_dataset")
-    AlignmentList(basidio9sp, dest=benchmark_dir)
+    AlignmentList(basidio9sp, dest=benchmark_dir, sql_db=sql_path)
 
 # Test 5: 7k files
 @Wrapper
@@ -84,7 +87,7 @@ def large_dataset():
 @profile
 def large_file():
     print("Running Input test: large_file")
-    AlignmentList([single_large], dest=benchmark_dir)
+    AlignmentList([single_large], dest=benchmark_dir, sql_db=sql_path)
 
 @Wrapper
 @profile
@@ -92,12 +95,19 @@ def large_interleave_file():
     print("Running Input test: large_interleave_file")
     AlignmentList([single_large_interleave], dest=benchmark_dir)
 
+# Test 8: Loci file
+@Wrapper
+#@profile
+def loci_dataset():
+    print("Running Input test: loci_dataset")
+    AlignmentList([loci_file], sql_db=sql_path)
+
 ################################ Output #######################################
 
-if not os.path.exists(benchmark_dir):
-    os.mkdir(benchmark_dir)
-
-aln_obj = AlignmentList(medium, dest=benchmark_dir)
+# if not os.path.exists(benchmark_dir):
+#     os.mkdir(benchmark_dir)
+#
+# aln_obj = AlignmentList(medium, dest=benchmark_dir)
 
 #@profile
 def concat(aln_obj):
@@ -128,20 +138,23 @@ def collapse_alns(aln_obj):
 #cProfile.run("seven_files()")
 #seven_files()
 
-#cProfile.run("medium_dataset()")
-#medium_dataset()
+# cProfile.run("medium_dataset()")
+# medium_dataset()
 
-#cProfile.run("basidio9sp_dataset()")
+# cProfile.run("basidio9sp_dataset()")
 #basidio9sp_dataset()
 
 #cProfile.run("large_dataset()")
 #large_dataset()
 
-#cProfile.run("large_file()")
-#large_file()
+# cProfile.run("large_file()")
+# large_file()
 
 #cProfile.run("large_interleave_file()")
 #large_interleave_file()
+
+cProfile.run("loci_dataset()")
+# loci_dataset()
 
 #cProfile.run("concat(aln_obj)")
 #concat(aln_obj)
@@ -153,6 +166,6 @@ def collapse_alns(aln_obj):
 #consensus_alns(aln_obj)
 
 #cProfile.run("collapse_alns(aln_obj)")
-collapse_alns(aln_obj)
+# collapse_alns(aln_obj)
 
-shutil.rmtree(benchmark_dir)
+# shutil.rmtree(benchmark_dir)
