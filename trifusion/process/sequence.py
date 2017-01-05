@@ -617,12 +617,12 @@ class Alignment(Base):
         # =====================================================================
         elif alignment_format == "fasta":
             sequence = []
-            seq_data = []
+            sequence_data = []
             for line in file_handle:
                 if line.strip().startswith(">"):
 
                     if sequence:
-                        seq_data.append((taxa, "".join(sequence)))
+                        sequence_data.append((taxa, "".join(sequence)))
 
                     taxa = line[1:].strip()
                     taxa = self.rm_illegal(taxa)
@@ -632,9 +632,9 @@ class Alignment(Base):
                                     replace(" ", "").replace("*", ""))
 
             self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
-                self.table_name), seq_data)
+                self.table_name), sequence_data)
 
-            self.locus_length = len(seq_data[0][1])
+            self.locus_length = len(sequence_data[0][1])
 
             self.partitions.set_length(self.locus_length)
 
@@ -805,33 +805,19 @@ class Alignment(Base):
         # Checks for duplicate taxa
         self.taxa_list = [x[0] for x in sequence_data]
 
-        if len(taxa_list) != len(set(taxa_list)):
+        if len(self.taxa_list) != len(set(self.taxa_list)):
             duplicate_taxa = self.duplicate_taxa(taxa_list)
             self.e = DuplicateTaxa("The following taxa were duplicated in"
                                    " the alignment: {}".format(
                 "; ".join(duplicate_taxa)))
 
-    def iter_taxa(self):
-        """
-        Generator for taxa names
-        """
-
-        for sp in self.alignment:
-            yield sp
-
-    def iter_sequences(self):
-        """
-        Generator for sequences
-        """
-
-        for seq in self.alignment.values():
-            yield seq
-
     def remove_taxa(self, taxa_list_file, mode="remove"):
         """
-        Removes specified taxa from the alignment. As taxa_list, this
-        method supports a python list or an input csv file with a single
-        column containing the unwanted species in separate lines. It
+        Removes specified taxa from taxa list but not from the database.
+        This is done to prevent slow removal operations that are really
+        not necessary.
+        As taxa_list, this method supports a list or an input csv file with
+        a single column containing the unwanted species in separate lines. It
         currently supports two modes:
             ..:remove: removes the specified taxa
             ..:inverse: removes all but the specified taxa
@@ -843,24 +829,15 @@ class Alignment(Base):
         "inverse
         """
 
-        new_alignment = OrderedDict()
-
         def remove(list_taxa):
-            for taxa, seq in self.alignment.items():
-                if taxa not in list_taxa:
-                    new_alignment[taxa] = seq
-            self.alignment = new_alignment
+            self.taxa_list = [x for x in self.taxa_list if x not in list_taxa]
 
         def inverse(list_taxa):
-            for taxa, seq in self.alignment.items():
-                if taxa in list_taxa:
-                    new_alignment[taxa] = seq
-            self.alignment = new_alignment
+            self.taxa_list = [x for x in list_taxa if x in self.taxa_list]
 
         # Checking if taxa_list is an input csv file:
         try:
             file_handle = open(taxa_list_file[0])
-
             taxa_list = self.read_basic_csv(file_handle)
 
         # If not, then the method's argument is already the final list
@@ -1901,7 +1878,7 @@ class Alignment(Base):
                 # This assures that only the outgroups present in the current
                 #  file are written
                 compliant_outgroups = [taxon for taxon in outgroup_list
-                                       if taxon in self.iter_sequences()]
+                                       if taxon in self.taxa_list]
                 if compliant_outgroups is not []:
                     out_file.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" %
                                    (" ".join(compliant_outgroups)))
@@ -1977,7 +1954,7 @@ class AlignmentList(Base):
         Keys will be the Alignment.path for quick lookup of Alignment object
         values
         """
-        self.alignments = []
+        self.alignments = {}
 
         """
         Stores the "inactive" or "shelved" Alignment objects. All AlignmentList
@@ -2187,13 +2164,8 @@ class AlignmentList(Base):
         :return full_taxa. List of taxa names in the AlignmentList
         """
 
-        full_taxa = []
-
-        for alignment in self.alignments.values() + \
-                self.shelve_alignments.values():
-            diff = set(alignment.iter_taxa()) - set(full_taxa)
-            if diff != set():
-                full_taxa.extend(diff)
+        full_taxa = list(set().union(*[x.taxa_list for x in
+                                      self.alignments.values()]))
 
         return full_taxa
 
@@ -2333,11 +2305,12 @@ class AlignmentList(Base):
                             self.sequence_code[0],
                             aln_obj.sequence_code[0]))
 
-                self.alignments.append(aln_obj.name)
+                self.alignments[aln_obj.name] = aln_obj
                 self.set_partition_from_alignment(aln_obj)
                 self.path_list.append(aln_obj.path)
 
         self.con.commit()
+        self.taxa_names = self._get_taxa_list()
 
         # njobs = len(file_name_list) if len(file_name_list) <= \
         #     multiprocessing.cpu_count() else multiprocessing.cpu_count()
@@ -2715,7 +2688,6 @@ class AlignmentList(Base):
         # Checking if taxa_list is an input csv file:
         try:
             file_handle = open(taxa_list[0])
-
             taxa_list = self.read_basic_csv(file_handle)
 
         # If not, then the method's argument is already the final list
