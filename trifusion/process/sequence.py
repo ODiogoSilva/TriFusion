@@ -398,7 +398,7 @@ class Alignment(Base):
 
         self.input_format = input_format
 
-    def columns(self):
+    def iter_columns(self):
         """
        Generator that returns the alignment columns in a tuple
         """
@@ -407,38 +407,7 @@ class Alignment(Base):
                 "SELECT seq from {}".format(self.table_name)).fetchall()]):
             yield i
 
-    def start_action_alignment(self):
-        """
-        Creates temporary action files and directs self.alignment values to them
-        """
-
-        # Copies temporary files
-        for f in self.alignment.values():
-            shutil.copyfile(f, splitext(f)[0] + ".temp")
-
-        # Populates action_alignment
-        self.alignment = OrderedDict(
-            [(tx, splitext(f)[0] + ".temp")
-             for tx, f in self.alignment.items()])
-
-    def stop_action_alignment(self):
-        """
-        Removes temporary seq files for modification and restores the original
-        alignment files
-        """
-
-        for f in self.alignment.values():
-            try:
-                os.remove(f)
-            except OSError:
-                print(f)
-                pass
-
-        self.alignment = OrderedDict(
-            [(tx, splitext(f)[0] + ".seq")
-             for tx, f in self.alignment.items()])
-
-    def sequences(self):
+    def iter_sequences(self):
         """
         Generator for sequence data of the alignment object. Akin to
         values() method of a dictionary
@@ -607,6 +576,7 @@ class Alignment(Base):
 
                     if sequence:
                         sequence_data.append((taxa, "".join(sequence)))
+                        sequence = []
 
                     taxa = line[1:].strip()
                     taxa = self.rm_illegal(taxa)
@@ -821,8 +791,12 @@ class Alignment(Base):
 
         def remove(list_taxa):
             for tx in list_taxa:
+                self.cur.execute(
+                    "DELETE FROM {} WHERE txId=?".format(self.table_name),
+                    (self.taxa_idx[tx],))
                 self.taxa_list.remove(tx)
                 del self.taxa_idx[tx]
+
 
         def inverse(list_taxa):
             for tx in self.taxa_list:
@@ -838,6 +812,10 @@ class Alignment(Base):
         # If not, then the method's argument is already the final list
         except (IOError, IndexError):
             taxa_list = taxa_list_file
+
+        # Filter taxa_list for the taxa that are actually present in this
+        # Alignment object
+        taxa_list = [x for x in taxa_list if x in self.taxa_list]
 
         if mode == "remove":
             remove(taxa_list)
@@ -3033,7 +3011,7 @@ class AlignmentList(Base):
             cur_gap, cur_missing = 0, 0
             cur_var, cur_inf = 0, 0
 
-            for col in aln.columns():
+            for col in aln.iter_columns():
 
                 # Get missing data and gaps
                 if self.sequence_code[1] in col:
@@ -3310,7 +3288,7 @@ class AlignmentList(Base):
         data_storage = Counter()
 
         for aln in self.alignments.values():
-            for seq in aln.sequences():
+            for seq in aln.iter_sequences():
                 data_storage += Counter(seq.replace("-", "").
                                         replace(self.sequence_code[1], ""))
 
@@ -3554,7 +3532,7 @@ class AlignmentList(Base):
 
         informative_sites = 0
 
-        for column in zip(*aln.sequences()):
+        for column in zip(*aln.iter_sequences()):
 
             column = Counter([x for x in column if x != aln.sequence_code[1] and
                               x != self.gap_symbol])
@@ -3583,7 +3561,7 @@ class AlignmentList(Base):
 
             aln_similarities = []
 
-            for seq1, seq2 in itertools.combinations(aln.sequences(), 2):
+            for seq1, seq2 in itertools.combinations(aln.iter_sequences(), 2):
 
                 sim, total_len = self._get_similarity(seq1, seq2,
                                                       aln.locus_length)
@@ -3687,7 +3665,7 @@ class AlignmentList(Base):
 
             segregating_sites = 0
 
-            for column in zip(*aln.sequences()):
+            for column in zip(*aln.iter_sequences()):
 
                 # Remove gaps and missing characters
                 column = set([x for x in column if x != aln.sequence_code[1]
@@ -3834,7 +3812,7 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
-            for column in zip(*aln.sequences()):
+            for column in zip(*aln.iter_sequences()):
 
                 col = [iupac_conv[x] for x in column if
                                   x != aln.sequence_code[1] and
@@ -3993,7 +3971,7 @@ class AlignmentList(Base):
             total_len = aln.locus_length * len(aln.alignment)
             gn_data = 0
 
-            for seq in aln.sequences():
+            for seq in aln.iter_sequences():
                 gn_data += seq.count(self.sequence_code[1]) + \
                           seq.count(self.gap_symbol)
 
@@ -4084,7 +4062,7 @@ class AlignmentList(Base):
 
             segregating_sites = 0
 
-            for column in zip(*aln.sequences()):
+            for column in zip(*aln.iter_sequences()):
 
                 # Remove gaps and missing characters
                 column = set([x for x in column if x != aln.sequence_code[1] and
@@ -4182,7 +4160,7 @@ class AlignmentList(Base):
 
             gn_l = []
 
-            for seq in aln.sequences():
+            for seq in aln.iter_sequences():
                 gn_l.append(len(seq.
                               replace(aln.sequence_code[1], "").
                               replace(self.gap_symbol, "")))

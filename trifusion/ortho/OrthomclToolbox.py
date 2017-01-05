@@ -683,7 +683,7 @@ class Group(object):
 
         for cl in self.groups:
             cl.remove_taxa(taxa_list)
-            if cl.sequences and cl.species_frequency:
+            if cl.iter_sequences and cl.species_frequency:
                 filtered_groups.append(cl)
 
                 # Update maximum number of extra copies, if needed
@@ -806,7 +806,7 @@ class Group(object):
 
                 if cluster.species_compliant and cluster.gene_compliant:
                     output_handle.write("%s: %s\n" % (
-                                    cluster.name, " ".join(cluster.sequences)))
+                                    cluster.name, " ".join(cluster.iter_sequences)))
                     if get_stats:
                         final_orthologs += 1
                 if get_stats:
@@ -925,7 +925,7 @@ class Group(object):
                 seq_storage[cluster.name] = []
 
             output_handle = open(join(dest, cluster.name + ".fas"), "w")
-            for sequence_id in cluster.sequences:
+            for sequence_id in cluster.iter_sequences:
                 seq = db_aln[sequence_id]
                 if mode == "fasta":
                     output_handle.write(">%s\n%s\n" % (sequence_id, seq))
@@ -1307,7 +1307,7 @@ class MultiGroups(object):
             storage = []
 
             for cluster in group_obj.groups:
-                storage.append(set(cluster.sequences))
+                storage.append(set(cluster.iter_sequences))
 
             return storage
 

@@ -64,7 +64,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         s = []
         for aln in self.aln_obj:
-            for seq in aln.sequences():
+            for seq in aln.iter_sequences():
                 s.append(seq)
 
         res = [
