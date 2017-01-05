@@ -413,17 +413,14 @@ class Alignment(Base):
         values() method of a dictionary
         """
 
-        try:
-            for f in self.alignment.values():
-                with open(f) as fh:
-                    yield "".join(fh.readlines())
-        except IOError:
-            pass
+        for seq in self.cur.execute("SELECT seq FROM {}".format(
+                self.table_name)).fetchall():
+            yield seq[0]
 
     def get_sequence(self, taxon):
         """
-        Convenince method that returns the sequences for a given taxon
-        :param taxa: string, taxon name. Must be in self.alignments
+        Returns the sequence string of the corresponding taxon
+        :param taxa: string. Taxon name. Must be in self.alignments
         """
 
         if taxon in self.alignment:
