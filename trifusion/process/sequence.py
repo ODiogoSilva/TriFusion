@@ -689,42 +689,44 @@ class Alignment(Base):
 
             self.partitions.set_length(self.locus_length)
 
-        # ======================================================================
+        # =====================================================================
         # PARSING NEXUS FORMAT
-        # ======================================================================
+        # =====================================================================
         elif alignment_format == "nexus":
+            sequence_data = {}
             counter = 0
             for line in file_handle:
+
                 # Skips the nexus header
                 if line.strip().lower() == "matrix" and counter == 0:
                     counter = 1
+
                 # Stop sequence parser here
                 elif line.strip() == ";" and counter == 1:
                     counter = 2
 
-                    # Close file handles
-                    for tx, fh in self.alignment.items():
-                        fh.close()
-                        self.alignment[tx] = join(self.dest, self.sname,
-                                                  tx + ".seq")
+                    # Convert sequence data for format to insert into
+                    # database
+                    sequence_data = [(tx, "".join(seq)) for tx, seq in
+                                     sequence_data.items()]
 
-                    with open(self.alignment[tx]) as fh:
-                        self.locus_length = len("".join(fh.readlines()))
-
+                    self.locus_length = len(sequence_data[0][1])
                     self.partitions.set_length(self.locus_length)
+
+                    self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+                        self.table_name), sequence_data)
+
                 # Start parsing here
                 elif line.strip() != "" and counter == 1:
                     taxa = line.strip().split()[0].replace(" ", "")
                     taxa = self.rm_illegal(taxa)
+
                     # This accommodates for the interleave format
-                    if taxa in self.alignment:
-                        self.alignment[taxa].write("".join(
-                            line.strip().split()[1:]).lower())
+                    if taxa in sequence_data:
+                        sequence_data[taxa].append(line.strip().
+                                                    lower().split()[1:])
                     else:
-                        self.alignment[taxa] = open(join(self.dest, self.sname,
-                                                taxa + ".seq"), "a")
-                        self.alignment[taxa].write("".join(line.strip().
-                                                           split()[1:]).lower())
+                        sequence_data[taxa] = line.strip().lower().split()[1:]
 
                 # If partitions are specified using the charset command, this
                 # section will parse the partitions
