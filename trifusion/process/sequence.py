@@ -193,17 +193,15 @@ def read_alns(l):
 class Alignment(Base):
 
     def __init__(self, input_alignment, input_format=None, alignment_name=None,
-                 partitions=None, dest=None, locus_length=None):
+                 partitions=None, locus_length=None, sql_cursor=None):
         """
-        The basic Alignment instance requires only an alignment file or an
-        OrderedDict object. In case the class is initialized with a dictionary
+        The basic Alignment instance requires only an alignment file path or
+        sqlite table name. In case the class is initialized with a dictionary
         object information on the partitions must be provide using the
         partitions argument.
 
-        :param input_alignment: string or OrderedDict. If string, it must be the
-        input file name; if OrderedDict, it must contain the alignment in an
-        ordered dictionary format where keys are taxon names and values are
-        sequence strings
+        :param input_alignment: string. The path to the input alignment file
+        or name of sqlite table where the sequence data is.
 
         :param input_format: string. Input format of the Alignment object. If
         input_alignment is a file name, the input format is automatically
@@ -216,15 +214,21 @@ class Alignment(Base):
         :param partitions: Partitions object. If provided, it will overwrite
         self.partitions.
 
-        :param dest: string. Path where the temporary sequence files will be
-        stored
-
         :param locus_length: Manually sets the length of the locus. Usually
         provided when input_alignment is a dict object and the result of
         concatenation.
+
+        :param sql_cursor: sqlite3.connection.cursor object. Used to
+        populate sqlite database with sequence data
         """
 
         self.log_progression = Progression()
+
+        """
+        Provides the sqlite database cursor to communicate with the sequence
+        database, either to write or fetch data
+        """
+        self.cur = sql_cursor
 
         """
         Initializing a Partitions instance for the current alignment. By
@@ -241,8 +245,9 @@ class Alignment(Base):
             self.partitions = Partitions()
 
         """
-        The length of the alignment object. Even if the current alignment object
-        is partitioned, this will return the length of the entire alignment
+        The length of the alignment object. Even if the current alignment
+        object is partitioned, this will return the length of the entire
+        alignment
         """
         if not locus_length:
             self.locus_length = 0
@@ -251,8 +256,8 @@ class Alignment(Base):
 
         """
         This option is only relevant when gaps are coded. This will store a
-        string with the range of the restriction-type data that will encode gaps
-        and will only be used when nexus is in the output format
+        string with the range of the restriction-type data that will encode
+        gaps and will only be used when nexus is in the output format
         """
         self.restriction_range = None
 
@@ -266,57 +271,52 @@ class Alignment(Base):
         self.is_alignment = None
 
         """
-        The alignment attribute is an ordered dictionary where the keys are
-        taxon names and the values are file names containing the path to the
-        temporary sequence files.
-        """
-        self.alignment = OrderedDict()
-
-        """
         The e attribute will store any exceptions that occur during the
         parsing of the alignment object. It remains None unless something
         wrong happens.
         """
         self.e = None
 
-        # """
-        # This attribute is derived from self.alignment. To prevent permanent
-        # modifications to the original alignment, this attribute will be
-        # populated when the Process execution is triggered. In this event,
-        # the original temporary .seq files will be duplicated, their file paths
-        # added to self.action_alignment and all modifications will be made in
-        # this attribute. After the execution is done, the duplicated files
-        # will be removed and this attribute will return to its empty state.
-        # """
-        # self.action_alignment = OrderedDict()
+        """
+        Sets the full path of the current alignment and other name attributes,
+        based on the provided input_alignment argument
+        """
+        self.path = input_alignment
+        # Short name - No extension
+        self.sname = basename(splitext(input_alignment)[0])
+        # Full name - with extension
+        self.name = basename(input_alignment)
 
-        self.path = None
+        """
+        Creates a database table for the current alignment. This will be the
+        link attribute between the sqlite database and the remaining methods
+        that require information on the sequence data.
+        """
+        self.table_name = "".join([x for x in self.path if x.isalnum()])
 
-        # If the object is initialized with a string
-        if isinstance(input_alignment, str) or isinstance(input_alignment,
-                                                          unicode):
+        """
+        NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the responsibility
+        of the Alignment class to check on duplicate table names. If an
+        exiting table name is found in the database, the Alignment class
+        assumes that the alignment has already been parsed and inserted into
+        the database. Therefore, it will not parse the alignment file again.
+        This usually happens when creating concatenated or reverse concatenated
+        alignments, where the sequence data is inserted into the database
+        before instantiating the Alignment class. IT IS THE RESPONSABILITY
+        OF THE AlignmentList CLASS AND OTHER WRAPPERS TO ASSESS THE VALIDITY
+        OR NOT OF POTENTIAL DUPLICATE ALIGNMENT FILES.
+        """
 
-            """
-            Sets the alignment object name based on the input alignment file
-            name. The name attribute will remove the extension and a preceding
-            path, if it exists. The name attribute will retain the
-            extension
-            """
-            self.path = input_alignment
-            # Short name - No extension
-            self.sname = basename(splitext(input_alignment)[0])
-            # Full name - with extension
-            self.name = basename(input_alignment)
+        # Check if table for current alignment file already exists. If it
+        # does not exist, it is assumed that input_alignment is the path to
+        # the alignment file
+        if not self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='{}'".format(self.table_name)).fetchall():
 
-            if dest:
-                self.dest = dest
-            else:
-                self.dest = "."
-
-            # Create temporary directory to store sequences for the
-            # current alignment object
-            if not os.path.exists(join(self.dest, self.sname)):
-                os.makedirs(join(self.dest, self.sname))
+            self.cur.execute("CREATE TABLE {}(taxon TEXT, seq TEXT)".format(
+                self.table_name))
+            self.cur.execute("PRAGMA synchronous = OFF")
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -343,21 +343,22 @@ class Alignment(Base):
                 self.sequence_code = None
                 self.e = finder_content
 
-        # In case the class is initialized with a dictionary object
-        elif isinstance(input_alignment, OrderedDict):
+        # In case there is a table for the provided input_alignment
+        else:
+            pass
 
-            # The name of the alignment (str)
-            self.name = alignment_name
-            # Gets several attributes from the dictionary alignment
-            self._init_dicobj(input_alignment)
-            # The input format of the alignment (str)
-            self.input_format = input_format
-            # Short name - No extension
-            try:
-                self.sname = basename(splitext(alignment_name)[0])
-            except AttributeError:
-                pass
-            self.dest = dest
+            # # The name of the alignment (str)
+            # self.name = alignment_name
+            # # Gets several attributes from the dictionary alignment
+            # self._init_dicobj(input_alignment)
+            # # The input format of the alignment (str)
+            # self.input_format = input_format
+            # # Short name - No extension
+            # try:
+            #     self.sname = basename(splitext(alignment_name)[0])
+            # except AttributeError:
+            #     pass
+            # self.dest = dest
 
     def __iter__(self):
         """
@@ -596,21 +597,25 @@ class Alignment(Base):
         # PARSING FASTA FORMAT
         # ======================================================================
         elif alignment_format == "fasta":
+            sequence = []
+            seq_data = []
             for line in file_handle:
                 if line.strip().startswith(">"):
+
+                    if sequence:
+                        seq_data.append((taxa, "".join(sequence)))
+
                     taxa = line[1:].strip()
                     taxa = self.rm_illegal(taxa)
 
-                    self.alignment[taxa] = join(self.dest, self.sname,
-                                                taxa + ".seq")
-
                 elif line.strip() != "" and taxa:
-                    with open(self.alignment[taxa], "a") as fh:
-                        fh.write(line.strip().lower().
-                                 replace(" ", "").replace("*", ""))
+                    sequence.append(line.strip().lower().
+                                    replace(" ", "").replace("*", ""))
 
-            with open(self.alignment[taxa]) as fh:
-                self.locus_length = len("".join(fh.readlines()))
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+                self.table_name), seq_data)
+
+            self.locus_length = len(seq_data[0][1])
 
             self.partitions.set_length(self.locus_length)
 
@@ -761,21 +766,21 @@ class Alignment(Base):
         file_handle.close()
 
         # Checks the size consistency of the alignment
-        if size_check is True:
-            self.is_alignment = self.check_sizes(self.alignment,
-                                                 input_alignment)
-            if not self.is_alignment:
-                self.e = AlignmentUnequalLength()
-                return
-
-        # Checks for duplicate taxa
-        if len(list(self.alignment)) != len(set(list(self.alignment))):
-            taxa = self.duplicate_taxa(self.alignment.keys())
-            self.log_progression.write("WARNING: Duplicated taxa have been "
-                                       "found in file %s (%s). Please correct "
-                                       "this problem and re-run the program\n"
-                                       % (input_alignment, ", ".join(taxa)))
-            raise SystemExit
+        # if size_check is True:
+        #     self.is_alignment = self.check_sizes(self.alignment,
+        #                                          input_alignment)
+        #     if not self.is_alignment:
+        #         self.e = AlignmentUnequalLength()
+        #         return
+        #
+        # # Checks for duplicate taxa
+        # if len(list(self.alignment)) != len(set(list(self.alignment))):
+        #     taxa = self.duplicate_taxa(self.alignment.keys())
+        #     self.log_progression.write("WARNING: Duplicated taxa have been "
+        #                                "found in file %s (%s). Please correct "
+        #                                "this problem and re-run the program\n"
+        #                                % (input_alignment, ", ".join(taxa)))
+        #     raise SystemExit
 
     def iter_taxa(self):
         """
@@ -1917,23 +1922,33 @@ class AlignmentList(Base):
     Alignment classes for the write_to_file methods.
     """
 
-    def __init__(self, alignment_list, dest=None, shared_namespace=None):
+    def __init__(self, alignment_list, dest=None, shared_namespace=None,
+                 sql_db=None):
         """
         :param alignment_list: List of Alignment objects
         :param dest: String. Path to temporary directory that will store
         the sequence data of each alignment object
         :param shared_namespace: Namespace object, used to share information
         between subprocesses
+        :param sql_db: string. Path to sqlite database file where sequence data
+        will be stored
         """
 
         self.log_progression = Progression()
+
+        """
+        Create connection and cursor for sqlite database
+        """
+        if sql_db:
+            self.con = sqlite3.connect(sql_db)
+            self.cur = self.con.cursor()
 
         """
         Stores the "active" Alignment objects for the current AlignmentList.
         Keys will be the Alignment.path for quick lookup of Alignment object
         values
         """
-        self.alignments = OrderedDict()
+        self.alignments = []
 
         """
         Stores the "inactive" or "shelved" Alignment objects. All AlignmentList
@@ -1968,10 +1983,6 @@ class AlignmentList(Base):
         """
         self.shelved_taxa = []
 
-        """
-        Lists the Alignment.name attributes of the current AlignmentList object
-        """
-        self.filename_list = []
         self.path_list = []
 
         """
@@ -2018,6 +2029,11 @@ class AlignmentList(Base):
         Iterate over Alignment objects
         """
         return iter(self.alignments.values())
+
+    def connect_database(self, sql_db):
+
+        self.con = sqlite3.connect(sql_db)
+        self.cur = self.con.cursor()
 
     def clear_alignments(self):
         """
@@ -2246,12 +2262,12 @@ class AlignmentList(Base):
         """
 
         # Overwrite temporary directory
-        if dest:
-            self.dest = dest
+        # if dest:
+        #     self.dest = dest
 
         # Set current working directory if dest not set
-        if not self.dest:
-            self.dest = "./"
+        # if not self.dest:
+        #     self.dest = "./"
 
         # Check for duplicates among current file list
         for f in [x for x, y in Counter(file_name_list).items() if y > 1]:
@@ -2266,79 +2282,107 @@ class AlignmentList(Base):
         if shared_namespace:
             shared_namespace.progress = 0
 
-        njobs = len(file_name_list) if len(file_name_list) <= \
-            multiprocessing.cpu_count() else multiprocessing.cpu_count()
+        for aln_path in file_name_list:
 
-        if shared_namespace:
-            jobs = [[x.tolist(), self.dest, y, shared_namespace] for y, x in
-                enumerate(np.array_split(np.array(file_name_list), njobs))]
-        else:
-            jobs = [[x.tolist(), self.dest, y, None] for y, x in enumerate(
-                np.array_split(np.array(file_name_list), njobs))]
+            aln_obj = Alignment(aln_path, sql_cursor=self.cur)
 
-        if sys.platform in ["win32", "cygwin"]:
-            p = ThreadPool(njobs)
-        else:
-            p = Pool(njobs)
+            if isinstance(aln_obj.e, InputError):
+                self.bad_alignments.append(aln_obj.path)
+            elif isinstance(aln_obj.e, AlignmentUnequalLength):
+                self.non_alignments.append(aln_obj.path)
+            elif isinstance(aln_obj.e, EmptyAlignment):
+                self.bad_alignments.append(aln_obj.path)
+            else:
+                # Get seq code
+                if not self.sequence_code:
+                    self.sequence_code = aln_obj.sequence_code
+                # Check for multiple sequence types. If True,
+                # raise Exception
+                elif self.sequence_code[0] != aln_obj.sequence_code[0]:
+                    raise MultipleSequenceTypes("Multiple sequence "
+                        "types detected: {} and {}".format(
+                            self.sequence_code[0],
+                            aln_obj.sequence_code[0]))
 
-        try:
-            # Execute alignment reading in parallel
-            p.map(read_alns, jobs)
-            # Terminate pool processes
-            p.terminate()
+                self.alignments.append(aln_obj.name)
+                self.set_partition_from_alignment(aln_obj)
+                self.path_list.append(aln_obj.path)
 
-            # Read the pickle files with the saved Alignment objects
-            for i in range(njobs):
-                fh = open(join(self.dest, "Worker{}.pc".format(i)), "rb")
-                while 1:
-                    try:
-                        aln = pickle.load(fh)
+        self.con.commit()
 
-                        if isinstance(aln.e, InputError):
-                            self.bad_alignments.append(aln.path)
-                        elif isinstance(aln.e, AlignmentUnequalLength):
-                            self.non_alignments.append(aln.path)
-                        elif isinstance(aln.e, EmptyAlignment):
-                            self.bad_alignments.append(aln.path)
-
-                        else:
-                            # Get seq code
-                            if not self.sequence_code:
-                                self.sequence_code = aln.sequence_code
-                            # Check for multiple sequence types. If True,
-                            # raise Exception
-                            elif self.sequence_code[0] != aln.sequence_code[0]:
-                                raise MultipleSequenceTypes("Multiple sequence "
-                                    "types detected: {} and {}".format(
-                                        self.sequence_code[0],
-                                        aln.sequence_code[0]))
-
-                            self.alignments[aln.name] = aln
-                            self.set_partition_from_alignment(aln)
-                            self.filename_list.append(aln.name)
-                            self.path_list.append(aln.path)
-
-                    # Handle all known exceptions here, to close filehandle and
-                    # remove temporary pickle file
-                    except (EOFError, MultipleSequenceTypes) as e:
-                        fh.close()
-                        os.remove(join(self.dest, "Worker{}.pc".format(i)))
-                        # Ignores the EOFError, which is normal, and raise the
-                        # exception for upstream handling
-                        if type(e) != EOFError:
-                            raise e
-                        break
-
-            self.taxa_names = self._get_taxa_list()
-
-            if shared_namespace:
-                shared_namespace.m = "Updating App structures"
-
-        except IOError as e:
-            p.terminate()
-            #shutil.rmtree(self.dest)
-            print(e)
-            return
+        # njobs = len(file_name_list) if len(file_name_list) <= \
+        #     multiprocessing.cpu_count() else multiprocessing.cpu_count()
+        #
+        # if shared_namespace:
+        #     jobs = [[x.tolist(), self.dest, y, shared_namespace] for y, x in
+        #         enumerate(np.array_split(np.array(file_name_list), njobs))]
+        # else:
+        #     jobs = [[x.tolist(), self.dest, y, None] for y, x in enumerate(
+        #         np.array_split(np.array(file_name_list), njobs))]
+        #
+        # if sys.platform in ["win32", "cygwin"]:
+        #     p = ThreadPool(njobs)
+        # else:
+        #     p = Pool(njobs)
+        #
+        # try:
+        #     # Execute alignment reading in parallel
+        #     p.map(read_alns, jobs)
+        #     # Terminate pool processes
+        #     p.terminate()
+        #
+        #     # Read the pickle files with the saved Alignment objects
+        #     for i in range(njobs):
+        #         fh = open(join(self.dest, "Worker{}.pc".format(i)), "rb")
+        #         while 1:
+        #             try:
+        #                 aln = pickle.load(fh)
+        #
+        #                 if isinstance(aln.e, InputError):
+        #                     self.bad_alignments.append(aln.path)
+        #                 elif isinstance(aln.e, AlignmentUnequalLength):
+        #                     self.non_alignments.append(aln.path)
+        #                 elif isinstance(aln.e, EmptyAlignment):
+        #                     self.bad_alignments.append(aln.path)
+        #
+        #                 else:
+        #                     # Get seq code
+        #                     if not self.sequence_code:
+        #                         self.sequence_code = aln.sequence_code
+        #                     # Check for multiple sequence types. If True,
+        #                     # raise Exception
+        #                     elif self.sequence_code[0] != aln.sequence_code[0]:
+        #                         raise MultipleSequenceTypes("Multiple sequence "
+        #                             "types detected: {} and {}".format(
+        #                                 self.sequence_code[0],
+        #                                 aln.sequence_code[0]))
+        #
+        #                     self.alignments[aln.name] = aln
+        #                     self.set_partition_from_alignment(aln)
+        #                     self.filename_list.append(aln.name)
+        #                     self.path_list.append(aln.path)
+        #
+        #             # Handle all known exceptions here, to close filehandle and
+        #             # remove temporary pickle file
+        #             except (EOFError, MultipleSequenceTypes) as e:
+        #                 fh.close()
+        #                 os.remove(join(self.dest, "Worker{}.pc".format(i)))
+        #                 # Ignores the EOFError, which is normal, and raise the
+        #                 # exception for upstream handling
+        #                 if type(e) != EOFError:
+        #                     raise e
+        #                 break
+        #
+        #     self.taxa_names = self._get_taxa_list()
+        #
+        #     if shared_namespace:
+        #         shared_namespace.m = "Updating App structures"
+        #
+        # except IOError as e:
+        #     p.terminate()
+        #     #shutil.rmtree(self.dest)
+        #     print(e)
+        #     return
 
     def retrieve_alignment(self, name):
         """
