@@ -382,9 +382,10 @@ class Alignment(Base):
         Iterate over Alignment objects
         """
 
-        for tx, f in self.alignment.items():
-            with open(f) as fh:
-                yield tx, "".join(fh.readlines())
+        for tx in self.taxa_list:
+            yield tx, self.cur.execute(
+                "SELECT seq from {} WHERE txId=?".format(self.table_name),
+                (self.taxa_idx[tx],)).fetchone()[0]
 
     def _set_format(self, input_format):
         """
