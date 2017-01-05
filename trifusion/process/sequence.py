@@ -635,25 +635,30 @@ class Alignment(Base):
             self.partitions.add_partition(self.name, self.locus_length,
                                           file_name=self.path)
 
-        # ======================================================================
+        # =====================================================================
         # PARSING LOCI FORMAT
-        # ======================================================================
+        # =====================================================================
         elif alignment_format == "loci":
             taxa_list = self.get_loci_taxa(self.path)
 
             # Create empty dict
-            self.alignment = dict([(x, open(join(self.dest, self.sname,
-                 x + ".seq"), "a")) for x in taxa_list])
+            # self.alignment = dict([(x, open(join(self.dest, self.sname,
+            #      x + ".seq"), "a")) for x in taxa_list])
+            sequence_data = dict([(tx, []) for tx in taxa_list])
 
             # Add a counter to name each locus
             locus_c = 1
+            # This variable is used in comparison with taxa_list to check which
+            # taxa are missing from the current partition. Missing taxa
+            # are filled with missing data.
             present_taxa = []
+
             for line in file_handle:
                 if line.strip().startswith(">"):
                     fields = line.strip().split()
                     taxon = fields[0][1:]
                     present_taxa.append(taxon)
-                    self.alignment[taxon].write(fields[1].lower())
+                    sequence_data[taxon].append(fields[1].lower())
 
                 elif line.strip().startswith("//"):
 
@@ -663,8 +668,8 @@ class Alignment(Base):
                     # Adding missing data
                     for tx in taxa_list:
                         if tx not in present_taxa:
-                            self.alignment[tx].write(self.sequence_code[1] *
-                                                     locus_len)
+                            sequence_data[tx].append(self.sequence_code[1] *
+                                                      locus_len)
 
                     present_taxa = []
 
@@ -673,9 +678,14 @@ class Alignment(Base):
                                                   file_name=self.path)
                     locus_c += 1
 
-            for tx, fh in self.alignment.items():
-                fh.close()
-                self.alignment[tx] = join(self.dest, self.sname, tx + ".seq")
+            # for tx, fh in self.alignment.items():
+            #     fh.close()
+            #     self.alignment[tx] = join(self.dest, self.sname, tx + ".seq")
+            sequence_data = [(tx, "".join(seq)) for tx, seq in
+                             sequence_data.items()]
+
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?)".format(
+                self.table_name), sequence_data)
 
             self.partitions.set_length(self.locus_length)
 
