@@ -44,6 +44,9 @@ single_large_interleave = "C:\Users\Diogo\Documents\TriFusion\Test_data\Process\
 
 loci_file = "C:\Users\Diogo\Documents\GitHub\TriFusion\\trifusion\\tests\data\c97d5m4p2.loci"
 
+nexus_file = "C:\Users\Diogo\Documents\GitHub\TriFusion\\trifusion\\tests\data\BaseConcatenation.nex"
+
+stock_file = "C:\Users\Diogo\Documents\GitHub\TriFusion\\trifusion\\tests\data\BaseConc7.stockholm"
 ################################ Input ########################################
 
 # Test 1: Single file
@@ -102,6 +105,18 @@ def loci_dataset():
     print("Running Input test: loci_dataset")
     AlignmentList([loci_file], sql_db=sql_path)
 
+# Test 9: Nexus file
+@Wrapper
+def nexus_dataset():
+    print("Running Input test: nexus_dataset")
+    AlignmentList([nexus_file], sql_db=sql_path)
+
+# Test10: Stockholm file
+@Wrapper
+def stock_dataset():
+    print("Running Input test: stock_dataset")
+    AlignmentList([stock_file], sql_db=sql_path)
+
 ################################ Output #######################################
 
 # if not os.path.exists(benchmark_dir):
@@ -153,8 +168,14 @@ def collapse_alns(aln_obj):
 #cProfile.run("large_interleave_file()")
 #large_interleave_file()
 
-cProfile.run("loci_dataset()")
+# cProfile.run("loci_dataset()")
 # loci_dataset()
+
+# cProfile.run("nexus_dataset()")
+# nexus_dataset()
+
+cProfile.run("stock_dataset()")
+# stock_dataset()
 
 #cProfile.run("concat(aln_obj)")
 #concat(aln_obj)
