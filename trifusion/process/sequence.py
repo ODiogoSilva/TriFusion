@@ -310,6 +310,16 @@ class Alignment(Base):
         self.table_name = "".join([x for x in self.path if x.isalnum()])
 
         """
+        Lists the currently active tables for the Alignment object. The
+        'master' table is always present and represents the original
+        alignment. Additional tables may be added as needed, and then dropped
+        when no longer necessary. When all tables, except the master, need to
+        be removed, this attribute can be used to quickly drop all derived
+        tables
+        """
+        self.active_tables = ["master"]
+
+        """
         NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the responsibility
         of the Alignment class to check on duplicate table names. If an
         exiting table name is found in the database, the Alignment class
@@ -917,6 +927,9 @@ class Alignment(Base):
             "INSERT INTO {} VALUES (?, ?, ?)".format(table_name),
             sequence_data)
 
+        # Add table name to active table names
+        self.active_tables.append(table_name)
+
         if write_haplotypes is True:
             # If no output file for the haplotype correspondence is provided,
             # use the input alignment name as reference
@@ -927,10 +940,10 @@ class Alignment(Base):
 
     def consensus(self, consensus_type):
         """
-        Converts the current Alignment object dictionary into a single consensus
-         sequence. The consensus_type argument determines how variation in the
-        original alignment is handled for the generation of the consensus
-        sequence. The options are:
+        Converts the current Alignment object dictionary into a single
+        consensus  sequence. The consensus_type argument determines how
+        variation in the original alignment is handled for the generation
+        of the consensus sequence. The options are:
             ..:iupac: Converts variable sites according to the corresponding
             IUPAC symbols
             ..:soft mask: Converts variable sites into missing data
