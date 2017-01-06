@@ -333,7 +333,7 @@ class Alignment(Base):
                              "txId INT,"
                              "taxon TEXT,"
                              "seq TEXT)".format(self.table_name))
-            self.cur.execute("PRAGMA synchronous = OFF")
+
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -383,10 +383,10 @@ class Alignment(Base):
         :returns : tuple with (taxa, sequence)
         """
 
-        for tx in self.taxa_list:
-            yield tx, self.cur.execute(
-                "SELECT seq from {} WHERE txId=?".format(self.table_name),
-                (self.taxa_idx[tx],)).fetchone()[0]
+        for tx, seq in self.cur.execute(
+                "SELECT taxon,seq from {}".format(
+                    self.table_name)).fetchall():
+            yield tx, seq
 
     def _set_format(self, input_format):
         """
@@ -398,24 +398,61 @@ class Alignment(Base):
 
         self.input_format = input_format
 
-    def iter_columns(self):
+    def iter_columns(self, table_suffix=""):
         """
-       Generator that returns the alignment columns in a tuple
+        Generator that returns the alignment columns in a tuple
+
+        :param table_suffix: string. Specify the suffix of the table
+        used to retrieve sequence data. The suffix is always appended at the
+        end of self.table_name. This is intended to retrieve sequence data
+        from modifications of the main alignment data, such as collapse,
+        filter, etc.
         """
+
+        # For now this is a leap of faith. I'll just assume that the
+        # table name has been correctly defined and exists in the database
+        table = self.table_name + table_suffix
 
         for i in zip(*[x[0] for x in self.cur.execute(
-                "SELECT seq from {}".format(self.table_name)).fetchall()]):
+                "SELECT seq from {}".format(table)).fetchall()]):
             yield i
 
-    def iter_sequences(self):
+    def iter_sequences(self, table_suffix=""):
         """
         Generator for sequence data of the alignment object. Akin to
         values() method of a dictionary
+
+        :param table_suffix: string. Specify the suffix of the table
+        used to retrieve sequence data. The suffix is always appended at the
+        end of self.table_name. This is intended to retrieve sequence data
+        from modifications of the main alignment data, such as collapse,
+        filter, etc.
         """
 
+        # For now this is a leap of faith. I'll just assume that the
+        # table name has been correctly defined and exists in the database
+        table = self.table_name + table_suffix
+
         for seq in self.cur.execute("SELECT seq FROM {}".format(
-                self.table_name)).fetchall():
+                table)).fetchall():
             yield seq[0]
+
+    def iter_alignment(self, table_suffix=""):
+        """
+        Generator for a tuple pair with (taxon, sequece)
+
+        :param table_suffix: string. Specify the suffix of the table
+        used to retrieve sequence data. The suffix is always appended at the
+        end of self.table_name. This is intended to retrieve sequence data
+        from modifications of the main alignment data, such as collapse,
+        filter, etc.
+        """
+
+        table = self.table_name + table_suffix
+
+        for tx, seq in self.cur.execute(
+                "SELECT taxon,seq from {}".format(table)).fetchall():
+            yield tx, seq
 
     def get_sequence(self, taxon):
         """
@@ -823,50 +860,62 @@ class Alignment(Base):
         del self.taxa_idx[old_name]
 
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
-                 haplotype_name="Hap", dest=None, conversion_suffix=""):
+                 haplotype_name="Hap", dest=None, conversion_suffix="",
+                 table_name=None):
         """
-        Collapses equal sequences into haplotypes. This method changes
-        the alignment variable and only returns a dictionary with the
-        correspondence between the haplotypes and the original taxa names
+        Collapses equal sequences into haplotypes. This method fetches
+        the sequences for the current alignment and creates a new database
+        table with the collapsed haplotypes
 
-        :param write_haplotypes: Boolean, If true, a haplotype list
+        :param write_haplotypes: boolean. If True, a haplotype list
         mapping the haplotype names file will be created for each individual
         input alignment.
-        :param haplotypes_file: String, Name of the haplotype list mapping file
+        :param haplotypes_file: string. Name of the haplotype list mapping file
         referenced in write_haplotypes
-        :param haplotype_name: String, Custom name of the haplotypes
+        :param haplotype_name: string. Custom name of the haplotypes
+        :param dest: string. Path to where the haplotype map file will be
+        writtern
         :param conversion_suffix: string. The provided suffix for file
         conversion
+        :param table_name: string. Name of the table that will be created
+        in the database to harbor the collapsed alignment
         """
 
-        if not dest:
-            dest = self.dest
+        # If not table name has been provided, create one based on the current
+        # name
+        if not table_name:
+            table_name = self.table_name + "_collapsed"
 
-        collapsed_dic, correspondence_dic = OrderedDict(), OrderedDict()
-        counter = 1
+        # Create table in database to harbor collapsed alignment
+        self.cur.execute("CREATE TABLE {}("
+                         "txId INT,"
+                         "taxon TEXT,"
+                         "seq TEXT)".format(table_name))
 
         # Get collapsed alignment
-        for taxa, seq in self.alignment.items():
-            seq = self.get_sequence(taxa)
+        collapsed_dic = OrderedDict()
+        for taxa, seq in self.__iter__():
             if seq in collapsed_dic:
                 collapsed_dic[seq].append(taxa)
             else:
                 collapsed_dic[seq] = [taxa]
 
-        # Clear current alignments
-        self._clear_alignment_temp()
+        # Insert collapsed alignment into database and create correspondance
+        # dictionary
+        hap_counter = 1
+        sequence_data = []
+        correspondence_dic = OrderedDict()
+        for p, (seq, tx_list) in enumerate(collapsed_dic.items()):
 
-        # Create new alignment structure and temp files
-        self.alignment = OrderedDict()
-        for seq, taxa_list in collapsed_dic.items():
+            haplotype = "{}_{}".format(haplotype_name, hap_counter)
+            sequence_data.append((p, haplotype, seq))
+            correspondence_dic[haplotype] = tx_list
+            hap_counter += 1
 
-            haplotype = "%s_%s" % (haplotype_name, counter)
-            self.alignment[haplotype] = join(dest, haplotype + ".seq")
-            with open(self.alignment[haplotype], "w") as fh:
-                fh.write(seq)
-
-            correspondence_dic[haplotype] = taxa_list
-            counter += 1
+        # Insert sequence data into database
+        self.cur.executemany(
+            "INSERT INTO {} VALUES (?, ?, ?)".format(table_name),
+            sequence_data)
 
         if write_haplotypes is True:
             # If no output file for the haplotype correspondence is provided,
@@ -1915,6 +1964,7 @@ class AlignmentList(Base):
         if sql_db:
             self.con = sqlite3.connect(sql_db)
             self.cur = self.con.cursor()
+            self.cur.execute("PRAGMA synchronous = OFF")
 
         """
         Stores the "active" Alignment objects for the current AlignmentList.
@@ -2793,19 +2843,23 @@ class AlignmentList(Base):
             alignment_obj.code_gaps()
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
-                 haplotype_name="Hap", dest="./", conversion_suffix=""):
+                 haplotype_name="Hap", dest="./", conversion_suffix="",
+                 table_name=None):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
         individual input file
 
-        :param write_haplotypes: Boolean, if True, a haplotype list
+        :param write_haplotypes: boolean. if True, a haplotype list
         mapping the haplotype names file will be created for each individual
         input alignment.
 
-        :param haplotype_name: String, Custom name of the haplotypes
+        :param haplotype_name: string. Custom name of the haplotypes
 
         :param dest: string. Path to write the .haplotypes file
+
+        :param table_name: string. Name of the table that will be created
+        in the database to harbor the collapsed alignment
         """
 
         for alignment_obj in self.alignments.values():
@@ -2815,11 +2869,11 @@ class AlignmentList(Base):
                               conversion_suffix + haplotypes_file
                 alignment_obj.collapse(haplotypes_file=output_file,
                                        haplotype_name=haplotype_name,
-                                       dest=dest)
+                                       dest=dest, table_name=table_name)
             else:
                 alignment_obj.collapse(write_haplotypes=False,
                                        haplotype_name=haplotype_name,
-                                       dest=dest)
+                                       dest=dest, table_name=table_name)
 
     def consensus(self, consensus_type, single_file=False):
         """
