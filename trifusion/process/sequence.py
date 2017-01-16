@@ -456,7 +456,7 @@ class Alignment(Base):
 
         self.input_format = input_format
 
-    def iter_columns(self, table_suffix=""):
+    def iter_columns(self, table_suffix="", table_name=None):
         """
         Generator that returns the alignment columns in a tuple
 
@@ -465,11 +465,16 @@ class Alignment(Base):
         end of self.table_name. This is intended to retrieve sequence data
         from modifications of the main alignment data, such as collapse,
         filter, etc.
+        :param table_name: string. Name of the table used to retrieve
+        sequence data. If this argument is used, table_suffix will be ignored
         """
 
-        # For now this is a leap of faith. I'll just assume that the
-        # table name has been correctly defined and exists in the database
-        table = self.table_name + table_suffix
+        if table_name:
+            table = table_name
+        else:
+            # For now this is a leap of faith. I'll just assume that the
+            # table name has been correctly defined and exists in the database
+            table = self.table_name + table_suffix
 
         for i in zip(*[x[0] for x in self.cur.execute(
                 "SELECT seq from {}".format(table)).fetchall()]):
@@ -495,7 +500,7 @@ class Alignment(Base):
                 table)).fetchall():
             yield seq[0]
 
-    def iter_alignment(self, table_name=None):
+    def iter_alignment(self, table_suffix="", table_name=None):
         """
         Generator for a tuple pair with (taxon, sequece)
 
@@ -504,13 +509,17 @@ class Alignment(Base):
         end of self.table_name. This is intended to retrieve sequence data
         from modifications of the main alignment data, such as collapse,
         filter, etc.
+        :param table_name: string. Name of the table used to retrieve
+        sequence data. If this argument is used, table_suffix will be ignored
         """
 
-        if not table_name:
-            table_name = self.table_name
+        if table_name:
+            table = table_name
+        else:
+            table = self.table_name + table_suffix
 
         for tx, seq in self.cur.execute(
-                "SELECT taxon,seq from {}".format(table_name)).fetchall():
+                "SELECT taxon,seq from {}".format(table)).fetchall():
             yield tx, seq
 
     def get_sequence(self, taxon):
@@ -953,7 +962,7 @@ class Alignment(Base):
             else:
                 collapsed_dic[seq] = [taxa]
 
-        # The collapse operation is unique in the sense that the former taxon
+        # The collapse operation is special in the sense that the former taxon
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the collapsed data
         self.cur.execute("DELETE FROM {};".format(table_out))
@@ -985,7 +994,9 @@ class Alignment(Base):
             self.write_loci_correspondence(correspondence_dic, haplotypes_file,
                                            dest)
 
-    def consensus(self, consensus_type, table_name=None, get_sequence=False):
+    @SetupDatabase
+    def consensus(self, consensus_type, table_name=None, get_sequence=False,
+                 table_in=None, table_out="_consensus"):
         """
         Converts the current Alignment object dictionary into a single
         consensus  sequence. The consensus_type argument determines how
@@ -1001,28 +1012,25 @@ class Alignment(Base):
         in the database to harbor the collapsed alignment
         :param get_sequence: boolean. If True, returns the consensus sequence
         instead of generating and populating a table (False).
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        :param table_out: string. Name of the table that will be
+        created/modified in the database to harbor the collapsed alignment
         """
 
         # Empty consensus sequence
         consensus_seq = []
-
-        if not table_name:
-            table_name = self.table_name + "_consensus"
-
-        # Create table in database to harbor collapsed alignment
-        self.cur.execute("CREATE TABLE {}("
-                         "txId INT,"
-                         "taxon TEXT,"
-                         "seq TEXT)".format(table_name))
 
         # If sequence type is first sequence
         if consensus_type == "First sequence":
             # Grab first sequence
             consensus_seq = [self.cur.execute(
                 "SELECT seq from {} WHERE txId=0".format(
-                    self.table_name)).fetchone()[0]]
+                    table_in)).fetchone()[0]]
 
-        for column in self.iter_columns():
+        for column in self.iter_columns(table_name=table_in):
 
             column = list(set(column))
 
@@ -1063,9 +1071,16 @@ class Alignment(Base):
             elif consensus_type == "Remove":
                 continue
 
+        # The consensus operation is special in the sense that the former taxon
+        # names are no longer valid. Therefore, we drop the previous table and
+        # populate a new one with the consensus data
+        self.cur.execute("DELETE FROM {};".format(table_out))
+        # It is recommended to VACUUM to clear unused space
+        self.cur.execute("VACUUM;")
+
         # Insert into database
         self.cur.execute("INSERT INTO {} VALUES(?, ?, ?)".format(
-            table_name), (0, "consensus", "".join(consensus_seq)))
+            table_out), (0, "consensus", "".join(consensus_seq)))
 
     @staticmethod
     def write_loci_correspondence(dic_obj, output_file, dest="./"):
@@ -2947,7 +2962,8 @@ class AlignmentList(Base):
                                        dest=dest, table_name=table_out,
                                        table_in=table_in)
 
-    def consensus(self, consensus_type, single_file=False, table_name=None):
+    def consensus(self, consensus_type, single_file=False,
+                  table_out="_consensus", table_in=None):
         """
         If single_file is set to False, this acts as a simple wrapper to
         to the consensus method of the Alignment object.
@@ -2970,7 +2986,8 @@ class AlignmentList(Base):
             single_consensus = OrderedDict()
 
         for alignment_obj in self.alignments.values():
-            alignment_obj.consensus(consensus_type)
+            alignment_obj.consensus(consensus_type, table_out=table_out,
+                                    table_in=table_in)
 
             if single_file:
                 single_consensus[alignment_obj.name] = \
