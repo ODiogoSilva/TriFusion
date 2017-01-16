@@ -522,15 +522,20 @@ class Alignment(Base):
                 "SELECT taxon,seq from {}".format(table)).fetchall():
             yield tx, seq
 
-    def get_sequence(self, taxon):
+    def get_sequence(self, taxon, table_name=None, table_suffix=""):
         """
         Returns the sequence string of the corresponding taxon
         :param taxa: string. Taxon name. Must be in self.alignments
         """
 
+        if table_name:
+            table = table_name
+        else:
+            table = self.table_name + table_suffix
+
         if taxon in self.taxa_list:
            return self.cur.execute(
-                "SELECT seq FROM {} WHERE txId=?".format(self.table_name),
+                "SELECT seq FROM {} WHERE txId=?".format(table),
                 (self.taxa_idx[taxon],)).fetchone()[0]
 
         else:
@@ -1081,6 +1086,9 @@ class Alignment(Base):
         # Insert into database
         self.cur.execute("INSERT INTO {} VALUES(?, ?, ?)".format(
             table_out), (0, "consensus", "".join(consensus_seq)))
+
+        self.taxa_list = ["consensus"]
+        self.taxa_idx["consensus"] = 0
 
     @staticmethod
     def write_loci_correspondence(dic_obj, output_file, dest="./"):
@@ -2121,6 +2129,12 @@ class AlignmentList(Base):
         """
         self.summary_gene_table = defaultdict(dict)
 
+        """
+        Lists the currently active tables. This is mainly used for the
+        conversion of the consensus alignments into a single Alignment object
+        """
+        self.active_tables = []
+
         self.dest = dest
         self.pw_data = None
 
@@ -2983,18 +2997,29 @@ class AlignmentList(Base):
         self.taxa_names = ["consensus"]
 
         if single_file:
-            single_consensus = OrderedDict()
+            # Create a table that will harbor the consensus sequences of all
+            # Alignment objects
+            self.cur.execute("CREATE TABLE {}("
+                             "txId INT,"
+                             "taxon TEXT,"
+                             "seq TEXT)".format("consensus"))
+            self.active_tables.append("consensus")
+            consensus_data = []
 
-        for alignment_obj in self.alignments.values():
+        for p, alignment_obj in enumerate(self.alignments.values()):
             alignment_obj.consensus(consensus_type, table_out=table_out,
                                     table_in=table_in)
 
             if single_file:
-                single_consensus[alignment_obj.name] = \
-                    alignment_obj.alignment["consensus"]
+                sequence = alignment_obj.get_sequence("consensus",
+                                                      table_suffix=table_out)
+                consensus_data.append((p, alignment_obj.sname, sequence))
 
         if single_file:
-            consensus_aln = Alignment(single_consensus)
+            # Populate database table
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+                "consensus"), consensus_data)
+            consensus_aln = Alignment("consensus", sql_cursor=self.cur)
             return consensus_aln
 
     def reverse_concatenate(self, dest=None):
