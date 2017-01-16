@@ -155,6 +155,54 @@ class CheckData(object):
         return functools.partial(self.__call__, obj)
 
 
+class SetupDatabase(object):
+    """
+    Decorator used to setup sqlite database tables. It is executed for every
+    operation that changes the main alignment data. It checks whether the
+    table name already exists in the database and, if not, creates it.
+    """
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, obj, objtype):
+        """Support instance methods."""
+        import functools
+        return functools.partial(self.__call__, obj)
+
+    def __call__(self, *args, **kwargs):
+
+        # Get sqlite database cursor and main table name
+        sql_cur = args[0].cur
+
+        # Define sqlite table name based on the main Alignment table name
+        # and the provided table_name argument
+        table_out = args[0].table_name + kwargs["table_out"]
+        kwargs["table_out"] = table_out
+
+        # Add table name to active table names
+        if table_out not in args[0].tables:
+            args[0].tables.append(table_out)
+
+        # Check if the table already exists, if not create it.
+        if not sql_cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='{}'".format(table_out)).fetchall():
+
+            sql_cur.execute("CREATE TABLE {}("
+                             "txId INT,"
+                             "taxon TEXT,"
+                             "seq TEXT)".format(table_out))
+            # Set the table_in argument (table where the sequences will be
+            # fecthed) to the main Alignment table name
+            kwargs["table_in"] = args[0].table_name
+        else:
+            # Since the table_out already exists, sequences will be fetched
+            # from this table instead of the main table name
+            kwargs["table_in"] = table_out
+
+        self.func(*args, **kwargs)
+
+
 class AlignmentException(Exception):
     pass
 
@@ -317,7 +365,7 @@ class Alignment(Base):
         be removed, this attribute can be used to quickly drop all derived
         tables
         """
-        self.active_tables = ["master"]
+        self.tables = [self.table_name]
 
         """
         NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the responsibility
@@ -447,7 +495,7 @@ class Alignment(Base):
                 table)).fetchall():
             yield seq[0]
 
-    def iter_alignment(self, table_suffix=""):
+    def iter_alignment(self, table_name=None):
         """
         Generator for a tuple pair with (taxon, sequece)
 
@@ -458,10 +506,11 @@ class Alignment(Base):
         filter, etc.
         """
 
-        table = self.table_name + table_suffix
+        if not table_name:
+            table_name = self.table_name
 
         for tx, seq in self.cur.execute(
-                "SELECT taxon,seq from {}".format(table)).fetchall():
+                "SELECT taxon,seq from {}".format(table_name)).fetchall():
             yield tx, seq
 
     def get_sequence(self, taxon):
@@ -869,9 +918,10 @@ class Alignment(Base):
         self.taxa_idx[new_name] = self.taxa_idx[old_name]
         del self.taxa_idx[old_name]
 
+    @SetupDatabase
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
                  haplotype_name="Hap", dest=None, conversion_suffix="",
-                 table_name=None):
+                 table_in=None, table_out="_collapsed"):
         """
         Collapses equal sequences into haplotypes. This method fetches
         the sequences for the current alignment and creates a new database
@@ -887,28 +937,28 @@ class Alignment(Base):
         writtern
         :param conversion_suffix: string. The provided suffix for file
         conversion
-        :param table_name: string. Name of the table that will be created
-        in the database to harbor the collapsed alignment
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        :param table_out: string. Name of the table that will be
+        created/modified in the database to harbor the collapsed alignment
         """
-
-        # If not table name has been provided, create one based on the current
-        # name
-        if not table_name:
-            table_name = self.table_name + "_collapsed"
-
-        # Create table in database to harbor collapsed alignment
-        self.cur.execute("CREATE TABLE {}("
-                         "txId INT,"
-                         "taxon TEXT,"
-                         "seq TEXT)".format(table_name))
 
         # Get collapsed alignment
         collapsed_dic = OrderedDict()
-        for taxa, seq in self.__iter__():
+        for taxa, seq in self.iter_alignment(table_name=table_in):
             if seq in collapsed_dic:
                 collapsed_dic[seq].append(taxa)
             else:
                 collapsed_dic[seq] = [taxa]
+
+        # The collapse operation is unique in the sense that the former taxon
+        # names are no longer valid. Therefore, we drop the previous table and
+        # populate a new one with the collapsed data
+        self.cur.execute("DELETE FROM {};".format(table_out))
+        # It is recommended to VACUUM to clear unused space
+        self.cur.execute("VACUUM;")
 
         # Insert collapsed alignment into database and create correspondance
         # dictionary
@@ -924,11 +974,8 @@ class Alignment(Base):
 
         # Insert sequence data into database
         self.cur.executemany(
-            "INSERT INTO {} VALUES (?, ?, ?)".format(table_name),
+            "INSERT INTO {} VALUES (?, ?, ?)".format(table_out),
             sequence_data)
-
-        # Add table name to active table names
-        self.active_tables.append(table_name)
 
         if write_haplotypes is True:
             # If no output file for the haplotype correspondence is provided,
@@ -938,7 +985,7 @@ class Alignment(Base):
             self.write_loci_correspondence(correspondence_dic, haplotypes_file,
                                            dest)
 
-    def consensus(self, consensus_type):
+    def consensus(self, consensus_type, table_name=None, get_sequence=False):
         """
         Converts the current Alignment object dictionary into a single
         consensus  sequence. The consensus_type argument determines how
@@ -949,19 +996,33 @@ class Alignment(Base):
             ..:soft mask: Converts variable sites into missing data
             ..:remove: Removes variable sites
             ..:first sequence: Uses the first sequence in the dictionary
-        :param consensus_type: string, from the list above.
+        :param consensus_type: string. From the list above.
+        :param table_name: string. Name of the table that will be created
+        in the database to harbor the collapsed alignment
+        :param get_sequence: boolean. If True, returns the consensus sequence
+        instead of generating and populating a table (False).
         """
-
-        # If sequence type is first sequence
-        if consensus_type == "First sequence":
-            self.alignment = OrderedDict([("consensus",
-                                           list(self.alignment.values())[0])])
-            return
 
         # Empty consensus sequence
         consensus_seq = []
 
-        for column in zip(*[self.get_sequence(x) for x in self.alignment]):
+        if not table_name:
+            table_name = self.table_name + "_consensus"
+
+        # Create table in database to harbor collapsed alignment
+        self.cur.execute("CREATE TABLE {}("
+                         "txId INT,"
+                         "taxon TEXT,"
+                         "seq TEXT)".format(table_name))
+
+        # If sequence type is first sequence
+        if consensus_type == "First sequence":
+            # Grab first sequence
+            consensus_seq = [self.cur.execute(
+                "SELECT seq from {} WHERE txId=0".format(
+                    self.table_name)).fetchone()[0]]
+
+        for column in self.iter_columns():
 
             column = list(set(column))
 
@@ -1002,13 +1063,9 @@ class Alignment(Base):
             elif consensus_type == "Remove":
                 continue
 
-        # Replace alignment attribute with consensus sequence
-        self.remove_alignment(remove_active=True)
-        self.alignment = OrderedDict([("consensus",
-                                       join(self.dest, self.sname,
-                                            "consensus.seq"))])
-        with open(self.alignment["consensus"], "w") as fh:
-            fh.write("".join(consensus_seq))
+        # Insert into database
+        self.cur.execute("INSERT INTO {} VALUES(?, ?, ?)".format(
+            table_name), (0, "consensus", "".join(consensus_seq)))
 
     @staticmethod
     def write_loci_correspondence(dic_obj, output_file, dest="./"):
@@ -2857,7 +2914,7 @@ class AlignmentList(Base):
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
                  haplotype_name="Hap", dest="./", conversion_suffix="",
-                 table_name=None):
+                 table_in=None, table_out="_collapsed"):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
@@ -2882,17 +2939,29 @@ class AlignmentList(Base):
                               conversion_suffix + haplotypes_file
                 alignment_obj.collapse(haplotypes_file=output_file,
                                        haplotype_name=haplotype_name,
-                                       dest=dest, table_name=table_name)
+                                       dest=dest, table_out=table_out,
+                                       table_in=table_in)
             else:
                 alignment_obj.collapse(write_haplotypes=False,
                                        haplotype_name=haplotype_name,
-                                       dest=dest, table_name=table_name)
+                                       dest=dest, table_name=table_out,
+                                       table_in=table_in)
 
-    def consensus(self, consensus_type, single_file=False):
+    def consensus(self, consensus_type, single_file=False, table_name=None):
         """
-        Wrapper for the consensus method of the Alignment object.
+        If single_file is set to False, this acts as a simple wrapper to
+        to the consensus method of the Alignment object.
+        If single_file is True, then a new table is created and populated here
+        for the new alignment object akin to the concatenation one. That
+        Alignment object is then returned.
         :param consensus_type: string. How variation is handled when creating
         the consensus. See the Alignment method for more information
+        :param single_file. boolean. If True, consensus will be generated
+        for each alignment and stored in a new database table and assigned
+        to a new Alignment object. If False, it will just wrap the consensus
+        method of the Alignment object.
+        :param table_name: string. Name of the table that will be created
+        in the database to harbor the collapsed alignment
         """
 
         self.taxa_names = ["consensus"]
