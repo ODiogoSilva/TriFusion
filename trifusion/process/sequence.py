@@ -1201,7 +1201,8 @@ class Alignment(Base):
 
         return concatenated_aln
 
-    def code_gaps(self):
+    @SetupDatabase
+    def code_gaps(self, table_out="_gaps", table_in=None):
         """
         This method codes gaps present in the alignment in binary format,
         according to the method of Simmons and Ochoterena (2000), to be read
@@ -1255,9 +1256,7 @@ class Alignment(Base):
         complete_gap_list = []
 
         # Get the complete list of unique gap positions in the alignment
-        for taxa in self.alignment:
-
-            seq = self.get_sequence(taxa)
+        for taxa, seq in self.iter_alignment(table_name=table_in):
 
             current_list = gap_listing(seq)
             complete_gap_list += [gap for gap in current_list if gap not in
@@ -1265,14 +1264,12 @@ class Alignment(Base):
 
         # This will add the binary matrix of the unique gaps listed at the
         # end of each alignment sequence
-        for taxa in self.alignment:
-
-            seq = self.get_sequence(taxa)
+        for taxa, seq in self.iter_alignment(table_name=table_in):
 
             final_seq = gap_binary_generator(seq, complete_gap_list)
 
-            with open(self.alignment[taxa], "w") as fh:
-                fh.write(final_seq)
+            self.cur.execute("UPDATE {} SET seq=? WHERE txId=?".format(
+                table_out), (final_seq, self.taxa_idx[taxa]))
 
         self.restriction_range = "%s-%s" % (int(self.locus_length),
                                             len(complete_gap_list) +
@@ -2956,13 +2953,13 @@ class AlignmentList(Base):
 
         return selected_alignments
 
-    def code_gaps(self):
+    def code_gaps(self, table_in=None, table_out="_gaps"):
         """
         Wrapper for the code_gaps method of the Alignment object.
         """
 
         for alignment_obj in self.alignments.values():
-            alignment_obj.code_gaps()
+            alignment_obj.code_gaps(table_in=table_in, table_out=table_out)
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
                  haplotype_name="Hap", dest="./", conversion_suffix="",
