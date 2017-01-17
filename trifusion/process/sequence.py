@@ -243,7 +243,8 @@ def read_alns(l):
 class Alignment(Base):
 
     def __init__(self, input_alignment, input_format=None, alignment_name=None,
-                 partitions=None, locus_length=None, sql_cursor=None):
+                 partitions=None, locus_length=None, sql_cursor=None,
+                 sequence_code=None, taxa_list=None, taxa_idx=None):
         """
         The basic Alignment instance requires only an alignment file path or
         sqlite table name. In case the class is initialized with a dictionary
@@ -270,6 +271,14 @@ class Alignment(Base):
 
         :param sql_cursor: sqlite3.connection.cursor object. Used to
         populate sqlite database with sequence data
+
+        :param sequence_code: tuple. First element is sequence type and
+        second element is missing data character. E.g. ("DNA", "n")
+
+        :param taxa_list: list. Contains the taxa names of the alignment
+
+        :param taxa_idx: dict. Contains the correspondance between the taxon
+        names and their index in the sqlite database
         """
 
         self.log_progression = Progression()
@@ -350,6 +359,10 @@ class Alignment(Base):
         # Full name - with extension
         self.name = basename(input_alignment)
 
+        self.sequence_code = sequence_code
+        self.taxa_list = taxa_list
+        self.taxa_idx = taxa_idx
+
         """
         Creates a database table for the current alignment. This will be the
         link attribute between the sqlite database and the remaining methods
@@ -421,19 +434,8 @@ class Alignment(Base):
         # In case there is a table for the provided input_alignment
         else:
             pass
+            # Get taxa_list and taxa_idx
 
-            # # The name of the alignment (str)
-            # self.name = alignment_name
-            # # Gets several attributes from the dictionary alignment
-            # self._init_dicobj(input_alignment)
-            # # The input format of the alignment (str)
-            # self.input_format = input_format
-            # # Short name - No extension
-            # try:
-            #     self.sname = basename(splitext(alignment_name)[0])
-            # except AttributeError:
-            #     pass
-            # self.dest = dest
 
     def __iter__(self):
         """
@@ -948,7 +950,7 @@ class Alignment(Base):
         referenced in write_haplotypes
         :param haplotype_name: string. Custom name of the haplotypes
         :param dest: string. Path to where the haplotype map file will be
-        writtern
+        written
         :param conversion_suffix: string. The provided suffix for file
         conversion
         :param table_in: string. Name of the table from where the sequence data
@@ -1137,51 +1139,61 @@ class Alignment(Base):
         else:
             self.partitions = partitions
 
-    def reverse_concatenate(self, dest=None):
+    def reverse_concatenate(self, table_in=None, db_con=None):
         """
         This function divides a concatenated file according to the
         partitions set in self.partitions and returns an AlignmentList object
+        :param table_in: string. Name of the table from where the sequence data
+        will be fetched. Leave None to retrieve data from the main alignment
+        :paramm
         """
 
-        if not dest:
-            dest = self.dest
-
-        concatenated_aln = AlignmentList([], dest=dest)
+        concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
         alns = []
 
         for name, part_range in self.partitions:
 
             name = name.split(".")[0]
 
-            current_dic = OrderedDict()
-            for taxon, _ in self.alignment.items():
-                seq = self.get_sequence(taxon)
+            # Create table for current partition based on its name
+            self.cur.execute("CREATE TABLE {}("
+                             "txId INT,"
+                             "taxon TEXT,"
+                             "seq TEXT)".format(name))
+
+            sequence_data = []
+            for p, (taxon, seq) in enumerate(self.iter_alignment(
+                    table_name=table_in)):
+
+                # Get sequence for current partition
                 sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
                 # If sub_seq is not empty (only gaps or missing data)
                 if sub_seq.replace(self.sequence_code[1], "") != "":
-                    if not os.path.exists(join(dest, name)):
-                        os.makedirs(join(dest, name))
-
-                    current_dic[taxon] = join(dest, name, taxon + ".seq")
-
-                    with open(current_dic[taxon], "w") as fh:
-                        fh.write(sub_seq)
+                    sequence_data.append((p, taxon, sub_seq))
 
             current_partition = Partitions()
             current_partition.add_partition(name, part_range[0][1] -
                                             part_range[0][0])
 
-            # Check if current alignment object is not empty. This may occur
+            # Check if current sequence data is not empty. This may occur
             # when reverse concatenating an alignment with a taxa subset
             # selected.
-            if current_dic == OrderedDict():
+            if not sequence_data:
                 continue
 
-            current_aln = Alignment(current_dic, input_format=self.input_format,
+            # Populate database table
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+                name), sequence_data)
+            taxa_list = [x[1] for x in sequence_data]
+            taxa_idx = dict((x[1], x[0]) for x in sequence_data)
+
+            current_aln = Alignment(name, input_format=self.input_format,
                                     partitions=current_partition,
-                                    alignment_name=name, dest=self.dest,
-                                    locus_length=len(sub_seq))
+                                    alignment_name=name, sql_cursor=self.cur,
+                                    locus_length=len(sub_seq),
+                                    sequence_code=self.sequence_code,
+                                    taxa_list=taxa_list, taxa_idx=taxa_idx)
 
             alns.append(current_aln)
 
@@ -2038,7 +2050,7 @@ class AlignmentList(Base):
     """
 
     def __init__(self, alignment_list, dest=None, shared_namespace=None,
-                 sql_db=None):
+                 sql_db=None, db_cur=None, db_con=None):
         """
         :param alignment_list: List of Alignment objects
         :param dest: String. Path to temporary directory that will store
@@ -2047,6 +2059,14 @@ class AlignmentList(Base):
         between subprocesses
         :param sql_db: string. Path to sqlite database file where sequence data
         will be stored
+        :param db_cur: sqlite cursors. If provided, along with the db_con
+        argument, it provides the necessary hooks to the sqlite database and
+        the sql_db argument will be ignored. Therefore, no new connection will
+        be open
+        :param db_con:sqlite connection. If provided, along with the db_cur
+        argument, it provides the necessary hooks to the sqlite database and
+        the sql_db argument will be ignored. Therefore, no new connection will
+        be open
         """
 
         self.log_progression = Progression()
@@ -2054,7 +2074,10 @@ class AlignmentList(Base):
         """
         Create connection and cursor for sqlite database
         """
-        if sql_db:
+        if db_cur and db_con:
+            self.con = db_con
+            self.cur = db_cur
+        elif sql_db:
             self.con = sqlite3.connect(sql_db)
             self.cur = self.con.cursor()
             self.cur.execute("PRAGMA synchronous = OFF")
@@ -2365,7 +2388,7 @@ class AlignmentList(Base):
 
                 self.alignments[alignment_obj.name] = alignment_obj
                 self.set_partition_from_alignment(alignment_obj)
-                self.filename_list.append(alignment_obj.name)
+                # self.filename_list.append(alignment_obj.name)
 
         self.taxa_names = self._get_taxa_list()
 
@@ -3019,7 +3042,11 @@ class AlignmentList(Base):
             # Populate database table
             self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
                 "consensus"), consensus_data)
-            consensus_aln = Alignment("consensus", sql_cursor=self.cur)
+
+            # Create Alignment object
+            consensus_aln = Alignment("consensus", sql_cursor=self.cur,
+                                      sequence_code=self.sequence_code)
+
             return consensus_aln
 
     def reverse_concatenate(self, dest=None):
@@ -3038,7 +3065,7 @@ class AlignmentList(Base):
         concatenated_aln = self.concatenate(alignment_name="concatenated",
                                             dest=dest)
 
-        reverted_alns = concatenated_aln.reverse_concatenate()
+        reverted_alns = concatenated_aln.reverse_concatenate(db_con=self.con)
 
         return reverted_alns
 
