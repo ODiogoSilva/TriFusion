@@ -1302,14 +1302,15 @@ class Alignment(Base):
         :return:
         """
 
-        update_data = []
+        sequence_data = []
 
         for tx, seq in self.iter_alignment(table_name=table_in):
 
             # Condition where the sequence only has gaps
             if not seq.strip("-"):
-                update_data.append((self.sequence_code[1] * len(seq),
-                                    self.taxa_idx[tx]))
+                sequence_data.append((self.taxa_idx[tx],
+                                      tx,
+                                      self.sequence_code[1] * len(seq)))
                 continue
 
             trim_seq = list(seq)
@@ -1323,10 +1324,21 @@ class Alignment(Base):
                 trim_seq[reverse_counter] = self.sequence_code[1]
                 reverse_counter -= 1
 
-            update_data.append(("".join(trim_seq), self.taxa_idx[tx]))
+            sequence_data.append((self.taxa_idx[tx],
+                                  tx,
+                                  "".join(trim_seq)))
 
-        self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
-            table_out), update_data)
+        # Check if input and output tables are the same. If they are,
+        # it means that the output table already exists and is being
+        # updated
+        if table_in == table_out:
+            sequence_data = [(x[2], x[0]) for x in sequence_data]
+            self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+                table_out), sequence_data)
+        else:
+            self.cur.executemany("INSERT INTO {} (txId, taxon, seq)"
+                                 " VALUES (?, ?, ?)".format(
+                table_out), sequence_data)
 
     def _filter_columns(self, gap_threshold, missing_threshold, table_in,
                         table_out):
@@ -1337,7 +1349,7 @@ class Alignment(Base):
         taxa_number = float(len(self.taxa_list))
 
         filtered_cols = []
-        update_data = []
+        sequence_data = []
 
         # Creating the column list variable
         for column in self.iter_columns(table_name=table_in):
@@ -1362,12 +1374,19 @@ class Alignment(Base):
         for tx, seq in self.iter_alignment(table_name=table_in):
 
             new_seq = "".join(compress(seq, filtered_cols))
-            update_data.append((new_seq, self.taxa_idx[tx]))
+            sequence_data.append((self.taxa_idx[tx], tx, new_seq))
 
-        print(update_data)
-
-        self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
-            table_out), update_data)
+        # Check if input and output tables are the same. If they are,
+        # it means that the output table already exists and is being
+        # updated
+        if table_in == table_out:
+            sequence_data = [(x[2], x[0]) for x in sequence_data]
+            self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+                table_out), sequence_data)
+        else:
+            self.cur.executemany("INSERT INTO {} (txId, taxon, seq)"
+                                 " VALUES (?, ?, ?)".format(
+                table_out), sequence_data)
 
         self.locus_length = len(new_seq)
 
@@ -1397,6 +1416,11 @@ class Alignment(Base):
         """
 
         self._filter_terminals(table_in=table_in, table_out=table_out)
+
+        # Update output table. This will make the _filter_columns method modify
+        # the alignment produced in the _filter_terminals method.
+        table_in = table_out
+
         self._filter_columns(gap_threshold, missing_threshold,
                              table_in=table_in, table_out=table_out)
 
