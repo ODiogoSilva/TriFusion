@@ -1208,6 +1208,12 @@ class Alignment(Base):
         according to the method of Simmons and Ochoterena (2000), to be read
         by phylogenetic programs such as MrBayes. The resultant alignment,
         however, can only be output in the Nexus format
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        :param table_out: string. Name of the table that will be
+        created/modified in the database to harbor the collapsed alignment
         """
 
         def gap_listing(sequence, gap_symbol="-"):
@@ -1254,9 +1260,10 @@ class Alignment(Base):
             return sequence
 
         complete_gap_list = []
+        sequence_data = []
 
         # Get the complete list of unique gap positions in the alignment
-        for taxa, seq in self.iter_alignment(table_name=table_in):
+        for tx, seq in self.iter_alignment(table_name=table_in):
 
             current_list = gap_listing(seq)
             complete_gap_list += [gap for gap in current_list if gap not in
@@ -1264,34 +1271,46 @@ class Alignment(Base):
 
         # This will add the binary matrix of the unique gaps listed at the
         # end of each alignment sequence
-        for taxa, seq in self.iter_alignment(table_name=table_in):
+        for tx, seq in self.iter_alignment(table_name=table_in):
 
             final_seq = gap_binary_generator(seq, complete_gap_list)
 
-            self.cur.execute("UPDATE {} SET seq=? WHERE txId=?".format(
-                table_out), (final_seq, self.taxa_idx[taxa]))
+            # Check if input and output tables are the same. If they are,
+            # it means that the output table already exists and is being
+            # updated
+            if table_in == table_out:
+                sequence_data.append((final_seq, self.taxa_idx[tx]))
+            else:
+                sequence_data.append((self.taxa_idx[tx], tx, final_seq))
+
+        # Populate/modify table
+        if table_in == table_out:
+            self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+                table_out), sequence_data)
+        else:
+            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+                table_out), sequence_data)
 
         self.restriction_range = "%s-%s" % (int(self.locus_length),
                                             len(complete_gap_list) +
                                             int(self.locus_length) - 1)
 
-    def _filter_terminals(self):
+    def _filter_terminals(self, table_in, table_out):
         """
         This will replace the gaps in the extremities of the alignment with
         missing data symbols
         :return:
         """
 
-        for _, f in self.alignment.items():
+        update_data = []
 
-            with open(f) as fh:
-                seq = "".join(fh.readlines())
+        for tx, seq in self.iter_alignment(table_name=table_in):
 
             # Condition where the sequence only has gaps
             if not seq.strip("-"):
-                with open(f, "w") as fh:
-                    fh.write(str(self.sequence_code[1]) * len(seq))
-                    continue
+                update_data.append((self.sequence_code[1] * len(seq),
+                                    self.taxa_idx[tx]))
+                continue
 
             trim_seq = list(seq)
             counter, reverse_counter = 0, -1
@@ -1304,22 +1323,24 @@ class Alignment(Base):
                 trim_seq[reverse_counter] = self.sequence_code[1]
                 reverse_counter -= 1
 
-            with open(f, "w") as fh:
-                fh.write("".join(trim_seq))
+            update_data.append(("".join(trim_seq), self.taxa_idx[tx]))
 
-    def _filter_columns(self, gap_threshold, missing_threshold):
+        self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+            table_out), update_data)
+
+    def _filter_columns(self, gap_threshold, missing_threshold, table_in,
+                        table_out):
         """ Here several missing data metrics are calculated, and based on
          some user defined thresholds, columns with inappropriate missing
          data are removed """
 
-        taxa_number = float(len(self.alignment))
+        taxa_number = float(len(self.taxa_list))
 
         filtered_cols = []
-
-        fhs = fileinput.input(files=[x for x in self.alignment.values()])
+        update_data = []
 
         # Creating the column list variable
-        for column in zip(*fhs):
+        for column in self.iter_columns(table_name=table_in):
 
             cadd = column.count
 
@@ -1338,21 +1359,21 @@ class Alignment(Base):
             else:
                 filtered_cols.append(0)
 
-        fhs.close()
+        for tx, seq in self.iter_alignment(table_name=table_in):
 
-        # Open file handles in write mode
-        for f in self.alignment.values():
+            new_seq = "".join(compress(seq, filtered_cols))
+            update_data.append((new_seq, self.taxa_idx[tx]))
 
-            with open(f) as fh:
-                seq = "".join(fh.readlines())
+        print(update_data)
 
-            with open(f, "w") as fh:
-                new_seq = "".join(compress(seq, filtered_cols))
-                fh.write(new_seq)
+        self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+            table_out), update_data)
 
         self.locus_length = len(new_seq)
 
-    def filter_missing_data(self, gap_threshold, missing_threshold):
+    @SetupDatabase
+    def filter_missing_data(self, gap_threshold, missing_threshold,
+                            table_in=None, table_out="_filter"):
         """
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
@@ -1367,10 +1388,17 @@ class Alignment(Base):
 
         :param gap_threshold: int ranging from 0 to 100.
         :param missing_threshold: int ranging from 0 to 100.
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        :param table_out: string. Name of the table that will be
+        created/modified in the database to harbor the collapsed alignment
         """
 
-        self._filter_terminals()
-        self._filter_columns(gap_threshold, missing_threshold)
+        self._filter_terminals(table_in=table_in, table_out=table_out)
+        self._filter_columns(gap_threshold, missing_threshold,
+                             table_in=table_in, table_out=table_out)
 
     @staticmethod
     def _test_range(s, min_val, max_val):
@@ -2759,7 +2787,8 @@ class AlignmentList(Base):
 
             self.set_partition_from_alignment(alignment_obj)
 
-    def filter_missing_data(self, gap_threshold, missing_threshold):
+    def filter_missing_data(self, gap_threshold, missing_threshold,
+                            table_in=None, table_out="_filter"):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
         See the method's documentation.
@@ -2767,12 +2796,20 @@ class AlignmentList(Base):
         the alignment column should be filtered
         :param missing_threshold: integer, percentage of missing data (gaps +
         true missing data) below which the alignment column should be fitered
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        :param table_out: string. Name of the table that will be
+        created/modified in the database to harbor the collapsed alignment
         """
 
         for alignment_obj in list(self.alignments.values()):
 
-            alignment_obj.filter_missing_data(gap_threshold=gap_threshold,
-                                        missing_threshold=missing_threshold)
+            alignment_obj.filter_missing_data(
+                gap_threshold=gap_threshold,
+                missing_threshold=missing_threshold,
+                table_in=table_in, table_out=table_out)
 
     def filter_segregating_sites(self, min_val, max_val):
         """
