@@ -540,12 +540,17 @@ class Alignment(Base):
         else:
             return KeyError
 
-    def remove_alignment(self, remove_active=False):
+    def remove_alignment(self):
         """
         Removes the alignment table from the sql database
         """
 
+        # Drop main alignment
         self.cur.execute("DROP TABLE {}".format(self.table_name))
+
+        # If additional alignments were created, drop those tables as well
+        for table in self.tables:
+            self.cur.execute("DROP TABLE {}".format(table))
 
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
@@ -2183,46 +2188,38 @@ class AlignmentList(Base):
         """
         return iter(self.alignments.values())
 
-    def connect_database(self, sql_db):
-
-        self.con = sqlite3.connect(sql_db)
-        self.cur = self.con.cursor()
-
     def clear_alignments(self):
         """
         Clears the current AlignmentList object
         :return:
         """
 
-        # Clear temporary sequence files
-        for aln in self.alignments.values():
-            aln.remove_alignment()
-
-        for aln in self.shelve_alignments.values():
+        # Drop all database tables related to the current Alignments
+        for aln in self.alignments.values() + self.shelve_alignments.values():
             aln.remove_alignment()
 
         self.alignments = {}
         self.shelve_alignments = {}
         self.bad_alignments = []
         self.duplicate_alignments = []
-        self.partitions = Partitions()
-        self.filename_list = []
+        self.non_alignments = []
         self.taxa_names = []
         self.shelved_taxa = []
-        self.non_alignments = []
-        self.sequence_code = None
         self.path_list = []
         self.filtered_alignments = OrderedDict([("By minimum taxa", None),
                                                 ("By taxa", None),
                                                 ("By variable sites", None),
                                                 ("By informative sites", None)])
+        self.sequence_code = None
         self.summary_stats = {"genes": 0, "taxa": 0, "seq_len": 0, "gaps": 0,
                               "avg_gaps": [], "missing": 0, "avg_missing": [],
                               "variable": 0, "avg_var": [], "informative": 0,
                               "avg_inf": []}
         self.summary_gene_table = defaultdict(dict)
+        self.active_tables = []
         self.dest = None
         self.pw_data = None
+        self.partitions = Partitions()
 
     def _reset_summary_stats(self):
 
