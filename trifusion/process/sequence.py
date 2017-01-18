@@ -423,9 +423,6 @@ class Alignment(Base):
                 # parsing the alignment
                 self.read_alignment(input_alignment, self.input_format)
             else:
-                # If the input file is invalid, self.alignment will be an
-                # Exception instance instead of an OrderedDict()
-                self.alignment = None
                 # Setting the sequence code attribute for seq type checking
                 # in AlignmentList
                 self.sequence_code = None
@@ -703,8 +700,6 @@ class Alignment(Base):
             taxa_list = self.get_loci_taxa(self.path)
 
             # Create empty dict
-            # self.alignment = dict([(x, open(join(self.dest, self.sname,
-            #      x + ".seq"), "a")) for x in taxa_list])
             sequence_data = dict([(tx, []) for tx in taxa_list])
 
             # Add a counter to name each locus
@@ -1535,14 +1530,14 @@ class Alignment(Base):
 
         return self._test_range(s, min_val, max_val)
 
-    def write_to_file(self, output_format, output_file, new_alignment=None,
+    def write_to_file(self, output_format, output_file,
                       seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
                       cut_space_nex=50, cut_space_phy=258, cut_space_ima2=8,
                       interleave=False, gap="-", model_phylip=None,
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None,
                       phy_truncate_names=False, ld_hat=None,
-                      use_nexus_models=True, ns_pipe=None):
+                      use_nexus_models=True, ns_pipe=None, table_in=None):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -1552,15 +1547,11 @@ class Alignment(Base):
         concatenated alignment and the auxiliary partition files where
         necessary. Otherwise it will treat the alignment as a single partition.
 
-        :param output_format: string. Format of the output file. It can be one
+        :param output_format: List. Format of the output file. It can be one
         of five: "fasta", "nexus", "phylip", "mcmctree" and "ima2"
 
         :param output_file: string. Name of the output file. It will overwrite
         files with the same name.
-
-        :param new_alignment: OrderedDict. An option to provide an alternative
-        alignment to write. It is set to None by default, in which case it
-        uses self.alignment.
 
         :param interleave: Boolean. Determines whether the output alignment
         will be in leave (False) or interleave (True) format. Not all
@@ -1602,15 +1593,12 @@ class Alignment(Base):
 
         :param ns_pipe: To connect with the app for file overwrite issues,
         provide the NameSpace object.
-        """
 
-        # If this function is called in the AlignmentList class, there may
-        # be a need to specify a new alignment dictionary, such as a
-        # concatenated one
-        if new_alignment is not None:
-            alignment = new_alignment
-        else:
-            alignment = self.alignment
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        """
 
         # This will determine the default model value. GTR for nucleotides
         # and LG for proteins
@@ -1660,10 +1648,6 @@ class Alignment(Base):
         if ns_pipe:
             ns_pipe.status = None
 
-        # if conv_label:
-        #     for k, v in format_ext.items():
-        #         format_ext[k] = "_conv" + v
-
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
         if self.restriction_range is not None:
@@ -1695,7 +1679,6 @@ class Alignment(Base):
                     population_storage[population.strip()] = [taxon]
 
             # Write the general header of the IMa2 input file
-
             out_file = open(output_file + format_ext["ima2"], "w")
             # First line with general description
             out_file.write("Input file for IMa2 using %s alignments\n"
@@ -1728,7 +1711,8 @@ class Alignment(Base):
                             #  providing a species in the mapping file that
                             # does not exist in the alignment
                             try:
-                                seq = self.get_sequence(taxon)[
+                                seq = self.get_sequence(taxon,
+                                                        table_name=table_in)[
                                     lrange[0][0]:lrange[0][1]].upper()
                             except KeyError:
                                 print("Taxon %s provided in auxiliary "
@@ -1770,7 +1754,8 @@ class Alignment(Base):
                 # Write sequence data
                 for population, taxa_list in population_storage.items():
                     for taxon in taxa_list:
-                        seq = self.get_sequence(taxon).upper()
+                        seq = self.get_sequence(taxon,
+                                                table_name=table_in).upper()
                         out_file.write("%s%s\n" %
                             (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
 
@@ -1782,20 +1767,19 @@ class Alignment(Base):
                 cut_space_phy = 10
 
             out_file = open(output_file + format_ext["phylip"], "w")
-            out_file.write("%s %s\n" % (len(alignment), self.locus_length))
+            out_file.write("%s %s\n" % (len(self.taxa_list),
+                                        self.locus_length))
             if interleave:
                 counter = 0
                 for i in range(90, self.locus_length, 90):
-                    for key, f in alignment.items():
-
-                        with open(f) as fh:
-                            seq = "".join(fh.readlines())[counter:i]
+                    for taxon, seq in self.iter_alignment(
+                            table_name=table_in):
 
                         # Only include taxa names in the first block. The
                         # remaining blocks should only have sequence
                         if not counter:
                             out_file.write("%s %s\n" % (
-                                key[:cut_space_phy].ljust(seq_space_phy),
+                                taxon[:cut_space_phy].ljust(seq_space_phy),
                                 seq.upper()))
                         else:
                             out_file.write("%s\n" % (seq.upper()))
@@ -1804,11 +1788,9 @@ class Alignment(Base):
                     counter = i
 
             else:
-                for key, f in alignment.items():
-                    with open(f) as fh:
-                        seq = "".join(fh.readlines())
+                for taxon, seq in self.iter_alignment(table_name=table_in):
                     out_file.write("%s %s\n" % (
-                        key[:cut_space_phy].ljust(seq_space_phy),
+                        taxon[:cut_space_phy].ljust(seq_space_phy),
                         seq.upper()))
 
             # In case there is a concatenated alignment being written
@@ -1835,10 +1817,8 @@ class Alignment(Base):
 
             out_file.write("# STOCKHOLM V1.0\n")
 
-            for k, f in alignment.items():
-                with open(f) as fh:
-                    seq = "".join(fh.readlines())
-                out_file.write("%s\t%s\n" % (k, seq))
+            for taxon, seq in self.iter_alignment(table_name=table_in):
+                out_file.write("%s\t%s\n" % (taxon, seq))
 
             out_file.write("//\n")
             out_file.close()
@@ -1853,25 +1833,19 @@ class Alignment(Base):
             if not self.partitions.is_single():
                 for name, lrange in self.partitions.partitions.items():
                     lrange = lrange[0]
-                    out_file.write("%s %s %s\n" % (name, len(self.alignment),
+                    out_file.write("%s %s %s\n" % (name, len(self.taxa_list),
                                                  lrange[1] - lrange[0]))
-                    for taxon, f in alignment.items():
 
-                        with open(f) as fh:
-                            seq = "".join(fh.readlines())
-
+                    for taxon, seq in self.iter_alignment(table_name=table_in):
                         out_file.write("%s\t%s\n" % (taxon,
                                                      seq[lrange[0]:lrange[1]]))
 
             else:
                 out_file.write("%s %s %s\n" % (self.sname,
-                                               len(self.alignment),
+                                               len(self.taxa_list),
                                                self.locus_length))
 
-                for taxon, f in alignment.items():
-                    with open(f) as fh:
-                        seq = "".join(fh.readlines())
-
+                for taxon, seq in self.iter_alignment(table_name=table_in):
                     out_file.write("%s\t%s\n" % (taxon, seq))
 
             out_file.close()
@@ -1879,7 +1853,7 @@ class Alignment(Base):
         if "mcmctree" in output_format:
 
             out_file = open(output_file + format_ext["mcmctree"], "w")
-            taxa_number = len(self.alignment)
+            taxa_number = len(self.taxa_list)
 
             if self.partitions.is_single() is False:
                 for lrange in self.partitions.partitions.values():
@@ -1887,22 +1861,14 @@ class Alignment(Base):
                     out_file.write("%s %s\n" % (taxa_number,
                                                 (lrange[1] - (lrange[0]))))
 
-                    for taxon, f in alignment.items():
-
-                        with open(f) as fh:
-                            seq = "".join(fh.readlines())
-
+                    for taxon, seq in self.iter_alignment(table_name=table_in):
                         out_file.write("%s  %s\n" % (
                                        taxon[:cut_space_phy].ljust(
                                          seq_space_phy),
                                        seq[lrange[0]:lrange[1]].upper()))
             else:
                 out_file.write("%s %s\n" % (taxa_number, self.locus_length))
-                for taxon, f in alignment.items():
-
-                    with open(f) as fh:
-                        seq = "".join(fh.readlines())
-
+                for taxon, seq in self.iter_alignment(table_name=table_in):
                     out_file.write("%s  %s\n" % (
                                    taxon[:cut_space_phy].ljust(seq_space_phy),
                                    seq.upper()))
@@ -1921,7 +1887,7 @@ class Alignment(Base):
                                    "ntax=%s nchar=%s ;\n\tformat datatype="
                                    "mixed(%s:1-%s, restriction:%s) interleave="
                                    "yes gap=%s missing=%s ;\n\tmatrix\n" %
-                                   (len(alignment),
+                                   (len(self.taxa_list),
                                     self.locus_length,
                                     self.sequence_code[0].upper(),
                                     self.locus_length - 1,
@@ -1933,20 +1899,16 @@ class Alignment(Base):
                                    "ntax=%s nchar=%s ;\n\tformat datatype=%s "
                                    "interleave=yes gap=%s missing=%s ;\n\t"
                                    "matrix\n" %
-                                   (len(alignment),
+                                   (len(self.taxa_list),
                                     self.locus_length,
                                     self.sequence_code[0].upper(),
                                     gap,
                                     self.sequence_code[1].upper()))
                 counter = 0
                 for i in range(0, self.locus_length, 90):
-                    for key, f in alignment.items():
-
-                        with open(f) as fh:
-                            seq = "".join(fh.readlines()).upper()
-
+                    for taxon, seq in self.iter_alignment(table_name=table_in):
                         out_file.write("%s %s\n" % (
-                                       key[:cut_space_nex].ljust(
+                                       taxon[:cut_space_nex].ljust(
                                          seq_space_nex),
                                        seq[counter:counter + 90]))
 
@@ -1958,13 +1920,11 @@ class Alignment(Base):
                     # characters. Otherwise, it will be written entirely on
                     # the first iteration.
                     if self.locus_length > 90:
-                        for key, f in alignment.items():
-
-                            with open(f) as fh:
-                                seq = "".join(fh.readlines()).upper()
+                        for taxon, seq in self.iter_alignment(
+                                table_name=table_in):
 
                             out_file.write("%s %s\n" % (
-                                           key[:cut_space_nex].ljust(
+                                           taxon[:cut_space_nex].ljust(
                                              seq_space_nex),
                                            seq[i + 90:self.locus_length]))
                         else:
@@ -1978,7 +1938,7 @@ class Alignment(Base):
                                    "ntax=%s nchar=%s ;\n\tformat datatype=mixed"
                                    "(%s:1-%s, restriction:%s) interleave=no "
                                    "gap=%s missing=%s ;\n\tmatrix\n" %
-                                   (len(alignment),
+                                   (len(self.taxa_list),
                                     self.locus_length,
                                     self.sequence_code[0],
                                     self.locus_length - 1,
@@ -1990,17 +1950,14 @@ class Alignment(Base):
                                    " nchar=%s ;\n\tformat datatype=%s "
                                    "interleave=no gap=%s missing=%s ;\n\t"
                                    "matrix\n" % (
-                                    len(alignment),
+                                    len(self.taxa_list),
                                     self.locus_length,
                                     self.sequence_code[0],
                                     gap, self.sequence_code[1].upper()))
 
-                for key, f in alignment.items():
+                for taxon, seq in self.iter_alignment(table_name=table_in):
 
-                    with open(f) as fh:
-                        seq = "".join(fh.readlines()).upper()
-
-                    out_file.write("%s %s\n" % (key[:cut_space_nex].ljust(
+                    out_file.write("%s %s\n" % (taxon[:cut_space_nex].ljust(
                         seq_space_nex), seq))
                 out_file.write(";\n\tend;")
 
@@ -2028,7 +1985,7 @@ class Alignment(Base):
                                    (p, ", ".join([name for name in
                                     self.partitions.get_partition_names()])))
 
-                # Write models, if any
+            # Write models, if any
             if use_nexus_models:
                 out_file.write("\nbegin mrbayes;\n")
                 i = 1
@@ -2071,26 +2028,23 @@ class Alignment(Base):
                                                  self.locus_length,
                                                  "2"))
 
-            for key, f in alignment.items():
-
-                with open(f) as fh:
-                    seq = "".join(fh.readlines())
+            for taxon, seq in self.iter_alignment(table_name=table_in):
 
                 if ld_hat:
                     # Truncate sequence name to 30 characters
-                    out_file.write(">%s\n" % (key[:30]))
+                    out_file.write(">%s\n" % (taxon[:30]))
                     # Limit each sequence line to 2000 characters
                     if len(seq) > 2000:
                         for i in range(0, len(seq), 2000):
                             out_file.write("%s\n" % (seq[i:i + 2000].upper()))
                 elif interleave:
-                    out_file.write(">%s\n" % key)
+                    out_file.write(">%s\n" % taxon)
                     counter = 0
                     for i in range(90, self.locus_length, 90):
                         out_file.write("%s\n" % seq[counter:i])
                         counter = i
                 else:
-                    out_file.write(">%s\n%s\n" % (key, seq.upper()))
+                    out_file.write(">%s\n%s\n" % (taxon, seq.upper()))
 
             out_file.close()
 
@@ -3142,12 +3096,12 @@ class AlignmentList(Base):
                       outgroup_list=None, partition_file=True, output_dir=None,
                       use_charset=True, phy_truncate_names=False, ld_hat=None,
                       ima2_params=None, use_nexus_models=True, ns_pipe=None,
-                      conversion_suffix=""):
+                      conversion_suffix="", table_in=None):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
 
-        :param output_format: string, format of the output file
+        :param output_format: List, format of the output file
         :param output_suffix: string, optional suffix that is added at the end
         of the original file name
         :param interleave: boolean, Whether the output alignment will be in
@@ -3167,6 +3121,10 @@ class AlignmentList(Base):
         the conversion of files. This suffix will allway precede the
         output_suffix, which is meant to apply suffixes specific to secondary
         operations.
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
         """
 
         for alignment_obj in self.alignments.values():
@@ -3190,7 +3148,7 @@ class AlignmentList(Base):
             # Get model from partitions
             if part_name:
                 m = self.partitions.models[part_name]
-                alignment_obj.partitions.set_model(alignment_obj.name, m[1])
+                alignment_obj.partitions.set_model(part_name, m[1])
 
             alignment_obj.write_to_file(output_format,
                                         output_file=output_file_name,
@@ -3203,7 +3161,8 @@ class AlignmentList(Base):
                                         ld_hat=ld_hat,
                                         ima2_params=ima2_params,
                                         use_nexus_models=use_nexus_models,
-                                        ns_pipe=ns_pipe)
+                                        ns_pipe=ns_pipe,
+                                        table_in=table_in)
 
     def get_gene_table_stats(self, active_alignments=None):
         """
