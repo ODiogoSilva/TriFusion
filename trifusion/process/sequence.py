@@ -2198,6 +2198,11 @@ class AlignmentList(Base):
         for aln in self.alignments.values() + self.shelve_alignments.values():
             aln.remove_alignment()
 
+        # Drop active databases of the AlignmentList instance, namely consensus
+        # and concatenation, if they exist
+        for table in self.active_tables:
+            self.cur.execute("DROP TABLE {}".format(table))
+
         self.alignments = {}
         self.shelve_alignments = {}
         self.bad_alignments = []
@@ -2235,7 +2240,7 @@ class AlignmentList(Base):
         self.alignments and the remaining will be
         """
 
-        for aln_name in self.filename_list:
+        for aln_name in self.alignments.keys():
             if aln_name in aln_list:
                 if aln_name in self.shelve_alignments:
                     self.alignments[aln_name] = self.shelve_alignments[aln_name]
@@ -2319,22 +2324,6 @@ class AlignmentList(Base):
         """
         return (alignment.name for alignment in self.alignments.values())
 
-    def start_action_alignment(self):
-        """
-        Wrapper of the start_action_alignment of Alignment object
-        """
-
-        for aln_obj in self.alignments.values():
-            aln_obj.start_action_alignment()
-
-    def stop_action_alignment(self):
-        """
-        Wrapper of the stop_action_alignment of the Alignment object
-        """
-
-        for aln_obj in self.alignments.values():
-            aln_obj.stop_action_alignment()
-
     def set_partition_from_alignment(self, alignment_obj):
         """
         Updates the partition object with the provided alignment_obj
@@ -2383,9 +2372,8 @@ class AlignmentList(Base):
                     if not self.sequence_code:
                         self.sequence_code = alignment_obj.sequence_code
 
-                    self.alignments[alignment_obj.name] = alignment_obj
+                    self.alignments[alignment_obj.path] = alignment_obj
                     self.set_partition_from_alignment(alignment_obj)
-                    self.filename_list.append(alignment_obj.name)
             else:
                 # Get seq code
                 if not self.sequence_code:
@@ -2405,14 +2393,6 @@ class AlignmentList(Base):
         :param dest: string. Path to the temporary directory that will store
         the sequence data of the Alignment object
         """
-
-        # Overwrite temporary directory
-        # if dest:
-        #     self.dest = dest
-
-        # Set current working directory if dest not set
-        # if not self.dest:
-        #     self.dest = "./"
 
         # Check for duplicates among current file list
         for f in [x for x, y in Counter(file_name_list).items() if y > 1]:
@@ -2543,14 +2523,6 @@ class AlignmentList(Base):
         else:
             return None
 
-    def iter_alignment_dic(self):
-        """
-        :return: List of the dictionary alignments
-        """
-
-        return iter(alignment.alignment for alignment in
-                    self.alignments.values())
-
     def iter_alignment_files(self):
         """
         :return: Iterable with the file names for each Alignment object
@@ -2571,7 +2543,8 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, alignment_name=None, dest=None, remove_temp=True):
+    def concatenate(self, alignment_name=None, dest=None, remove_temp=True,
+                    table_in=None):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
@@ -2586,59 +2559,47 @@ class AlignmentList(Base):
         :return concatenated_alignment: Alignment object
         """
 
-        # If dest is provided, this will ensure that the directory exists.
-        # Take caution to provide a unique path, so that other temp
-        # files are not overwritten. If dest is not provided, temp files will
-        # be created on the current working directory
-        if dest and alignment_name:
-            if not os.path.exists(join(dest, alignment_name)):
-                os.makedirs(join(dest, alignment_name))
-        else:
-            dest = "./"
+        table = "concatenation"
+        # Create table that will harbor the concatenated alignment
+        self.cur.execute("CREATE TABLE {}("
+                         "txId INT,"
+                         "taxon TEXT,"
+                         "seq TEXT)".format(table))
+        self.active_tables.append(table)
 
         # Variable that will store the length of the concatenated alignment
         # and provided it when initializing the Alignment object
         locus_length = None
 
         # Initializing alignment dict to store the alignment information
-        if alignment_name:
-            concatenation = OrderedDict(
-                [(key, join(dest, alignment_name, key + ".seq")) for
-                    key in self.taxa_names])
-        else:
-            concatenation = OrderedDict(
-                [(key, join(dest, key + ".seq")) for key in self.taxa_names])
+        sequence_data = []
 
         # Concatenation is performed for each taxon at a time
-        for taxon in self.taxa_names:
+        for p, taxon in enumerate(self.taxa_names):
 
             # This variable will remain False unless some data is provided for
             # the current taxa. If there is only missing data, this taxon
             # will be removed from the concatenation dict
-            has_data = False
 
-            with open(concatenation[taxon], "w") as fh:
+            for aln in self.alignments.values():
 
-                for aln in self.alignments.values():
+                # Setting missing data symbol
+                missing = aln.sequence_code[1]
 
-                    # Setting missing data symbol
-                    missing = aln.sequence_code[1]
+                if taxon in aln.taxa_list:
+                    seq = aln.get_sequence(taxon, table_name=table_in)
+                    sequence_data.append(seq)
+                else:
+                    sequence_data.append(missing * aln.locus_length)
 
-                    if taxon in aln.alignment:
-                        fh.write(aln.get_sequence(taxon))
-                        has_data = True
-                    else:
-                        fh.write(missing * aln.locus_length)
-
-            # Remove taxa that do not contain any data
-            if not has_data:
-                os.remove(concatenation[taxon])
-                del concatenation[taxon]
-            # Retrieve locus length
-            else:
-                if not locus_length:
-                    with open(concatenation[taxon]) as fh:
-                        locus_length = len(fh.read().strip())
+            # Add taxon to the table. If a taxon has no effective data,
+            # it will not be added to the table
+            if sequence_data:
+                seq_string = "".join(sequence_data)
+                self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
+                    table), (p, taxon, seq_string))
+                # Retrieve locus length
+                locus_length = len(seq_string)
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
@@ -2647,17 +2608,12 @@ class AlignmentList(Base):
             except PartitionException:
                 pass
 
-        # Remove previous temp sequence files
-        if remove_temp:
-            for aln in self.alignments.values():
-                aln.remove_alignment(remove_active=True)
-
         # Create the concatenated file in an Alignment object
-        concatenated_alignment = Alignment(concatenation,
-                                           dest=dest,
+        concatenated_alignment = Alignment(table,
                                            partitions=self.partitions,
                                            alignment_name=alignment_name,
-                                           locus_length=locus_length)
+                                           locus_length=locus_length,
+                                           sql_cursor=self.cur)
 
         return concatenated_alignment
 
