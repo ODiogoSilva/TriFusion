@@ -768,7 +768,7 @@ class Alignment(Base):
                     sequence_data = [(p, tx, "".join(seq)) for p, (tx, seq) in
                                      enumerate(sorted(sequence_data.items()))]
 
-                    self.locus_length = len(sequence_data[0][1])
+                    self.locus_length = len(sequence_data[0][2])
                     self.partitions.set_length(self.locus_length)
 
                     self.cur.executemany(
@@ -1200,6 +1200,52 @@ class Alignment(Base):
         concatenated_aln.add_alignments(alns, ignore_paths=True)
 
         return concatenated_aln
+
+    @SetupDatabase
+    def filter_codon_positions(self, position_list, table_in=None,
+                               table_out="_filter"):
+        """
+        Filter codon positions from DNA alignments.
+        :param position_list: list containing a boolean value for each codon
+        position. Ex. [True, True, True] will save all positions while
+        [True, True, False] will exclude the third codon position
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        :param table_out: string. Name of the table that will be
+        created/modified in the database to harbor the collapsed alignment
+        """
+
+        def index(length, pos):
+            """
+            index generator
+            """
+            for _ in range(0, length, 3):
+                for j in pos:
+                    if j:
+                        yield 1
+                    else:
+                        yield 0
+
+        for taxon, seq in self.iter_alignment(table_name=table_in):
+
+            filtered_seq = "".join(list(
+                itertools.compress(seq, index(self.locus_length,
+                                              position_list))))
+
+            if table_in == table_out:
+                self.cur.execute(
+                    "UPDATE {} SET seq=? WHERE txId=?".format(table_out),
+                    (filtered_seq, self.taxa_idx[taxon]))
+            else:
+                self.cur.execute(
+                    "INSERT INTO {} VALUES (?, ?, ?)".format(
+                        table_out), (self.taxa_idx[taxon], taxon,
+                                     filtered_seq))
+
+
+        self.locus_length = len(filtered_seq)
 
     @SetupDatabase
     def code_gaps(self, table_out="_gaps", table_in=None):
@@ -2344,7 +2390,8 @@ class AlignmentList(Base):
         else:
             self.partitions.add_partition(
                 alignment_obj.name, use_counter=True,
-                file_name=alignment_obj.path, length=alignment_obj.locus_length,
+                file_name=alignment_obj.path,
+                length=alignment_obj.locus_length,
                 model_cls=alignment_obj.partitions.models[alignment_obj.name])
 
     def add_alignments(self, alignment_obj_list, ignore_paths=False):
@@ -2668,7 +2715,7 @@ class AlignmentList(Base):
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
             if filter_mode == "Containing":
-                if set(taxa_list) - set(list(alignment_obj.alignment)) != set():
+                if set(taxa_list) - set(alignment_obj.taxa_list) != set():
                     self.update_active_alignment(k, "shelve")
                     self.partitions.remove_partition(
                         file_name=alignment_obj.path)
@@ -2677,7 +2724,7 @@ class AlignmentList(Base):
             # Filter alignments that contain the taxa in taxa list
             if filter_mode == "Exclude":
                 if any((x for x in taxa_list
-                        if x in list(alignment_obj.alignment))):
+                        if x in alignment_obj.taxa_list)):
                     self.update_active_alignment(k, "shelve")
                     self.partitions.remove_partition(
                         file_name=alignment_obj.path)
@@ -2687,39 +2734,29 @@ class AlignmentList(Base):
         if self.alignments == {}:
             raise EmptyAlignment("Alignment is empty after taxa filter")
 
-    def filter_codon_positions(self, position_list):
+    def filter_codon_positions(self, position_list, table_in=None,
+                               table_out="_filter"):
         """
         Filter codon positions from DNA alignments.
         :param position_list: list containing a boolean value for each codon
         position. Ex. [True, True, True] will save all positions while
         [True, True, False] will exclude the third codon position
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+        :param table_out: string. Name of the table that will be
+        created/modified in the database to harbor the collapsed alignment
         """
-
-        def index(length, pos):
-            """
-            index generator
-            """
-            for _ in range(0, length, 3):
-                for j in pos:
-                    if j:
-                        yield 1
-                    else:
-                        yield 0
 
         # Reset partitions
         self.partitions = Partitions()
 
         for alignment_obj in list(self.alignments.values()):
 
-            for taxon, seq in alignment_obj:
-                filtered_seq = "".join(list(itertools.compress(seq,
-                                            index(alignment_obj.locus_length,
-                                                  position_list))))
-
-                with open(alignment_obj.alignment[taxon], "w") as fh:
-                    fh.write(filtered_seq)
-
-            alignment_obj.locus_length = len(filtered_seq)
+            alignment_obj.filter_codon_positions(position_list,
+                                                 table_in=table_in,
+                                                 table_out=table_out)
 
             self.set_partition_from_alignment(alignment_obj)
 
