@@ -1462,13 +1462,11 @@ class Alignment(Base):
         sites is within the provided range
         """
 
-        fhs = fileinput.input(files=[x for x in self.alignment.values()])
-
         # Counter for segregating sites
         s = 0
 
         # Creating the column list variable
-        for column in zip(*fhs):
+        for column in self.iter_columns():
 
             v = len(set([i for i in column if i not in [self.sequence_code[1],
                                                         "-"]]))
