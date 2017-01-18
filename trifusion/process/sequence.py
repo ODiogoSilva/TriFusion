@@ -2849,9 +2849,6 @@ class AlignmentList(Base):
         for alignment_obj in list(self.alignments.values()):
             alignment_obj.remove_taxa(taxa_list, mode=mode)
 
-        # Commit database changes
-        self.con.commit()
-
         # Updates taxa names
         if mode == "remove":
             for tx in taxa_list:
@@ -2870,9 +2867,6 @@ class AlignmentList(Base):
 
         for alignment_obj in list(self.alignments.values()):
             alignment_obj.change_taxon_name(old_name, new_name)
-
-        # Commit database changes
-        self.con.commit()
 
         # update taxa names
         self.taxa_names = [new_name if x == old_name else x
@@ -2893,9 +2887,6 @@ class AlignmentList(Base):
                 self.shelve_alignments[nm].remove_alignment()
                 del self.shelve_alignments[nm]
             self.partitions.remove_partition(file_name=nm)
-
-        # Commit changes to database
-        self.con.commit()
 
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
@@ -2949,7 +2940,7 @@ class AlignmentList(Base):
 
         for alignment_obj in self.alignments.values():
 
-            alignment_taxa = list(alignment_obj.alignment)
+            alignment_taxa = alignment_obj.taxa_list
 
             # Selected only the alignments with the exact same taxa
             if mode == "strict":
@@ -3304,7 +3295,7 @@ class AlignmentList(Base):
         data = []
 
         for alignment in self.alignments.values():
-            data.append([1 if x in alignment.alignment.keys() else 0
+            data.append([1 if x in alignment.taxa_list else 0
                          for x in self.taxa_names])
 
         data = np.transpose(data)
@@ -3371,20 +3362,20 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
             total_len += aln.locus_length
-            for key in data_storage:
-                if key in aln.alignment:
+            for taxon in data_storage:
+                if taxon in aln.alignment:
                     # Get gaps
-                    seq = aln.get_sequence(key)
+                    seq = aln.get_sequence(taxon)
                     gaps = seq.count("-")
-                    data_storage[key][0] += gaps
+                    data_storage[taxon][0] += gaps
                     # Get missing
                     missing = seq.count(aln.sequence_code[1])
-                    data_storage[key][1] += missing
+                    data_storage[taxon][1] += missing
                     # Get actual data
                     actual_data = aln.locus_length - gaps - missing
-                    data_storage[key][2] += actual_data
+                    data_storage[taxon][2] += actual_data
                 else:
-                    data_storage[key][1] += aln.locus_length
+                    data_storage[taxon][1] += aln.locus_length
 
         data_storage = OrderedDict(sorted(data_storage.items(),
                                           key=lambda x: x[1][1] + x[1][0],
@@ -3417,7 +3408,7 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
             for key in data_storage:
-                if key not in aln.alignment:
+                if key not in aln.taxa_list:
                     data_storage[key] += 1
 
         # Sort data in descending order of missing genes
@@ -3440,7 +3431,7 @@ class AlignmentList(Base):
         data = []
 
         for aln in self.alignments.values():
-            data.append(len(set(self.taxa_names) - set(aln.alignment.keys())))
+            data.append(len(set(self.taxa_names) - set(aln.taxa_list)))
 
         return {"data": data,
                 "title": "Distribution of missing taxa",
@@ -3747,7 +3738,7 @@ class AlignmentList(Base):
 
         informative_sites = 0
 
-        for column in zip(*aln.iter_sequences()):
+        for column in aln.iter_columns():
 
             column = Counter([x for x in column if x != aln.sequence_code[1] and
                               x != self.gap_symbol])
@@ -3842,7 +3833,7 @@ class AlignmentList(Base):
             window_similarities = []
 
             seqs = np.array([[y for y in x[i:i + window_size]] for x in
-                             aln_obj.sequences()])
+                             aln_obj.iter_sequences()])
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
 
@@ -3880,7 +3871,7 @@ class AlignmentList(Base):
 
             segregating_sites = 0
 
-            for column in zip(*aln.iter_sequences()):
+            for column in aln.iter_columns():
 
                 # Remove gaps and missing characters
                 column = set([x for x in column if x != aln.sequence_code[1]
@@ -4027,7 +4018,7 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
-            for column in zip(*aln.iter_sequences()):
+            for column in aln.iter_columns():
 
                 col = [iupac_conv[x] for x in column if
                                   x != aln.sequence_code[1] and
@@ -4070,7 +4061,7 @@ class AlignmentList(Base):
         aln = self.retrieve_alignment(gene_name)
         data = []
 
-        for column in zip(*aln.sequences()):
+        for column in aln.iter_columns():
 
             # Remove gaps and missing characters
             column = Counter([iupac_conv[x] for x in column if
@@ -4101,7 +4092,7 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
 
             # Get number of taxa
-            data.append(len(aln.alignment))
+            data.append(len(aln.taxa_list))
 
         return {"data": data,
                 "title": "Distribution of taxa frequency",
@@ -4125,7 +4116,7 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
 
             # Get number of taxa
-            size_storage.append((float(len(aln.alignment)) / taxa) * 100)
+            size_storage.append((float(len(aln.taxa_list)) / taxa) * 100)
 
         labels = []
         for i in xrange(0, 105, 5):
@@ -4183,7 +4174,7 @@ class AlignmentList(Base):
 
         for gn, aln in self.alignments.items():
 
-            total_len = aln.locus_length * len(aln.alignment)
+            total_len = aln.locus_length * len(aln.taxa_list)
             gn_data = 0
 
             for seq in aln.iter_sequences():
@@ -4277,7 +4268,7 @@ class AlignmentList(Base):
 
             segregating_sites = 0
 
-            for column in zip(*aln.iter_sequences()):
+            for column in aln.iter_columns():
 
                 # Remove gaps and missing characters
                 column = set([x for x in column if x != aln.sequence_code[1] and
