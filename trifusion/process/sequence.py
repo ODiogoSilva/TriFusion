@@ -1439,7 +1439,8 @@ class Alignment(Base):
         """
 
         # If both values were specified, check if s is within range
-        if max_val and min_val and s >= min_val and s <= max_val:
+        if max_val is not None and min_val is not None \
+                and s >= min_val and s <= max_val:
             return True
         # If only min_val was specified, check if s is higher
         elif max_val is None and s >= min_val:
@@ -1450,7 +1451,7 @@ class Alignment(Base):
         else:
             return False
 
-    def filter_segregating_sites(self, min_val, max_val):
+    def filter_segregating_sites(self, min_val, max_val, table_in=None):
         """
         Evaluates the number of segregating sites of the current alignment
         and returns True if they fall between the min_val and max_val.
@@ -1460,13 +1461,17 @@ class Alignment(Base):
         alignment to pass. Can be None, in which case there is no upper bound
         :returns: Boolean. True if the alignment's number of segregating
         sites is within the provided range
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
         """
 
         # Counter for segregating sites
         s = 0
 
         # Creating the column list variable
-        for column in self.iter_columns():
+        for column in self.iter_columns(table_name=table_in):
 
             v = len(set([i for i in column if i not in [self.sequence_code[1],
                                                         "-"]]))
@@ -1485,7 +1490,7 @@ class Alignment(Base):
 
         return self._test_range(s, min_val, max_val)
 
-    def filter_informative_sites(self, min_val, max_val):
+    def filter_informative_sites(self, min_val, max_val, table_in=None):
         """
         Similar to filter_segregating_sites method, but only considers
         informative sites (variable sites present in more than 2 taxa).
@@ -1495,15 +1500,17 @@ class Alignment(Base):
         alignment to pass. Can be None, in which case there is no upper bound
         :returns: Boolean. True if the alignment's number of informative
         sites is within the provided range
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
         """
-
-        fhs = fileinput.input(files=[x for x in self.alignment.values()])
 
         # Counter for informative sites
         s = 0
 
         # Creating the column list variable
-        for column in zip(*fhs):
+        for column in self.iter_alignment(table_name=table_in):
 
             column = Counter([i for i in column if i not in
                               [self.sequence_code[1], "-"]])
@@ -1520,10 +1527,10 @@ class Alignment(Base):
                 # Add these tests so that the method may exit earlier if the
                 # conditions are met, precluding the analysis of the entire
                 # alignment
-                if min_val and s >= min_val and not max_val:
+                if min_val and s >= min_val and max_val is None:
                     return True
 
-                if max_val and s > max_val and not min_val:
+                if max_val and s > max_val and min_val is None:
                     return False
 
         return self._test_range(s, min_val, max_val)
@@ -2833,7 +2840,7 @@ class AlignmentList(Base):
                 missing_threshold=missing_threshold,
                 table_in=table_in, table_out=table_out)
 
-    def filter_segregating_sites(self, min_val, max_val):
+    def filter_segregating_sites(self, min_val, max_val, table_in=None):
         """
         Wrapper of the filter_segregating_sites method of the Alignment
         object. See the method's documentation
@@ -2841,18 +2848,23 @@ class AlignmentList(Base):
         segregating sites allowed for the alignment to pass the filter
         :param max_val: Integer. If not None, sets the maximum number of
         segregating sites allowed for the alignment to pass the filter
+        :param table_in: string. Name of the table from where the sequence data
+        will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
         """
 
         self.filtered_alignments["By variable sites"] = 0
 
         for k, alignment_obj in list(self.alignments.items()):
 
-            if not alignment_obj.filter_segregating_sites(min_val, max_val):
+            if not alignment_obj.filter_segregating_sites(min_val, max_val,
+                                                          table_in=table_in):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By variable sites"] += 1
 
-    def filter_informative_sites(self, min_val, max_val):
+    def filter_informative_sites(self, min_val, max_val, table_in=None):
         """
         Wrapper of the filter_informative_sites method of the Alignment
         object. See the method's documentation
@@ -2866,7 +2878,8 @@ class AlignmentList(Base):
 
         for k, alignment_obj in list(self.alignments.items()):
 
-            if not alignment_obj.filter_informative_sites(min_val, max_val):
+            if not alignment_obj.filter_informative_sites(min_val, max_val,
+                                                          table_in=table_in):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By informative sites"] += 1
