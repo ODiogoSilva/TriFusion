@@ -378,7 +378,7 @@ class Alignment(Base):
         be removed, this attribute can be used to quickly drop all derived
         tables
         """
-        self.tables = [self.table_name]
+        self.tables = []
 
         """
         NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the responsibility
@@ -399,7 +399,6 @@ class Alignment(Base):
         if not self.cur.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND"
                 " name='{}'".format(self.table_name)).fetchall():
-
             self.cur.execute("CREATE TABLE {}("
                              "txId INT,"
                              "taxon TEXT,"
@@ -683,6 +682,9 @@ class Alignment(Base):
                     sequence.append(line.strip().lower().
                                     replace(" ", "").replace("*", ""))
 
+            # Get last sequence
+            sequence_data.append((taxa, "".join(sequence)))
+
             # Create index for sequence data
             sequence_data = [(p, x, y) for p, (x, y) in
                              enumerate(sorted(sequence_data))]
@@ -690,7 +692,7 @@ class Alignment(Base):
             self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
-            self.locus_length = len(sequence_data[0][1])
+            self.locus_length = len(sequence_data[0][2])
 
             self.partitions.set_length(self.locus_length)
 
@@ -2146,7 +2148,7 @@ class AlignmentList(Base):
         Keys will be the Alignment.path for quick lookup of Alignment object
         values
         """
-        self.alignments = {}
+        self.alignments = OrderedDict()
 
         """
         Stores the "inactive" or "shelved" Alignment objects. All AlignmentList
@@ -2480,7 +2482,7 @@ class AlignmentList(Base):
                 self.set_partition_from_alignment(aln_obj)
                 self.path_list.append(aln_obj.path)
 
-        self.con.commit()
+        # self.con.commit()
         self.taxa_names = self._get_taxa_list()
 
         # njobs = len(file_name_list) if len(file_name_list) <= \
@@ -2590,7 +2592,7 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, alignment_name=None, dest=None, remove_temp=True,
+    def concatenate(self, alignment_name=None, remove_temp=True,
                     table_in=None):
         """
         Concatenates multiple sequence alignments creating a single alignment
@@ -2599,8 +2601,6 @@ class AlignmentList(Base):
         :param alignment_name: string. Optional. Name of the new concatenated
         alignment object. This should be used when collapsing the alignment
         afterwards.
-        :param dest: Path to temporary directory where sequence data will be
-        stored
         :param remove_temp: boolean. If True, it will remove active temporary
         sequence files.
         :return concatenated_alignment: Alignment object
@@ -2618,11 +2618,11 @@ class AlignmentList(Base):
         # and provided it when initializing the Alignment object
         locus_length = None
 
-        # Initializing alignment dict to store the alignment information
-        sequence_data = []
-
         # Concatenation is performed for each taxon at a time
         for p, taxon in enumerate(self.taxa_names):
+
+            # Variable that will store sequence data for current taxon
+            sequence_data = []
 
             # This variable will remain False unless some data is provided for
             # the current taxa. If there is only missing data, this taxon
@@ -2660,7 +2660,8 @@ class AlignmentList(Base):
                                            partitions=self.partitions,
                                            alignment_name=alignment_name,
                                            locus_length=locus_length,
-                                           sql_cursor=self.cur)
+                                           sql_cursor=self.cur,
+                                           sequence_code=self.sequence_code)
 
         return concatenated_alignment
 
