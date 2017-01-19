@@ -428,8 +428,7 @@ class Alignment(Base):
 
         # In case there is a table for the provided input_alignment
         else:
-            pass
-
+            self.input_format = input_format
 
     def __iter__(self):
         """
@@ -3030,6 +3029,11 @@ class AlignmentList(Base):
 
         self.taxa_names = ["consensus"]
 
+        # Variables that will store the taxa_list and taxa_idx to provide
+        # to the Alignment object
+        taxa_list = []
+        taxa_idx = {}
+
         if single_file:
             # Create a table that will harbor the consensus sequences of all
             # Alignment objects
@@ -3048,6 +3052,8 @@ class AlignmentList(Base):
                 sequence = alignment_obj.get_sequence("consensus",
                                                       table_suffix=table_out)
                 consensus_data.append((p, alignment_obj.sname, sequence))
+                taxa_list.append(alignment_obj.sname)
+                taxa_idx[alignment_obj.sname] = p
 
         if single_file:
             # Populate database table
@@ -3056,7 +3062,9 @@ class AlignmentList(Base):
 
             # Create Alignment object
             consensus_aln = Alignment("consensus", sql_cursor=self.cur,
-                                      sequence_code=self.sequence_code)
+                                      sequence_code=self.sequence_code,
+                                      taxa_list=taxa_list,
+                                      taxa_idx=taxa_idx)
 
             return consensus_aln
 

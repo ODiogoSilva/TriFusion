@@ -8,63 +8,84 @@ from data_files import *
 from trifusion.process.sequence import AlignmentList
 from trifusion.process.data import Partitions, Zorro
 
+sql_db = "sequencedb"
+
 
 class SeconaryOpsTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.aln_obj = AlignmentList([])
+        self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
 
     def test_collapse_single(self):
 
         self.aln_obj.add_alignment_files([variable_data[0]])
 
+        if not os.path.exists("test_collapse"):
+            os.makedirs("test_collapse")
+
         self.aln_obj.collapse(haplotype_name="Testing",
-                              haplotypes_file="teste")
+                              haplotypes_file="teste",
+                              dest="test_collapse",
+                              table_out="_collapse")
 
         aln = self.aln_obj.alignments.values()[0]
 
-        self.assertEqual(len(aln.alignment), 1)
-        aln._clear_alignment_temp()
+        tn = len(list(aln.iter_sequences(table_suffix="_collapse")))
+
+        self.assertEqual(tn, 1)
+        shutil.rmtree("test_collapse")
 
     def test_collapse_with_variation(self):
 
         self.aln_obj.add_alignment_files([variable_data[1]])
 
+        if not os.path.exists("test_collapse"):
+            os.makedirs("test_collapse")
+
         self.aln_obj.collapse(haplotype_name="Testing",
-                              haplotypes_file="teste")
+                              haplotypes_file="teste",
+                              dest="test_collapse",
+                              table_out="_collapse")
 
         aln = self.aln_obj.alignments.values()[0]
 
-        self.assertEqual(len(aln.alignment), 4)
-        aln._clear_alignment_temp()
+        tn = len(list(aln.iter_sequences(table_suffix="_collapse")))
+
+        self.assertEqual(tn, 4)
+        shutil.rmtree("test_collapse")
 
     def test_collapse_after_concatenation(self):
 
         self.aln_obj.add_alignment_files(variable_data)
 
-        aln = self.aln_obj.concatenate(remove_temp=True, alignment_name="test",
-                                       dest=".")
-        aln.collapse(haplotype_name="Testing", haplotypes_file="teste",
-                     dest="test")
+        if not os.path.exists("test_collapse"):
+            os.makedirs("test_collapse")
 
-        self.assertEqual(len(aln.alignment), 7)
-        aln._clear_alignment_temp()
-        shutil.rmtree("test")
+        aln = self.aln_obj.concatenate(alignment_name="test")
+        aln.collapse(haplotype_name="Testing", haplotypes_file="teste",
+                     dest="test_collapse", table_out="_collapse")
+
+        tn = len(list(aln.iter_sequences(table_suffix="_collapse")))
+
+        self.assertEqual(tn, 7)
+        shutil.rmtree("test_collapse")
 
     def test_gcoder(self):
 
         self.aln_obj.add_alignment_files(gcode_data)
 
-        self.aln_obj.code_gaps()
+        self.aln_obj.code_gaps(table_out="master_out")
 
         s = []
         for aln in self.aln_obj:
-            for seq in aln.iter_sequences():
+            for seq in aln.iter_sequences(table_suffix="master_out"):
                 s.append(seq)
 
         res = [
@@ -80,17 +101,17 @@ class SeconaryOpsTest(unittest.TestCase):
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa---aaaaaaaaaaa01000"
         ]
 
-        self.assertEqual(s, res)
+        self.assertEqual(sorted(s), sorted(res))
 
     def test_consensus_multi_file(self):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.consensus("IUPAC")
+        self.aln_obj.consensus("IUPAC", table_out="master_out")
 
         s = []
         for aln in self.aln_obj:
-            s.append(len(aln.alignment))
+            s.append(len(aln.taxa_list))
 
         self.assertEqual(s, [1] * 7)
 
@@ -100,7 +121,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         aln = self.aln_obj.consensus("IUPAC", True)
 
-        self.assertEqual(len(aln.alignment), 7)
+        self.assertEqual(len(aln.taxa_list), 7)
 
     def test_consensus_soft_mask(self):
 
@@ -110,7 +131,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         s = []
         for aln in self.aln_obj:
-            s.append(len(aln.alignment))
+            s.append(len(aln.taxa_list))
 
         self.assertEqual(s, [1] * 7)
 
@@ -121,7 +142,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         s = []
         for aln in self.aln_obj:
-            s.append(len(aln.alignment))
+            s.append(len(aln.taxa_list))
 
         self.assertEqual(s, [1] * 7)
 
@@ -132,7 +153,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         s = []
         for aln in self.aln_obj:
-            s.append(len(aln.alignment))
+            s.append(len(aln.taxa_list))
 
         self.assertEqual(s, [1] * 7)
 
@@ -144,16 +165,14 @@ class SeconaryOpsTest(unittest.TestCase):
         # In case the partitions file is badly formatted or invalid, the
         # exception will be returned by the read_from_file method.
         partition_obj.read_from_file(concatenated_small_par[0])
-        aln = self.aln_obj.concatenate(remove_temp=True, alignment_name="test",
-                                       dest=".")
+        aln = self.aln_obj.concatenate(alignment_name="test")
 
         aln.set_partitions(partition_obj)
 
-        alns = aln.reverse_concatenate(dest="test_conc")
+        alns = aln.reverse_concatenate(table_in="concatenation",
+                                       db_con=self.aln_obj.con)
 
         self.assertEqual(len(alns.alignments), 7)
-
-        shutil.rmtree("test_conc")
 
     def test_zorro(self):
 
@@ -176,7 +195,7 @@ class SeconaryOpsTest(unittest.TestCase):
         self.aln_obj.add_alignment_files(zorro_data_fas)
 
         # Generate zorro output
-        zorro_data = Zorro(self.aln_obj, "_zorro", "trifusion/tests/data/")
+        zorro_data = Zorro(self.aln_obj, "_zorro", ".")
         zorro_data.write_to_file("test")
 
         # Read zorro and reference files
