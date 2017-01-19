@@ -78,7 +78,7 @@ class pairwise_cache(object):
 
         if c_args[0] == "connect":
 
-            self.con = sqlite3.connect(join(args[0].dest, "pw.db"))
+            self.con = sqlite3.connect("pw.db")
             self.c = self.con.cursor()
 
             if not self.c.execute("SELECT name FROM sqlite_master WHERE type="
@@ -94,7 +94,7 @@ class pairwise_cache(object):
         elif c_args[0] == "disconnect":
 
             self.con.commit()
-            self.c.close()
+            self.con.close()
             self.c = None
 
             return
@@ -534,7 +534,7 @@ class Alignment(Base):
                 (self.taxa_idx[taxon],)).fetchone()[0]
 
         else:
-            return KeyError
+            raise KeyError
 
     def remove_alignment(self):
         """
@@ -3271,7 +3271,7 @@ class AlignmentList(Base):
             # Add information for summary_gene_table
             if aln.name not in self.summary_gene_table:
                 self.summary_gene_table[aln.name]["nsites"] = aln.locus_length
-                self.summary_gene_table[aln.name]["taxa"] = len(aln.alignment)
+                self.summary_gene_table[aln.name]["taxa"] = len(aln.taxa_list)
                 self.summary_gene_table[aln.name]["var"] = cur_var
                 self.summary_gene_table[aln.name]["inf"] = cur_inf
                 self.summary_gene_table[aln.name]["gap"] = cur_gap
@@ -3332,7 +3332,7 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
             gaps_g, missing_g, data_g = [], [], []
             for tx in self.taxa_names:
-                if tx in aln.alignment:
+                if tx in aln.taxa_list:
                     seq = aln.get_sequence(tx)
                     # Get gaps
                     gaps = float(seq.count("-"))
@@ -3378,7 +3378,7 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
             total_len += aln.locus_length
             for taxon in data_storage:
-                if taxon in aln.alignment:
+                if taxon in aln.taxa_list:
                     # Get gaps
                     seq = aln.get_sequence(taxon)
                     gaps = seq.count("-")
@@ -3970,7 +3970,7 @@ class AlignmentList(Base):
             segregating_sites = 0
 
             seqs = np.array([[y for y in x[i:i + window_size]] for x in
-                             aln_obj.sequences()])
+                             aln_obj.iter_sequences()])
 
             for column in zip(*seqs):
                 column = set([x for x in column if x != aln_obj.sequence_code[1]
@@ -4235,7 +4235,7 @@ class AlignmentList(Base):
 
             # Get missing data for every taxon
             for tx in data:
-                if tx in aln.alignment:
+                if tx in aln.taxa_list:
                     seq = aln.get_sequence(tx)
                     m_data = float(seq.count(self.sequence_code[1]) +
                                    seq.count(self.gap_symbol)) / \
@@ -4417,7 +4417,7 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
 
             for tx in data:
-                if tx in aln.alignment:
+                if tx in aln.taxa_list:
                     seq = aln.get_sequence(tx)
                     s_data = len(seq.replace(aln.sequence_code[1], "").
                                  replace(self.gap_symbol, ""))

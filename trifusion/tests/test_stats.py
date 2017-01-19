@@ -3,6 +3,7 @@
 import os
 import unittest
 from data_files import *
+from os.path import join
 
 try:
     from process.sequence import AlignmentList
@@ -13,16 +14,22 @@ except ImportError:
     from trifusion.process.error_handling import *
     from trifusion.process.data import Partitions
 
+sql_db = "sequencedb"
+
+data_path = join("trifusion/tests/data/")
+
 
 class SeconaryOpsTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.aln_obj = AlignmentList(dna_data_fas)
+        self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
 
     def test_summary_stats_all(self):
 
@@ -44,7 +51,7 @@ class SeconaryOpsTest(unittest.TestCase):
     def test_summary_stats_one_active(self):
 
         sum_table, table_data = self.aln_obj.get_summary_stats([
-            "BaseConc1.fas"])
+            join(data_path, "BaseConc1.fas")])
 
         self.assertEqual([sum_table, table_data],
                          [{'missing': '1 (0.05%)', 'taxa': 24, 'genes': 1,
@@ -61,7 +68,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
     def test_no_data(self):
 
-        self.aln_obj = AlignmentList([])
+        self.aln_obj = AlignmentList([], sql_db=sql_db)
 
         self.assertEqual(self.aln_obj.gene_occupancy(),
                          {'exception':
@@ -115,8 +122,8 @@ class SeconaryOpsTest(unittest.TestCase):
 
     def test_sequence_similarity_gene(self):
 
-        self.assertTrue(self.aln_obj.sequence_similarity_gene("BaseConc1.fas",
-                                                              10))
+        self.assertTrue(self.aln_obj.sequence_similarity_gene(
+            join(data_path, "BaseConc1.fas"), 10))
 
     def test_sequence_segregation(self):
 
@@ -128,8 +135,8 @@ class SeconaryOpsTest(unittest.TestCase):
 
     def test_sequence_segregation_gene(self):
 
-        self.assertTrue(self.aln_obj.sequence_segregation_gene("BaseConc1.fas",
-                                                               10))
+        self.assertTrue(self.aln_obj.sequence_segregation_gene(
+            join(data_path, "BaseConc1.fas"), 10))
 
     def test_length_polymorphism_correlation(self):
 
@@ -142,7 +149,7 @@ class SeconaryOpsTest(unittest.TestCase):
     def test_allele_frequency_spectrum_gene(self):
 
         self.assertTrue(self.aln_obj.allele_frequency_spectrum_gene(
-            "BaseConc1.fas"))
+            join(data_path, "BaseConc1.fas")))
 
     def test_taxa_distribution(self):
 
