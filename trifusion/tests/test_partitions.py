@@ -5,6 +5,7 @@ import sys
 import unittest
 from data_files import *
 from collections import OrderedDict
+from os.path import join
 
 try:
     from process.sequence import AlignmentList, Alignment
@@ -40,17 +41,22 @@ class ExpectingTestCase(unittest.TestCase):
             self._fail(self.failureException(msg))
         self._num_expectations += 1
 
+sql_db = "sequencedb"
+
+data_path = join("trifusion/tests/data/")
 
 class PartitonsTest(ExpectingTestCase):
 
     def setUp(self):
 
-        self.aln_obj = AlignmentList(dna_data_fas)
+        self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
         self.aln_obj.partitions.reset()
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
 
     def test_read_from_nexus(self):
 
@@ -90,7 +96,8 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_single_partition(self):
 
-        self.aln_obj = AlignmentList([dna_data_fas[0]])
+        self.aln_obj.clear_alignments()
+        self.aln_obj = AlignmentList([dna_data_fas[0]], sql_db=sql_db)
 
         self.assertTrue(self.aln_obj.partitions.is_single())
 
@@ -236,7 +243,9 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_model_detection(self):
 
-        self.aln_obj = AlignmentList(models_nexus_data)
+        self.aln_obj = AlignmentList(models_nexus_data,
+                                     db_con=self.aln_obj.con,
+                                     db_cur=self.aln_obj.cur)
 
         self.assertEqual(self.aln_obj.partitions.models,
                          OrderedDict([('Teste1.fas', [
@@ -257,7 +266,9 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_model_detection_codons(self):
 
-        self.aln_obj = AlignmentList(models_codon_nexus_data)
+        self.aln_obj = AlignmentList(models_codon_nexus_data,
+                                     db_cur=self.aln_obj.cur,
+                                     db_con=self.aln_obj.con)
 
         self.assertEqual(self.aln_obj.partitions.models,
                          OrderedDict([('Teste1.fas_1', [

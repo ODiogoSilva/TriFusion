@@ -404,7 +404,6 @@ class Alignment(Base):
                              "taxon TEXT,"
                              "seq TEXT)".format(self.table_name))
 
-
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
             finder_content = self.autofinder(input_alignment)
