@@ -504,7 +504,7 @@ class TriFusionApp(App):
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
-    alignment_list = AlignmentList([])
+    alignment_list = None
     # List of active alignment object variables.
     active_alignment_list = None
     # List of active partitions
@@ -622,10 +622,16 @@ class TriFusionApp(App):
         self.icon = join(self.cur_dir, "data", "backgrounds",
                          "trifusion-icon-64.png")
 
+        # Set temporary directory path
         self.temp_dir = join(self.user_data_dir, "tmp")
+        # Set directory for error records
         self.log_file = join(self.user_data_dir, "log", "error.out")
+        # Set path for file hosting filechooser bookmarks
         self.bm_file = join(self.user_data_dir, "bookmarks")
+        # Set path for file hosting the user projects
         self.projects_file = join(self.user_data_dir, "projects")
+        # Set path for sequence data sqlite database
+        self.sqldb = join(self.temp_dir, "sequencedb")
 
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG,)
 
@@ -699,6 +705,10 @@ class TriFusionApp(App):
         self.sqldb = join(self.temp_dir, "trifusion.sql3")
 
         self._start_clean()
+
+        # Now that the sqlite database path is defined, initialize the
+        # AlignmentList object
+        self.alignment_list = AlignmentList([], sql_db=self.sqldb)
 
         # If arguments were provided at the command line, load data into
         # the app assuming they are alignments
@@ -829,7 +839,8 @@ class TriFusionApp(App):
 
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
-            os.makedirs(join(self.user_data_dir, "tmp"))
+
+        os.makedirs(self.temp_dir)
 
     def _check_exec(self, path, program):
         """
@@ -9408,7 +9419,8 @@ class TriFusionApp(App):
 
                 # The load_files method now receives the path to the
                 # pickle file containing the AlignmentList object
-                self.load_files(file_list, join(temp_dir, "alns.pc"))
+                aln_obj = shared_ns.aln
+                self.load_files(file_list, aln_obj)
 
                 manager.shutdown()
                 if sys.platform in ["win32", "cygwin"]:
@@ -9495,7 +9507,7 @@ class TriFusionApp(App):
         func = partial(check_proc, p)
         Clock.schedule_interval(func, .1)
 
-    def load_files(self, selection=None, aln_pickle=None):
+    def load_files(self, selection=None, aln_list=None):
         """
         Loads the selected input files into the program using the
         AlignmentList object provided by aln_list. The loading process is
@@ -9520,13 +9532,13 @@ class TriFusionApp(App):
         """
 
         # Read the AlignmentList object from the pickle file
-        if aln_pickle:
-            with open(aln_pickle, "rb") as fh:
-                aln_list = pickle.load(fh)
-
-        if not aln_pickle:
-            return self.dialog_floatcheck("Internal alignment "
-                                          "reference not found", t="error")
+        # if aln_pickle:
+        #     with open(aln_pickle, "rb") as fh:
+        #         aln_list = pickle.load(fh)
+        #
+        # if not aln_pickle:
+        #     return self.dialog_floatcheck("Internal alignment "
+        #                                   "reference not found", t="error")
 
         # Check for consistency in sequence type across alignments
         if self.sequence_types:
@@ -9642,7 +9654,7 @@ class TriFusionApp(App):
         # active data set is not empty
         if aln_list.alignments:
             for aln in aln_list:
-                if tx in aln.alignment:
+                if tx in aln.taxa_list:
                     sequence.append(aln.get_sequence(tx))
                 else:
                     tx_missing += 1
