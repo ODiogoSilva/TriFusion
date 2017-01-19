@@ -19,7 +19,7 @@ class ProcessWriteSinglesTest(unittest.TestCase):
 
         aln_obj = AlignmentList([], sql_db=sql_db)
         self.con = aln_obj.con
-        self.aln_obj = Alignment(dna_data_fas[0], sql_cursor=aln_obj.cur)
+        self.aln_obj = Alignment(dna_data_fas[0], sql_con=aln_obj.cur)
 
         if not os.path.exists("output"):
             os.makedirs("output")
