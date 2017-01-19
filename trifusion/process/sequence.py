@@ -1557,7 +1557,7 @@ class Alignment(Base):
         s = 0
 
         # Creating the column list variable
-        for column in self.iter_alignment(table_name=table_in):
+        for column in self.iter_columns(table_name=table_in):
 
             column = Counter([i for i in column if i not in
                               [self.sequence_code[1], "-"]])
@@ -2591,8 +2591,7 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, alignment_name=None, remove_temp=True,
-                    table_in=None):
+    def concatenate(self, alignment_name=None, table_in=None):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
@@ -2600,8 +2599,6 @@ class AlignmentList(Base):
         :param alignment_name: string. Optional. Name of the new concatenated
         alignment object. This should be used when collapsing the alignment
         afterwards.
-        :param remove_temp: boolean. If True, it will remove active temporary
-        sequence files.
         :return concatenated_alignment: Alignment object
         """
 
@@ -2633,7 +2630,7 @@ class AlignmentList(Base):
                 missing = aln.sequence_code[1]
 
                 if taxon in aln.taxa_list:
-                    seq = aln.get_sequence(taxon, table_name=table_in)
+                    seq = aln.get_sequence(taxon, table_suffix=table_in)
                     sequence_data.append(seq)
                 else:
                     sequence_data.append(missing * aln.locus_length)
@@ -2684,7 +2681,7 @@ class AlignmentList(Base):
         self.filtered_alignments["By minimum taxa"] = 0
 
         for k, alignment_obj in list(self.alignments.items()):
-            if len(alignment_obj.alignment) < \
+            if len(alignment_obj.taxa_list) < \
                     (float(min_taxa) / 100.) * len(self.taxa_names):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
