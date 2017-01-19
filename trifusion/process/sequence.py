@@ -429,7 +429,6 @@ class Alignment(Base):
         # In case there is a table for the provided input_alignment
         else:
             pass
-            # Get taxa_list and taxa_idx
 
 
     def __iter__(self):
@@ -1140,7 +1139,7 @@ class Alignment(Base):
         else:
             self.partitions = partitions
 
-    def reverse_concatenate(self, table_in=None, db_con=None):
+    def reverse_concatenate(self, table_in="", db_con=None):
         """
         This function divides a concatenated file according to the
         partitions set in self.partitions and returns an AlignmentList object
@@ -2076,7 +2075,7 @@ class Alignment(Base):
             # If LD HAT sub format has been specificed, write the first line
             # containing the number of sequences, sites and genotype phase
             if ld_hat:
-                out_file.write("{} {} {}\n".format(len(self.alignment),
+                out_file.write("{} {} {}\n".format(len(self.taxa_list),
                                                  self.locus_length,
                                                  "2"))
 
@@ -2591,7 +2590,7 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, alignment_name=None, table_in=None):
+    def concatenate(self, alignment_name=None, table_in=""):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
@@ -2613,6 +2612,11 @@ class AlignmentList(Base):
         # Variable that will store the length of the concatenated alignment
         # and provided it when initializing the Alignment object
         locus_length = None
+
+        # Variables that will store the taxa_list and taxa_idx that will be
+        # provided when instantiating an Alignment object
+        taxa_list = []
+        taxa_idx = {}
 
         # Concatenation is performed for each taxon at a time
         for p, taxon in enumerate(self.taxa_names):
@@ -2643,6 +2647,10 @@ class AlignmentList(Base):
                     table), (p, taxon, seq_string))
                 # Retrieve locus length
                 locus_length = len(seq_string)
+                # Update taxa_list and taxa_idx that will be provided to
+                # Alignment instance
+                taxa_list.append(taxon)
+                taxa_idx[taxon] = p
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
@@ -2657,7 +2665,9 @@ class AlignmentList(Base):
                                            alignment_name=alignment_name,
                                            locus_length=locus_length,
                                            sql_cursor=self.cur,
-                                           sequence_code=self.sequence_code)
+                                           sequence_code=self.sequence_code,
+                                           taxa_list=taxa_list,
+                                           taxa_idx=taxa_idx)
 
         return concatenated_alignment
 
