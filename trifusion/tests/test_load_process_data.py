@@ -268,7 +268,7 @@ class AlignmentManipulationTest(unittest.TestCase):
 
     def test_concatenation(self):
 
-        aln = self.aln_obj.concatenate(remove_temp=True, alignment_name="test")
+        aln = self.aln_obj.concatenate(alignment_name="test")
         aln.write_to_file(["fasta"], "test")
 
         with open("trifusion/tests/data/BaseConcatenation.fas") as fh1, \

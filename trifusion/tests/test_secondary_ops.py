@@ -195,7 +195,7 @@ class SeconaryOpsTest(unittest.TestCase):
         self.aln_obj.add_alignment_files(zorro_data_fas)
 
         # Generate zorro output
-        zorro_data = Zorro(self.aln_obj, "_zorro", ".")
+        zorro_data = Zorro(self.aln_obj, "_zorro", "trifusion/tests/data")
         zorro_data.write_to_file("test")
 
         # Read zorro and reference files
