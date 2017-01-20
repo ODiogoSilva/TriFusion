@@ -2363,21 +2363,21 @@ class AlignmentList(Base):
 
         # Activate only taxa specified by taxa_list
         if taxa_list:
-            for tx in self.taxa_names:
+            for tx in self.taxa_names + self.shelved_taxa:
                 if tx not in taxa_list:
-                    self.taxa_names.remove(tx)
-                    self.shelved_taxa.append(tx)
-
-            for tx in self.shelved_taxa:
-                if tx in taxa_list:
-                    self.shelved_taxa.remove(tx)
-                    self.taxa_names.append(tx)
+                    try:
+                        self.taxa_names.remove(tx)
+                        self.shelved_taxa.append(tx)
+                    except ValueError:
+                        self.taxa_names.append(tx)
+                        self.shelved_taxa.remove(tx)
 
         # Activate all taxa
         if all_taxa:
             for tx in self.shelved_taxa:
                 self.taxa_names.append(tx)
-                self.shelved_taxa.remove(tx)
+
+            self.shelved_taxa = []
 
     def format_list(self):
         """
@@ -2394,7 +2394,8 @@ class AlignmentList(Base):
         """
 
         full_taxa = list(set().union(*[x.taxa_list for x in
-                                      self.alignments.values()]))
+                                       self.alignments.values() +
+                                       self.shelve_alignments.values()]))
 
         return full_taxa
 

@@ -10081,6 +10081,9 @@ class TriFusionApp(App):
                 self.alignment_list.remove_tables(
                     self.alignment_list.get_tables())
 
+                # Update taxa list to full taxa representation
+                self.alignment_list.update_taxa_names(all_taxa=True)
+
                 if sys.platform in ["win32", "cygwin"]:
                     p.join()
                 else:
