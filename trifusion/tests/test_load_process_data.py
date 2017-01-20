@@ -56,7 +56,7 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_fas(self):
 
-        single_aln = Alignment(dna_data_fas[0], sql_con=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_fas[0], sql_cursor=self.aln_obj.cur)
 
     def test_load_phy(self):
 
@@ -64,12 +64,12 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_phy(self):
 
-        single_aln = Alignment(dna_data_phy[0], sql_con=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_phy[0], sql_cursor=self.aln_obj.cur)
 
     def test_load_single_interleave_phy(self):
 
         single_aln = Alignment(phylip_interleave[0],
-                               sql_con=self.aln_obj.cur)
+                               sql_cursor=self.aln_obj.cur)
 
     def test_load_nex(self):
 
@@ -77,7 +77,7 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_nex(self):
 
-        single_aln = Alignment(dna_data_nex[0], sql_con=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_nex[0], sql_cursor=self.aln_obj.cur)
 
     def test_load_stc(self):
 
@@ -85,7 +85,7 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_stc(self):
 
-        single_aln = Alignment(dna_data_stc[0], sql_con=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_stc[0], sql_cursor=self.aln_obj.cur)
 
     def test_load_loci(self):
 
@@ -93,7 +93,7 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_loci(self):
 
-        single_aln = Alignment(dna_data_loci[0], sql_con=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur)
 
     def test_load_nexus_par(self):
 
@@ -197,7 +197,7 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         fl = self.aln_obj.alignments.keys()
 
-        aln = Alignment(dna_data_loci[0], sql_con=self.aln_obj.cur)
+        aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur)
 
         self.aln_obj.add_alignments([aln])
 
