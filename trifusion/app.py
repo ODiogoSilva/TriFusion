@@ -29,6 +29,7 @@ import psutil
 import pickle
 import urllib
 import string
+import Queue
 import stat
 import time
 import sys
@@ -1085,7 +1086,8 @@ class TriFusionApp(App):
         any necessary clean up operations
         """
 
-        self.run_in_background(remove_tmp, self.stop, [self.temp_dir],
+        self.run_in_background(remove_tmp, self.stop,
+                               [self.temp_dir, self.alignment_list.con],
                                no_arg2=True, cancel=False,
                                msg="Cleaning temporary files and "
                                    "exiting...")
@@ -4310,8 +4312,9 @@ class TriFusionApp(App):
                         b.state = "normal"
 
                         if self.active_file_list:
+                            aln_path = self.filename_map[b.id]
                             self.alignment_list.update_active_alignment(
-                                b.id, "shelve")
+                                aln_path, "shelve")
 
                     except ValueError:
                         pass
@@ -4323,8 +4326,9 @@ class TriFusionApp(App):
                         b.state = "down"
 
                         if self.active_file_list:
+                            aln_path = self.filename_map[b.id]
                             self.alignment_list.update_active_alignment(
-                                b.id, "active")
+                                aln_path, "active")
 
             # Update label
             self.update_file_label()
@@ -4755,7 +4759,8 @@ class TriFusionApp(App):
                 self.active_file_list = [self.filename_map[x] for x in
                                          selection if x in self.filename_map]
                 self.alignment_list.update_active_alignments(
-                    [x for x in selection if x in self.filename_map])
+                    [self.filename_map[x] for x in selection if
+                     x in self.filename_map])
 
                 self.update_file_label()
 
@@ -4790,7 +4795,7 @@ class TriFusionApp(App):
                 value.text == "Select All"):
             self.active_file_list = self.file_list[:]
             self.alignment_list.update_active_alignments(
-                [basename(x) for x in self.file_list])
+                [x for x in self.file_list])
 
         # Core changes to taxa
         if sv_parent == self.root.ids.sv_sp and value.text == "Select All":
@@ -7849,8 +7854,7 @@ class TriFusionApp(App):
         part_obj = data.Partitions()
         er = part_obj.read_from_file(self.partitions_file)
 
-        aln_obj = self.alignment_list.retrieve_alignment(basename(
-            self.rev_infile))
+        aln_obj = self.alignment_list.retrieve_alignment(self.rev_infile)
         aln_er = aln_obj.set_partitions(part_obj)
 
         # Check for the validity of the partitions file
@@ -8357,7 +8361,7 @@ class TriFusionApp(App):
         content = ExecutionDialog(cancel=self.dismiss_popup)
         aln_obj = update_active_fileset(self.alignment_list,
             self.process_grid_wgt.ids.active_file_set.text, self.file_list,
-            self.file_groups)
+            self.file_groups, self.filename_map)
         # Perform pre-execution checks
 
         # Get main operation
@@ -9120,7 +9124,8 @@ class TriFusionApp(App):
         self.screen.ids.taxa_num.text = \
             "Taxa: [color=37abc8ff]{}[/color]". format(footer[1])
 
-    def get_active_sets(self, file_set_name=None, taxa_set_name=None):
+    def get_active_sets(self, file_set_name=None, taxa_set_name=None,
+                        filename_map=None):
         """
         Returns a tuple with the file set list as first element and taxa
         set list as second element. List sets are only return for non
@@ -9132,11 +9137,12 @@ class TriFusionApp(App):
 
         if file_set_name:
             if file_set_name == "All files":
-                file_set = [basename(x) for x in self.file_list]
+                file_set = [x for x in self.file_list]
             elif file_set_name == "Active files":
-                file_set = [basename(x) for x in self.active_file_list]
+                file_set = [x for x in self.active_file_list]
             else:
-                file_set = self.file_groups[file_set_name]
+                file_set = [self.filename_map[x] for x in
+                            self.file_groups[file_set_name]]
         else:
             file_set = None
 
@@ -9419,7 +9425,7 @@ class TriFusionApp(App):
 
                 # The load_files method now receives the path to the
                 # pickle file containing the AlignmentList object
-                aln_obj = shared_ns.aln
+                aln_obj = queue.get()
                 self.load_files(file_list, aln_obj)
 
                 manager.shutdown()
@@ -9476,6 +9482,7 @@ class TriFusionApp(App):
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
+        queue = Queue.Queue()
 
         # Remove lock from background process
         self.terminate_load_files = False
@@ -9483,7 +9490,8 @@ class TriFusionApp(App):
         # Create process
         p = sub_func(
                 target=load_proc,
-                args=(self.alignment_list, file_list, shared_ns, temp_dir))
+                args=(self.alignment_list, file_list, shared_ns, temp_dir,
+                      queue))
 
         p.start()
 
@@ -9760,8 +9768,8 @@ class TriFusionApp(App):
             # Iterating over file path since the name of the Alignment
             # objects contain the full path
             if self.alignment_list:
-                aln = self.alignment_list.retrieve_alignment(basename(
-                    file_name))
+                aln_path = self.filename_map[file_name]
+                aln = self.alignment_list.retrieve_alignment(aln_path)
 
                 # Get input format
                 file_inf["aln_format"] = aln.input_format
@@ -10069,6 +10077,10 @@ class TriFusionApp(App):
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
 
+                # Removes all temporary database tables
+                self.alignment_list.remove_tables(
+                    self.alignment_list.get_tables())
+
                 if sys.platform in ["win32", "cygwin"]:
                     p.join()
                 else:
@@ -10115,6 +10127,7 @@ class TriFusionApp(App):
         process_kwargs = {"aln_list": self.alignment_list,
             "file_set_name": self.process_grid_wgt.ids.active_file_set.text,
             "file_list": list(self.file_list),
+            "filename_map": dict(self.filename_map),
             "file_groups": dict(self.file_groups),
             "taxa_set_name": self.process_grid_wgt.ids.active_taxa_set.text,
             "active_taxa_list": list(self.active_taxa_list),
@@ -10150,7 +10163,7 @@ class TriFusionApp(App):
 
         # Create process
         p = sub_func(target=process_execution,
-                             kwargs=process_kwargs)
+                     kwargs=process_kwargs)
         p.start()
 
         # Remove any possible previous popups

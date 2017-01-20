@@ -528,6 +528,19 @@ class Alignment(Base):
         else:
             table = self.table_name + table_suffix
 
+        # Check if the specified table exists. If not, revert to
+        # self.table_name. When executing Process operations, the first valid
+        # operation may be one that only has a "table_in" argument but several
+        # other operations may be defined before with a different table suffix.
+        # In such case, the table passed to "table_in" was not yet created and
+        # populated in those prior methods. Therefore, here we account for
+        # those cases by reverting the table to self.table_name if table_in
+        # was not yet created.
+        if not self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='{}'".format(table)).fetchall():
+            table = self.table_name
+
         if taxon in self.taxa_list:
            return self.cur.execute(
                 "SELECT seq FROM {} WHERE txId=?".format(table),
@@ -2136,7 +2149,7 @@ class AlignmentList(Base):
             self.con = db_con
             self.cur = db_cur
         elif sql_db:
-            self.con = sqlite3.connect(sql_db)
+            self.con = sqlite3.connect(sql_db, check_same_thread=False)
             self.cur = self.con.cursor()
             self.cur.execute("PRAGMA synchronous = OFF")
 
@@ -2232,6 +2245,28 @@ class AlignmentList(Base):
         Iterate over Alignment objects
         """
         return iter(self.alignments.values())
+
+    def get_tables(self):
+        """
+        Return a list with the main table names of the Alignment objects
+        """
+
+        return [x.table_name for x in self.alignments.values()]
+
+    def remove_tables(self, preserve_tables=None):
+        """
+        Drops ALL tables from the database, except the ones specified via
+        the preserve_tables argument
+        :param preserve_tables: list. The tables that will NOT be droped
+        """
+
+        tables = self.cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+
+        tables_delete = [x[0] for x in tables if x[0] not in preserve_tables]
+
+        for tb in tables_delete:
+            self.cur.execute("DROP TABLE {}".format(tb))
 
     def clear_alignments(self):
         """
@@ -2455,6 +2490,11 @@ class AlignmentList(Base):
 
         for aln_path in file_name_list:
 
+            if shared_namespace:
+                shared_namespace.progress += 1
+                shared_namespace.m = "Processing file {}".format(
+                    basename(aln_path))
+
             aln_obj = Alignment(aln_path, sql_cursor=self.cur)
 
             if isinstance(aln_obj.e, InputError):
@@ -2479,7 +2519,6 @@ class AlignmentList(Base):
                 self.set_partition_from_alignment(aln_obj)
                 self.path_list.append(aln_obj.path)
 
-        # self.con.commit()
         self.taxa_names = self._get_taxa_list()
 
         # njobs = len(file_name_list) if len(file_name_list) <= \
