@@ -2657,15 +2657,11 @@ class AlignmentList(Base):
         taxa_list = []
         taxa_idx = {}
 
+        sequence_data = []
         # Concatenation is performed for each taxon at a time
         for p, taxon in enumerate(self.taxa_names):
 
-            # Variable that will store sequence data for current taxon
-            sequence_data = []
-
-            # This variable will remain False unless some data is provided for
-            # the current taxa. If there is only missing data, this taxon
-            # will be removed from the concatenation dict
+            full_sequence = []
 
             for aln in self.alignments.values():
 
@@ -2674,22 +2670,26 @@ class AlignmentList(Base):
 
                 if taxon in aln.taxa_list:
                     seq = aln.get_sequence(taxon, table_suffix=table_in)
-                    sequence_data.append(seq)
+                    full_sequence.append(seq)
                 else:
-                    sequence_data.append(missing * aln.locus_length)
+                    full_sequence.append(missing * aln.locus_length)
 
             # Add taxon to the table. If a taxon has no effective data,
             # it will not be added to the table
-            if sequence_data:
-                seq_string = "".join(sequence_data)
-                self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
-                    table), (p, taxon, seq_string))
+            if full_sequence:
+                seq_string = "".join(full_sequence)
+
+                sequence_data.append((p, taxon, seq_string))
+
                 # Retrieve locus length
                 locus_length = len(seq_string)
                 # Update taxa_list and taxa_idx that will be provided to
                 # Alignment instance
                 taxa_list.append(taxon)
                 taxa_idx[taxon] = p
+
+        self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            table), sequence_data)
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
