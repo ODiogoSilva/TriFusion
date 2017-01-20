@@ -191,14 +191,6 @@ def kill_proc_tree(pid, include_parent=True):
     if include_parent:
         parent.kill()
 
-
-# Determines whether Threading or Multiprocessing is going to be used to
-# spawn background operations.
-if sys.platform in ["win32", "cygwin"]:
-    sub_func = threading.Thread
-else:
-    sub_func = multiprocessing.Process
-
 MCL_FILE = None
 
 
@@ -2419,10 +2411,7 @@ class TriFusionApp(App):
                 # otherwise the data pipe will prevent the process from
                 # closing
                 man.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+                p.join()
 
                 # Checks if there is a second function to run and whether
                 # there are additional arguments for secondary function
@@ -2445,7 +2434,8 @@ class TriFusionApp(App):
         self.terminate_background = False
 
         # Create process
-        p = sub_func(target=background_process, args=(func, shared_ns, args1))
+        p = threading.Thread(target=background_process,
+                             args=(func, shared_ns, args1))
         p.start()
 
         # Remove any possible previous popups
@@ -5635,11 +5625,7 @@ class TriFusionApp(App):
                     display_table(plt_wgt)
 
                 Clock.unschedule(check_func)
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
-                self.lock_stats = False
+                p.join()
 
         # Get Scatter widgets
         scatter_wgt = self.screen.ids.plot_content
@@ -5705,7 +5691,7 @@ class TriFusionApp(App):
         self.terminate_stats = False
         self.lock_stats = True
 
-        p = sub_func(target=get_stats_summary,
+        p = threading.Thread(target=get_stats_summary,
                      kwargs={"aln_list": self.alignment_list,
                              "dest": self.temp_dir,
                              "active_file_set": file_set,
@@ -6541,10 +6527,8 @@ class TriFusionApp(App):
                         "could not be retrieved! Missed sequence headers "
                         "were stored in missed_sequences.log" %
                         (shared_ns.good, shared_ns.missed), t="info")
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+
+                p.join()
 
         # Update orthology export directory, if necessary
         if output_dir != self.orto_export_dir:
@@ -6585,8 +6569,8 @@ class TriFusionApp(App):
         self.terminate_group_export = False
 
         # Create process
-        p = sub_func(target=background_export_groups,
-                     args=(m[0], shared_ns, m[1]))
+        p = threading.Thread(target=background_export_groups,
+                             args=(m[0], shared_ns, m[1]))
         p.start()
 
         # Remove any previous popups
@@ -9429,10 +9413,7 @@ class TriFusionApp(App):
                 self.load_files(file_list, aln_obj)
 
                 manager.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+                p.join()
 
             # Kill switch
             if self.terminate_load_files:
@@ -9488,7 +9469,7 @@ class TriFusionApp(App):
         self.terminate_load_files = False
 
         # Create process
-        p = sub_func(
+        p = threading.Thread(
                 target=load_proc,
                 args=(self.alignment_list, file_list, shared_ns, temp_dir,
                       queue))
@@ -9937,10 +9918,7 @@ class TriFusionApp(App):
                                                "app logs.", t="error")
 
                 manager.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+                p.join()
 
             # Listens for cancel signal
             if self.terminate_orto_search:
@@ -9971,7 +9949,7 @@ class TriFusionApp(App):
         self.terminate_orto_search = False
 
         # Create Process instance
-        p = sub_func(
+        p = threading.Thread(
             target=orto_execution,
             args=(
                 shared_ns,
@@ -10084,10 +10062,7 @@ class TriFusionApp(App):
                 # Update taxa list to full taxa representation
                 self.alignment_list.update_taxa_names(all_taxa=True)
 
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+                p.join()
 
                 # If process execution ended with an error, issue warning.
                 try:
@@ -10165,7 +10140,7 @@ class TriFusionApp(App):
         self.terminate_process_exec = False
 
         # Create process
-        p = sub_func(target=process_execution,
+        p = threading.Thread(target=process_execution,
                      kwargs=process_kwargs)
         p.start()
 
