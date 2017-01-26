@@ -8343,9 +8343,22 @@ class TriFusionApp(App):
                 t="error")
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
-        aln_obj = update_active_fileset(self.alignment_list,
-            self.process_grid_wgt.ids.active_file_set.text, self.file_list,
-            self.file_groups, self.filename_map)
+
+        # Get number of files to be processed
+        fs_name = self.process_grid_wgt.ids.active_file_set.text
+
+        # Get total number of files loaded
+        if fs_name == "All files":
+            file_num = len(self.file_list)
+
+        # Get active files
+        elif fs_name == "Active files":
+            file_num = len(self.active_file_list)
+
+        # Get files from custom file set
+        else:
+            file_num = len(self.file_groups[fs_name])
+
         # Perform pre-execution checks
 
         # Get main operation
@@ -8404,8 +8417,7 @@ class TriFusionApp(App):
                      "_file" in x[0]] if bl]
                 content.ids.out_files.text = "[b][size=18][color=37abc8ff]"\
                     "Output file(s):[/color][/size][/b] %s converted " \
-                    "file(s)" % (len(aln_obj.alignments) +
-                                 len(aln_obj.alignments) * len(add_files))
+                    "file(s)" % (file_num + file_num * len(add_files))
             # In case aln_obj has not being defined, probably because there
             # are no input files
             except AttributeError:
@@ -8429,7 +8441,7 @@ class TriFusionApp(App):
         try:
             self.show_popup(
                 title="Process execution summary - Processing %s file(s)" %
-                      len(aln_obj.alignments),
+                      file_num,
                 content=content,
                 size=(550, 350))
 
@@ -10058,9 +10070,6 @@ class TriFusionApp(App):
                 # Removes all temporary database tables
                 self.alignment_list.remove_tables(
                     self.alignment_list.get_tables())
-
-                # Update taxa list to full taxa representation
-                self.alignment_list.update_taxa_names(all_taxa=True)
 
                 p.join()
 
