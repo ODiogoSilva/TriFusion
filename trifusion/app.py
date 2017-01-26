@@ -10024,6 +10024,7 @@ class TriFusionApp(App):
                     # reset the file_overwrite attribute for the next file
                     if not self.file_apply_all:
                         self.file_overwrite = None
+                        shared_ns.status = None
                     else:
                         shared_ns.apply_all = True
             except AttributeError:
