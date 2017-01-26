@@ -173,24 +173,6 @@ __status__ = "Development"
 #                                  EXCEPTIONS
 # ==============================================================================
 
-
-def kill_proc_tree(pid, include_parent=True):
-    """
-    Some multiprocessing child process may spawn aditional processes using
-    subprocess. This function terminates all processes in a tree when the
-    user cancels an action
-    :param pid: process id
-    :param include_parent: bool. Whether or not to kill the parent process
-    along with its child processes
-    :return:
-    """
-
-    parent = psutil.Process(pid)
-    for child in parent.children(recursive=True):
-        child.kill()
-    if include_parent:
-        parent.kill()
-
 MCL_FILE = None
 
 
@@ -2382,8 +2364,6 @@ class TriFusionApp(App):
                 self._popup.content.ids.img.rotation -= 10
 
             if self.terminate_background:
-                if sys.platform not in ["win32", "cygwin"]:
-                    kill_proc_tree(p.pid)
                 man.shutdown()
                 Clock.unschedule(check_func)
                 self.dismiss_popup()
@@ -5600,8 +5580,6 @@ class TriFusionApp(App):
             # When canceled  by the user
             if self.terminate_stats:
                 Clock.unschedule(check_func)
-                if sys.platform not in ["win32", "cygwin"]:
-                    p.terminate()
                 plt_wgt.clear_widgets()
                 plt_wgt.add_widget(NoDataLabel())
                 self.lock_stats = False
@@ -9430,9 +9408,6 @@ class TriFusionApp(App):
             # Kill switch
             if self.terminate_load_files:
                 content.ids.msg.text = "Canceling..."
-                if sys.platform not in ["win32", "cygwin"]:
-                    p.terminate()
-                    kill_proc_tree(p.pid)
                 manager.shutdown()
                 self.dismiss_popup()
                 Clock.unschedule(func)
@@ -9936,9 +9911,6 @@ class TriFusionApp(App):
             if self.terminate_orto_search:
                 shared_ns.k = False
                 manager.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.terminate()
-                    kill_proc_tree(p.pid)
                 self.dismiss_popup()
                 Clock.unschedule(func)
 
@@ -10023,9 +9995,6 @@ class TriFusionApp(App):
             # Interrupt subporcess on user demand
             if self.terminate_process_exec:
                 man.shutdown()
-                if sys.platform not in ["win32", "cygwin"]:
-                    p.terminate()
-                    kill_proc_tree(p.pid)
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
                 return
@@ -10077,13 +10046,11 @@ class TriFusionApp(App):
                 try:
                     if shared_ns.exception == "EmptyAlignment":
                         man.shutdown()
-                        p.terminate()
                         return self.dialog_floatcheck(
                             "The alignment is empty after applying "
                             "filters", t="error")
                     elif shared_ns.exception == "Unknown":
                         man.shutdown()
-                        p.terminate()
                         return self.dialog_floatcheck(
                             "Unexpected error when generating "
                             "Process output. Check the app logs.",
