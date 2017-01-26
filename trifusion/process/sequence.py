@@ -2246,12 +2246,27 @@ class AlignmentList(Base):
         """
         return iter(self.alignments.values())
 
+    def set_database_connections(self, cur, con):
+        """
+        Sets the database connections manually for the AlignmentList object
+        and for each Alignment object
+        :param cur:  Cursor object
+        :param con:  Connection object
+        """
+
+        self.cur = cur
+        self.con = con
+
+        for aln in self.alignments.values() + self.shelve_alignments.values():
+            aln.cur = cur
+
     def get_tables(self):
         """
         Return a list with the main table names of the Alignment objects
         """
 
-        return [x.table_name for x in self.alignments.values()]
+        return [x.table_name for x in
+                self.alignments.values() + self.shelve_alignments.values()]
 
     def remove_tables(self, preserve_tables=None):
         """
@@ -2313,22 +2328,32 @@ class AlignmentList(Base):
                               "variable": 0, "avg_var": [], "informative": 0,
                               "avg_inf": []}
 
-    def update_active_alignments(self, aln_list):
+    def update_active_alignments(self, aln_list=None, all_files=False):
         """
         Updates the self.alignments and self.shelve_alignments attributes.
         The Alignment.name's provided by the argument will populate
         self.alignments and the remaining will be
         """
 
-        for aln_name in self.alignments.keys():
-            if aln_name in aln_list:
-                if aln_name in self.shelve_alignments:
-                    self.alignments[aln_name] = self.shelve_alignments[aln_name]
-                    del self.shelve_alignments[aln_name]
-            else:
-                if aln_name in self.alignments:
-                    self.shelve_alignments[aln_name] = self.alignments[aln_name]
-                    del self.alignments[aln_name]
+        if all_files:
+            for aln in self.shelve_alignments:
+                self.alignments[aln] = self.shelve_alignments[aln]
+
+        elif aln_list is not None:
+            for aln in self.alignments.keys() + self.shelve_alignments.keys():
+
+                if aln not in aln_list:
+                    try:
+                        self.shelve_alignments[aln] = self.alignments[aln]
+                        del self.alignments[aln]
+                    except KeyError:
+                        pass
+                else:
+                    try:
+                        self.alignments[aln] = self.shelve_alignments[aln]
+                        del self.shelve_alignments[aln]
+                    except KeyError:
+                        pass
 
         # Update taxa names
         self.taxa_names = self._get_taxa_list()
@@ -2361,23 +2386,28 @@ class AlignmentList(Base):
         :param all_taxa: boolean. If True, activates all taxa
         """
 
-        # Activate only taxa specified by taxa_list
-        if taxa_list:
-            for tx in self.taxa_names + self.shelved_taxa:
-                if tx not in taxa_list:
-                    try:
-                        self.taxa_names.remove(tx)
-                        self.shelved_taxa.append(tx)
-                    except ValueError:
-                        self.taxa_names.append(tx)
-                        self.shelved_taxa.remove(tx)
-
         # Activate all taxa
         if all_taxa:
             for tx in self.shelved_taxa:
                 self.taxa_names.append(tx)
 
             self.shelved_taxa = []
+
+        # Activate only taxa specified by taxa_list
+        elif taxa_list:
+            for tx in self.taxa_names + self.shelved_taxa:
+                if tx not in taxa_list:
+                    try:
+                        self.taxa_names.remove(tx)
+                        self.shelved_taxa.append(tx)
+                    except ValueError:
+                        pass
+                else:
+                    try:
+                        self.taxa_names.append(tx)
+                        self.shelved_taxa.remove(tx)
+                    except ValueError:
+                        pass
 
     def format_list(self):
         """

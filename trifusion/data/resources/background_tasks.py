@@ -451,10 +451,15 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
     try:
 
+        aln_object = deepcopy(aln_list)
+        # Restore database connections, since they are broken during the
+        # deepcopy operation
+        aln_object.set_database_connections(aln_list.cur, aln_list.con)
+
         ns.msg = "Setting active data sets"
         # Setting the alignment to use.
         # Update active file set of the alignment object
-        aln_object = update_active_fileset(aln_list,
+        aln_object = update_active_fileset(aln_object,
                                            file_set_name,
                                            file_list,
                                            file_groups,
