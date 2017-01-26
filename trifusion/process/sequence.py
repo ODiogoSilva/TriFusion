@@ -2395,14 +2395,16 @@ class AlignmentList(Base):
 
         # Activate only taxa specified by taxa_list
         elif taxa_list:
+
             for tx in self.taxa_names + self.shelved_taxa:
-                if tx not in taxa_list:
+                if tx not in taxa_list and tx in self.taxa_names:
                     try:
                         self.taxa_names.remove(tx)
                         self.shelved_taxa.append(tx)
                     except ValueError:
                         pass
-                else:
+
+                elif tx in taxa_list and tx in self.shelved_taxa:
                     try:
                         self.taxa_names.append(tx)
                         self.shelved_taxa.remove(tx)
