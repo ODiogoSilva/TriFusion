@@ -3934,7 +3934,8 @@ class TriFusionApp(App):
                     content.ids.model_bx.children[i].text = model
             else:
                 for p, m in enumerate(part_obj.models[part_name][1]):
-                    content.ids.model_bx.children[::-1][p].text = m
+                    if m:
+                        content.ids.model_bx.children[::-1][p].text = m
         elif part_obj.models[part_name][0][0]:
             params = part_obj.models[part_name][0][0]
             model = part_obj.get_model_name(params)

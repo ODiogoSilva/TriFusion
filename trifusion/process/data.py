@@ -207,7 +207,6 @@ class Partitions():
         :return:
         """
 
-        self.partition_length = 0
         self.partitions = OrderedDict()
         self.partitions_index = []
         self.partitions_alignments = OrderedDict()
@@ -506,6 +505,7 @@ class Partitions():
             self.partitions[name] = [(self.counter,
                                       self.counter + (length - 1)), codon]
             self.counter += length
+            self.partition_length += length
 
         # When a list/tuple range is provided
         elif locus_range:
@@ -579,6 +579,7 @@ class Partitions():
                                          codon]
 
                 self.counter = locus_range[1] + 1
+                self.partition_length = locus_range[1] + 1
 
     def remove_partition(self, partition_name=None, file_name=None):
         """

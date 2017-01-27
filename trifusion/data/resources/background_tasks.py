@@ -282,16 +282,21 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         :return: AlignmentList object
         """
 
+        con = aln.con
+
         if not use_app_partitions:
             partition_obj = data.Partitions()
             # In case the partitions file is badly formatted or invalid, the
             # exception will be returned by the read_from_file method.
             er = partition_obj.read_from_file(partitions_file)
-            aln = aln.retrieve_alignment(basename(rev_infile))
+            aln = aln.retrieve_alignment(rev_infile)
 
             aln.set_partitions(partition_obj)
 
-        aln = aln.reverse_concatenate(dest=temp_dir)
+        if isinstance(aln, AlignmentList):
+            aln = aln.reverse_concatenate()
+        else:
+            aln = aln.reverse_concatenate(db_con=con)
 
         return aln
 
@@ -346,7 +351,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
-        if not main_aln.alignments:
+        if not aln.alignments:
             raise EmptyAlignment("Active alignment is empty")
 
         return aln
@@ -388,7 +393,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         return aln
 
     def writer(aln, filename=None, suffix_str="", conv_suffix="",
-               table_in=None):
+               table_suffix=None, table_name=None):
         """
         Wrapper for the output writing operations
         :param aln: AlignmentList object
@@ -399,6 +404,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         the conversion of files. This suffix will allway precede the
         suffix_str, which is meant to apply suffixes specific to secondary
         operations.
+        :param table_suffix: string. Suffix of the table from where the
+        sequence data will be retrieved
+        :param table_name: string. Name of the table from where the
+        sequence data will be retrived
         """
 
         try:
@@ -429,7 +438,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     ima2_params=ima2_params,
                     use_nexus_models=use_nexus_models,
                     ns_pipe=ns,
-                    table_in=table_in)
+                    table_suffix=table_suffix,
+                    table_name=table_name)
             elif isinstance(aln, AlignmentList):
                 aln.write_to_file(
                     output_formats,
@@ -444,7 +454,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     ima2_params=ima2_params,
                     use_nexus_models=use_nexus_models,
                     ns_pipe=ns,
-                    table_in=table_in)
+                    table_suffix=table_suffix,
+                    table_name=table_name)
 
         except IOError:
             pass
@@ -486,10 +497,12 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         #####
 
         # Set the suffix for the sqlite table harboring the main output
-        # alignment
-        main_table = "_main"
+        # alignment if any of the secondary operations is specified
+        if any(secondary_operations.values()):
+            main_table = "_main"
+        else:
+            main_table = ""
 
-        ns.msg = "Preparing data"
         # Reverse concatenation
         if main_operations["reverse_concatenation"]:
             ns.msg = "Reverse concatenating"
@@ -525,10 +538,11 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if secondary_operations["consensus"] and not \
                 secondary_options["consensus_file"]:
             ns.msg = "Creating consensus sequence(s)"
-            main_aln = consensus(aln_object, table_out=main_table)
+            aln_object = consensus(aln_object, table_out=main_table)
 
         # Writing main output
-        writer(aln_object, conv_suffix=conversion_suffix)
+        writer(aln_object, conv_suffix=conversion_suffix,
+               table_suffix=main_table)
 
         #####
         # Perform operations on ADDITIONAL OUTPUTS
@@ -556,9 +570,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     isinstance(aln_object, AlignmentList):
                 filename = output_file + suffix
                 aln_object = concatenation(aln_object, table_in=suffix)
-                writer(aln_object, filename=filename, table_in=suffix)
+                writer(aln_object, filename=filename, table_suffix=suffix)
             else:
-                writer(aln_object, suffix_str=suffix, table_in=suffix,
+                writer(aln_object, suffix_str=suffix, table_name=suffix,
                        conv_suffix=conversion_suffix)
 
         for op in [x for x, y in secondary_operations.items() if
@@ -570,7 +584,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 # ON. In that case, use that suffix in the table input
                 # for concatenation.
                 try:
-                    aln_object = concatenation(aln_object, table_in=suffix)
+                    aln_object = concatenation(aln_object)
                 except NameError:
                     aln_object = concatenation(aln_object)
 

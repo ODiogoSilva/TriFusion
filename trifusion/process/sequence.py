@@ -1160,54 +1160,93 @@ class Alignment(Base):
         :paramm
         """
 
-        concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
-        alns = []
+        def add_alignment(part_name, part_len, seq_data):
 
-        for name, part_range in self.partitions:
-
-            name = name.split(".")[0]
-
-            # Create table for current partition based on its name
-            self.cur.execute("CREATE TABLE {}("
-                             "txId INT,"
-                             "taxon TEXT,"
-                             "seq TEXT)".format(name))
-
-            sequence_data = []
-            for p, (taxon, seq) in enumerate(self.iter_alignment(
-                    table_name=table_in)):
-
-                # Get sequence for current partition
-                sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
-
-                # If sub_seq is not empty (only gaps or missing data)
-                if sub_seq.replace(self.sequence_code[1], "") != "":
-                    sequence_data.append((p, taxon, sub_seq))
-
+            # Set partition object
             current_partition = Partitions()
-            current_partition.add_partition(name, part_range[0][1] -
-                                            part_range[0][0])
+            current_partition.add_partition(part_name, part_len)
 
-            # Check if current sequence data is not empty. This may occur
-            # when reverse concatenating an alignment with a taxa subset
-            # selected.
-            if not sequence_data:
-                continue
-
-            # Populate database table
+            # Add data to database
             self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
-                name), sequence_data)
+                part_name), seq_data)
+
+            # Set taxa list attributes
             taxa_list = [x[1] for x in sequence_data]
             taxa_idx = dict((x[1], x[0]) for x in sequence_data)
 
-            current_aln = Alignment(name, input_format=self.input_format,
+            # Create Alignment object
+            current_aln = Alignment(part_name, input_format=self.input_format,
                                     partitions=current_partition,
-                                    alignment_name=name, sql_cursor=self.cur,
-                                    locus_length=len(sub_seq),
+                                    alignment_name=part_name,
+                                    sql_cursor=self.cur,
+                                    locus_length=part_len,
                                     sequence_code=self.sequence_code,
                                     taxa_list=taxa_list, taxa_idx=taxa_idx)
-
             alns.append(current_aln)
+
+        concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
+        alns = []
+        sequence_data = []
+
+        for name, part_range in self.partitions:
+
+            name = "".join([x for x in name.split(".")[0] if x.isalnum()])
+
+            # This adds support to the reverse concatenation of codon
+            # partitions
+            if part_range[1]:
+
+                for i in range(3):
+
+                    # Create table for current partition based on its name
+                    self.cur.execute("CREATE TABLE {}("
+                                     "txId INT,"
+                                     "taxon TEXT,"
+                                     "seq TEXT)".format(name + str(i)))
+
+                    for p, (taxon, seq) in enumerate(self.iter_alignment(
+                            table_name=table_in)):
+
+                        # Get sequence for codon partition
+                        sub_seq = seq[part_range[0][0]:
+                                      part_range[0][1] + 1][i::3]
+
+                        # If sub_seq is not empty (only gaps or missing data)
+                        if sub_seq.replace(self.sequence_code[1], "") != "":
+                            sequence_data.append((p, taxon, sub_seq))
+
+                        if not sequence_data:
+                            continue
+
+                        add_alignment(name + str(i), len(sub_seq),
+                                      sequence_data)
+                        # Reset sequence_data for next partition
+                        sequence_data = []
+
+            # Partition has no codon sub partition. Proceed normally
+            else:
+
+                # Create table for current partition based on its name
+                self.cur.execute("CREATE TABLE {}("
+                                 "txId INT,"
+                                 "taxon TEXT,"
+                                 "seq TEXT)".format(name))
+
+                for p, (taxon, seq) in enumerate(self.iter_alignment(
+                        table_name=table_in)):
+
+                    # Get sequence for current partition
+                    sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
+
+                    # If sub_seq is not empty (only gaps or missing data)
+                    if sub_seq.replace(self.sequence_code[1], "") != "":
+                        sequence_data.append((p, taxon, sub_seq))
+
+                    if not sequence_data:
+                        continue
+
+                    add_alignment(name, len(sub_seq), sequence_data)
+                    sequence_data = []
 
         concatenated_aln.add_alignments(alns, ignore_paths=True)
 
@@ -1600,7 +1639,8 @@ class Alignment(Base):
                       outgroup_list=None, ima2_params=None, use_charset=True,
                       partition_file=True, output_dir=None,
                       phy_truncate_names=False, ld_hat=None,
-                      use_nexus_models=True, ns_pipe=None, table_in=None):
+                      use_nexus_models=True, ns_pipe=None, table_suffix=None,
+                      table_name=None):
         """ Writes the alignment object into a specified output file,
         automatically adding the extension, according to the output format
         This function supports the writing of both converted (no partitions)
@@ -1657,8 +1697,15 @@ class Alignment(Base):
         :param ns_pipe: To connect with the app for file overwrite issues,
         provide the NameSpace object.
 
-        :param table_in: string. Name of the table from where the sequence data
+        :param table_suffix: string. Suffix of the table from where the
+        sequence data
         will be retrieved. This will be determined from the SetupDatabase
+        decorator depending on whether the table_out table already exists
+        in the sqlite database. Leave None to use the main Alignment table
+
+        :param table_name: string. Name of the table from where the
+        sequence data will be retrieved. This will be determined from the
+        SetupDatabase
         decorator depending on whether the table_out table already exists
         in the sqlite database. Leave None to use the main Alignment table
         """
@@ -1774,9 +1821,10 @@ class Alignment(Base):
                             #  providing a species in the mapping file that
                             # does not exist in the alignment
                             try:
-                                seq = self.get_sequence(taxon,
-                                                        table_name=table_in)[
-                                    lrange[0][0]:lrange[0][1]].upper()
+                                seq = self.get_sequence(
+                                    taxon, table_name=table_name,
+                                    table_suffix=table_suffix)[
+                                      lrange[0][0]:lrange[0][1]].upper()
                             except KeyError:
                                 print("Taxon %s provided in auxiliary "
                                       "population mapping file is not found "
@@ -1817,8 +1865,9 @@ class Alignment(Base):
                 # Write sequence data
                 for population, taxa_list in population_storage.items():
                     for taxon in taxa_list:
-                        seq = self.get_sequence(taxon,
-                                                table_name=table_in).upper()
+                        seq = self.get_sequence(
+                            taxon, table_name=table_name,
+                            table_suffix=table_suffix).upper()
                         out_file.write("%s%s\n" %
                             (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
 
@@ -1836,7 +1885,8 @@ class Alignment(Base):
                 counter = 0
                 for i in range(90, self.locus_length, 90):
                     for taxon, seq in self.iter_alignment(
-                            table_name=table_in):
+                            table_name=table_name,
+                            table_suffix=table_suffix):
 
                         # Only include taxa names in the first block. The
                         # remaining blocks should only have sequence
@@ -1851,7 +1901,8 @@ class Alignment(Base):
                     counter = i
 
             else:
-                for taxon, seq in self.iter_alignment(table_name=table_in):
+                for taxon, seq in self.iter_alignment(
+                        table_name=table_name, table_suffix=table_suffix):
                     out_file.write("%s %s\n" % (
                         taxon[:cut_space_phy].ljust(seq_space_phy),
                         seq.upper()))
@@ -1880,7 +1931,8 @@ class Alignment(Base):
 
             out_file.write("# STOCKHOLM V1.0\n")
 
-            for taxon, seq in self.iter_alignment(table_name=table_in):
+            for taxon, seq in self.iter_alignment(
+                    table_name=table_name, table_suffix=table_suffix):
                 out_file.write("%s\t%s\n" % (taxon, seq))
 
             out_file.write("//\n")
@@ -1899,7 +1951,9 @@ class Alignment(Base):
                     out_file.write("%s %s %s\n" % (name, len(self.taxa_list),
                                                  lrange[1] - lrange[0]))
 
-                    for taxon, seq in self.iter_alignment(table_name=table_in):
+                    for taxon, seq in self.iter_alignment(
+                            table_name=table_name,
+                            table_suffix=table_suffix):
                         out_file.write("%s\t%s\n" % (taxon,
                                                      seq[lrange[0]:lrange[1]]))
 
@@ -1908,7 +1962,9 @@ class Alignment(Base):
                                                len(self.taxa_list),
                                                self.locus_length))
 
-                for taxon, seq in self.iter_alignment(table_name=table_in):
+                for taxon, seq in self.iter_alignment(
+                        table_name=table_name,
+                        table_suffix=table_suffix):
                     out_file.write("%s\t%s\n" % (taxon, seq))
 
             out_file.close()
@@ -1924,14 +1980,16 @@ class Alignment(Base):
                     out_file.write("%s %s\n" % (taxa_number,
                                                 (lrange[1] - (lrange[0]))))
 
-                    for taxon, seq in self.iter_alignment(table_name=table_in):
+                    for taxon, seq in self.iter_alignment(
+                            table_name=table_name, table_suffix=table_suffix):
                         out_file.write("%s  %s\n" % (
                                        taxon[:cut_space_phy].ljust(
                                          seq_space_phy),
                                        seq[lrange[0]:lrange[1]].upper()))
             else:
                 out_file.write("%s %s\n" % (taxa_number, self.locus_length))
-                for taxon, seq in self.iter_alignment(table_name=table_in):
+                for taxon, seq in self.iter_alignment(
+                        table_name=table_name, table_suffix=table_suffix):
                     out_file.write("%s  %s\n" % (
                                    taxon[:cut_space_phy].ljust(seq_space_phy),
                                    seq.upper()))
@@ -1969,14 +2027,15 @@ class Alignment(Base):
                                     self.sequence_code[1].upper()))
                 counter = 0
                 for i in range(0, self.locus_length, 90):
-                    for taxon, seq in self.iter_alignment(table_name=table_in):
+                    for taxon, seq in self.iter_alignment(
+                            table_name=table_name, table_suffix=table_suffix):
                         out_file.write("%s %s\n" % (
                                        taxon[:cut_space_nex].ljust(
                                          seq_space_nex),
                                        seq[counter:counter + 90]))
 
                     out_file.write("\n")
-                    counter = i
+                    counter = i + 90
 
                 else:
                     # Only do this when the alignment is bigger than 90
@@ -1984,12 +2043,14 @@ class Alignment(Base):
                     # the first iteration.
                     if self.locus_length > 90:
                         for taxon, seq in self.iter_alignment(
-                                table_name=table_in):
+                                table_name=table_name,
+                                table_suffix=table_suffix):
 
                             out_file.write("%s %s\n" % (
                                            taxon[:cut_space_nex].ljust(
                                              seq_space_nex),
-                                           seq[i + 90:self.locus_length]))
+                                           seq[counter + 90:
+                                               self.locus_length]))
                         else:
                             out_file.write("\n")
                 out_file.write(";\n\tend;")
@@ -2018,7 +2079,8 @@ class Alignment(Base):
                                     self.sequence_code[0],
                                     gap, self.sequence_code[1].upper()))
 
-                for taxon, seq in self.iter_alignment(table_name=table_in):
+                for taxon, seq in self.iter_alignment(
+                        table_name=table_name, table_suffix=table_suffix):
 
                     out_file.write("%s %s\n" % (taxon[:cut_space_nex].ljust(
                         seq_space_nex), seq))
@@ -2091,7 +2153,8 @@ class Alignment(Base):
                                                  self.locus_length,
                                                  "2"))
 
-            for taxon, seq in self.iter_alignment(table_name=table_in):
+            for taxon, seq in self.iter_alignment(
+                    table_name=table_name, table_suffix=table_suffix):
 
                 if ld_hat:
                     # Truncate sequence name to 30 characters
@@ -2672,7 +2735,7 @@ class AlignmentList(Base):
         :return concatenated_alignment: Alignment object
         """
 
-        table = "concatenation"
+        table = "concatenation" + table_in
         # Create table that will harbor the concatenated alignment
         self.cur.execute("CREATE TABLE {}("
                          "txId INT,"
@@ -3140,7 +3203,7 @@ class AlignmentList(Base):
 
             return consensus_aln
 
-    def reverse_concatenate(self, dest=None):
+    def reverse_concatenate(self):
         """
         Internal function to reverse concatenate an alignment according to
         defined partitions in a Partitions object
@@ -3153,8 +3216,7 @@ class AlignmentList(Base):
         :return: AlignmentList object with individual alignments
         """
 
-        concatenated_aln = self.concatenate(alignment_name="concatenated",
-                                            dest=dest)
+        concatenated_aln = self.concatenate(alignment_name="concatenated")
 
         reverted_alns = concatenated_aln.reverse_concatenate(db_con=self.con)
 
@@ -3164,7 +3226,8 @@ class AlignmentList(Base):
                       outgroup_list=None, partition_file=True, output_dir=None,
                       use_charset=True, phy_truncate_names=False, ld_hat=None,
                       ima2_params=None, use_nexus_models=True, ns_pipe=None,
-                      conversion_suffix="", table_in=None):
+                      conversion_suffix="", table_suffix=None,
+                      table_name=None):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
@@ -3189,10 +3252,12 @@ class AlignmentList(Base):
         the conversion of files. This suffix will allway precede the
         output_suffix, which is meant to apply suffixes specific to secondary
         operations.
-        :param table_in: string. Name of the table from where the sequence data
+        :param table_suffix: string. Suffix of the table from where the sequence data
         will be retrieved. This will be determined from the SetupDatabase
         decorator depending on whether the table_out table already exists
         in the sqlite database. Leave None to use the main Alignment table
+        :param table_name: string. SAame as table_suffix, but specifies
+        the complete table name. Takes precedence over the suffix.
         """
 
         for alignment_obj in self.alignments.values():
@@ -3230,7 +3295,8 @@ class AlignmentList(Base):
                                         ima2_params=ima2_params,
                                         use_nexus_models=use_nexus_models,
                                         ns_pipe=ns_pipe,
-                                        table_in=table_in)
+                                        table_suffix=table_suffix,
+                                        table_name=table_name)
 
     def get_gene_table_stats(self, active_alignments=None):
         """
