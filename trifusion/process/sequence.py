@@ -200,7 +200,63 @@ class SetupDatabase(object):
             # from this table instead of the main table name
             kwargs["table_in"] = table_out
 
-        self.func(*args, **kwargs)
+        return self.func(*args, **kwargs)
+
+
+class SetupInTable(object):
+    """
+    Decorator used to setup sqlite database tables. It is executed for every
+    operation that changes the main alignment data. It checks whether the
+    table name already exists in the database and, if not, creates it.
+    """
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, obj, objtype):
+        """Support instance methods."""
+        import functools
+        return functools.partial(self.__call__, obj)
+
+    def __call__(self, *args, **kwargs):
+
+        # Get sqlite database cursor and main table name
+        sql_cur = args[0].cur
+
+        if "table_name" not in kwargs and "table_suffix" not in kwargs:
+            kwargs["table"] = args[0].table_name
+            return self.func(*args, **kwargs)
+
+        try:
+            tb_name = kwargs["table_name"]
+        except KeyError:
+            tb_name = None
+
+        try:
+            tb_suffix = kwargs["table_suffix"]
+        except KeyError:
+            tb_suffix = ""
+
+        if tb_name:
+            table = tb_name
+        else:
+            table = args[0].table_name + tb_suffix
+
+        # Check if the specified table exists. If not, revert to
+        # self.table_name. When executing Process operations, the first valid
+        # operation may be one that only has a "table_in" argument but several
+        # other operations may be defined before with a different table suffix.
+        # In such case, the table passed to "table_in" was not yet created and
+        # populated in those prior methods. Therefore, here we account for
+        # those cases by reverting the table to self.table_name if table_in
+        # was not yet created.
+        if not sql_cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='{}'".format(table)).fetchall():
+            table = args[0].table_name
+
+        kwargs["table"] = table
+
+        return self.func(*args, **kwargs)
 
 
 class AlignmentException(Exception):
@@ -451,95 +507,96 @@ class Alignment(Base):
 
         self.input_format = input_format
 
-    def iter_columns(self, table_suffix="", table_name=None):
+    @SetupInTable
+    def iter_columns(self, table_suffix="", table_name=None, table=None):
         """
         Generator that returns the alignment columns in a tuple
+        The sequence is retrieved from a table specified either by the
+        table_name or table_suffix arguments. table_name will always take
+        precedence over the table_suffix if both are provided. If none are
+        provided, the default self.table_name is used. If the table name
+        provided by either table_name or table_suffix is invalid, the default
+         self.table_name is also used.
 
-        :param table_suffix: string. Specify the suffix of the table
-        used to retrieve sequence data. The suffix is always appended at the
-        end of self.table_name. This is intended to retrieve sequence data
-        from modifications of the main alignment data, such as collapse,
-        filter, etc.
-        :param table_name: string. Name of the table used to retrieve
-        sequence data. If this argument is used, table_suffix will be ignored
+        :param table_name: string. Name of the table where the sequence data
+        will be fetched
+        :param table_suffix: string. Suffix of the table where the sequence
+        data will be fetched.
+        :param table: This argument is automatically prodived by the
+        SetupInTable decorator. DO NOT USE DIRECTLY.
         """
-
-        if table_name:
-            table = table_name
-        else:
-            # For now this is a leap of faith. I'll just assume that the
-            # table name has been correctly defined and exists in the database
-            table = self.table_name + table_suffix
 
         for i in zip(*[x[0] for x in self.cur.execute(
                 "SELECT seq from {}".format(table)).fetchall()]):
             yield i
 
-    def iter_sequences(self, table_suffix=""):
+    @SetupInTable
+    def iter_sequences(self, table_suffix="", table_name=None, table=None):
         """
         Generator for sequence data of the alignment object. Akin to
-        values() method of a dictionary
+        values() method of a dictionary.
+        The sequence is retrieved from a table specified either by the
+        table_name or table_suffix arguments. table_name will always take
+        precedence over the table_suffix if both are provided. If none are
+        provided, the default self.table_name is used. If the table name
+        provided by either table_name or table_suffix is invalid, the default
+         self.table_name is also used.
 
-        :param table_suffix: string. Specify the suffix of the table
-        used to retrieve sequence data. The suffix is always appended at the
-        end of self.table_name. This is intended to retrieve sequence data
-        from modifications of the main alignment data, such as collapse,
-        filter, etc.
+        :param table_name: string. Name of the table where the sequence data
+        will be fetched
+        :param table_suffix: string. Suffix of the table where the sequence
+        data will be fetched.
+        :param table: This argument is automatically prodived by the
+        SetupInTable decorator. DO NOT USE DIRECTLY.
         """
-
-        # For now this is a leap of faith. I'll just assume that the
-        # table name has been correctly defined and exists in the database
-        table = self.table_name + table_suffix
 
         for seq in self.cur.execute("SELECT seq FROM {}".format(
                 table)).fetchall():
             yield seq[0]
 
-    def iter_alignment(self, table_suffix="", table_name=None):
+    @SetupInTable
+    def iter_alignment(self, table_suffix="", table_name=None, table=None):
         """
-        Generator for a tuple pair with (taxon, sequece)
+        Generator for a tuple pair with (taxon, sequece).
+        The sequence is retrieved from a table specified either by the
+        table_name or table_suffix arguments. table_name will always take
+        precedence over the table_suffix if both are provided. If none are
+        provided, the default self.table_name is used. If the table name
+        provided by either table_name or table_suffix is invalid, the default
+         self.table_name is also used.
 
-        :param table_suffix: string. Specify the suffix of the table
-        used to retrieve sequence data. The suffix is always appended at the
-        end of self.table_name. This is intended to retrieve sequence data
-        from modifications of the main alignment data, such as collapse,
-        filter, etc.
-        :param table_name: string. Name of the table used to retrieve
-        sequence data. If this argument is used, table_suffix will be ignored
+        :param table_name: string. Name of the table where the sequence data
+        will be fetched
+        :param table_suffix: string. Suffix of the table where the sequence
+        data will be fetched.
+        :param table: This argument is automatically prodived by the
+        SetupInTable decorator. DO NOT USE DIRECTLY.
         """
-
-        if table_name:
-            table = table_name
-        else:
-            table = self.table_name + table_suffix
 
         for tx, seq in self.cur.execute(
                 "SELECT taxon,seq from {}".format(table)).fetchall():
             yield tx, seq
 
-    def get_sequence(self, taxon, table_name=None, table_suffix=""):
+    @SetupInTable
+    def get_sequence(self, taxon, table_name=None, table_suffix="",
+                       table=None):
         """
-        Returns the sequence string of the corresponding taxon
-        :param taxa: string. Taxon name. Must be in self.alignments
+        Returns the sequence string of the corresponding taxon. The sequence
+        is retrieved from a table specified either by the table_name or
+        table_suffix arguments. table_name will always take precedence over
+        the table_suffix if both are provided. If none are provided, the
+        default self.table_name is used. If the table name provided by either
+        table_name or table_suffix is invalid, the default self.table_name
+        is also used.
+
+        :param taxon: string. Taxon name. Must be in self.taxa_list
+        :param table_name: string. Name of the table where the sequence data
+        will be fetched
+        :param table_suffix: string. Suffix of the table where the sequence
+        data will be fetched.
+        :param table: This argument is automatically prodived by the
+        SetupInTable decorator. DO NOT USE DIRECTLY.
         """
-
-        if table_name:
-            table = table_name
-        else:
-            table = self.table_name + table_suffix
-
-        # Check if the specified table exists. If not, revert to
-        # self.table_name. When executing Process operations, the first valid
-        # operation may be one that only has a "table_in" argument but several
-        # other operations may be defined before with a different table suffix.
-        # In such case, the table passed to "table_in" was not yet created and
-        # populated in those prior methods. Therefore, here we account for
-        # those cases by reverting the table to self.table_name if table_in
-        # was not yet created.
-        if not self.cur.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND"
-                " name='{}'".format(table)).fetchall():
-            table = self.table_name
 
         if taxon in self.taxa_list:
            return self.cur.execute(
@@ -949,7 +1006,7 @@ class Alignment(Base):
     @SetupDatabase
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
                  haplotype_name="Hap", dest=None, conversion_suffix="",
-                 table_in=None, table_out="_collapsed"):
+                 table_in=None, table_out="collapsed"):
         """
         Collapses equal sequences into haplotypes. This method fetches
         the sequences for the current alignment and creates a new database
@@ -985,8 +1042,6 @@ class Alignment(Base):
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the collapsed data
         self.cur.execute("DELETE FROM {};".format(table_out))
-        # It is recommended to VACUUM to clear unused space
-        self.cur.execute("VACUUM;")
 
         # Insert collapsed alignment into database and create correspondance
         # dictionary
@@ -1015,7 +1070,7 @@ class Alignment(Base):
 
     @SetupDatabase
     def consensus(self, consensus_type, table_name=None, get_sequence=False,
-                 table_in=None, table_out="_consensus"):
+                 table_in=None, table_out="consensus"):
         """
         Converts the current Alignment object dictionary into a single
         consensus  sequence. The consensus_type argument determines how
@@ -1094,8 +1149,6 @@ class Alignment(Base):
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the consensus data
         self.cur.execute("DELETE FROM {};".format(table_out))
-        # It is recommended to VACUUM to clear unused space
-        self.cur.execute("VACUUM;")
 
         # Insert into database
         self.cur.execute("INSERT INTO {} VALUES(?, ?, ?)".format(
@@ -1254,7 +1307,7 @@ class Alignment(Base):
 
     @SetupDatabase
     def filter_codon_positions(self, position_list, table_in=None,
-                               table_out="_filter"):
+                               table_out="filter"):
         """
         Filter codon positions from DNA alignments.
         :param position_list: list containing a boolean value for each codon
@@ -1299,7 +1352,7 @@ class Alignment(Base):
         self.locus_length = len(filtered_seq)
 
     @SetupDatabase
-    def code_gaps(self, table_out="_gaps", table_in=None):
+    def code_gaps(self, table_out="gaps", table_in=None):
         """
         This method codes gaps present in the alignment in binary format,
         according to the method of Simmons and Ochoterena (2000), to be read
@@ -1489,7 +1542,7 @@ class Alignment(Base):
 
     @SetupDatabase
     def filter_missing_data(self, gap_threshold, missing_threshold,
-                            table_in=None, table_out="_filter"):
+                            table_in=None, table_out="filter"):
         """
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
@@ -2150,8 +2203,8 @@ class Alignment(Base):
             # containing the number of sequences, sites and genotype phase
             if ld_hat:
                 out_file.write("{} {} {}\n".format(len(self.taxa_list),
-                                                 self.locus_length,
-                                                 "2"))
+                                                   self.locus_length,
+                                                   "2"))
 
             for taxon, seq in self.iter_alignment(
                     table_name=table_name, table_suffix=table_suffix):
@@ -2735,7 +2788,8 @@ class AlignmentList(Base):
         :return concatenated_alignment: Alignment object
         """
 
-        table = "concatenation" + table_in
+        table = "concatenation"
+
         # Create table that will harbor the concatenated alignment
         self.cur.execute("CREATE TABLE {}("
                          "txId INT,"
@@ -2876,7 +2930,7 @@ class AlignmentList(Base):
             raise EmptyAlignment("Alignment is empty after taxa filter")
 
     def filter_codon_positions(self, position_list, table_in=None,
-                               table_out="_filter"):
+                               table_out="filter"):
         """
         Filter codon positions from DNA alignments.
         :param position_list: list containing a boolean value for each codon
@@ -2902,7 +2956,7 @@ class AlignmentList(Base):
             self.set_partition_from_alignment(alignment_obj)
 
     def filter_missing_data(self, gap_threshold, missing_threshold,
-                            table_in=None, table_out="_filter"):
+                            table_in=None, table_out="filter"):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
         See the method's documentation.
@@ -3101,7 +3155,7 @@ class AlignmentList(Base):
 
         return selected_alignments
 
-    def code_gaps(self, table_in=None, table_out="_gaps"):
+    def code_gaps(self, table_in=None, table_out="gaps"):
         """
         Wrapper for the code_gaps method of the Alignment object.
         """
@@ -3111,7 +3165,7 @@ class AlignmentList(Base):
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
                  haplotype_name="Hap", dest="./", conversion_suffix="",
-                 table_in=None, table_out="_collapsed"):
+                 table_in=None, table_out="collapsed"):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
@@ -3145,7 +3199,7 @@ class AlignmentList(Base):
                                        table_in=table_in)
 
     def consensus(self, consensus_type, single_file=False,
-                  table_out="_consensus", table_in=None):
+                  table_out="consensus", table_in=None):
         """
         If single_file is set to False, this acts as a simple wrapper to
         to the consensus method of the Alignment object.
