@@ -9975,12 +9975,12 @@ class TriFusionApp(App):
         overwritten or skipped
         """
 
-        content = FileOverwriteDialog(cancel=self.dismiss_popup)
+        content = FileOverwriteDialog(cancel=self.dismiss_subpopup)
 
         content.ids.dlg_text.text = msg
 
         self.show_popup(title="File already exists...", content=content,
-                        size=(450, 220))
+                        size=(450, 220), popup_level=2)
 
     def process_exec(self):
         """
