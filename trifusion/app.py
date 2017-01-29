@@ -9998,6 +9998,9 @@ class TriFusionApp(App):
                 man.shutdown()
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
+                # Removes all temporary database tables
+                self.alignment_list.remove_tables(
+                    self.alignment_list.get_tables())
                 return
 
             try:
