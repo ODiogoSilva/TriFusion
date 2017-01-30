@@ -2913,7 +2913,7 @@ class AlignmentList(Base):
 
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
-            if filter_mode == "Containing":
+            if filter_mode == "Contain":
                 if set(taxa_list) - set(alignment_obj.taxa_list) != set():
                     self.update_active_alignment(k, "shelve")
                     self.partitions.remove_partition(
