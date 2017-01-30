@@ -2535,15 +2535,19 @@ class AlignmentList(Base):
         return list(set([x.sequence_code[0] for x in
                          self.alignments.values() if x]))
 
-    def _get_taxa_list(self):
+    def _get_taxa_list(self, only_active=False):
         """
         Gets the full taxa list of all alignment objects
         :return full_taxa. List of taxa names in the AlignmentList
         """
 
-        full_taxa = list(set().union(*[x.taxa_list for x in
-                                       self.alignments.values() +
-                                       self.shelve_alignments.values()]))
+        if only_active:
+            full_taxa = list(set().union(*[x.taxa_list for x in
+                                           self.alignments.values()]))
+        else:
+            full_taxa = list(set().union(*[x.taxa_list for x in
+                                           self.alignments.values() +
+                                           self.shelve_alignments.values()]))
 
         return full_taxa
 
@@ -2924,6 +2928,8 @@ class AlignmentList(Base):
                     self.partitions.remove_partition(
                         file_name=alignment_obj.path)
                     self.filtered_alignments["By taxa"] += 1
+
+        self.taxa_names = self._get_taxa_list(only_active=True)
 
         # If the resulting alignment is empty, raise an Exception
         if self.alignments == {}:
