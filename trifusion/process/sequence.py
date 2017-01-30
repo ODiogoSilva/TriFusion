@@ -2980,12 +2980,17 @@ class AlignmentList(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
+        # Reset partitions
+        self.partitions = Partitions()
+
         for alignment_obj in list(self.alignments.values()):
 
             alignment_obj.filter_missing_data(
                 gap_threshold=gap_threshold,
                 missing_threshold=missing_threshold,
                 table_in=table_in, table_out=table_out)
+
+            self.set_partition_from_alignment(alignment_obj)
 
     def filter_segregating_sites(self, min_val, max_val, table_in=None):
         """
