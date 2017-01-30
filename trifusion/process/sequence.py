@@ -238,8 +238,10 @@ class SetupInTable(object):
 
         if tb_name:
             table = tb_name
-        else:
+        elif tb_suffix:
             table = args[0].table_name + tb_suffix
+        else:
+            table = args[0].table_name
 
         # Check if the specified table exists. If not, revert to
         # self.table_name. When executing Process operations, the first valid
