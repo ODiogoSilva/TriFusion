@@ -9482,7 +9482,7 @@ class TriFusionApp(App):
 
         # Schedule function that checks the process' pulse
         func = partial(check_proc, p)
-        Clock.schedule_interval(func, .1)
+        Clock.schedule_interval(func, .01)
 
     def load_files(self, selection=None, aln_list=None):
         """
@@ -9507,15 +9507,6 @@ class TriFusionApp(App):
         :param selection: list, with the path of all files provided to
         the app
         """
-
-        # Read the AlignmentList object from the pickle file
-        # if aln_pickle:
-        #     with open(aln_pickle, "rb") as fh:
-        #         aln_list = pickle.load(fh)
-        #
-        # if not aln_pickle:
-        #     return self.dialog_floatcheck("Internal alignment "
-        #                                   "reference not found", t="error")
 
         # Check for consistency in sequence type across alignments
         if self.sequence_types:
@@ -9638,8 +9629,6 @@ class TriFusionApp(App):
             else:
                 # Retrieve missing data symbol
                 missing_symbol = aln.sequence_code[1]
-                # Convert sequence to string
-                sequence = "".join(sequence)
 
             # Get sequence length
             seq_len = len(sequence)
