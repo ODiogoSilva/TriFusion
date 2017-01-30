@@ -2300,8 +2300,6 @@ class TriFusionApp(App):
         except TypeError:
             p = join(path, file_name + methods[idx][2])
 
-        print(p, idx)
-
         if os.path.exists(p) and idx != "main_output":
 
             self.check_action(
@@ -4279,13 +4277,14 @@ class TriFusionApp(App):
                 if value.state == "normal":
 
                     try:
-                        act_lst.remove(self.filename_map[b.id])
-                        b.state = "normal"
 
                         if self.active_file_list:
                             aln_path = self.filename_map[b.id]
                             self.alignment_list.update_active_alignment(
                                 aln_path, "shelve")
+
+                        act_lst.remove(self.filename_map[b.id])
+                        b.state = "normal"
 
                     except ValueError:
                         pass
@@ -4293,6 +4292,7 @@ class TriFusionApp(App):
                 # When button is down (selected) add to active list
                 elif value.state == "down":
                     if self.filename_map[b.id] not in act_lst:
+
                         act_lst.append(self.filename_map[b.id])
                         b.state = "down"
 
