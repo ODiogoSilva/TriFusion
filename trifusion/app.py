@@ -177,22 +177,6 @@ __status__ = "Development"
 MCL_FILE = None
 
 
-class StoppableThread(threading.Thread):
-
-    def __init__(self, ns=None, **kwargs):
-        threading.Thread.__init__(self, **kwargs)
-
-        self.ns = ns
-
-        Clock.schedule_interval(self.check_flag, .1)
-
-    def check_flag(self, *args):
-
-        if self.ns.stop:
-
-            self.is_alive = False
-
-
 class InputTypeError(Exception):
     pass
 
@@ -338,7 +322,64 @@ class TriFusionApp(App):
     # Patch attribute
     plt_patch = None
     # Dictionary with the plot methods and file names for each stats_idx
-    stats_plt_method = {}
+    stats_plt_method = {
+            "Gene occupancy":
+            [interpolation_plot, "gene_occupancy.png"],
+            "Distribution of missing data sp":
+            [stacked_bar_plot, "missing_data_distribution_sp.png"],
+            "Distribution of missing data":
+            [histogram_smooth, "missing_data_distribution.png"],
+            "Distribution of missing orthologs":
+            [bar_plot, "missing_gene_distribution.png"],
+            "Distribution of missing orthologs avg":
+            [histogram_plot, "missing_gene_distribution_avg.png"],
+            "Cumulative distribution of missing genes":
+            [bar_plot, "cumulative_distribution_missing_genes.png"],
+            "Distribution of sequence size":
+            [box_plot, "avg_seqsize_species.png"],
+            "Distribution of sequence size all":
+            [histogram_plot, "avg_seqsize.png"],
+            "Proportion of nucleotides or residues":
+            [bar_plot, "char_proportions.png"],
+            "Proportion of nucleotides or residues sp":
+            [stacked_bar_plot, "char_proportions_sp.png"],
+            "Pairwise sequence similarity":
+            [histogram_plot, "similarity_distribution.png"],
+            "Pairwise sequence similarity sp":
+            [triangular_heat, "similarity_distribution_sp.png"],
+            "Pairwise sequence similarity gn":
+            [sliding_window, "similarity_distribution_gn.png"],
+            "Segregating sites":
+            [histogram_plot, "segregating_sites.png"],
+            "Segregating sites prop":
+            [histogram_plot, "segregating_sites_prop.png"],
+            "Segregating sites sp":
+            [triangular_heat, "segregating_sites_sp.png"],
+            "Segregating sites gn":
+            [sliding_window, "segregating_sites_gn.png"],
+            "Alignment length/Polymorphism correlation":
+            [scatter_plot, "length_polymorphism_correlation.png"],
+            "Distribution of taxa frequency":
+            [histogram_plot, "distribution_taxa_frequency.png"],
+            "Allele Frequency Spectrum":
+            [histogram_plot, "allele_frequency_spectrum.png"],
+            "Allele Frequency Spectrum prop":
+            [histogram_plot, "allele_frequency_spectrum_prop.png"],
+            "Allele Frequency Spectrum gn":
+            [histogram_plot, "allele_frequency_spectrum_gn.png"],
+            "Missing data outliers":
+            [outlier_densisty_dist, "Missing_data_outliers.png"],
+            "Missing data outliers sp":
+            [outlier_densisty_dist, "Missing_data_outliers_sp.png"],
+            "Segregating sites outliers":
+            [outlier_densisty_dist, "Segregating_sites_outliers.png"],
+            "Segregating sites outliers sp":
+            [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"],
+            "Sequence size outliers":
+            [outlier_densisty_dist, "Sequence_size_outliers.png"],
+            "Sequence size outliers sp":
+            [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
+        }
     # Storage of previous data sets. This is used to evaluate whether the
     # plot methods should be run, or if they should be ignored. The Stats
     # key refers to the previous active data sets when the stats summary
@@ -1079,6 +1120,7 @@ class TriFusionApp(App):
 
         self.terminate_stats = True
         self.terminate_load_files = True
+        self.terminate_background = True
 
         self.run_in_background(remove_tmp, self.stop,
                                [self.temp_dir, self.alignment_list.con],
@@ -2378,14 +2420,37 @@ class TriFusionApp(App):
             :param man: Manager object.
             """
 
+            # Kill switch. Terminating thread by user
+            if self.terminate_background:
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                man.shutdown()
+
+                # Close loading popup dialog
+                self.dismiss_popup()
+
+                # Unschedule the current function
+                Clock.unschedule(check_func)
+
+                # Join child process and exit
+                p.join()
+                return
+
             if "img" in self._popup.content.ids:
                 self._popup.content.ids.img.rotation -= 10
 
-            if self.terminate_background:
-                man.shutdown()
-                Clock.unschedule(check_func)
-                self.dismiss_popup()
-                return
+                if shared_ns.counter:
+                    self._popup.content.ids.msg2.text = "{}/{}".format(
+                        shared_ns.counter, shared_ns.files)
 
             if not p.is_alive():
 
@@ -2427,6 +2492,10 @@ class TriFusionApp(App):
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
+        shared_ns.counter = 0
+
+        # Set kill switch flag
+        shared_ns.stop = False
 
         # Remove lock from background process
         self.terminate_background = False
@@ -2434,6 +2503,7 @@ class TriFusionApp(App):
         # Create process
         p = threading.Thread(target=background_process,
                              args=(func, shared_ns, args1))
+        p.daemon = True
         p.start()
 
         # Remove any possible previous popups
@@ -3983,6 +4053,7 @@ class TriFusionApp(App):
                                    self.popup_info,
                                    None,
                                    [value],
+                                   cancel=False,
                                    msg="Updating taxa information")
         else:
             self.popup_info(value)
@@ -4268,9 +4339,9 @@ class TriFusionApp(App):
                 stop = self.mouse_over_bts[tab].index(bt)
 
                 if start < stop:
-                    return self.mouse_over_bts[tab][start:stop + 1]
+                    return self.mouse_over_bts[tab][start + 1:stop + 1]
                 else:
-                    return self.mouse_over_bts[tab][stop:start + 1]
+                    return self.mouse_over_bts[tab][stop:start]
 
             else:
                 return [bt]
@@ -6973,15 +7044,16 @@ class TriFusionApp(App):
 
         # Add bindings to Ok button
         content.ids.ok_bt.bind(on_release=lambda x:
-        self.run_in_background(
-            get_active_group,
-            self.orto_show_plot,
-            [self.ortho_groups, self.active_group,
-             str(self.active_group_name)],
-            [str(plt_idx), [int(self.screen.ids.gn_spin.value),
-             int(self.screen.ids.sp_spin.value)], [x.text for x in
-                content.ids.rev_inlist.children if x.state == "normal"]],
-            False))
+            self.run_in_background(
+                get_active_group,
+                self.orto_show_plot,
+                [self.ortho_groups, self.active_group,
+                 str(self.active_group_name)],
+                [str(plt_idx), [int(self.screen.ids.gn_spin.value),
+                 int(self.screen.ids.sp_spin.value)], [x.text for x in
+                     content.ids.rev_inlist.children if x.state == "normal"]],
+                False,
+                cancel=True))
 
         self.show_popup(title="Included taxa", content=content,
                         size_hint=(.3, .8))
@@ -8849,65 +8921,6 @@ class TriFusionApp(App):
         # Dismiss stats toggle widget, if present
         self.dismiss_stats_toggle()
 
-        self.stats_plt_method = {
-            "Gene occupancy":
-            [interpolation_plot, "gene_occupancy.png"],
-            "Distribution of missing data sp":
-            [stacked_bar_plot, "missing_data_distribution_sp.png"],
-            "Distribution of missing data":
-            [histogram_smooth, "missing_data_distribution.png"],
-            "Distribution of missing orthologs":
-            [bar_plot, "missing_gene_distribution.png"],
-            "Distribution of missing orthologs avg":
-            [histogram_plot, "missing_gene_distribution_avg.png"],
-            "Cumulative distribution of missing genes":
-            [bar_plot, "cumulative_distribution_missing_genes.png"],
-            "Distribution of sequence size":
-            [box_plot, "avg_seqsize_species.png"],
-            "Distribution of sequence size all":
-            [histogram_plot, "avg_seqsize.png"],
-            "Proportion of nucleotides or residues":
-            [bar_plot, "char_proportions.png"],
-            "Proportion of nucleotides or residues sp":
-            [stacked_bar_plot, "char_proportions_sp.png"],
-            "Pairwise sequence similarity":
-            [histogram_plot, "similarity_distribution.png"],
-            "Pairwise sequence similarity sp":
-            [triangular_heat, "similarity_distribution_sp.png"],
-            "Pairwise sequence similarity gn":
-            [sliding_window, "similarity_distribution_gn.png"],
-            "Segregating sites":
-            [histogram_plot, "segregating_sites.png"],
-            "Segregating sites prop":
-            [histogram_plot, "segregating_sites_prop.png"],
-            "Segregating sites sp":
-            [triangular_heat, "segregating_sites_sp.png"],
-            "Segregating sites gn":
-            [sliding_window, "segregating_sites_gn.png"],
-            "Alignment length/Polymorphism correlation":
-            [scatter_plot, "length_polymorphism_correlation.png"],
-            "Distribution of taxa frequency":
-            [histogram_plot, "distribution_taxa_frequency.png"],
-            "Allele Frequency Spectrum":
-            [histogram_plot, "allele_frequency_spectrum.png"],
-            "Allele Frequency Spectrum prop":
-            [histogram_plot, "allele_frequency_spectrum_prop.png"],
-            "Allele Frequency Spectrum gn":
-            [histogram_plot, "allele_frequency_spectrum_gn.png"],
-            "Missing data outliers":
-            [outlier_densisty_dist, "Missing_data_outliers.png"],
-            "Missing data outliers sp":
-            [outlier_densisty_dist, "Missing_data_outliers_sp.png"],
-            "Segregating sites outliers":
-            [outlier_densisty_dist, "Segregating_sites_outliers.png"],
-            "Segregating sites outliers sp":
-            [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"],
-            "Sequence size outliers":
-            [outlier_densisty_dist, "Sequence_size_outliers.png"],
-            "Sequence size outliers sp":
-            [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
-        }
-
         if plot_data:
 
             if "exception" in plot_data:
@@ -9291,11 +9304,16 @@ class TriFusionApp(App):
                 except OSError:
                     pass
 
+        # Close get_summary_Stats, if running
+        if self.lock_stats:
+            self.terminate_stats = True
+
         self.run_in_background(
             func=get_stats_data,
             second_func=self.stats_write_plot,
             args1=[self.alignment_list, plt_idx, file_set,
-                   list(taxa_set), additional_args],
+                   list(taxa_set), additional_args,
+                   "use_ns"],
             args2=[plt_idx])
 
         self.toggle_stats_panel(force_close=True)
@@ -9719,6 +9737,8 @@ class TriFusionApp(App):
             else:
                 # Retrieve missing data symbol
                 missing_symbol = aln.sequence_code[1]
+
+            sequence = "".join(sequence)
 
             # Get sequence length
             seq_len = len(sequence)

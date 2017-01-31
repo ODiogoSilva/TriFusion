@@ -124,10 +124,18 @@ def background_process(f, ns, a):
     """
     try:
         if a:
-            val = f(*a)
+            if "use_ns" in a:
+                a.remove("use_ns")
+                val = f(*a, ns=ns)
+            else:
+                val = f(*a)
         else:
             val = f()
         ns.val = val
+
+    except KillByUser:
+        return
+
     except Exception:
         logging.exception("Unexpected exit in %s" % f.__name__)
         ns.exception = True
@@ -743,7 +751,7 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
 
 
 def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
-                   additional_args):
+                     additional_args, ns=None):
     """
     Given an aln_obj, this function will execute the according method to
     generate plot data
@@ -814,9 +822,9 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                "Sequence size outliers": aln_obj.outlier_sequence_size}
 
     if additional_args:
-        plot_data = methods[stats_idx](**additional_args)
+        plot_data = methods[stats_idx](ns=ns, **additional_args)
     else:
-        plot_data = methods[stats_idx]()
+        plot_data = methods[stats_idx](ns)
 
     return [plot_data, footer]
 

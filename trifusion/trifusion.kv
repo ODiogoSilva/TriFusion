@@ -317,10 +317,12 @@
 
 <CrunchData>:
     orientation: "vertical"
+    spacing: 10
     AnchorLayout:
         anchor_x: "center"
         anchor_y: "center"
-        size_hint_y: .6
+        size_hint_y: None
+        height: 50
         ScatterLayout:
             do_translation: False
             do_scale: False
@@ -330,15 +332,32 @@
             size: 50, 50
             Image:
                 source: "data/backgrounds/spinner2.png"
-    Label:
-        id: msg
-        size_hint_y: .4
-        text: "Crunching data..."
-        bold: True
-        halign: "center"
-        valign: "top"
-        text_size: self.size
-        color: (0.216, 0.67, 0.784, 1)
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: 50
+        Label:
+            id: msg
+            size_hint_y: None
+            height: 30
+            text: "Crunching data..."
+            bold: True
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+
+        Label:
+            id: msg2
+            size_hint_y: None
+            height: 20
+            text: ""
+            bold: True
+            font_size: 12
+            halign: "center"
+            valign: "top"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
 
     AnchorLayout:
         size_hint_y: None

@@ -3460,15 +3460,22 @@ class AlignmentList(Base):
         return dict(self.summary_stats), table
 
     @CheckData
-    def gene_occupancy(self):
+    def gene_occupancy(self, ns=None):
         """
         Creates data for an interpolation plot to visualize the amount of
         missing genes in a phylogenomics data set
+
+        :param ns: Namespace object. Allows communication with main thread
         """
 
         data = []
 
         for alignment in self.alignments.values():
+            if ns:
+                if ns.stop:
+                    raise KillByUser()
+                    return
+
             data.append([1 if x in alignment.taxa_list else 0
                          for x in self.taxa_names])
 
@@ -3479,16 +3486,30 @@ class AlignmentList(Base):
                 "title": "Gene occupancy"}
 
     @CheckData
-    def missing_data_distribution(self):
+    def missing_data_distribution(self, ns=None):
         """
         Creates data for an overall distribution of missing data
+
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         legend = ["Gaps", "Missing data", "Data"]
 
         data_storage = OrderedDict((x, []) for x in legend)
 
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch to interrupt worker
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                # Add to progress counter
+                ns.counter += 1
+
             gaps_g, missing_g, data_g = [], [], []
             for tx in self.taxa_names:
                 if tx in aln.taxa_list:
@@ -3521,9 +3542,11 @@ class AlignmentList(Base):
                 "table_header": ["Bin"] + legend}
 
     @CheckData
-    def missing_data_per_species(self):
+    def missing_data_per_species(self, ns=None):
         """
         Creates data for a distribution of missing data per species
+
+        :param ns: Namespace object. Communicates with main thread
         """
 
         # Data for a stacked bar plot. First element for gaps, second for
@@ -3534,7 +3557,19 @@ class AlignmentList(Base):
 
         legend = ["Gaps", "Missing", "Data"]
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch to interrupt worker
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                # Add to progress counter
+                ns.counter += 1
+
             total_len += aln.locus_length
             for taxon in data_storage:
                 if taxon in aln.taxa_list:
@@ -3572,15 +3607,29 @@ class AlignmentList(Base):
                 "normalize_factor": total_len}
 
     @CheckData
-    def missing_genes_per_species(self):
+    def missing_genes_per_species(self, ns=None):
         """
         Creates data for the distribution of missing genes per species
+
+        :param ns : Namespace object. Communicates with main thread
         :return: dictionary with arguments for plotting functions
         """
 
         data_storage = OrderedDict((taxon, 0) for taxon in self.taxa_names)
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch to interrupt worker
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                # Add to progress counter
+                ns.counter += 1
+
             for key in data_storage:
                 if key not in aln.taxa_list:
                     data_storage[key] += 1
@@ -3597,14 +3646,26 @@ class AlignmentList(Base):
                 }
 
     @CheckData
-    def missing_genes_average(self):
+    def missing_genes_average(self, ns=None):
         """
         Creates histogram data for average missing taxa
+        :param ns: Namespace object. Communicates with main thread
         """
 
         data = []
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+
             data.append(len(set(self.taxa_names) - set(aln.taxa_list)))
 
         return {"data": data,
@@ -3613,7 +3674,7 @@ class AlignmentList(Base):
                 "table_header": ["Number of missing taxa", "Frequency"]}
 
     @CheckData
-    def average_seqsize_per_species(self):
+    def average_seqsize_per_species(self, ns=None):
         """
         Creates data for the average sequence size for each taxa
         :return: dictionary with arguments for plotting functions
@@ -3621,7 +3682,18 @@ class AlignmentList(Base):
 
         data_storage = OrderedDict((taxon, []) for taxon in self.taxa_names)
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+
             for sp, seq in aln:
                 data_storage[sp].append(len(seq.replace("-", "").
                                         replace(aln.sequence_code[1], "")))
@@ -3639,15 +3711,27 @@ class AlignmentList(Base):
                 "ax_names": [None, ax_ylabel]}
 
     @CheckData
-    def average_seqsize(self):
+    def average_seqsize(self, ns=None):
         """
         Creates data for the average sequence size for the entire data set
+        :param ns: Namespace object. Communicates with main thread
         :return:
         """
 
         data_storage = []
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+
             data_storage.append(aln.locus_length)
 
         # Adapt y-axis label according to sequence code
@@ -3660,14 +3744,26 @@ class AlignmentList(Base):
                 "table_header": [ax_xlabel, "Frequency"]}
 
     @CheckData
-    def characters_proportion(self):
+    def characters_proportion(self, ns=None):
         """
         Creates data for the proportion of nucleotides/residues for the data set
+        :param ns: Namespace object. Communicates with main thread
         """
 
         data_storage = Counter()
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
+
+            if ns:
+                #Kill switch
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+
             for seq in aln.iter_sequences():
                 data_storage += Counter(seq.replace("-", "").
                                         replace(self.sequence_code[1], ""))
@@ -3694,14 +3790,25 @@ class AlignmentList(Base):
                 "table_header": [ax_xlabel, "Proportion"]}
 
     @CheckData
-    def characters_proportion_per_species(self):
+    def characters_proportion_per_species(self, ns=None):
         """
         Creates data for the proportion of nucleotides/residures per species
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data_storage = OrderedDict((x, Counter()) for x in self.taxa_names)
 
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch
+                if ns.stop:
+                    raise KillByUser("")
+                ns.counter += 1
+
             for sp, seq in aln:
                 data_storage[sp] += Counter(seq.replace("-", "").
                                             replace(self.sequence_code[1], ""))
@@ -3926,22 +4033,33 @@ class AlignmentList(Base):
         return informative_sites
 
     @CheckData
-    def sequence_similarity(self):
+    def sequence_similarity(self, ns=None):
         """
         Creates average sequence similarity data
+        :param ns: Namespace object. Communicates with main thread
         """
 
         self._get_similarity("connect")
 
         data = []
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
 
             # self._get_reference_data(list(aln.sequences()))
+            if ns:
+                ns.counter += 1
 
             aln_similarities = []
 
             for seq1, seq2 in itertools.combinations(aln.iter_sequences(), 2):
+
+                if ns:
+                    if ns.stop:
+                        raise KillByUser("")
+                        return
 
                 sim, total_len = self._get_similarity(seq1, seq2,
                                                       aln.locus_length)
@@ -3958,11 +4076,16 @@ class AlignmentList(Base):
                 "ax_names": ["Similarity (%)", "Frequency"]}
 
     @CheckData
-    def sequence_similarity_per_species(self):
+    def sequence_similarity_per_species(self, ns=None):
         """
         Creates data for a triangular matrix of sequence similarity for pairs
         of taxa
+
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         self._get_similarity("connect")
 
@@ -3974,7 +4097,16 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
+            if ns:
+                ns.counter += 1
+
             for tx1, tx2 in itertools.combinations(taxa_pos.keys(), 2):
+
+                if ns:
+                    # Kill switch
+                    if ns.stop:
+                        raise KillByUser("")
+                        return
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -3996,7 +4128,7 @@ class AlignmentList(Base):
                 "labels": list(taxa_pos)}
 
     @CheckData
-    def sequence_similarity_gene(self, gene_name, window_size):
+    def sequence_similarity_gene(self, gene_name, window_size, ns=None):
 
         aln_obj = self.retrieve_alignment(gene_name)
 
@@ -4031,19 +4163,30 @@ class AlignmentList(Base):
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
 
     @CheckData
-    def sequence_segregation(self, proportions=False):
+    def sequence_segregation(self, ns=None, proportions=False):
         """
         Generates data for distribution of segregating sites
 
         :param proportions: Boolean. If True, use proportions instead of
         absolute values
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data = []
 
         for aln in self.alignments.values():
 
             segregating_sites = 0
+
+            if ns:
+                # Kill switch
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             for column in aln.iter_columns():
 
@@ -4071,11 +4214,16 @@ class AlignmentList(Base):
                 "real_bin_num": real_bin}
 
     @CheckData
-    def sequence_segregation_per_species(self):
+    def sequence_segregation_per_species(self, ns=None):
         """
         Creates a data for a triangular matrix of sequence segregation for
         pairs of taxa
+
+        :param ns: Namespace object. Communicates with the main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         self._get_similarity("connect")
 
@@ -4087,7 +4235,15 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
+            if ns:
+                ns.counter += 1
+
             for tx1, tx2 in itertools.combinations(taxa_pos.keys(), 2):
+
+                if ns:
+                    if ns.stop:
+                        raise KillByUser("")
+                        return
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -4113,7 +4269,7 @@ class AlignmentList(Base):
                 "color_label": "Segregating sites"}
 
     @CheckData
-    def sequence_segregation_gene(self, gene_name, window_size):
+    def sequence_segregation_gene(self, gene_name, window_size, ns=None):
         """
         Generates data for a sliding window analysis of segregating sites
         :param gene_name: string, name of gene in self.alignments
@@ -4148,17 +4304,29 @@ class AlignmentList(Base):
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
 
     @CheckData
-    def length_polymorphism_correlation(self):
+    def length_polymorphism_correlation(self, ns=None):
         """
         Generates data for a scatter plot and correlation analysis between
         alignment length and informative sites (polymorphic sites in at least
         two taxa)
+
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data_length = []
         data_inf = []
 
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             # Get informative sites for alignment
             inf_sites = self._get_informative_sites(aln)
@@ -4175,7 +4343,7 @@ class AlignmentList(Base):
                 "correlation": True}
 
     @CheckData
-    def allele_frequency_spectrum(self, proportions=False):
+    def allele_frequency_spectrum(self, ns=None, proportions=False):
         """
         Generates data for the allele frequency spectrum of the entire
         alignment data set. Here, multiple alignments are effectively treated
@@ -4190,7 +4358,16 @@ class AlignmentList(Base):
 
         data = []
 
+        if ns:
+            ns.files = len(self.alignments)
+
         for aln in self.alignments.values():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             for column in aln.iter_columns():
 
@@ -4256,14 +4433,23 @@ class AlignmentList(Base):
                 "real_bin_num": True}
 
     @CheckData
-    def taxa_distribution(self):
+    def taxa_distribution(self, ns=None):
         """
         Generates data for a distribution of taxa frequency across alignments
         """
 
+        if ns:
+            ns.files = len(self.alignments)
+
         data = []
 
         for aln in self.alignments.values():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             # Get number of taxa
             data.append(len(aln.taxa_list))
@@ -4275,19 +4461,30 @@ class AlignmentList(Base):
                 "real_bin_num": True}
 
     @CheckData
-    def cumulative_missing_genes(self):
+    def cumulative_missing_genes(self, ns=None):
         """
         Generates data for a distribution of the maximum number of genes
         available for consecutive thresholds of missing data.
+        :param ns: Namespace object. Communicates with main thread
         """
 
         size_storage = []
         data = []
 
+        if ns:
+            ns.files = len(self.alignments)
+
         # total number of taxa in data set
         taxa = float(len(self.taxa_names))
 
         for aln in self.alignments.values():
+
+            if ns:
+                # Kill switch
+                if ns.stop:
+                    raise KillByUser
+                    return
+                ns.counter += 1
 
             # Get number of taxa
             size_storage.append((float(len(aln.taxa_list)) / taxa) * 100)
@@ -4332,7 +4529,7 @@ class AlignmentList(Base):
         return z_score > threshold
 
     @CheckData
-    def outlier_missing_data(self):
+    def outlier_missing_data(self, ns=None):
         """
         Get data for outlier detection of genes based on the distribution of
         average missing data per gene. Data points will be based on the
@@ -4341,12 +4538,23 @@ class AlignmentList(Base):
         the total possible missing data is 300 (100 * 3). Here, missing data
         will be gathered from all taxa and a proportion will be calculated
         based n the total possible
+
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data_labels = []
         data_points = []
 
         for gn, aln in self.alignments.items():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             total_len = aln.locus_length * len(aln.taxa_list)
             gn_data = 0
@@ -4375,7 +4583,7 @@ class AlignmentList(Base):
                 "ax_names": ["Proportion of missing data", "Frequency"]}
 
     @CheckData
-    def outlier_missing_data_sp(self):
+    def outlier_missing_data_sp(self, ns=None):
         """
         Gets data for outlier detection of species based on missing data. For
         this analysis, genes for which a taxa is completely absent will be
@@ -4384,11 +4592,21 @@ class AlignmentList(Base):
         outlier detection towards taxa that have low prevalence in the data
         set, even if they have low missing data in the alignments where they
         are present.
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data = dict((tx, []) for tx in self.taxa_names)
 
         for aln in self.alignments.values():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             total_len = aln.locus_length
 
@@ -4427,18 +4645,29 @@ class AlignmentList(Base):
                 "ax_names": ["Proportion of missing data", "Frequency"]}
 
     @CheckData
-    def outlier_segregating(self):
+    def outlier_segregating(self, ns=None):
         """
         Generates data for the outlier detection of genes based on
         segregating sites. The data will be based on the number of alignments
         columns with a variable number of sites, excluding gaps and missing
         data
+
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data_points = []
         data_labels = []
 
         for aln in self.alignments.values():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             segregating_sites = 0
 
@@ -4471,12 +4700,16 @@ class AlignmentList(Base):
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
     @CheckData
-    def outlier_segregating_sp(self):
+    def outlier_segregating_sp(self, ns=None):
         """
         Generates data for the outlier detection of species based on their
         average pair-wise proportion of segregating sites. Comparisons
         with gaps or missing data are ignored
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         self._get_similarity("connect")
 
@@ -4484,7 +4717,16 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
+            if ns:
+                ns.counter += 1
+
             for tx1, tx2 in itertools.combinations(data.keys(), 2):
+
+                if ns:
+                    if ns.stop:
+                        raise KillByUser("")
+                        return
+
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
                 except KeyError:
@@ -4527,16 +4769,26 @@ class AlignmentList(Base):
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
     @CheckData
-    def outlier_sequence_size(self):
+    def outlier_sequence_size(self, ns=None):
         """
         Generates data for the outlier detection of genes based on their
         sequence length (excluding missing data)
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data_labels = []
         data_points = []
 
         for gn, aln in self.alignments.items():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             gn_l = []
 
@@ -4565,15 +4817,25 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence size", "Frequency"]}
 
     @CheckData
-    def outlier_sequence_size_sp(self):
+    def outlier_sequence_size_sp(self, ns=None):
         """
         Generates data for the outlier detection of species based on their
         sequence length (excluding missing data)
+        :param ns: Namespace object. Communicates with main thread
         """
+
+        if ns:
+            ns.files = len(self.alignments)
 
         data = dict((tx, []) for tx in self.taxa_names)
 
         for aln in self.alignments.values():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             for tx in data:
                 if tx in aln.taxa_list:
