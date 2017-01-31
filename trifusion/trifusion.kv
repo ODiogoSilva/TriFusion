@@ -6037,7 +6037,7 @@
     BoxLayout:
         BoxLayout:
             orientation: "vertical"
-            spacing: 20
+            spacing: 10
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
@@ -6061,6 +6061,15 @@
                 height: 30
                 color: (0.216, 0.67, 0.784, 1)
 
+            Label:
+                id: msg
+                text: ""
+                bold: True
+                font_size: 13
+                size_hint_y: None
+                height: 20
+                color: (0.216, 0.67, 0.784, 1)
+
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
@@ -6073,6 +6082,7 @@
                     width: 150
                     on_release:
                         app.terminate_stats = True
+
     Widget:
 
 <TableCellTop@Label>:
