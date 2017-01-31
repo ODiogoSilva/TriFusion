@@ -84,24 +84,30 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
     :param active_taxa_set: list, with taxa to be included in summary statistics
     """
 
-    # Update alignment object according to active file and taxa sets
-    aln_list.update_active_alignments(active_file_set)
-    aln_list.remove_taxa(list(set(aln_list.taxa_names) - set(active_taxa_set)))
+    try:
 
-    with open(join(dest, "stats.pc"), "wb") as fh_stats, \
-            open(join(dest, "table.pc"), "wb") as fh_table:
+        # Update alignment object according to active file and taxa sets
+        aln_list.update_active_alignments(active_file_set)
+        aln_list.remove_taxa(list(set(aln_list.taxa_names) -
+                                  set(active_taxa_set)))
 
-        # Check if active data sets are not empty. If so, raise an exception
-        if aln_list.alignments == OrderedDict() or not aln_list.taxa_names:
-            for fh in [fh_stats, fh_table]:
-                pickle.dump({"exception": "Alignment is empty after file and "
-                                          "taxa filters"}, fh)
-            return
+        with open(join(dest, "stats.pc"), "wb") as fh_stats, \
+                open(join(dest, "table.pc"), "wb") as fh_table:
 
-        stats = aln_list.get_summary_stats(ns=ns)
-        table = aln_list.get_gene_table_stats()
-        pickle.dump(stats, fh_stats)
-        pickle.dump(table, fh_table)
+            # Check if active data sets are not empty. If so, raise an exception
+            if aln_list.alignments == OrderedDict() or not aln_list.taxa_names:
+                for fh in [fh_stats, fh_table]:
+                    pickle.dump({"exception": "Alignment is empty after file and "
+                                              "taxa filters"}, fh)
+                return
+
+            stats = aln_list.get_summary_stats(ns=ns)
+            table = aln_list.get_gene_table_stats()
+            pickle.dump(stats, fh_stats)
+            pickle.dump(table, fh_table)
+
+    except KillByUser:
+        pass
 
 
 def background_process(f, ns, a):
