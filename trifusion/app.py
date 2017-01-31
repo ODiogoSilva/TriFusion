@@ -30,6 +30,7 @@ import pickle
 import urllib
 import string
 import Queue
+import time
 import stat
 import time
 import sys
@@ -5608,6 +5609,11 @@ class TriFusionApp(App):
                 # Unschedule the current function
                 Clock.unschedule(check_func)
 
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                ns.stop = True
+
                 # Clear the loading widgets of the Statistics screen
                 plt_wgt.clear_widgets()
                 plt_wgt.add_widget(NoDataLabel())
@@ -5615,11 +5621,6 @@ class TriFusionApp(App):
                 # Remove lock from get_summary_stats method, so that this
                 # method can be repeated
                 self.lock_stats = False
-
-                # Issuing the kill order to the child thread. This signal
-                # will propagate through the worker's methods and graciously
-                # terminate
-                ns.stop = True
 
                 # Shutting down manager that provides communication between
                 # parent and child thread
@@ -5736,9 +5737,6 @@ class TriFusionApp(App):
         shared_ns = manager.Namespace()
         shared_ns.stop = False
         shared_ns.counter = 0
-
-        # Used to pipe results to main thread
-        queue = Queue.Queue()
 
         p = threading.Thread(target=get_stats_summary,
                              kwargs={"aln_list": self.alignment_list,
@@ -9471,20 +9469,44 @@ class TriFusionApp(App):
                 except:
                     pass
 
-                # The load_files method now receives the path to the
-                # pickle file containing the AlignmentList object
+                # Get the alignment object from the child thread and load
+                # it into the app
                 aln_obj = queue.get()
                 self.load_files(file_list, aln_obj)
 
+                # Shutting down manager that provides communication between
+                # parent and child thread
                 manager.shutdown()
+
+                # Join child process and exit
                 p.join()
+                return
 
             # Kill switch
             if self.terminate_load_files:
                 content.ids.msg.text = "Canceling..."
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
                 manager.shutdown()
+
+                # Close loading popup dialog
                 self.dismiss_popup()
+
+                # Unschedule the current function
                 Clock.unschedule(func)
+
+                # Join child process and exit
+                p.join()
+                return
 
         # To support for opening all files in one or more directories, all
         # entries in files will be checked if they are directories. If so,
@@ -9504,21 +9526,11 @@ class TriFusionApp(App):
                 if os.path.isfile(mod_path):
                     file_list.append(mod_path)
 
+        file_list = sorted(file_list)
+
         if not file_list:
             return self.dialog_floatcheck("No valid input files were"
                                           " provided", t="error")
-
-        # Set a unique temporary directory for each loading operation.
-        # This greatly facilitates cleaning up when the user cancels the
-        # loading operation
-        c = 0
-        temp_dir = "import%s" % c
-        while os.path.exists(join(self.temp_dir, temp_dir)):
-            c += 1
-            temp_dir = "import%s" % c
-
-        temp_dir = join(self.temp_dir, temp_dir)
-        os.makedirs(temp_dir)
 
         # Set up manager and shared name space to share information
         # between background and main processes
@@ -9526,15 +9538,19 @@ class TriFusionApp(App):
         shared_ns = manager.Namespace()
         queue = Queue.Queue()
 
+        # Initialize stop flag to allow thread to be killed by the user
+        shared_ns.stop = False
+
         # Remove lock from background process
         self.terminate_load_files = False
 
         # Create process
         p = threading.Thread(
                 target=load_proc,
-                args=(self.alignment_list, file_list, shared_ns, temp_dir,
+                args=(self.alignment_list, file_list, shared_ns,
                       queue))
 
+        p.daemon = True
         p.start()
 
         # Remove any possible previous popups
