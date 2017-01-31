@@ -1078,6 +1078,7 @@ class TriFusionApp(App):
         """
 
         self.terminate_stats = True
+        self.terminate_load_files = True
 
         self.run_in_background(remove_tmp, self.stop,
                                [self.temp_dir, self.alignment_list.con],
