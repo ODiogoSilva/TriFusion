@@ -49,8 +49,7 @@ def remove_tmp(temp_dir, sql_con):
     return 1
 
 
-def load_proc(aln_list, file_list, nm, dest, queue):
-
+def load_proc(aln_list, file_list, nm, queue):
     try:
         if aln_list:
             aln_list.add_alignment_files(file_list,
@@ -67,9 +66,12 @@ def load_proc(aln_list, file_list, nm, dest, queue):
     except IOError:
         return
 
-    except:
+    except KillByUser:
+        pass
+
+    except Exception as e:
         logging.exception("Unexpected error when loading input data")
-        nm.exception = True
+        print(e)
 
 
 def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
@@ -81,7 +83,8 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
     :param dest: temporary file where stats will be written
     :param active_file_set: list, with files to be included in summary
     statistics
-    :param active_taxa_set: list, with taxa to be included in summary statistics
+    :param active_taxa_set: list, with taxa to be included in summary
+    statistics
     """
 
     try:
@@ -94,11 +97,12 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
         with open(join(dest, "stats.pc"), "wb") as fh_stats, \
                 open(join(dest, "table.pc"), "wb") as fh_table:
 
-            # Check if active data sets are not empty. If so, raise an exception
+            # Check if active data sets are not empty. If so, raise an
+            # exception
             if aln_list.alignments == OrderedDict() or not aln_list.taxa_names:
                 for fh in [fh_stats, fh_table]:
-                    pickle.dump({"exception": "Alignment is empty after file and "
-                                              "taxa filters"}, fh)
+                    pickle.dump({"exception": "Alignment is empty after file "
+                                              "and taxa filters"}, fh)
                 return
 
             stats = aln_list.get_summary_stats(ns=ns)

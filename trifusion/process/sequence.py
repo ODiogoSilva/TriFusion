@@ -2386,17 +2386,29 @@ class AlignmentList(Base):
         return [x.table_name for x in
                 self.alignments.values() + self.shelve_alignments.values()]
 
-    def remove_tables(self, preserve_tables=None):
+    def remove_tables(self, preserve_tables=None, trash_tables=None):
         """
         Drops ALL tables from the database, except the ones specified via
         the preserve_tables argument
-        :param preserve_tables: list. The tables that will NOT be droped
+        :param preserve_tables: list. The tables that will NOT be dropped
+        :param trash_tables: list. Only the tables that will be dropped.
+        Takes precedence over preserver_tables
         """
+
+        if not preserve_tables:
+            preserve_tables = []
+
+        if not trash_tables:
+            trash_tables = []
 
         tables = self.cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table';").fetchall()
 
-        tables_delete = [x[0] for x in tables if x[0] not in preserve_tables]
+        if trash_tables:
+            tables_delete = [x[0] for x in tables if x[0] in trash_tables]
+        else:
+            tables_delete = [x[0] for x in tables if x[0] not in
+                             preserve_tables]
 
         for tb in tables_delete:
             self.cur.execute("DROP TABLE {}".format(tb))
@@ -2650,6 +2662,10 @@ class AlignmentList(Base):
                 shared_namespace.m = "Processing file {}".format(
                     basename(aln_path))
 
+                if shared_namespace.stop:
+                    raise KillByUser("Child thread killed by user")
+                    return
+
             aln_obj = Alignment(aln_path, sql_cursor=self.cur)
 
             if isinstance(aln_obj.e, InputError):
@@ -2675,80 +2691,6 @@ class AlignmentList(Base):
                 self.path_list.append(aln_obj.path)
 
         self.taxa_names = self._get_taxa_list()
-
-        # njobs = len(file_name_list) if len(file_name_list) <= \
-        #     multiprocessing.cpu_count() else multiprocessing.cpu_count()
-        #
-        # if shared_namespace:
-        #     jobs = [[x.tolist(), self.dest, y, shared_namespace] for y, x in
-        #         enumerate(np.array_split(np.array(file_name_list), njobs))]
-        # else:
-        #     jobs = [[x.tolist(), self.dest, y, None] for y, x in enumerate(
-        #         np.array_split(np.array(file_name_list), njobs))]
-        #
-        # if sys.platform in ["win32", "cygwin"]:
-        #     p = ThreadPool(njobs)
-        # else:
-        #     p = Pool(njobs)
-        #
-        # try:
-        #     # Execute alignment reading in parallel
-        #     p.map(read_alns, jobs)
-        #     # Terminate pool processes
-        #     p.terminate()
-        #
-        #     # Read the pickle files with the saved Alignment objects
-        #     for i in range(njobs):
-        #         fh = open(join(self.dest, "Worker{}.pc".format(i)), "rb")
-        #         while 1:
-        #             try:
-        #                 aln = pickle.load(fh)
-        #
-        #                 if isinstance(aln.e, InputError):
-        #                     self.bad_alignments.append(aln.path)
-        #                 elif isinstance(aln.e, AlignmentUnequalLength):
-        #                     self.non_alignments.append(aln.path)
-        #                 elif isinstance(aln.e, EmptyAlignment):
-        #                     self.bad_alignments.append(aln.path)
-        #
-        #                 else:
-        #                     # Get seq code
-        #                     if not self.sequence_code:
-        #                         self.sequence_code = aln.sequence_code
-        #                     # Check for multiple sequence types. If True,
-        #                     # raise Exception
-        #                     elif self.sequence_code[0] != aln.sequence_code[0]:
-        #                         raise MultipleSequenceTypes("Multiple sequence "
-        #                             "types detected: {} and {}".format(
-        #                                 self.sequence_code[0],
-        #                                 aln.sequence_code[0]))
-        #
-        #                     self.alignments[aln.name] = aln
-        #                     self.set_partition_from_alignment(aln)
-        #                     self.filename_list.append(aln.name)
-        #                     self.path_list.append(aln.path)
-        #
-        #             # Handle all known exceptions here, to close filehandle and
-        #             # remove temporary pickle file
-        #             except (EOFError, MultipleSequenceTypes) as e:
-        #                 fh.close()
-        #                 os.remove(join(self.dest, "Worker{}.pc".format(i)))
-        #                 # Ignores the EOFError, which is normal, and raise the
-        #                 # exception for upstream handling
-        #                 if type(e) != EOFError:
-        #                     raise e
-        #                 break
-        #
-        #     self.taxa_names = self._get_taxa_list()
-        #
-        #     if shared_namespace:
-        #         shared_namespace.m = "Updating App structures"
-        #
-        # except IOError as e:
-        #     p.terminate()
-        #     #shutil.rmtree(self.dest)
-        #     print(e)
-        #     return
 
     def retrieve_alignment(self, name):
         """

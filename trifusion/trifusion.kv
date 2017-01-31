@@ -799,7 +799,7 @@
                 rectangle: root.x,root.y,root.width,root.height
 
 <LoadProgressDialog>:
-    padding: 10
+    padding: 20
     orientation: "vertical"
 
     Label:
@@ -814,11 +814,14 @@
         max: 10
         id: pb
 
-    BoxLayout:
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
         size_hint_y: None
         height: 30
-        padding: (30, 0, 30, 0)
         TFOKButon:
+            size_hint_x: None
+            width: 150
             id: close_bt
             text: "Cancel"
             background_normal: "data/backgrounds/bt_process.png"
