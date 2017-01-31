@@ -176,6 +176,22 @@ __status__ = "Development"
 MCL_FILE = None
 
 
+class StoppableThread(threading.Thread):
+
+    def __init__(self, ns=None, **kwargs):
+        threading.Thread.__init__(self, **kwargs)
+
+        self.ns = ns
+
+        Clock.schedule_interval(self.check_flag, .1)
+
+    def check_flag(self, *args):
+
+        if self.ns.stop:
+
+            self.is_alive = False
+
+
 class InputTypeError(Exception):
     pass
 
@@ -1059,6 +1075,8 @@ class TriFusionApp(App):
         This method is issued when the application is closed and performs
         any necessary clean up operations
         """
+
+        self.terminate_stats = True
 
         self.run_in_background(remove_tmp, self.stop,
                                [self.temp_dir, self.alignment_list.con],
@@ -4429,6 +4447,7 @@ class TriFusionApp(App):
         self.MAX_PARTITION_BUTTON = 20
         self.mouse_over_bts.clear()
         self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
+        self.previous_sets = {"Files": [], "Taxa": [], "Stats": []}
         self.sp_taxa_bts = []
         self.sp_file_bts = []
         self.previous_mouse_over = ""
@@ -5576,35 +5595,78 @@ class TriFusionApp(App):
             self.current_table = td
             self.gene_table = table
 
-        def check_process(p, ldg_wgt, plt_wgt, dt):
+        def check_process(p, ldg_wgt, plt_wgt, ns, dt):
 
-            # When canceled  by the user
+            try:
+                ldg.ids.msg.text = "{}/{}".format(ns.counter, ns.files)
+            except AttributeError:
+                pass
+
+            # KILL SWITCH. Terminating thread by user
             if self.terminate_stats:
+
+                # Unschedule the current function
                 Clock.unschedule(check_func)
+
+                # Clear the loading widgets of the Statistics screen
                 plt_wgt.clear_widgets()
                 plt_wgt.add_widget(NoDataLabel())
+
+                # Remove lock from get_summary_stats method, so that this
+                # method can be repeated
                 self.lock_stats = False
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                ns.stop = True
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                manager.shutdown()
+
+                # Join child process and exit
+                p.join()
                 return
 
+            # Provides animation for loading widget
             if self.current_screen == "Statistics":
 
                 if self.screen.ids.stats_panel.width == 0 or \
                         self.screen.ids.stats_panel.width == 410:
 
-                    ldg_wgt.ids.img.rotation -= 10
+                    # Sets animation speed
+                    ldg_wgt.ids.img.rotation -= 2
 
+            # When worker has finished
             if not p.is_alive():
 
+                # Set the previous sets as the ones that just finished without
+                # errors
                 self.previous_sets["Stats"] = [file_set, taxa_set]
 
+                # Display stats depending on the type
                 prepare_display(plt_wgt, scatter_wgt)
                 if tp == "stats":
                     display_stats(plt_wgt)
                 elif tp == "table":
                     display_table(plt_wgt)
 
+                # Unschedule the current function
                 Clock.unschedule(check_func)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                manager.shutdown()
+
+                # Joining child thread
                 p.join()
+
+                # Remove lock from get_summary_stats()
+                self.lock_stats = False
+
+                # Exit
+                return
 
         # Get Scatter widgets
         scatter_wgt = self.screen.ids.plot_content
@@ -5670,12 +5732,22 @@ class TriFusionApp(App):
         self.terminate_stats = False
         self.lock_stats = True
 
-        p = threading.Thread(target=get_stats_summary,
-                     kwargs={"aln_list": self.alignment_list,
-                             "dest": self.temp_dir,
-                             "active_file_set": file_set,
-                             "active_taxa_set": taxa_set})
+        manager = multiprocessing.Manager()
+        shared_ns = manager.Namespace()
+        shared_ns.stop = False
+        shared_ns.counter = 0
 
+        # Used to pipe results to main thread
+        queue = Queue.Queue()
+
+        p = threading.Thread(target=get_stats_summary,
+                             kwargs={"aln_list": self.alignment_list,
+                                     "dest": self.temp_dir,
+                                     "active_file_set": file_set,
+                                     "active_taxa_set": taxa_set,
+                                     "ns": shared_ns})
+
+        p.daemon = True
         p.start()
 
         # Add loading widget
@@ -5683,8 +5755,9 @@ class TriFusionApp(App):
         scatter_wgt.add_widget(ldg)
 
         check_func = partial(check_process, p, ldg,
-                             self.screen.ids.plot_content.children[0])
-        Clock.schedule_interval(check_func, .1)
+                             self.screen.ids.plot_content.children[0],
+                             shared_ns)
+        Clock.schedule_interval(check_func, .01)
 
     def search_add_gene_table_line(self, gene_table):
         """

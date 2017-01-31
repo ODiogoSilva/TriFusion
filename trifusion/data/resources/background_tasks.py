@@ -72,7 +72,8 @@ def load_proc(aln_list, file_list, nm, dest, queue):
         nm.exception = True
 
 
-def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set):
+def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
+                        ns):
     """
     Runs the get_summary_stats method in the background and writes the output
     in a pickle file
@@ -97,7 +98,7 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set):
                                           "taxa filters"}, fh)
             return
 
-        stats = aln_list.get_summary_stats()
+        stats = aln_list.get_summary_stats(ns=ns)
         table = aln_list.get_gene_table_stats()
         pickle.dump(stats, fh_stats)
         pickle.dump(table, fh_table)

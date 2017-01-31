@@ -42,14 +42,14 @@ try:
     from process.data import Partitions
     from process.base import iupac
     from process.data import PartitionException
-    from process.error_handling import DuplicateTaxa
+    from process.error_handling import DuplicateTaxa, KillByUser
 except ImportError:
     from trifusion.process.base import iupac
     import trifusion.process as process
     from trifusion.process.base import *
     from trifusion.process.data import Partitions
     from trifusion.process.data import PartitionException
-    from trifusion.process.error_handling import DuplicateTaxa
+    from trifusion.process.error_handling import DuplicateTaxa, KillByUser
 
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
@@ -3398,17 +3398,22 @@ class AlignmentList(Base):
         return summary_gene_table, table
 
     # Stats methods
-    def get_summary_stats(self, active_alignments=None):
+    def get_summary_stats(self, active_alignments=None, ns=None):
         """
         Creates/Updates summary statistics for the active alignments.
         :param active_alignments: List, containing names of the active
         alignments from which the summary statistics will be retrieved
+
+        :param ns: Namepsace object. Used to communicate with the main thread
         """
 
         # Update active alignments if they changed since last update
         if active_alignments and \
                 active_alignments != list(self.alignments.keys()):
             self.update_active_alignments(active_alignments)
+
+        if ns:
+            ns.files = len(self.alignments)
 
         # Set table header for summary_stats
         table = [["Genes", "Taxa", "Alignment length", "Gaps",
@@ -3430,6 +3435,13 @@ class AlignmentList(Base):
 
         # Get statistics that require iteration over alignments
         for aln in self.alignments.values():
+
+            if ns:
+                ns.counter += 1
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("Child thread killed by user")
 
             # Get alignment size info
             self.summary_stats["seq_len"] += aln.locus_length

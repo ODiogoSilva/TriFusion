@@ -335,7 +335,6 @@ class Partitions():
             partition_full = re.split(r"[-\\]", fields[1].strip().
                                       replace(";", "").replace("/", "\\"))
 
-            print(partition_full)
             # If partition is defined using "." notation to mean full length
             if partition_full[1] == ".":
                 if self.partition_length:
