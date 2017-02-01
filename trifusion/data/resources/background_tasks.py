@@ -19,6 +19,7 @@ from copy import deepcopy
 import logging
 import shutil
 import cPickle as pickle
+import time
 
 import os
 os.environ["KIVY_NO_ARGS"] = "1"
@@ -41,8 +42,13 @@ def remove_tmp(temp_dir, sql_con):
     :param temp_dir: string, path to trifusion's temporary directory
     """
 
+    # Give some time to child threads to exit
+    time.sleep(1)
+
+    # Close database connection
     sql_con.close()
 
+    # Remove temporary files
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
