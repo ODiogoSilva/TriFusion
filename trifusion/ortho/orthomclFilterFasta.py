@@ -3,8 +3,14 @@
 import os
 import re
 
+try:
+    from process.error_handling import KillByUser
+except ImportError:
+    from trifusion.process.error_handling import KillByUser
 
-def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent, db, dest):
+
+def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent, db, dest,
+                             nm=None):
 
     def handle_seq(seq, length, stop_cnt):
         is_bad = 0
@@ -38,6 +44,12 @@ def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent, db, dest):
 
         # process lines of one file
         for line in input_file:
+
+            if nm:
+                if nm.stop:
+                    raise KillByUser("")
+                    return
+
             if line.startswith('>'):
                 if current_seq:
                     seq_count += 1

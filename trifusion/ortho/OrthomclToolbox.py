@@ -20,9 +20,11 @@
 try:
     from process.sequence import Alignment
     from base.plotter import *
+    from process.error_handling import KillByUser
 except ImportError:
     from trifusion.process.sequence import Alignment
     from trifusion.base.plotter import *
+    from trifusion.process.error_handling import KillByUser
 
 from collections import OrderedDict
 import pickle
@@ -129,7 +131,7 @@ class GroupLight(object):
     """
 
     def __init__(self, groups_file, gene_threshold=None,
-                 species_threshold=None):
+                 species_threshold=None, ns=None):
 
         self.gene_threshold = gene_threshold if gene_threshold else None
         self.species_threshold = species_threshold if species_threshold \
@@ -162,7 +164,7 @@ class GroupLight(object):
         # the update_filtered_group method
         self.filtered_groups = []
 
-        self._parse_groups()
+        self._parse_groups(ns)
 
         if type(self.species_threshold) is float:
             self._get_sp_proportion()
@@ -236,9 +238,14 @@ class GroupLight(object):
         self.num_species_compliant = 0
         self.all_compliant = 0
 
-    def _parse_groups(self):
+    def _parse_groups(self, ns=None):
 
         for cl in self.groups():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
 
             # Retrieve the field containing the ortholog sequences
             sequence_field = cl.split(":")[1]
@@ -315,7 +322,7 @@ class GroupLight(object):
                 self._apply_filter(cl)
 
     def retrieve_sequences(self, sqldb, protein_db, dest="./",
-                           shared_namespace=None, outfile=None):
+                             shared_namespace=None, outfile=None):
         """
 
         :param sqldb: srting. Path to sqlite database file
@@ -352,6 +359,14 @@ class GroupLight(object):
             with open(protein_db) as ph:
                 seq = ""
                 for line in ph:
+
+                    # Kill switch
+                    if shared_namespace:
+                        if shared_namespace.stop:
+                            conn.close()
+                            raise KillByUser("")
+                            return
+
                     if line.startswith(">"):
                         seq_id = line.strip()[1:]
                         if seq != "":
@@ -366,7 +381,7 @@ class GroupLight(object):
         if shared_namespace:
             shared_namespace.act = "Fetching sequences"
             shared_namespace.good = 0
-            shared_namespace.loci = 0
+            shared_namespace.progress = 0
 
         # Set single output file, if option is set
         if outfile:
@@ -375,11 +390,19 @@ class GroupLight(object):
         # Fetching sequences
         for line, cl in zip(self.groups(), self.species_frequency):
 
+            # Kill switch
+            if shared_namespace:
+                if shared_namespace.stop:
+                    conn.close()
+                    raise KillByUser("")
+                    return
+
             # Filter sequences
             if self._get_compliance(cl) == (1, 1):
 
                 if shared_namespace:
                     shared_namespace.good += 1
+                    shared_namespace.progress += 1
 
                 # Retrieve sequences from current cluster
                 fields = line.split(":")
@@ -415,25 +438,33 @@ class GroupLight(object):
         conn.close()
 
     def export_filtered_group(self, output_file_name="filtered_groups",
-                              dest="./", shared_namespace=None):
+                                 dest="./", shared_namespace=None):
 
         if shared_namespace:
             shared_namespace.act = "Exporting filtered orthologs"
+            shared_namespace.missed = 0
+            shared_namespace.good = 0
 
         output_handle = open(os.path.join(dest, output_file_name), "w")
 
         for line, cl in zip(self.groups(), self.species_frequency):
 
             if shared_namespace:
+                if shared_namespace.stop:
+                    raise KillByUser("")
+                    return
+
+            if shared_namespace:
                 shared_namespace.progress = \
                     self.species_frequency.index(cl)
+                shared_namespace.good += 1
 
             if self._get_compliance(cl) == (1, 1):
                 output_handle.write("{}\n".format(line))
 
         output_handle.close()
 
-    def bar_species_distribution(self, dest="./", filt=False,
+    def bar_species_distribution(self, dest="./", filt=False, ns=None,
                                  output_file_name="Species_distribution"):
 
         if filt:
@@ -463,7 +494,7 @@ class GroupLight(object):
 
         return b_plt, lgd, table
 
-    def bar_genecopy_distribution(self, dest="./", filt=False,
+    def bar_genecopy_distribution(self, dest="./", filt=False, ns=None,
                                 output_file_name="Gene_copy_distribution.png"):
         """
         Creates a bar plot with the distribution of gene copies across
@@ -479,6 +510,11 @@ class GroupLight(object):
         else:
             data = Counter((max(cl.values()) for cl in self.species_frequency
                            if cl))
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
@@ -502,7 +538,7 @@ class GroupLight(object):
 
         return b_plt, lgd, table
 
-    def bar_species_coverage(self, dest="./", filt=False,
+    def bar_species_coverage(self, dest="./", filt=False, ns=None,
                             output_file_name="Species_coverage"):
         """
         Creates a stacked bar plot with the proportion of
@@ -515,6 +551,12 @@ class GroupLight(object):
             self._reset_counter()
 
         for cl in self.species_frequency:
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             self._apply_filter(cl)
             if filt:
                 data += Counter(dict((x, 1) for x, y in cl.items() if y > 0 and
@@ -544,7 +586,7 @@ class GroupLight(object):
 
         return b_plt, lgd, None
 
-    def bar_genecopy_per_species(self, dest="./", filt=False,
+    def bar_genecopy_per_species(self, dest="./", filt=False, ns=None,
                             output_file_name="Species_copy_number"):
 
         data = Counter(dict((x, 0) for x in self.species_list))
@@ -553,6 +595,12 @@ class GroupLight(object):
             self._reset_counter()
 
         for cl in self.species_frequency:
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             self._apply_filter(cl)
             if filt:
                 data += Counter(dict((x, y) for x, y in cl.items() if y > 1 and
@@ -564,6 +612,11 @@ class GroupLight(object):
 
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data]]
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
         b_plt, lgd, _ = bar_plot(data, x_labels, reverse_x=False,
                                      ax_names=[None, "Gene copies"])
@@ -864,8 +917,8 @@ class Group(object):
             if cluster.gene_compliant:
                 self.num_gene_compliant += 1
 
-    def retrieve_sequences(self, database, dest="./", mode="fasta", filt=True,
-                       shared_namespace=None):
+    def retrieve_sequences(self, database, dest="./", mode="fasta",
+                             filt=True, shared_namespace=None):
         """
         When provided with a database in Fasta format, this will use the
         Alignment object to retrieve sequences
@@ -896,6 +949,7 @@ class Group(object):
         # Update method progress
         if shared_namespace:
             shared_namespace.act = "Creating database"
+            shared_namespace.progress = 0
 
         print("Creating db")
         # Check what type of database was provided
@@ -919,7 +973,7 @@ class Group(object):
         for cluster in groups:
 
             if shared_namespace:
-                shared_namespace.progress = groups.index(cluster)
+                shared_namespace.progress += 1
 
             if mode == "dict":
                 seq_storage[cluster.name] = []
@@ -937,7 +991,7 @@ class Group(object):
         if mode == "dict":
             return seq_storage
 
-    def bar_species_distribution(self, dest="./", filt=False,
+    def bar_species_distribution(self, dest="./", filt=False, ns=None,
                                  output_file_name="Species_distribution"):
         """
         Creates a bar plot with the distribution of species numbers across
@@ -956,6 +1010,10 @@ class Group(object):
             groups = self.groups
 
         for i in groups:
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
             data.append(len([x for x, y in i.species_frequency.items()
                              if y > 0]))
 
@@ -969,6 +1027,11 @@ class Group(object):
                                                              y_vals))))
         # Convert label to strings
         x_labels = [str(x) for x in x_labels]
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
         # Create plot
         b_plt, lgd, _ = bar_plot([y_vals], x_labels,
@@ -1034,7 +1097,7 @@ class Group(object):
 
         return b_plt, lgd, table_list
 
-    def bar_species_coverage(self, dest="./", filt=False,
+    def bar_species_coverage(self, dest="./", filt=False, ns=None,
                              output_file_name="Species_coverage"):
         """
         Creates a stacked bar plot with the proportion of
@@ -1052,6 +1115,10 @@ class Group(object):
         data = Counter(dict((x, 0) for x in self.species_list))
 
         for cl in groups:
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
             data += Counter(dict((x, 1) for x, y in cl.species_frequency.items()
                             if y > 0))
 
@@ -1060,6 +1127,11 @@ class Group(object):
                                       data.values()]]
 
         lgd_list = ["Available data", "Missing data"]
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
         b_plt, lgd, _ = bar_plot(data, xlabels, lgd_list=lgd_list,
                               ax_names=[None, "Ortholog frequency"])
@@ -1337,7 +1409,8 @@ class MultiGroupsLight(object):
     """
 
     def __init__(self, db_path, groups=None, gene_threshold=None,
-                 species_threshold=None, project_prefix="MyGroups"):
+                 species_threshold=None, project_prefix="MyGroups",
+                 ns=None):
         """
         :param groups: A list containing the file names of the multiple
         group files
@@ -1378,14 +1451,23 @@ class MultiGroupsLight(object):
 
         self.prefix = project_prefix
 
+        if ns:
+            ns.files = len(groups)
+
         if groups:
             for group_file in groups:
                 # If group_file is already a Group object, just add it
                 if not isinstance(group_file, Group):
                     try:
+                        if ns:
+                            if ns.stop:
+                                raise KillByUser("")
+                                return
+                            ns.counter += 1
                         group_object = GroupLight(group_file,
                                                   self.gene_threshold,
-                                                  self.species_threshold)
+                                                  self.species_threshold,
+                                                  ns=ns)
                     except:
                         self.bad_groups.append(group_file)
                         continue

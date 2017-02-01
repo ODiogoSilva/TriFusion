@@ -2758,7 +2758,7 @@
                     id: ok_bt
                     on_release:
                         if sd_filechooser.selection:\
-                        app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir], None, False, "Loading group files...")
+                        app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir, "use_ns"], None, False, "Loading group files...")
                         #root.cancel()
 
                 TFOKButon:
@@ -3369,7 +3369,7 @@
                         elif sd_filechooser.text == "ima2_popfile" and txt_box.height == 0:\
                         app.save_file(sd_filechooser.selection[0], idx=sd_filechooser.text)
                         elif sd_filechooser.text == "orto_report" and txt_box.height == 0:\
-                        app.run_in_background(app.orto_generate_report, None, [sd_filechooser.path], None, False, "Generating full report...")
+                        app.run_in_background(app.orto_generate_report, None, [sd_filechooser.path, "use_ns"], None, False, "Generating full report...")
                         elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
                         app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
                         elif sd_filechooser.text == "protein_db" and txt_box.height == 0: \

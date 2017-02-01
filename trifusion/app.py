@@ -6626,6 +6626,33 @@ class TriFusionApp(App):
             except AttributeError:
                 pass
 
+            if self.terminate_group_export:
+
+                content.ids.msg.text = "Terminating on you command. " \
+                                       "Hang tight!"
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                manager.shutdown()
+
+                # Close loading popup dialog
+                self.dismiss_popup()
+
+                # Unschedule the current function
+                Clock.unschedule(func)
+
+                # Join child process and exit
+                p.join()
+                return
+
             # Check process status
             if not p.is_alive():
 
@@ -6667,10 +6694,18 @@ class TriFusionApp(App):
         self.active_group.update_filters(*self.ortho_groups.filters[
             self.active_group.name])
 
+        # Set up manager and shared name space to share information
+        # between background and main processes
+        manager = multiprocessing.Manager()
+        shared_ns = manager.Namespace()
+
+        # Initialize stop flag to allow thread to be killed by the user
+        shared_ns.stop = False
+
         method_store = {
             "group":
                 [self.active_group.export_filtered_group,
-                 [self.sqldb, output_name, output_dir]],
+                 [output_name, output_dir]],
             "protein":
                 [self.active_group.retrieve_sequences,
                  [self.sqldb, self.protein_db, output_dir]],
@@ -6682,17 +6717,13 @@ class TriFusionApp(App):
         # Get method and args
         m = method_store[export_idx]
 
-        # Set up manager and shared name space to share information
-        # between background and main processes
-        manager = multiprocessing.Manager()
-        shared_ns = manager.Namespace()
-
         # Remove lock from background process
         self.terminate_group_export = False
 
         # Create process
         p = threading.Thread(target=background_export_groups,
                              args=(m[0], shared_ns, m[1]))
+        p.daemon = True
         p.start()
 
         # Remove any previous popups
@@ -6743,7 +6774,7 @@ class TriFusionApp(App):
             self.active_group = self.ortho_groups.get_group(group_id)
         return self.active_group
 
-    def orto_generate_report(self, dir):
+    def orto_generate_report(self, dir, ns=None):
         """
         Generates full orthology report on the specified directory.
         :param dir: string, path to directory where the report will be
@@ -6755,12 +6786,25 @@ class TriFusionApp(App):
         if not os.path.exists(fig_dir):
             os.makedirs(fig_dir)
 
+        if ns:
+            ns.files = len(MultiGroups.calls)
+
         active_group_light = self.get_active_group_light()
         for command in MultiGroups.calls:
-            getattr(active_group_light, command)(fig_dir)
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+
+            getattr(active_group_light, command)(fig_dir, ns=None)
 
         html = HtmlTemplate(dir, "Orthology report", orthology_plots)
         html.write_file()
+
+        self.dialog_floatcheck("Orthology automatic report successfully "
+                               "generated.", t="info")
 
     def orto_compare_groups(self, groups_objs=None, selected_groups=None):
         """
@@ -10005,10 +10049,30 @@ class TriFusionApp(App):
 
             # Listens for cancel signal
             if self.terminate_orto_search:
-                shared_ns.k = False
+                content.ids.msg.text = "Terminating on you command. " \
+                                       "Hang tight!"
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
                 manager.shutdown()
+
+                # Close loading popup dialog
                 self.dismiss_popup()
+
+                # Unschedule the current function
                 Clock.unschedule(func)
+
+                # Join child process and exit
+                p.join()
+                return
 
                 # Clear sqlitedb
                 os.remove(join(self.temp_dir, "orthoDB.db"))
@@ -10023,7 +10087,9 @@ class TriFusionApp(App):
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
-        shared_ns.k = True
+
+        shared_ns.stop = False
+        shared_ns.exception = None
 
         # Remove lock from background process
         self.terminate_orto_search = False
@@ -10037,7 +10103,6 @@ class TriFusionApp(App):
                 self.proteome_files,
                 self.protein_min_len,
                 self.protein_max_stop,
-                #self.cur_dir,
                 self.usearch_file,
                 self.usearch_evalue,
                 self.screen.ids.usearch_threads.text,
@@ -10051,6 +10116,8 @@ class TriFusionApp(App):
                 self.sqldb,
                 self.ortho_dir,
                 self.usearch_db))
+
+        p.daemon = True
         p.start()
 
         # Remove any possible previous popups
