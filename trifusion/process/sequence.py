@@ -28,8 +28,7 @@ from os.path import join, basename, splitext
 from itertools import compress
 import fileinput
 import multiprocessing
-from multiprocessing.pool import ThreadPool
-from multiprocessing.pool import Pool
+from threading import Lock
 import cPickle as pickle
 import functools
 import sqlite3
@@ -62,6 +61,9 @@ except ImportError:
 # TODO After creating the SequenceSet class, an additional class should be
 # used to make the triage of files to either the Alignment or SequenceSet
 # classes
+
+# Lock mechanism to prevent concurrent access to sqlite database
+lock = Lock()
 
 
 class pairwise_cache(object):
@@ -528,9 +530,13 @@ class Alignment(Base):
         SetupInTable decorator. DO NOT USE DIRECTLY.
         """
 
-        for i in zip(*[x[0] for x in self.cur.execute(
-                "SELECT seq from {}".format(table)).fetchall()]):
-            yield i
+        try:
+            lock.acquire(True)
+            for i in zip(*[x[0] for x in self.cur.execute(
+                    "SELECT seq from {}".format(table)).fetchall()]):
+                yield i
+        finally:
+            lock.release()
 
     @SetupInTable
     def iter_sequences(self, table_suffix="", table_name=None, table=None):
@@ -552,9 +558,13 @@ class Alignment(Base):
         SetupInTable decorator. DO NOT USE DIRECTLY.
         """
 
-        for seq in self.cur.execute("SELECT seq FROM {}".format(
-                table)).fetchall():
-            yield seq[0]
+        try:
+            lock.acquire(True)
+            for seq in self.cur.execute("SELECT seq FROM {}".format(
+                    table)).fetchall():
+                yield seq[0]
+        finally:
+            lock.release()
 
     @SetupInTable
     def iter_alignment(self, table_suffix="", table_name=None, table=None):
@@ -575,9 +585,13 @@ class Alignment(Base):
         SetupInTable decorator. DO NOT USE DIRECTLY.
         """
 
-        for tx, seq in self.cur.execute(
-                "SELECT taxon,seq from {}".format(table)).fetchall():
-            yield tx, seq
+        try:
+            lock.acquire(True)
+            for tx, seq in self.cur.execute(
+                    "SELECT taxon,seq from {}".format(table)).fetchall():
+                yield tx, seq
+        finally:
+            lock.release()
 
     @SetupInTable
     def get_sequence(self, taxon, table_name=None, table_suffix="",
@@ -600,13 +614,17 @@ class Alignment(Base):
         SetupInTable decorator. DO NOT USE DIRECTLY.
         """
 
-        if taxon in self.taxa_list:
-           return self.cur.execute(
-                "SELECT seq FROM {} WHERE txId=?".format(table),
-                (self.taxa_idx[taxon],)).fetchone()[0]
+        try:
+            lock.acquire(True)
+            if taxon in self.taxa_list:
+               return self.cur.execute(
+                    "SELECT seq FROM {} WHERE txId=?".format(table),
+                    (self.taxa_idx[taxon],)).fetchone()[0]
 
-        else:
-            raise KeyError
+            else:
+                raise KeyError
+        finally:
+            lock.release()
 
     def remove_alignment(self):
         """

@@ -9304,10 +9304,6 @@ class TriFusionApp(App):
                 except OSError:
                     pass
 
-        # Close get_summary_Stats, if running
-        if self.lock_stats:
-            self.terminate_stats = True
-
         self.run_in_background(
             func=get_stats_data,
             second_func=self.stats_write_plot,
