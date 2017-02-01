@@ -5843,10 +5843,10 @@
             text: "Select"
             on_release:
                 if [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"] and sliding_window in root.children: \
-                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0], "window_size": int(window.text)})
+                app.stats_show_plot(root.plt_idx, {"gene_name": app.filename_map[[x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]], "window_size": int(window.text)})
 
                 elif [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"] and sliding_window not in root.children: \
-                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]})
+                app.stats_show_plot(root.plt_idx, {"gene_name": app.filename_map[[x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]]})
 
                 else: \
                 app.dialog_floatcheck("Please select a gene.", t="error")
@@ -6076,7 +6076,7 @@
                 text: "Summoning summary statistics"
                 bold: True
                 halign: "center"
-                valign: "middle"
+                valign: "bottom"
                 text_size: self.size
                 font_size: 20
                 size_hint_y: None
@@ -6089,6 +6089,9 @@
                 bold: True
                 font_size: 13
                 size_hint_y: None
+                halign: "center"
+                valign: "top"
+                text_size: self.size
                 height: 20
                 color: (0.216, 0.67, 0.784, 1)
 
