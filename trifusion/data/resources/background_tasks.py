@@ -142,6 +142,10 @@ def background_process(f, ns, a):
     except KillByUser:
         return
 
+    except IOError as e:
+        print(e)
+        pass
+
     except Exception:
         logging.exception("Unexpected exit in %s" % f.__name__)
         ns.exception = True
@@ -156,6 +160,13 @@ def background_export_groups(f, nm, a):
     """
     try:
         f(*a, shared_namespace=nm)
+
+    except KillByUser:
+        pass
+
+    except IOError as e:
+        print(e)
+
     except:
         logging.exception("Unexpected error when exporting ortholog "
                           "groups")
@@ -173,61 +184,98 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
     """
 
     try:
-        if nm.k:
-            nm.t = "Installing schema"
-            nm.c = 1
-            ortho_pipe.install_schema(temp_dir)
-        if nm.k:
-            nm.t = "Adjusting Fasta Files"
-            nm.c = 2
-            ortho_pipe.adjust_fasta(proteome_files, ortho_dir)
-        if nm.k:
-            nm.t = "Filtering Fasta Files"
-            nm.c = 3
-            ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
-                                    usearch_db, ortho_dir)
-        if nm.k:
-            nm.t = "Running USearch. This may take a while..."
-            nm.c = 4
-            ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
-                                        usearch_threads, usearch_output,
-                                        usearch_bin=usearch_file)
-        if nm.k:
-            nm.t = "Parsing USEARCH output"
-            nm.c = 5
-            ortho_pipe.blast_parser(usearch_output, ortho_dir,
-                                    db_dir=temp_dir)
-        if nm.k:
-            nm.t = "Obtaining Pairs"
-            nm.c = 6
-            ortho_pipe.pairs(temp_dir)
-        if nm.k:
-            ortho_pipe.dump_pairs(temp_dir, ortho_dir)
-        if nm.k:
-            nm.t = "Running MCL"
-            nm.c = 7
-            ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file)
-        if nm.k:
-            nm.t = "Dumping groups"
-            nm.c = 8
-            ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
-                                  group_prefix, ortho_dir)
-        if nm.k:
-            nm.t = "Filtering group files"
-            nm.c = 9
-            stats, groups_obj = ortho_pipe.export_filtered_groups(
-                mcl_inflation,
-                group_prefix,
-                orto_max_gene,
-                orto_min_sp,
-                sqldb,
-                join(ortho_dir, "backstage_files", usearch_db),
-                temp_dir,
-                ortho_dir)
-            # stats is a dictionary containing the inflation value as
-            #  key and a list with the orthologs as value
-            nm.stats = stats
-            nm.groups = groups_obj
+        nm.t = "Installing schema"
+        nm.c = 1
+        ortho_pipe.install_schema(temp_dir)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Adjusting Fasta Files"
+        nm.c = 2
+        ortho_pipe.adjust_fasta(proteome_files, ortho_dir, nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Filtering Fasta Files"
+        nm.c = 3
+        ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
+                                usearch_db, ortho_dir, nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Running USearch. This may take a while..."
+        nm.c = 4
+        ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
+                                    usearch_threads, usearch_output,
+                                    usearch_bin=usearch_file)
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Parsing USEARCH output"
+        nm.c = 5
+        ortho_pipe.blast_parser(usearch_output, ortho_dir,
+                                db_dir=temp_dir, nm=nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Obtaining Pairs"
+        nm.c = 6
+        ortho_pipe.pairs(temp_dir)
+        ortho_pipe.dump_pairs(temp_dir, ortho_dir)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Running MCL"
+        nm.c = 7
+        ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Dumping groups"
+        nm.c = 8
+        ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
+                              group_prefix, ortho_dir)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Filtering group files"
+        nm.c = 9
+        stats, groups_obj = ortho_pipe.export_filtered_groups(
+            mcl_inflation,
+            group_prefix,
+            orto_max_gene,
+            orto_min_sp,
+            sqldb,
+            join(ortho_dir, "backstage_files", usearch_db),
+            temp_dir,
+            ortho_dir)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        # stats is a dictionary containing the inflation value as
+        #  key and a list with the orthologs as value
+        nm.stats = stats
+        nm.groups = groups_obj
+
+    except KillByUser:
+        pass
 
     except IOError as e:
         nm.exception = str(e)
@@ -723,9 +771,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         ns.exception = "Unknown"
 
 
-def load_group_files(group_files, temp_dir):
+def load_group_files(group_files, temp_dir, ns=None):
     og = OrthoTool.MultiGroupsLight(db_path=temp_dir,
-                                    groups=group_files)
+                                    groups=group_files,
+                                    ns=ns)
     return [og, og.filters]
 
 

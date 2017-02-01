@@ -43,6 +43,7 @@ with warnings.catch_warnings():
         import ortho.orthomclBlastParser as BlastParser
         import ortho.orthomclMclToGroups as MclGroups
         from ortho.error_handling import *
+        from process.error_handling import KillByUser
     except ImportError:
         from trifusion.process.base import print_col, GREEN, RED
         from trifusion.ortho import OrthomclToolbox as OT
@@ -53,6 +54,7 @@ with warnings.catch_warnings():
         import trifusion.ortho.orthomclBlastParser as BlastParser
         import trifusion.ortho.orthomclMclToGroups as MclGroups
         from trifusion.ortho.error_handling import *
+        from trifusion.process.error_handling import KillByUser
 
 
 def install_schema(db_dir):
@@ -105,7 +107,7 @@ def check_unique_field(proteome_file, verbose=False):
         os.path.basename(proteome_file)))
 
 
-def prep_fasta(proteome_file, code, unique_id, verbose=False):
+def prep_fasta(proteome_file, code, unique_id, verbose=False, nm=None):
 
     if verbose:
         print_col("\t Preparing file for USEARCH", GREEN, 1)
@@ -124,6 +126,12 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     file_out = open(proteome_file.split(".")[0] + "_mod.fas", "w")
 
     for line in file_in:
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+                return
+
         if line.startswith(">"):
             if line not in header_list:
                 fields = line.split("|")
@@ -144,7 +152,7 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     return seq_storage
 
 
-def adjust_fasta(file_list, dest):
+def adjust_fasta(file_list, dest, nm=None):
 
     print_col("Adjusting proteome files", GREEN, 1)
 
@@ -157,12 +165,17 @@ def adjust_fasta(file_list, dest):
         # Get code for proteome
         code_name = proteome.split(os.path.sep)[-1].split(".")[0]
 
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+                return
+
         # Check the unique ID field
         unique_id = check_unique_field(proteome, True)
 
         # Adjust fasta
         # stg = prep_fasta(proteome, code_name, unique_id)
-        prep_fasta(proteome, code_name, unique_id)
+        prep_fasta(proteome, code_name, unique_id, nm)
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
@@ -171,13 +184,13 @@ def adjust_fasta(file_list, dest):
                     join(cf_dir, protome_file_name))
 
 
-def filter_fasta(min_len, max_stop, db, dest):
+def filter_fasta(min_len, max_stop, db, dest, nm=None):
 
     print_col("Filtering proteome files", GREEN, 1)
 
     cp_dir = join(dest, "backstage_files", "compliantFasta")
 
-    FilterFasta.orthomcl_filter_fasta(cp_dir, min_len, max_stop, db, dest)
+    FilterFasta.orthomcl_filter_fasta(cp_dir, min_len, max_stop, db, dest, nm)
 
 
 def allvsall_usearch(goodproteins, evalue, dest, cpus, usearch_outfile,
@@ -200,14 +213,15 @@ def allvsall_usearch(goodproteins, evalue, dest, cpus, usearch_outfile,
                           str(cpus)]).wait()
 
 
-def blast_parser(usearch_ouput, dest, db_dir):
+def blast_parser(usearch_ouput, dest, db_dir, nm):
 
     print_col("Parsing BLAST output", GREEN, 1)
 
     BlastParser.orthomcl_blast_parser(
         join(dest, "backstage_files", usearch_ouput),
         join(dest, "backstage_files", "compliantFasta"),
-        db_dir)
+        db_dir,
+        nm)
 
 
 def pairs(db_dir):
