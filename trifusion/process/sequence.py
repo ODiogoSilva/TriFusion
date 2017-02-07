@@ -1026,7 +1026,7 @@ class Alignment(Base):
     @SetupDatabase
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
                  haplotype_name="Hap", dest=None, conversion_suffix="",
-                 table_in=None, table_out="collapsed"):
+                 table_in=None, table_out="collapsed", ns=None):
         """
         Collapses equal sequences into haplotypes. This method fetches
         the sequences for the current alignment and creates a new database
@@ -1050,13 +1050,40 @@ class Alignment(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.total = len(self.taxa_list)
+                ns.counter = 0
+
         # Get collapsed alignment
         collapsed_dic = OrderedDict()
         for taxa, seq in self.iter_alignment(table_name=table_in):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                if ns.sa:
+                    ns.counter += 1
+                    ns.msg = "Collapsing taxon {}".format(taxa)
+
             if seq in collapsed_dic:
                 collapsed_dic[seq].append(taxa)
             else:
                 collapsed_dic[seq] = [taxa]
+
+        if ns:
+            # Reset counters for progress dialog
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.total = len(collapsed_dic)
+                ns.counter = 0
+                ns.msg = "Adding collapsed data to database"
 
         # The collapse operation is special in the sense that the former taxon
         # names are no longer valid. Therefore, we drop the previous table and
@@ -1069,6 +1096,13 @@ class Alignment(Base):
         sequence_data = []
         correspondence_dic = OrderedDict()
         for p, (seq, tx_list) in enumerate(collapsed_dic.items()):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                if ns.sa:
+                    ns.counter += 1
 
             haplotype = "{}_{}".format(haplotype_name, hap_counter)
             sequence_data.append((p, haplotype, seq))
@@ -1088,9 +1122,16 @@ class Alignment(Base):
             self.write_loci_correspondence(correspondence_dic, haplotypes_file,
                                            dest)
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.total = ns.counter = ns.msg = None
+
     @SetupDatabase
     def consensus(self, consensus_type, table_name=None, get_sequence=False,
-                 table_in=None, table_out="consensus"):
+                 table_in=None, table_out="consensus", ns=None):
         """
         Converts the current Alignment object dictionary into a single
         consensus  sequence. The consensus_type argument determines how
@@ -1114,6 +1155,14 @@ class Alignment(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.total = self.locus_length
+                ns.counter = 0
+
         # Empty consensus sequence
         consensus_seq = []
 
@@ -1125,6 +1174,13 @@ class Alignment(Base):
                     table_in)).fetchone()[0]]
 
         for column in self.iter_columns(table_name=table_in):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                if ns.sa:
+                    ns.counter += 1
 
             column = list(set(column))
 
@@ -1177,6 +1233,13 @@ class Alignment(Base):
         self.taxa_list = ["consensus"]
         self.taxa_idx["consensus"] = 0
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.counter = ns.total = None
+
     @staticmethod
     def write_loci_correspondence(dic_obj, output_file, dest="./"):
         """
@@ -1224,7 +1287,7 @@ class Alignment(Base):
         else:
             self.partitions = partitions
 
-    def reverse_concatenate(self, table_in="", db_con=None):
+    def reverse_concatenate(self, table_in="", db_con=None, ns=None):
         """
         This function divides a concatenated file according to the
         partitions set in self.partitions and returns an AlignmentList object
@@ -1261,9 +1324,19 @@ class Alignment(Base):
         alns = []
         sequence_data = []
 
+        if ns:
+            ns.counter = 0
+            ns.files = len(self.partitions)
+
         for name, part_range in self.partitions:
 
             name = "".join([x for x in name.split(".")[0] if x.isalnum()])
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
 
             # This adds support to the reverse concatenation of codon
             # partitions
@@ -1327,7 +1400,7 @@ class Alignment(Base):
 
     @SetupDatabase
     def filter_codon_positions(self, position_list, table_in=None,
-                               table_out="filter"):
+                                  table_out="filter", ns=None):
         """
         Filter codon positions from DNA alignments.
         :param position_list: list containing a boolean value for each codon
@@ -1354,6 +1427,11 @@ class Alignment(Base):
 
         for taxon, seq in self.iter_alignment(table_name=table_in):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             filtered_seq = "".join(list(
                 itertools.compress(seq, index(self.locus_length,
                                               position_list))))
@@ -1368,11 +1446,10 @@ class Alignment(Base):
                         table_out), (self.taxa_idx[taxon], taxon,
                                      filtered_seq))
 
-
         self.locus_length = len(filtered_seq)
 
     @SetupDatabase
-    def code_gaps(self, table_out="gaps", table_in=None):
+    def code_gaps(self, table_out="gaps", table_in=None, ns=None):
         """
         This method codes gaps present in the alignment in binary format,
         according to the method of Simmons and Ochoterena (2000), to be read
@@ -1385,6 +1462,14 @@ class Alignment(Base):
         :param table_out: string. Name of the table that will be
         created/modified in the database to harbor the collapsed alignment
         """
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.total = len(self.taxa_list)
+                ns.counter = 0
 
         def gap_listing(sequence, gap_symbol="-"):
             """ Function that parses a sequence string and returns the
@@ -1418,10 +1503,10 @@ class Alignment(Base):
                     sequence += "1"
 
                 elif sequence[cur_gap_start:cur_gap_end] == "-" * \
-                     (cur_gap_end - cur_gap_start):
+                        (cur_gap_end - cur_gap_start):
 
                     if sequence[cur_gap_start - 1] == "-" or \
-                    sequence[cur_gap_end] == "-":
+                            sequence[cur_gap_end] == "-":
                         sequence += "-"
 
                 elif sequence[cur_gap_start:cur_gap_end] != "-" * \
@@ -1435,13 +1520,36 @@ class Alignment(Base):
         # Get the complete list of unique gap positions in the alignment
         for tx, seq in self.iter_alignment(table_name=table_in):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                if ns.sa:
+                    ns.counter += 1
+                    ns.msg = "Fetching gaps for {}".format(tx)
+
             current_list = gap_listing(seq)
             complete_gap_list += [gap for gap in current_list if gap not in
                                   complete_gap_list]
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.counter = 0
+
         # This will add the binary matrix of the unique gaps listed at the
         # end of each alignment sequence
         for tx, seq in self.iter_alignment(table_name=table_in):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                if ns.sa:
+                    ns.counter += 1
+                    ns.msg = "Adding gaps for {}".format(tx)
 
             final_seq = gap_binary_generator(seq, complete_gap_list)
 
@@ -1465,7 +1573,14 @@ class Alignment(Base):
                                             len(complete_gap_list) +
                                             int(self.locus_length) - 1)
 
-    def _filter_terminals(self, table_in, table_out):
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if ns.sa:
+                ns.counter = ns.total = ns.msg = None
+
+    def _filter_terminals(self, table_in, table_out, ns=None):
         """
         This will replace the gaps in the extremities of the alignment with
         missing data symbols
@@ -1475,6 +1590,11 @@ class Alignment(Base):
         sequence_data = []
 
         for tx, seq in self.iter_alignment(table_name=table_in):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
 
             # Condition where the sequence only has gaps
             if not seq.strip("-"):
@@ -1511,7 +1631,7 @@ class Alignment(Base):
                 table_out), sequence_data)
 
     def _filter_columns(self, gap_threshold, missing_threshold, table_in,
-                        table_out):
+                        table_out, ns=None):
         """ Here several missing data metrics are calculated, and based on
          some user defined thresholds, columns with inappropriate missing
          data are removed """
@@ -1523,6 +1643,11 @@ class Alignment(Base):
 
         # Creating the column list variable
         for column in self.iter_columns(table_name=table_in):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
 
             cadd = column.count
 
@@ -1543,6 +1668,11 @@ class Alignment(Base):
 
         for tx, seq in self.iter_alignment(table_name=table_in):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             new_seq = "".join(compress(seq, filtered_cols))
             sequence_data.append((self.taxa_idx[tx], tx, new_seq))
 
@@ -1562,7 +1692,7 @@ class Alignment(Base):
 
     @SetupDatabase
     def filter_missing_data(self, gap_threshold, missing_threshold,
-                            table_in=None, table_out="filter"):
+                            table_in=None, table_out="filter", ns=None):
         """
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
@@ -1585,14 +1715,14 @@ class Alignment(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
-        self._filter_terminals(table_in=table_in, table_out=table_out)
+        self._filter_terminals(table_in=table_in, table_out=table_out, ns=ns)
 
         # Update output table. This will make the _filter_columns method modify
         # the alignment produced in the _filter_terminals method.
         table_in = table_out
 
         self._filter_columns(gap_threshold, missing_threshold,
-                             table_in=table_in, table_out=table_out)
+                             table_in=table_in, table_out=table_out, ns=ns)
 
     @staticmethod
     def _test_range(s, min_val, max_val):
@@ -1621,7 +1751,8 @@ class Alignment(Base):
         else:
             return False
 
-    def filter_segregating_sites(self, min_val, max_val, table_in=None):
+    def filter_segregating_sites(self, min_val, max_val, table_in=None,
+                                    ns=None):
         """
         Evaluates the number of segregating sites of the current alignment
         and returns True if they fall between the min_val and max_val.
@@ -1643,6 +1774,11 @@ class Alignment(Base):
         # Creating the column list variable
         for column in self.iter_columns(table_name=table_in):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             v = len(set([i for i in column if i not in [self.sequence_code[1],
                                                         "-"]]))
 
@@ -1660,7 +1796,8 @@ class Alignment(Base):
 
         return self._test_range(s, min_val, max_val)
 
-    def filter_informative_sites(self, min_val, max_val, table_in=None):
+    def filter_informative_sites(self, min_val, max_val, table_in=None,
+                                    ns=None):
         """
         Similar to filter_segregating_sites method, but only considers
         informative sites (variable sites present in more than 2 taxa).
@@ -1681,6 +1818,11 @@ class Alignment(Base):
 
         # Creating the column list variable
         for column in self.iter_columns(table_name=table_in):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
 
             column = Counter([i for i in column if i not in
                               [self.sequence_code[1], "-"]])
@@ -1874,8 +2016,25 @@ class Alignment(Base):
                            population_tree))
 
             if not self.partitions.is_single():
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.partitions.partitions)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing IMa2 output"
+
                 # Write each locus
                 for partition, lrange in self.partitions:
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
 
                     # Retrieving taxon names and sequence data. This step is
                     # the first because it will enable the removal of species
@@ -1927,6 +2086,16 @@ class Alignment(Base):
                         out_file.write("%s%s\n" % (taxon, seq))
 
             if self.partitions.is_single():
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(population_storage)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing IMa2 output"
+
                 # Write the header for the single
                 out_file.write("%s %s %s %s %s\n" % (
                                partition,
@@ -1937,12 +2106,21 @@ class Alignment(Base):
 
                 # Write sequence data
                 for population, taxa_list in population_storage.items():
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     for taxon in taxa_list:
                         seq = self.get_sequence(
                             taxon, table_name=table_name,
                             table_suffix=table_suffix).upper()
                         out_file.write("%s%s\n" %
-                            (taxon[:cut_space_ima2].ljust(seq_space_ima2), seq))
+                            (taxon[:cut_space_ima2].ljust(seq_space_ima2),
+                             seq))
 
         # Writes file in phylip format
         if "phylip" in output_format:
@@ -1955,8 +2133,26 @@ class Alignment(Base):
             out_file.write("%s %s\n" % (len(self.taxa_list),
                                         self.locus_length))
             if interleave:
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = self.locus_length / 90
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing phylip output"
+
                 counter = 0
                 for i in range(90, self.locus_length, 90):
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     for taxon, seq in self.iter_alignment(
                             table_name=table_name,
                             table_suffix=table_suffix):
@@ -1974,8 +2170,26 @@ class Alignment(Base):
                     counter = i
 
             else:
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.taxa_list)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing phylip output"
+
                 for taxon, seq in self.iter_alignment(
                         table_name=table_name, table_suffix=table_suffix):
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     out_file.write("%s %s\n" % (
                         taxon[:cut_space_phy].ljust(seq_space_phy),
                         seq.upper()))
@@ -2000,12 +2214,29 @@ class Alignment(Base):
 
         if "stockholm" in output_format:
 
+            if ns_pipe:
+                if ns_pipe.stop:
+                    raise KillByUser("")
+                    return
+                if ns_pipe.sa:
+                    ns_pipe.total = len(self.taxa_list)
+                    ns_pipe.counter = 0
+                    ns_pipe.msg = "Writing stockholm output"
+
             out_file = open(output_file + format_ext["stockholm"], "w")
 
             out_file.write("# STOCKHOLM V1.0\n")
 
             for taxon, seq in self.iter_alignment(
                     table_name=table_name, table_suffix=table_suffix):
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.counter += 1
+
                 out_file.write("%s\t%s\n" % (taxon, seq))
 
             out_file.write("//\n")
@@ -2019,7 +2250,25 @@ class Alignment(Base):
             out_file.write("%s\n" % (len(self.partitions.partitions)))
 
             if not self.partitions.is_single():
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.partitions.partitions)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing gphocs output"
+
                 for name, lrange in self.partitions.partitions.items():
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     lrange = lrange[0]
                     out_file.write("%s %s %s\n" % (name, len(self.taxa_list),
                                                  lrange[1] - lrange[0]))
@@ -2031,6 +2280,16 @@ class Alignment(Base):
                                                      seq[lrange[0]:lrange[1]]))
 
             else:
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.taxa_list)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing gphocs output"
+
                 out_file.write("%s %s %s\n" % (self.sname,
                                                len(self.taxa_list),
                                                self.locus_length))
@@ -2038,6 +2297,14 @@ class Alignment(Base):
                 for taxon, seq in self.iter_alignment(
                         table_name=table_name,
                         table_suffix=table_suffix):
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     out_file.write("%s\t%s\n" % (taxon, seq))
 
             out_file.close()
@@ -2048,7 +2315,25 @@ class Alignment(Base):
             taxa_number = len(self.taxa_list)
 
             if self.partitions.is_single() is False:
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.partitions.partitions)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing mcmctree output"
+
                 for lrange in self.partitions.partitions.values():
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     lrange = lrange[0]
                     out_file.write("%s %s\n" % (taxa_number,
                                                 (lrange[1] - (lrange[0]))))
@@ -2060,9 +2345,27 @@ class Alignment(Base):
                                          seq_space_phy),
                                        seq[lrange[0]:lrange[1]].upper()))
             else:
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.taxa_list)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing mcmctree output"
+
                 out_file.write("%s %s\n" % (taxa_number, self.locus_length))
                 for taxon, seq in self.iter_alignment(
                         table_name=table_name, table_suffix=table_suffix):
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     out_file.write("%s  %s\n" % (
                                    taxon[:cut_space_phy].ljust(seq_space_phy),
                                    seq.upper()))
@@ -2076,6 +2379,16 @@ class Alignment(Base):
 
             # This writes the output in interleave format
             if interleave:
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.locus_length / 90)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing nexus output"
+
                 if self.restriction_range is not None:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
                                    "ntax=%s nchar=%s ;\n\tformat datatype="
@@ -2100,6 +2413,14 @@ class Alignment(Base):
                                     self.sequence_code[1].upper()))
                 counter = 0
                 for i in range(0, self.locus_length, 90):
+
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     for taxon, seq in self.iter_alignment(
                             table_name=table_name, table_suffix=table_suffix):
                         out_file.write("%s %s\n" % (
@@ -2130,6 +2451,16 @@ class Alignment(Base):
 
             # This writes the output in leave format (default)
             else:
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.total = len(self.taxa_list)
+                        ns_pipe.counter = 0
+                        ns_pipe.msg = "Writing nexus output"
+
                 if self.restriction_range is not None:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
                                    "ntax=%s nchar=%s ;\n\tformat datatype=mixed"
@@ -2155,8 +2486,16 @@ class Alignment(Base):
                 for taxon, seq in self.iter_alignment(
                         table_name=table_name, table_suffix=table_suffix):
 
+                    if ns_pipe:
+                        if ns_pipe.stop:
+                            raise KillByUser("")
+                            return
+                        if ns_pipe.sa:
+                            ns_pipe.counter += 1
+
                     out_file.write("%s %s\n" % (taxon[:cut_space_nex].ljust(
                         seq_space_nex), seq))
+
                 out_file.write(";\n\tend;")
 
             if use_charset:
@@ -2226,8 +2565,24 @@ class Alignment(Base):
                                                    self.locus_length,
                                                    "2"))
 
+            if ns_pipe:
+                if ns_pipe.stop:
+                    raise KillByUser("")
+                    return
+                if ns_pipe.sa:
+                    ns_pipe.total = len(self.taxa_list)
+                    ns_pipe.counter = 0
+                    ns_pipe.msg = "Writing fasta output"
+
             for taxon, seq in self.iter_alignment(
                     table_name=table_name, table_suffix=table_suffix):
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe.sa:
+                        ns_pipe.counter += 1
 
                 if ld_hat:
                     # Truncate sequence name to 30 characters
@@ -2246,6 +2601,13 @@ class Alignment(Base):
                     out_file.write(">%s\n%s\n" % (taxon, seq.upper()))
 
             out_file.close()
+
+        if ns_pipe:
+            if ns_pipe.stop:
+                raise KillByUser("")
+                return
+            if ns_pipe.sa:
+                ns_pipe.msg = ns_pipe.counter = ns_pipe.total = None
 
 
 class AlignmentList(Base):
@@ -2743,7 +3105,7 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, alignment_name=None, table_in=""):
+    def concatenate(self, alignment_name=None, table_in="", ns=None):
         """
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
@@ -2753,6 +3115,10 @@ class AlignmentList(Base):
         afterwards.
         :return concatenated_alignment: Alignment object
         """
+
+        if ns:
+            ns.total = len(self.taxa_names)
+            ns.counter = 0
 
         table = "concatenation"
 
@@ -2776,9 +3142,21 @@ class AlignmentList(Base):
         # Concatenation is performed for each taxon at a time
         for p, taxon in enumerate(self.taxa_names):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.msg = "Concatenating taxon {}".format(taxon)
+                ns.counter += 1
+
             full_sequence = []
 
             for aln in self.alignments.values():
+
+                if ns:
+                    if ns.stop:
+                        raise KillByUser("")
+                        return
 
                 # Setting missing data symbol
                 missing = aln.sequence_code[1]
@@ -2803,6 +3181,13 @@ class AlignmentList(Base):
                 taxa_list.append(taxon)
                 taxa_idx[taxon] = p
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            # Reset counters
+            ns.total = ns.counter = None
+
         self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
             table), sequence_data)
 
@@ -2825,7 +3210,7 @@ class AlignmentList(Base):
 
         return concatenated_alignment
 
-    def filter_min_taxa(self, min_taxa):
+    def filter_min_taxa(self, min_taxa, ns=None):
         """
         Filters Alignment objects based on a minimum taxa representation
         threshold. Alignments with less that the specified minimum taxa
@@ -2842,16 +3227,38 @@ class AlignmentList(Base):
         alignments are moved to the filtered_alignments attribute
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = len(self.alignments)
+            ns.counter = 0
+
         self.filtered_alignments["By minimum taxa"] = 0
 
         for k, alignment_obj in list(self.alignments.items()):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+                ns.msg = "Evaluating file {}".format(
+                    basename(alignment_obj.name))
+
             if len(alignment_obj.taxa_list) < \
                     (float(min_taxa) / 100.) * len(self.taxa_names):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By minimum taxa"] += 1
 
-    def filter_by_taxa(self, filter_mode, taxa_list):
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = ns.counter = ns.msg = None
+
+    def filter_by_taxa(self, filter_mode, taxa_list, ns=None):
         """
         Filters the alignments attribute by taxa list. The filtering may be done
         to exclude or include a particular set of taxa
@@ -2860,6 +3267,10 @@ class AlignmentList(Base):
         :param taxa_list: list, contains the list of taxa to be used for
         filtering
         """
+
+        if ns:
+            ns.total = len(self.alignments)
+            ns.counter = 0
 
         self.filtered_alignments["By taxa"] = 0
 
@@ -2872,6 +3283,14 @@ class AlignmentList(Base):
                 pass
 
         for k, alignment_obj in list(self.alignments.items()):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+                ns.msg = "Filtering file {}".format(
+                    basename(alignment_obj.name))
 
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
@@ -2897,8 +3316,14 @@ class AlignmentList(Base):
         if self.alignments == {}:
             raise EmptyAlignment("Alignment is empty after taxa filter")
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.counter = ns.total = ns.msg = None
+
     def filter_codon_positions(self, position_list, table_in=None,
-                               table_out="filter"):
+                               table_out="filter", ns=None):
         """
         Filter codon positions from DNA alignments.
         :param position_list: list containing a boolean value for each codon
@@ -2912,19 +3337,41 @@ class AlignmentList(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = len(self.alignments)
+            ns.counter = 0
+
         # Reset partitions
         self.partitions = Partitions()
 
         for alignment_obj in list(self.alignments.values()):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+                ns.msg = "Filtering file {}".format(
+                    basename(alignment_obj.name))
+
             alignment_obj.filter_codon_positions(position_list,
                                                  table_in=table_in,
-                                                 table_out=table_out)
+                                                 table_out=table_out,
+                                                 ns=ns)
 
             self.set_partition_from_alignment(alignment_obj)
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = ns.counter = ns.msg = None
+
     def filter_missing_data(self, gap_threshold, missing_threshold,
-                            table_in=None, table_out="filter"):
+                            table_in=None, table_out="filter", ns=None):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
         See the method's documentation.
@@ -2943,16 +3390,38 @@ class AlignmentList(Base):
         # Reset partitions
         self.partitions = Partitions()
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = len(self.alignments)
+            ns.counter = 0
+
         for alignment_obj in list(self.alignments.values()):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+                ns.msg = "Filtering file {}".format(
+                    basename(alignment_obj.name))
 
             alignment_obj.filter_missing_data(
                 gap_threshold=gap_threshold,
                 missing_threshold=missing_threshold,
-                table_in=table_in, table_out=table_out)
+                table_in=table_in, table_out=table_out, ns=ns)
 
             self.set_partition_from_alignment(alignment_obj)
 
-    def filter_segregating_sites(self, min_val, max_val, table_in=None):
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = ns.counter = ns.msg = None
+
+    def filter_segregating_sites(self, min_val, max_val, table_in=None,
+                                    ns=None):
         """
         Wrapper of the filter_segregating_sites method of the Alignment
         object. See the method's documentation
@@ -2966,17 +3435,40 @@ class AlignmentList(Base):
         in the sqlite database. Leave None to use the main Alignment table
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = len(self.alignments)
+            ns.counter = 0
+
         self.filtered_alignments["By variable sites"] = 0
 
         for k, alignment_obj in list(self.alignments.items()):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+                ns.msg = "Filtering file {}".format(
+                    basename(alignment_obj.name))
+
             if not alignment_obj.filter_segregating_sites(min_val, max_val,
-                                                          table_in=table_in):
+                                                          table_in=table_in,
+                                                          ns=ns):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By variable sites"] += 1
 
-    def filter_informative_sites(self, min_val, max_val, table_in=None):
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = ns.counter = ns.msg = None
+
+    def filter_informative_sites(self, min_val, max_val, table_in=None,
+                                    ns=None):
         """
         Wrapper of the filter_informative_sites method of the Alignment
         object. See the method's documentation
@@ -2986,15 +3478,37 @@ class AlignmentList(Base):
         informative sites allowed for the alignment to pass the filter
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = len(self.alignments)
+            ns.counter = 0
+
         self.filtered_alignments["By informative sites"] = 0
 
         for k, alignment_obj in list(self.alignments.items()):
 
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+                ns.msg = "Filtering file {}".format(
+                    basename(alignment_obj.name))
+
             if not alignment_obj.filter_informative_sites(min_val, max_val,
-                                                          table_in=table_in):
+                                                          table_in=table_in,
+                                                          ns=ns):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By informative sites"] += 1
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.total = ns.counter = ns.msg = None
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """
@@ -3128,17 +3642,45 @@ class AlignmentList(Base):
 
         return selected_alignments
 
-    def code_gaps(self, table_in=None, table_out="gaps"):
+    def code_gaps(self, table_in=None, table_out="gaps", ns=None):
         """
         Wrapper for the code_gaps method of the Alignment object.
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            if len(self.alignments) == 1:
+                ns.sa = True
+            else:
+                ns.sa = False
+                ns.total = len(self.alignments)
+                ns.counter = 0
+
         for alignment_obj in self.alignments.values():
-            alignment_obj.code_gaps(table_in=table_in, table_out=table_out)
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                if not ns.sa:
+                    ns.counter += 1
+                    ns.msg = "Coding file {}".format(
+                        basename(alignment_obj.name))
+
+            alignment_obj.code_gaps(table_in=table_in, table_out=table_out,
+                                    ns=ns)
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.counter= ns.total = ns.msg = None
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
                  haplotype_name="Hap", dest="./", conversion_suffix="",
-                 table_in=None, table_out="collapsed"):
+                 table_in=None, table_out="collapsed", ns=None):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
@@ -3156,7 +3698,34 @@ class AlignmentList(Base):
         in the database to harbor the collapsed alignment
         """
 
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            # If the current alignment list contains only a single alignment,
+            # The progress should be measured inside that file
+            if len(self.alignments) == 1:
+                # Single Alignment is true
+                ns.sa = True
+            else:
+                ns.sa = False
+                ns.total = len(self.alignments)
+                ns.counter = 0
+
         for alignment_obj in self.alignments.values():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                # Only use counter here if there are more than 1 alignment.
+                # Otherwise,the counter will be used inside the Alignment
+                # method
+                if not ns.sa:
+                    ns.counter += 1
+                    ns.msg = "Collapsing file {}".format(
+                        basename(alignment_obj.name))
+
             if write_haplotypes:
                 # Set name for haplotypes file
                 output_file = alignment_obj.name.split(".")[0] + \
@@ -3164,15 +3733,15 @@ class AlignmentList(Base):
                 alignment_obj.collapse(haplotypes_file=output_file,
                                        haplotype_name=haplotype_name,
                                        dest=dest, table_out=table_out,
-                                       table_in=table_in)
+                                       table_in=table_in, ns=ns)
             else:
                 alignment_obj.collapse(write_haplotypes=False,
                                        haplotype_name=haplotype_name,
                                        dest=dest, table_name=table_out,
-                                       table_in=table_in)
+                                       table_in=table_in, ns=ns)
 
     def consensus(self, consensus_type, single_file=False,
-                  table_out="consensus", table_in=None):
+                  table_out="consensus", table_in=None, ns=None):
         """
         If single_file is set to False, this acts as a simple wrapper to
         to the consensus method of the Alignment object.
@@ -3188,6 +3757,19 @@ class AlignmentList(Base):
         :param table_name: string. Name of the table that will be created
         in the database to harbor the collapsed alignment
         """
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+
+            if len(self.alignments) == 1:
+                ns.sa = True
+            else:
+                ns.sa = False
+                ns.total = len(self.alignments)
+                ns.counter = 0
+
 
         self.taxa_names = ["consensus"]
 
@@ -3207,8 +3789,18 @@ class AlignmentList(Base):
             consensus_data = []
 
         for p, alignment_obj in enumerate(self.alignments.values()):
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                if not ns.sa:
+                    ns.msg = "Processing file {}".format(
+                        basename(alignment_obj.name))
+                    ns.counter += 1
+
             alignment_obj.consensus(consensus_type, table_out=table_out,
-                                    table_in=table_in)
+                                    table_in=table_in, ns=ns)
 
             if single_file:
                 sequence = alignment_obj.get_sequence("consensus",
@@ -3216,6 +3808,12 @@ class AlignmentList(Base):
                 consensus_data.append((p, alignment_obj.sname, sequence))
                 taxa_list.append(alignment_obj.sname)
                 taxa_idx[alignment_obj.sname] = p
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.counter = ns.total = ns.msg = None
 
         if single_file:
             # Populate database table
@@ -3230,7 +3828,7 @@ class AlignmentList(Base):
 
             return consensus_aln
 
-    def reverse_concatenate(self):
+    def reverse_concatenate(self, ns=None):
         """
         Internal function to reverse concatenate an alignment according to
         defined partitions in a Partitions object
@@ -3245,7 +3843,8 @@ class AlignmentList(Base):
 
         concatenated_aln = self.concatenate(alignment_name="concatenated")
 
-        reverted_alns = concatenated_aln.reverse_concatenate(db_con=self.con)
+        reverted_alns = concatenated_aln.reverse_concatenate(db_con=self.con,
+                                                             ns=ns)
 
         return reverted_alns
 
@@ -3287,7 +3886,27 @@ class AlignmentList(Base):
         the complete table name. Takes precedence over the suffix.
         """
 
+        if ns_pipe:
+            if ns_pipe.stop:
+                raise KillByUser("")
+                return
+            if len(self.alignments) == 1:
+                ns_pipe.sa = True
+            else:
+                ns_pipe.sa = False
+                ns_pipe.total = len(self.alignments)
+                ns_pipe.counter = 0
+
         for alignment_obj in self.alignments.values():
+
+            if ns_pipe:
+                if ns_pipe.stop:
+                    raise KillByUser("")
+                    return
+                if not ns_pipe.sa:
+                    ns_pipe.counter += 1
+                    ns_pipe.msg = "Writting file {}".format(
+                        basename(alignment_obj.name))
 
             output_file_name = alignment_obj.name.split(".")[0] + \
                 conversion_suffix + output_suffix
@@ -3324,6 +3943,12 @@ class AlignmentList(Base):
                                         ns_pipe=ns_pipe,
                                         table_suffix=table_suffix,
                                         table_name=table_name)
+
+        if ns_pipe:
+            if ns_pipe.stop:
+                raise KillByUser("")
+                return
+            ns_pipe.total = ns_pipe.counter =ns_pipe.msg = None
 
     def get_gene_table_stats(self, active_alignments=None):
         """

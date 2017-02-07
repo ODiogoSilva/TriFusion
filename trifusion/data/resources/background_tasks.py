@@ -333,17 +333,17 @@ def update_active_taxaset(aln_obj, set_name, active_taxa_list, taxa_groups):
 
 
 def process_execution(aln_list, file_set_name, file_list, file_groups,
-                      filename_map,
-                      taxa_set_name, active_taxa_list, ns, taxa_groups,
-                      hap_prefix, secondary_operations, secondary_options,
-                      missing_filter_settings, taxa_filter_settings,
-                      codon_filter_settings, variation_filter_settings,
-                      output_file, rev_infile, main_operations, zorro_suffix,
-                      partitions_file, output_formats, create_partfile,
-                      use_nexus_partitions, use_nexus_models,
-                      phylip_truncate_name, output_dir, use_app_partitions,
-                      consensus_type, ld_hat, temp_dir, ima2_params,
-                      conversion_suffix):
+                        filename_map,
+                        taxa_set_name, active_taxa_list, ns, taxa_groups,
+                        hap_prefix, secondary_operations, secondary_options,
+                        missing_filter_settings, taxa_filter_settings,
+                        codon_filter_settings, variation_filter_settings,
+                        output_file, rev_infile, main_operations, zorro_suffix,
+                        partitions_file, output_formats, create_partfile,
+                        use_nexus_partitions, use_nexus_models,
+                        phylip_truncate_name, output_dir, use_app_partitions,
+                        consensus_type, ld_hat, temp_dir, ima2_params,
+                        conversion_suffix):
     """
     Process execution function
     :param ns: Namespace object
@@ -367,9 +367,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             aln.set_partitions(partition_obj)
 
         if isinstance(aln, AlignmentList):
-            aln = aln.reverse_concatenate()
+            aln = aln.reverse_concatenate(ns=ns)
         else:
-            aln = aln.reverse_concatenate(db_con=con)
+            aln = aln.reverse_concatenate(db_con=con, ns=ns)
 
         return aln
 
@@ -384,43 +384,52 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Check if a minimum taxa representation was specified
         if secondary_options["gap_filter"]:
             if missing_filter_settings[1][0]:
-                aln.filter_min_taxa(missing_filter_settings[1][1])
+                ns.main_msg = "Filter (minimum taxa)"
+                aln.filter_min_taxa(missing_filter_settings[1][1], ns=ns)
 
         # Filter by taxa
         if secondary_options["taxa_filter"]:
             # Get taxa list from taxa groups
+            ns.main_msg = "Filter (by taxa)"
             taxa_list = taxa_groups[taxa_filter_settings[1]]
-            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list)
+            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list, ns=ns)
 
         # Filter codon positions
         if secondary_options["codon_filter"]:
+            ns.main_msg = "Filter (by codon)"
             aln.filter_codon_positions(codon_filter_settings,
-                                       table_out=table_out)
+                                       table_out=table_out, ns=ns)
 
         # Filter missing data
         if secondary_options["gap_filter"]:
+            ns.main_msg = "Filter (by missing data)"
             if missing_filter_settings[0][0]:
                 aln.filter_missing_data(missing_filter_settings[0][1],
                                         missing_filter_settings[0][2],
-                                        table_out=table_out)
+                                        table_out=table_out, ns=ns)
 
         # Filter variation
         if secondary_options["variation_filter"]:
             # Checks for variable site filter
             if variation_filter_settings[0] or variation_filter_settings[1]:
+                ns.main_msg = "Filter (by variable sites)"
                 aln.filter_segregating_sites(variation_filter_settings[0],
                                              variation_filter_settings[1],
-                                             table_in=table_out)
+                                             table_in=table_out, ns=ns)
             # Checks for informative site filter
             if variation_filter_settings[2] or variation_filter_settings[3]:
+                ns.main_msg = "Filter (by informative sites)"
                 aln.filter_informative_sites(variation_filter_settings[2],
                                              variation_filter_settings[3],
-                                             table_in=table_out)
+                                             table_in=table_out, ns=ns)
 
         # Pipe the information on the filtered alignments to the main process
         # only if it was applied a filter that changes the final alignments
         if set(aln.filtered_alignments.values()) != {None}:
             ns.filtered_alns = aln.filtered_alignments
+
+        # Reset main label text
+        ns.main_msg = None
 
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
@@ -441,7 +450,11 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             zorro_data.write_to_file(output_file)
 
         aln = aln.concatenate(alignment_name=basename(output_file),
-                              table_in=table_in)
+                              table_in=table_in, ns=ns)
+
+        # Sets the single alignment to True, for other method to be aware of
+        # this
+        ns.sa = True
 
         return aln
 
@@ -455,13 +468,17 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             if isinstance(aln, AlignmentList):
                 aln = aln.consensus(consensus_type=consensus_type,
                                     single_file=True,
-                                    table_out=table_out)
+                                    table_out=table_out,
+                                    ns=ns)
+                ns.sa = True
             else:
                 aln.consensus(consensus_type=consensus_type,
-                              table_out=table_out)
+                              table_out=table_out,
+                              ns=ns)
         else:
             aln.consensus(consensus_type=consensus_type,
-                          table_out=table_out)
+                          table_out=table_out,
+                          ns=ns)
 
         return aln
 
@@ -498,7 +515,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # "concatenation". As it is, when "concatenation", the aln_obj is
             # firstly converted into the concatenated alignment, and then all
             # additional operations are conducted in the same aln_obj
-            ns.msg = "Writing output"
 
             if isinstance(aln, Alignment):
                 aln.write_to_file(output_formats,
@@ -540,7 +556,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # deepcopy operation
         aln_object.set_database_connections(aln_list.cur, aln_list.con)
 
-        ns.msg = "Setting active data sets"
         # Setting the alignment to use.
         # Update active file set of the alignment object
         aln_object = update_active_fileset(aln_object,
@@ -579,48 +594,56 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Reverse concatenation
         # Active table: Based on partition names
         if main_operations["reverse_concatenation"]:
-            ns.msg = "Reverse concatenating"
+            ns.task = "reverse_concatenation"
             main_aln = reverse_concatenation(main_aln)
+            ns.finished_tasks.append("reverse_concatenation")
+
         # Filtering
         # Active table: * / *main
         if secondary_options["collapse_filter"] and not \
                 secondary_options["collapse_file"]:
-            ns.msg = "Filtering data for collapsing"
+            ns.task = "collapse_filter"
             # If the the collapse filter is active, perform this
             # filtering first. This is because the filter will allow 0% of
             # missing data, which will always be as stringent or more than any
             # missing data filter set.
-            main_aln.filter_missing_data(0, 0, table_out=main_table)
+            main_aln.filter_missing_data(0, 0, table_out=main_table, ns=ns)
+            ns.finished_tasks.append("collapse_filter")
 
         # Active table: * / *main
         if secondary_operations["filter"] and not \
                 secondary_options["filter_file"]:
-            ns.msg = "Filtering alignment(s)"
+            ns.task = "filter"
             main_aln = filter_aln(main_aln, table_out=main_table)
+            ns.finished_tasks.append("filter")
         # Concatenation
         # Active table: concatenation
         if main_operations["concatenation"]:
-            ns.msg = "Concatenating"
+            ns.task = "concatenation"
             main_aln = concatenation(main_aln, table_in=main_table)
+            ns.finished_tasks.append("concatenation")
         # Collapsing
         # Active table: *main / concatenationmain
         if secondary_operations["collapse"] and not \
                 secondary_options["collapse_file"]:
-            ns.msg = "Collapsing alignment(s)"
+            ns.task = "collapse"
             main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir,
-                                table_out=main_table)
+                                table_out=main_table, ns=ns)
+            ns.finished_tasks.append("collapse")
         # Gcoder
         # Active table: *main / concatenationmain
         if secondary_operations["gcoder"] and not \
                 secondary_options["gcoder_file"]:
-            ns.msg = "Coding gaps"
-            main_aln.code_gaps(table_out=main_table)
+            ns.task = "gcoder"
+            main_aln.code_gaps(table_out=main_table, ns=ns)
+            ns.finished_tasks.append("gcoder")
         # Consensus
         # Active table: *main / concatenationmain / consensus
         if secondary_operations["consensus"] and not \
                 secondary_options["consensus_file"]:
-            ns.msg = "Creating consensus sequence(s)"
+            ns.task = "consensus"
             main_aln = consensus(main_aln, table_out=main_table)
+            ns.finished_tasks.append("consensus")
 
         # ### Guide on possible final tables
         # --- Base types
@@ -640,12 +663,14 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # NOTE ON TABLE NAMES
         # Some combinations of operations actually create a table_suffix
         # that does not exist in the database. This happens in cases 6, 7 and
-        # 10. However, in these cases the main table(s) of the Aligment
+        # 10. However, in these cases the main table(s) of the Alignment
         # object should be used, so we let the sequence fetching methods
         # fail to find the suggested table and fallback to the main table.
 
+        ns.task = "write"
         writer(main_aln, conv_suffix=conversion_suffix,
                table_suffix=main_table)
+        ns.finished_tasks.append("write")
 
         #####
         # Perform operations on ADDITIONAL OUTPUTS
@@ -663,6 +688,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             if op == "filter":
 
+                ns.task = "filter"
+
                 # Remove previous temporary tables
                 aln_object.remove_tables(aln_object.get_tables())
 
@@ -677,9 +704,13 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     isinstance(main_aln, AlignmentList):
 
                 filename = output_file + suffix
+
+                ns.main_msg = "Concatenating"
                 main_aln = concatenation(main_aln, table_in=suffix[1:])
+                ns.main_msg = "Writing output"
                 writer(main_aln, filename=filename, table_suffix=suffix[1:])
             else:
+                ns.main_msg = "Writing output"
                 writer(main_aln, suffix_str=suffix, table_suffix=suffix[1:],
                        conv_suffix=conversion_suffix)
 
@@ -690,14 +721,17 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         main_aln.set_database_connections(aln_list.cur, aln_list.con)
 
         concatenated = False
+        ns.sa = False
 
         for op in [x for x, y in secondary_operations.items() if
                    x not in before_conc and y and
                    secondary_options["%s_file" % x]]:
 
             # Filter data for collapsing
-            if secondary_options["collapse_filter"] and op == "collapse":
-                main_aln.filter_missing_data(0, 0)
+            # if secondary_options["collapse_filter"] and op == "collapse":
+                # ns.task = "collapse"
+                # ns.main_msg = "Filtering for collapse"
+                # main_aln.filter_missing_data(0, 0, ns=ns)
 
             if main_operations["concatenation"]:
                 # If suffix was specified, it means that the filter was
@@ -713,33 +747,39 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             if op == "consensus":
 
-                ns.msg = "Creating additional consensus alignment(s)"
                 suffix = "_consensus"
+                ns.task = "consensus"
                 main_aln = consensus(main_aln, table_out=suffix[1:])
 
             elif op == "gcoder":
-                ns.msg = "Creating additional gap coded alignments(s)"
                 suffix = "_coded"
-                main_aln.code_gaps(table_out=suffix[1:])
+                ns.task = "gcoder"
+                main_aln.code_gaps(table_out=suffix[1:], ns=ns)
 
             elif op == "collapse":
+
+                ns.task = "collapse"
+                suffix = "_collapsed"
 
                 # In this case, filter the unconcatenated alignment
                 # and concatenate again
                 if secondary_options["collapse_filter"]:
-                    ns.msg = "Filtering alignments before collapsing"
+                    ns.main_msg = "Filtering for collapse"
                     aln_object.remove_tables(aln_object.get_tables())
-                    aln_object.filter_missing_data(0, 0)
-                    main_aln = aln_object.concatenate(table_in="filter")
+                    aln_object.filter_missing_data(0, 0, ns=ns,
+                                                   table_out=suffix[1:])
+                    if main_operations["concatenation"]:
+                        ns.main_msg = "Concatenation"
+                        main_aln = aln_object.concatenate(table_in=suffix[1:],
+                                                          ns=ns)
 
-                ns.msg = "Creating additional collapsed alignment(s)"
-                suffix = "_collapsed"
-
+                ns.main_msg = "Collapse"
                 main_aln.collapse(haplotype_name=hap_prefix,
                                   conversion_suffix=conversion_suffix,
                                   dest=output_dir,
-                                  table_out=suffix[1:])
+                                  table_out=suffix[1:], ns=ns)
 
+            ns.main_msg = "Writing output"
             if main_operations["concatenation"]:
                 filename = output_file + suffix
                 writer(main_aln, filename=filename, table_suffix=suffix[1:])
@@ -749,6 +789,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         # Resets the taxa_names attribute of the aln_obj to include all taxa
         # aln_object.update_taxa_names(all_taxa=True)
+
+    except KillByUser:
+        pass
 
     except IOError:
         # Resets the taxa_names attribute of the aln_obj to include all taxa
