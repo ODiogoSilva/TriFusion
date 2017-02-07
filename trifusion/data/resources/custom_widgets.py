@@ -34,8 +34,8 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.slider import Slider
 from kivy.uix.treeview import TreeView
-from kivy.uix.filechooser import FileChooserListView, FileChooserIconView, \
-    FileChooserLayout, FileChooserController
+from kivy.uix.image import Image
+from kivy.uix.filechooser import FileChooserListView
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
 from kivy.utils import get_hex_from_color
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
@@ -702,6 +702,30 @@ class ExportGraphics(BoxLayout):
 
         kwargs["bookmark_init"](self.ids.bookmark_gl, self.ids.sv_mycomp,
                                 self.ids.sd_filechooser, popup_level=2)
+
+
+class ProcessExecutionProgress(BoxLayout):
+    pass
+
+
+class ProgressBox(BoxLayout):
+    pass
+
+
+class LoadSpinner(FloatLayout):
+    pass
+
+
+class LoadCounter(Label):
+    pass
+
+
+class ProgressFinished(Image):
+    pass
+
+
+class ProgressWaiting(Image):
+    pass
 
 
 class StatsLoading(BoxLayout):

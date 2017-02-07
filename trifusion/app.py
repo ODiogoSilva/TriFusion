@@ -10150,13 +10150,189 @@ class TriFusionApp(App):
         module
         """
 
+        ops_map = {"reverse_concatenation": "Reverse concatenation",
+                   "collapse_filter": "Filter (Collapse)",
+                   "filter": "Filter",
+                   "concatenation": "Concatenation",
+                   "collapse": "Collapse",
+                   "gcoder": "Gap coding",
+                   "consensus": "Consensus",
+                   "write": "Writing output"}
+
+        def build_progress_dialog(wgt):
+
+            # Get the main and additional file operations
+            main_ops = []
+            additional_ops = []
+
+            # Iterate over a fixed order list of possible ops
+            for op in ["reverse_concatenation",
+                       "collapse_filter",
+                       "filter",
+                       "concatenation",
+                       "collapse",
+                       "gcoder",
+                       "consensus"]:
+
+                try:
+                    # Add to main ops if op is a main operation and set to True
+                    if self.main_operations[op]:
+                        main_ops.append(op)
+                except KeyError:
+                    pass
+
+                try:
+                    if self.secondary_operations[op]:
+                        try:
+                            # Add to additional ops if op is True for secondary
+                            # operations and true for *_file
+                            if self.secondary_options["{}_file".format(op)]:
+                                additional_ops.append(op)
+                            else:
+                                main_ops.append(op)
+                        except KeyError:
+                            # Add to main ops if op is True for secondary
+                            # operations but not True for *_file
+                            main_ops.append(op)
+                except KeyError:
+                    pass
+
+            # Set width of dialog based on the presence or not of additional
+            # files
+            if additional_ops:
+                width = 600
+            else:
+                width = 350
+                wgt.ids.additional_outputs.clear_widgets()
+                wgt.ids.additional_outputs.size_hint_x = None
+                wgt.ids.additional_outputs.width = 0
+                wgt.remove_widget(wgt.ids.additional_outputs)
+
+            # Set height of dialog based on the number of main/additional ops
+            ml = len(main_ops)
+            al = len(additional_ops)
+            max_ops = ml if ml > al else al
+
+            height = 200 + (max_ops * 50)
+
+            wgt_ref = {}
+
+            # Add main ops
+            for op in main_ops:
+                p = ProgressBox()
+                p.ids.main_lbl.text = ops_map[op]
+                wgt.ids.main_box.add_widget(p)
+                wgt_ref[op] = p
+
+            # Create write files operation
+            p = ProgressBox()
+            p.ids.main_lbl.text = ops_map["write"]
+            wgt.ids.main_box.add_widget(p)
+            wgt_ref["write"] = p
+
+            # Add additional ops
+            for op in additional_ops:
+                p = ProgressBox()
+                p.ids.main_lbl.text = ops_map[op]
+                wgt.ids.ad_box.add_widget(p)
+                wgt_ref[op] = p
+
+            # Give functionality to cancel button
+            content.ids.cancel_bt.bind(
+                on_release=lambda x: setattr(self,
+                                             "terminate_process_exec",
+                                             True))
+            self.show_popup(title="Process execution...", content=content,
+                            size=(width, height))
+
+            return wgt_ref
+
+        def finish_op(wgt, op_name):
+            wgt.ids.load_box.clear_widgets()
+            check_wgt = ProgressFinished()
+            wgt.ids.load_box.add_widget(check_wgt)
+            wgt.ids.main_lbl.font_size = 18
+            wgt.ids.main_lbl.color = (.7, .7, .7, 1)
+            wgt.ids.main_lbl.text = ops_map[op_name]
+            wgt.ids.secondary_lbl.text = ""
+            wgt.ids.secondary_lbl.color = (.7, .7, .7, 1)
+
+        def start_op(wgt):
+            wgt.ids.load_box.clear_widgets()
+            spinner = LoadSpinner()
+            counter = LoadCounter()
+            wgt_ref["spinner"] = spinner
+            wgt_ref["counter"] = counter
+            wgt.ids.load_box.add_widget(counter)
+            wgt.ids.load_box.add_widget(spinner)
+            wgt.ids.main_lbl.font_size = 18
+            wgt.ids.main_lbl.color = self._blue
+            wgt.ids.secondary_lbl.color = self._blue
+
         def check_process(p, man, dt):
 
-            if "img" in self._popup.content.ids:
-                self._popup.content.ids.img.rotation -= 10
+            # Update progress dialog
+            try:
+                # Start only when the first task has been initiated
+                if shared_ns.task:
+                    # If current_op is not empty, it means some task has
+                    # already been previously provided.
+                    if current_op:
+                        # Check if the previously provided task does not match
+                        # with the current task. If True, modify the progress
+                        # dialog so that the previous task is finished and
+                        # start the current task
+                        if shared_ns.task != current_op[0]:
+                            # Get widget of previous task
+                            pwgt = wgt_ref[current_op[0]]
+                            # Modify progress dialog of previous task so that
+                            # it appears as finished
+                            finish_op(pwgt, current_op[0])
+                            # Set the previous task as the current task for
+                            # future comparisons
+                            current_op[0] = shared_ns.task
+                            # Get widget of current task
+                            cwgt = wgt_ref[shared_ns.task]
+                            # Start loading progress of current task
+                            start_op(cwgt)
+                        else:
+                            cwgt = wgt_ref[shared_ns.task]
+
+                    # In this case, this is the first task being performed.
+                    # We only need to start the loading process of the current
+                    # task
+                    else:
+                        # Set the previous task as the current task
+                        current_op.append(shared_ns.task)
+                        # Get widget of current task
+                        cwgt = wgt_ref[shared_ns.task]
+                        # Start loading progress of current task
+                        start_op(cwgt)
+
+                    wgt_ref["spinner"].ids.img.rotation -= 10
+
+                    if shared_ns.total and shared_ns.counter:
+                        # Get percentage
+                        perc = int((float(shared_ns.counter) /
+                                    float(shared_ns.total)) * 100.)
+
+                        # Set percentage on progress dialog
+                        wgt_ref["counter"].text = "{}%".format(perc)
+
+                        # Set main label, if any
+                        if shared_ns.main_msg:
+                            cwgt.ids.main_lbl.text = shared_ns.main_msg
+
+                        # Set secondary label, if any
+                        if shared_ns.msg:
+                            cwgt.ids.secondary_lbl.text = shared_ns.msg
+
+            except AttributeError:
+                pass
 
             # Interrupt subporcess on user demand
             if self.terminate_process_exec:
+                shared_ns.stop = True
                 man.shutdown()
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
@@ -10244,6 +10420,12 @@ class TriFusionApp(App):
         shared_ns.status = None
         shared_ns.apply_all = False
 
+        shared_ns.stop = False
+        shared_ns.task = shared_ns.total = shared_ns.counter = \
+            shared_ns.msg = shared_ns.main_msg = None
+        shared_ns.finished_tasks = []
+        current_op = []
+
         # Packing arguments to background process
         process_kwargs = {"aln_list": self.alignment_list,
             "file_set_name": self.process_grid_wgt.ids.active_file_set.text,
@@ -10290,19 +10472,61 @@ class TriFusionApp(App):
         # Remove any possible previous popups
         self.dismiss_popup()
         # Create waiting dialog
-        content = CrunchData()
-        # Give functionality to cancel button
-        content.ids.cancel_bt.bind(
-            on_release=lambda x: setattr(self,
-                                         "terminate_process_exec",
-                                         True))
-        self.show_popup(title="Process execution...", content=content,
-                        size=(230, 230))
+        content = ProcessExecutionProgress()
+        wgt_ref = build_progress_dialog(content)
 
         # Schedule function that checks the process' pulse
         check_func = partial(check_process, p, manager)
         Clock.schedule_interval(check_func, .1)
 
+    def temp_dialog(self):
+
+        def testing(idx, dt):
+
+            i = "testing_"
+
+            for id, wgt in d.items():
+                if id == i + str(idx[0]):
+
+                    if isinstance(wgt.ids.load_box.children[0], ProgressWaiting):
+                        wgt.ids.load_box.clear_widgets()
+                        spiner = LoadSpinner()
+                        counter = LoadCounter()
+                        d["spiner"] = spiner
+                        d["counter"] = counter
+                        wgt.ids.load_box.add_widget(counter)
+                        wgt.ids.load_box.add_widget(spiner)
+                        wgt.ids.main_lbl.font_size = 18
+                        wgt.ids.main_lbl.color = self._blue
+
+                    if int(d["counter"].text[:-1]) == 100:
+
+                        wgt.ids.load_box.clear_widgets()
+                        check_wgt = ProgressFinished()
+                        wgt.ids.load_box.add_widget(check_wgt)
+                        wgt.ids.main_lbl.font_size = 16
+                        wgt.ids.main_lbl.color = (.7, .7, .7, 1)
+
+                        idx[0] += 1
+
+                    d["spiner"].ids.img.rotation -= 10
+                    c = int(d["counter"].text[:-1]) + 1
+                    d["counter"].text = "{}%".format(c)
+
+        content = ProcessExecutionProgress()
+        self.show_popup(title="Process execution...", content=content,
+                        size=(500, 560))
+
+        idx = [0]
+        d = {}
+        for i in range(8):
+            p = ProgressBox()
+            p.ids.main_lbl.text = "testing_{}".format(i)
+            d["testing_{}".format(i)] = p
+            content.ids.main_box.add_widget(p)
+
+        check_func = partial(testing, idx)
+        Clock.schedule_interval(check_func, .1)
 
 def main():
 

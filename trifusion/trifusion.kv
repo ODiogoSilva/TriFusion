@@ -2777,6 +2777,145 @@
     markup: True
     font_size: 16
 
+<LoadSpinner>:
+    AnchorLayout:
+        pos_hint: {"x": -.1, "y": -.1}
+        ScatterLayout:
+            do_translation: False
+            do_scale: False
+            do_rotation: False
+            id: img
+            Image:
+                source: "data/backgrounds/loading_40px.png"
+
+<ProgressWaiting>:
+    size_hint: None, None
+    size: 35, 27
+    source: "data/backgrounds/waiting.png"
+
+<LoadCounter>:
+    text: "0%"
+    size_hint: None, None
+    size: 26, 26
+    font_size: 12
+
+<ProgressFinished>:
+    size_hint: None, None
+    size: 35, 27
+    source: "data/backgrounds/check_green.png"
+
+<ProgressBox>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: 40
+    spacing: 10
+
+    FloatLayout:
+        size_hint: None, None
+        size: 40, 40
+        AnchorLayout:
+            pos_hint: {"x": 0.35, "y": -1.2}
+            size_hint: None, None
+            size: 40, 40
+            anchor_x: "center"
+            anchor_y: "center"
+            id: load_box
+            ProgressWaiting
+
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        orientation: "vertical"
+        padding: [70, 0, 0, 0]
+        Label:
+            id: main_lbl
+            text: ""
+            bold: True
+            size_hint_y: None
+            height: 30
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+            color: .7, .7, .7, 1
+        Label:
+            id: secondary_lbl
+            text: ""
+            bold: True
+            size_hint_y: None
+            height: 10
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+            font_size: 12
+            shorten: True
+            shorten_from: "right"
+            color: .7, .7, .7, 1
+
+<ProcessExecutionProgress>:
+    padding: 10
+    orientation: "vertical"
+
+    BoxLayout:
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                text: "Main output"
+                bold: True
+                size_hint_y: None
+                height: 30
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                font_size: 18
+                color: app._blue
+
+            Widget:
+                size_hint_y: None
+                height: 10
+
+            GridLayout:
+                orientation: "vertical"
+                spacing: 10
+                cols: 1
+                id: main_box
+
+
+        BoxLayout:
+            id: additional_outputs
+            orientation: "vertical"
+            Label:
+                text: "Additional outputs"
+                bold: True
+                size_hint_y: None
+                height: 30
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                font_size: 18
+                color: app._blue
+
+            Widget:
+                size_hint_y: None
+                height: 10
+
+            GridLayout:
+                orientation: "vertical"
+                spacing: 10
+                cols: 1
+                id: ad_box
+
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        AnchorLayout:
+            TFOKButon:
+                size_hint_x: None
+                width: 150
+                id: cancel_bt
+                text: "Cancel"
+                on_release:
+
 <ExecutionDialog>:
     padding: 10
     orientation: "vertical"
