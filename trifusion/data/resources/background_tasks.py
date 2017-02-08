@@ -213,7 +213,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.c = 4
         ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
                                     usearch_threads, usearch_output,
-                                    usearch_bin=usearch_file)
+                                    usearch_bin=usearch_file, nm=nm)
         if nm.stop:
             raise KillByUser("")
             return
@@ -229,8 +229,8 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         nm.t = "Obtaining Pairs"
         nm.c = 6
-        ortho_pipe.pairs(temp_dir)
-        ortho_pipe.dump_pairs(temp_dir, ortho_dir)
+        ortho_pipe.pairs(temp_dir, nm=nm)
+        ortho_pipe.dump_pairs(temp_dir, ortho_dir, nm=nm)
 
         if nm.stop:
             raise KillByUser("")
@@ -238,7 +238,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         nm.t = "Running MCL"
         nm.c = 7
-        ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file)
+        ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file, nm=nm)
 
         if nm.stop:
             raise KillByUser("")
@@ -247,7 +247,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.t = "Dumping groups"
         nm.c = 8
         ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
-                              group_prefix, ortho_dir)
+                              group_prefix, ortho_dir, nm=nm)
 
         if nm.stop:
             raise KillByUser("")

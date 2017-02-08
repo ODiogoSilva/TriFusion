@@ -3676,7 +3676,7 @@ class AlignmentList(Base):
             if ns.stop:
                 raise KillByUser("")
                 return
-            ns.counter= ns.total = ns.msg = None
+            ns.counter = ns.total = ns.msg = None
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
                  haplotype_name="Hap", dest="./", conversion_suffix="",

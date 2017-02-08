@@ -3,8 +3,13 @@
 import sqlite3 as lite
 import os
 
+try:
+    from process.error_handling import *
+except ImportError:
+    from trifusion.process.error_handling import *
 
-def printInparalogsFile (cur, filename):
+
+def printInparalogsFile (cur, filename, nm=None):
 
     cur.execute("select taxon_id, sequence_id_a, sequence_id_b, normalized_score\
         from InParalog\
@@ -14,6 +19,11 @@ def printInparalogsFile (cur, filename):
 
     with file_fh:
         while True:
+
+            if nm:
+                if nm.stop:
+                    raise KillByUser("")
+                    return
 
             row = cur.fetchone()
             if row is None:
@@ -27,7 +37,7 @@ def printInparalogsFile (cur, filename):
 ################################################################
 
 
-def printOrthologsFile (cur, filename):
+def printOrthologsFile (cur, filename, nm=None):
 
     cur.execute("select taxon_id_a, taxon_id_b, sequence_id_a, sequence_id_b, normalized_score\
         from Ortholog\
@@ -38,6 +48,11 @@ def printOrthologsFile (cur, filename):
     with file_fh:
         while True:
 
+            if nm:
+                if nm.stop:
+                    raise KillByUser("")
+                    return
+
             row = cur.fetchone()
             if row is None:
                 break
@@ -49,7 +64,7 @@ def printOrthologsFile (cur, filename):
 ################################################################
 
 
-def printCoOrthologsFile (cur, filename):
+def printCoOrthologsFile (cur, filename, nm=None):
 
     cur.execute("select taxon_id_a, taxon_id_b, sequence_id_a, sequence_id_b, normalized_score\
         from CoOrtholog\
@@ -60,6 +75,11 @@ def printCoOrthologsFile (cur, filename):
     with file_fh:
         while True:
 
+            if nm:
+                if nm.stop:
+                    raise KillByUser("")
+                    return
+
             row = cur.fetchone()
             if row is None:
                 break
@@ -71,7 +91,7 @@ def printCoOrthologsFile (cur, filename):
 ################################################################
 
 
-def printMclAbcFile (cur, filename):
+def printMclAbcFile (cur, filename, nm=None):
 
     cur.execute("select sequence_id_a, sequence_id_b, normalized_score\
         from InParalog\
@@ -87,6 +107,11 @@ def printMclAbcFile (cur, filename):
     with file_fh:
         while True:
 
+            if nm:
+                if nm.stop:
+                    raise KillByUser("")
+                    return
+
             row = cur.fetchone()
             if row is None:
                 break
@@ -96,7 +121,7 @@ def printMclAbcFile (cur, filename):
                                                 str((float(row[2]) * 1000 + .5) / 1000)))
 
 
-def execute(db_dir, dest):
+def execute(db_dir, dest, nm=None):
     con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
     with con:
@@ -104,16 +129,16 @@ def execute(db_dir, dest):
         cur = con.cursor()
 
         printOrthologsFile(cur, os.path.join(dest, "backstage_files",
-                                             "orthologs.txt"))
+                                             "orthologs.txt"), nm=nm)
 
         printInparalogsFile(cur, os.path.join(dest, "backstage_files",
-                                              "inparalogs.txt"))
+                                              "inparalogs.txt"), nm=nm)
 
         printCoOrthologsFile(cur, os.path.join(dest, "backstage_files",
-                                               "coorthologs.txt"))
+                                               "coorthologs.txt"), nm=nm)
 
         printMclAbcFile(cur, os.path.join(dest, "backstage_files",
-                                          "mclInput"))
+                                          "mclInput"), nm=nm)
 
 if __name__ == "__main__":
     execute(".", ".")
