@@ -194,23 +194,30 @@ def filter_fasta(min_len, max_stop, db, dest, nm=None):
 
 
 def allvsall_usearch(goodproteins, evalue, dest, cpus, usearch_outfile,
-                     usearch_bin="usearch"):
+                     usearch_bin="usearch", nm=None):
 
     print_col("Perfoming USEARCH All-vs-All (may take a while...)", GREEN, 1)
 
     # FNULL = open(os.devnull, "w")
-    _ = subprocess.Popen([usearch_bin,
-                          "-ublast",
-                          join(dest, "backstage_files", goodproteins),
-                          "-db",
-                          join(dest, "backstage_files", goodproteins),
-                          "-blast6out",
-                          join(dest, "backstage_files", usearch_outfile),
-                          "-evalue", str(evalue),
-                          "--maxaccepts",
-                          "0",
-                          "-threads",
-                          str(cpus)]).wait()
+    usearch_cmd = [usearch_bin,
+                   "-ublast",
+                   join(dest, "backstage_files", goodproteins),
+                   "-db",
+                   join(dest, "backstage_files", goodproteins),
+                   "-blast6out",
+                   join(dest, "backstage_files", usearch_outfile),
+                   "-evalue", str(evalue),
+                   "--maxaccepts",
+                   "0",
+                   "-threads",
+                   str(cpus)]
+
+    if nm:
+        nm.subp = subprocess.Popen(usearch_cmd)
+        nm.subp.wait()
+        nm.subp = None
+    else:
+        _ = subprocess.Popen(usearch_cmd).wait()
 
 
 def blast_parser(usearch_ouput, dest, db_dir, nm):
@@ -224,39 +231,47 @@ def blast_parser(usearch_ouput, dest, db_dir, nm):
         nm)
 
 
-def pairs(db_dir):
+def pairs(db_dir, nm=None):
 
     print_col("Finding pairs for orthoMCL", GREEN, 1)
 
-    make_pairs_sqlite.execute(db_dir)
+    make_pairs_sqlite.execute(db_dir, nm=nm)
 
 
-def dump_pairs(db_dir, dest):
+def dump_pairs(db_dir, dest, nm=None):
 
     print_col("Dump files from the database produced by the orthomclPairs "
               "program", GREEN, 1)
 
-    dump_pairs_sqlite.execute(db_dir, dest)
+    dump_pairs_sqlite.execute(db_dir, dest, nm=nm)
 
 
-def mcl(inflation_list, dest, mcl_file="mcl"):
+def mcl(inflation_list, dest, mcl_file="mcl", nm=None):
 
     print_col("Running mcl algorithm", GREEN, 1)
     mcl_input = join(dest, "backstage_files", "mclInput")
     mcl_output = join(dest, "backstage_files", "mclOutput_")
 
-    FNULL = open(os.devnull, "w")
     for val in inflation_list:
-        x = subprocess.Popen([mcl_file,
-                             mcl_input,
-                             "--abc",
-                             "-I",
-                             val,
-                             "-o",
-                             mcl_output + val.replace(".", "")]).wait()
+
+        mcl_cmd = [mcl_file,
+                   mcl_input,
+                   "--abc",
+                   "-I",
+                   val,
+                   "-o",
+                   mcl_output + val.replace(".", "")]
+
+        if nm:
+            nm.subp = subprocess.Popen(mcl_cmd)
+            nm.subp.wait()
+            nm.subp = None
+        else:
+            _ = subprocess.Popen(mcl_cmd).wait()
 
 
-def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest):
+def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest,
+                nm=None):
 
     print_col("Dumping groups", GREEN, 1)
 
@@ -268,11 +283,18 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest):
     mcl_output = join(dest, "backstage_files", "mclOutput_")
 
     for val in inflation_list:
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+                return
+
         MclGroups.mcl_to_groups(
             mcl_prefix,
             start_id,
             mcl_output + val.replace(".", ""),
-            os.path.join(results_dir, group_file + "_" + str(val) + ".txt"))
+            os.path.join(results_dir, group_file + "_" + str(val) + ".txt"),
+            nm=nm)
 
 
 def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,

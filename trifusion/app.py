@@ -25,18 +25,14 @@ import multiprocessing
 import matplotlib.patches as patches
 import subprocess
 import platform
-import psutil
 import pickle
 import urllib
 import string
 import Queue
-import time
 import stat
-import time
 import sys
 import os
 import threading
-from os import sep
 
 # Move to Application's directory. This is a way of avoiding encoding
 # issues when the full path to the application's directory contains
@@ -73,7 +69,6 @@ EventLoop.ensure_window()
 
 from kivy.app import App
 from kivy.animation import Animation
-from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.scrollview import ScrollView
@@ -10056,6 +10051,15 @@ class TriFusionApp(App):
                 # will propagate through the worker's methods and graciously
                 # terminate
                 shared_ns.stop = True
+
+                # If a subprocess has been issued, kill it
+                try:
+                    if shared_ns.subp:
+                        shared_ns.subp.kill()
+                        shared_ns.subp.terminate()
+                        shared_ns.subp = None
+                except AttributeError:
+                    pass
 
                 # This small delay seems to fix manager shutdown issues
                 time.sleep(.1)
