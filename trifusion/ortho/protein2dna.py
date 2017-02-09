@@ -253,7 +253,7 @@ def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
 
 
 def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
-                  usearch_bin, output_dir, shared_namespace=None):
+                usearch_bin, output_dir, shared_namespace=None):
     """
     Convenience function that wraps all required operations to convert protein
     to nucleotide files from a Group object

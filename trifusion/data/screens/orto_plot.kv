@@ -15,6 +15,7 @@ ShowcaseScreen:
                 anchor_y: "center"
                 size_hint_x: None
                 width: 90
+                padding: (5, 0, 0, 0)
                 Button:
                     size_hint: None, None
                     size: 80,30
@@ -23,7 +24,9 @@ ShowcaseScreen:
                     background_normal: "data/backgrounds/go_back_bt.png"
                     background_down: "data/backgrounds/go_back_bt_down.png"
                     on_release:
-                        app.go_previous_screen()
+                        app.dialog_plot_check_filters(header_content.root_filt, header_content.root_excluded, header_content.original_filt, header_content.excluded_taxa)
+
+                        #app.go_previous_screen()
 
             Vseparator:
                 thickness: 1.5
@@ -33,6 +36,8 @@ ShowcaseScreen:
                 cols: 1
                 size_hint_x: None
                 width: root.width - 100
+                root_filt: None
+                root_excluded: None
                 original_filt: None
                 plt_idx: None
                 excluded_taxa: []

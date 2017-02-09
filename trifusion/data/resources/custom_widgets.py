@@ -704,6 +704,10 @@ class ExportGraphics(BoxLayout):
                                 self.ids.sd_filechooser, popup_level=2)
 
 
+class PlotChangeFilters(BoxLayout):
+    pass
+
+
 class ProcessExecutionProgress(BoxLayout):
     pass
 

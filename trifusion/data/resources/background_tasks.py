@@ -821,14 +821,14 @@ def load_group_files(group_files, temp_dir, ns=None):
     return [og, og.filters]
 
 
-def orto_update_filters(ortho_groups, gn_filter, sp_filter,
+def orto_update_filters(ortho_groups, gn_filter, sp_filter, excluded_taxa,
                         group_names=None, default=False):
     try:
         if group_names:
-            ortho_groups.update_filters(gn_filter, sp_filter, group_names,
-                                        default=default)
+            ortho_groups.update_filters(gn_filter, sp_filter, excluded_taxa,
+                                        group_names, default=default)
         else:
-            ortho_groups.update_filters(gn_filter, sp_filter,
+            ortho_groups.update_filters(gn_filter, sp_filter, excluded_taxa,
                                         default=default)
     except EOFError:
         pass
@@ -846,6 +846,64 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
             active_group = ortho_groups.get_group(active_group_name)
 
     return [active_group]
+
+
+def get_orto_data(active_group, plt_idx, filt, exclude_taxa):
+    """
+    Given a GroupLight object, this function will execute the method that
+    corresponds to plt_idx to generate data.
+    :param active_group: GroupLight object. Active group that will be used
+    to plot data
+    :param plt_idx: string. Identifier of the plot type that must have a
+    correspondence in the method dictionary below
+    :return plot_data: dictionary. Has the required data for the
+    plotting methods to generate the plot.
+    """
+
+    # Store the plot generation method in a dictionary where keys are
+    # the text attributes of the plot spinner and the values are
+    # bound methods
+    methods = {
+        "Taxa distribution": active_group.bar_species_distribution,
+        "Taxa coverage": active_group.bar_species_coverage,
+        "Gene copy distribution": active_group.bar_genecopy_distribution,
+        "Taxa gene copies": active_group.bar_genecopy_per_species
+    }
+
+    # Check for excluded taxa. If any have been provided and are different from
+    # the ones already set in the GroupLight object, then update the taxa
+    # filter.
+    if (exclude_taxa and exclude_taxa != active_group.excluded_taxa) or \
+            (exclude_taxa == [] and
+             exclude_taxa != active_group.excluded_taxa):
+        # The update_stats flag of the exclude_taxa method is set to True
+        # to update the group summary stats. This is important for eventual
+        # corrections to the ortholog cluster filters.
+        active_group.exclude_taxa(exclude_taxa, True)
+
+    if filt:
+        # If filters AND excluded taxa have been provided, the first thing
+        # to do is check whether the provided filters are still correct.
+        # Excluding taxa may lead to changes in the maximum values of the
+        # ortholog filters, and this needs to be corrected here
+        if exclude_taxa and exclude_taxa != active_group.excluded_taxa:
+            # Correct gene copy filter maximum
+            gn_filt = filt[0] if filt[0] <= active_group.max_extra_copy \
+                else active_group.max_extra_copy
+            # Correct minimum taxa representation maximum
+            sp_filt = filt[1] if \
+                filt[1] <= len(active_group.species_list) \
+                else len(active_group.species_list)
+        else:
+            # No taxa have been excluded this time, so we'll keep the provided
+            # filters
+            gn_filt, sp_filt = filt
+
+        active_group.update_filters(gn_filt, sp_filt, True)
+
+    plot_data = methods[plt_idx](filt=filt)
+
+    return [plot_data]
 
 
 def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
