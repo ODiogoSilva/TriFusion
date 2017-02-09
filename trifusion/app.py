@@ -316,6 +316,17 @@ class TriFusionApp(App):
     alternative_table = ObjectProperty(None, allownone=True)
     # Patch attribute
     plt_patch = None
+    # Dictionary with the plotmethods and file names for orthology plots
+    orto_plt_method = {
+        "Taxa distribution":
+        [bar_plot, "Species_distribution.png"],
+        "Gene copy distribution":
+        [bar_plot, "Gene_copy_distribution.png"],
+        "Taxa coverage":
+        [bar_plot, "Species_coverage.png"],
+        "Taxa gene copies":
+        [bar_plot,"Species_copy_number.png"]
+    }
     # Dictionary with the plot methods and file names for each stats_idx
     stats_plt_method = {
             "Gene occupancy":
@@ -2477,10 +2488,10 @@ class TriFusionApp(App):
                     if second_func:
                         if args2 and val:
                             val.extend(args)
-                        elif args2 and not val:
+                        elif args2:
                             val = args
                         second_function(*val)
-                else:
+                elif second_function:
                     second_function()
 
         # Set up manager and shared name space to share information
@@ -6459,8 +6470,12 @@ class TriFusionApp(App):
         content = OrtoSetFiltersDialog(cancel=self.dismiss_popup)
         content.group_name = group_name
 
+        sp_list = self.ortho_groups.taxa_list[self.active_group_name]
+        content.ids.exclude_bt.text = "{} included".format(
+            len(sp_list))
+
         self.show_popup(title="Set/change ortholog filters for %s file" %
-                              group_name, content=content, size=(400, 250))
+                              group_name, content=content, size=(400, 390))
 
     def dialog_ortho_filter(self):
         """
@@ -6857,6 +6872,46 @@ class TriFusionApp(App):
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
 
+    def dialog_plot_check_filters(self, previous_filt, prev_tx,
+                                  current_filt, current_tx):
+        """
+        Dialog that is triggered when exiting a plot screen and the current
+        plot filters are different from the filters before entering the plot
+        screen. Will ask the user if the filters should be updated for the
+        remaining app or not.
+        """
+
+        content = PlotChangeFilters()
+
+        content.ids.prev_gn.text = str(previous_filt[0])
+        content.ids.cur_gn.text = str(current_filt[0])
+
+        content.prev_filt = previous_filt
+        content.prev_tx = prev_tx
+        content.cur_filt = current_filt
+        content.cur_tx = current_tx
+
+        if previous_filt[0] != current_filt[0]:
+            content.ids.prev_gn.color = self._red
+            content.ids.cur_gn.color = self._red
+
+        content.ids.prev_min_tx.text = str(previous_filt[1])
+        content.ids.cur_min_tx.text = str(current_filt[1])
+
+        if previous_filt[1] != current_filt[1]:
+            content.ids.prev_min_tx.color = self._red
+            content.ids.cur_min_tx.color = self._red
+
+        content.ids.prev_ex_tx.text = str(len(prev_tx))
+        content.ids.cur_ex_tx.text = str(len(current_tx))
+
+        if sorted(prev_tx) != sorted(current_tx):
+            content.ids.prev_ex_tx.color = self._red
+            content.ids.cur_ex_tx.color = self._red
+
+        self.show_popup(title="", content=content, size=(520, 400),
+                        separator_color=(0, 0, 0, 0))
+
     def orto_show_plot(self, active_group, plt_idx, filt=None,
                        exclude_taxa=None):
         """
@@ -6886,36 +6941,58 @@ class TriFusionApp(App):
         # Set active group
         if active_group:
             self.active_group = active_group
+        else:
+            active_group = self.active_group
 
         # Exclude taxa, if any
         if exclude_taxa:
-
             # If all taxa were excluded issue a warning and do nothing more
             if set(exclude_taxa) == set(self.active_group.species_list):
                 return self.dialog_floatcheck(
                     "At least one taxon must be included.",
                     t="warning")
 
-            # Update attributes and remove taxa from group object
-            self.screen.ids.header_content.excluded_taxa = exclude_taxa
-            self.active_group.exclude_taxa(exclude_taxa)
+        # Setting filters for the first time
+        if not filt and not exclude_taxa:
+            self.screen.ids.gn_spin.value = self.active_group.max_extra_copy
+            self.screen.ids.sp_spin.value = 1
+            self.screen.ids.header_content.original_filt = \
+                [self.active_group.max_extra_copy, 1]
+            self.screen.ids.header_content.root_filt = \
+                [active_group.gene_threshold, active_group.species_threshold]
+            self.screen.ids.header_content.root_excluded = \
+                active_group.excluded_taxa
 
-        # When excluded taxa is not None, but explicitly an empty list,
-        # reset the excluded_taxa property of header_content
-        elif exclude_taxa == []:
-            # Reset excluded taxa storage list
-            self.screen.ids.header_content.excluded_taxa = []
+            self.active_group.exclude_taxa([])
+            self.active_group.update_filters(
+                self.active_group.max_extra_copy, 1, True)
 
-        # If excluded_taxa is not provided in function calling, but has
-        # already being defined in header_content.excluded_taxa, use this
-        # list.
-        elif (not exclude_taxa and
-                self.screen.ids.header_content.excluded_taxa):
+        self.run_in_background(
+            get_orto_data,
+            self.orto_write_plot,
+            [active_group, plt_idx, filt, exclude_taxa],
+            [plt_idx]
+        )
 
-            self.active_group.exclude_taxa(
-                self.screen.ids.header_content.excluded_taxa)
+    def orto_write_plot(self, plot_data, plt_idx):
+        """
+        Provide with the data structure and a plt_idx string identifier, this
+        function will create the plot file and update the plot screen.
+        :param plot_data: list/np array, data structure to be used in plot
+        construction
+        :param plt_idx: string, identification string of the plot.
+        """
 
-        # Update slider max values
+        # Update excluded taxa attribute
+        self.screen.ids.header_content.excluded_taxa = \
+            self.active_group.excluded_taxa
+
+        # Update orthology filter attributes
+        self.screen.ids.header_content.original_filt = \
+            [self.active_group.gene_threshold,
+             self.active_group.species_threshold]
+
+        # Update orthology filter max values
         self.screen.ids.gn_spin.max = self.active_group.max_extra_copy
         self.screen.ids.sp_spin.max = len(self.active_group.species_list)
         # Update slider values if they are outside bounds
@@ -6928,120 +7005,43 @@ class TriFusionApp(App):
             self.screen.ids.sp_spin.value = \
                 len(self.active_group.species_list)
 
-        # If filt is specified, update the groups object
-        if filt:
-            # This will test whether the specified filters are inside bounds
-            # of the group object. Removal of taxa may alter the maximum
-            # number of gene copies and/or taxa and this will account for
-            #  that and correct it
-            gn_filt = filt[0] if \
-                filt[0] <= self.active_group.max_extra_copy \
-                else self.active_group.max_extra_copy
-
-            sp_filt = filt[1] if \
-                filt[1] <= len(self.active_group.species_list) \
-                else len(self.active_group.species_list)
-
-            # Update group filters
-            self.active_group.update_filters(gn_filt, sp_filt, True)
-            self.screen.ids.header_content.original_filt = \
-                [gn_filt, sp_filt]
-
-            # If any of the filters had to be adjusted, issue a warning
-            if gn_filt != filt[0] or sp_filt != filt[1]:
-                self.dialog_floatcheck(
-                    "Current filters beyond the  maximum "
-                    "accepted values. Adjusting gene  and species "
-                    "thresholds to %s and %s,  respectively" %
-                    (gn_filt, sp_filt), t="warning")
-
-        # If no filter has been specified, but taxa removal changed the
-        # maximum number of species and/or gene copies beyond the current
-        #  filter, adjust it
-        elif (exclude_taxa and
-                self.screen.ids.header_content.original_filt !=
-                [self.screen.ids.gn_spin.value,
-                 self.screen.ids.sp_spin.value]):
-
-            self.screen.ids.header_content.original_filt = \
-                [self.screen.ids.gn_spin.value,
-                 self.screen.ids.sp_spin.value]
-
-            self.active_group.update_filters(
-                self.screen.ids.gn_spin.value,
-                self.screen.ids.sp_spin.value,
-                True)
-
-            # Issue warning that the filters were adjusted
-            self.dialog_floatcheck(
-                "Current filters beyond the maximum accepted "
-                "values. Adjusting gene and species thresholds to %s and "
-                "%s, respectively" %
-                (self.screen.ids.gn_spin.value,
-                self.screen.ids.sp_spin.value), t="warning")
-
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
 
-        # Store the plot generation method in a dictionary where keys are
-        # the text attributes of the plot spinner and the values are
-        # bound methods
-        plt_method = {
-            "Taxa distribution":
-            [self.active_group.bar_species_distribution,
-             "Species_distribution.png"],
-            "Taxa coverage":
-            [self.active_group.bar_species_coverage,
-             "Species_coverage.png"],
-            "Gene copy distribution":
-            [self.active_group.bar_genecopy_distribution,
-             "Gene_copy_distribution.png"],
-            "Taxa gene copies":
-            [self.active_group.bar_genecopy_per_species,
-             "Species_copy_number.png"]}
+        # Update summary attributes
+        self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
+            "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
+            "[/size]" % \
+            (str(self.active_group.all_compliant),
+             str(self.active_group.all_clusters))
+
+        self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
+            "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
+            "[/size]" % \
+            (len(self.active_group.species_list),
+             len(self.active_group.excluded_taxa) +
+             len(self.active_group.species_list))
 
         # Call corresponding method and catch plot object
         self.current_plot, self.current_lgd, self.current_table = \
-            plt_method[plt_idx][0](dest=self.temp_dir,
-                                   filt=True if filt else False)
+            self.orto_plt_method[plt_idx][0](**plot_data)
 
-        # Setting filters for the first time
-        if not filt and not exclude_taxa:
-            self.screen.ids.gn_spin.value = self.active_group.max_extra_copy
-            self.screen.ids.sp_spin.value = 1
-            self.screen.ids.header_content.original_filt = \
-                [self.active_group.max_extra_copy, 1]
+        # Get plot path
+        plot_path = join(self.temp_dir, self.orto_plt_method[plt_idx][1])
 
-            self.screen.ids.orto_sum.text = \
-                "[size=26][color=71c837ff]%s[/color][/size][size=13]/" \
-                "[color=ff5555ff]%s[/color][/size]" % \
-                (len(self.active_group.species_frequency),
-                len(self.active_group.species_frequency))
-
-            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][" \
-                "/size]" % (len(self.active_group.species_list),
-                            len(self.active_group.species_list))
-
-            self.active_group.update_filters(
-                self.active_group.max_extra_copy, 1, True)
+        # Save plot figure
+        if self.current_lgd:
+            self.current_plot.savefig(
+                plot_path,
+                bbox_extra_artists=(self.current_lgd,),
+                bbox_inches="tight", dpi=200)
         else:
-            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
-                "[/size]" % \
-                (str(self.active_group.all_compliant),
-                str(len(self.active_group.species_frequency) -
-                    len(self.active_group.filtered_groups)))
-
-            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
-                "[/size]" % \
-                (len(self.active_group.species_list),
-                len(self.screen.ids.header_content.excluded_taxa) +
-                    len(self.active_group.species_list))
+            self.current_plot.savefig(
+                plot_path,
+                bbox_inches="tight", dpi=200)
 
         # Load plot
-        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
+        self.load_plot(plot_path,
                        self.screen.ids.plot_content)
 
     @staticmethod
@@ -7067,16 +7067,50 @@ class TriFusionApp(App):
         scatter_wgt.scale = 1
         scatter_wgt.pos = (0, 0)
 
+    def dialog_set_exclude_orto_taxa(self):
+        """
+        Creates a dialog for the orthology change filters option.
+        """
+
+        def set_excluded():
+            excluded_taxa = [x.text for x in
+                             self._subpopup.content.ids.rev_inlist.children if
+                             x.state == "normal"]
+
+            self._popup.content.excluded_taxa = excluded_taxa
+            self._popup.content.ids.exclude_bt.text = "{} included".format(
+                len(sp_list) - len(excluded_taxa))
+            self.dismiss_subpopup()
+
+        sp_list = self.ortho_groups.taxa_list[self.active_group_name]
+        ex_list = self.ortho_groups.excluded_taxa[self.active_group_name]
+
+        content = InputList(cancel=self.dismiss_subpopup)
+
+        # Add button for each taxon
+        for taxon in sorted(sp_list + ex_list):
+            bt = TGToggleButton(text=taxon, height=30, state="down")
+            # deselect button if taxa is excluded
+            if taxon in ex_list:
+                bt.state = "normal"
+            # Add button to list
+            content.ids.rev_inlist.add_widget(bt)
+
+        content.ids.ok_bt.bind(on_release=lambda x: set_excluded())
+
+        self.show_popup(title="Included taxa", content=content,
+                        size_hint=(.3, .8), popup_level=2)
+
     def dialog_exclude_orto_taxa(self, plt_idx):
 
         content = InputList(cancel=self.dismiss_popup)
 
         # Add button for each taxon
         for taxon in sorted(self.active_group.species_list +
-                self.screen.ids.header_content.excluded_taxa):
+                            self.active_group.excluded_taxa):
             bt = TGToggleButton(text=taxon, height=30, state="down")
             # deselect button if taxa is excluded
-            if taxon in self.screen.ids.header_content.excluded_taxa:
+            if taxon in self.active_group.excluded_taxa:
                 bt.state = "normal"
             # Add button to list
             content.ids.rev_inlist.add_widget(bt)
@@ -7150,6 +7184,7 @@ class TriFusionApp(App):
             else:
                 self.ortho_groups = groups_obj
                 self.ortho_groups.filters = default_filters
+                print(self.ortho_groups.groups.keys())
 
             self.ortho_group_files.extend(list(groups_obj.groups.keys()))
 
@@ -7253,7 +7288,7 @@ class TriFusionApp(App):
                 self.run_in_background(
                     orto_update_filters,
                     self.orthology_card,
-                    [self.ortho_groups, None, None,
+                    [self.ortho_groups, None, None, [],
                      [x for x in groups_obj.groups], True],
                     None,
                     False,
