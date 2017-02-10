@@ -99,10 +99,25 @@ def create_db(f_list, dest="./", ns=None):
     output_handle = open(join(dest, "transcripts.fas"), "w")
     id_dic = {}
 
+    if ns:
+        if ns.stop:
+            raise KillByUser("")
+            return
+
+        ns.progress = 0
+        ns.max_pb = len(f_list)
+
     for f in f_list:
         handle = open(f)
         seq = ""
         header = ""
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.progress += 1
+
         for line in handle:
 
             if ns:
@@ -203,12 +218,23 @@ def get_pairs(dest="./", ns=None):
     file_h = open(join(dest, "pairs.out"))
     pair_db = {}
 
+    if ns:
+        if ns.stop:
+            raise KillByUser("")
+            return
+        with open(join(dest, "pairs.out")) as f:
+            for p, _ in enumerate(f):
+                pass
+        ns.max_pb = p + 1
+        ns.progress = 0
+
     for l in file_h:
 
         if ns:
             if ns.stop:
                 raise KillByUser("")
                 return
+            ns.progress += 1
 
         fields = l.split("\t")
         pair_db[fields[0]] = fields[1]
@@ -279,7 +305,8 @@ def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
 
     # Create query for USEARCH
     group_sequences.retrieve_sequences(sqldb, protein_db, output_dir,
-                                       outfile="query.fas")
+                                       outfile="query.fas",
+                                       shared_namespace=shared_namespace)
 
     if shared_namespace:
         # Kill switch

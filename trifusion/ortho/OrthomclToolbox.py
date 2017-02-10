@@ -429,6 +429,13 @@ class GroupLight(object):
             shared_namespace.act = "Creating database"
             # Stores sequences that could not be retrieved
             shared_namespace.missed = 0
+            shared_namespace.progress = 0
+            # Get number of lines of protein database
+            with open(protein_db) as fh:
+                for p, _ in enumerate(fh):
+                    pass
+            shared_namespace.max_pb = p + 1
+            print(shared_namespace.max_pb)
 
         # Connect to database
         conn = sqlite3.connect(sqldb)
@@ -436,8 +443,8 @@ class GroupLight(object):
         table_name = "".join([x for x in protein_db if x.isalnum()])
 
         # Create table if it does not exist
-        if not c.execute("SELECT name FROM sqlite_master WHERE type='table' AND"
-                         " name='{}'".format(table_name)).fetchall():
+        if not c.execute("SELECT name FROM sqlite_master WHERE type='table' "
+                         "AND name='{}'".format(table_name)).fetchall():
 
             c.execute("CREATE TABLE {} (seq_id text PRIMARY KEY, seq text)".
                       format(table_name))
@@ -453,6 +460,7 @@ class GroupLight(object):
                             conn.close()
                             raise KillByUser("")
                             return
+                        shared_namespace.progress += 1
 
                     if line.startswith(">"):
                         seq_id = line.strip()[1:]
@@ -469,6 +477,7 @@ class GroupLight(object):
             shared_namespace.act = "Fetching sequences"
             shared_namespace.good = 0
             shared_namespace.progress = 0
+            shared_namespace.max_pb = self.all_compliant
 
         # Set single output file, if option is set
         if outfile:
