@@ -199,12 +199,25 @@ class GroupLight(object):
         for cl in sp_freq:
             yield cl
 
+    def _remove_tx(self, line):
+        """
+        Given a group line, remove all references to the excluded taxa
+        :param line: raw group file line
+        """
+
+        new_line = "{}:".format(line.split(":")[0])
+
+        tx_str = "\t".join([x for x in line.split(":")[1].split() if
+                           x.split("|")[0] not in self.excluded_taxa])
+
+        return new_line + tx_str
+
     def _apply_filter(self, cl):
         """
         Sets or updates the basic group statistics, such as the number of
         orthologs compliant with the gene copy and minimum taxa filters.
 
-        :param ccl: dictionary. Contains the number of occurrences for each
+        :param cl: dictionary. Contains the number of occurrences for each
          taxon present in the ortholog cluster
          (e.g. {"taxonA": 2, "taxonB": 1).
         """
@@ -318,9 +331,25 @@ class GroupLight(object):
                 self._apply_filter(sp_freq)
 
     def exclude_taxa(self, taxa_list, update_stats=False):
+        """
+        Updates the excluded_taxa attribute and updates group statistics if
+        update_stats is True. This does not change the Group object data
+        permanently, only sets an attribute that will be taken into account
+        when plotting and exporting data.
+        :param taxa_list: list. List of taxa that should be excluded from
+        downstream operations
+        :param update_stats: boolean. If True, it will update the group
+        statistics
+        """
+
+        # IF the taxa_list is the same as the excluded_taxa attribute,
+        # there is nothing to do
+        if sorted(taxa_list) == sorted(self.excluded_taxa):
+            return
 
         self.species_list = [x for x in self.species_list + self.excluded_taxa
                              if x not in taxa_list]
+
         self.excluded_taxa = taxa_list
 
         if update_stats:
@@ -350,6 +379,24 @@ class GroupLight(object):
                                      len(self.species_list))
 
     def update_filters(self, gn_filter, sp_filter, update_stats=False):
+        """
+        Updates the group filter attributes and group summary stats if
+        update_stats is True. This method does not change the
+        data of the Group object, only sets attributes that will be taken into
+        account when plotting or exporting data
+        :param gn_filter: integer. Maximum number of gene copies allowed in an
+        ortholog cluster
+        :param sp_filter: integer/float. Minimum number/proportion of taxa
+        representation
+        :param update_stats: boolean. If True it will update the group summary
+        statistics
+        """
+
+        # If the provided filters are the same as the current group attributes
+        # there is nothing to do
+        if (gn_filter, sp_filter) == (self.gene_threshold,
+                                      self.species_threshold):
+            return
 
         self.gene_threshold = gn_filter
         self.species_threshold = sp_filter
@@ -445,6 +492,8 @@ class GroupLight(object):
                     shared_namespace.progress += 1
 
                 # Retrieve sequences from current cluster
+                if self.excluded_taxa:
+                    line = self._remove_tx(line)
                 fields = line.split(":")
 
                 # Open file
@@ -497,10 +546,15 @@ class GroupLight(object):
 
             if shared_namespace:
                 shared_namespace.progress = p
-                shared_namespace.good += 1
 
             if self._get_compliance(cl) == (1, 1):
-                output_handle.write("{}\n".format(line))
+                if shared_namespace:
+                    shared_namespace.good += 1
+                if self.excluded_taxa:
+                    l = self._remove_tx(line)
+                else:
+                    l = line
+                output_handle.write("{}\n".format(l))
 
         output_handle.close()
 
@@ -1583,6 +1637,10 @@ class MultiGroupsLight(object):
         :param sp_filter: int, filter for min species
         :param group_names: list, with names of group objects
         """
+
+        # There are no groups to update
+        if group_names == []:
+            return
 
         if group_names:
             glist = group_names

@@ -1753,232 +1753,6 @@
     on_release:
         app.toggle_groups(self)
 
-<PlotChangeFilters1>:
-    orientation: "vertical"
-    padding: 10
-    spacing: 10
-    BoxLayout:
-        BoxLayout:
-            orientation: "vertical"
-            spacing: 10
-            padding: 10
-            Label:
-                text: "Previous filters"
-                bold: True
-                color: app._blue
-                text_size: self.size
-                halign: "center"
-                valign: "middle"
-                font_size: 18
-                size_hint_y: None
-                height: 30
-
-            Label:
-                size_hint_y: None
-                height: 20
-                color: app._blue
-                text: "Cluster filters"
-                bold: True
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
-
-            Hseparator:
-                c: app._blue
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                spacing: 5
-                Label:
-                    size_hint_x: .9
-                    text: "Maximum number of gene copies:"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Label:
-                    id: prev_gn
-                    size_hint_x: .1
-                    text_size: self.size
-                    halign: "right"
-                    valign: "middle"
-                    bold: True
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                spacing: 5
-                Label:
-                    size_hint_x: .9
-                    text: "Minimum number of taxa:"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Label:
-                    id: prev_min_tx
-                    size_hint_x: .1
-                    text_size: self.size
-                    halign: "right"
-                    valign: "middle"
-                    bold: True
-
-            Label:
-                size_hint_y: None
-                height: 20
-                color: app._blue
-                text: "Taxa filters"
-                bold: True
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
-
-            Hseparator:
-                c: app._blue
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                spacing: 5
-                Label:
-                    text: "Set which taxa to include:"
-                    size_hint_x: .9
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Label:
-                    id: prev_ex_tx
-                    size_hint_x: .1
-                    text_size: self.size
-                    halign: "right"
-                    valign: "middle"
-                    bold: True
-
-        Vseparator:
-            c: app._blue
-
-        BoxLayout:
-            orientation: "vertical"
-            orientation: "vertical"
-            spacing: 10
-            padding: 10
-            Label:
-                text: "Current filters"
-                bold: True
-                color: app._blue
-                text_size: self.size
-                halign: "center"
-                valign: "middle"
-                font_size: 18
-                size_hint_y: None
-                height: 30
-
-            Label:
-                size_hint_y: None
-                height: 20
-                color: app._blue
-                text: "Cluster filters"
-                bold: True
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
-
-            Hseparator:
-                c: app._blue
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                spacing: 5
-                Label:
-                    size_hint_x: .9
-                    text: "Maximum number of gene copies:"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Label:
-                    id: cur_gn
-                    size_hint_x: .1
-                    text_size: self.size
-                    halign: "right"
-                    valign: "middle"
-                    bold: True
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                spacing: 5
-                Label:
-                    size_hint_x: .9
-                    text: "Minimum number of taxa:"
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Label:
-                    id: cur_min_tx
-                    size_hint_x: .1
-                    text_size: self.size
-                    halign: "right"
-                    valign: "middle"
-                    bold: True
-
-            Label:
-                size_hint_y: None
-                height: 20
-                color: app._blue
-                text: "Taxa filters"
-                bold: True
-                halign: "left"
-                valign: "middle"
-                text_size: self.size
-
-            Hseparator:
-                c: app._blue
-
-            BoxLayout:
-                size_hint_y: None
-                height: 30
-                spacing: 5
-                Label:
-                    text: "Set which taxa to include:"
-                    size_hint_x: .9
-                    halign: "left"
-                    valign: "middle"
-                    text_size: self.size
-                Label:
-                    id: cur_ex_tx
-                    size_hint_x: .1
-                    text_size: self.size
-                    halign: "right"
-                    valign: "middle"
-                    bold: True
-
-    Label:
-        size_hint_y: None
-        height: 30
-        bold: True
-        text: "Do you want to keep the current filters?"
-
-    AnchorLayout:
-        size_hint_y: None
-        height: 30
-        BoxLayout:
-            orientation: "horizontal"
-            spacing: 10
-            size_hint_x: None
-            width: 200
-            TFOKButon:
-                id: ok_bt
-                background_normal: "data/backgrounds/bt_process.png"
-                background_down: "data/backgrounds/bt_process_off.png"
-                text: "Yes"
-                on_release:
-                    app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
-            TFOKButon:
-                id: cancel_bt
-                text: "No"
-                on_release:
-
-
 <PlotChangeFilters>:
     orientation: "vertical"
     padding: 10
@@ -2146,7 +1920,7 @@
                 text: "No"
                 on_release:
                     app.dismiss_popup()
-                    app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, int(root.prev_filt[0]), int(root.prev_filt[1]), list(root.prev_tx), [str(app.active_group_name)] if not apply_all.active else None, False], None, False, msg="Applying filters", cancel=False)
+                    #app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, int(root.prev_filt[0]), int(root.prev_filt[1]), list(root.prev_tx), [str(app.active_group_name)] if not apply_all.active else None, False], None, False, msg="Applying filters", cancel=False)
                     app.go_previous_screen()
 
 
@@ -2155,7 +1929,7 @@
     spacing: 20
     padding: 10
     group_name: ""
-    excluded_taxa: []
+    excluded_taxa: None
     BoxLayout:
         orientation: "vertical"
         spacing: 10
@@ -2263,7 +2037,7 @@
             on_release:
                 filt = app.save_ortho_filters(str(gene_txt.text), str(sp_txt.text))
                 if type(filt) is tuple and len(filt) == 2:\
-                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, list(root.excluded_taxa), [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
+                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, list(root.excluded_taxa) if root.excluded_taxa else [],  [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
         TFOKButon:
             id: cancel_bt
             text: "Cancel"

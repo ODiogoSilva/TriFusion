@@ -227,7 +227,8 @@ def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
     # Create handle for file storing bad sequence headers.
     bad_file = open(join(output_dir, "missed_sequences.log"), "w")
 
-    for line, cl in zip(group_obj.groups(), group_obj.species_frequency):
+    for line, cl in zip(group_obj.groups(),
+                        group_obj.iter_species_frequency()):
 
         if shared_ns:
             if shared_ns.stop:
@@ -235,6 +236,8 @@ def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
                 return
 
         if group_obj._get_compliance(cl) == (1, 1):
+
+            line = group_obj._remove_tx(line)
 
             fields = line.split(":")
             orto_name = fields[0]

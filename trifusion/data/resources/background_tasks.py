@@ -824,7 +824,7 @@ def load_group_files(group_files, temp_dir, ns=None):
 def orto_update_filters(ortho_groups, gn_filter, sp_filter, excluded_taxa,
                         group_names=None, default=False):
     try:
-        if group_names:
+        if group_names or group_names == []:
             ortho_groups.update_filters(gn_filter, sp_filter, excluded_taxa,
                                         group_names, default=default)
         else:

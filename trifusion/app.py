@@ -6501,12 +6501,19 @@ class TriFusionApp(App):
                     "Maximum number of gene copies must be higher "
                     "than 0", t="error")
 
+            self.orto_max_gene = int(gene_filt)
+
+        except ValueError:
+            return self.dialog_floatcheck(
+                "Maximum number of gene copies '{}' must be a real "
+                "numbers".format(gene_filt), t="error")
+
+        try:
+
             if float(sp_filt) < 0:
                 return self.dialog_floatcheck(
                     "Minimum number of taxa must be a positive "
                     "value", t="error")
-
-            self.orto_max_gene = int(gene_filt)
 
             if 0 < float(sp_filt) < 1:
                 self.orto_min_sp = float(sp_filt)
@@ -6515,8 +6522,8 @@ class TriFusionApp(App):
 
         except ValueError:
             return self.dialog_floatcheck(
-                "{} must be a real numbers".format(gene_filt),
-                t="error")
+                "Minimum number of taxa '{}' must be a number".format(
+                    sp_filt), t="error")
 
         self.dismiss_popup()
 
@@ -6700,9 +6707,17 @@ class TriFusionApp(App):
                         if x.state == "down"][0]
             self.active_group = self.ortho_groups.get_group(group_id)
 
-        # Update filter values
-        self.active_group.update_filters(*self.ortho_groups.filters[
-            self.active_group.name])
+        # Let the current screen define which filters are going to be used
+        # for ortholog export.
+        # If the screen is ORTO_PLOT, then use the fitlers specific to the
+        # current active group.
+        # If the screen is ORTHOLOGY, then use the ortho groups general filters
+        if self.screen.name == "Orthology":
+            # Update filter values
+            self.active_group.update_filters(*self.ortho_groups.filters[
+                self.active_group.name])
+            self.active_group.exclude_taxa(self.ortho_groups.excluded_taxa[
+                self.active_group.name])
 
         # Set up manager and shared name space to share information
         # between background and main processes
@@ -6880,6 +6895,11 @@ class TriFusionApp(App):
         screen. Will ask the user if the filters should be updated for the
         remaining app or not.
         """
+
+        # If filters are the same, do nothing and return
+        if (previous_filt == current_filt) and (prev_tx == current_tx):
+            self.go_previous_screen()
+            return
 
         content = PlotChangeFilters()
 
@@ -7079,7 +7099,7 @@ class TriFusionApp(App):
 
             self._popup.content.excluded_taxa = excluded_taxa
             self._popup.content.ids.exclude_bt.text = "{} included".format(
-                len(sp_list) - len(excluded_taxa))
+                len(sp_list) + len(ex_list) - len(excluded_taxa))
             self.dismiss_subpopup()
 
         sp_list = self.ortho_groups.taxa_list[self.active_group_name]
@@ -7091,7 +7111,10 @@ class TriFusionApp(App):
         for taxon in sorted(sp_list + ex_list):
             bt = TGToggleButton(text=taxon, height=30, state="down")
             # deselect button if taxa is excluded
-            if taxon in ex_list:
+            if self._popup.content.excluded_taxa is not None:
+                if taxon in self._popup.content.excluded_taxa:
+                    bt.state = "normal"
+            elif taxon in ex_list:
                 bt.state = "normal"
             # Add button to list
             content.ids.rev_inlist.add_widget(bt)
@@ -7181,10 +7204,12 @@ class TriFusionApp(App):
 
             if self.ortho_groups:
                 self.ortho_groups.add_multigroups(groups_obj)
+                new_groups = [x for x in groups_obj.groups if
+                              x not in self.ortho_groups.duplicate_groups]
             else:
                 self.ortho_groups = groups_obj
                 self.ortho_groups.filters = default_filters
-                print(self.ortho_groups.groups.keys())
+                new_groups = self.ortho_groups.groups.keys()
 
             self.ortho_group_files.extend(list(groups_obj.groups.keys()))
 
@@ -7289,7 +7314,7 @@ class TriFusionApp(App):
                     orto_update_filters,
                     self.orthology_card,
                     [self.ortho_groups, None, None, [],
-                     [x for x in groups_obj.groups], True],
+                     new_groups, True],
                     None,
                     False,
                     msg="Setting up filters...",
