@@ -2374,10 +2374,12 @@ class TriFusionApp(App):
                 "The file {} already exists. Overwrite?".format(file_name),
                 methods[idx][0],
                 **{"args": methods[idx][1], "popup_level": 2})
-            self.dismiss_popup()
 
         else:
             methods[idx][0](*methods[idx][1])
+
+        # Close popup automatically except for the group idx
+        if idx != "group":
             self.dismiss_popup()
 
     # ########################## GENERAL USE ###############################
@@ -6643,6 +6645,12 @@ class TriFusionApp(App):
             except AttributeError:
                 pass
 
+            # Update maximum progress bar value
+            try:
+                content.ids.pb.max = shared_ns.max_pb
+            except AttributeError:
+                pass
+
             if self.terminate_group_export:
 
                 content.ids.msg.text = "Terminating on you command. " \
@@ -6766,7 +6774,7 @@ class TriFusionApp(App):
 
         # Schedule function that checks the process' pulse
         func = partial(check_process, p)
-        Clock.schedule_interval(func, .1)
+        Clock.schedule_interval(func, 1)
 
     def orto_report_dialog(self):
         """
