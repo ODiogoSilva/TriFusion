@@ -325,7 +325,7 @@ class TriFusionApp(App):
         "Taxa coverage":
         [bar_plot, "Species_coverage.png"],
         "Taxa gene copies":
-        [bar_plot,"Species_copy_number.png"]
+        [bar_plot, "Species_copy_number.png"]
     }
     # Dictionary with the plot methods and file names for each stats_idx
     stats_plt_method = {
@@ -6855,7 +6855,15 @@ class TriFusionApp(App):
                     return
                 ns.counter += 1
 
-            getattr(active_group_light, command)(fig_dir, ns=None)
+            data = getattr(active_group_light, command)(fig_dir, ns=None)
+            fig, lgd, _ = bar_plot(**data)
+
+            plot_file = join(fig_dir, command + ".png")
+            if lgd:
+                fig.savefig(plot_file, bbox_extra_artists=(lgd,),
+                            bbox_inches="tight", dpi=200)
+            else:
+                fig.savefig(plot_file, bbox_inches="tight", dpi=200)
 
         html = HtmlTemplate(dir, "Orthology report", orthology_plots)
         html.write_file()
@@ -8116,7 +8124,8 @@ class TriFusionApp(App):
         """
 
         if not self.partitions_file and not self.rev_infile and \
-                not use_parts:
+                not use_parts and \
+                self.main_operations["reverse_concatenation"]:
             return self.dialog_floatcheck("Please provide a partition "
                 "file and file to reverse concatenate OR use defined "
                 "partitions defined in side panel", t="error")
@@ -8666,9 +8675,8 @@ class TriFusionApp(App):
                     t="error")
             try:
                 # Check for additional files
-                add_files = [nm for nm, bl in
-                    [x for x in self.secondary_options.items() if
-                     "_file" in x[0]] if bl]
+                add_files = [nm for nm, bl in self.secondary_operations.items()
+                             if bl and self.secondary_options["%s_file" % nm]]
                 content.ids.out_files.text = "[b][size=18][color=37abc8ff]"\
                     "Output file(s):[/color][/size][/b] %s converted " \
                     "file(s)" % (file_num + file_num * len(add_files))
@@ -8697,7 +8705,7 @@ class TriFusionApp(App):
                 title="Process execution summary - Processing %s file(s)" %
                       file_num,
                 content=content,
-                size=(550, 350))
+                size=(600, 350))
 
         except AttributeError:
             return self.dialog_floatcheck(

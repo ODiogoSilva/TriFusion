@@ -727,6 +727,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                    x not in before_conc and y and
                    secondary_options["%s_file" % x]]:
 
+            ns.task = op
+
             # Filter data for collapsing
             # if secondary_options["collapse_filter"] and op == "collapse":
                 # ns.task = "collapse"
@@ -737,28 +739,28 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 # If suffix was specified, it means that the filter was
                 # ON. In that case, use that suffix in the table input
                 # for concatenation.
-                if not concatenated:
-                    try:
-                        main_aln = concatenation(aln_object)
-                    except NameError:
-                        main_aln = concatenation(aln_object)
+                if op == "collapse" and secondary_options["collapse_filter"]:
+                    pass
+                else:
+                    if not concatenated:
+                        try:
+                            main_aln = concatenation(aln_object)
+                        except NameError:
+                            main_aln = concatenation(aln_object)
 
-                    concatenated = True
+                        concatenated = True
 
             if op == "consensus":
 
                 suffix = "_consensus"
-                ns.task = "consensus"
                 main_aln = consensus(main_aln, table_out=suffix[1:])
 
             elif op == "gcoder":
                 suffix = "_coded"
-                ns.task = "gcoder"
                 main_aln.code_gaps(table_out=suffix[1:], ns=ns)
 
             elif op == "collapse":
 
-                ns.task = "collapse"
                 suffix = "_collapsed"
 
                 # In this case, filter the unconcatenated alignment
