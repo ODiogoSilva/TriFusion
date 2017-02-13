@@ -101,7 +101,7 @@ ShowcaseScreen:
                     background_down: "data/backgrounds/refresh_bt_down.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt_down.png"
                     on_release:
                         if header_content.original_filt and header_content.original_filt != [int(gn_spin.value), int(sp_spin.value)]:\
-                        app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, int(gn_spin.value), int(sp_spin.value), None, False], None, False, cancel=False)
+                        app.run_in_background(orto_update_filters, app.orto_compare_groups, [app.ortho_groups, int(gn_spin.value), int(sp_spin.value), header_content.excluded_taxa, None, False], None, False, cancel=False)
 
 
 #                        StringInput:
