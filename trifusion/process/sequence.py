@@ -1326,7 +1326,7 @@ class Alignment(Base):
 
         if ns:
             ns.counter = 0
-            ns.files = len(self.partitions)
+            ns.files = len(self.partitions.partitions)
 
         for name, part_range in self.partitions:
 
@@ -1925,6 +1925,37 @@ class Alignment(Base):
         in the sqlite database. Leave None to use the main Alignment table
         """
 
+        def get_interleave_data():
+
+            temp_storage = [[] for _ in xrange(self.locus_length / 90)]
+            if self.locus_length % 90:
+                temp_storage.append([])
+
+            for taxon, seq in self.iter_alignment(
+                    table_name=table_name,
+                    table_suffix=table_suffix):
+
+                if ns_pipe:
+                    if ns_pipe.stop:
+                        raise KillByUser("")
+                        return
+                    if ns_pipe:
+                        ns_pipe.counter += 1
+
+                counter = 0
+
+                for p, i in enumerate(range(90, self.locus_length, 90)):
+                    temp_storage[p].append(seq[counter:i])
+                    counter = i
+                else:
+                    if self.locus_length % 90:
+                        p += 1
+                        temp_storage[p].append(seq[counter:])
+
+            return temp_storage
+
+        interleave_storage = None
+
         # This will determine the default model value. GTR for nucleotides
         # and LG for proteins
         if not model_phylip:
@@ -2139,35 +2170,25 @@ class Alignment(Base):
                         raise KillByUser("")
                         return
                     if ns_pipe.sa:
-                        ns_pipe.total = self.locus_length / 90
+                        ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
                         ns_pipe.msg = "Writing phylip output"
 
-                counter = 0
-                for i in range(90, self.locus_length, 90):
+                interleave_storage = get_interleave_data()
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                            return
-                        if ns_pipe.sa:
-                            ns_pipe.counter += 1
+                write_tx = True
+                for seq_data in interleave_storage:
 
-                    for taxon, seq in self.iter_alignment(
-                            table_name=table_name,
-                            table_suffix=table_suffix):
-
-                        # Only include taxa names in the first block. The
-                        # remaining blocks should only have sequence
-                        if not counter:
-                            out_file.write("%s %s\n" % (
-                                taxon[:cut_space_phy].ljust(seq_space_phy),
-                                seq.upper()))
+                    for p, seq in enumerate(seq_data):
+                        if write_tx:
+                            out_file.write("{} {}\n".format(
+                                self.taxa_list[p][:cut_space_phy].ljust(
+                                    seq_space_phy), seq.upper()))
                         else:
-                            out_file.write("%s\n" % (seq.upper()))
+                            out_file.write(seq.upper() + "\n")
 
+                    write_tx = False
                     out_file.write("\n")
-                    counter = i
 
             else:
 
@@ -2385,7 +2406,7 @@ class Alignment(Base):
                         raise KillByUser("")
                         return
                     if ns_pipe.sa:
-                        ns_pipe.total = len(self.locus_length / 90)
+                        ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
                         ns_pipe.msg = "Writing nexus output"
 
@@ -2411,43 +2432,62 @@ class Alignment(Base):
                                     self.sequence_code[0].upper(),
                                     gap,
                                     self.sequence_code[1].upper()))
-                counter = 0
-                for i in range(0, self.locus_length, 90):
+                
+                if not interleave_storage:
+                    interleave_storage = get_interleave_data()
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                            return
-                        if ns_pipe.sa:
-                            ns_pipe.counter += 1
+                write_tx = True
+                for seq_data in interleave_storage:
 
-                    for taxon, seq in self.iter_alignment(
-                            table_name=table_name, table_suffix=table_suffix):
-                        out_file.write("%s %s\n" % (
-                                       taxon[:cut_space_nex].ljust(
-                                         seq_space_nex),
-                                       seq[counter:counter + 90]))
-
-                    out_file.write("\n")
-                    counter = i + 90
-
-                else:
-                    # Only do this when the alignment is bigger than 90
-                    # characters. Otherwise, it will be written entirely on
-                    # the first iteration.
-                    if self.locus_length > 90:
-                        for taxon, seq in self.iter_alignment(
-                                table_name=table_name,
-                                table_suffix=table_suffix):
-
-                            out_file.write("%s %s\n" % (
-                                           taxon[:cut_space_nex].ljust(
-                                             seq_space_nex),
-                                           seq[counter + 90:
-                                               self.locus_length]))
+                    for p, seq in enumerate(seq_data):
+                        if write_tx:
+                            out_file.write("{} {}\n".format(
+                                self.taxa_list[p][:cut_space_nex].ljust(
+                                    seq_space_nex), seq.upper()))
                         else:
-                            out_file.write("\n")
-                out_file.write(";\n\tend;")
+                            out_file.write(seq.upper() + "\n")
+
+                    write_tx = False
+                    out_file.write("\n")
+
+                
+                # counter = 0
+                # for i in range(0, self.locus_length, 90):
+                #
+                #     if ns_pipe:
+                #         if ns_pipe.stop:
+                #             raise KillByUser("")
+                #             return
+                #         if ns_pipe.sa:
+                #             ns_pipe.counter += 1
+                #
+                #     for taxon, seq in self.iter_alignment(
+                #             table_name=table_name, table_suffix=table_suffix):
+                #         out_file.write("%s %s\n" % (
+                #                        taxon[:cut_space_nex].ljust(
+                #                          seq_space_nex),
+                #                        seq[counter:counter + 90]))
+                #
+                #     out_file.write("\n")
+                #     counter = i + 90
+
+                # else:
+                #     # Only do this when the alignment is bigger than 90
+                #     # characters. Otherwise, it will be written entirely on
+                #     # the first iteration.
+                #     if self.locus_length > 90:
+                #         for taxon, seq in self.iter_alignment(
+                #                 table_name=table_name,
+                #                 table_suffix=table_suffix):
+                #
+                #             out_file.write("%s %s\n" % (
+                #                            taxon[:cut_space_nex].ljust(
+                #                              seq_space_nex),
+                #                            seq[counter + 90:
+                #                                self.locus_length]))
+                #         else:
+                #             out_file.write("\n")
+                # out_file.write(";\n\tend;")
 
             # This writes the output in leave format (default)
             else:
