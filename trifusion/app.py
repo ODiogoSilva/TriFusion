@@ -3323,8 +3323,12 @@ class TriFusionApp(App):
         if self.filename_map:
             # For files
             if idx in self.filename_map:
-                state = "down" if self.filename_map[idx] in \
-                    self.active_file_list else "normal"
+                if self.file_list:
+                    state = "down" if self.filename_map[idx] in \
+                        self.active_file_list else "normal"
+                elif self.proteome_files:
+                    state = "down" if self.filename_map[idx] in \
+                                      self.active_proteome_files else "normal"
             # For taxa
             else:
                 state = "down" if idx in self.active_taxa_list else "normal"
@@ -4165,7 +4169,7 @@ class TriFusionApp(App):
                 self.show_popup(title="File: %s" % value.id[:-1],
                                 content=content, size=(400, 320))
 
-            if self.filename_map[file_name] in self.active_proteome_files:
+            if self.filename_map[file_name] in self.proteome_files:
 
                 content = ProteomePopup(cancel=self.dismiss_popup)
 
@@ -4684,15 +4688,29 @@ class TriFusionApp(App):
             # Update file list
             file_path = self.filename_map[bt_idx]
             del self.filename_map[bt_idx]
-            self.file_list.remove(file_path)
+            # If alignment remove from file list
+            if self.file_list:
+                self.file_list.remove(file_path)
+                # Update alignment object list
+                self.alignment_list.remove_file([file_path])
+            # If proteome remove, from proteome file
+            if self.proteome_files:
+                self.proteome_files.remove(file_path)
+                # In proteome files, if the total number of proteomes is lower
+                # than the set min taxa representation filter, update the
+                # filter
+                if len(self.proteome_files) < self.orto_min_sp:
+                    self.orto_min_sp = len(self.proteome_files)
             # Update active file list. If the file has been removed from the
             # active list, this will handle the exception
             try:
                 self.active_file_list.remove(file_path)
             except ValueError:
                 pass
-            # Update alignment object list
-            self.alignment_list.remove_file([file_path])
+            try:
+                self.active_proteome_files.remove(file_path)
+            except ValueError:
+                pass
 
             # Update active taxa list. This must be executed before calling
             # self.get_taxa_information since this method relies on an
@@ -4713,7 +4731,7 @@ class TriFusionApp(App):
             # Updates label
             self.update_sp_label()
 
-        if not self.file_list:
+        if not self.file_list and not self.proteome_files:
             self.clear_process_input()
 
     def remove_bt_from_file(self, idx, txt_file):
@@ -4864,9 +4882,12 @@ class TriFusionApp(App):
         # Core changes to files
         if (sv_parent == self.root.ids.sv_file and
                 value.text == "Select All"):
-            self.active_file_list = self.file_list[:]
-            self.alignment_list.update_active_alignments(
-                [x for x in self.file_list])
+            if self.file_list:
+                self.active_file_list = self.file_list[:]
+                self.alignment_list.update_active_alignments(
+                    [x for x in self.file_list])
+            elif self.proteome_files:
+                self.active_proteome_files = self.proteome_files[:]
 
         # Core changes to taxa
         if sv_parent == self.root.ids.sv_sp and value.text == "Select All":
@@ -4876,8 +4897,11 @@ class TriFusionApp(App):
         # Core changes to files
         if (sv_parent == self.root.ids.sv_file and
                 value.text == "Deselect All"):
-            self.active_file_list = []
-            self.alignment_list.update_active_alignments([])
+            if self.file_list:
+                self.active_file_list = []
+                self.alignment_list.update_active_alignments([])
+            elif self.proteome_files:
+                self.active_proteome_files = []
         # Core changes to taxa
         if (sv_parent == self.root.ids.sv_sp and
                 value.text == "Deselect All"):
@@ -10058,7 +10082,7 @@ class TriFusionApp(App):
 
         self.show_popup(
             title="Orthology search execution summary - Processing %s"
-                  " file(s)" % len(self.proteome_files),
+                  " file(s)" % len(self.active_proteome_files),
             content=content,
             size=(550, 350))
 
@@ -10172,7 +10196,7 @@ class TriFusionApp(App):
             args=(
                 shared_ns,
                 self.temp_dir,
-                self.proteome_files,
+                self.active_proteome_files,
                 self.protein_min_len,
                 self.protein_max_stop,
                 self.usearch_file,
