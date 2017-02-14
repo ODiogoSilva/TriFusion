@@ -2803,7 +2803,7 @@ class TriFusionApp(App):
         f_path = join(path, file_name)
 
         if bw:
-            temp_f = join(self.temp_dir, "." + file_name)
+            temp_f = join(self.temp_dir, file_name)
             file_name = os.path.splitext(file_name)[0] + "_bw" + \
                 os.path.splitext(file_name)[1]
             f_path = join(path, file_name)
@@ -8308,6 +8308,19 @@ class TriFusionApp(App):
         _subpopup and 3 for exit popup
         """
 
+        def update_bw_box(ext_wgt, bw_wgt):
+            """
+            Function used to update the disable status of the black and white
+            check box depending on the plot extensions that is selected
+            """
+            if ext_wgt.text != ".png":
+                bw_wgt.ids.bw.disabled = True
+                bw_wgt.ids.bw.active = False
+                bw_wgt.ids.lbl.color = (.7, .7, .7, .7)
+            else:
+                bw_wgt.ids.bw.disabled = False
+                bw_wgt.ids.lbl.color = (1, 1, 1, 1)
+
         # Determines cancel action depending on popup_level
         cancel = self.dismiss_popup if popup_level == 1 else \
             self.dismiss_subpopup
@@ -8360,6 +8373,8 @@ class TriFusionApp(App):
             ext_spinner = ExtSpinner()
             content.ids.txt_box.ids["ext"] = ext_spinner
             bw_box = BWCheck()
+            ext_spinner.bind(text=lambda x, y: update_bw_box(ext_spinner,
+                                                             bw_box))
             content.ids.txt_box.add_widget(ext_spinner)
             content.ids.txt_box.add_widget(bw_box)
             content.ids.txt_box.ids["bw"] = bw_box
