@@ -1445,6 +1445,9 @@
                 text_size: self.width, None
                 size: self.parent.width, self.texture_size[1]
                 markup: True
+                on_ref_press:
+                    import webbrowser
+                    webbrowser.open(args[1])
 
 
     BoxLayout:
@@ -1929,7 +1932,7 @@
     spacing: 20
     padding: 10
     group_name: ""
-    excluded_taxa: None
+    excluded_tx: None
     BoxLayout:
         orientation: "vertical"
         spacing: 10
@@ -2037,7 +2040,7 @@
             on_release:
                 filt = app.save_ortho_filters(str(gene_txt.text), str(sp_txt.text))
                 if type(filt) is tuple and len(filt) == 2:\
-                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, list(root.excluded_taxa) if root.excluded_taxa else [],  [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
+                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, list(root.excluded_tx) if root.excluded_tx else [],  [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
