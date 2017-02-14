@@ -94,25 +94,27 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
     """
 
     try:
-
+        # Creating deepcopy to perform changes  without impacting main
+        # attribute
+        main_aln = deepcopy(aln_list)
+        main_aln.set_database_connections(aln_list.cur, aln_list.con)
         # Update alignment object according to active file and taxa sets
-        aln_list.update_active_alignments(active_file_set)
-        aln_list.remove_taxa(list(set(aln_list.taxa_names) -
-                                  set(active_taxa_set)))
+        main_aln.update_active_alignments(active_file_set)
+        main_aln.update_taxa_names(active_taxa_set)
 
         with open(join(dest, "stats.pc"), "wb") as fh_stats, \
                 open(join(dest, "table.pc"), "wb") as fh_table:
 
             # Check if active data sets are not empty. If so, raise an
             # exception
-            if aln_list.alignments == OrderedDict() or not aln_list.taxa_names:
+            if main_aln.alignments == OrderedDict() or not main_aln.taxa_names:
                 for fh in [fh_stats, fh_table]:
                     pickle.dump({"exception": "Alignment is empty after file "
                                               "and taxa filters"}, fh)
                 return
 
-            stats = aln_list.get_summary_stats(ns=ns)
-            table = aln_list.get_gene_table_stats()
+            stats = main_aln.get_summary_stats(ns=ns)
+            table = main_aln.get_gene_table_stats()
             pickle.dump(stats, fh_stats)
             pickle.dump(table, fh_table)
 
@@ -919,65 +921,69 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
     :return: data for plot production
     """
 
+    # Creating deepcopy to perform changes without impacting the main attribute
+    main_aln = deepcopy(aln_obj)
+    main_aln.set_database_connections(aln_obj.cur, aln_obj.con)
+
     # Update alignment object according to active file and taxa sets
-    aln_obj.update_active_alignments(active_file_set)
-    aln_obj.remove_taxa(list(set(aln_obj.taxa_names) - set(active_taxa_set)))
+    main_aln.update_active_alignments(active_file_set)
+    main_aln.update_taxa_names(active_taxa_set)
 
     # Check if active data sets are not empty. If so, raise an exception
-    if aln_obj.alignments == OrderedDict() or not aln_obj.taxa_names:
+    if main_aln.alignments == OrderedDict() or not main_aln.taxa_names:
         return [EmptyAlignment("Active alignment is empty")]
 
     # List of gene specific idx. These plots only have one gene for the footer
     gene_specific = ["Pairwise sequence similarity gn"]
 
     if stats_idx in gene_specific:
-        footer = [1, len(aln_obj.taxa_names)]
+        footer = [1, len(main_aln.taxa_names)]
     else:
-        footer = [len(aln_obj.alignments), len(aln_obj.taxa_names)]
+        footer = [len(main_aln.alignments), len(main_aln.taxa_names)]
 
-    methods = {"Gene occupancy": aln_obj.gene_occupancy,
+    methods = {"Gene occupancy": main_aln.gene_occupancy,
                "Distribution of missing data sp":
-                   aln_obj.missing_data_per_species,
+                   main_aln.missing_data_per_species,
                "Distribution of missing data":
-                   aln_obj.missing_data_distribution,
+                   main_aln.missing_data_distribution,
                "Distribution of missing orthologs":
-                   aln_obj.missing_genes_per_species,
+                   main_aln.missing_genes_per_species,
                "Distribution of missing orthologs avg":
-                   aln_obj.missing_genes_average,
+                   main_aln.missing_genes_average,
                "Distribution of sequence size":
-                   aln_obj.average_seqsize_per_species,
-               "Distribution of sequence size all": aln_obj.average_seqsize,
+                   main_aln.average_seqsize_per_species,
+               "Distribution of sequence size all": main_aln.average_seqsize,
                "Cumulative distribution of missing genes":
-                   aln_obj.cumulative_missing_genes,
+                   main_aln.cumulative_missing_genes,
                "Proportion of nucleotides or residues":
-                   aln_obj.characters_proportion,
+                   main_aln.characters_proportion,
                "Proportion of nucleotides or residues sp":
-                   aln_obj.characters_proportion_per_species,
-               "Pairwise sequence similarity": aln_obj.sequence_similarity,
+                   main_aln.characters_proportion_per_species,
+               "Pairwise sequence similarity": main_aln.sequence_similarity,
                "Pairwise sequence similarity sp":
-                   aln_obj.sequence_similarity_per_species,
+                   main_aln.sequence_similarity_per_species,
                "Pairwise sequence similarity gn":
-                   aln_obj.sequence_similarity_gene,
-               "Segregating sites": aln_obj.sequence_segregation,
-               "Segregating sites sp": aln_obj.sequence_segregation_per_species,
-               "Segregating sites gn": aln_obj.sequence_segregation_gene,
-               "Segregating sites prop": aln_obj.sequence_segregation,
+                   main_aln.sequence_similarity_gene,
+               "Segregating sites": main_aln.sequence_segregation,
+               "Segregating sites sp": main_aln.sequence_segregation_per_species,
+               "Segregating sites gn": main_aln.sequence_segregation_gene,
+               "Segregating sites prop": main_aln.sequence_segregation,
                "Alignment length/Polymorphism correlation":
-                   aln_obj.length_polymorphism_correlation,
+                   main_aln.length_polymorphism_correlation,
                "Distribution of taxa frequency":
-                   aln_obj.taxa_distribution,
+                   main_aln.taxa_distribution,
                "Allele Frequency Spectrum":
-                   aln_obj.allele_frequency_spectrum,
+                   main_aln.allele_frequency_spectrum,
                "Allele Frequency Spectrum prop":
-                   aln_obj.allele_frequency_spectrum,
+                   main_aln.allele_frequency_spectrum,
                "Allele Frequency Spectrum gn":
-                   aln_obj.allele_frequency_spectrum_gene,
-               "Missing data outliers": aln_obj.outlier_missing_data,
-               "Missing data outliers sp": aln_obj.outlier_missing_data_sp,
-               "Segregating sites outliers": aln_obj.outlier_segregating,
-               "Segregating sites outliers sp": aln_obj.outlier_segregating_sp,
-               "Sequence size outliers sp": aln_obj.outlier_sequence_size_sp,
-               "Sequence size outliers": aln_obj.outlier_sequence_size}
+                   main_aln.allele_frequency_spectrum_gene,
+               "Missing data outliers": main_aln.outlier_missing_data,
+               "Missing data outliers sp": main_aln.outlier_missing_data_sp,
+               "Segregating sites outliers": main_aln.outlier_segregating,
+               "Segregating sites outliers sp": main_aln.outlier_segregating_sp,
+               "Sequence size outliers sp": main_aln.outlier_sequence_size_sp,
+               "Sequence size outliers": main_aln.outlier_sequence_size}
 
     if additional_args:
         plot_data = methods[stats_idx](ns=ns, **additional_args)

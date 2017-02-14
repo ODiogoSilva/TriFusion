@@ -402,6 +402,13 @@ class Alignment(Base):
         self.taxa_list = None
 
         """
+        Attribute that will store shelved taxa. When retrieving taxa from
+        the database, this list will be checked and present taxa will
+        be ignored
+        """
+        self.shelved_taxa = []
+
+        """
         Attribute that will store the index of the taxa in the sql database.
         This index is stored in a dictionary instead of being retrieved
         from the index position of the taxa_list list because taxa may
@@ -499,7 +506,8 @@ class Alignment(Base):
         for tx, seq in self.cur.execute(
                 "SELECT taxon,seq from {}".format(
                     self.table_name)).fetchall():
-            yield tx, seq
+            if tx not in self.shelved_taxa:
+                yield tx, seq
 
     def _set_format(self, input_format):
         """
@@ -532,8 +540,9 @@ class Alignment(Base):
 
         try:
             lock.acquire(True)
-            for i in zip(*[x[0] for x in self.cur.execute(
-                    "SELECT seq from {}".format(table)).fetchall()]):
+            for i in zip(*[x[1] for x in self.cur.execute(
+                    "SELECT taxon, seq from {}".format(table)).fetchall()
+                           if x[0] not in self.shelved_taxa]):
                 yield i
         finally:
             lock.release()
@@ -560,9 +569,10 @@ class Alignment(Base):
 
         try:
             lock.acquire(True)
-            for seq in self.cur.execute("SELECT seq FROM {}".format(
+            for tx, seq in self.cur.execute("SELECT taxon,seq FROM {}".format(
                     table)).fetchall():
-                yield seq[0]
+                if tx not in self.shelved_taxa:
+                    yield seq
         finally:
             lock.release()
 
@@ -589,7 +599,8 @@ class Alignment(Base):
             lock.acquire(True)
             for tx, seq in self.cur.execute(
                     "SELECT taxon,seq from {}".format(table)).fetchall():
-                yield tx, seq
+                if tx not in self.shelved_taxa:
+                    yield tx, seq
         finally:
             lock.release()
 
@@ -616,7 +627,7 @@ class Alignment(Base):
 
         try:
             lock.acquire(True)
-            if taxon in self.taxa_list:
+            if taxon in self.taxa_list and taxon not in self.shelved_taxa:
                return self.cur.execute(
                     "SELECT seq FROM {} WHERE txId=?".format(table),
                     (self.taxa_idx[taxon],)).fetchone()[0]
@@ -637,6 +648,13 @@ class Alignment(Base):
         # If additional alignments were created, drop those tables as well
         for table in self.tables:
             self.cur.execute("DROP TABLE {}".format(table))
+
+    def shelve_taxa(self, taxa_list):
+        """
+        Updates the shelved_taxa attribute
+        """
+
+        self.shelved_taxa = taxa_list
 
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
@@ -1939,18 +1957,24 @@ class Alignment(Base):
                     if ns_pipe.stop:
                         raise KillByUser("")
                         return
-                    if ns_pipe:
+                    if ns_pipe.sa:
                         ns_pipe.counter += 1
 
                 counter = 0
 
-                for p, i in enumerate(range(90, self.locus_length, 90)):
+                for p, i in enumerate(xrange(90, self.locus_length, 90)):
                     temp_storage[p].append(seq[counter:i])
                     counter = i
                 else:
-                    if self.locus_length % 90:
-                        p += 1
-                        temp_storage[p].append(seq[counter:])
+                    try:
+                        if self.locus_length % 90:
+                            p += 1
+                            temp_storage[p].append(seq[counter:])
+                    # This likely means that the alignment is less than
+                    # 90 characters long. In this case, append to the storage's
+                    # 0 index
+                    except UnboundLocalError:
+                        temp_storage[0].append(seq)
 
             return temp_storage
 
@@ -2960,6 +2984,10 @@ class AlignmentList(Base):
                         self.shelved_taxa.remove(tx)
                     except ValueError:
                         pass
+
+        # Update individual Alignment objects
+        for aln_obj in self.alignments.values():
+            aln_obj.shelve_taxa(self.shelved_taxa)
 
     def format_list(self):
         """
