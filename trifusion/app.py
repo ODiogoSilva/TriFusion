@@ -6924,6 +6924,8 @@ class TriFusionApp(App):
 
         self.screen.ids.header_content.original_filt = \
             [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
+        self.screen.ids.header_content.excluded_taxa = \
+            groups_objs.excluded_taxa[self.active_group_name]
 
         # Set group object for screen. This property will be used when
         # changing  which filters should be displayed in the compare
