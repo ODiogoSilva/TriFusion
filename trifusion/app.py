@@ -28,6 +28,7 @@ import platform
 import pickle
 import urllib
 import string
+import signal
 import Queue
 import stat
 import sys
@@ -889,6 +890,23 @@ class TriFusionApp(App):
 
         msg = {"mcl": b"mcl",
                "usearch": "usearch"}
+
+        # If the OS is windows and the program is usearch, first check if the
+        # necessary DLL vcomp100.dll is present in the app's directory
+        if sys.platform in ["win32", "cygwin"] and program == "usearch":
+            flist = [x.lower() for x in os.listdir(self.user_data_dir)]
+            if "vcomp100.dll" not in flist:
+                self.dismiss_subpopup()
+                return self.dialog_warning(
+                    "Missing a DLL file",
+                    "You are providing the USEARCH executable but the"
+                    " vcomp100.dll file is missing. Please download it from"
+                    " the link below and place the DLL in"
+                    " C:\Users\<USER>\AppData\Roaming\\trifusion. Then"
+                    " try again.\n\n"
+                    "[ref=http://drive5.com/usearch/vcomp100.dll][b]"
+                    "[color=#37abc8ff]http://drive5.com/usearch/vcomp100.dll"
+                    "[/b][/color][/ref]")
 
         # First, try to execute the file directly from the path
         try:
@@ -6497,8 +6515,10 @@ class TriFusionApp(App):
         content.group_name = group_name
 
         sp_list = self.ortho_groups.taxa_list[self.active_group_name]
+        excluded_tx = self.ortho_groups.excluded_taxa[self.active_group_name]
         content.ids.exclude_bt.text = "{} included".format(
             len(sp_list))
+        content.excluded_tx = excluded_tx
 
         self.show_popup(title="Set/change ortholog filters for %s file" %
                               group_name, content=content, size=(400, 390))
@@ -7137,7 +7157,7 @@ class TriFusionApp(App):
                              self._subpopup.content.ids.rev_inlist.children if
                              x.state == "normal"]
 
-            self._popup.content.excluded_taxa = excluded_taxa
+            self._popup.content.excluded_tx = excluded_taxa
             self._popup.content.ids.exclude_bt.text = "{} included".format(
                 len(sp_list) + len(ex_list) - len(excluded_taxa))
             self.dismiss_subpopup()
@@ -7151,8 +7171,8 @@ class TriFusionApp(App):
         for taxon in sorted(sp_list + ex_list):
             bt = TGToggleButton(text=taxon, height=30, state="down")
             # deselect button if taxa is excluded
-            if self._popup.content.excluded_taxa is not None:
-                if taxon in self._popup.content.excluded_taxa:
+            if self._popup.content.excluded_tx is not None:
+                if taxon in self._popup.content.excluded_tx:
                     bt.state = "normal"
             elif taxon in ex_list:
                 bt.state = "normal"
@@ -7666,7 +7686,6 @@ class TriFusionApp(App):
             os.chmod(self.usearch_file, st.st_mode | stat.S_IEXEC)
             if self._check_exec(self.usearch_file, "usearch"):
                 # Copy mcl executable to app dir
-
                 self.dismiss_all_popups()
                 # Set the orthology fields to green
                 self.ortho_search_options.ids.usearch_check.background_src =\
@@ -10155,8 +10174,7 @@ class TriFusionApp(App):
                 # If a subprocess has been issued, kill it
                 try:
                     if shared_ns.subp:
-                        shared_ns.subp.kill()
-                        shared_ns.subp.terminate()
+                        os.kill(shared_ns.subp, signal.SIGINT)
                         shared_ns.subp = None
                 except AttributeError:
                     pass
@@ -10631,6 +10649,7 @@ class TriFusionApp(App):
 
         check_func = partial(testing, idx)
         Clock.schedule_interval(check_func, .1)
+
 
 def main():
 

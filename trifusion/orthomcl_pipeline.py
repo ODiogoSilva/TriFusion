@@ -160,6 +160,9 @@ def adjust_fasta(file_list, dest, nm=None):
     cf_dir = join(dest, "backstage_files", "compliantFasta")
     if not os.path.exists(cf_dir):
         os.makedirs(cf_dir)
+    else:
+        for f in os.listdir(cf_dir):
+            os.remove(join(cf_dir, f))
 
     for proteome in file_list:
         # Get code for proteome
@@ -213,8 +216,11 @@ def allvsall_usearch(goodproteins, evalue, dest, cpus, usearch_outfile,
                    str(cpus)]
 
     if nm:
-        nm.subp = subprocess.Popen(usearch_cmd)
-        nm.subp.wait()
+        # The subprocess.Popen handler cannot be passed directly in Windows
+        # due to pickling issues. So I pass the pid of the process instead.
+        subp = subprocess.Popen(usearch_cmd)
+        nm.subp = subp.pid
+        subp.wait()
         nm.subp = None
     else:
         _ = subprocess.Popen(usearch_cmd).wait()
@@ -263,8 +269,11 @@ def mcl(inflation_list, dest, mcl_file="mcl", nm=None):
                    mcl_output + val.replace(".", "")]
 
         if nm:
-            nm.subp = subprocess.Popen(mcl_cmd)
-            nm.subp.wait()
+            # The subprocess.Popen handler cannot be passed directly in Windows
+            # due to pickling issues. So I pass the pid of the process instead.
+            subp = subprocess.Popen(mcl_cmd)
+            nm.subp = subp.pid
+            subp.wait()
             nm.subp = None
         else:
             _ = subprocess.Popen(mcl_cmd).wait()
@@ -324,7 +333,7 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
         # Retrieve fasta sequences from the filtered groups
         group_obj.retrieve_sequences(sqldb, db, dest=join(inflation_dir,
                                                           "Orthologs"))
-        os.remove(sqldb)
+        # os.remove(sqldb)
         stats_storage[val] = stats
 
     return stats_storage, groups_obj
