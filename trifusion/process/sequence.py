@@ -2718,7 +2718,7 @@ class AlignmentList(Base):
         # if type(alignment_list[0]) is str:
         if alignment_list:
 
-            self.add_alignment_files(alignment_list, dest=self.dest)
+            self.add_alignment_files(alignment_list)
 
     def __iter__(self):
         """
