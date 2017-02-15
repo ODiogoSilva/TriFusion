@@ -1,14 +1,13 @@
 try:
     from process import data
     from process.error_handling import *
-    from ortho.error_handling import *
     from process.sequence import AlignmentList, Alignment
     import orthomcl_pipeline as ortho_pipe
     from ortho import OrthomclToolbox as OrthoTool
 except ImportError:
     from trifusion.process import data
-    from trifusion.process.error_handling import *
-    from trifusion.ortho.error_handling import *
+    from trifusion.process.error_handling import KillByUser,\
+        MultipleSequenceTypes
     from trifusion.process.sequence import AlignmentList, Alignment
     import trifusion.orthomcl_pipeline as ortho_pipe
     from trifusion.ortho import OrthomclToolbox as OrthoTool
@@ -73,7 +72,7 @@ def load_proc(aln_list, file_list, nm, queue):
         return
 
     except KillByUser:
-        pass
+        return
 
     except Exception as e:
         logging.exception("Unexpected error when loading input data")
@@ -119,7 +118,7 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
             pickle.dump(table, fh_table)
 
     except KillByUser:
-        pass
+        return
 
 
 def background_process(f, ns, a):
@@ -146,10 +145,9 @@ def background_process(f, ns, a):
 
     except IOError as e:
         print(e)
-        pass
 
     except Exception:
-        logging.exception("Unexpected exit in %s" % f.__name__)
+        logging.exception("Unexpected exit in %s", f.__name__)
         ns.exception = True
 
 
@@ -192,7 +190,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Adjusting Fasta Files"
         nm.c = 2
@@ -200,7 +197,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Filtering Fasta Files"
         nm.c = 3
@@ -209,7 +205,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Running USearch. This may take a while..."
         nm.c = 4
@@ -218,7 +213,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
                                     usearch_bin=usearch_file, nm=nm)
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Parsing USEARCH output"
         nm.c = 5
@@ -227,7 +221,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Obtaining Pairs"
         nm.c = 6
@@ -236,7 +229,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Running MCL"
         nm.c = 7
@@ -244,7 +236,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Dumping groups"
         nm.c = 8
@@ -253,7 +244,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         nm.t = "Filtering group files"
         nm.c = 9
@@ -269,7 +259,6 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
         if nm.stop:
             raise KillByUser("")
-            return
 
         # stats is a dictionary containing the inflation value as
         #  key and a list with the orthologs as value
@@ -277,7 +266,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.groups = groups_obj
 
     except KillByUser:
-        pass
+        return
 
     except IOError as e:
         nm.exception = str(e)
@@ -344,7 +333,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                         partitions_file, output_formats, create_partfile,
                         use_nexus_partitions, use_nexus_models,
                         phylip_truncate_name, output_dir, use_app_partitions,
-                        consensus_type, ld_hat, temp_dir, ima2_params,
+                        consensus_type, ld_hat, ima2_params,
                         conversion_suffix):
     """
     Process execution function
@@ -363,7 +352,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             partition_obj = data.Partitions()
             # In case the partitions file is badly formatted or invalid, the
             # exception will be returned by the read_from_file method.
-            er = partition_obj.read_from_file(partitions_file)
+            _ = partition_obj.read_from_file(partitions_file)
             aln = aln.retrieve_alignment(rev_infile)
 
             aln.set_partitions(partition_obj)

@@ -3,7 +3,7 @@
 try:
     from process.error_handling import *
 except ImportError:
-    from trifusion.process.error_handling import *
+    from trifusion.process.error_handling import KillByUser
 
 
 def mcl_to_groups(prefix, start_id, infile, outfile, nm=None):
@@ -21,7 +21,6 @@ def mcl_to_groups(prefix, start_id, infile, outfile, nm=None):
         if nm:
             if nm.stop:
                 raise KillByUser("")
-                return
 
         out.write(prefix + str(start_id) + ": " + line)
         start_id += 1

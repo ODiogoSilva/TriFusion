@@ -6,7 +6,7 @@ import os
 try:
     from process.error_handling import *
 except ImportError:
-    from trifusion.process.error_handling import *
+    from trifusion.process.error_handling import KillByUser
 
 
 def printInparalogsFile (cur, filename, nm=None):
@@ -23,7 +23,6 @@ def printInparalogsFile (cur, filename, nm=None):
             if nm:
                 if nm.stop:
                     raise KillByUser("")
-                    return
 
             row = cur.fetchone()
             if row is None:
@@ -51,7 +50,6 @@ def printOrthologsFile (cur, filename, nm=None):
             if nm:
                 if nm.stop:
                     raise KillByUser("")
-                    return
 
             row = cur.fetchone()
             if row is None:
@@ -78,7 +76,6 @@ def printCoOrthologsFile (cur, filename, nm=None):
             if nm:
                 if nm.stop:
                     raise KillByUser("")
-                    return
 
             row = cur.fetchone()
             if row is None:
@@ -110,7 +107,6 @@ def printMclAbcFile (cur, filename, nm=None):
             if nm:
                 if nm.stop:
                     raise KillByUser("")
-                    return
 
             row = cur.fetchone()
             if row is None:
