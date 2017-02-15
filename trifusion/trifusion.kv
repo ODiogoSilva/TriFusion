@@ -317,10 +317,12 @@
 
 <CrunchData>:
     orientation: "vertical"
+    spacing: 10
     AnchorLayout:
         anchor_x: "center"
         anchor_y: "center"
-        size_hint_y: .6
+        size_hint_y: None
+        height: 50
         ScatterLayout:
             do_translation: False
             do_scale: False
@@ -330,15 +332,32 @@
             size: 50, 50
             Image:
                 source: "data/backgrounds/spinner2.png"
-    Label:
-        id: msg
-        size_hint_y: .4
-        text: "Crunching data..."
-        bold: True
-        halign: "center"
-        valign: "top"
-        text_size: self.size
-        color: (0.216, 0.67, 0.784, 1)
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: 50
+        Label:
+            id: msg
+            size_hint_y: None
+            height: 30
+            text: "Crunching data..."
+            bold: True
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
+
+        Label:
+            id: msg2
+            size_hint_y: None
+            height: 20
+            text: ""
+            bold: True
+            font_size: 12
+            halign: "center"
+            valign: "top"
+            text_size: self.size
+            color: (0.216, 0.67, 0.784, 1)
 
     AnchorLayout:
         size_hint_y: None
@@ -471,9 +490,9 @@
         size_hint_x: None
         width: 30
     Label:
+        id: lbl
         text: "Grayscale"
         bold: True
-
 
 <InputType>:
     orientation: "vertical"
@@ -799,7 +818,7 @@
                 rectangle: root.x,root.y,root.width,root.height
 
 <LoadProgressDialog>:
-    padding: 10
+    padding: 20
     orientation: "vertical"
 
     Label:
@@ -814,11 +833,14 @@
         max: 10
         id: pb
 
-    BoxLayout:
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
         size_hint_y: None
         height: 30
-        padding: (30, 0, 30, 0)
         TFOKButon:
+            size_hint_x: None
+            width: 150
             id: close_bt
             text: "Cancel"
             background_normal: "data/backgrounds/bt_process.png"
@@ -1423,6 +1445,9 @@
                 text_size: self.width, None
                 size: self.parent.width, self.texture_size[1]
                 markup: True
+                on_ref_press:
+                    import webbrowser
+                    webbrowser.open(args[1])
 
 
     BoxLayout:
@@ -1623,7 +1648,15 @@
                 font_size: 12
                 text: "Minimum taxa representation: %s" % app.ortho_groups.filters[app.active_group_name][1] if app.ortho_groups else "None"
                 bold: True
-                halign: "left"
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+            Label:
+                color: .7, .7, .7, 1
+                font_size: 12
+                text: "Excluded taxa: %s" % len(app.ortho_groups.excluded_taxa[app.active_group_name]) if app.ortho_groups else "None"
+                bold: True
+                halign: "right"
                 valign: "middle"
                 text_size: self.size
 
@@ -1723,12 +1756,183 @@
     on_release:
         app.toggle_groups(self)
 
+<PlotChangeFilters>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+    prev_filt: None
+    prev_tx: None
+    cur_filt: None
+    cur_tx: None
+
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 10
+        padding: 10
+
+        BoxLayout:
+            Label:
+                size_hint_y: None
+                height: 20
+                color: app._blue
+                text: "Cluster filters"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+
+            Label:
+                text: "Previous"
+                bold: True
+                color: app._blue
+                size_hint_x: None
+                width: 100
+
+            Label:
+                text: "Current"
+                bold: True
+                color: app._blue
+                size_hint_x: None
+                width: 100
+
+        Hseparator:
+            c: app._blue
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                text: "Maximum number of gene copies:"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Label:
+                id: prev_gn
+                size_hint_x: None
+                width: 100
+                bold: True
+            Label:
+                id: cur_gn
+                size_hint_x: None
+                width: 100
+                bold: True
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                text: "Minimum number of taxa:"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Label:
+                id: prev_min_tx
+                size_hint_x: None
+                width: 100
+                bold: True
+            Label:
+                id: cur_min_tx
+                size_hint_x: None
+                width: 100
+                bold: True
+
+        Label:
+            size_hint_y: None
+            height: 20
+            color: app._blue
+            text: "Taxa filters"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        Hseparator:
+            c: app._blue
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                text: "Excluded taxa:"
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Label:
+                id: prev_ex_tx
+                size_hint_x: None
+                width: 100
+                bold: True
+            Label:
+                id: cur_ex_tx
+                size_hint_x: None
+                width: 100
+                bold: True
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Label:
+            bold: True
+            text: "Do you want to keep the current filters?"
+            color: app._blue
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+
+        BoxLayout:
+            size_hint_x: None
+            width: 180
+            spacing: 10
+            Label:
+                text: "Apply to all groups"
+                size_hint_x: .9
+                text_size: self.size
+                halign: "right"
+                valign: "middle"
+            CheckBox:
+                id: apply_all
+                size_hint_x: .1
+                active: True
+
+    Widget:
+        size_hint_y: None
+        height: 1
+
+    AnchorLayout:
+        size_hint_y: None
+        height: 30
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 10
+            size_hint_x: None
+            width: 200
+            TFOKButon:
+                id: ok_bt
+                background_normal: "data/backgrounds/bt_process.png"
+                background_down: "data/backgrounds/bt_process_off.png"
+                text: "Yes"
+                on_release:
+                    app.dismiss_popup()
+                    app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, int(root.cur_filt[0]), int(root.cur_filt[1]), list(root.cur_tx), [str(app.active_group_name)] if not apply_all.active else None, False], None, False, msg="Applying filters", cancel=False)
+                    app.go_previous_screen()
+
+            TFOKButon:
+                id: cancel_bt
+                text: "No"
+                on_release:
+                    app.dismiss_popup()
+                    #app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, int(root.prev_filt[0]), int(root.prev_filt[1]), list(root.prev_tx), [str(app.active_group_name)] if not apply_all.active else None, False], None, False, msg="Applying filters", cancel=False)
+                    app.go_previous_screen()
+
 
 <OrtoSetFiltersDialog>:
     orientation: "vertical"
     spacing: 20
     padding: 10
     group_name: ""
+    excluded_tx: None
     BoxLayout:
         orientation: "vertical"
         spacing: 10
@@ -1748,34 +1952,80 @@
                     active: True
                     size_hint_x: .1
 
+        Label:
+            size_hint_y: None
+            height: 20
+            color: app._blue
+            text: "Cluster filters"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        Hseparator:
+            c: app._blue
+
         BoxLayout:
             size_hint_y: None
             height: 30
             spacing: 5
             Label:
-                size_hint_x: .8
+                size_hint_x: .7
                 text: "Maximum number of gene copies:"
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
             TFTextInput:
                 id: gene_txt
-                size_hint_x: .2
+                size_hint_x: .3
                 text: str(app.ortho_groups.filters[app.active_group_name][0])
         BoxLayout:
             size_hint_y: None
             height: 30
             spacing: 5
             Label:
-                size_hint_x: .8
+                size_hint_x: .7
                 text: "Minimum number of taxa:"
                 halign: "left"
                 valign: "middle"
                 text_size: self.size
             TFTextInput:
                 id: sp_txt
-                size_hint_x: .2
+                size_hint_x: .3
                 text: str(app.ortho_groups.filters[app.active_group_name][1])
+
+        Label:
+            size_hint_y: None
+            height: 20
+            color: app._blue
+            text: "Taxa filters"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+
+        Hseparator:
+            c: app._blue
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            spacing: 5
+            Label:
+                text: "Set which taxa to include:"
+                size_hint_x: .7
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            TFButton:
+                id: exclude_bt
+                size_hint_x: .3
+                on_release:
+                    app.dialog_set_exclude_orto_taxa()
+
+        Widget:
+            size_hint_y: None
+            height: 1
 
     BoxLayout:
         size_hint_y: None
@@ -1790,7 +2040,7 @@
             on_release:
                 filt = app.save_ortho_filters(str(gene_txt.text), str(sp_txt.text))
                 if type(filt) is tuple and len(filt) == 2:\
-                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
+                app.run_in_background(orto_update_filters, app.orthology_card, [app.ortho_groups, app.orto_max_gene, app.orto_min_sp, list(root.excluded_tx) if root.excluded_tx else [],  [str(app.active_group_name)] if not apply_chk.active else None, False], None, False, msg="Applying filters", cancel=False)
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
@@ -2736,7 +2986,7 @@
                     id: ok_bt
                     on_release:
                         if sd_filechooser.selection:\
-                        app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir], None, False, "Loading group files...")
+                        app.run_in_background(load_group_files, app.load_groups, [list(sd_filechooser.selection), app.temp_dir, "use_ns"], None, False, "Loading group files...")
                         #root.cancel()
 
                 TFOKButon:
@@ -2754,6 +3004,145 @@
     text_size: self.size
     markup: True
     font_size: 16
+
+<LoadSpinner>:
+    AnchorLayout:
+        pos_hint: {"x": -.1, "y": -.1}
+        ScatterLayout:
+            do_translation: False
+            do_scale: False
+            do_rotation: False
+            id: img
+            Image:
+                source: "data/backgrounds/loading_40px.png"
+
+<ProgressWaiting>:
+    size_hint: None, None
+    size: 35, 27
+    source: "data/backgrounds/waiting.png"
+
+<LoadCounter>:
+    text: "0%"
+    size_hint: None, None
+    size: 26, 26
+    font_size: 12
+
+<ProgressFinished>:
+    size_hint: None, None
+    size: 35, 27
+    source: "data/backgrounds/check_green.png"
+
+<ProgressBox>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: 40
+    spacing: 10
+
+    FloatLayout:
+        size_hint: None, None
+        size: 40, 40
+        AnchorLayout:
+            pos_hint: {"x": 0.35, "y": -1.2}
+            size_hint: None, None
+            size: 40, 40
+            anchor_x: "center"
+            anchor_y: "center"
+            id: load_box
+            ProgressWaiting
+
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        orientation: "vertical"
+        padding: [70, 0, 0, 0]
+        Label:
+            id: main_lbl
+            text: ""
+            bold: True
+            size_hint_y: None
+            height: 30
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+            color: .7, .7, .7, 1
+        Label:
+            id: secondary_lbl
+            text: ""
+            bold: True
+            size_hint_y: None
+            height: 10
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+            font_size: 12
+            shorten: True
+            shorten_from: "right"
+            color: .7, .7, .7, 1
+
+<ProcessExecutionProgress>:
+    padding: 10
+    orientation: "vertical"
+
+    BoxLayout:
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                text: "Main output"
+                bold: True
+                size_hint_y: None
+                height: 30
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                font_size: 18
+                color: app._blue
+
+            Widget:
+                size_hint_y: None
+                height: 10
+
+            GridLayout:
+                orientation: "vertical"
+                spacing: 10
+                cols: 1
+                id: main_box
+
+
+        BoxLayout:
+            id: additional_outputs
+            orientation: "vertical"
+            Label:
+                text: "Additional outputs"
+                bold: True
+                size_hint_y: None
+                height: 30
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                font_size: 18
+                color: app._blue
+
+            Widget:
+                size_hint_y: None
+                height: 10
+
+            GridLayout:
+                orientation: "vertical"
+                spacing: 10
+                cols: 1
+                id: ad_box
+
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        AnchorLayout:
+            TFOKButon:
+                size_hint_x: None
+                width: 150
+                id: cancel_bt
+                text: "Cancel"
+                on_release:
 
 <ExecutionDialog>:
     padding: 10
@@ -3347,7 +3736,7 @@
                         elif sd_filechooser.text == "ima2_popfile" and txt_box.height == 0:\
                         app.save_file(sd_filechooser.selection[0], idx=sd_filechooser.text)
                         elif sd_filechooser.text == "orto_report" and txt_box.height == 0:\
-                        app.run_in_background(app.orto_generate_report, None, [sd_filechooser.path], None, False, "Generating full report...")
+                        app.run_in_background(app.orto_generate_report, None, [sd_filechooser.path, "use_ns"], None, False, "Generating full report...")
                         elif sd_filechooser.text == "ortho_dir" and txt_box.height == 0: \
                         app.save_file(sd_filechooser.path, idx = sd_filechooser.text)
                         elif sd_filechooser.text == "protein_db" and txt_box.height == 0: \
@@ -4355,7 +4744,7 @@
         size_hint: 1, None
         border: (16, 16, 16, 16)
         height: 40
-        text: app.taxa_filter_settings[0] if app.taxa_filter_settings[0] else "Containing"
+        text: app.taxa_filter_settings[0] if app.taxa_filter_settings[0] else "Contain"
         disabled: False if taxa_filter.active else True
         bold: True
         option_cls: Factory.get("PlotOpt")
@@ -5065,9 +5454,10 @@
     height: self.thickness + 2 * self.margin
     thickness: 1
     margin: 1
+    c: (.5, .5, .5, .5)
     canvas:
         Color:
-            rgb: .5, .5, .5
+            rgb: self.c
         Rectangle:
             pos: self.x + self.margin, self.y + self.margin +1
             size: self.width - 2 * self.margin, self.thickness
@@ -5821,10 +6211,10 @@
             text: "Select"
             on_release:
                 if [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"] and sliding_window in root.children: \
-                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0], "window_size": int(window.text)})
+                app.stats_show_plot(root.plt_idx, {"gene_name": app.filename_map[[x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]], "window_size": int(window.text)})
 
                 elif [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"] and sliding_window not in root.children: \
-                app.stats_show_plot(root.plt_idx, {"gene_name": [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]})
+                app.stats_show_plot(root.plt_idx, {"gene_name": app.filename_map[[x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]]})
 
                 else: \
                 app.dialog_floatcheck("Please select a gene.", t="error")
@@ -6037,7 +6427,7 @@
     BoxLayout:
         BoxLayout:
             orientation: "vertical"
-            spacing: 20
+            spacing: 10
             AnchorLayout:
                 anchor_x: "center"
                 anchor_y: "center"
@@ -6054,11 +6444,23 @@
                 text: "Summoning summary statistics"
                 bold: True
                 halign: "center"
-                valign: "middle"
+                valign: "bottom"
                 text_size: self.size
                 font_size: 20
                 size_hint_y: None
                 height: 30
+                color: (0.216, 0.67, 0.784, 1)
+
+            Label:
+                id: msg
+                text: ""
+                bold: True
+                font_size: 13
+                size_hint_y: None
+                halign: "center"
+                valign: "top"
+                text_size: self.size
+                height: 20
                 color: (0.216, 0.67, 0.784, 1)
 
             AnchorLayout:
@@ -6073,6 +6475,7 @@
                     width: 150
                     on_release:
                         app.terminate_stats = True
+
     Widget:
 
 <TableCellTop@Label>:
@@ -6797,9 +7200,9 @@ FloatLayout:
         orientation: "vertical"
         canvas.before:
             Color:
-                rgba: (.7,.7,.7,1)
+                rgba: (.2,.2,.2,.7)
             Rectangle:
-                source: "data/backgrounds/master_background.png"
+                #source: "data/backgrounds/master_background.png"
                 pos: self.pos
                 size: self.size
 

@@ -4,6 +4,12 @@ import sqlite3 as lite
 import os
 import math
 
+try:
+    from process.error_handling import *
+except ImportError:
+    from trifusion.process.error_handling import *
+
+
 """my @steps = ( # Common
        ['updateMinimumEvalueExponent'],
        ['bestQueryTaxonScore'],
@@ -423,7 +429,7 @@ def coorthologs (cur):
     normalizeOrthologsSub(cur, "Co", "CoOrtholog")
 
 
-def execute(db_dir):
+def execute(db_dir, nm=None):
     con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
     with con:
@@ -432,12 +438,14 @@ def execute(db_dir):
 
         cur = con.cursor()
 
-        commonTempTables(cur)
-        orthologs(cur)
+        for func in [commonTempTables, orthologs, inparalogs, coorthologs]:
 
-        inparalogs(cur)
-        coorthologs(cur)
+            if nm:
+                if nm.stop:
+                    raise KillByUser("")
+                    return
 
+            func(cur)
 
 if __name__ == '__main__':
     execute(".")

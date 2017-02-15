@@ -2,8 +2,13 @@
 
 import os
 import sqlite3 as lite
-
 from decimal import Decimal
+
+try:
+    from process.error_handling import KillByUser
+except ImportError:
+    from trifusion.process.error_handling import KillByUser
+
 
 VAR_LENGTH = 0
 VAR_TAXON = 1
@@ -166,7 +171,7 @@ def get_start_end(h):
     return start, end
 
 
-def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
+def orthomcl_blast_parser(blast_file, fasta_dir, db_dir, nm):
 
     # create connection to DB
     con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
@@ -184,6 +189,12 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir):
         subject = {}
 
         for line in blast_fh:
+
+            if nm:
+                if nm.stop:
+                    raise KillByUser("")
+                    return
+
             splitted = line.split()
 
             query_id = splitted[0]

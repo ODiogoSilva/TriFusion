@@ -26,6 +26,11 @@ functions that compile and store DNA sequences, convert them into amino acid
 sequences and then tries to match them to the original protein sequences.
 """
 
+try:
+    from process.error_handling import *
+except ImportError:
+    from trifusion.process.error_handling import *
+
 from os.path import join
 import subprocess
 import os
@@ -80,7 +85,7 @@ def translate(sequence):
     return aa_sequence
 
 
-def create_db(f_list, dest="./"):
+def create_db(f_list, dest="./", ns=None):
     """
     Creates a fasta database file containing the translated protein sequences
     from the cds files. The final transcripts.fas file will be use
@@ -94,11 +99,32 @@ def create_db(f_list, dest="./"):
     output_handle = open(join(dest, "transcripts.fas"), "w")
     id_dic = {}
 
+    if ns:
+        if ns.stop:
+            raise KillByUser("")
+            return
+
+        ns.progress = 0
+        ns.max_pb = len(f_list)
+
     for f in f_list:
         handle = open(f)
         seq = ""
         header = ""
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.progress += 1
+
         for line in handle:
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             if line.startswith(">"):
                 if seq != "":
                     aa_seq = translate(seq)
@@ -183,7 +209,7 @@ def pair_search(usearch_bin, dest="./"):
                       "-blast6out",
                       out_path]).wait()
 
-def get_pairs(dest="./"):
+def get_pairs(dest="./", ns=None):
     """
     Parses the output of USEARCH and creates a dictionary with the header
     pairs between original protein and transcripts
@@ -192,7 +218,24 @@ def get_pairs(dest="./"):
     file_h = open(join(dest, "pairs.out"))
     pair_db = {}
 
+    if ns:
+        if ns.stop:
+            raise KillByUser("")
+            return
+        with open(join(dest, "pairs.out")) as f:
+            for p, _ in enumerate(f):
+                pass
+        ns.max_pb = p + 1
+        ns.progress = 0
+
     for l in file_h:
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
+            ns.progress += 1
+
         fields = l.split("\t")
         pair_db[fields[0]] = fields[1]
 
@@ -210,9 +253,17 @@ def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
     # Create handle for file storing bad sequence headers.
     bad_file = open(join(output_dir, "missed_sequences.log"), "w")
 
-    for line, cl in zip(group_obj.groups(), group_obj.species_frequency):
+    for line, cl in zip(group_obj.groups(),
+                        group_obj.iter_species_frequency()):
+
+        if shared_ns:
+            if shared_ns.stop:
+                raise KillByUser("")
+                return
 
         if group_obj._get_compliance(cl) == (1, 1):
+
+            line = group_obj._remove_tx(line)
 
             fields = line.split(":")
             orto_name = fields[0]
@@ -231,7 +282,7 @@ def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
 
 
 def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
-                  usearch_bin, output_dir, shared_namespace=None):
+                usearch_bin, output_dir, shared_namespace=None):
     """
     Convenience function that wraps all required operations to convert protein
     to nucleotide files from a Group object
@@ -242,20 +293,39 @@ def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
         shared_namespace.missed = 0
         shared_namespace.good = 0
     # Create database
-    id_db = create_db(cds_file_list, output_dir)
+    id_db = create_db(cds_file_list, output_dir, shared_namespace)
 
     if shared_namespace:
         shared_namespace.act = "Creating query"
 
+        # Kill switch
+        if shared_namespace.stop:
+            raise KillByUser("")
+            return
+
     # Create query for USEARCH
     group_sequences.retrieve_sequences(sqldb, protein_db, output_dir,
-                                       outfile="query.fas")
+                                       outfile="query.fas",
+                                       shared_namespace=shared_namespace)
+
+    if shared_namespace:
+        # Kill switch
+        if shared_namespace.stop:
+            raise KillByUser("")
+            return
 
     # Execute search
     if shared_namespace:
         shared_namespace.act = "Performing search"
     pair_search(usearch_bin, output_dir)
-    pair_db = get_pairs(output_dir)
+
+    if shared_namespace:
+        # Kill switch
+        if shared_namespace.stop:
+            raise KillByUser("")
+            return
+
+    pair_db = get_pairs(output_dir, ns=shared_namespace)
     # Convert files
 
     if shared_namespace:

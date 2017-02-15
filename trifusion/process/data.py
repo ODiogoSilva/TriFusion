@@ -319,21 +319,21 @@ class Partitions():
                 if line.strip() != "":
                     self.read_from_nexus_string(line)
 
-    def read_from_nexus_string(self, string, file_name=None):
+    def read_from_nexus_string(self, nx_string, file_name=None):
         """
         Parses the partition defined in a charset command
-        :param string: string with the charset command.
+        :param nx_string: string with the charset command.
         :param file_name: string. Name of the current file name
         """
 
         try:
-            fields = string.split("=")
+            fields = nx_string.split("=")
             partition_name = fields[0].split()[1].strip()
 
             # If this list has 2 elements, it should be a simple gene partition
             # If it has 3 elements, it should be a codon partition
             partition_full = re.split(r"[-\\]", fields[1].strip().
-                                      replace(";", ""))
+                                      replace(";", "").replace("/", "\\"))
 
             # If partition is defined using "." notation to mean full length
             if partition_full[1] == ".":

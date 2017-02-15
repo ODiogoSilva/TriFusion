@@ -19,6 +19,7 @@ from copy import deepcopy
 import logging
 import shutil
 import cPickle as pickle
+import time
 
 import os
 os.environ["KIVY_NO_ARGS"] = "1"
@@ -35,32 +36,35 @@ them with the necessary arguments upon calling.
 """
 
 
-def remove_tmp(temp_dir):
+def remove_tmp(temp_dir, sql_con):
     """
     Removes all temporary files in temp directory
     :param temp_dir: string, path to trifusion's temporary directory
     """
 
+    # Give some time to child threads to exit
+    time.sleep(1)
+
+    # Close database connection
+    sql_con.close()
+
+    # Remove temporary files
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
     return 1
 
 
-def load_proc(aln_list, file_list, nm, dest):
+def load_proc(aln_list, file_list, nm, queue):
     try:
         if aln_list:
-            aln_list.add_alignment_files(file_list, dest=dest,
+            aln_list.add_alignment_files(file_list,
                                          shared_namespace=nm)
             aln_obj = aln_list
         else:
-            aln_obj = AlignmentList(file_list, dest=dest, shared_namespace=nm)
+            aln_obj = AlignmentList(file_list, shared_namespace=nm)
 
-        # To speed sharing of the new AlignmentList object with the main
-        # process, the class instance is being saved in disk using pickle,
-        # and latter loaded into the add in the load_files method
-        with open(join(dest, "alns.pc"), "wb") as fh:
-            pickle.dump(aln_obj, fh)
+        queue.put(aln_obj)
 
     except MultipleSequenceTypes:
         nm.exception = "multiple_type"
@@ -68,12 +72,16 @@ def load_proc(aln_list, file_list, nm, dest):
     except IOError:
         return
 
-    except:
+    except KillByUser:
+        pass
+
+    except Exception as e:
         logging.exception("Unexpected error when loading input data")
-        nm.exception = True
+        print(e)
 
 
-def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set):
+def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
+                        ns):
     """
     Runs the get_summary_stats method in the background and writes the output
     in a pickle file
@@ -81,27 +89,37 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set):
     :param dest: temporary file where stats will be written
     :param active_file_set: list, with files to be included in summary
     statistics
-    :param active_taxa_set: list, with taxa to be included in summary statistics
+    :param active_taxa_set: list, with taxa to be included in summary
+    statistics
     """
 
-    # Update alignment object according to active file and taxa sets
-    aln_list.update_active_alignments(active_file_set)
-    aln_list.remove_taxa(list(set(aln_list.taxa_names) - set(active_taxa_set)))
+    try:
+        # Creating deepcopy to perform changes  without impacting main
+        # attribute
+        main_aln = deepcopy(aln_list)
+        main_aln.set_database_connections(aln_list.cur, aln_list.con)
+        # Update alignment object according to active file and taxa sets
+        main_aln.update_active_alignments(active_file_set)
+        main_aln.update_taxa_names(active_taxa_set)
 
-    with open(join(dest, "stats.pc"), "wb") as fh_stats, \
-            open(join(dest, "table.pc"), "wb") as fh_table:
+        with open(join(dest, "stats.pc"), "wb") as fh_stats, \
+                open(join(dest, "table.pc"), "wb") as fh_table:
 
-        # Check if active data sets are not empty. If so, raise an exception
-        if aln_list.alignments == OrderedDict() or not aln_list.taxa_names:
-            for fh in [fh_stats, fh_table]:
-                pickle.dump({"exception": "Alignment is empty after file and "
-                                          "taxa filters"}, fh)
-            return
+            # Check if active data sets are not empty. If so, raise an
+            # exception
+            if main_aln.alignments == OrderedDict() or not main_aln.taxa_names:
+                for fh in [fh_stats, fh_table]:
+                    pickle.dump({"exception": "Alignment is empty after file "
+                                              "and taxa filters"}, fh)
+                return
 
-        stats = aln_list.get_summary_stats()
-        table = aln_list.get_gene_table_stats()
-        pickle.dump(stats, fh_stats)
-        pickle.dump(table, fh_table)
+            stats = main_aln.get_summary_stats(ns=ns)
+            table = main_aln.get_gene_table_stats()
+            pickle.dump(stats, fh_stats)
+            pickle.dump(table, fh_table)
+
+    except KillByUser:
+        pass
 
 
 def background_process(f, ns, a):
@@ -114,10 +132,22 @@ def background_process(f, ns, a):
     """
     try:
         if a:
-            val = f(*a)
+            if "use_ns" in a:
+                a.remove("use_ns")
+                val = f(*a, ns=ns)
+            else:
+                val = f(*a)
         else:
             val = f()
         ns.val = val
+
+    except KillByUser:
+        return
+
+    except IOError as e:
+        print(e)
+        pass
+
     except Exception:
         logging.exception("Unexpected exit in %s" % f.__name__)
         ns.exception = True
@@ -132,6 +162,13 @@ def background_export_groups(f, nm, a):
     """
     try:
         f(*a, shared_namespace=nm)
+
+    except KillByUser:
+        pass
+
+    except IOError as e:
+        print(e)
+
     except:
         logging.exception("Unexpected error when exporting ortholog "
                           "groups")
@@ -149,61 +186,98 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
     """
 
     try:
-        if nm.k:
-            nm.t = "Installing schema"
-            nm.c = 1
-            ortho_pipe.install_schema(temp_dir)
-        if nm.k:
-            nm.t = "Adjusting Fasta Files"
-            nm.c = 2
-            ortho_pipe.adjust_fasta(proteome_files, ortho_dir)
-        if nm.k:
-            nm.t = "Filtering Fasta Files"
-            nm.c = 3
-            ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
-                                    usearch_db, ortho_dir)
-        if nm.k:
-            nm.t = "Running USearch. This may take a while..."
-            nm.c = 4
-            ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
-                                        usearch_threads, usearch_output,
-                                        usearch_bin=usearch_file)
-        if nm.k:
-            nm.t = "Parsing USEARCH output"
-            nm.c = 5
-            ortho_pipe.blast_parser(usearch_output, ortho_dir,
-                                    db_dir=temp_dir)
-        if nm.k:
-            nm.t = "Obtaining Pairs"
-            nm.c = 6
-            ortho_pipe.pairs(temp_dir)
-        if nm.k:
-            ortho_pipe.dump_pairs(temp_dir, ortho_dir)
-        if nm.k:
-            nm.t = "Running MCL"
-            nm.c = 7
-            ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file)
-        if nm.k:
-            nm.t = "Dumping groups"
-            nm.c = 8
-            ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
-                                  group_prefix, ortho_dir)
-        if nm.k:
-            nm.t = "Filtering group files"
-            nm.c = 9
-            stats, groups_obj = ortho_pipe.export_filtered_groups(
-                mcl_inflation,
-                group_prefix,
-                orto_max_gene,
-                orto_min_sp,
-                sqldb,
-                join(ortho_dir, "backstage_files", usearch_db),
-                temp_dir,
-                ortho_dir)
-            # stats is a dictionary containing the inflation value as
-            #  key and a list with the orthologs as value
-            nm.stats = stats
-            nm.groups = groups_obj
+        nm.t = "Installing schema"
+        nm.c = 1
+        ortho_pipe.install_schema(temp_dir)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Adjusting Fasta Files"
+        nm.c = 2
+        ortho_pipe.adjust_fasta(proteome_files, ortho_dir, nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Filtering Fasta Files"
+        nm.c = 3
+        ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
+                                usearch_db, ortho_dir, nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Running USearch. This may take a while..."
+        nm.c = 4
+        ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
+                                    usearch_threads, usearch_output,
+                                    usearch_bin=usearch_file, nm=nm)
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Parsing USEARCH output"
+        nm.c = 5
+        ortho_pipe.blast_parser(usearch_output, ortho_dir,
+                                db_dir=temp_dir, nm=nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Obtaining Pairs"
+        nm.c = 6
+        ortho_pipe.pairs(temp_dir, nm=nm)
+        ortho_pipe.dump_pairs(temp_dir, ortho_dir, nm=nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Running MCL"
+        nm.c = 7
+        ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file, nm=nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Dumping groups"
+        nm.c = 8
+        ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
+                              group_prefix, ortho_dir, nm=nm)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        nm.t = "Filtering group files"
+        nm.c = 9
+        stats, groups_obj = ortho_pipe.export_filtered_groups(
+            mcl_inflation,
+            group_prefix,
+            orto_max_gene,
+            orto_min_sp,
+            sqldb,
+            join(ortho_dir, "backstage_files", usearch_db),
+            temp_dir,
+            ortho_dir)
+
+        if nm.stop:
+            raise KillByUser("")
+            return
+
+        # stats is a dictionary containing the inflation value as
+        #  key and a list with the orthologs as value
+        nm.stats = stats
+        nm.groups = groups_obj
+
+    except KillByUser:
+        pass
 
     except IOError as e:
         nm.exception = str(e)
@@ -215,7 +289,8 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.exception = str(e)
 
 
-def update_active_fileset(aln_obj, set_name, file_list, file_groups):
+def update_active_fileset(aln_obj, set_name, file_list, file_groups,
+                          filename_map):
     """
     This method is similar in purpose and functionality to the
     update_active_taxaset, but it updates the set of files. It should be
@@ -225,12 +300,13 @@ def update_active_fileset(aln_obj, set_name, file_list, file_groups):
     """
     # Determine the selected active taxa set from the dropdown menu
     if set_name == "All files":
-        aln_obj.update_active_alignments([basename(x) for x in file_list])
+        aln_obj.update_active_alignments([x for x in file_list])
         return aln_obj
     if set_name == "Active files":
         return aln_obj
     else:
-        aln_obj.update_active_alignments(file_groups[set_name])
+        aln_obj.update_active_alignments(
+            [filename_map[x] for x in file_groups[set_name]])
         return aln_obj
 
 
@@ -258,17 +334,18 @@ def update_active_taxaset(aln_obj, set_name, active_taxa_list, taxa_groups):
     return aln_obj
 
 
-def process_execution(aln_list, file_set_name, file_list, file_groups, 
-                      taxa_set_name, active_taxa_list, ns, taxa_groups,
-                      hap_prefix, secondary_operations, secondary_options,
-                      missing_filter_settings, taxa_filter_settings,
-                      codon_filter_settings, variation_filter_settings,
-                      output_file, rev_infile, main_operations, zorro_suffix,
-                      partitions_file, output_formats, create_partfile,
-                      use_nexus_partitions, use_nexus_models,
-                      phylip_truncate_name, output_dir, use_app_partitions,
-                      consensus_type, ld_hat, temp_dir, ima2_params,
-                      conversion_suffix):
+def process_execution(aln_list, file_set_name, file_list, file_groups,
+                        filename_map,
+                        taxa_set_name, active_taxa_list, ns, taxa_groups,
+                        hap_prefix, secondary_operations, secondary_options,
+                        missing_filter_settings, taxa_filter_settings,
+                        codon_filter_settings, variation_filter_settings,
+                        output_file, rev_infile, main_operations, zorro_suffix,
+                        partitions_file, output_formats, create_partfile,
+                        use_nexus_partitions, use_nexus_models,
+                        phylip_truncate_name, output_dir, use_app_partitions,
+                        consensus_type, ld_hat, temp_dir, ima2_params,
+                        conversion_suffix):
     """
     Process execution function
     :param ns: Namespace object
@@ -280,70 +357,90 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         :return: AlignmentList object
         """
 
+        con = aln.con
+
         if not use_app_partitions:
             partition_obj = data.Partitions()
             # In case the partitions file is badly formatted or invalid, the
             # exception will be returned by the read_from_file method.
             er = partition_obj.read_from_file(partitions_file)
-            aln = aln.retrieve_alignment(basename(rev_infile))
+            aln = aln.retrieve_alignment(rev_infile)
 
             aln.set_partitions(partition_obj)
 
-        aln = aln.reverse_concatenate(dest=temp_dir)
+        if isinstance(aln, AlignmentList):
+            aln = aln.reverse_concatenate(ns=ns)
+        else:
+            aln = aln.reverse_concatenate(db_con=con, ns=ns)
 
         return aln
 
-    def filter_aln(aln):
+    def filter_aln(aln, table_out="_filter"):
         """
         Wrapper for filtering operations, given an alignment object
         :param aln: AlignmentList object
+        :param table_out: string. Suffix of the sqlite table for operations
+        that change alignments
         """
 
         # Check if a minimum taxa representation was specified
         if secondary_options["gap_filter"]:
             if missing_filter_settings[1][0]:
-                aln.filter_min_taxa(missing_filter_settings[1][1])
+                ns.main_msg = "Filter (minimum taxa)"
+                aln.filter_min_taxa(missing_filter_settings[1][1], ns=ns)
 
         # Filter by taxa
         if secondary_options["taxa_filter"]:
             # Get taxa list from taxa groups
+            ns.main_msg = "Filter (by taxa)"
             taxa_list = taxa_groups[taxa_filter_settings[1]]
-            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list)
+            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list, ns=ns)
 
         # Filter codon positions
         if secondary_options["codon_filter"]:
-            aln.filter_codon_positions(codon_filter_settings)
+            ns.main_msg = "Filter (by codon)"
+            aln.filter_codon_positions(codon_filter_settings,
+                                       table_out=table_out, ns=ns)
 
         # Filter missing data
         if secondary_options["gap_filter"]:
+            ns.main_msg = "Filter (by missing data)"
             if missing_filter_settings[0][0]:
                 aln.filter_missing_data(missing_filter_settings[0][1],
-                                        missing_filter_settings[0][2])
+                                        missing_filter_settings[0][2],
+                                        table_out=table_out, ns=ns)
 
         # Filter variation
         if secondary_options["variation_filter"]:
             # Checks for variable site filter
             if variation_filter_settings[0] or variation_filter_settings[1]:
+                ns.main_msg = "Filter (by variable sites)"
                 aln.filter_segregating_sites(variation_filter_settings[0],
-                                             variation_filter_settings[1])
+                                             variation_filter_settings[1],
+                                             table_in=table_out, ns=ns)
             # Checks for informative site filter
             if variation_filter_settings[2] or variation_filter_settings[3]:
+                ns.main_msg = "Filter (by informative sites)"
                 aln.filter_informative_sites(variation_filter_settings[2],
-                                             variation_filter_settings[3])
+                                             variation_filter_settings[3],
+                                             table_in=table_out, ns=ns)
 
         # Pipe the information on the filtered alignments to the main process
         # only if it was applied a filter that changes the final alignments
         if set(aln.filtered_alignments.values()) != {None}:
             ns.filtered_alns = aln.filtered_alignments
 
+        # Reset main label text
+        ns.main_msg = None
+
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
-        if not main_aln.alignments:
+        if not aln.alignments:
             raise EmptyAlignment("Active alignment is empty")
 
         return aln
 
-    def concatenation(aln, remove_temp=True):
+    def concatenation(aln, table_in=""):
         """
         Wrapper for concatenation operation
         :param aln: AlignmentList object
@@ -355,11 +452,15 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             zorro_data.write_to_file(output_file)
 
         aln = aln.concatenate(alignment_name=basename(output_file),
-                              dest=temp_dir, remove_temp=remove_temp)
+                              table_in=table_in, ns=ns)
+
+        # Sets the single alignment to True, for other method to be aware of
+        # this
+        ns.sa = True
 
         return aln
 
-    def consensus(aln):
+    def consensus(aln, table_out):
         """
         Wrapper of the consensus operation
         :param aln: AlignmentObject list
@@ -368,15 +469,23 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if secondary_options["consensus_single"]:
             if isinstance(aln, AlignmentList):
                 aln = aln.consensus(consensus_type=consensus_type,
-                                    single_file=True)
+                                    single_file=True,
+                                    table_out=table_out,
+                                    ns=ns)
+                ns.sa = True
             else:
-                aln.consensus(consensus_type=consensus_type)
+                aln.consensus(consensus_type=consensus_type,
+                              table_out=table_out,
+                              ns=ns)
         else:
-            aln.consensus(consensus_type=consensus_type)
+            aln.consensus(consensus_type=consensus_type,
+                          table_out=table_out,
+                          ns=ns)
 
         return aln
 
-    def writer(aln, filename=None, suffix_str="", conv_suffix=""):
+    def writer(aln, filename=None, suffix_str="", conv_suffix="",
+               table_suffix=None, table_name=None):
         """
         Wrapper for the output writing operations
         :param aln: AlignmentList object
@@ -387,6 +496,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         the conversion of files. This suffix will allway precede the
         suffix_str, which is meant to apply suffixes specific to secondary
         operations.
+        :param table_suffix: string. Suffix of the table from where the
+        sequence data will be retrieved
+        :param table_name: string. Name of the table from where the
+        sequence data will be retrived
         """
 
         try:
@@ -404,7 +517,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # "concatenation". As it is, when "concatenation", the aln_obj is
             # firstly converted into the concatenated alignment, and then all
             # additional operations are conducted in the same aln_obj
-            ns.msg = "Writing output"
 
             if isinstance(aln, Alignment):
                 aln.write_to_file(output_formats,
@@ -416,7 +528,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     ld_hat=ld_hat,
                     ima2_params=ima2_params,
                     use_nexus_models=use_nexus_models,
-                    ns_pipe=ns)
+                    ns_pipe=ns,
+                    table_suffix=table_suffix,
+                    table_name=table_name)
             elif isinstance(aln, AlignmentList):
                 aln.write_to_file(
                     output_formats,
@@ -430,22 +544,30 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     ld_hat=ld_hat,
                     ima2_params=ima2_params,
                     use_nexus_models=use_nexus_models,
-                    ns_pipe=ns)
+                    ns_pipe=ns,
+                    table_suffix=table_suffix,
+                    table_name=table_name)
 
         except IOError:
             pass
 
     try:
-        ns.msg = "Setting active data sets"
+
+        aln_object = deepcopy(aln_list)
+        # Restore database connections, since they are broken during the
+        # deepcopy operation
+        aln_object.set_database_connections(aln_list.cur, aln_list.con)
+
         # Setting the alignment to use.
         # Update active file set of the alignment object
-        aln_object = update_active_fileset(aln_list,
+        aln_object = update_active_fileset(aln_object,
                                            file_set_name,
                                            file_list,
-                                           file_groups)
+                                           file_groups,
+                                           filename_map)
 
         # Update active taxa set of the alignment object
-        aln_object = update_active_taxaset(aln_object, taxa_set_name,
+        main_aln = update_active_taxaset(aln_object, taxa_set_name,
                                            active_taxa_list,
                                            taxa_groups)
 
@@ -458,57 +580,99 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # The execution of the process module will begin with all the
         # operations on the main output alignment. Only after the main
         # output file has been created will the additional secondary output
-        # files be processed. Since each output file requires the duplication
-        # of the temporary sequence files for modification, this ensures that
-        # there is only one set of "duplicate" temporary sequences files at
-        # one time.
+        # files be processed.
 
         #####
         # Perform operations on MAIN OUTPUT
         #####
-        ns.msg = "Preparing data"
-        main_aln = deepcopy(aln_object)
-        main_aln.start_action_alignment()
+
+        # Set the suffix for the sqlite table harboring the main output
+        # alignment if any of the secondary operations is specified
+        if any(secondary_operations.values()):
+            main_table = "main"
+        else:
+            main_table = ""
+
         # Reverse concatenation
+        # Active table: Based on partition names
         if main_operations["reverse_concatenation"]:
-            ns.msg = "Reverse concatenating"
+            ns.task = "reverse_concatenation"
             main_aln = reverse_concatenation(main_aln)
+            ns.finished_tasks.append("reverse_concatenation")
+
         # Filtering
-        if secondary_options["collapse_filter"]:
+        # Active table: * / *main
+        if secondary_options["collapse_filter"] and not \
+                secondary_options["collapse_file"]:
+            ns.task = "collapse"
             # If the the collapse filter is active, perform this
             # filtering first. This is because the filter will allow 0% of
             # missing data, which will always be as stringent or more than any
             # missing data filter set.
-            main_aln.filter_missing_data(0, 0)
+            main_aln.filter_missing_data(0, 0, table_out=main_table, ns=ns)
+            ns.finished_tasks.append("collapse_filter")
 
+        # Active table: * / *main
         if secondary_operations["filter"] and not \
                 secondary_options["filter_file"]:
-            ns.msg = "Filtering alignment(s)"
-            main_aln = filter_aln(main_aln)
+            ns.task = "filter"
+            main_aln = filter_aln(main_aln, table_out=main_table)
+            ns.finished_tasks.append("filter")
         # Concatenation
+        # Active table: concatenation
         if main_operations["concatenation"]:
-            ns.msg = "Concatenating"
-            main_aln = concatenation(main_aln)
+            ns.task = "concatenation"
+            main_aln = concatenation(main_aln, table_in=main_table)
+            ns.finished_tasks.append("concatenation")
         # Collapsing
+        # Active table: *main / concatenationmain
         if secondary_operations["collapse"] and not \
                 secondary_options["collapse_file"]:
-            ns.msg = "Collapsing alignment(s)"
-            main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir)
+            ns.task = "collapse"
+            main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir,
+                                table_out=main_table, ns=ns)
+            ns.finished_tasks.append("collapse")
         # Gcoder
+        # Active table: *main / concatenationmain
         if secondary_operations["gcoder"] and not \
                 secondary_options["gcoder_file"]:
-            ns.msg = "Coding gaps"
-            main_aln.code_gaps()
+            ns.task = "gcoder"
+            main_aln.code_gaps(table_out=main_table, ns=ns)
+            ns.finished_tasks.append("gcoder")
         # Consensus
+        # Active table: *main / concatenationmain / consensus
         if secondary_operations["consensus"] and not \
                 secondary_options["consensus_file"]:
-            ns.msg = "Creating consensus sequence(s)"
-            main_aln = consensus(main_aln)
+            ns.task = "consensus"
+            main_aln = consensus(main_aln, table_out=main_table)
+            ns.finished_tasks.append("consensus")
 
-        # Writing main output
-        writer(main_aln, conv_suffix=conversion_suffix)
+        # ### Guide on possible final tables
+        # --- Base types
+        # 1: Conversion -> * (main -- checks)
+        # 2: Concatenation -> concatenation (main -- checks)
+        # 3: Reverse concatenation -> * (main --checks)
+        # --- Conversion and Reverse concatenation + secondary ops
+        # 4: Collapse/Filter/Gcoder -> *main (sec --checks)
+        # 5: Consensus -> *main (sec -- checks)
+        # 6: Consensus (single file) -> consensus (main -- fallback)
+        # --- Concatenation + secondary ops
+        # 7: Filter (only) -> concatenation (main -- fallback)
+        # 8: Collapse/gcoder -> concatenationmain (sec -- checks)
+        # 9: Consensus -> concatenationmain (sec -- checks)
+        # 10: Consensus (single file) -> consensus (main -- fallback)
 
-        main_aln.stop_action_alignment()
+        # NOTE ON TABLE NAMES
+        # Some combinations of operations actually create a table_suffix
+        # that does not exist in the database. This happens in cases 6, 7 and
+        # 10. However, in these cases the main table(s) of the Alignment
+        # object should be used, so we let the sequence fetching methods
+        # fail to find the suggested table and fallback to the main table.
+
+        ns.task = "write"
+        writer(main_aln, conv_suffix=conversion_suffix,
+               table_suffix=main_table)
+        ns.finished_tasks.append("write")
 
         #####
         # Perform operations on ADDITIONAL OUTPUTS
@@ -524,105 +688,151 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                    x in before_conc and y and
                    secondary_options["%s_file" % x]]:
 
-            ns.msg = "Preparing data for additional output(s)"
-
-            main_aln = deepcopy(aln_object)
-            main_aln.start_action_alignment()
-
             if op == "filter":
+
+                ns.task = "filter"
+
+                # Remove previous temporary tables
+                aln_object.remove_tables(aln_object.get_tables())
+
+                main_aln = deepcopy(aln_object)
+                main_aln.set_database_connections(aln_list.cur, aln_list.con)
 
                 ns.msg = "Creating additional filtered alignments(s)"
                 suffix = "_filtered"
-                main_aln = filter_aln(main_aln)
+                main_aln = filter_aln(main_aln, table_out=suffix[1:])
 
             if main_operations["concatenation"] and \
                     isinstance(main_aln, AlignmentList):
+
                 filename = output_file + suffix
-                main_aln = concatenation(main_aln)
-                writer(main_aln, filename=filename)
+
+                ns.main_msg = "Concatenating"
+                main_aln = concatenation(main_aln, table_in=suffix[1:])
+                ns.main_msg = "Writing output"
+                writer(main_aln, filename=filename, table_suffix=suffix[1:])
             else:
-                writer(main_aln, suffix_str=suffix,
+                ns.main_msg = "Writing output"
+                writer(main_aln, suffix_str=suffix, table_suffix=suffix[1:],
                        conv_suffix=conversion_suffix)
 
-            main_aln.stop_action_alignment()
+        # Remove previous temporary tables
+        aln_object.remove_tables(aln_object.get_tables())
+
+        main_aln = deepcopy(aln_object)
+        main_aln.set_database_connections(aln_list.cur, aln_list.con)
+
+        concatenated = False
+        ns.sa = False
 
         for op in [x for x, y in secondary_operations.items() if
                    x not in before_conc and y and
                    secondary_options["%s_file" % x]]:
 
-            main_aln = deepcopy(aln_object)
+            ns.task = op
+
+            # Filter data for collapsing
+            # if secondary_options["collapse_filter"] and op == "collapse":
+                # ns.task = "collapse"
+                # ns.main_msg = "Filtering for collapse"
+                # main_aln.filter_missing_data(0, 0, ns=ns)
 
             if main_operations["concatenation"]:
-                main_aln = concatenation(main_aln, remove_temp=False)
+                # If suffix was specified, it means that the filter was
+                # ON. In that case, use that suffix in the table input
+                # for concatenation.
+                if op == "collapse" and secondary_options["collapse_filter"]:
+                    pass
+                else:
+                    if not concatenated:
+                        try:
+                            main_aln = concatenation(aln_object)
+                        except NameError:
+                            main_aln = concatenation(aln_object)
 
-            main_aln.start_action_alignment()
+                        concatenated = True
 
             if op == "consensus":
 
-                ns.msg = "Creating additional consensus alignment(s)"
                 suffix = "_consensus"
-                main_aln = consensus(main_aln)
-
-            elif op == "collapse":
-                ns.msg = "Creating additional collapsed alignment(s)"
-                suffix = "_collapsed"
-
-                main_aln.collapse(haplotype_name=hap_prefix,
-                                  conversion_suffix=conversion_suffix,
-                                  dest=output_dir)
+                main_aln = consensus(main_aln, table_out=suffix[1:])
 
             elif op == "gcoder":
-                ns.msg = "Creating additional gap coded alignments(s)"
                 suffix = "_coded"
-                main_aln.code_gaps()
+                main_aln.code_gaps(table_out=suffix[1:], ns=ns)
 
+            elif op == "collapse":
+
+                suffix = "_collapsed"
+
+                # In this case, filter the unconcatenated alignment
+                # and concatenate again
+                if secondary_options["collapse_filter"]:
+                    ns.main_msg = "Filtering for collapse"
+                    aln_object.remove_tables(aln_object.get_tables())
+                    aln_object.filter_missing_data(0, 0, ns=ns,
+                                                   table_out=suffix[1:])
+                    if main_operations["concatenation"]:
+                        ns.main_msg = "Concatenation"
+                        main_aln = aln_object.concatenate(table_in=suffix[1:],
+                                                          ns=ns)
+
+                ns.main_msg = "Collapse"
+                main_aln.collapse(haplotype_name=hap_prefix,
+                                  conversion_suffix=conversion_suffix,
+                                  dest=output_dir,
+                                  table_out=suffix[1:], ns=ns)
+
+            ns.main_msg = "Writing output"
             if main_operations["concatenation"]:
                 filename = output_file + suffix
-                writer(main_aln, filename=filename)
+                writer(main_aln, filename=filename, table_suffix=suffix[1:])
             else:
                 writer(main_aln, suffix_str=suffix,
-                       conv_suffix=conversion_suffix)
-
-            main_aln.stop_action_alignment()
+                       conv_suffix=conversion_suffix, table_suffix=suffix[1:])
 
         # Resets the taxa_names attribute of the aln_obj to include all taxa
-        aln_object.update_taxa_names(all_taxa=True)
+        # aln_object.update_taxa_names(all_taxa=True)
+
+    except KillByUser:
+        pass
 
     except IOError:
-        main_aln.stop_action_alignment()
         # Resets the taxa_names attribute of the aln_obj to include all taxa
-        aln_object.update_taxa_names(all_taxa=True)
+        # aln_object.update_taxa_names(all_taxa=True)
         return
 
     except EmptyAlignment:
         logging.exception("Empty alignment")
         # Resets the taxa_names attribute of the aln_obj to include all taxa
-        aln_object.update_taxa_names(all_taxa=True)
-        ns.exception = "EmptyAlignment"
+        # aln_object.update_taxa_names(all_taxa=True)
+        # ns.exception = "EmptyAlignment"
 
-    except:
+    except Exception as e:
+        print(e)
         # Log traceback in case any unexpected error occurs. See
         # self.log_file for whereabouts of the traceback
         logging.exception("Unexpected exit in Process execution")
         # Resets the taxa_names attribute of the aln_obj to include all taxa
-        aln_object.update_taxa_names(all_taxa=True)
+        # aln_object.update_taxa_names(all_taxa=True)
         ns.exception = "Unknown"
 
 
-def load_group_files(group_files, temp_dir):
+def load_group_files(group_files, temp_dir, ns=None):
     og = OrthoTool.MultiGroupsLight(db_path=temp_dir,
-                                    groups=group_files)
+                                    groups=group_files,
+                                    ns=ns)
     return [og, og.filters]
 
 
-def orto_update_filters(ortho_groups, gn_filter, sp_filter,
+def orto_update_filters(ortho_groups, gn_filter, sp_filter, excluded_taxa,
                         group_names=None, default=False):
     try:
-        if group_names:
-            ortho_groups.update_filters(gn_filter, sp_filter, group_names,
-                                        default=default)
+        if group_names or group_names == []:
+            ortho_groups.update_filters(gn_filter, sp_filter, excluded_taxa,
+                                        group_names, default=default)
         else:
-            ortho_groups.update_filters(gn_filter, sp_filter,
+            ortho_groups.update_filters(gn_filter, sp_filter, excluded_taxa,
                                         default=default)
     except EOFError:
         pass
@@ -642,8 +852,66 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
     return [active_group]
 
 
+def get_orto_data(active_group, plt_idx, filt, exclude_taxa):
+    """
+    Given a GroupLight object, this function will execute the method that
+    corresponds to plt_idx to generate data.
+    :param active_group: GroupLight object. Active group that will be used
+    to plot data
+    :param plt_idx: string. Identifier of the plot type that must have a
+    correspondence in the method dictionary below
+    :return plot_data: dictionary. Has the required data for the
+    plotting methods to generate the plot.
+    """
+
+    # Store the plot generation method in a dictionary where keys are
+    # the text attributes of the plot spinner and the values are
+    # bound methods
+    methods = {
+        "Taxa distribution": active_group.bar_species_distribution,
+        "Taxa coverage": active_group.bar_species_coverage,
+        "Gene copy distribution": active_group.bar_genecopy_distribution,
+        "Taxa gene copies": active_group.bar_genecopy_per_species
+    }
+
+    # Check for excluded taxa. If any have been provided and are different from
+    # the ones already set in the GroupLight object, then update the taxa
+    # filter.
+    if (exclude_taxa and exclude_taxa != active_group.excluded_taxa) or \
+            (exclude_taxa == [] and
+             exclude_taxa != active_group.excluded_taxa):
+        # The update_stats flag of the exclude_taxa method is set to True
+        # to update the group summary stats. This is important for eventual
+        # corrections to the ortholog cluster filters.
+        active_group.exclude_taxa(exclude_taxa, True)
+
+    if filt:
+        # If filters AND excluded taxa have been provided, the first thing
+        # to do is check whether the provided filters are still correct.
+        # Excluding taxa may lead to changes in the maximum values of the
+        # ortholog filters, and this needs to be corrected here
+        if exclude_taxa and exclude_taxa != active_group.excluded_taxa:
+            # Correct gene copy filter maximum
+            gn_filt = filt[0] if filt[0] <= active_group.max_extra_copy \
+                else active_group.max_extra_copy
+            # Correct minimum taxa representation maximum
+            sp_filt = filt[1] if \
+                filt[1] <= len(active_group.species_list) \
+                else len(active_group.species_list)
+        else:
+            # No taxa have been excluded this time, so we'll keep the provided
+            # filters
+            gn_filt, sp_filt = filt
+
+        active_group.update_filters(gn_filt, sp_filt, True)
+
+    plot_data = methods[plt_idx](filt=filt)
+
+    return [plot_data]
+
+
 def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
-                   additional_args):
+                     additional_args, ns=None):
     """
     Given an aln_obj, this function will execute the according method to
     generate plot data
@@ -653,70 +921,74 @@ def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
     :return: data for plot production
     """
 
+    # Creating deepcopy to perform changes without impacting the main attribute
+    main_aln = deepcopy(aln_obj)
+    main_aln.set_database_connections(aln_obj.cur, aln_obj.con)
+
     # Update alignment object according to active file and taxa sets
-    aln_obj.update_active_alignments(active_file_set)
-    aln_obj.remove_taxa(list(set(aln_obj.taxa_names) - set(active_taxa_set)))
+    main_aln.update_active_alignments(active_file_set)
+    main_aln.update_taxa_names(active_taxa_set)
 
     # Check if active data sets are not empty. If so, raise an exception
-    if aln_obj.alignments == OrderedDict() or not aln_obj.taxa_names:
+    if main_aln.alignments == OrderedDict() or not main_aln.taxa_names:
         return [EmptyAlignment("Active alignment is empty")]
 
     # List of gene specific idx. These plots only have one gene for the footer
     gene_specific = ["Pairwise sequence similarity gn"]
 
     if stats_idx in gene_specific:
-        footer = [1, len(aln_obj.taxa_names)]
+        footer = [1, len(main_aln.taxa_names)]
     else:
-        footer = [len(aln_obj.alignments), len(aln_obj.taxa_names)]
+        footer = [len(main_aln.alignments), len(main_aln.taxa_names)]
 
-    methods = {"Gene occupancy": aln_obj.gene_occupancy,
+    methods = {"Gene occupancy": main_aln.gene_occupancy,
                "Distribution of missing data sp":
-                   aln_obj.missing_data_per_species,
+                   main_aln.missing_data_per_species,
                "Distribution of missing data":
-                   aln_obj.missing_data_distribution,
+                   main_aln.missing_data_distribution,
                "Distribution of missing orthologs":
-                   aln_obj.missing_genes_per_species,
+                   main_aln.missing_genes_per_species,
                "Distribution of missing orthologs avg":
-                   aln_obj.missing_genes_average,
+                   main_aln.missing_genes_average,
                "Distribution of sequence size":
-                   aln_obj.average_seqsize_per_species,
-               "Distribution of sequence size all": aln_obj.average_seqsize,
+                   main_aln.average_seqsize_per_species,
+               "Distribution of sequence size all": main_aln.average_seqsize,
                "Cumulative distribution of missing genes":
-                   aln_obj.cumulative_missing_genes,
+                   main_aln.cumulative_missing_genes,
                "Proportion of nucleotides or residues":
-                   aln_obj.characters_proportion,
+                   main_aln.characters_proportion,
                "Proportion of nucleotides or residues sp":
-                   aln_obj.characters_proportion_per_species,
-               "Pairwise sequence similarity": aln_obj.sequence_similarity,
+                   main_aln.characters_proportion_per_species,
+               "Pairwise sequence similarity": main_aln.sequence_similarity,
                "Pairwise sequence similarity sp":
-                   aln_obj.sequence_similarity_per_species,
+                   main_aln.sequence_similarity_per_species,
                "Pairwise sequence similarity gn":
-                   aln_obj.sequence_similarity_gene,
-               "Segregating sites": aln_obj.sequence_segregation,
-               "Segregating sites sp": aln_obj.sequence_segregation_per_species,
-               "Segregating sites gn": aln_obj.sequence_segregation_gene,
-               "Segregating sites prop": aln_obj.sequence_segregation,
+                   main_aln.sequence_similarity_gene,
+               "Segregating sites": main_aln.sequence_segregation,
+               "Segregating sites sp": main_aln.sequence_segregation_per_species,
+               "Segregating sites gn": main_aln.sequence_segregation_gene,
+               "Segregating sites prop": main_aln.sequence_segregation,
                "Alignment length/Polymorphism correlation":
-                   aln_obj.length_polymorphism_correlation,
+                   main_aln.length_polymorphism_correlation,
                "Distribution of taxa frequency":
-                   aln_obj.taxa_distribution,
+                   main_aln.taxa_distribution,
                "Allele Frequency Spectrum":
-                   aln_obj.allele_frequency_spectrum,
+                   main_aln.allele_frequency_spectrum,
                "Allele Frequency Spectrum prop":
-                   aln_obj.allele_frequency_spectrum,
+                   main_aln.allele_frequency_spectrum,
                "Allele Frequency Spectrum gn":
-                   aln_obj.allele_frequency_spectrum_gene,
-               "Missing data outliers": aln_obj.outlier_missing_data,
-               "Missing data outliers sp": aln_obj.outlier_missing_data_sp,
-               "Segregating sites outliers": aln_obj.outlier_segregating,
-               "Segregating sites outliers sp": aln_obj.outlier_segregating_sp,
-               "Sequence size outliers sp": aln_obj.outlier_sequence_size_sp,
-               "Sequence size outliers": aln_obj.outlier_sequence_size}
+                   main_aln.allele_frequency_spectrum_gene,
+               "Missing data outliers": main_aln.outlier_missing_data,
+               "Missing data outliers sp": main_aln.outlier_missing_data_sp,
+               "Segregating sites outliers": main_aln.outlier_segregating,
+               "Segregating sites outliers sp": main_aln.outlier_segregating_sp,
+               "Sequence size outliers sp": main_aln.outlier_sequence_size_sp,
+               "Sequence size outliers": main_aln.outlier_sequence_size}
 
     if additional_args:
-        plot_data = methods[stats_idx](**additional_args)
+        plot_data = methods[stats_idx](ns=ns, **additional_args)
     else:
-        plot_data = methods[stats_idx]()
+        plot_data = methods[stats_idx](ns)
 
     return [plot_data, footer]
 

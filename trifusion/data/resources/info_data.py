@@ -507,7 +507,7 @@ orthology_storage = {
 orthology_plots = [
     ("Distribution of maximum gene copies",
      "Gene focused",
-     "Gene_copy_distribution.png",
+     "bar_genecopy_distribution.png",
      "Displays the number of orthologs in function of the maximum number of "
      "gene copies. Here, the number of gene copies in each ortholog cluster is "
      "obtained from the taxa with the highest number of gene copies. "
@@ -522,7 +522,7 @@ orthology_plots = [
      "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Species distribution",
      "Species focused",
-     "Species_distribution.png",
+     "bar_species_distribution.png",
      "Displays the number of orthologs in function of the exact number of "
      "unique taxa represented in a given ortholog. Here, taxa represented by "
      "multiple copies are scored only once but the range of the number of "
@@ -534,7 +534,7 @@ orthology_plots = [
      "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Data coverage per species",
      "Species focused",
-     "Species_coverage.png",
+     "bar_species_coverage.png",
      "Displays the amount of available and missing ortholog groups for each "
      "taxon. The number of available genes is displayed as dark blue bars, "
      "while the number of missing genes is displayed as light blue bars. Given "
@@ -549,7 +549,7 @@ orthology_plots = [
      "<b>y-axis:</b> Frequency of ortholog groups"),
     ("Distribution of gene copy per taxa",
      "Species focused",
-     "Species_copy_number.png",
+     "bar_genecopy_per_species.png",
      "Displays the number of gene copies for each taxon. Here, only ortholog "
      "clusters with multiple copies for a given taxa are taken into account. "
      "If a taxon has only single copies in the entire data set, it scores 0."

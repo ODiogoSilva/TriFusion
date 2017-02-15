@@ -43,6 +43,7 @@ with warnings.catch_warnings():
         import ortho.orthomclBlastParser as BlastParser
         import ortho.orthomclMclToGroups as MclGroups
         from ortho.error_handling import *
+        from process.error_handling import KillByUser
     except ImportError:
         from trifusion.process.base import print_col, GREEN, RED
         from trifusion.ortho import OrthomclToolbox as OT
@@ -53,6 +54,7 @@ with warnings.catch_warnings():
         import trifusion.ortho.orthomclBlastParser as BlastParser
         import trifusion.ortho.orthomclMclToGroups as MclGroups
         from trifusion.ortho.error_handling import *
+        from trifusion.process.error_handling import KillByUser
 
 
 def install_schema(db_dir):
@@ -105,7 +107,7 @@ def check_unique_field(proteome_file, verbose=False):
         os.path.basename(proteome_file)))
 
 
-def prep_fasta(proteome_file, code, unique_id, verbose=False):
+def prep_fasta(proteome_file, code, unique_id, verbose=False, nm=None):
 
     if verbose:
         print_col("\t Preparing file for USEARCH", GREEN, 1)
@@ -124,6 +126,12 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     file_out = open(proteome_file.split(".")[0] + "_mod.fas", "w")
 
     for line in file_in:
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+                return
+
         if line.startswith(">"):
             if line not in header_list:
                 fields = line.split("|")
@@ -144,7 +152,7 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False):
     return seq_storage
 
 
-def adjust_fasta(file_list, dest):
+def adjust_fasta(file_list, dest, nm=None):
 
     print_col("Adjusting proteome files", GREEN, 1)
 
@@ -152,17 +160,25 @@ def adjust_fasta(file_list, dest):
     cf_dir = join(dest, "backstage_files", "compliantFasta")
     if not os.path.exists(cf_dir):
         os.makedirs(cf_dir)
+    else:
+        for f in os.listdir(cf_dir):
+            os.remove(join(cf_dir, f))
 
     for proteome in file_list:
         # Get code for proteome
         code_name = proteome.split(os.path.sep)[-1].split(".")[0]
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+                return
 
         # Check the unique ID field
         unique_id = check_unique_field(proteome, True)
 
         # Adjust fasta
         # stg = prep_fasta(proteome, code_name, unique_id)
-        prep_fasta(proteome, code_name, unique_id)
+        prep_fasta(proteome, code_name, unique_id, nm)
 
         protome_file_name = proteome.split(os.path.sep)[-1].split(".")[0] + \
                             ".fasta"
@@ -171,78 +187,100 @@ def adjust_fasta(file_list, dest):
                     join(cf_dir, protome_file_name))
 
 
-def filter_fasta(min_len, max_stop, db, dest):
+def filter_fasta(min_len, max_stop, db, dest, nm=None):
 
     print_col("Filtering proteome files", GREEN, 1)
 
     cp_dir = join(dest, "backstage_files", "compliantFasta")
 
-    FilterFasta.orthomcl_filter_fasta(cp_dir, min_len, max_stop, db, dest)
+    FilterFasta.orthomcl_filter_fasta(cp_dir, min_len, max_stop, db, dest, nm)
 
 
 def allvsall_usearch(goodproteins, evalue, dest, cpus, usearch_outfile,
-                     usearch_bin="usearch"):
+                     usearch_bin="usearch", nm=None):
 
     print_col("Perfoming USEARCH All-vs-All (may take a while...)", GREEN, 1)
 
     # FNULL = open(os.devnull, "w")
-    _ = subprocess.Popen([usearch_bin,
-                          "-ublast",
-                          join(dest, "backstage_files", goodproteins),
-                          "-db",
-                          join(dest, "backstage_files", goodproteins),
-                          "-blast6out",
-                          join(dest, "backstage_files", usearch_outfile),
-                          "-evalue", str(evalue),
-                          "--maxaccepts",
-                          "0",
-                          "-threads",
-                          str(cpus)]).wait()
+    usearch_cmd = [usearch_bin,
+                   "-ublast",
+                   join(dest, "backstage_files", goodproteins),
+                   "-db",
+                   join(dest, "backstage_files", goodproteins),
+                   "-blast6out",
+                   join(dest, "backstage_files", usearch_outfile),
+                   "-evalue", str(evalue),
+                   "--maxaccepts",
+                   "0",
+                   "-threads",
+                   str(cpus)]
+
+    if nm:
+        # The subprocess.Popen handler cannot be passed directly in Windows
+        # due to pickling issues. So I pass the pid of the process instead.
+        subp = subprocess.Popen(usearch_cmd)
+        nm.subp = subp.pid
+        subp.wait()
+        nm.subp = None
+    else:
+        _ = subprocess.Popen(usearch_cmd).wait()
 
 
-def blast_parser(usearch_ouput, dest, db_dir):
+def blast_parser(usearch_ouput, dest, db_dir, nm):
 
     print_col("Parsing BLAST output", GREEN, 1)
 
     BlastParser.orthomcl_blast_parser(
         join(dest, "backstage_files", usearch_ouput),
         join(dest, "backstage_files", "compliantFasta"),
-        db_dir)
+        db_dir,
+        nm)
 
 
-def pairs(db_dir):
+def pairs(db_dir, nm=None):
 
     print_col("Finding pairs for orthoMCL", GREEN, 1)
 
-    make_pairs_sqlite.execute(db_dir)
+    make_pairs_sqlite.execute(db_dir, nm=nm)
 
 
-def dump_pairs(db_dir, dest):
+def dump_pairs(db_dir, dest, nm=None):
 
     print_col("Dump files from the database produced by the orthomclPairs "
               "program", GREEN, 1)
 
-    dump_pairs_sqlite.execute(db_dir, dest)
+    dump_pairs_sqlite.execute(db_dir, dest, nm=nm)
 
 
-def mcl(inflation_list, dest, mcl_file="mcl"):
+def mcl(inflation_list, dest, mcl_file="mcl", nm=None):
 
     print_col("Running mcl algorithm", GREEN, 1)
     mcl_input = join(dest, "backstage_files", "mclInput")
     mcl_output = join(dest, "backstage_files", "mclOutput_")
 
-    FNULL = open(os.devnull, "w")
     for val in inflation_list:
-        x = subprocess.Popen([mcl_file,
-                             mcl_input,
-                             "--abc",
-                             "-I",
-                             val,
-                             "-o",
-                             mcl_output + val.replace(".", "")]).wait()
+
+        mcl_cmd = [mcl_file,
+                   mcl_input,
+                   "--abc",
+                   "-I",
+                   val,
+                   "-o",
+                   mcl_output + val.replace(".", "")]
+
+        if nm:
+            # The subprocess.Popen handler cannot be passed directly in Windows
+            # due to pickling issues. So I pass the pid of the process instead.
+            subp = subprocess.Popen(mcl_cmd)
+            nm.subp = subp.pid
+            subp.wait()
+            nm.subp = None
+        else:
+            _ = subprocess.Popen(mcl_cmd).wait()
 
 
-def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest):
+def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest,
+                nm=None):
 
     print_col("Dumping groups", GREEN, 1)
 
@@ -254,11 +292,18 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest):
     mcl_output = join(dest, "backstage_files", "mclOutput_")
 
     for val in inflation_list:
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+                return
+
         MclGroups.mcl_to_groups(
             mcl_prefix,
             start_id,
             mcl_output + val.replace(".", ""),
-            os.path.join(results_dir, group_file + "_" + str(val) + ".txt"))
+            os.path.join(results_dir, group_file + "_" + str(val) + ".txt"),
+            nm=nm)
 
 
 def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
@@ -288,7 +333,7 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
         # Retrieve fasta sequences from the filtered groups
         group_obj.retrieve_sequences(sqldb, db, dest=join(inflation_dir,
                                                           "Orthologs"))
-        os.remove(sqldb)
+        # os.remove(sqldb)
         stats_storage[val] = stats
 
     return stats_storage, groups_obj

@@ -10,12 +10,16 @@ from trifusion.process.base import Base
 
 x = Base()
 
+sql_db = "sequencedb"
+
 
 class ProcessWriteSinglesTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.aln_obj = Alignment(dna_data_fas[0], dest="test")
+        aln_obj = AlignmentList([], sql_db=sql_db)
+        self.con = aln_obj.con
+        self.aln_obj = Alignment(dna_data_fas[0], sql_cursor=aln_obj.cur)
 
         if not os.path.exists("output"):
             os.makedirs("output")
@@ -25,7 +29,8 @@ class ProcessWriteSinglesTest(unittest.TestCase):
     def tearDown(self):
 
         self.aln_obj = None
-        shutil.rmtree("test")
+        self.con.close()
+        os.remove(sql_db)
         shutil.rmtree("output")
 
     def test_write_gphocs(self):
@@ -48,29 +53,25 @@ class ProcessWriteTest(unittest.TestCase):
 
     def setUp(self):
 
-        aln_obj = AlignmentList(dna_data_fas)
-        self.aln_obj = aln_obj.concatenate(remove_temp=True,
-                                           alignment_name="test",
-                                           dest=".")
-        aln_obj.clear_alignments()
+        aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
+        self.con = aln_obj.con
+        self.aln_obj = aln_obj.concatenate(alignment_name="test")
         os.makedirs("output")
         self.output_file = os.path.join("output", "test")
 
     def tearDown(self):
 
-        self.aln_obj._clear_alignment_temp()
-        shutil.rmtree("test")
         shutil.rmtree("output")
+        self.con.close()
+        os.remove(sql_db)
 
     def test_write_fasta(self):
 
         self.aln_obj.write_to_file(["fasta"],
                                    self.output_file)
 
-        if self.assertTrue(x.check_sizes(self.aln_obj.alignment,
-                                         self.output_file + ".fas")):
-            self.assertEqual(x.autofinder(self.output_file + ".fas")[0],
-                             "fasta")
+        self.assertEqual(x.autofinder(self.output_file + ".fas")[0],
+                         "fasta")
 
     def test_write_fasta_interleave(self):
 
@@ -82,10 +83,8 @@ class ProcessWriteTest(unittest.TestCase):
         self.aln_obj.write_to_file(["nexus"],
                                    self.output_file)
 
-        if self.assertTrue(x.check_sizes(self.aln_obj.alignment,
-                                         self.output_file + ".nex")):
-            self.assertEqual(x.autofinder(self.output_file + ".nex")[0],
-                             "nexus")
+        self.assertEqual(x.autofinder(self.output_file + ".nex")[0],
+                         "nexus")
 
     def test_write_nexus_interleave(self):
 
@@ -97,30 +96,24 @@ class ProcessWriteTest(unittest.TestCase):
         self.aln_obj.write_to_file(["mcmctree"],
                                    self.output_file)
 
-        if self.assertTrue(x.check_sizes(self.aln_obj.alignment,
-                                         self.output_file + "_mcmctree.phy")):
-            self.assertEqual(x.autofinder(
-                self.output_file + "_mcmctree.phy")[0], "phylip")
+        self.assertEqual(x.autofinder(
+            self.output_file + "_mcmctree.phy")[0], "phylip")
 
     def test_write_phy(self):
 
         self.aln_obj.write_to_file(["phylip"],
                                    self.output_file)
 
-        if self.assertTrue(x.check_sizes(self.aln_obj.alignment,
-                                         self.output_file + ".phy")):
-            self.assertEqual(x.autofinder(self.output_file + ".phy")[0],
-                             "phylip")
+        self.assertEqual(x.autofinder(self.output_file + ".phy")[0],
+                         "phylip")
 
     def test_write_stockholm(self):
 
         self.aln_obj.write_to_file(["stockholm"],
                                    self.output_file)
 
-        if self.assertTrue(x.check_sizes(self.aln_obj.alignment,
-                                         self.output_file + ".stockholm")):
-            self.assertEqual(x.autofinder(self.output_file + ".stockholm")[0],
-                             "stockholm")
+        self.assertEqual(x.autofinder(self.output_file + ".stockholm")[0],
+                         "stockholm")
 
     def test_write_gphocs(self):
 
