@@ -604,7 +604,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Active table: * / *main
         if secondary_options["collapse_filter"] and not \
                 secondary_options["collapse_file"]:
-            ns.task = "collapse_filter"
+            ns.task = "collapse"
             # If the the collapse filter is active, perform this
             # filtering first. This is because the filter will allow 0% of
             # missing data, which will always be as stringent or more than any

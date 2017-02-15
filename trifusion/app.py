@@ -25,6 +25,7 @@ import multiprocessing
 import matplotlib.patches as patches
 import subprocess
 import platform
+import ctypes
 import pickle
 import urllib
 import string
@@ -2635,6 +2636,15 @@ class TriFusionApp(App):
 
             devices = re.findall(
                 r"[A-Z]+:.*$", os.popen("mountvol /").read(), re.MULTILINE)
+
+            # Prevent no disk on drive popup error in windows
+            SEM_FAILCRITICALERRORS = 1
+            SEM_NOOPENFILEERRORBOX = 0x8000
+            SEM_FAIL = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS
+
+            kernel32 = ctypes.WinDLL('kernel32')
+            oldmode = ctypes.c_uint()
+            kernel32.SetThreadErrorMode(SEM_FAIL, ctypes.byref(oldmode))
 
             for d in devices:
                 if exists(d):
