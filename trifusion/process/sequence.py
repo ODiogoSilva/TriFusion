@@ -21,15 +21,10 @@ import numpy as np
 from collections import Counter, defaultdict
 import itertools
 import re
-import os
-import shutil
-from os import sep
+import functools
 from os.path import join, basename, splitext
 from itertools import compress
-import fileinput
-import multiprocessing
 from threading import Lock
-import cPickle as pickle
 import functools
 import sqlite3
 
@@ -168,7 +163,6 @@ class SetupDatabase(object):
 
     def __get__(self, obj, objtype):
         """Support instance methods."""
-        import functools
         return functools.partial(self.__call__, obj)
 
     def __call__(self, *args, **kwargs):
@@ -216,7 +210,6 @@ class SetupInTable(object):
 
     def __get__(self, obj, objtype):
         """Support instance methods."""
-        import functools
         return functools.partial(self.__call__, obj)
 
     def __call__(self, *args, **kwargs):
@@ -269,35 +262,6 @@ class AlignmentException(Exception):
 
 class AlignmentUnequalLength(Exception):
     pass
-
-
-def read_alns(l):
-    """
-    Worker function that reads alignments from a list of file names.
-    :param l: list, [0] - List of file names
-                    [1] - dest variable, where the temporary sequences files
-                    will be saved
-                    [2] - int, work number
-                    [3] - Namespace object, to share counter and processed files
-    """
-
-    # Open handle for this worker, where individual Alignment objects will be
-    #  stored
-    fh = open(join(l[1], "Worker{}.pc".format(l[2])), "wb")
-
-    for i in l[0]:
-        # Update the counter for the progress bar. The index is used instead
-        # of a simple counter, because race conditioning of multiple workers
-        # does not produce the expected behaviour with a int counter.
-        if l[3]:
-            count = (l[0].index(i) + 1) * multiprocessing.cpu_count()
-            l[3].progress = count if count > l[3].progress else l[3].progress
-            # Update the file being processed
-            l[3].m = "Processing file %s" % basename(i)
-        # Pickle the Alignment object
-        pickle.dump(Alignment(i, dest=l[1]), fh)
-
-    fh.close()
 
 
 class Alignment(Base):
@@ -4090,11 +4054,10 @@ class AlignmentList(Base):
         for aln in self.alignments.values():
 
             if ns:
-                ns.counter += 1
-
-            if ns:
                 if ns.stop:
                     raise KillByUser("Child thread killed by user")
+                    return
+                ns.counter += 1
 
             # Get alignment size info
             self.summary_stats["seq_len"] += aln.locus_length

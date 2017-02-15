@@ -594,8 +594,6 @@ class GroupLight(object):
                 "table_header": ["Number of species",
                                       "Ortholog frequency"]}
 
-        return b_plt, lgd, table
-
     def bar_genecopy_distribution(self, filt=False, ns=None):
         """
         Creates a bar plot with the distribution of gene copies across
