@@ -102,7 +102,8 @@ def check_unique_field(proteome_file, verbose=False):
                 print_col("\t Using unique header field {}".format(i), GREEN, 1)
             return i
 
-    # Ideally, a unique field should be found before this code. If not, raise exception
+    # Ideally, a unique field should be found before this code. If not, raise
+    #  exception
     raise NoUniqueField("The proteome file {} has no unique field".format(
         os.path.basename(proteome_file)))
 
@@ -130,7 +131,6 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False, nm=None):
         if nm:
             if nm.stop:
                 raise KillByUser("")
-                return
 
         if line.startswith(">"):
             if line not in header_list:
@@ -171,7 +171,6 @@ def adjust_fasta(file_list, dest, nm=None):
         if nm:
             if nm.stop:
                 raise KillByUser("")
-                return
 
         # Check the unique ID field
         unique_id = check_unique_field(proteome, True)
@@ -296,7 +295,6 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest,
         if nm:
             if nm.stop:
                 raise KillByUser("")
-                return
 
         MclGroups.mcl_to_groups(
             mcl_prefix,
@@ -478,44 +476,48 @@ def main():
         # Create and change working directory
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        os.chdir(output_dir)
+        # os.chdir(output_dir)
 
         # Create directory that will store intermediate files during orthology
         # search
-        int_dir = "backstage_files"
+        int_dir = join(output_dir, "backstage_files")
         if not os.path.exists(int_dir):
             os.makedirs(int_dir)
         os.chdir(int_dir)
 
         if arg.normal:
             install_schema(tmp_dir)
-            adjust_fasta(proteome_files)
-            filter_fasta(min_length, max_percent_stop, database_name)
-            allvsall_usearch(database_name, evalue_cutoff, cpus,
+            adjust_fasta(proteome_files, output_dir)
+            filter_fasta(min_length, max_percent_stop, database_name,
+                         output_dir)
+            allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
                              usearch_out_name)
-            blast_parser(usearch_out_name, tmp_dir)
+            blast_parser(usearch_out_name, output_dir, tmp_dir)
             pairs(tmp_dir)
-            dump_pairs(tmp_dir)
-            mcl(inflation)
-            mcl_groups(inflation, prefix, start_id, groups_file)
+            dump_pairs(tmp_dir, output_dir)
+            mcl(inflation, output_dir)
+            mcl_groups(inflation, prefix, start_id, groups_file, output_dir)
             export_filtered_groups(inflation, groups_file, max_gn, min_sp,
-                                   "tmp.sql3", database_name, tmp_dir)
+                                   "tmp.sql3", database_name, tmp_dir,
+                                   output_dir)
 
         elif arg.adjust:
-            adjust_fasta(proteome_files)
+            adjust_fasta(proteome_files, output_dir)
 
         elif arg.no_adjust:
             install_schema(tmp_dir)
-            filter_fasta(min_length, max_percent_stop, database_name)
-            allvsall_usearch(database_name, evalue_cutoff, cpus,
+            filter_fasta(min_length, max_percent_stop, database_name,
+                         output_dir)
+            allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
                              usearch_out_name)
-            blast_parser(usearch_out_name, tmp_dir)
+            blast_parser(usearch_out_name, output_dir, tmp_dir)
             pairs(tmp_dir)
-            dump_pairs(tmp_dir)
-            mcl(inflation)
-            mcl_groups(inflation, prefix, start_id, groups_file)
+            dump_pairs(tmp_dir, output_dir)
+            mcl(inflation, output_dir)
+            mcl_groups(inflation, prefix, start_id, groups_file, output_dir)
             export_filtered_groups(inflation, groups_file, max_gn, min_sp,
-                                   "tmp.sql3", database_name, tmp_dir)
+                                   "tmp.sql3", database_name, tmp_dir,
+                                   output_dir)
 
         print_col("OrthoMCL pipeline execution successfully completed in %s "
                   "seconds" % (round(time.time() - start_time, 2)), GREEN, 1)
