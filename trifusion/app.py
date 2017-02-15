@@ -6896,10 +6896,10 @@ class TriFusionApp(App):
             os.makedirs(fig_dir)
 
         if ns:
-            ns.files = len(MultiGroups.calls)
+            ns.files = len(MultiGroupsLight.calls)
 
         active_group_light = self.get_active_group_light()
-        for command in MultiGroups.calls:
+        for command in MultiGroupsLight.calls:
 
             if ns:
                 if ns.stop:
