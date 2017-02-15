@@ -1286,7 +1286,6 @@ class Alignment(Base):
             # Create Alignment object
             current_aln = Alignment(part_name, input_format=self.input_format,
                                     partitions=current_partition,
-                                    alignment_name=part_name,
                                     sql_cursor=self.cur,
                                     locus_length=part_len,
                                     sequence_code=self.sequence_code,
@@ -3181,7 +3180,6 @@ class AlignmentList(Base):
         # Create the concatenated file in an Alignment object
         concatenated_alignment = Alignment(table,
                                            partitions=self.partitions,
-                                           alignment_name=alignment_name,
                                            locus_length=locus_length,
                                            sql_cursor=self.cur,
                                            sequence_code=self.sequence_code,
