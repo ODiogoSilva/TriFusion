@@ -5,9 +5,9 @@ import os
 import math
 
 try:
-    from process.error_handling import *
+    from process.error_handling import KillByUser
 except ImportError:
-    from trifusion.process.error_handling import *
+    from trifusion.process.error_handling import KillByUser
 
 
 """my @steps = ( # Common
@@ -443,7 +443,6 @@ def execute(db_dir, nm=None):
             if nm:
                 if nm.stop:
                     raise KillByUser("")
-                    return
 
             func(cur)
 

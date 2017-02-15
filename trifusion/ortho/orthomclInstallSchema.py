@@ -101,13 +101,13 @@ def createInterTaxonMatchView(cur):
 ##############################################################
 
 
-def execute(dir):
+def execute(out_dir):
 
     # Remove any previous DB
-    if os.path.exists(os.path.join(dir, "orthoDB.db")):
-        os.remove(os.path.join(dir, "orthoDB.db"))
+    if os.path.exists(os.path.join(out_dir, "orthoDB.db")):
+        os.remove(os.path.join(out_dir, "orthoDB.db"))
 
-    con = lite.connect(os.path.join(dir, "orthoDB.db"))
+    con = lite.connect(os.path.join(out_dir, "orthoDB.db"))
 
     with con:
 

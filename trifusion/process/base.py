@@ -18,9 +18,9 @@
 #  MA 02110-1301, USA.
 
 try:
-    from process.error_handling import *
+    from process.error_handling import InputError, EmptyAlignment
 except ImportError:
-    from trifusion.process.error_handling import *
+    from trifusion.process.error_handling import InputError, EmptyAlignment
 
 import traceback
 import shutil

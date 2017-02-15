@@ -271,7 +271,7 @@ class FileChooserL(FileChooserListView):
                 self.selection.append(entry.path)
         else:
             if _dir and not self.dirselect:
-                self.open_entry
+                self.open_entry(entry)
                 return
             self.selection = [entry.path, ]
 
