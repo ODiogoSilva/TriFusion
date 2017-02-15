@@ -21,7 +21,6 @@ import numpy as np
 from collections import Counter, defaultdict
 import itertools
 import re
-import functools
 from os.path import join, basename, splitext
 from itertools import compress
 from threading import Lock
@@ -266,7 +265,7 @@ class AlignmentUnequalLength(Exception):
 
 class Alignment(Base):
 
-    def __init__(self, input_alignment, input_format=None, alignment_name=None,
+    def __init__(self, input_alignment, input_format=None,
                  partitions=None, locus_length=None, sql_cursor=None,
                  sequence_code=None, taxa_list=None, taxa_idx=None):
         """
@@ -592,7 +591,7 @@ class Alignment(Base):
         try:
             lock.acquire(True)
             if taxon in self.taxa_list and taxon not in self.shelved_taxa:
-               return self.cur.execute(
+                return self.cur.execute(
                     "SELECT seq FROM {} WHERE txId=?".format(table),
                     (self.taxa_idx[taxon],)).fetchone()[0]
 
@@ -1035,7 +1034,6 @@ class Alignment(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.total = len(self.taxa_list)
                 ns.counter = 0
@@ -1047,7 +1045,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 if ns.sa:
                     ns.counter += 1
                     ns.msg = "Collapsing taxon {}".format(taxa)
@@ -1061,7 +1058,6 @@ class Alignment(Base):
             # Reset counters for progress dialog
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.total = len(collapsed_dic)
                 ns.counter = 0
@@ -1082,7 +1078,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 if ns.sa:
                     ns.counter += 1
 
@@ -1107,7 +1102,6 @@ class Alignment(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.total = ns.counter = ns.msg = None
 
@@ -1140,7 +1134,6 @@ class Alignment(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.total = self.locus_length
                 ns.counter = 0
@@ -1160,7 +1153,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 if ns.sa:
                     ns.counter += 1
 
@@ -1218,7 +1210,6 @@ class Alignment(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.counter = ns.total = None
 
@@ -1317,7 +1308,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             # This adds support to the reverse concatenation of codon
@@ -1412,7 +1402,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             filtered_seq = "".join(list(
                 itertools.compress(seq, index(self.locus_length,
@@ -1448,7 +1437,6 @@ class Alignment(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.total = len(self.taxa_list)
                 ns.counter = 0
@@ -1505,7 +1493,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 if ns.sa:
                     ns.counter += 1
                     ns.msg = "Fetching gaps for {}".format(tx)
@@ -1517,7 +1504,6 @@ class Alignment(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.counter = 0
 
@@ -1528,7 +1514,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 if ns.sa:
                     ns.counter += 1
                     ns.msg = "Adding gaps for {}".format(tx)
@@ -1558,7 +1543,6 @@ class Alignment(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if ns.sa:
                 ns.counter = ns.total = ns.msg = None
 
@@ -1576,7 +1560,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             # Condition where the sequence only has gaps
             if not seq.strip("-"):
@@ -1629,7 +1612,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             cadd = column.count
 
@@ -1653,7 +1635,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             new_seq = "".join(compress(seq, filtered_cols))
             sequence_data.append((self.taxa_idx[tx], tx, new_seq))
@@ -1759,7 +1740,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             v = len(set([i for i in column if i not in [self.sequence_code[1],
                                                         "-"]]))
@@ -1804,7 +1784,6 @@ class Alignment(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             column = Counter([i for i in column if i not in
                               [self.sequence_code[1], "-"]])
@@ -1913,14 +1892,13 @@ class Alignment(Base):
             if self.locus_length % 90:
                 temp_storage.append([])
 
-            for taxon, seq in self.iter_alignment(
+            for _, seq in self.iter_alignment(
                     table_name=table_name,
                     table_suffix=table_suffix):
 
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.counter += 1
 
@@ -1929,16 +1907,16 @@ class Alignment(Base):
                 for p, i in enumerate(xrange(90, self.locus_length, 90)):
                     temp_storage[p].append(seq[counter:i])
                     counter = i
-                else:
-                    try:
-                        if self.locus_length % 90:
-                            p += 1
-                            temp_storage[p].append(seq[counter:])
-                    # This likely means that the alignment is less than
-                    # 90 characters long. In this case, append to the storage's
-                    # 0 index
-                    except UnboundLocalError:
-                        temp_storage[0].append(seq)
+
+                try:
+                    if self.locus_length % 90:
+                        p += 1
+                        temp_storage[p].append(seq[counter:])
+                # This likely means that the alignment is less than
+                # 90 characters long. In this case, append to the storage's
+                # 0 index
+                except UnboundLocalError:
+                    temp_storage[0].append(seq)
 
             return temp_storage
 
@@ -2039,7 +2017,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.partitions.partitions)
                         ns_pipe.counter = 0
@@ -2051,7 +2028,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -2109,7 +2085,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(population_storage)
                         ns_pipe.counter = 0
@@ -2129,7 +2104,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -2156,7 +2130,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
@@ -2183,7 +2156,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
@@ -2195,7 +2167,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -2226,7 +2197,6 @@ class Alignment(Base):
             if ns_pipe:
                 if ns_pipe.stop:
                     raise KillByUser("")
-                    return
                 if ns_pipe.sa:
                     ns_pipe.total = len(self.taxa_list)
                     ns_pipe.counter = 0
@@ -2242,7 +2212,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.counter += 1
 
@@ -2263,7 +2232,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.partitions.partitions)
                         ns_pipe.counter = 0
@@ -2293,7 +2261,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
@@ -2310,7 +2277,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -2328,7 +2294,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.partitions.partitions)
                         ns_pipe.counter = 0
@@ -2339,7 +2304,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -2358,7 +2322,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
@@ -2371,7 +2334,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -2392,7 +2354,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
@@ -2483,7 +2444,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.total = len(self.taxa_list)
                         ns_pipe.counter = 0
@@ -2517,7 +2477,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -2596,7 +2555,6 @@ class Alignment(Base):
             if ns_pipe:
                 if ns_pipe.stop:
                     raise KillByUser("")
-                    return
                 if ns_pipe.sa:
                     ns_pipe.total = len(self.taxa_list)
                     ns_pipe.counter = 0
@@ -2608,7 +2566,6 @@ class Alignment(Base):
                 if ns_pipe:
                     if ns_pipe.stop:
                         raise KillByUser("")
-                        return
                     if ns_pipe.sa:
                         ns_pipe.counter += 1
 
@@ -2633,7 +2590,6 @@ class Alignment(Base):
         if ns_pipe:
             if ns_pipe.stop:
                 raise KillByUser("")
-                return
             if ns_pipe.sa:
                 ns_pipe.msg = ns_pipe.counter = ns_pipe.total = None
 
@@ -2646,14 +2602,12 @@ class AlignmentList(Base):
     Alignment classes for the write_to_file methods.
     """
 
-    def __init__(self, alignment_list, dest=None, shared_namespace=None,
+    def __init__(self, alignment_list, dest=None,
                  sql_db=None, db_cur=None, db_con=None):
         """
         :param alignment_list: List of Alignment objects
         :param dest: String. Path to temporary directory that will store
         the sequence data of each alignment object
-        :param shared_namespace: Namespace object, used to share information
-        between subprocesses
         :param sql_db: string. Path to sqlite database file where sequence data
         will be stored
         :param db_cur: sqlite cursors. If provided, along with the db_con
@@ -3045,13 +2999,11 @@ class AlignmentList(Base):
 
         self.taxa_names = self._get_taxa_list()
 
-    def add_alignment_files(self, file_name_list, dest=None,
+    def add_alignment_files(self, file_name_list,
                             shared_namespace=None):
         """
         Adds a new alignment based on a file name
         :param file_name_list: list, with the path to the alignment files
-        :param dest: string. Path to the temporary directory that will store
-        the sequence data of the Alignment object
         """
 
         # Check for duplicates among current file list
@@ -3076,7 +3028,6 @@ class AlignmentList(Base):
 
                 if shared_namespace.stop:
                     raise KillByUser("Child thread killed by user")
-                    return
 
             aln_obj = Alignment(aln_path, sql_cursor=self.cur)
 
@@ -3177,7 +3128,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.msg = "Concatenating taxon {}".format(taxon)
                 ns.counter += 1
 
@@ -3188,7 +3138,6 @@ class AlignmentList(Base):
                 if ns:
                     if ns.stop:
                         raise KillByUser("")
-                        return
 
                 # Setting missing data symbol
                 missing = aln.sequence_code[1]
@@ -3216,7 +3165,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             # Reset counters
             ns.total = ns.counter = None
 
@@ -3262,7 +3210,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = len(self.alignments)
             ns.counter = 0
 
@@ -3273,7 +3220,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
                 ns.msg = "Evaluating file {}".format(
                     basename(alignment_obj.name))
@@ -3287,7 +3233,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = ns.counter = ns.msg = None
 
     def filter_by_taxa(self, filter_mode, taxa_list, ns=None):
@@ -3319,7 +3264,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
                 ns.msg = "Filtering file {}".format(
                     basename(alignment_obj.name))
@@ -3351,7 +3295,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.counter = ns.total = ns.msg = None
 
     def filter_codon_positions(self, position_list, table_in=None,
@@ -3372,7 +3315,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = len(self.alignments)
             ns.counter = 0
 
@@ -3384,7 +3326,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
                 ns.msg = "Filtering file {}".format(
                     basename(alignment_obj.name))
@@ -3399,7 +3340,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = ns.counter = ns.msg = None
 
     def filter_missing_data(self, gap_threshold, missing_threshold,
@@ -3434,7 +3374,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
                 ns.msg = "Filtering file {}".format(
                     basename(alignment_obj.name))
@@ -3449,7 +3388,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = ns.counter = ns.msg = None
 
     def filter_segregating_sites(self, min_val, max_val, table_in=None,
@@ -3470,7 +3408,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = len(self.alignments)
             ns.counter = 0
 
@@ -3481,7 +3418,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
                 ns.msg = "Filtering file {}".format(
                     basename(alignment_obj.name))
@@ -3496,7 +3432,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = ns.counter = ns.msg = None
 
     def filter_informative_sites(self, min_val, max_val, table_in=None,
@@ -3513,7 +3448,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = len(self.alignments)
             ns.counter = 0
 
@@ -3524,7 +3458,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
                 ns.msg = "Filtering file {}".format(
                     basename(alignment_obj.name))
@@ -3539,7 +3472,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = ns.counter = ns.msg = None
 
     def remove_taxa(self, taxa_list, mode="remove"):
@@ -3682,7 +3614,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             if len(self.alignments) == 1:
                 ns.sa = True
             else:
@@ -3695,7 +3626,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 if not ns.sa:
                     ns.counter += 1
                     ns.msg = "Coding file {}".format(
@@ -3707,7 +3637,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.counter = ns.total = ns.msg = None
 
     def collapse(self, write_haplotypes=True, haplotypes_file="",
@@ -3733,7 +3662,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             # If the current alignment list contains only a single alignment,
             # The progress should be measured inside that file
             if len(self.alignments) == 1:
@@ -3749,7 +3677,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 # Only use counter here if there are more than 1 alignment.
                 # Otherwise,the counter will be used inside the Alignment
                 # method
@@ -3793,7 +3720,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
 
             if len(self.alignments) == 1:
                 ns.sa = True
@@ -3801,7 +3727,6 @@ class AlignmentList(Base):
                 ns.sa = False
                 ns.total = len(self.alignments)
                 ns.counter = 0
-
 
         self.taxa_names = ["consensus"]
 
@@ -3825,7 +3750,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 if not ns.sa:
                     ns.msg = "Processing file {}".format(
                         basename(alignment_obj.name))
@@ -3844,7 +3768,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.counter = ns.total = ns.msg = None
 
         if single_file:
@@ -3921,7 +3844,6 @@ class AlignmentList(Base):
         if ns_pipe:
             if ns_pipe.stop:
                 raise KillByUser("")
-                return
             if len(self.alignments) == 1:
                 ns_pipe.sa = True
             else:
@@ -3934,7 +3856,6 @@ class AlignmentList(Base):
             if ns_pipe:
                 if ns_pipe.stop:
                     raise KillByUser("")
-                    return
                 if not ns_pipe.sa:
                     ns_pipe.counter += 1
                     ns_pipe.msg = "Writting file {}".format(
@@ -3979,7 +3900,6 @@ class AlignmentList(Base):
         if ns_pipe:
             if ns_pipe.stop:
                 raise KillByUser("")
-                return
             ns_pipe.total = ns_pipe.counter =ns_pipe.msg = None
 
     def get_gene_table_stats(self, active_alignments=None):
@@ -4148,7 +4068,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser()
-                    return
 
             data.append([1 if x in alignment.taxa_list else 0
                          for x in self.taxa_names])
@@ -4180,7 +4099,6 @@ class AlignmentList(Base):
                 # Kill switch to interrupt worker
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 # Add to progress counter
                 ns.counter += 1
 
@@ -4240,7 +4158,6 @@ class AlignmentList(Base):
                 # Kill switch to interrupt worker
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 # Add to progress counter
                 ns.counter += 1
 
@@ -4300,7 +4217,6 @@ class AlignmentList(Base):
                 # Kill switch to interrupt worker
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 # Add to progress counter
                 ns.counter += 1
 
@@ -4365,7 +4281,6 @@ class AlignmentList(Base):
                 # Kill switch
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             for sp, seq in aln:
@@ -4403,7 +4318,6 @@ class AlignmentList(Base):
                 # Kill switch
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             data_storage.append(aln.locus_length)
@@ -4435,7 +4349,6 @@ class AlignmentList(Base):
                 #Kill switch
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             for seq in aln.iter_sequences():
@@ -4733,7 +4646,6 @@ class AlignmentList(Base):
                 if ns:
                     if ns.stop:
                         raise KillByUser("")
-                        return
 
                 sim, total_len = self._get_similarity(seq1, seq2,
                                                       aln.locus_length)
@@ -4780,7 +4692,6 @@ class AlignmentList(Base):
                     # Kill switch
                     if ns.stop:
                         raise KillByUser("")
-                        return
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -4802,7 +4713,7 @@ class AlignmentList(Base):
                 "labels": list(taxa_pos)}
 
     @CheckData
-    def sequence_similarity_gene(self, gene_name, window_size, ns=None):
+    def sequence_similarity_gene(self, gene_name, window_size):
 
         aln_obj = self.retrieve_alignment(gene_name)
 
@@ -4859,7 +4770,6 @@ class AlignmentList(Base):
                 # Kill switch
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             for column in aln.iter_columns():
@@ -4917,7 +4827,6 @@ class AlignmentList(Base):
                 if ns:
                     if ns.stop:
                         raise KillByUser("")
-                        return
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -4943,7 +4852,7 @@ class AlignmentList(Base):
                 "color_label": "Segregating sites"}
 
     @CheckData
-    def sequence_segregation_gene(self, gene_name, window_size, ns=None):
+    def sequence_segregation_gene(self, gene_name, window_size):
         """
         Generates data for a sliding window analysis of segregating sites
         :param gene_name: string, name of gene in self.alignments
@@ -4999,7 +4908,6 @@ class AlignmentList(Base):
                 # Kill switch
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             # Get informative sites for alignment
@@ -5040,7 +4948,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             for column in aln.iter_columns():
@@ -5122,7 +5029,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             # Get number of taxa
@@ -5157,7 +5063,6 @@ class AlignmentList(Base):
                 # Kill switch
                 if ns.stop:
                     raise KillByUser
-                    return
                 ns.counter += 1
 
             # Get number of taxa
@@ -5227,7 +5132,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             total_len = aln.locus_length * len(aln.taxa_list)
@@ -5279,7 +5183,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             total_len = aln.locus_length
@@ -5340,7 +5243,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             segregating_sites = 0
@@ -5399,7 +5301,6 @@ class AlignmentList(Base):
                 if ns:
                     if ns.stop:
                         raise KillByUser("")
-                        return
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -5461,7 +5362,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             gn_l = []
@@ -5508,7 +5408,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             for tx in data:
