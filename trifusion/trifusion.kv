@@ -10,10 +10,8 @@
 #:import ListProperty kivy.properties.ListProperty
 #:import Clock kivy.clock.Clock
 
-#:import load_group_files trifusion.data.resources.background_tasks
-.load_group_files
-#:import orto_update_filters trifusion.data.resources.background_tasks
-.orto_update_filters
+#:import load_group_files trifusion.data.resources.background_tasks.load_group_files
+#:import orto_update_filters trifusion.data.resources.background_tasks.orto_update_filters
 #: import TreeViewM trifusion.data.resources.custom_widgets.TreeViewM
 
 
@@ -7202,9 +7200,9 @@ FloatLayout:
         orientation: "vertical"
         canvas.before:
             Color:
-                rgba: (.7,.7,.7,1)
+                rgba: (.2,.2,.2,.7)
             Rectangle:
-                source: "data/backgrounds/master_background.png"
+                #source: "data/backgrounds/master_background.png"
                 pos: self.pos
                 size: self.size
 
