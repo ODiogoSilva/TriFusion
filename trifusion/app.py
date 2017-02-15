@@ -18,19 +18,24 @@
 #  MA 02110-1301, USA.
 
 # Standard libraries imports
-from os.path import dirname, join, exists, expanduser, basename, splitext
+from os.path import dirname, exists, splitext
+from collections import OrderedDict
 from functools import partial
+from copy import deepcopy
 from scipy import misc
 import multiprocessing
 import matplotlib.patches as patches
 import subprocess
 import platform
+import logging
 import ctypes
 import pickle
 import urllib
 import string
 import signal
+import shutil
 import Queue
+import time
 import stat
 import sys
 import os
@@ -83,6 +88,7 @@ from kivy.uix.treeview import TreeViewLabel
 try:
     from ortho import protein2dna
     from process.base import Base
+    from process.data import Partitions, InvalidPartitionFile
     from process.error_handling import EmptyAlignment, EmptyData, KillByUser
     from process.sequence import AlignmentList
     from data.resources.info_data import orthology_plots, \
@@ -98,10 +104,11 @@ try:
         histogram_plot, triangular_heat, outlier_densisty_dist, \
         sliding_window
     from base.html_creator import HtmlTemplate
-    from ortho.OrthomclToolbox import MultiGroups
+    from ortho.OrthomclToolbox import MultiGroupsLight
 except ImportError:
     from trifusion.ortho import protein2dna
     from trifusion.process.base import Base
+    from trifusion.process.data import Partitions, InvalidPartitionFile
     from trifusion.process.error_handling import EmptyAlignment, EmptyData, \
         KillByUser
     from trifusion.process.sequence import AlignmentList
@@ -118,7 +125,7 @@ except ImportError:
         histogram_plot, triangular_heat, outlier_densisty_dist, \
         sliding_window
     from trifusion.base.html_creator import HtmlTemplate
-    from trifusion.ortho.OrthomclToolbox import MultiGroups
+    from trifusion.ortho.OrthomclToolbox import MultiGroupsLight
 
 __version__ = "0.5.0"
 __build__ = "020117"
@@ -867,7 +874,7 @@ class TriFusionApp(App):
                         isinstance(self.screen.ids.plot_content.children[
                                    0].children[0], GeneTable):
                     return
-            except IndexError, ValueError:
+            except (IndexError, ValueError):
                 pass
 
             motion = vals[2]
@@ -7416,15 +7423,13 @@ class TriFusionApp(App):
         """
 
         # If no group button is active, dispatch the first
-        if (group_name and isinstance(group_name,
-                                      OrthoTool.MultiGroupsLight)):
+        if (group_name and isinstance(group_name, MultiGroupsLight)):
             try:
                 self.ortho_groups = group_name
             except:
                 pass
 
-        if (group_name and not isinstance(group_name,
-                                         OrthoTool.MultiGroupsLight)):
+        if (group_name and not isinstance(group_name, MultiGroupsLight)):
             pass
 
         elif (not [x for x in self.screen.ids.group_gl.children
@@ -8143,20 +8148,20 @@ class TriFusionApp(App):
         and whether the partitions are correctly defined
         """
 
-        part_obj = data.Partitions()
+        part_obj = Partitions()
         er = part_obj.read_from_file(self.partitions_file)
 
         aln_obj = self.alignment_list.retrieve_alignment(self.rev_infile)
         aln_er = aln_obj.set_partitions(part_obj)
 
         # Check for the validity of the partitions file
-        if isinstance(er, data.InvalidPartitionFile):
+        if isinstance(er, InvalidPartitionFile):
             return self.dialog_floatcheck(
                 "The provided partitions file is invalid. Please check "
                 "the file or replace with an appropriate one.", t="error")
 
         # Check for the validity of the partitions file
-        if isinstance(aln_er, data.InvalidPartitionFile):
+        if isinstance(aln_er, InvalidPartitionFile):
             return self.dialog_floatcheck(str(aln_er), t="error")
         else:
             return True
