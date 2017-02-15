@@ -6885,7 +6885,7 @@ class TriFusionApp(App):
                     return
                 ns.counter += 1
 
-            data = getattr(active_group_light, command)(fig_dir, ns=None)
+            data = getattr(active_group_light, command)(fig_dir)
             fig, lgd, _ = bar_plot(**data)
 
             plot_file = join(fig_dir, command + ".png")
