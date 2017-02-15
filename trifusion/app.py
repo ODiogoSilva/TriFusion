@@ -83,25 +83,40 @@ from kivy.uix.treeview import TreeViewLabel
 try:
     from ortho import protein2dna
     from process.base import Base
-    from process.error_handling import *
+    from process.error_handling import EmptyAlignment, EmptyData, KillByUser
     from process.sequence import AlignmentList
-    from data.resources.info_data import *
-    from data.resources.background_tasks import *
+    from data.resources.info_data import orthology_plots, \
+        informative_storage
+    from data.resources.background_tasks import remove_tmp, \
+        load_proc, get_stats_summary, background_process, \
+        background_export_groups, orto_execution, process_execution, \
+        orto_update_filters, get_active_group, get_orto_data, get_stats_data
     from data.resources.custom_widgets import *
     from data.resources.stats import *
-    from base.plotter import *
+    from base.plotter import scatter_plot, bar_plot, \
+        interpolation_plot, stacked_bar_plot, box_plot, histogram_smooth, \
+        histogram_plot, triangular_heat, outlier_densisty_dist, \
+        sliding_window
     from base.html_creator import HtmlTemplate
     from ortho.OrthomclToolbox import MultiGroups
 except ImportError:
     from trifusion.ortho import protein2dna
     from trifusion.process.base import Base
-    from trifusion.process.error_handling import *
+    from trifusion.process.error_handling import EmptyAlignment, EmptyData, \
+        KillByUser
     from trifusion.process.sequence import AlignmentList
-    from trifusion.data.resources.info_data import *
-    from trifusion.data.resources.background_tasks import *
+    from trifusion.data.resources.info_data import orthology_plots, \
+        informative_storage
+    from trifusion.data.resources.background_tasks import remove_tmp, \
+        load_proc, get_stats_summary, background_process, \
+        background_export_groups, orto_execution, process_execution, \
+        orto_update_filters, get_active_group, get_orto_data, get_stats_data
     from trifusion.data.resources.custom_widgets import *
     from trifusion.data.resources.stats import *
-    from trifusion.base.plotter import *
+    from trifusion.base.plotter import scatter_plot, bar_plot, \
+        interpolation_plot, stacked_bar_plot, box_plot, histogram_smooth, \
+        histogram_plot, triangular_heat, outlier_densisty_dist, \
+        sliding_window
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroups
 
