@@ -19,14 +19,14 @@
 
 try:
     from process.sequence import Alignment
-    from base.plotter import *
+    from base.plotter import bar_plot
     from process.error_handling import KillByUser
 except ImportError:
     from trifusion.process.sequence import Alignment
-    from trifusion.base.plotter import *
+    from trifusion.base.plotter import bar_plot
     from trifusion.process.error_handling import KillByUser
 
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 import pickle
 import os
 import sqlite3
@@ -303,7 +303,6 @@ class GroupLight(object):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             # Retrieve the field containing the ortholog sequences
             sequence_field = cl.split(":")[1]
@@ -431,6 +430,7 @@ class GroupLight(object):
             shared_namespace.missed = 0
             shared_namespace.progress = 0
             # Get number of lines of protein database
+            p = 0
             with open(protein_db) as fh:
                 for p, _ in enumerate(fh):
                     pass
@@ -459,7 +459,6 @@ class GroupLight(object):
                         if shared_namespace.stop:
                             conn.close()
                             raise KillByUser("")
-                            return
                         shared_namespace.progress += 1
 
                     if line.startswith(">"):
@@ -491,7 +490,6 @@ class GroupLight(object):
                 if shared_namespace.stop:
                     conn.close()
                     raise KillByUser("")
-                    return
 
             # Filter sequences
             if self._get_compliance(cl) == (1, 1):
@@ -551,7 +549,6 @@ class GroupLight(object):
             if shared_namespace:
                 if shared_namespace.stop:
                     raise KillByUser("")
-                    return
 
             if shared_namespace:
                 shared_namespace.progress = p
@@ -567,7 +564,7 @@ class GroupLight(object):
 
         output_handle.close()
 
-    def bar_species_distribution(self, filt=False, ns=None):
+    def bar_species_distribution(self, filt=False):
 
         if filt:
             data = Counter((len(cl) for cl in self.iter_species_frequency() if
@@ -594,7 +591,7 @@ class GroupLight(object):
                 "table_header": ["Number of species",
                                       "Ortholog frequency"]}
 
-    def bar_genecopy_distribution(self, filt=False, ns=None):
+    def bar_genecopy_distribution(self, filt=False):
         """
         Creates a bar plot with the distribution of gene copies across
         clusters
@@ -608,11 +605,6 @@ class GroupLight(object):
         else:
             data = Counter((max(cl.values()) for cl in self.species_frequency
                            if cl))
-
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-                return
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
@@ -632,7 +624,7 @@ class GroupLight(object):
                 "table_header": ["Number of gene copies",
                                  "Ortholog frequency"]}
 
-    def bar_species_coverage(self, filt=False, ns=None):
+    def bar_species_coverage(self, filt=False):
         """
         Creates a stacked bar plot with the proportion of
         :return:
@@ -643,11 +635,6 @@ class GroupLight(object):
         self._reset_counter()
 
         for cl in self.iter_species_frequency():
-
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                    return
 
             self._apply_filter(cl)
             if filt:
@@ -671,18 +658,13 @@ class GroupLight(object):
                 "lgd_list": lgd_list,
                 "ax_names": ax_names}
 
-    def bar_genecopy_per_species(self, filt=False, ns=None):
+    def bar_genecopy_per_species(self, filt=False):
 
         data = Counter(dict((x, 0) for x in self.species_list))
 
         self._reset_counter()
 
         for cl in self.iter_species_frequency():
-
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                    return
 
             self._apply_filter(cl)
             if filt:
@@ -705,6 +687,7 @@ class GroupLight(object):
         return {"data": data,
                 "labels": x_labels,
                 "ax_names": ax_names}
+
 
 class Group(object):
     """ This represents the main object of the orthomcl toolbox module. It is
@@ -921,7 +904,7 @@ class Group(object):
         if self.filtered_groups:
 
             if shared_namespace:
-                    shared_namespace.act = "Exporting filtered orthologs"
+                shared_namespace.act = "Exporting filtered orthologs"
 
             output_handle = open(os.path.join(dest, output_file_name), "w")
 
@@ -1093,7 +1076,6 @@ class Group(object):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
             data.append(len([x for x, y in i.species_frequency.items()
                              if y > 0]))
 
@@ -1111,7 +1093,6 @@ class Group(object):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
 
         # Create plot
         b_plt, lgd, _ = bar_plot([y_vals], x_labels,
@@ -1184,8 +1165,6 @@ class Group(object):
         :return:
         """
 
-        data = []
-
         # Determine which groups to use
         if filt:
             groups = self.filtered_groups
@@ -1198,7 +1177,6 @@ class Group(object):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
             data += Counter(dict((x, 1) for x, y in cl.species_frequency.items()
                             if y > 0))
 
@@ -1211,7 +1189,6 @@ class Group(object):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
 
         b_plt, lgd, _ = bar_plot(data, xlabels, lgd_list=lgd_list,
                               ax_names=[None, "Ortholog frequency"])
@@ -1545,7 +1522,6 @@ class MultiGroupsLight(object):
                         if ns:
                             if ns.stop:
                                 raise KillByUser("")
-                                return
                             ns.counter += 1
                         group_object = GroupLight(group_file,
                                                   self.gene_threshold,
