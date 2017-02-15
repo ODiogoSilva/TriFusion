@@ -279,20 +279,21 @@ class Base(object):
                            if y > 1]
         return duplicated_taxa
 
-    def check_sizes(self, alignment_dic, current_file):
+    def check_sizes(self, sequence_data, current_file):
         """ This will make two sanity checks of the alignment contained in
         the alignment_dic object: First, it will check if none of the
         sequences is empty; If True, it will raise an error informing which
         taxa have empty sequences. If False, this will also test whether all
-        sequences are of the same size and, if not, which are different """
+        sequences are of the same size and, if not, which are different
+        :param sequence_data: tuple, containing taxa and sequence data.
+        (taxon, sequence)
+        :param current_file: string, name/path of the current input file
+        """
 
         # Checking for taxa with empty sequences
         empty_taxa = []
         seq_list = []
-        for taxa, f in alignment_dic.items():
-
-            with open(f) as fh:
-                seq = "".join(fh.readlines())
+        for _, taxa, seq in sequence_data:
 
             if seq == "":
                 empty_taxa.append(taxa)
@@ -307,14 +308,6 @@ class Base(object):
             raise SystemExit
 
         # Checking sequence lengths
-        # Determine the most common length
-        # commonseq = max(set([v for v in alignment_dic.values()]),
-        #                 key=[v for v in alignment_dic.values()].count)
-        # # Creates a dictionary with the sequences, and respective length,
-        # # of different length
-        # diflength = dict((key, len(value)) for key, value in alignment_dic.items()
-        #                  if len(commonseq) != len(value))
-
         if len(set(seq_list)) > 1:
             return False
         else:

@@ -25,16 +25,16 @@ import multiprocessing
 import matplotlib.patches as patches
 import subprocess
 import platform
-import psutil
+import ctypes
 import pickle
 import urllib
 import string
+import signal
+import Queue
 import stat
-import time
 import sys
 import os
 import threading
-from os import sep
 
 # Move to Application's directory. This is a way of avoiding encoding
 # issues when the full path to the application's directory contains
@@ -71,7 +71,6 @@ EventLoop.ensure_window()
 
 from kivy.app import App
 from kivy.animation import Animation
-from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.scrollview import ScrollView
@@ -171,32 +170,6 @@ __status__ = "Development"
 # ==============================================================================
 #                                  EXCEPTIONS
 # ==============================================================================
-
-
-def kill_proc_tree(pid, include_parent=True):
-    """
-    Some multiprocessing child process may spawn aditional processes using
-    subprocess. This function terminates all processes in a tree when the
-    user cancels an action
-    :param pid: process id
-    :param include_parent: bool. Whether or not to kill the parent process
-    along with its child processes
-    :return:
-    """
-
-    parent = psutil.Process(pid)
-    for child in parent.children(recursive=True):
-        child.kill()
-    if include_parent:
-        parent.kill()
-
-
-# Determines whether Threading or Multiprocessing is going to be used to
-# spawn background operations.
-if sys.platform in ["win32", "cygwin"]:
-    sub_func = threading.Thread
-else:
-    sub_func = multiprocessing.Process
 
 MCL_FILE = None
 
@@ -345,8 +318,76 @@ class TriFusionApp(App):
     alternative_table = ObjectProperty(None, allownone=True)
     # Patch attribute
     plt_patch = None
+    # Dictionary with the plotmethods and file names for orthology plots
+    orto_plt_method = {
+        "Taxa distribution":
+        [bar_plot, "Species_distribution.png"],
+        "Gene copy distribution":
+        [bar_plot, "Gene_copy_distribution.png"],
+        "Taxa coverage":
+        [bar_plot, "Species_coverage.png"],
+        "Taxa gene copies":
+        [bar_plot, "Species_copy_number.png"]
+    }
     # Dictionary with the plot methods and file names for each stats_idx
-    stats_plt_method = {}
+    stats_plt_method = {
+            "Gene occupancy":
+            [interpolation_plot, "gene_occupancy.png"],
+            "Distribution of missing data sp":
+            [stacked_bar_plot, "missing_data_distribution_sp.png"],
+            "Distribution of missing data":
+            [histogram_smooth, "missing_data_distribution.png"],
+            "Distribution of missing orthologs":
+            [bar_plot, "missing_gene_distribution.png"],
+            "Distribution of missing orthologs avg":
+            [histogram_plot, "missing_gene_distribution_avg.png"],
+            "Cumulative distribution of missing genes":
+            [bar_plot, "cumulative_distribution_missing_genes.png"],
+            "Distribution of sequence size":
+            [box_plot, "avg_seqsize_species.png"],
+            "Distribution of sequence size all":
+            [histogram_plot, "avg_seqsize.png"],
+            "Proportion of nucleotides or residues":
+            [bar_plot, "char_proportions.png"],
+            "Proportion of nucleotides or residues sp":
+            [stacked_bar_plot, "char_proportions_sp.png"],
+            "Pairwise sequence similarity":
+            [histogram_plot, "similarity_distribution.png"],
+            "Pairwise sequence similarity sp":
+            [triangular_heat, "similarity_distribution_sp.png"],
+            "Pairwise sequence similarity gn":
+            [sliding_window, "similarity_distribution_gn.png"],
+            "Segregating sites":
+            [histogram_plot, "segregating_sites.png"],
+            "Segregating sites prop":
+            [histogram_plot, "segregating_sites_prop.png"],
+            "Segregating sites sp":
+            [triangular_heat, "segregating_sites_sp.png"],
+            "Segregating sites gn":
+            [sliding_window, "segregating_sites_gn.png"],
+            "Alignment length/Polymorphism correlation":
+            [scatter_plot, "length_polymorphism_correlation.png"],
+            "Distribution of taxa frequency":
+            [histogram_plot, "distribution_taxa_frequency.png"],
+            "Allele Frequency Spectrum":
+            [histogram_plot, "allele_frequency_spectrum.png"],
+            "Allele Frequency Spectrum prop":
+            [histogram_plot, "allele_frequency_spectrum_prop.png"],
+            "Allele Frequency Spectrum gn":
+            [histogram_plot, "allele_frequency_spectrum_gn.png"],
+            "Missing data outliers":
+            [outlier_densisty_dist, "Missing_data_outliers.png"],
+            "Missing data outliers sp":
+            [outlier_densisty_dist, "Missing_data_outliers_sp.png"],
+            "Segregating sites outliers":
+            [outlier_densisty_dist, "Segregating_sites_outliers.png"],
+            "Segregating sites outliers sp":
+            [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"],
+            "Sequence size outliers":
+            [outlier_densisty_dist, "Sequence_size_outliers.png"],
+            "Sequence size outliers sp":
+            [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
+        }
     # Storage of previous data sets. This is used to evaluate whether the
     # plot methods should be run, or if they should be ignored. The Stats
     # key refers to the previous active data sets when the stats summary
@@ -504,7 +545,7 @@ class TriFusionApp(App):
 
     # List storing the original alignment object variables. SHOULD NOT BE
     # MODIFIED
-    alignment_list = AlignmentList([])
+    alignment_list = None
     # List of active alignment object variables.
     active_alignment_list = None
     # List of active partitions
@@ -622,10 +663,16 @@ class TriFusionApp(App):
         self.icon = join(self.cur_dir, "data", "backgrounds",
                          "trifusion-icon-64.png")
 
+        # Set temporary directory path
         self.temp_dir = join(self.user_data_dir, "tmp")
+        # Set directory for error records
         self.log_file = join(self.user_data_dir, "log", "error.out")
+        # Set path for file hosting filechooser bookmarks
         self.bm_file = join(self.user_data_dir, "bookmarks")
+        # Set path for file hosting the user projects
         self.projects_file = join(self.user_data_dir, "projects")
+        # Set path for sequence data sqlite database
+        self.sqldb = join(self.temp_dir, "sequencedb")
 
         logging.basicConfig(filename=self.log_file, level=logging.DEBUG,)
 
@@ -699,6 +746,10 @@ class TriFusionApp(App):
         self.sqldb = join(self.temp_dir, "trifusion.sql3")
 
         self._start_clean()
+
+        # Now that the sqlite database path is defined, initialize the
+        # AlignmentList object
+        self.alignment_list = AlignmentList([], sql_db=self.sqldb)
 
         # If arguments were provided at the command line, load data into
         # the app assuming they are alignments
@@ -829,7 +880,8 @@ class TriFusionApp(App):
 
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
-            os.makedirs(join(self.user_data_dir, "tmp"))
+
+        os.makedirs(self.temp_dir)
 
     def _check_exec(self, path, program):
         """
@@ -839,6 +891,23 @@ class TriFusionApp(App):
 
         msg = {"mcl": b"mcl",
                "usearch": "usearch"}
+
+        # If the OS is windows and the program is usearch, first check if the
+        # necessary DLL vcomp100.dll is present in the app's directory
+        if sys.platform in ["win32", "cygwin"] and program == "usearch":
+            flist = [x.lower() for x in os.listdir(self.user_data_dir)]
+            if "vcomp100.dll" not in flist:
+                self.dismiss_subpopup()
+                return self.dialog_warning(
+                    "Missing a DLL file",
+                    "You are providing the USEARCH executable but the"
+                    " vcomp100.dll file is missing. Please download it from"
+                    " the link below and place the DLL in"
+                    " C:\Users\<USER>\AppData\Roaming\\trifusion. Then"
+                    " try again.\n\n"
+                    "[ref=http://drive5.com/usearch/vcomp100.dll][b]"
+                    "[color=#37abc8ff]http://drive5.com/usearch/vcomp100.dll"
+                    "[/b][/color][/ref]")
 
         # First, try to execute the file directly from the path
         try:
@@ -1074,7 +1143,12 @@ class TriFusionApp(App):
         any necessary clean up operations
         """
 
-        self.run_in_background(remove_tmp, self.stop, [self.temp_dir],
+        self.terminate_stats = True
+        self.terminate_load_files = True
+        self.terminate_background = True
+
+        self.run_in_background(remove_tmp, self.stop,
+                               [self.temp_dir, self.alignment_list.con],
                                no_arg2=True, cancel=False,
                                msg="Cleaning temporary files and "
                                    "exiting...")
@@ -2313,18 +2387,18 @@ class TriFusionApp(App):
         except TypeError:
             p = join(path, file_name + methods[idx][2])
 
-        print(p, idx)
-
         if os.path.exists(p) and idx != "main_output":
 
             self.check_action(
                 "The file {} already exists. Overwrite?".format(file_name),
                 methods[idx][0],
                 **{"args": methods[idx][1], "popup_level": 2})
-            self.dismiss_popup()
 
         else:
             methods[idx][0](*methods[idx][1])
+
+        # Close popup automatically except for the group idx
+        if idx != "group":
             self.dismiss_popup()
 
     # ########################## GENERAL USE ###############################
@@ -2373,16 +2447,37 @@ class TriFusionApp(App):
             :param man: Manager object.
             """
 
+            # Kill switch. Terminating thread by user
+            if self.terminate_background:
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                man.shutdown()
+
+                # Close loading popup dialog
+                self.dismiss_popup()
+
+                # Unschedule the current function
+                Clock.unschedule(check_func)
+
+                # Join child process and exit
+                p.join()
+                return
+
             if "img" in self._popup.content.ids:
                 self._popup.content.ids.img.rotation -= 10
 
-            if self.terminate_background:
-                if sys.platform not in ["win32", "cygwin"]:
-                    kill_proc_tree(p.pid)
-                man.shutdown()
-                Clock.unschedule(check_func)
-                self.dismiss_popup()
-                return
+                if shared_ns.counter:
+                    self._popup.content.ids.msg2.text = "{}/{}".format(
+                        shared_ns.counter, shared_ns.files)
 
             if not p.is_alive():
 
@@ -2406,10 +2501,7 @@ class TriFusionApp(App):
                 # otherwise the data pipe will prevent the process from
                 # closing
                 man.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+                p.join()
 
                 # Checks if there is a second function to run and whether
                 # there are additional arguments for secondary function
@@ -2417,22 +2509,28 @@ class TriFusionApp(App):
                     if second_func:
                         if args2 and val:
                             val.extend(args)
-                        elif args2 and not val:
+                        elif args2:
                             val = args
                         second_function(*val)
-                else:
+                elif second_function:
                     second_function()
 
         # Set up manager and shared name space to share information
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
+        shared_ns.counter = 0
+
+        # Set kill switch flag
+        shared_ns.stop = False
 
         # Remove lock from background process
         self.terminate_background = False
 
         # Create process
-        p = sub_func(target=background_process, args=(func, shared_ns, args1))
+        p = threading.Thread(target=background_process,
+                             args=(func, shared_ns, args1))
+        p.daemon = True
         p.start()
 
         # Remove any possible previous popups
@@ -2538,6 +2636,15 @@ class TriFusionApp(App):
 
             devices = re.findall(
                 r"[A-Z]+:.*$", os.popen("mountvol /").read(), re.MULTILINE)
+
+            # Prevent no disk on drive popup error in windows
+            SEM_FAILCRITICALERRORS = 1
+            SEM_NOOPENFILEERRORBOX = 0x8000
+            SEM_FAIL = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS
+
+            kernel32 = ctypes.WinDLL('kernel32')
+            oldmode = ctypes.c_uint()
+            kernel32.SetThreadErrorMode(SEM_FAIL, ctypes.byref(oldmode))
 
             for d in devices:
                 if exists(d):
@@ -2706,7 +2813,7 @@ class TriFusionApp(App):
         f_path = join(path, file_name)
 
         if bw:
-            temp_f = join(self.temp_dir, "." + file_name)
+            temp_f = join(self.temp_dir, file_name)
             file_name = os.path.splitext(file_name)[0] + "_bw" + \
                 os.path.splitext(file_name)[1]
             f_path = join(path, file_name)
@@ -3244,8 +3351,12 @@ class TriFusionApp(App):
         if self.filename_map:
             # For files
             if idx in self.filename_map:
-                state = "down" if self.filename_map[idx] in \
-                    self.active_file_list else "normal"
+                if self.file_list:
+                    state = "down" if self.filename_map[idx] in \
+                        self.active_file_list else "normal"
+                elif self.proteome_files:
+                    state = "down" if self.filename_map[idx] in \
+                                      self.active_proteome_files else "normal"
             # For taxa
             else:
                 state = "down" if idx in self.active_taxa_list else "normal"
@@ -3982,6 +4093,7 @@ class TriFusionApp(App):
                                    self.popup_info,
                                    None,
                                    [value],
+                                   cancel=False,
                                    msg="Updating taxa information")
         else:
             self.popup_info(value)
@@ -4085,7 +4197,7 @@ class TriFusionApp(App):
                 self.show_popup(title="File: %s" % value.id[:-1],
                                 content=content, size=(400, 320))
 
-            if self.filename_map[file_name] in self.active_proteome_files:
+            if self.filename_map[file_name] in self.proteome_files:
 
                 content = ProteomePopup(cancel=self.dismiss_popup)
 
@@ -4267,9 +4379,9 @@ class TriFusionApp(App):
                 stop = self.mouse_over_bts[tab].index(bt)
 
                 if start < stop:
-                    return self.mouse_over_bts[tab][start:stop + 1]
+                    return self.mouse_over_bts[tab][start + 1:stop + 1]
                 else:
-                    return self.mouse_over_bts[tab][stop:start + 1]
+                    return self.mouse_over_bts[tab][stop:start]
 
             else:
                 return [bt]
@@ -4296,12 +4408,14 @@ class TriFusionApp(App):
                 if value.state == "normal":
 
                     try:
-                        act_lst.remove(self.filename_map[b.id])
-                        b.state = "normal"
 
                         if self.active_file_list:
+                            aln_path = self.filename_map[b.id]
                             self.alignment_list.update_active_alignment(
-                                b.id, "shelve")
+                                aln_path, "shelve")
+
+                        act_lst.remove(self.filename_map[b.id])
+                        b.state = "normal"
 
                     except ValueError:
                         pass
@@ -4309,12 +4423,14 @@ class TriFusionApp(App):
                 # When button is down (selected) add to active list
                 elif value.state == "down":
                     if self.filename_map[b.id] not in act_lst:
+
                         act_lst.append(self.filename_map[b.id])
                         b.state = "down"
 
                         if self.active_file_list:
+                            aln_path = self.filename_map[b.id]
                             self.alignment_list.update_active_alignment(
-                                b.id, "active")
+                                aln_path, "active")
 
             # Update label
             self.update_file_label()
@@ -4444,6 +4560,7 @@ class TriFusionApp(App):
         self.MAX_PARTITION_BUTTON = 20
         self.mouse_over_bts.clear()
         self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
+        self.previous_sets = {"Files": [], "Taxa": [], "Stats": []}
         self.sp_taxa_bts = []
         self.sp_file_bts = []
         self.previous_mouse_over = ""
@@ -4599,15 +4716,29 @@ class TriFusionApp(App):
             # Update file list
             file_path = self.filename_map[bt_idx]
             del self.filename_map[bt_idx]
-            self.file_list.remove(file_path)
+            # If alignment remove from file list
+            if self.file_list:
+                self.file_list.remove(file_path)
+                # Update alignment object list
+                self.alignment_list.remove_file([file_path])
+            # If proteome remove, from proteome file
+            if self.proteome_files:
+                self.proteome_files.remove(file_path)
+                # In proteome files, if the total number of proteomes is lower
+                # than the set min taxa representation filter, update the
+                # filter
+                if len(self.proteome_files) < self.orto_min_sp:
+                    self.orto_min_sp = len(self.proteome_files)
             # Update active file list. If the file has been removed from the
             # active list, this will handle the exception
             try:
                 self.active_file_list.remove(file_path)
             except ValueError:
                 pass
-            # Update alignment object list
-            self.alignment_list.remove_file([file_path])
+            try:
+                self.active_proteome_files.remove(file_path)
+            except ValueError:
+                pass
 
             # Update active taxa list. This must be executed before calling
             # self.get_taxa_information since this method relies on an
@@ -4628,7 +4759,7 @@ class TriFusionApp(App):
             # Updates label
             self.update_sp_label()
 
-        if not self.file_list:
+        if not self.file_list and not self.proteome_files:
             self.clear_process_input()
 
     def remove_bt_from_file(self, idx, txt_file):
@@ -4745,7 +4876,8 @@ class TriFusionApp(App):
                 self.active_file_list = [self.filename_map[x] for x in
                                          selection if x in self.filename_map]
                 self.alignment_list.update_active_alignments(
-                    [x for x in selection if x in self.filename_map])
+                    [self.filename_map[x] for x in selection if
+                     x in self.filename_map])
 
                 self.update_file_label()
 
@@ -4778,9 +4910,12 @@ class TriFusionApp(App):
         # Core changes to files
         if (sv_parent == self.root.ids.sv_file and
                 value.text == "Select All"):
-            self.active_file_list = self.file_list[:]
-            self.alignment_list.update_active_alignments(
-                [basename(x) for x in self.file_list])
+            if self.file_list:
+                self.active_file_list = self.file_list[:]
+                self.alignment_list.update_active_alignments(
+                    [x for x in self.file_list])
+            elif self.proteome_files:
+                self.active_proteome_files = self.proteome_files[:]
 
         # Core changes to taxa
         if sv_parent == self.root.ids.sv_sp and value.text == "Select All":
@@ -4790,8 +4925,11 @@ class TriFusionApp(App):
         # Core changes to files
         if (sv_parent == self.root.ids.sv_file and
                 value.text == "Deselect All"):
-            self.active_file_list = []
-            self.alignment_list.update_active_alignments([])
+            if self.file_list:
+                self.active_file_list = []
+                self.alignment_list.update_active_alignments([])
+            elif self.proteome_files:
+                self.active_proteome_files = []
         # Core changes to taxa
         if (sv_parent == self.root.ids.sv_sp and
                 value.text == "Deselect All"):
@@ -5590,41 +5728,78 @@ class TriFusionApp(App):
             self.current_table = td
             self.gene_table = table
 
-        def check_process(p, ldg_wgt, plt_wgt, dt):
+        def check_process(p, ldg_wgt, plt_wgt, ns, dt):
 
-            # When canceled  by the user
+            try:
+                ldg.ids.msg.text = "{}/{}".format(ns.counter, ns.files)
+            except AttributeError:
+                pass
+
+            # KILL SWITCH. Terminating thread by user
             if self.terminate_stats:
+
+                # Unschedule the current function
                 Clock.unschedule(check_func)
-                if sys.platform not in ["win32", "cygwin"]:
-                    p.terminate()
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                ns.stop = True
+
+                # Clear the loading widgets of the Statistics screen
                 plt_wgt.clear_widgets()
                 plt_wgt.add_widget(NoDataLabel())
+
+                # Remove lock from get_summary_stats method, so that this
+                # method can be repeated
                 self.lock_stats = False
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                manager.shutdown()
+
+                # Join child process and exit
+                p.join()
                 return
 
+            # Provides animation for loading widget
             if self.current_screen == "Statistics":
 
                 if self.screen.ids.stats_panel.width == 0 or \
                         self.screen.ids.stats_panel.width == 410:
 
-                    ldg_wgt.ids.img.rotation -= 10
+                    # Sets animation speed
+                    ldg_wgt.ids.img.rotation -= 2
 
+            # When worker has finished
             if not p.is_alive():
 
+                # Set the previous sets as the ones that just finished without
+                # errors
                 self.previous_sets["Stats"] = [file_set, taxa_set]
 
+                # Display stats depending on the type
                 prepare_display(plt_wgt, scatter_wgt)
                 if tp == "stats":
                     display_stats(plt_wgt)
                 elif tp == "table":
                     display_table(plt_wgt)
 
+                # Unschedule the current function
                 Clock.unschedule(check_func)
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                manager.shutdown()
+
+                # Joining child thread
+                p.join()
+
+                # Remove lock from get_summary_stats()
                 self.lock_stats = False
+
+                # Exit
+                return
 
         # Get Scatter widgets
         scatter_wgt = self.screen.ids.plot_content
@@ -5690,12 +5865,19 @@ class TriFusionApp(App):
         self.terminate_stats = False
         self.lock_stats = True
 
-        p = sub_func(target=get_stats_summary,
-                     kwargs={"aln_list": self.alignment_list,
-                             "dest": self.temp_dir,
-                             "active_file_set": file_set,
-                             "active_taxa_set": taxa_set})
+        manager = multiprocessing.Manager()
+        shared_ns = manager.Namespace()
+        shared_ns.stop = False
+        shared_ns.counter = 0
 
+        p = threading.Thread(target=get_stats_summary,
+                             kwargs={"aln_list": self.alignment_list,
+                                     "dest": self.temp_dir,
+                                     "active_file_set": file_set,
+                                     "active_taxa_set": taxa_set,
+                                     "ns": shared_ns})
+
+        p.daemon = True
         p.start()
 
         # Add loading widget
@@ -5703,8 +5885,9 @@ class TriFusionApp(App):
         scatter_wgt.add_widget(ldg)
 
         check_func = partial(check_process, p, ldg,
-                             self.screen.ids.plot_content.children[0])
-        Clock.schedule_interval(check_func, .1)
+                             self.screen.ids.plot_content.children[0],
+                             shared_ns)
+        Clock.schedule_interval(check_func, .01)
 
     def search_add_gene_table_line(self, gene_table):
         """
@@ -6341,8 +6524,14 @@ class TriFusionApp(App):
         content = OrtoSetFiltersDialog(cancel=self.dismiss_popup)
         content.group_name = group_name
 
+        sp_list = self.ortho_groups.taxa_list[self.active_group_name]
+        excluded_tx = self.ortho_groups.excluded_taxa[self.active_group_name]
+        content.ids.exclude_bt.text = "{} included".format(
+            len(sp_list))
+        content.excluded_tx = excluded_tx
+
         self.show_popup(title="Set/change ortholog filters for %s file" %
-                              group_name, content=content, size=(400, 250))
+                              group_name, content=content, size=(400, 390))
 
     def dialog_ortho_filter(self):
         """
@@ -6368,12 +6557,19 @@ class TriFusionApp(App):
                     "Maximum number of gene copies must be higher "
                     "than 0", t="error")
 
+            self.orto_max_gene = int(gene_filt)
+
+        except ValueError:
+            return self.dialog_floatcheck(
+                "Maximum number of gene copies '{}' must be a real "
+                "numbers".format(gene_filt), t="error")
+
+        try:
+
             if float(sp_filt) < 0:
                 return self.dialog_floatcheck(
                     "Minimum number of taxa must be a positive "
                     "value", t="error")
-
-            self.orto_max_gene = int(gene_filt)
 
             if 0 < float(sp_filt) < 1:
                 self.orto_min_sp = float(sp_filt)
@@ -6382,8 +6578,8 @@ class TriFusionApp(App):
 
         except ValueError:
             return self.dialog_floatcheck(
-                "{} must be a real numbers".format(gene_filt),
-                t="error")
+                "Minimum number of taxa '{}' must be a number".format(
+                    sp_filt), t="error")
 
         self.dismiss_popup()
 
@@ -6503,6 +6699,39 @@ class TriFusionApp(App):
             except AttributeError:
                 pass
 
+            # Update maximum progress bar value
+            try:
+                content.ids.pb.max = shared_ns.max_pb
+            except AttributeError:
+                pass
+
+            if self.terminate_group_export:
+
+                content.ids.msg.text = "Terminating on you command. " \
+                                       "Hang tight!"
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
+                manager.shutdown()
+
+                # Close loading popup dialog
+                self.dismiss_popup()
+
+                # Unschedule the current function
+                Clock.unschedule(func)
+
+                # Join child process and exit
+                p.join()
+                return
+
             # Check process status
             if not p.is_alive():
 
@@ -6526,10 +6755,8 @@ class TriFusionApp(App):
                         "could not be retrieved! Missed sequence headers "
                         "were stored in missed_sequences.log" %
                         (shared_ns.good, shared_ns.missed), t="info")
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+
+                p.join()
 
         # Update orthology export directory, if necessary
         if output_dir != self.orto_export_dir:
@@ -6542,14 +6769,30 @@ class TriFusionApp(App):
                         if x.state == "down"][0]
             self.active_group = self.ortho_groups.get_group(group_id)
 
-        # Update filter values
-        self.active_group.update_filters(*self.ortho_groups.filters[
-            self.active_group.name])
+        # Let the current screen define which filters are going to be used
+        # for ortholog export.
+        # If the screen is ORTO_PLOT, then use the fitlers specific to the
+        # current active group.
+        # If the screen is ORTHOLOGY, then use the ortho groups general filters
+        if self.screen.name == "Orthology":
+            # Update filter values
+            self.active_group.update_filters(*self.ortho_groups.filters[
+                self.active_group.name])
+            self.active_group.exclude_taxa(self.ortho_groups.excluded_taxa[
+                self.active_group.name])
+
+        # Set up manager and shared name space to share information
+        # between background and main processes
+        manager = multiprocessing.Manager()
+        shared_ns = manager.Namespace()
+
+        # Initialize stop flag to allow thread to be killed by the user
+        shared_ns.stop = False
 
         method_store = {
             "group":
                 [self.active_group.export_filtered_group,
-                 [self.sqldb, output_name, output_dir]],
+                 [output_name, output_dir]],
             "protein":
                 [self.active_group.retrieve_sequences,
                  [self.sqldb, self.protein_db, output_dir]],
@@ -6561,17 +6804,13 @@ class TriFusionApp(App):
         # Get method and args
         m = method_store[export_idx]
 
-        # Set up manager and shared name space to share information
-        # between background and main processes
-        manager = multiprocessing.Manager()
-        shared_ns = manager.Namespace()
-
         # Remove lock from background process
         self.terminate_group_export = False
 
         # Create process
-        p = sub_func(target=background_export_groups,
-                     args=(m[0], shared_ns, m[1]))
+        p = threading.Thread(target=background_export_groups,
+                             args=(m[0], shared_ns, m[1]))
+        p.daemon = True
         p.start()
 
         # Remove any previous popups
@@ -6589,7 +6828,7 @@ class TriFusionApp(App):
 
         # Schedule function that checks the process' pulse
         func = partial(check_process, p)
-        Clock.schedule_interval(func, .1)
+        Clock.schedule_interval(func, 1)
 
     def orto_report_dialog(self):
         """
@@ -6622,7 +6861,7 @@ class TriFusionApp(App):
             self.active_group = self.ortho_groups.get_group(group_id)
         return self.active_group
 
-    def orto_generate_report(self, dir):
+    def orto_generate_report(self, dir, ns=None):
         """
         Generates full orthology report on the specified directory.
         :param dir: string, path to directory where the report will be
@@ -6634,12 +6873,33 @@ class TriFusionApp(App):
         if not os.path.exists(fig_dir):
             os.makedirs(fig_dir)
 
+        if ns:
+            ns.files = len(MultiGroups.calls)
+
         active_group_light = self.get_active_group_light()
         for command in MultiGroups.calls:
-            getattr(active_group_light, command)(fig_dir)
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+                ns.counter += 1
+
+            data = getattr(active_group_light, command)(fig_dir, ns=None)
+            fig, lgd, _ = bar_plot(**data)
+
+            plot_file = join(fig_dir, command + ".png")
+            if lgd:
+                fig.savefig(plot_file, bbox_extra_artists=(lgd,),
+                            bbox_inches="tight", dpi=200)
+            else:
+                fig.savefig(plot_file, bbox_inches="tight", dpi=200)
 
         html = HtmlTemplate(dir, "Orthology report", orthology_plots)
         html.write_file()
+
+        self.dialog_floatcheck("Orthology automatic report successfully "
+                               "generated.", t="info")
 
     def orto_compare_groups(self, groups_objs=None, selected_groups=None):
         """
@@ -6674,6 +6934,8 @@ class TriFusionApp(App):
 
         self.screen.ids.header_content.original_filt = \
             [self.screen.ids.gn_spin.value, self.screen.ids.sp_spin.value]
+        self.screen.ids.header_content.excluded_taxa = \
+            groups_objs.excluded_taxa[self.active_group_name]
 
         # Set group object for screen. This property will be used when
         # changing  which filters should be displayed in the compare
@@ -6696,6 +6958,51 @@ class TriFusionApp(App):
 
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
+
+    def dialog_plot_check_filters(self, previous_filt, prev_tx,
+                                  current_filt, current_tx):
+        """
+        Dialog that is triggered when exiting a plot screen and the current
+        plot filters are different from the filters before entering the plot
+        screen. Will ask the user if the filters should be updated for the
+        remaining app or not.
+        """
+
+        # If filters are the same, do nothing and return
+        if (previous_filt == current_filt) and (prev_tx == current_tx):
+            self.go_previous_screen()
+            return
+
+        content = PlotChangeFilters()
+
+        content.ids.prev_gn.text = str(previous_filt[0])
+        content.ids.cur_gn.text = str(current_filt[0])
+
+        content.prev_filt = previous_filt
+        content.prev_tx = prev_tx
+        content.cur_filt = current_filt
+        content.cur_tx = current_tx
+
+        if previous_filt[0] != current_filt[0]:
+            content.ids.prev_gn.color = self._red
+            content.ids.cur_gn.color = self._red
+
+        content.ids.prev_min_tx.text = str(previous_filt[1])
+        content.ids.cur_min_tx.text = str(current_filt[1])
+
+        if previous_filt[1] != current_filt[1]:
+            content.ids.prev_min_tx.color = self._red
+            content.ids.cur_min_tx.color = self._red
+
+        content.ids.prev_ex_tx.text = str(len(prev_tx))
+        content.ids.cur_ex_tx.text = str(len(current_tx))
+
+        if sorted(prev_tx) != sorted(current_tx):
+            content.ids.prev_ex_tx.color = self._red
+            content.ids.cur_ex_tx.color = self._red
+
+        self.show_popup(title="", content=content, size=(520, 400),
+                        separator_color=(0, 0, 0, 0))
 
     def orto_show_plot(self, active_group, plt_idx, filt=None,
                        exclude_taxa=None):
@@ -6726,36 +7033,58 @@ class TriFusionApp(App):
         # Set active group
         if active_group:
             self.active_group = active_group
+        else:
+            active_group = self.active_group
 
         # Exclude taxa, if any
         if exclude_taxa:
-
             # If all taxa were excluded issue a warning and do nothing more
             if set(exclude_taxa) == set(self.active_group.species_list):
                 return self.dialog_floatcheck(
                     "At least one taxon must be included.",
                     t="warning")
 
-            # Update attributes and remove taxa from group object
-            self.screen.ids.header_content.excluded_taxa = exclude_taxa
-            self.active_group.exclude_taxa(exclude_taxa)
+        # Setting filters for the first time
+        if not filt and not exclude_taxa:
+            self.screen.ids.gn_spin.value = self.active_group.max_extra_copy
+            self.screen.ids.sp_spin.value = 1
+            self.screen.ids.header_content.original_filt = \
+                [self.active_group.max_extra_copy, 1]
+            self.screen.ids.header_content.root_filt = \
+                [active_group.gene_threshold, active_group.species_threshold]
+            self.screen.ids.header_content.root_excluded = \
+                active_group.excluded_taxa
 
-        # When excluded taxa is not None, but explicitly an empty list,
-        # reset the excluded_taxa property of header_content
-        elif exclude_taxa == []:
-            # Reset excluded taxa storage list
-            self.screen.ids.header_content.excluded_taxa = []
+            self.active_group.exclude_taxa([])
+            self.active_group.update_filters(
+                self.active_group.max_extra_copy, 1, True)
 
-        # If excluded_taxa is not provided in function calling, but has
-        # already being defined in header_content.excluded_taxa, use this
-        # list.
-        elif (not exclude_taxa and
-                self.screen.ids.header_content.excluded_taxa):
+        self.run_in_background(
+            get_orto_data,
+            self.orto_write_plot,
+            [active_group, plt_idx, filt, exclude_taxa],
+            [plt_idx]
+        )
 
-            self.active_group.exclude_taxa(
-                self.screen.ids.header_content.excluded_taxa)
+    def orto_write_plot(self, plot_data, plt_idx):
+        """
+        Provide with the data structure and a plt_idx string identifier, this
+        function will create the plot file and update the plot screen.
+        :param plot_data: list/np array, data structure to be used in plot
+        construction
+        :param plt_idx: string, identification string of the plot.
+        """
 
-        # Update slider max values
+        # Update excluded taxa attribute
+        self.screen.ids.header_content.excluded_taxa = \
+            self.active_group.excluded_taxa
+
+        # Update orthology filter attributes
+        self.screen.ids.header_content.original_filt = \
+            [self.active_group.gene_threshold,
+             self.active_group.species_threshold]
+
+        # Update orthology filter max values
         self.screen.ids.gn_spin.max = self.active_group.max_extra_copy
         self.screen.ids.sp_spin.max = len(self.active_group.species_list)
         # Update slider values if they are outside bounds
@@ -6768,120 +7097,43 @@ class TriFusionApp(App):
             self.screen.ids.sp_spin.value = \
                 len(self.active_group.species_list)
 
-        # If filt is specified, update the groups object
-        if filt:
-            # This will test whether the specified filters are inside bounds
-            # of the group object. Removal of taxa may alter the maximum
-            # number of gene copies and/or taxa and this will account for
-            #  that and correct it
-            gn_filt = filt[0] if \
-                filt[0] <= self.active_group.max_extra_copy \
-                else self.active_group.max_extra_copy
-
-            sp_filt = filt[1] if \
-                filt[1] <= len(self.active_group.species_list) \
-                else len(self.active_group.species_list)
-
-            # Update group filters
-            self.active_group.update_filters(gn_filt, sp_filt, True)
-            self.screen.ids.header_content.original_filt = \
-                [gn_filt, sp_filt]
-
-            # If any of the filters had to be adjusted, issue a warning
-            if gn_filt != filt[0] or sp_filt != filt[1]:
-                self.dialog_floatcheck(
-                    "Current filters beyond the  maximum "
-                    "accepted values. Adjusting gene  and species "
-                    "thresholds to %s and %s,  respectively" %
-                    (gn_filt, sp_filt), t="warning")
-
-        # If no filter has been specified, but taxa removal changed the
-        # maximum number of species and/or gene copies beyond the current
-        #  filter, adjust it
-        elif (exclude_taxa and
-                self.screen.ids.header_content.original_filt !=
-                [self.screen.ids.gn_spin.value,
-                 self.screen.ids.sp_spin.value]):
-
-            self.screen.ids.header_content.original_filt = \
-                [self.screen.ids.gn_spin.value,
-                 self.screen.ids.sp_spin.value]
-
-            self.active_group.update_filters(
-                self.screen.ids.gn_spin.value,
-                self.screen.ids.sp_spin.value,
-                True)
-
-            # Issue warning that the filters were adjusted
-            self.dialog_floatcheck(
-                "Current filters beyond the maximum accepted "
-                "values. Adjusting gene and species thresholds to %s and "
-                "%s, respectively" %
-                (self.screen.ids.gn_spin.value,
-                self.screen.ids.sp_spin.value), t="warning")
-
         # Set the current plt_idx for update reference
         self.screen.ids.header_content.plt_idx = plt_idx
 
-        # Store the plot generation method in a dictionary where keys are
-        # the text attributes of the plot spinner and the values are
-        # bound methods
-        plt_method = {
-            "Taxa distribution":
-            [self.active_group.bar_species_distribution,
-             "Species_distribution.png"],
-            "Taxa coverage":
-            [self.active_group.bar_species_coverage,
-             "Species_coverage.png"],
-            "Gene copy distribution":
-            [self.active_group.bar_genecopy_distribution,
-             "Gene_copy_distribution.png"],
-            "Taxa gene copies":
-            [self.active_group.bar_genecopy_per_species,
-             "Species_copy_number.png"]}
+        # Update summary attributes
+        self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
+            "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
+            "[/size]" % \
+            (str(self.active_group.all_compliant),
+             str(self.active_group.all_clusters))
+
+        self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
+            "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
+            "[/size]" % \
+            (len(self.active_group.species_list),
+             len(self.active_group.excluded_taxa) +
+             len(self.active_group.species_list))
 
         # Call corresponding method and catch plot object
         self.current_plot, self.current_lgd, self.current_table = \
-            plt_method[plt_idx][0](dest=self.temp_dir,
-                                   filt=True if filt else False)
+            self.orto_plt_method[plt_idx][0](**plot_data)
 
-        # Setting filters for the first time
-        if not filt and not exclude_taxa:
-            self.screen.ids.gn_spin.value = self.active_group.max_extra_copy
-            self.screen.ids.sp_spin.value = 1
-            self.screen.ids.header_content.original_filt = \
-                [self.active_group.max_extra_copy, 1]
+        # Get plot path
+        plot_path = join(self.temp_dir, self.orto_plt_method[plt_idx][1])
 
-            self.screen.ids.orto_sum.text = \
-                "[size=26][color=71c837ff]%s[/color][/size][size=13]/" \
-                "[color=ff5555ff]%s[/color][/size]" % \
-                (len(self.active_group.species_frequency),
-                len(self.active_group.species_frequency))
-
-            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color][" \
-                "/size]" % (len(self.active_group.species_list),
-                            len(self.active_group.species_list))
-
-            self.active_group.update_filters(
-                self.active_group.max_extra_copy, 1, True)
+        # Save plot figure
+        if self.current_lgd:
+            self.current_plot.savefig(
+                plot_path,
+                bbox_extra_artists=(self.current_lgd,),
+                bbox_inches="tight", dpi=200)
         else:
-            self.screen.ids.orto_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
-                "[/size]" % \
-                (str(self.active_group.all_compliant),
-                str(len(self.active_group.species_frequency) -
-                    len(self.active_group.filtered_groups)))
-
-            self.screen.ids.taxa_sum.text = "[size=26][color=71c837ff]%s" \
-                "[/color][/size][size=13]/[color=ff5555ff]%s[/color]" \
-                "[/size]" % \
-                (len(self.active_group.species_list),
-                len(self.screen.ids.header_content.excluded_taxa) +
-                    len(self.active_group.species_list))
+            self.current_plot.savefig(
+                plot_path,
+                bbox_inches="tight", dpi=200)
 
         # Load plot
-        self.load_plot(join(self.temp_dir, plt_method[plt_idx][1]),
+        self.load_plot(plot_path,
                        self.screen.ids.plot_content)
 
     @staticmethod
@@ -6907,31 +7159,69 @@ class TriFusionApp(App):
         scatter_wgt.scale = 1
         scatter_wgt.pos = (0, 0)
 
+    def dialog_set_exclude_orto_taxa(self):
+        """
+        Creates a dialog for the orthology change filters option.
+        """
+
+        def set_excluded():
+            excluded_taxa = [x.text for x in
+                             self._subpopup.content.ids.rev_inlist.children if
+                             x.state == "normal"]
+
+            self._popup.content.excluded_tx = excluded_taxa
+            self._popup.content.ids.exclude_bt.text = "{} included".format(
+                len(sp_list) + len(ex_list) - len(excluded_taxa))
+            self.dismiss_subpopup()
+
+        sp_list = self.ortho_groups.taxa_list[self.active_group_name]
+        ex_list = self.ortho_groups.excluded_taxa[self.active_group_name]
+
+        content = InputList(cancel=self.dismiss_subpopup)
+
+        # Add button for each taxon
+        for taxon in sorted(sp_list + ex_list):
+            bt = TGToggleButton(text=taxon, height=30, state="down")
+            # deselect button if taxa is excluded
+            if self._popup.content.excluded_tx is not None:
+                if taxon in self._popup.content.excluded_tx:
+                    bt.state = "normal"
+            elif taxon in ex_list:
+                bt.state = "normal"
+            # Add button to list
+            content.ids.rev_inlist.add_widget(bt)
+
+        content.ids.ok_bt.bind(on_release=lambda x: set_excluded())
+
+        self.show_popup(title="Included taxa", content=content,
+                        size_hint=(.3, .8), popup_level=2)
+
     def dialog_exclude_orto_taxa(self, plt_idx):
 
         content = InputList(cancel=self.dismiss_popup)
 
         # Add button for each taxon
         for taxon in sorted(self.active_group.species_list +
-                self.screen.ids.header_content.excluded_taxa):
+                            self.active_group.excluded_taxa):
             bt = TGToggleButton(text=taxon, height=30, state="down")
             # deselect button if taxa is excluded
-            if taxon in self.screen.ids.header_content.excluded_taxa:
+            if taxon in self.active_group.excluded_taxa:
                 bt.state = "normal"
             # Add button to list
             content.ids.rev_inlist.add_widget(bt)
 
         # Add bindings to Ok button
         content.ids.ok_bt.bind(on_release=lambda x:
-        self.run_in_background(
-            get_active_group,
-            self.orto_show_plot,
-            [self.ortho_groups, self.active_group,
-             str(self.active_group_name)],
-            [str(plt_idx), [int(self.screen.ids.gn_spin.value),
-             int(self.screen.ids.sp_spin.value)], [x.text for x in
-                content.ids.rev_inlist.children if x.state == "normal"]],
-            False))
+            self.run_in_background(
+                get_active_group,
+                self.orto_show_plot,
+                [self.ortho_groups, self.active_group,
+                 str(self.active_group_name)],
+                [str(plt_idx), [int(self.screen.ids.gn_spin.value),
+                 int(self.screen.ids.sp_spin.value)], [x.text for x in
+                     content.ids.rev_inlist.children if x.state == "normal"]],
+                False,
+                cancel=True))
 
         self.show_popup(title="Included taxa", content=content,
                         size_hint=(.3, .8))
@@ -6986,9 +7276,12 @@ class TriFusionApp(App):
 
             if self.ortho_groups:
                 self.ortho_groups.add_multigroups(groups_obj)
+                new_groups = [x for x in groups_obj.groups if
+                              x not in self.ortho_groups.duplicate_groups]
             else:
                 self.ortho_groups = groups_obj
                 self.ortho_groups.filters = default_filters
+                new_groups = self.ortho_groups.groups.keys()
 
             self.ortho_group_files.extend(list(groups_obj.groups.keys()))
 
@@ -7092,8 +7385,8 @@ class TriFusionApp(App):
                 self.run_in_background(
                     orto_update_filters,
                     self.orthology_card,
-                    [self.ortho_groups, None, None,
-                     [x for x in groups_obj.groups], True],
+                    [self.ortho_groups, None, None, [],
+                     new_groups, True],
                     None,
                     False,
                     msg="Setting up filters...",
@@ -7405,7 +7698,6 @@ class TriFusionApp(App):
             os.chmod(self.usearch_file, st.st_mode | stat.S_IEXEC)
             if self._check_exec(self.usearch_file, "usearch"):
                 # Copy mcl executable to app dir
-
                 self.dismiss_all_popups()
                 # Set the orthology fields to green
                 self.ortho_search_options.ids.usearch_check.background_src =\
@@ -7839,8 +8131,7 @@ class TriFusionApp(App):
         part_obj = data.Partitions()
         er = part_obj.read_from_file(self.partitions_file)
 
-        aln_obj = self.alignment_list.retrieve_alignment(basename(
-            self.rev_infile))
+        aln_obj = self.alignment_list.retrieve_alignment(self.rev_infile)
         aln_er = aln_obj.set_partitions(part_obj)
 
         # Check for the validity of the partitions file
@@ -7864,7 +8155,8 @@ class TriFusionApp(App):
         """
 
         if not self.partitions_file and not self.rev_infile and \
-                not use_parts:
+                not use_parts and \
+                self.main_operations["reverse_concatenation"]:
             return self.dialog_floatcheck("Please provide a partition "
                 "file and file to reverse concatenate OR use defined "
                 "partitions defined in side panel", t="error")
@@ -8026,6 +8318,19 @@ class TriFusionApp(App):
         _subpopup and 3 for exit popup
         """
 
+        def update_bw_box(ext_wgt, bw_wgt):
+            """
+            Function used to update the disable status of the black and white
+            check box depending on the plot extensions that is selected
+            """
+            if ext_wgt.text != ".png":
+                bw_wgt.ids.bw.disabled = True
+                bw_wgt.ids.bw.active = False
+                bw_wgt.ids.lbl.color = (.7, .7, .7, .7)
+            else:
+                bw_wgt.ids.bw.disabled = False
+                bw_wgt.ids.lbl.color = (1, 1, 1, 1)
+
         # Determines cancel action depending on popup_level
         cancel = self.dismiss_popup if popup_level == 1 else \
             self.dismiss_subpopup
@@ -8078,6 +8383,8 @@ class TriFusionApp(App):
             ext_spinner = ExtSpinner()
             content.ids.txt_box.ids["ext"] = ext_spinner
             bw_box = BWCheck()
+            ext_spinner.bind(text=lambda x, y: update_bw_box(ext_spinner,
+                                                             bw_box))
             content.ids.txt_box.add_widget(ext_spinner)
             content.ids.txt_box.add_widget(bw_box)
             content.ids.txt_box.ids["bw"] = bw_box
@@ -8345,9 +8652,22 @@ class TriFusionApp(App):
                 t="error")
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
-        aln_obj = update_active_fileset(self.alignment_list,
-            self.process_grid_wgt.ids.active_file_set.text, self.file_list,
-            self.file_groups)
+
+        # Get number of files to be processed
+        fs_name = self.process_grid_wgt.ids.active_file_set.text
+
+        # Get total number of files loaded
+        if fs_name == "All files":
+            file_num = len(self.file_list)
+
+        # Get active files
+        elif fs_name == "Active files":
+            file_num = len(self.active_file_list)
+
+        # Get files from custom file set
+        else:
+            file_num = len(self.file_groups[fs_name])
+
         # Perform pre-execution checks
 
         # Get main operation
@@ -8401,13 +8721,11 @@ class TriFusionApp(App):
                     t="error")
             try:
                 # Check for additional files
-                add_files = [nm for nm, bl in
-                    [x for x in self.secondary_options.items() if
-                     "_file" in x[0]] if bl]
+                add_files = [nm for nm, bl in self.secondary_operations.items()
+                             if bl and self.secondary_options["%s_file" % nm]]
                 content.ids.out_files.text = "[b][size=18][color=37abc8ff]"\
                     "Output file(s):[/color][/size][/b] %s converted " \
-                    "file(s)" % (len(aln_obj.alignments) +
-                                 len(aln_obj.alignments) * len(add_files))
+                    "file(s)" % (file_num + file_num * len(add_files))
             # In case aln_obj has not being defined, probably because there
             # are no input files
             except AttributeError:
@@ -8431,9 +8749,9 @@ class TriFusionApp(App):
         try:
             self.show_popup(
                 title="Process execution summary - Processing %s file(s)" %
-                      len(aln_obj.alignments),
+                      file_num,
                 content=content,
-                size=(550, 350))
+                size=(600, 350))
 
         except AttributeError:
             return self.dialog_floatcheck(
@@ -8788,65 +9106,6 @@ class TriFusionApp(App):
         # Dismiss stats toggle widget, if present
         self.dismiss_stats_toggle()
 
-        self.stats_plt_method = {
-            "Gene occupancy":
-            [interpolation_plot, "gene_occupancy.png"],
-            "Distribution of missing data sp":
-            [stacked_bar_plot, "missing_data_distribution_sp.png"],
-            "Distribution of missing data":
-            [histogram_smooth, "missing_data_distribution.png"],
-            "Distribution of missing orthologs":
-            [bar_plot, "missing_gene_distribution.png"],
-            "Distribution of missing orthologs avg":
-            [histogram_plot, "missing_gene_distribution_avg.png"],
-            "Cumulative distribution of missing genes":
-            [bar_plot, "cumulative_distribution_missing_genes.png"],
-            "Distribution of sequence size":
-            [box_plot, "avg_seqsize_species.png"],
-            "Distribution of sequence size all":
-            [histogram_plot, "avg_seqsize.png"],
-            "Proportion of nucleotides or residues":
-            [bar_plot, "char_proportions.png"],
-            "Proportion of nucleotides or residues sp":
-            [stacked_bar_plot, "char_proportions_sp.png"],
-            "Pairwise sequence similarity":
-            [histogram_plot, "similarity_distribution.png"],
-            "Pairwise sequence similarity sp":
-            [triangular_heat, "similarity_distribution_sp.png"],
-            "Pairwise sequence similarity gn":
-            [sliding_window, "similarity_distribution_gn.png"],
-            "Segregating sites":
-            [histogram_plot, "segregating_sites.png"],
-            "Segregating sites prop":
-            [histogram_plot, "segregating_sites_prop.png"],
-            "Segregating sites sp":
-            [triangular_heat, "segregating_sites_sp.png"],
-            "Segregating sites gn":
-            [sliding_window, "segregating_sites_gn.png"],
-            "Alignment length/Polymorphism correlation":
-            [scatter_plot, "length_polymorphism_correlation.png"],
-            "Distribution of taxa frequency":
-            [histogram_plot, "distribution_taxa_frequency.png"],
-            "Allele Frequency Spectrum":
-            [histogram_plot, "allele_frequency_spectrum.png"],
-            "Allele Frequency Spectrum prop":
-            [histogram_plot, "allele_frequency_spectrum_prop.png"],
-            "Allele Frequency Spectrum gn":
-            [histogram_plot, "allele_frequency_spectrum_gn.png"],
-            "Missing data outliers":
-            [outlier_densisty_dist, "Missing_data_outliers.png"],
-            "Missing data outliers sp":
-            [outlier_densisty_dist, "Missing_data_outliers_sp.png"],
-            "Segregating sites outliers":
-            [outlier_densisty_dist, "Segregating_sites_outliers.png"],
-            "Segregating sites outliers sp":
-            [outlier_densisty_dist, "Segregating_sites_outliers_sp.png"],
-            "Sequence size outliers":
-            [outlier_densisty_dist, "Sequence_size_outliers.png"],
-            "Sequence size outliers sp":
-            [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
-        }
-
         if plot_data:
 
             if "exception" in plot_data:
@@ -9110,7 +9369,8 @@ class TriFusionApp(App):
         self.screen.ids.taxa_num.text = \
             "Taxa: [color=37abc8ff]{}[/color]". format(footer[1])
 
-    def get_active_sets(self, file_set_name=None, taxa_set_name=None):
+    def get_active_sets(self, file_set_name=None, taxa_set_name=None,
+                        filename_map=None):
         """
         Returns a tuple with the file set list as first element and taxa
         set list as second element. List sets are only return for non
@@ -9122,11 +9382,12 @@ class TriFusionApp(App):
 
         if file_set_name:
             if file_set_name == "All files":
-                file_set = [basename(x) for x in self.file_list]
+                file_set = [x for x in self.file_list]
             elif file_set_name == "Active files":
-                file_set = [basename(x) for x in self.active_file_list]
+                file_set = [x for x in self.active_file_list]
             else:
-                file_set = self.file_groups[file_set_name]
+                file_set = [self.filename_map[x] for x in
+                            self.file_groups[file_set_name]]
         else:
             file_set = None
 
@@ -9232,7 +9493,8 @@ class TriFusionApp(App):
             func=get_stats_data,
             second_func=self.stats_write_plot,
             args1=[self.alignment_list, plt_idx, file_set,
-                   list(taxa_set), additional_args],
+                   list(taxa_set), additional_args,
+                   "use_ns"],
             args2=[plt_idx])
 
         self.toggle_stats_panel(force_close=True)
@@ -9407,25 +9669,44 @@ class TriFusionApp(App):
                 except:
                     pass
 
-                # The load_files method now receives the path to the
-                # pickle file containing the AlignmentList object
-                self.load_files(file_list, join(temp_dir, "alns.pc"))
+                # Get the alignment object from the child thread and load
+                # it into the app
+                aln_obj = queue.get()
+                self.load_files(file_list, aln_obj)
 
+                # Shutting down manager that provides communication between
+                # parent and child thread
                 manager.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+
+                # Join child process and exit
+                p.join()
+                return
 
             # Kill switch
             if self.terminate_load_files:
                 content.ids.msg.text = "Canceling..."
-                if sys.platform not in ["win32", "cygwin"]:
-                    p.terminate()
-                    kill_proc_tree(p.pid)
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
                 manager.shutdown()
+
+                # Close loading popup dialog
                 self.dismiss_popup()
+
+                # Unschedule the current function
                 Clock.unschedule(func)
+
+                # Join child process and exit
+                p.join()
+                return
 
         # To support for opening all files in one or more directories, all
         # entries in files will be checked if they are directories. If so,
@@ -9445,35 +9726,31 @@ class TriFusionApp(App):
                 if os.path.isfile(mod_path):
                     file_list.append(mod_path)
 
+        file_list = sorted(file_list)
+
         if not file_list:
             return self.dialog_floatcheck("No valid input files were"
                                           " provided", t="error")
-
-        # Set a unique temporary directory for each loading operation.
-        # This greatly facilitates cleaning up when the user cancels the
-        # loading operation
-        c = 0
-        temp_dir = "import%s" % c
-        while os.path.exists(join(self.temp_dir, temp_dir)):
-            c += 1
-            temp_dir = "import%s" % c
-
-        temp_dir = join(self.temp_dir, temp_dir)
-        os.makedirs(temp_dir)
 
         # Set up manager and shared name space to share information
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
+        queue = Queue.Queue()
+
+        # Initialize stop flag to allow thread to be killed by the user
+        shared_ns.stop = False
 
         # Remove lock from background process
         self.terminate_load_files = False
 
         # Create process
-        p = sub_func(
+        p = threading.Thread(
                 target=load_proc,
-                args=(self.alignment_list, file_list, shared_ns, temp_dir))
+                args=(self.alignment_list, file_list, shared_ns,
+                      queue))
 
+        p.daemon = True
         p.start()
 
         # Remove any possible previous popups
@@ -9494,9 +9771,9 @@ class TriFusionApp(App):
 
         # Schedule function that checks the process' pulse
         func = partial(check_proc, p)
-        Clock.schedule_interval(func, .1)
+        Clock.schedule_interval(func, .01)
 
-    def load_files(self, selection=None, aln_pickle=None):
+    def load_files(self, selection=None, aln_list=None):
         """
         Loads the selected input files into the program using the
         AlignmentList object provided by aln_list. The loading process is
@@ -9519,15 +9796,6 @@ class TriFusionApp(App):
         :param selection: list, with the path of all files provided to
         the app
         """
-
-        # Read the AlignmentList object from the pickle file
-        if aln_pickle:
-            with open(aln_pickle, "rb") as fh:
-                aln_list = pickle.load(fh)
-
-        if not aln_pickle:
-            return self.dialog_floatcheck("Internal alignment "
-                                          "reference not found", t="error")
 
         # Check for consistency in sequence type across alignments
         if self.sequence_types:
@@ -9643,15 +9911,15 @@ class TriFusionApp(App):
         # active data set is not empty
         if aln_list.alignments:
             for aln in aln_list:
-                if tx in aln.alignment:
+                if tx in aln.taxa_list:
                     sequence.append(aln.get_sequence(tx))
                 else:
                     tx_missing += 1
             else:
                 # Retrieve missing data symbol
                 missing_symbol = aln.sequence_code[1]
-                # Convert sequence to string
-                sequence = "".join(sequence)
+
+            sequence = "".join(sequence)
 
             # Get sequence length
             seq_len = len(sequence)
@@ -9749,8 +10017,8 @@ class TriFusionApp(App):
             # Iterating over file path since the name of the Alignment
             # objects contain the full path
             if self.alignment_list:
-                aln = self.alignment_list.retrieve_alignment(basename(
-                    file_name))
+                aln_path = self.filename_map[file_name]
+                aln = self.alignment_list.retrieve_alignment(aln_path)
 
                 # Get input format
                 file_inf["aln_format"] = aln.input_format
@@ -9760,7 +10028,7 @@ class TriFusionApp(App):
 
                 # Get number of species
                 file_inf["n_taxa"] = len([x for x in
-                    aln.iter_taxa() if x in self.active_taxa_list])
+                    aln.taxa_list if x in self.active_taxa_list])
 
                 # Get if is alignment
                 file_inf["is_aln"] = str(aln.is_alignment)
@@ -9868,7 +10136,7 @@ class TriFusionApp(App):
 
         self.show_popup(
             title="Orthology search execution summary - Processing %s"
-                  " file(s)" % len(self.proteome_files),
+                  " file(s)" % len(self.active_proteome_files),
             content=content,
             size=(550, 350))
 
@@ -9918,20 +10186,42 @@ class TriFusionApp(App):
                                                "app logs.", t="error")
 
                 manager.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+                p.join()
 
             # Listens for cancel signal
             if self.terminate_orto_search:
-                shared_ns.k = False
+                content.ids.msg.text = "Terminating on you command. " \
+                                       "Hang tight!"
+
+                # Issuing the kill order to the child thread. This signal
+                # will propagate through the worker's methods and graciously
+                # terminate
+                shared_ns.stop = True
+
+                # If a subprocess has been issued, kill it
+                try:
+                    if shared_ns.subp:
+                        os.kill(shared_ns.subp, signal.SIGINT)
+                        shared_ns.subp = None
+                except AttributeError:
+                    pass
+
+                # This small delay seems to fix manager shutdown issues
+                time.sleep(.1)
+
+                # Shutting down manager that provides communication between
+                # parent and child thread
                 manager.shutdown()
-                if sys.platform in ["win32", "cygwin"]:
-                    p.terminate()
-                    kill_proc_tree(p.pid)
+
+                # Close loading popup dialog
                 self.dismiss_popup()
+
+                # Unschedule the current function
                 Clock.unschedule(func)
+
+                # Join child process and exit
+                p.join()
+                return
 
                 # Clear sqlitedb
                 os.remove(join(self.temp_dir, "orthoDB.db"))
@@ -9946,21 +10236,22 @@ class TriFusionApp(App):
         # between background and main processes
         manager = multiprocessing.Manager()
         shared_ns = manager.Namespace()
-        shared_ns.k = True
+
+        shared_ns.stop = False
+        shared_ns.exception = None
 
         # Remove lock from background process
         self.terminate_orto_search = False
 
         # Create Process instance
-        p = sub_func(
+        p = threading.Thread(
             target=orto_execution,
             args=(
                 shared_ns,
                 self.temp_dir,
-                self.proteome_files,
+                self.active_proteome_files,
                 self.protein_min_len,
                 self.protein_max_stop,
-                #self.cur_dir,
                 self.usearch_file,
                 self.usearch_evalue,
                 self.screen.ids.usearch_threads.text,
@@ -9974,6 +10265,8 @@ class TriFusionApp(App):
                 self.sqldb,
                 self.ortho_dir,
                 self.usearch_db))
+
+        p.daemon = True
         p.start()
 
         # Remove any possible previous popups
@@ -9993,12 +10286,12 @@ class TriFusionApp(App):
         overwritten or skipped
         """
 
-        content = FileOverwriteDialog(cancel=self.dismiss_popup)
+        content = FileOverwriteDialog(cancel=self.dismiss_subpopup)
 
         content.ids.dlg_text.text = msg
 
         self.show_popup(title="File already exists...", content=content,
-                        size=(450, 220))
+                        size=(450, 220), popup_level=2)
 
     def process_exec(self):
         """
@@ -10006,19 +10299,195 @@ class TriFusionApp(App):
         module
         """
 
+        ops_map = {"reverse_concatenation": "Reverse concatenation",
+                   "collapse_filter": "Filter (Collapse)",
+                   "filter": "Filter",
+                   "concatenation": "Concatenation",
+                   "collapse": "Collapse",
+                   "gcoder": "Gap coding",
+                   "consensus": "Consensus",
+                   "write": "Writing output"}
+
+        def build_progress_dialog(wgt):
+
+            # Get the main and additional file operations
+            main_ops = []
+            additional_ops = []
+
+            # Iterate over a fixed order list of possible ops
+            for op in ["reverse_concatenation",
+                       "collapse_filter",
+                       "filter",
+                       "concatenation",
+                       "collapse",
+                       "gcoder",
+                       "consensus"]:
+
+                try:
+                    # Add to main ops if op is a main operation and set to True
+                    if self.main_operations[op]:
+                        main_ops.append(op)
+                except KeyError:
+                    pass
+
+                try:
+                    if self.secondary_operations[op]:
+                        try:
+                            # Add to additional ops if op is True for secondary
+                            # operations and true for *_file
+                            if self.secondary_options["{}_file".format(op)]:
+                                additional_ops.append(op)
+                            else:
+                                main_ops.append(op)
+                        except KeyError:
+                            # Add to main ops if op is True for secondary
+                            # operations but not True for *_file
+                            main_ops.append(op)
+                except KeyError:
+                    pass
+
+            # Set width of dialog based on the presence or not of additional
+            # files
+            if additional_ops:
+                width = 600
+            else:
+                width = 350
+                wgt.ids.additional_outputs.clear_widgets()
+                wgt.ids.additional_outputs.size_hint_x = None
+                wgt.ids.additional_outputs.width = 0
+                wgt.remove_widget(wgt.ids.additional_outputs)
+
+            # Set height of dialog based on the number of main/additional ops
+            ml = len(main_ops)
+            al = len(additional_ops)
+            max_ops = ml if ml > al else al
+
+            height = 200 + (max_ops * 50)
+
+            wgt_ref = {}
+
+            # Add main ops
+            for op in main_ops:
+                p = ProgressBox()
+                p.ids.main_lbl.text = ops_map[op]
+                wgt.ids.main_box.add_widget(p)
+                wgt_ref[op] = p
+
+            # Create write files operation
+            p = ProgressBox()
+            p.ids.main_lbl.text = ops_map["write"]
+            wgt.ids.main_box.add_widget(p)
+            wgt_ref["write"] = p
+
+            # Add additional ops
+            for op in additional_ops:
+                p = ProgressBox()
+                p.ids.main_lbl.text = ops_map[op]
+                wgt.ids.ad_box.add_widget(p)
+                wgt_ref[op] = p
+
+            # Give functionality to cancel button
+            content.ids.cancel_bt.bind(
+                on_release=lambda x: setattr(self,
+                                             "terminate_process_exec",
+                                             True))
+            self.show_popup(title="Process execution...", content=content,
+                            size=(width, height))
+
+            return wgt_ref
+
+        def finish_op(wgt, op_name):
+            wgt.ids.load_box.clear_widgets()
+            check_wgt = ProgressFinished()
+            wgt.ids.load_box.add_widget(check_wgt)
+            wgt.ids.main_lbl.font_size = 18
+            wgt.ids.main_lbl.color = (.7, .7, .7, 1)
+            wgt.ids.main_lbl.text = ops_map[op_name]
+            wgt.ids.secondary_lbl.text = ""
+            wgt.ids.secondary_lbl.color = (.7, .7, .7, 1)
+
+        def start_op(wgt):
+            wgt.ids.load_box.clear_widgets()
+            spinner = LoadSpinner()
+            counter = LoadCounter()
+            wgt_ref["spinner"] = spinner
+            wgt_ref["counter"] = counter
+            wgt.ids.load_box.add_widget(counter)
+            wgt.ids.load_box.add_widget(spinner)
+            wgt.ids.main_lbl.font_size = 18
+            wgt.ids.main_lbl.color = self._blue
+            wgt.ids.secondary_lbl.color = self._blue
+
         def check_process(p, man, dt):
 
-            if "img" in self._popup.content.ids:
-                self._popup.content.ids.img.rotation -= 10
+            # Update progress dialog
+            try:
+                # Start only when the first task has been initiated
+                if shared_ns.task:
+                    # If current_op is not empty, it means some task has
+                    # already been previously provided.
+                    if current_op:
+                        # Check if the previously provided task does not match
+                        # with the current task. If True, modify the progress
+                        # dialog so that the previous task is finished and
+                        # start the current task
+                        if shared_ns.task != current_op[0]:
+                            # Get widget of previous task
+                            pwgt = wgt_ref[current_op[0]]
+                            # Modify progress dialog of previous task so that
+                            # it appears as finished
+                            finish_op(pwgt, current_op[0])
+                            # Set the previous task as the current task for
+                            # future comparisons
+                            current_op[0] = shared_ns.task
+                            # Get widget of current task
+                            cwgt = wgt_ref[shared_ns.task]
+                            # Start loading progress of current task
+                            start_op(cwgt)
+                        else:
+                            cwgt = wgt_ref[shared_ns.task]
+
+                    # In this case, this is the first task being performed.
+                    # We only need to start the loading process of the current
+                    # task
+                    else:
+                        # Set the previous task as the current task
+                        current_op.append(shared_ns.task)
+                        # Get widget of current task
+                        cwgt = wgt_ref[shared_ns.task]
+                        # Start loading progress of current task
+                        start_op(cwgt)
+
+                    wgt_ref["spinner"].ids.img.rotation -= 10
+
+                    if shared_ns.total and shared_ns.counter:
+                        # Get percentage
+                        perc = int((float(shared_ns.counter) /
+                                    float(shared_ns.total)) * 100.)
+
+                        # Set percentage on progress dialog
+                        wgt_ref["counter"].text = "{}%".format(perc)
+
+                        # Set main label, if any
+                        if shared_ns.main_msg:
+                            cwgt.ids.main_lbl.text = shared_ns.main_msg
+
+                        # Set secondary label, if any
+                        if shared_ns.msg:
+                            cwgt.ids.secondary_lbl.text = shared_ns.msg
+
+            except AttributeError:
+                pass
 
             # Interrupt subporcess on user demand
             if self.terminate_process_exec:
+                shared_ns.stop = True
                 man.shutdown()
-                if sys.platform not in ["win32", "cygwin"]:
-                    p.terminate()
-                    kill_proc_tree(p.pid)
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
+                # Removes all temporary database tables
+                self.alignment_list.remove_tables(
+                    self.alignment_list.get_tables())
                 return
 
             try:
@@ -10046,6 +10515,7 @@ class TriFusionApp(App):
                     # reset the file_overwrite attribute for the next file
                     if not self.file_apply_all:
                         self.file_overwrite = None
+                        shared_ns.status = None
                     else:
                         shared_ns.apply_all = True
             except AttributeError:
@@ -10058,22 +10528,21 @@ class TriFusionApp(App):
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
 
-                if sys.platform in ["win32", "cygwin"]:
-                    p.join()
-                else:
-                    p.terminate()
+                # Removes all temporary database tables
+                self.alignment_list.remove_tables(
+                    self.alignment_list.get_tables())
+
+                p.join()
 
                 # If process execution ended with an error, issue warning.
                 try:
                     if shared_ns.exception == "EmptyAlignment":
                         man.shutdown()
-                        p.terminate()
                         return self.dialog_floatcheck(
                             "The alignment is empty after applying "
                             "filters", t="error")
                     elif shared_ns.exception == "Unknown":
                         man.shutdown()
-                        p.terminate()
                         return self.dialog_floatcheck(
                             "Unexpected error when generating "
                             "Process output. Check the app logs.",
@@ -10100,10 +10569,17 @@ class TriFusionApp(App):
         shared_ns.status = None
         shared_ns.apply_all = False
 
+        shared_ns.stop = False
+        shared_ns.task = shared_ns.total = shared_ns.counter = \
+            shared_ns.msg = shared_ns.main_msg = None
+        shared_ns.finished_tasks = []
+        current_op = []
+
         # Packing arguments to background process
         process_kwargs = {"aln_list": self.alignment_list,
             "file_set_name": self.process_grid_wgt.ids.active_file_set.text,
             "file_list": list(self.file_list),
+            "filename_map": dict(self.filename_map),
             "file_groups": dict(self.file_groups),
             "taxa_set_name": self.process_grid_wgt.ids.active_taxa_set.text,
             "active_taxa_list": list(self.active_taxa_list),
@@ -10138,24 +10614,67 @@ class TriFusionApp(App):
         self.terminate_process_exec = False
 
         # Create process
-        p = sub_func(target=process_execution,
-                             kwargs=process_kwargs)
+        p = threading.Thread(target=process_execution,
+                     kwargs=process_kwargs)
         p.start()
 
         # Remove any possible previous popups
         self.dismiss_popup()
         # Create waiting dialog
-        content = CrunchData()
-        # Give functionality to cancel button
-        content.ids.cancel_bt.bind(
-            on_release=lambda x: setattr(self,
-                                         "terminate_process_exec",
-                                         True))
-        self.show_popup(title="Process execution...", content=content,
-                        size=(230, 230))
+        content = ProcessExecutionProgress()
+        wgt_ref = build_progress_dialog(content)
 
         # Schedule function that checks the process' pulse
         check_func = partial(check_process, p, manager)
+        Clock.schedule_interval(check_func, .1)
+
+    def temp_dialog(self):
+
+        def testing(idx, dt):
+
+            i = "testing_"
+
+            for id, wgt in d.items():
+                if id == i + str(idx[0]):
+
+                    if isinstance(wgt.ids.load_box.children[0], ProgressWaiting):
+                        wgt.ids.load_box.clear_widgets()
+                        spiner = LoadSpinner()
+                        counter = LoadCounter()
+                        d["spiner"] = spiner
+                        d["counter"] = counter
+                        wgt.ids.load_box.add_widget(counter)
+                        wgt.ids.load_box.add_widget(spiner)
+                        wgt.ids.main_lbl.font_size = 18
+                        wgt.ids.main_lbl.color = self._blue
+
+                    if int(d["counter"].text[:-1]) == 100:
+
+                        wgt.ids.load_box.clear_widgets()
+                        check_wgt = ProgressFinished()
+                        wgt.ids.load_box.add_widget(check_wgt)
+                        wgt.ids.main_lbl.font_size = 16
+                        wgt.ids.main_lbl.color = (.7, .7, .7, 1)
+
+                        idx[0] += 1
+
+                    d["spiner"].ids.img.rotation -= 10
+                    c = int(d["counter"].text[:-1]) + 1
+                    d["counter"].text = "{}%".format(c)
+
+        content = ProcessExecutionProgress()
+        self.show_popup(title="Process execution...", content=content,
+                        size=(500, 560))
+
+        idx = [0]
+        d = {}
+        for i in range(8):
+            p = ProgressBox()
+            p.ids.main_lbl.text = "testing_{}".format(i)
+            d["testing_{}".format(i)] = p
+            content.ids.main_box.add_widget(p)
+
+        check_func = partial(testing, idx)
         Clock.schedule_interval(check_func, .1)
 
 

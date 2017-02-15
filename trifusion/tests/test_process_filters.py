@@ -3,6 +3,8 @@
 import shutil
 import unittest
 from collections import OrderedDict
+from os.path import join
+import os
 from data_files import *
 
 try:
@@ -12,16 +14,21 @@ except ImportError:
     from trifusion.process.sequence import AlignmentList
     from trifusion.process.error_handling import *
 
+sql_db = "sequencedb"
+
+data_path = join("trifusion/tests/data/")
 
 class AlignmentMissingFiltersTest(unittest.TestCase):
 
     def setUp(self):
 
-        self.aln_obj = AlignmentList([])
+        self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
 
     def test_filter_default(self):
 
@@ -44,12 +51,10 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
              "trifusion/tests/data/missing_data2.phy"]
         )
 
-        self.aln_obj.filter_missing_data(25, 50)
+        self.aln_obj.filter_missing_data(25, 50, table_out="master_out")
 
-        aln_obj = self.aln_obj.concatenate(
-            remove_temp=True, alignment_name="test", dest=".")
-
-        shutil.rmtree("test")
+        aln_obj = self.aln_obj.concatenate(alignment_name="test",
+                                           table_in="master_out")
 
         self.assertEqual(aln_obj.locus_length, 90)
 
@@ -115,11 +120,13 @@ class AlignmentTaxaFilters(unittest.TestCase):
 
     def setUp(self):
 
-        self.aln_obj = AlignmentList([])
+        self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
 
     def test_filter_min_taxa(self):
 
@@ -149,7 +156,7 @@ class AlignmentTaxaFilters(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.filter_by_taxa("Containing", ["spa", "spb", "spc", "spd"])
+        self.aln_obj.filter_by_taxa("Contain", ["spa", "spb", "spc", "spd"])
 
         self.assertEqual(len(self.aln_obj.alignments), 2)
 
@@ -167,13 +174,13 @@ class AlignmentTaxaFilters(unittest.TestCase):
 
         self.assertRaises(EmptyAlignment,
                           self.aln_obj.filter_by_taxa,
-                          "Containing", ["no_taxa"])
+                          "Contain", ["no_taxa"])
 
     def test_filter_by_taxa_from_file(self):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.filter_by_taxa("Containing",
+        self.aln_obj.filter_by_taxa("Contain",
                                     "trifusion/tests/data/filter_taxa.txt")
 
         self.assertEqual(len(self.aln_obj.alignments), 2)
@@ -183,21 +190,24 @@ class AlignmentCodonFilters(unittest.TestCase):
 
     def setUp(self):
 
-        self.aln_obj = AlignmentList([])
+        self.aln_obj = AlignmentList([],sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
 
     def test_codon_filter_pos1(self):
 
         self.aln_obj.add_alignment_files(codon_filter)
 
-        self.aln_obj.filter_codon_positions([True, False, False])
+        self.aln_obj.filter_codon_positions([True, False, False],
+                                            table_out="master_out")
 
         s = []
         for aln in self.aln_obj:
-            for k, v in aln:
+            for k, v in aln.iter_alignment(table_suffix="master_out"):
                 s.append(v)
 
         self.assertEqual(s, ["a" * 16] * 10)
@@ -206,11 +216,12 @@ class AlignmentCodonFilters(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(codon_filter)
 
-        self.aln_obj.filter_codon_positions([False, True, False])
+        self.aln_obj.filter_codon_positions([False, True, False],
+                                            table_out="master_out")
 
         s = []
         for aln in self.aln_obj:
-            for k, v in aln:
+            for k, v in aln.iter_alignment(table_suffix="master_out"):
                 s.append(v)
 
         self.assertEqual(s, ["t" * 16] * 10)
@@ -219,11 +230,12 @@ class AlignmentCodonFilters(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(codon_filter)
 
-        self.aln_obj.filter_codon_positions([False, False, True])
+        self.aln_obj.filter_codon_positions([False, False, True],
+                                            table_out="master_out")
 
         s = []
         for aln in self.aln_obj:
-            for k, v in aln:
+            for k, v in aln.iter_alignment(table_suffix="master_out"):
                 s.append(v)
 
         self.assertEqual(s, ["g" * 16] * 10)
@@ -232,11 +244,12 @@ class AlignmentCodonFilters(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(codon_filter)
 
-        self.aln_obj.filter_codon_positions([True, True, False])
+        self.aln_obj.filter_codon_positions([True, True, False],
+                                            table_out="master_out")
 
         s = []
         for aln in self.aln_obj:
-            for k, v in aln:
+            for k, v in aln.iter_alignment(table_suffix="master_out"):
                 s.append(v)
 
         self.assertEqual(s, ["at" * 16] * 10)
@@ -245,11 +258,12 @@ class AlignmentCodonFilters(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(codon_filter)
 
-        self.aln_obj.filter_codon_positions([True, False, True])
+        self.aln_obj.filter_codon_positions([True, False, True],
+                                            table_out="master_out")
 
         s = []
         for aln in self.aln_obj:
-            for k, v in aln:
+            for k, v in aln.iter_alignment(table_suffix="master_out"):
                 s.append(v)
 
         self.assertEqual(s, ["ag" * 16] * 10)
@@ -272,11 +286,13 @@ class AlignmentVariationFilters(unittest.TestCase):
 
     def setUp(self):
 
-        self.aln_obj = AlignmentList([])
+        self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
 
     def test_variation_filter_min(self):
 
@@ -309,6 +325,7 @@ class AlignmentVariationFilters(unittest.TestCase):
         self.assertEqual(len(self.aln_obj.alignments), 3)
 
     def test_variation_inf_sites(self):
+
         self.aln_obj.add_alignment_files(variable_data)
 
         self.aln_obj.filter_informative_sites(1, 4)
@@ -316,9 +333,12 @@ class AlignmentVariationFilters(unittest.TestCase):
         self.assertEqual(len(self.aln_obj.alignments), 1)
 
     def test_variation_inf_sites2(self):
+
         self.aln_obj.add_alignment_files(variable_data)
 
         self.aln_obj.filter_informative_sites(1, 1)
+
+        print(self.aln_obj.alignments)
 
         self.assertEqual(len(self.aln_obj.alignments), 1)
 

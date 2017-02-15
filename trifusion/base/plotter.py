@@ -29,6 +29,7 @@ import numpy as np
 from itertools import chain
 from collections import Counter
 import seaborn as sns
+import os
 
 # Set of 10 easily distinguishable colors that will be used when generating plots
 # to ensure consistency in color usage. In case more than 10 colors are required
@@ -687,7 +688,7 @@ def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None,
                     framealpha=.8, prop={"weight": "bold"})
 
     if outliers_labels:
-        table = [[x] for x in outliers_labels]
+        table = [[os.path.basename(x)] for x in outliers_labels]
     else:
         table = None
 

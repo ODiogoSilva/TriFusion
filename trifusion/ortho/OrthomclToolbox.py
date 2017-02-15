@@ -20,18 +20,20 @@
 try:
     from process.sequence import Alignment
     from base.plotter import *
+    from process.error_handling import KillByUser
 except ImportError:
     from trifusion.process.sequence import Alignment
     from trifusion.base.plotter import *
+    from trifusion.process.error_handling import KillByUser
 
 from collections import OrderedDict
 import pickle
 import os
 import sqlite3
-import numpy as np
 from os.path import join
 import random
 import string
+import copy
 
 
 class Cluster(object):
@@ -129,7 +131,7 @@ class GroupLight(object):
     """
 
     def __init__(self, groups_file, gene_threshold=None,
-                 species_threshold=None):
+                 species_threshold=None, ns=None):
 
         self.gene_threshold = gene_threshold if gene_threshold else None
         self.species_threshold = species_threshold if species_threshold \
@@ -143,6 +145,7 @@ class GroupLight(object):
 
         # Attributes that will store the number (int) of cluster after gene and
         # species filter
+        self.all_clusters = 0
         self.num_gene_compliant = 0
         self.num_species_compliant = 0
         self.all_compliant = 0
@@ -162,7 +165,7 @@ class GroupLight(object):
         # the update_filtered_group method
         self.filtered_groups = []
 
-        self._parse_groups()
+        self._parse_groups(ns)
 
         if type(self.species_threshold) is float:
             self._get_sp_proportion()
@@ -181,10 +184,52 @@ class GroupLight(object):
             if line.strip() != "":
                 yield line.strip()
 
-    def _apply_filter(self, cl):
+    def iter_species_frequency(self):
+        """
+        In order to prevent permanent changes to the species_frequency
+        attribute due to the filtering of taxa, this iterable should be used
+        instead of the said variable. This creates a temporary deepcopy of
+        species_frequency which will be iterated over and eventually modified.
+        """
 
-        # After taxa removal, some clusters may be empty
+        # Since the items of species_frequency are mutable, this ensures
+        # that even those objects are correctly cloned
+        sp_freq = copy.deepcopy(self.species_frequency)
+
+        for cl in sp_freq:
+            yield cl
+
+    def _remove_tx(self, line):
+        """
+        Given a group line, remove all references to the excluded taxa
+        :param line: raw group file line
+        """
+
+        new_line = "{}:".format(line.split(":")[0])
+
+        tx_str = "\t".join([x for x in line.split(":")[1].split() if
+                           x.split("|")[0] not in self.excluded_taxa])
+
+        return new_line + tx_str
+
+    def _apply_filter(self, cl):
+        """
+        Sets or updates the basic group statistics, such as the number of
+        orthologs compliant with the gene copy and minimum taxa filters.
+
+        :param cl: dictionary. Contains the number of occurrences for each
+         taxon present in the ortholog cluster
+         (e.g. {"taxonA": 2, "taxonB": 1).
+        """
+
+        # First, remove excluded taxa from the cl object since this will
+        # impact all other filters
+        for tx in self.excluded_taxa:
+            cl.pop(tx, None)
+
         if cl:
+
+            self.all_clusters += 1
 
             extra_copies = max(cl.values())
             if extra_copies > self.max_extra_copy:
@@ -206,6 +251,20 @@ class GroupLight(object):
                 self.num_species_compliant += 1
 
     def _get_compliance(self, cl):
+        """
+        Determines whether an ortholog cluster is compliant with the specified
+        ortholog filters.
+        :param ccl: dictionary. Contains the number of occurrences for each
+         taxon present in the ortholog cluster
+         (e.g. {"taxonA": 2, "taxonB": 1).
+
+        :return: tuple. The first element refers to the gene copy filter
+        while the second refers to the minimum taxa filter. Values of 1
+        indicate that the ortholg cluster is compliant.
+        """
+
+        for tx in self.excluded_taxa:
+            cl.pop(tx, None)
 
         if cl:
 
@@ -232,13 +291,19 @@ class GroupLight(object):
 
     def _reset_counter(self):
 
+        self.all_clusters = 0
         self.num_gene_compliant = 0
         self.num_species_compliant = 0
         self.all_compliant = 0
 
-    def _parse_groups(self):
+    def _parse_groups(self, ns=None):
 
         for cl in self.groups():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
 
             # Retrieve the field containing the ortholog sequences
             sequence_field = cl.split(":")[1]
@@ -265,26 +330,38 @@ class GroupLight(object):
             if self.species_threshold and self.gene_threshold:
                 self._apply_filter(sp_freq)
 
-    def exclude_taxa(self, taxa_list):
+    def exclude_taxa(self, taxa_list, update_stats=False):
+        """
+        Updates the excluded_taxa attribute and updates group statistics if
+        update_stats is True. This does not change the Group object data
+        permanently, only sets an attribute that will be taken into account
+        when plotting and exporting data.
+        :param taxa_list: list. List of taxa that should be excluded from
+        downstream operations
+        :param update_stats: boolean. If True, it will update the group
+        statistics
+        """
 
-        self.excluded_taxa.extend(taxa_list)
+        # IF the taxa_list is the same as the excluded_taxa attribute,
+        # there is nothing to do
+        if sorted(taxa_list) == sorted(self.excluded_taxa):
+            return
 
-        self._reset_counter()
+        self.species_list = [x for x in self.species_list + self.excluded_taxa
+                             if x not in taxa_list]
 
-        for cl in self.species_frequency:
-            for tx in taxa_list:
-                del cl[tx]
+        self.excluded_taxa = taxa_list
 
-            if cl:
+        if update_stats:
+            self._reset_counter()
+            for cl in self.iter_species_frequency():
                 self._apply_filter(cl)
 
-        self.species_list = [x for x in self.species_list if x not in taxa_list]
+    def basic_group_statistics(self, update_stats=True):
 
-    def basic_group_statistics(self, update=True):
-
-        if update:
+        if update_stats:
             self._reset_counter()
-            for cl in self.species_frequency:
+            for cl in self.iter_species_frequency():
                 self._apply_filter(cl)
 
         return len(self.species_frequency), self.total_seqs, \
@@ -302,6 +379,24 @@ class GroupLight(object):
                                      len(self.species_list))
 
     def update_filters(self, gn_filter, sp_filter, update_stats=False):
+        """
+        Updates the group filter attributes and group summary stats if
+        update_stats is True. This method does not change the
+        data of the Group object, only sets attributes that will be taken into
+        account when plotting or exporting data
+        :param gn_filter: integer. Maximum number of gene copies allowed in an
+        ortholog cluster
+        :param sp_filter: integer/float. Minimum number/proportion of taxa
+        representation
+        :param update_stats: boolean. If True it will update the group summary
+        statistics
+        """
+
+        # If the provided filters are the same as the current group attributes
+        # there is nothing to do
+        if (gn_filter, sp_filter) == (self.gene_threshold,
+                                      self.species_threshold):
+            return
 
         self.gene_threshold = gn_filter
         self.species_threshold = sp_filter
@@ -311,13 +406,12 @@ class GroupLight(object):
 
         if update_stats:
             self._reset_counter()
-            for cl in self.species_frequency:
+            for cl in self.iter_species_frequency():
                 self._apply_filter(cl)
 
     def retrieve_sequences(self, sqldb, protein_db, dest="./",
-                           shared_namespace=None, outfile=None):
+                             shared_namespace=None, outfile=None):
         """
-
         :param sqldb: srting. Path to sqlite database file
         :param protein_db: string. Path to protein database file
         :param dest: string. Directory where sequences will be exported
@@ -335,6 +429,13 @@ class GroupLight(object):
             shared_namespace.act = "Creating database"
             # Stores sequences that could not be retrieved
             shared_namespace.missed = 0
+            shared_namespace.progress = 0
+            # Get number of lines of protein database
+            with open(protein_db) as fh:
+                for p, _ in enumerate(fh):
+                    pass
+            shared_namespace.max_pb = p + 1
+            print(shared_namespace.max_pb)
 
         # Connect to database
         conn = sqlite3.connect(sqldb)
@@ -342,8 +443,8 @@ class GroupLight(object):
         table_name = "".join([x for x in protein_db if x.isalnum()])
 
         # Create table if it does not exist
-        if not c.execute("SELECT name FROM sqlite_master WHERE type='table' AND"
-                         " name='{}'".format(table_name)).fetchall():
+        if not c.execute("SELECT name FROM sqlite_master WHERE type='table' "
+                         "AND name='{}'".format(table_name)).fetchall():
 
             c.execute("CREATE TABLE {} (seq_id text PRIMARY KEY, seq text)".
                       format(table_name))
@@ -352,6 +453,15 @@ class GroupLight(object):
             with open(protein_db) as ph:
                 seq = ""
                 for line in ph:
+
+                    # Kill switch
+                    if shared_namespace:
+                        if shared_namespace.stop:
+                            conn.close()
+                            raise KillByUser("")
+                            return
+                        shared_namespace.progress += 1
+
                     if line.startswith(">"):
                         seq_id = line.strip()[1:]
                         if seq != "":
@@ -366,22 +476,33 @@ class GroupLight(object):
         if shared_namespace:
             shared_namespace.act = "Fetching sequences"
             shared_namespace.good = 0
-            shared_namespace.loci = 0
+            shared_namespace.progress = 0
+            shared_namespace.max_pb = self.all_compliant
 
         # Set single output file, if option is set
         if outfile:
             output_handle = open(join(dest, outfile), "w")
 
         # Fetching sequences
-        for line, cl in zip(self.groups(), self.species_frequency):
+        for line, cl in zip(self.groups(), self.iter_species_frequency()):
+
+            # Kill switch
+            if shared_namespace:
+                if shared_namespace.stop:
+                    conn.close()
+                    raise KillByUser("")
+                    return
 
             # Filter sequences
             if self._get_compliance(cl) == (1, 1):
 
                 if shared_namespace:
                     shared_namespace.good += 1
+                    shared_namespace.progress += 1
 
                 # Retrieve sequences from current cluster
+                if self.excluded_taxa:
+                    line = self._remove_tx(line)
                 fields = line.split(":")
 
                 # Open file
@@ -415,29 +536,41 @@ class GroupLight(object):
         conn.close()
 
     def export_filtered_group(self, output_file_name="filtered_groups",
-                              dest="./", shared_namespace=None):
+                                 dest="./", shared_namespace=None):
 
         if shared_namespace:
             shared_namespace.act = "Exporting filtered orthologs"
+            shared_namespace.missed = 0
+            shared_namespace.good = 0
 
         output_handle = open(os.path.join(dest, output_file_name), "w")
 
-        for line, cl in zip(self.groups(), self.species_frequency):
+        for p, (line, cl) in enumerate(zip(self.groups(),
+                                           self.iter_species_frequency())):
 
             if shared_namespace:
-                shared_namespace.progress = \
-                    self.species_frequency.index(cl)
+                if shared_namespace.stop:
+                    raise KillByUser("")
+                    return
+
+            if shared_namespace:
+                shared_namespace.progress = p
 
             if self._get_compliance(cl) == (1, 1):
-                output_handle.write("{}\n".format(line))
+                if shared_namespace:
+                    shared_namespace.good += 1
+                if self.excluded_taxa:
+                    l = self._remove_tx(line)
+                else:
+                    l = line
+                output_handle.write("{}\n".format(l))
 
         output_handle.close()
 
-    def bar_species_distribution(self, dest="./", filt=False,
-                                 output_file_name="Species_distribution"):
+    def bar_species_distribution(self, filt=False, ns=None):
 
         if filt:
-            data = Counter((len(cl) for cl in self.species_frequency if
+            data = Counter((len(cl) for cl in self.iter_species_frequency() if
                            self._get_compliance(cl) == (1, 1)))
         else:
             data = Counter((len(cl) for cl in self.species_frequency))
@@ -451,34 +584,37 @@ class GroupLight(object):
         # Convert label to strings
         x_labels = [str(x) for x in x_labels]
 
-        # Create plot
-        b_plt, lgd, table = bar_plot([data], x_labels,
-                        title="Taxa frequency distribution",
-                        ax_names=["Number of taxa", "Ortholog frequency"],
-                        table_header=["Number of species",
-                                      "Ortholog frequency"])
+        title = "Taxa frequency distribution"
+        ax_names = ["Number of taxa", "Ortholog frequency"]
 
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
-                      dpi=200)
+        return {"data": [data],
+                "title": title,
+                "ax_names": ax_names,
+                "labels": x_labels,
+                "table_header": ["Number of species",
+                                      "Ortholog frequency"]}
 
         return b_plt, lgd, table
 
-    def bar_genecopy_distribution(self, dest="./", filt=False,
-                                output_file_name="Gene_copy_distribution.png"):
+    def bar_genecopy_distribution(self, filt=False, ns=None):
         """
         Creates a bar plot with the distribution of gene copies across
         clusters
-        :param dest: string, destination directory
         :param filt: Boolean, whether or not to use the filtered groups.
-        :param output_file_name: string, name of the output file
         """
 
         if filt:
-            data = Counter((max(cl.values()) for cl in self.species_frequency if
+            data = Counter((max(cl.values()) for cl in
+                            self.iter_species_frequency() if
                             self._get_compliance(cl) == (1, 1)))
         else:
             data = Counter((max(cl.values()) for cl in self.species_frequency
                            if cl))
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
@@ -488,22 +624,17 @@ class GroupLight(object):
         # Convert label to strings
         x_labels = [str(x) for x in x_labels]
 
-        # Create plot
-        b_plt, lgd, table = bar_plot([data], x_labels,
-                                title="Gene copy distribution",
-                                ax_names=["Number of gene copies",
-                                          "Ortholog frequency"],
-                                reverse_x=False,
-                                table_header=["Number of gene copies",
-                                              "Ortholog frequency"])
+        title = "Gene copy distribution"
+        ax_names = ["Number of gene copies", "Ortholog frequency"]
 
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
-                      figsize=(8 * len(x_labels) / 4, 6), dpi=200)
+        return {"data": [data],
+                "labels": x_labels,
+                "title": title,
+                "ax_names": ax_names,
+                "table_header": ["Number of gene copies",
+                                 "Ortholog frequency"]}
 
-        return b_plt, lgd, table
-
-    def bar_species_coverage(self, dest="./", filt=False,
-                            output_file_name="Species_coverage"):
+    def bar_species_coverage(self, filt=False, ns=None):
         """
         Creates a stacked bar plot with the proportion of
         :return:
@@ -511,10 +642,15 @@ class GroupLight(object):
 
         data = Counter(dict((x, 0) for x in self.species_list))
 
-        if filt:
-            self._reset_counter()
+        self._reset_counter()
 
-        for cl in self.species_frequency:
+        for cl in self.iter_species_frequency():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             self._apply_filter(cl)
             if filt:
                 data += Counter(dict((x, 1) for x, y in cl.items() if y > 0 and
@@ -525,34 +661,31 @@ class GroupLight(object):
         data = data.most_common()
 
         x_labels = [str(x[0]) for x in data]
-        data = [[x[1] for x in data], [len(self.species_frequency) - x[1] if not
+        data = [[x[1] for x in data], [self.all_clusters - x[1] if not
                                       filt else self.all_compliant - x[1]
                                       for x in data]]
 
         lgd_list = ["Available data", "Missing data"]
+        ax_names = [None, "Ortholog frequency"]
 
-        b_plt, lgd, _ = bar_plot(data, x_labels, lgd_list=lgd_list,
-                                     ax_names=[None, "Ortholog frequency"],
-                                     reverse_x=False)
+        return {"data": data,
+                "labels": x_labels,
+                "lgd_list": lgd_list,
+                "ax_names": ax_names}
 
-        mean_data = np.array(data[0]).mean()
-        ax = b_plt.get_axes()[0]
-        ax.axhline(y=mean_data, ls="--", c="red")
-
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
-                      dpi=200)
-
-        return b_plt, lgd, None
-
-    def bar_genecopy_per_species(self, dest="./", filt=False,
-                            output_file_name="Species_copy_number"):
+    def bar_genecopy_per_species(self, filt=False, ns=None):
 
         data = Counter(dict((x, 0) for x in self.species_list))
 
-        if filt:
-            self._reset_counter()
+        self._reset_counter()
 
-        for cl in self.species_frequency:
+        for cl in self.iter_species_frequency():
+
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
+
             self._apply_filter(cl)
             if filt:
                 data += Counter(dict((x, y) for x, y in cl.items() if y > 1 and
@@ -564,14 +697,16 @@ class GroupLight(object):
 
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data]]
+        ax_names = [None, "Gene copies"]
 
-        b_plt, lgd, _ = bar_plot(data, x_labels, reverse_x=False,
-                                     ax_names=[None, "Gene copies"])
-        b_plt.savefig(os.path.join(dest, output_file_name), bbox_inches="tight",
-                      dpi=200)
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
-        return b_plt, lgd, None
-
+        return {"data": data,
+                "labels": x_labels,
+                "ax_names": ax_names}
 
 class Group(object):
     """ This represents the main object of the orthomcl toolbox module. It is
@@ -683,7 +818,7 @@ class Group(object):
 
         for cl in self.groups:
             cl.remove_taxa(taxa_list)
-            if cl.sequences and cl.species_frequency:
+            if cl.iter_sequences and cl.species_frequency:
                 filtered_groups.append(cl)
 
                 # Update maximum number of extra copies, if needed
@@ -806,7 +941,7 @@ class Group(object):
 
                 if cluster.species_compliant and cluster.gene_compliant:
                     output_handle.write("%s: %s\n" % (
-                                    cluster.name, " ".join(cluster.sequences)))
+                                    cluster.name, " ".join(cluster.iter_sequences)))
                     if get_stats:
                         final_orthologs += 1
                 if get_stats:
@@ -864,8 +999,8 @@ class Group(object):
             if cluster.gene_compliant:
                 self.num_gene_compliant += 1
 
-    def retrieve_sequences(self, database, dest="./", mode="fasta", filt=True,
-                       shared_namespace=None):
+    def retrieve_sequences(self, database, dest="./", mode="fasta",
+                             filt=True, shared_namespace=None):
         """
         When provided with a database in Fasta format, this will use the
         Alignment object to retrieve sequences
@@ -896,6 +1031,7 @@ class Group(object):
         # Update method progress
         if shared_namespace:
             shared_namespace.act = "Creating database"
+            shared_namespace.progress = 0
 
         print("Creating db")
         # Check what type of database was provided
@@ -919,13 +1055,13 @@ class Group(object):
         for cluster in groups:
 
             if shared_namespace:
-                shared_namespace.progress = groups.index(cluster)
+                shared_namespace.progress += 1
 
             if mode == "dict":
                 seq_storage[cluster.name] = []
 
             output_handle = open(join(dest, cluster.name + ".fas"), "w")
-            for sequence_id in cluster.sequences:
+            for sequence_id in cluster.iter_sequences:
                 seq = db_aln[sequence_id]
                 if mode == "fasta":
                     output_handle.write(">%s\n%s\n" % (sequence_id, seq))
@@ -937,7 +1073,7 @@ class Group(object):
         if mode == "dict":
             return seq_storage
 
-    def bar_species_distribution(self, dest="./", filt=False,
+    def bar_species_distribution(self, dest="./", filt=False, ns=None,
                                  output_file_name="Species_distribution"):
         """
         Creates a bar plot with the distribution of species numbers across
@@ -956,6 +1092,10 @@ class Group(object):
             groups = self.groups
 
         for i in groups:
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
             data.append(len([x for x, y in i.species_frequency.items()
                              if y > 0]))
 
@@ -969,6 +1109,11 @@ class Group(object):
                                                              y_vals))))
         # Convert label to strings
         x_labels = [str(x) for x in x_labels]
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
         # Create plot
         b_plt, lgd, _ = bar_plot([y_vals], x_labels,
@@ -1034,7 +1179,7 @@ class Group(object):
 
         return b_plt, lgd, table_list
 
-    def bar_species_coverage(self, dest="./", filt=False,
+    def bar_species_coverage(self, dest="./", filt=False, ns=None,
                              output_file_name="Species_coverage"):
         """
         Creates a stacked bar plot with the proportion of
@@ -1052,6 +1197,10 @@ class Group(object):
         data = Counter(dict((x, 0) for x in self.species_list))
 
         for cl in groups:
+            if ns:
+                if ns.stop:
+                    raise KillByUser("")
+                    return
             data += Counter(dict((x, 1) for x, y in cl.species_frequency.items()
                             if y > 0))
 
@@ -1060,6 +1209,11 @@ class Group(object):
                                       data.values()]]
 
         lgd_list = ["Available data", "Missing data"]
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+                return
 
         b_plt, lgd, _ = bar_plot(data, xlabels, lgd_list=lgd_list,
                               ax_names=[None, "Ortholog frequency"])
@@ -1307,7 +1461,7 @@ class MultiGroups(object):
             storage = []
 
             for cluster in group_obj.groups:
-                storage.append(set(cluster.sequences))
+                storage.append(set(cluster.iter_sequences))
 
             return storage
 
@@ -1337,7 +1491,8 @@ class MultiGroupsLight(object):
     """
 
     def __init__(self, db_path, groups=None, gene_threshold=None,
-                 species_threshold=None, project_prefix="MyGroups"):
+                 species_threshold=None, project_prefix="MyGroups",
+                 ns=None):
         """
         :param groups: A list containing the file names of the multiple
         group files
@@ -1367,6 +1522,9 @@ class MultiGroupsLight(object):
         # something like {"groupA": (1, 10)}
         self.filters = {}
 
+        self.taxa_list = {}
+        self.excluded_taxa = {}
+
         # This attribute will contain a dictionary with the maximum extra copies
         # for each group object
         self.max_extra_copy = {}
@@ -1378,14 +1536,23 @@ class MultiGroupsLight(object):
 
         self.prefix = project_prefix
 
+        if ns:
+            ns.files = len(groups)
+
         if groups:
             for group_file in groups:
                 # If group_file is already a Group object, just add it
-                if not isinstance(group_file, Group):
+                if not isinstance(group_file, GroupLight):
                     try:
+                        if ns:
+                            if ns.stop:
+                                raise KillByUser("")
+                                return
+                            ns.counter += 1
                         group_object = GroupLight(group_file,
                                                   self.gene_threshold,
-                                                  self.species_threshold)
+                                                  self.species_threshold,
+                                                  ns=ns)
                     except:
                         self.bad_groups.append(group_file)
                         continue
@@ -1431,7 +1598,7 @@ class MultiGroupsLight(object):
                             range(15)))
             pickle.dump(group_obj, open(gpath, "wb"))
             self.groups[group_obj.name] = gpath
-            self.filters[group_obj.name] = (1, len(group_obj.species_list))
+            self.filters[group_obj.name] = (1, len(group_obj.species_list), [])
             self.max_extra_copy[group_obj.name] = group_obj.max_extra_copy
             if len(group_obj.species_list) not in self.species_number:
                 self.species_number.append(len(group_obj.species_list))
@@ -1469,8 +1636,8 @@ class MultiGroupsLight(object):
         for _, group_obj in multigroup_obj:
             self.add_group(group_obj)
 
-    def update_filters(self, gn_filter, sp_filter, group_names=None,
-                       default=False):
+    def update_filters(self, gn_filter, sp_filter, excluded_taxa,
+                       group_names=None, default=False):
         """
         This will not change the Group object themselves, only the filter
         mapping. The filter is only applied when the Group object is retrieved
@@ -1480,6 +1647,10 @@ class MultiGroupsLight(object):
         :param group_names: list, with names of group objects
         """
 
+        # There are no groups to update
+        if group_names == []:
+            return
+
         if group_names:
             glist = group_names
         else:
@@ -1488,23 +1659,37 @@ class MultiGroupsLight(object):
         for group_name in glist:
             # Get group object
             group_obj = pickle.load(open(self.groups[group_name], "rb"))
+
+            # Define excluded taxa
+            group_obj.exclude_taxa(excluded_taxa, True)
+
             # Define filters
             gn_filter = gn_filter if not default else 1
             sp_filter = sp_filter if not default else \
                 len(group_obj.species_list)
+
+            # Correct maximum filter values after excluding taxa
+            gn_filter = gn_filter if gn_filter <= group_obj.max_extra_copy \
+                else group_obj.max_extra_copy
+            sp_filter = sp_filter if sp_filter <= len(group_obj.species_list) \
+                else len(group_obj.species_list)
+
             # Update Group object with new filters
             group_obj.update_filters(gn_filter, sp_filter)
             # Update group stats
+
             self.get_multigroup_statistics(group_obj)
             pickle.dump(group_obj, open(self.groups[group_name], "wb"))
             # Update filter map
+
             self.filters[group_name] = (gn_filter, group_obj.species_threshold)
+            self.taxa_list[group_name] = group_obj.species_list
+            self.excluded_taxa[group_name] = group_obj.excluded_taxa
 
     def get_multigroup_statistics(self, group_obj):
         """
         :return:
         """
-
 
         stats = group_obj.basic_group_statistics()
 
