@@ -10607,7 +10607,6 @@ class TriFusionApp(App):
             "use_app_partitions": bool(self.use_app_partitions),
             "consensus_type": self.process_options.ids.consensus_mode.text,
             "ld_hat": bool(self.ld_hat),
-            "temp_dir": str(self.temp_dir),
             "ima2_params": list(self.ima2_options)}
 
         # Remove lock from background process
