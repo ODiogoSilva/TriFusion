@@ -102,7 +102,6 @@ def create_db(f_list, dest="./", ns=None):
     if ns:
         if ns.stop:
             raise KillByUser("")
-            return
 
         ns.progress = 0
         ns.max_pb = len(f_list)
@@ -115,7 +114,6 @@ def create_db(f_list, dest="./", ns=None):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.progress += 1
 
         for line in handle:
@@ -123,7 +121,6 @@ def create_db(f_list, dest="./", ns=None):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
 
             if line.startswith(">"):
                 if seq != "":
@@ -209,6 +206,7 @@ def pair_search(usearch_bin, dest="./"):
                       "-blast6out",
                       out_path]).wait()
 
+
 def get_pairs(dest="./", ns=None):
     """
     Parses the output of USEARCH and creates a dictionary with the header
@@ -221,7 +219,7 @@ def get_pairs(dest="./", ns=None):
     if ns:
         if ns.stop:
             raise KillByUser("")
-            return
+        p = 0
         with open(join(dest, "pairs.out")) as f:
             for p, _ in enumerate(f):
                 pass
@@ -233,7 +231,6 @@ def get_pairs(dest="./", ns=None):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.progress += 1
 
         fields = l.split("\t")
@@ -259,7 +256,6 @@ def convert_protein_file(pairs, group_obj, id_db, output_dir, shared_ns):
         if shared_ns:
             if shared_ns.stop:
                 raise KillByUser("")
-                return
 
         if group_obj._get_compliance(cl) == (1, 1):
 
@@ -301,7 +297,6 @@ def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
         # Kill switch
         if shared_namespace.stop:
             raise KillByUser("")
-            return
 
     # Create query for USEARCH
     group_sequences.retrieve_sequences(sqldb, protein_db, output_dir,
@@ -312,7 +307,6 @@ def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
         # Kill switch
         if shared_namespace.stop:
             raise KillByUser("")
-            return
 
     # Execute search
     if shared_namespace:
@@ -323,13 +317,12 @@ def convert_group(sqldb, cds_file_list, protein_db, group_sequences,
         # Kill switch
         if shared_namespace.stop:
             raise KillByUser("")
-            return
 
     pair_db = get_pairs(output_dir, ns=shared_namespace)
     # Convert files
 
     if shared_namespace:
-            shared_namespace.act = "Converting to nucleotide"
+        shared_namespace.act = "Converting to nucleotide"
     convert_protein_file(pair_db, group_sequences, id_db, output_dir,
                          shared_namespace)
 
