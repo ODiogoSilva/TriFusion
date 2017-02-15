@@ -1196,12 +1196,6 @@ class Group(object):
 class MultiGroups(object):
     """ Creates an object composed of multiple Group objects """
 
-    # The report calls available
-    calls = ['bar_genecopy_distribution',
-             'bar_species_distribution',
-             'bar_species_coverage',
-             'bar_genecopy_per_species']
-
     def __init__(self, groups_files=None, gene_threshold=None,
                  species_threshold=None, project_prefix="MyGroups"):
         """
@@ -1459,6 +1453,12 @@ class MultiGroupsLight(object):
     However, instead of storing the groups in memory, these are shelved in
     the disk
     """
+
+    # The report calls available
+    calls = ['bar_genecopy_distribution',
+             'bar_species_distribution',
+             'bar_species_coverage',
+             'bar_genecopy_per_species']
 
     def __init__(self, db_path, groups=None, gene_threshold=None,
                  species_threshold=None, project_prefix="MyGroups",
