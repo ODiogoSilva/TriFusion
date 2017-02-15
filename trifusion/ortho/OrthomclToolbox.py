@@ -19,11 +19,11 @@
 
 try:
     from process.sequence import Alignment
-    from base.plotter import bar_plot
+    from base.plotter import bar_plot, multi_bar_plot
     from process.error_handling import KillByUser
 except ImportError:
     from trifusion.process.sequence import Alignment
-    from trifusion.base.plotter import bar_plot
+    from trifusion.base.plotter import bar_plot, multi_bar_plot
     from trifusion.process.error_handling import KillByUser
 
 from collections import OrderedDict, Counter
@@ -678,11 +678,6 @@ class GroupLight(object):
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data]]
         ax_names = [None, "Gene copies"]
-
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-                return
 
         return {"data": data,
                 "labels": x_labels,
