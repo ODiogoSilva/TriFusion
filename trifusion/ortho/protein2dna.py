@@ -27,9 +27,9 @@ sequences and then tries to match them to the original protein sequences.
 """
 
 try:
-    from process.error_handling import *
+    from process.error_handling import KillByUser
 except ImportError:
-    from trifusion.process.error_handling import *
+    from trifusion.process.error_handling import KillByUser
 
 from os.path import join
 import subprocess

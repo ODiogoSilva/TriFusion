@@ -1832,12 +1832,12 @@ class TriFusionApp(App):
                             txt, bt, adjust_pos=True, wgt_pos=pos,
                             wgt_size=size), .8)
                         self.mouse_over_ready = False
-            else:
-                # If no collision is detected, remove any remaining label
-                # widget
-                if collision is False and \
-                        self.old_mouse_over in self.root_window.children:
-                    self.root_window.remove_widget(self.old_mouse_over)
+
+            # If no collision is detected, remove any remaining label
+            # widget
+            if collision is False and \
+                    self.old_mouse_over in self.root_window.children:
+                self.root_window.remove_widget(self.old_mouse_over)
 
         # Only do this routine if the side panel is open
         if self.show_side_panel and self.mouse_over_ready \
@@ -3312,7 +3312,7 @@ class TriFusionApp(App):
         """
 
         # Check for missing partitions based on id and remove them
-        for bt, inf_bt, x_bt in self.sp_partition_bts:
+        for bt, _, x_bt in self.sp_partition_bts:
             if bt.id not in self.alignment_list.partitions.partitions:
                 self.remove_bt(x_bt, parent_wgt=self.root.ids.partition_sl)
 
@@ -3515,7 +3515,7 @@ class TriFusionApp(App):
         self.root.ids.file_sl.remove_widget(
             self.root.ids.file_sl.children[0])
 
-        for i in range(self.count_files, max_buttons):
+        for _ in range(self.count_files, max_buttons):
 
             self.count_files += 1
 
@@ -3525,8 +3525,7 @@ class TriFusionApp(App):
             except IndexError:
                 return
 
-        else:
-            self.root.ids.file_sl.add_widget(LoadMoreBt())
+        self.root.ids.file_sl.add_widget(LoadMoreBt())
 
     def populate_species(self):
         """
@@ -4053,7 +4052,7 @@ class TriFusionApp(App):
         displayed_partitions = (
             x for x in self.root.ids.partition_sl.children if not
             isinstance(x, LoadMoreBt))
-        part_name = [bt.text for ebt, ibt, bt in
+        part_name = [bt.text for ebt, _, bt in
                      zip(*[iter(displayed_partitions)] * 3)
                      if ebt.id == btx.id][0]
         part_obj = self.alignment_list.partitions
@@ -6883,15 +6882,15 @@ class TriFusionApp(App):
             self.active_group = self.ortho_groups.get_group(group_id)
         return self.active_group
 
-    def orto_generate_report(self, dir, ns=None):
+    def orto_generate_report(self, out_dir, ns=None):
         """
         Generates full orthology report on the specified directory.
-        :param dir: string, path to directory where the report will be
+        :param out_dir: string, path to directory where the report will be
         generated
         """
 
         # Create directory that will store figures
-        fig_dir = join(dir, "Figures")
+        fig_dir = join(out_dir, "Figures")
         if not os.path.exists(fig_dir):
             os.makedirs(fig_dir)
 
@@ -6904,7 +6903,6 @@ class TriFusionApp(App):
             if ns:
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             data = getattr(active_group_light, command)(fig_dir)
@@ -6917,7 +6915,7 @@ class TriFusionApp(App):
             else:
                 fig.savefig(plot_file, bbox_inches="tight", dpi=200)
 
-        html = HtmlTemplate(dir, "Orthology report", orthology_plots)
+        html = HtmlTemplate(out_dir, "Orthology report", orthology_plots)
         html.write_file()
 
         self.dialog_floatcheck("Orthology automatic report successfully "
@@ -7233,7 +7231,7 @@ class TriFusionApp(App):
             content.ids.rev_inlist.add_widget(bt)
 
         # Add bindings to Ok button
-        content.ids.ok_bt.bind(on_release=lambda x:
+        content.ids.ok_bt.bind(on_release=lambda j:
             self.run_in_background(
                 get_active_group,
                 self.orto_show_plot,
@@ -7394,15 +7392,14 @@ class TriFusionApp(App):
 
                         self.screen.ids.group_rm.add_widget(x_bt)
 
-                else:
-                    # If last group name contains a directory, set it as the
-                    # default export dir
-                    try:
-                        path = dirname(gname)
-                        if os.path.exists(path):
-                            self.orto_export_dir = path
-                    except AttributeError:
-                        pass
+                # If last group name contains a directory, set it as the
+                # default export dir
+                try:
+                    path = dirname(gname)
+                    if os.path.exists(path):
+                        self.orto_export_dir = path
+                except AttributeError:
+                    pass
 
                 self.run_in_background(
                     orto_update_filters,
@@ -8391,7 +8388,7 @@ class TriFusionApp(App):
             "export_outliers":
                 "Export outliers...",
             "ortho_dir":
-                "Choose orthology search output directory...",
+                "Choose destination directory for OrthoMCL output files...",
             "mcl_fix":
                 "Select the MCL executable...",
             "usearch_fix":
@@ -8438,7 +8435,6 @@ class TriFusionApp(App):
 
         # Custom behaviour for orthology output directory
         elif idx == "ortho_dir":
-            title = "Choose destination directory for OrthoMCL output files"
             if self.ortho_dir:
                 content.ids.sd_filechooser.path = self.ortho_dir
 
@@ -8582,10 +8578,10 @@ class TriFusionApp(App):
             # to 223, the first step is to get the first value before
             #  a ".", if any
             try:
-                all = string.maketrans("", "")
-                nodigs = all.translate(all, string.digits)
+                all_d = string.maketrans("", "")
+                nodigs = all_d.translate(all_d, string.digits)
                 x = x.encode("ascii", "ignore")
-                x = int(x.translate(all, nodigs))
+                x = int(x.translate(all_d, nodigs))
             except ValueError:
                 return False
 
@@ -8613,10 +8609,10 @@ class TriFusionApp(App):
                 # to 223, the first step is to get the first value before
                 #  a ".", if any
                 x = value.split(".")[0]
-                all = string.maketrans("", "")
-                nodigs = all.translate(all, string.digits)
+                all_d = string.maketrans("", "")
+                nodigs = all_d.translate(all_d, string.digits)
                 x = x.encode("ascii", "ignore")
-                x = float(x.translate(all, nodigs))
+                x = float(x.translate(all_d, nodigs))
             except ValueError:
                 return False
 
@@ -8644,10 +8640,10 @@ class TriFusionApp(App):
                 # Check if value can be converted to int by removing
                 # all non digits.
                 x = value
-                all = string.maketrans("", "")
-                nodigs = all.translate(all, string.digits)
+                all_d = string.maketrans("", "")
+                nodigs = all_d.translate(all_d, string.digits)
                 x = x.encode("ascii", "ignore")
-                x = int(x.translate(all, nodigs))
+                x = int(x.translate(all_d, nodigs))
             except ValueError:
                 return False
 
@@ -9389,8 +9385,7 @@ class TriFusionApp(App):
         self.screen.ids.taxa_num.text = \
             "Taxa: [color=37abc8ff]{}[/color]". format(footer[1])
 
-    def get_active_sets(self, file_set_name=None, taxa_set_name=None,
-                        filename_map=None):
+    def get_active_sets(self, file_set_name=None, taxa_set_name=None):
         """
         Returns a tuple with the file set list as first element and taxa
         set list as second element. List sets are only return for non
@@ -9935,9 +9930,9 @@ class TriFusionApp(App):
                     sequence.append(aln.get_sequence(tx))
                 else:
                     tx_missing += 1
-            else:
-                # Retrieve missing data symbol
-                missing_symbol = aln.sequence_code[1]
+
+            # Retrieve missing data symbol
+            missing_symbol = aln.sequence_code[1]
 
             sequence = "".join(sequence)
 
@@ -10239,12 +10234,12 @@ class TriFusionApp(App):
                 # Unschedule the current function
                 Clock.unschedule(func)
 
+                # Clear sqlitedb
+                os.remove(join(self.temp_dir, "orthoDB.db"))
+
                 # Join child process and exit
                 p.join()
                 return
-
-                # Clear sqlitedb
-                os.remove(join(self.temp_dir, "orthoDB.db"))
 
         # Create directory that will store intermediate files during
         # orthology search
@@ -10653,8 +10648,8 @@ class TriFusionApp(App):
 
             i = "testing_"
 
-            for id, wgt in d.items():
-                if id == i + str(idx[0]):
+            for idx, wgt in d.items():
+                if idx == i + str(idx[0]):
 
                     if isinstance(wgt.ids.load_box.children[0], ProgressWaiting):
                         wgt.ids.load_box.clear_widgets()

@@ -492,7 +492,7 @@ def main():
                          output_dir)
             allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
                              usearch_out_name)
-            blast_parser(usearch_out_name, output_dir, tmp_dir)
+            blast_parser(usearch_out_name, output_dir, tmp_dir, None)
             pairs(tmp_dir)
             dump_pairs(tmp_dir, output_dir)
             mcl(inflation, output_dir)
@@ -510,7 +510,7 @@ def main():
                          output_dir)
             allvsall_usearch(database_name, evalue_cutoff, output_dir, cpus,
                              usearch_out_name)
-            blast_parser(usearch_out_name, output_dir, tmp_dir)
+            blast_parser(usearch_out_name, output_dir, tmp_dir, None)
             pairs(tmp_dir)
             dump_pairs(tmp_dir, output_dir)
             mcl(inflation, output_dir)

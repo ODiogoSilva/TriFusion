@@ -31,7 +31,7 @@ class InvalidPartitionFile(Exception):
     pass
 
 
-class Partitions():
+class Partitions(object):
     """
     The Partitions class is used to define partitions for Alignment objects and
     associate substitution models for each partition. Partitions may be set
@@ -286,7 +286,7 @@ class Partitions():
                 try:
                     fields = line.split(",")
                     # Get model name as string
-                    model_name = fields[0]
+                    #model_name = fields[0]
                     # Get partition name as string
                     partition_name = fields[1].split("=")[0].strip()
                     # Get partition range as list of int
@@ -711,8 +711,8 @@ class Partitions():
                     yield last_start, previous
                     previous = en
                     last_start = st
-            else:
-                yield last_start, en
+
+            yield last_start, en
 
         def flatter(s):
             """

@@ -22,7 +22,8 @@ subcat_index = 1
 img_index = 2
 desc_index = 3
 
-class HtmlTemplate:
+
+class HtmlTemplate(object):
     """
     Data must be a list of tuples (title, image, description)
     """

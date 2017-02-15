@@ -193,7 +193,6 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir, nm):
             if nm:
                 if nm.stop:
                     raise KillByUser("")
-                    return
 
             splitted = line.split()
 
@@ -241,8 +240,8 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir, nm):
         print_previous_subject(subject, cur)
 
 
-if __name__ == "__main__":
-    orthomcl_blast_parser("AllVsAll.out", "compliantFasta", ".")
+# if __name__ == "__main__":
+#     orthomcl_blast_parser("AllVsAll.out", "compliantFasta", ".")
 
 
 __author__ = "Fernando Alves and Diogo N. Silva"

@@ -18,10 +18,11 @@
 #  MA 02110-1301, USA.
 
 import numpy as np
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, OrderedDict
 import itertools
 import re
-from os.path import join, basename, splitext
+import os
+from os.path import join, basename, splitext, exists
 from itertools import compress
 from threading import Lock
 import functools
@@ -31,18 +32,24 @@ import sqlite3
 
 try:
     import process
-    from process.base import *
+    from process.base import dna_chars, aminoacid_table, iupac, \
+        iupac_rev, iupac_conv, Base, Progression
     from process.data import Partitions
     from process.base import iupac
     from process.data import PartitionException
-    from process.error_handling import DuplicateTaxa, KillByUser
+    from process.error_handling import DuplicateTaxa, KillByUser, \
+        InvalidSequenceType, EmptyData, InputError, EmptyAlignment, \
+        MultipleSequenceTypes
 except ImportError:
     from trifusion.process.base import iupac
     import trifusion.process as process
-    from trifusion.process.base import *
+    from trifusion.process.base import dna_chars, aminoacid_table, iupac, \
+        iupac_rev, iupac_conv, Base, Progression
     from trifusion.process.data import Partitions
     from trifusion.process.data import PartitionException
-    from trifusion.process.error_handling import DuplicateTaxa, KillByUser
+    from trifusion.process.error_handling import DuplicateTaxa, KillByUser, \
+        InvalidSequenceType, EmptyData, InputError, EmptyAlignment, \
+        MultipleSequenceTypes
 
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
@@ -280,10 +287,6 @@ class Alignment(Base):
         :param input_format: string. Input format of the Alignment object. If
         input_alignment is a file name, the input format is automatically
         detected. If it is an OrderedDict, it must be specified
-
-        :param alignment_name: string. It sets the self.name attribute only when
-        input_alignment is an OrderedDict. Otherwise, the input file name will
-        be used.
 
         :param partitions: Partitions object. If provided, it will overwrite
         self.partitions.
@@ -1933,7 +1936,7 @@ class Alignment(Base):
         # written there
         if output_dir:
             output_file = join(output_dir, output_file)
-            if not os.path.exists(output_dir):
+            if not exists(output_dir):
                 os.makedirs(output_dir)
 
         # Stores suffixes for each format
@@ -1949,7 +1952,7 @@ class Alignment(Base):
         # through the app or terminal pipes
         for f in output_format:
             fname = output_file + format_ext[f]
-            if os.path.exists(fname):
+            if exists(fname):
 
                 # File exists issue warning through appropriate pipe
                 if ns_pipe:
@@ -2241,7 +2244,6 @@ class Alignment(Base):
                     if ns_pipe:
                         if ns_pipe.stop:
                             raise KillByUser("")
-                            return
                         if ns_pipe.sa:
                             ns_pipe.counter += 1
 
@@ -3363,7 +3365,6 @@ class AlignmentList(Base):
         if ns:
             if ns.stop:
                 raise KillByUser("")
-                return
             ns.total = len(self.alignments)
             ns.counter = 0
 
@@ -3561,7 +3562,7 @@ class AlignmentList(Base):
 
         :param taxa_list. List of taxa names
 
-        :param mode. String. Modes can be the following:
+        :param mode. String. Modes can be the following
             ..:strict: The taxa of the alignment must be exactly the same as the
         specified taxa.
             ..:inclusive: The taxa of the alignment must contain all specified
@@ -3653,8 +3654,6 @@ class AlignmentList(Base):
 
         :param dest: string. Path to write the .haplotypes file
 
-        :param table_name: string. Name of the table that will be created
-        in the database to harbor the collapsed alignment
         """
 
         if ns:
@@ -3711,8 +3710,7 @@ class AlignmentList(Base):
         for each alignment and stored in a new database table and assigned
         to a new Alignment object. If False, it will just wrap the consensus
         method of the Alignment object.
-        :param table_name: string. Name of the table that will be created
-        in the database to harbor the collapsed alignment
+
         """
 
         if ns:
@@ -3789,8 +3787,6 @@ class AlignmentList(Base):
         This will only work if alignment_object_list has one alignment, as it
         is intended to be a wrapper of sorts for the Alignment object method
 
-        :param partition_obj: Partitions object, containing the partitions of
-        the input file
         :return: AlignmentList object with individual alignments
         """
 
@@ -3974,7 +3970,6 @@ class AlignmentList(Base):
             if ns:
                 if ns.stop:
                     raise KillByUser("Child thread killed by user")
-                    return
                 ns.counter += 1
 
             # Get alignment size info
@@ -4251,7 +4246,6 @@ class AlignmentList(Base):
                 # Kill switch
                 if ns.stop:
                     raise KillByUser("")
-                    return
                 ns.counter += 1
 
             data.append(len(set(self.taxa_names) - set(aln.taxa_list)))

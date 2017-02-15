@@ -48,7 +48,6 @@ def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent, db, dest,
             if nm:
                 if nm.stop:
                     raise KillByUser("")
-                    return
 
             if line.startswith('>'):
                 if current_seq:
