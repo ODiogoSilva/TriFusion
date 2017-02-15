@@ -1,13 +1,14 @@
 try:
     from process import data
-    from process.error_handling import *
+    from process.error_handling import KillByUser,\
+        MultipleSequenceTypes, EmptyAlignment
     from process.sequence import AlignmentList, Alignment
     import orthomcl_pipeline as ortho_pipe
     from ortho import OrthomclToolbox as OrthoTool
 except ImportError:
     from trifusion.process import data
     from trifusion.process.error_handling import KillByUser,\
-        MultipleSequenceTypes
+        MultipleSequenceTypes, EmptyAlignment
     from trifusion.process.sequence import AlignmentList, Alignment
     import trifusion.orthomcl_pipeline as ortho_pipe
     from trifusion.ortho import OrthomclToolbox as OrthoTool

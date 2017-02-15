@@ -4,7 +4,7 @@ import sqlite3 as lite
 import os
 
 try:
-    from process.error_handling import *
+    from process.error_handling import KillByUser
 except ImportError:
     from trifusion.process.error_handling import KillByUser
 
