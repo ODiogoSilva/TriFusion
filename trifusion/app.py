@@ -3197,18 +3197,28 @@ class TriFusionApp(App):
         files
         """
 
+        # Collect input files. Search directories, if they are provided
+        original_list = []
+        for f in selection:
+            if os.path.isdir(f):
+                original_list.extend([join(f, x) for x in os.listdir(f)
+                                  if os.path.isfile(join(f, x))])
+            else:
+                original_list.append(f)
+
+        # Check if files exist
+        file_list = [f for f in original_list if exists(f)]
+
+        # If input is empty, raise warning and return
+        if not file_list:
+            return self.dialog_floatcheck("The provided proteome files do"
+                                          " not exist.", t="error")
+
         # Stores invalid proteome files
         bad_proteomes = {"invalid": [], "no_fasta": [], "no_protein": []}
         good_proteomes = []
 
-        # Check input proteomes
-        file_list = []
-        for f in selection:
-            if os.path.isdir(f):
-                file_list.extend([join(f, x) for x in os.listdir(f)
-                                  if os.path.isfile(join(f, x))])
-            else:
-                file_list.append(f)
+        # Filter non
 
         for f in file_list:
             b = Base()
@@ -3244,6 +3254,11 @@ class TriFusionApp(App):
         if good_proteomes:
             self.dialog_floatcheck("%s file(s) successfully loaded" %
                                    len(good_proteomes), t="info")
+
+            if set(original_list) - set(file_list):
+                missing = len(set(original_list) - set(file_list))
+                self.dialog_floatcheck("%s file(s) could not be found" %
+                                       missing, t="warning")
 
             # Update the filename - path mapping attribute
             self.filename_map = dict(list(self.filename_map.items()) +
@@ -8176,7 +8191,7 @@ class TriFusionApp(App):
                 self.main_operations["reverse_concatenation"]:
             return self.dialog_floatcheck("Please provide a partition "
                 "file and file to reverse concatenate OR use defined "
-                "partitions defined in side panel", t="error")
+                "partitions defined in side panel.", t="error")
 
         if not use_parts:
 
@@ -8184,13 +8199,13 @@ class TriFusionApp(App):
                 # Check if partition file was selected. If not, return
                 # warning
                 return self.dialog_floatcheck(
-                    "Please provide a partitions file", t="error")
+                    "Please provide a partitions file.", t="error")
 
             if not self.rev_infile:
                 # Check if file to reverse concatenate was specified. If
                 # not, return warning
                 return self.dialog_floatcheck(
-                    "Please provide a file to reverse concatenate",
+                    "Please provide a file to reverse concatenate.",
                     t="error")
 
             # Check for the validity of the partitions file

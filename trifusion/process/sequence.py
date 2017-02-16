@@ -35,13 +35,11 @@ try:
     from process.base import dna_chars, aminoacid_table, iupac, \
         iupac_rev, iupac_conv, Base, Progression
     from process.data import Partitions
-    from process.base import iupac
     from process.data import PartitionException
     from process.error_handling import DuplicateTaxa, KillByUser, \
         InvalidSequenceType, EmptyData, InputError, EmptyAlignment, \
         MultipleSequenceTypes
 except ImportError:
-    from trifusion.process.base import iupac
     import trifusion.process as process
     from trifusion.process.base import dna_chars, aminoacid_table, iupac, \
         iupac_rev, iupac_conv, Base, Progression
