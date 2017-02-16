@@ -5548,7 +5548,7 @@ class TriFusionApp(App):
 
         # Set markup message for project name
         msg1 = "[b][color=ccccccff]Project name:[/color][/b] {}".format(
-            name)
+            name.encode("utf8"))
 
         # Set markup message for number of files
         msg2 = "[b][color=ccccccff]Number of files:[/color][/b] {}".format(
