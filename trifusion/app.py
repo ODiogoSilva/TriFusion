@@ -7435,13 +7435,17 @@ class TriFusionApp(App):
         """
 
         # If no group button is active, dispatch the first
-        if group_name and isinstance(group_name, MultiGroupsLight):
+        # The comparison is done with __class__.__name__ to avoid
+        # issues of the isinstance() method comparing the same class
+        # instance from different imports (trifusion.ortho vs. ortho)
+        if group_name and group_name.__class__.__name__ == "MultiGroupsLight":
             try:
                 self.ortho_groups = group_name
             except:
                 pass
 
-        if group_name and not isinstance(group_name, MultiGroupsLight):
+        if group_name and not \
+                group_name.__class__.__name__ == "MultiGroupsLight":
             pass
 
         elif (not [x for x in self.screen.ids.group_gl.children
@@ -7456,8 +7460,6 @@ class TriFusionApp(App):
                           if x.state == "down"][0]
 
         self.active_group_name = group_name
-
-        print(group_name)
 
         # Create desired behaviour for group toggle buttons
         if bt:
