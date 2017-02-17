@@ -2118,7 +2118,7 @@ class TriFusionApp(App):
     def create_folder(self, text):
 
         path = self._popup.content.ids.sd_filechooser.path
-        dir_name = join(path, text)
+        dir_name = join(path, text.encode("utf8"))
 
         if os.path.exists(dir_name):
             return self.dialog_floatcheck(
@@ -7435,13 +7435,13 @@ class TriFusionApp(App):
         """
 
         # If no group button is active, dispatch the first
-        if (group_name and isinstance(group_name, MultiGroupsLight)):
+        if group_name and isinstance(group_name, MultiGroupsLight):
             try:
                 self.ortho_groups = group_name
             except:
                 pass
 
-        if (group_name and not isinstance(group_name, MultiGroupsLight)):
+        if group_name and not isinstance(group_name, MultiGroupsLight):
             pass
 
         elif (not [x for x in self.screen.ids.group_gl.children
@@ -7456,6 +7456,8 @@ class TriFusionApp(App):
                           if x.state == "down"][0]
 
         self.active_group_name = group_name
+
+        print(group_name)
 
         # Create desired behaviour for group toggle buttons
         if bt:
