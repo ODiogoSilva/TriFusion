@@ -1500,7 +1500,7 @@
         padding: 10
         canvas.before:
             Color:
-                rgba: (0.1, 0.1, 0.1, .5)
+                rgba: (.1,.1,.1, 1)
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -1574,7 +1574,7 @@
         padding: 10
         canvas.before:
             Color:
-                rgba: (0.1, 0.1, 0.1, .5)
+                rgba: (.1,.1,.1, 1)
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -1714,8 +1714,8 @@
                     pos: self.pos
                     angle_start: 360 + (root.proportion * 360)
                 Color:
-                    rgba: root.inner_color[gauge_txt.text] if gauge_txt.text in root.inner_color else (0,0,0,0)
-                    #rgba: (0.15, 0.15, 0.15, 1)
+                    #rgba: root.inner_color[gauge_txt.text] if gauge_txt.text in root.inner_color else (0,0,0,0)
+                    rgba: (.1,.1,.1, 1)
                 Ellipse:
                     size: 100, 100
                     pos: self.center_x - 50, self.center_y - 50
@@ -7200,7 +7200,7 @@ FloatLayout:
         orientation: "vertical"
         canvas.before:
             Color:
-                rgba: (.2,.2,.2,.7)
+                rgba: (.1, .1, .1, 1)
             Rectangle:
                 #source: "data/backgrounds/master_background.png"
                 pos: self.pos
