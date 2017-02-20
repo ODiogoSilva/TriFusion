@@ -1288,6 +1288,19 @@ class TriFusionApp(App):
         # ==================================================================
 
         if self._popup in self.root_window.children:
+            if "find_bx" in self._popup.content.ids:
+                if modifier == "ctrl" and key_code == 102:
+                    if self._popup.content.ids.find_bx.height == 30:
+                        Animation(height=0, d=.3, t="out_quart").start(
+                            self._popup.content.ids.find_bx)
+                        self._popup.content.ids.sd_filechooser.f = "/*"
+                        self._popup.content.ids.text_filter.text = ""
+                        self._popup.content.ids.text_filter.focus = False
+                    else:
+                        Animation(height=30, d=.3, t="out_quart").start(
+                            self._popup.content.ids.find_bx)
+
+        if self._popup in self.root_window.children:
             if "text_filter" in self._popup.content.ids:
                 # Ctrl + f toggles focus on find text input field
                 if modifier == "ctrl" and key_code == 102:
@@ -10313,7 +10326,6 @@ class TriFusionApp(App):
                         # Provide uncertain counter for usearch and mcl
                         # operations.
                         wgt_ref["counter"].text = "??"
-
 
             except AttributeError:
                 pass
