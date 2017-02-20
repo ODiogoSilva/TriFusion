@@ -434,6 +434,13 @@ def execute(db_dir, nm=None):
 
     with con:
 
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+            nm.total = 4
+            nm.counter = 0
+            nm.msg = None
+
         con.create_function("log", 1, log)
 
         cur = con.cursor()
@@ -443,6 +450,7 @@ def execute(db_dir, nm=None):
             if nm:
                 if nm.stop:
                     raise KillByUser("")
+                nm.counter += 1
 
             func(cur)
 

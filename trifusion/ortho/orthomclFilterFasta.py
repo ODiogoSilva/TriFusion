@@ -31,7 +31,21 @@ def orthomcl_filter_fasta(input_dir, min_length, max_stop_percent, db, dest,
 
     reject_rates = []
 
+    # Setup progression information
+    if nm:
+        if nm.stop:
+            raise KillByUser("")
+        nm.total = len(filenames)
+        nm.counter = 0
+
     for filename in filenames:
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+            nm.counter += 1
+            nm.msg = "Filtering file {}".format(os.path.basename(filename))
+
         if filename.startswith('.'):
             continue
 

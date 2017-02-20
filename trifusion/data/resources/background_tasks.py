@@ -185,69 +185,60 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
     """
 
     try:
-        nm.t = "Installing schema"
-        nm.c = 1
+        nm.task = "schema"
         ortho_pipe.install_schema(temp_dir)
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Adjusting Fasta Files"
-        nm.c = 2
+        nm.task = "adjust"
         ortho_pipe.adjust_fasta(proteome_files, ortho_dir, nm)
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Filtering Fasta Files"
-        nm.c = 3
+        nm.task = "filter"
         ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
                                 usearch_db, ortho_dir, nm)
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Running USearch. This may take a while..."
-        nm.c = 4
+        nm.task = "usearch"
         ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
                                     usearch_threads, usearch_output,
                                     usearch_bin=usearch_file, nm=nm)
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Parsing USEARCH output"
-        nm.c = 5
+        nm.task = "parse"
         ortho_pipe.blast_parser(usearch_output, ortho_dir,
                                 db_dir=temp_dir, nm=nm)
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Obtaining Pairs"
-        nm.c = 6
+        nm.task = "pairs"
         ortho_pipe.pairs(temp_dir, nm=nm)
         ortho_pipe.dump_pairs(temp_dir, ortho_dir, nm=nm)
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Running MCL"
-        nm.c = 7
+        nm.task = "mcl"
         ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file, nm=nm)
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Dumping groups"
-        nm.c = 8
+        nm.task = "dump"
         ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
                               group_prefix, ortho_dir, nm=nm)
 
         if nm.stop:
             raise KillByUser("")
 
-        nm.t = "Filtering group files"
-        nm.c = 9
+        nm.task = "filter_groups"
         stats, groups_obj = ortho_pipe.export_filtered_groups(
             mcl_inflation,
             group_prefix,
@@ -256,7 +247,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             sqldb,
             join(ortho_dir, "backstage_files", usearch_db),
             temp_dir,
-            ortho_dir)
+            ortho_dir, nm=nm)
 
         if nm.stop:
             raise KillByUser("")

@@ -10180,53 +10180,49 @@ class TriFusionApp(App):
         module
         """
 
+        tasks_map = {"schema": "Database setup",
+                     "adjust": "Adjusting Fasta files",
+                     "filter": "Filtering Fasta files",
+                     "usearch": "Running USearch",
+                     "parse": "Parsing USearch output",
+                     "pairs": "Obtaining pairs",
+                     "mcl": "Running MCL",
+                     "dump": "Dumping groups",
+                     "filter_groups": "Filtering group files"}
+
+        wgt_ref = {}
+
+        def finish_op(wgt, op_name):
+            wgt.ids.load_box.clear_widgets()
+            check_wgt = ProgressFinished()
+            wgt.ids.load_box.add_widget(check_wgt)
+            wgt.ids.main_lbl.font_size = 18
+            wgt.ids.main_lbl.color = (.7, .7, .7, 1)
+            wgt.ids.main_lbl.text = tasks_map[op_name]
+            wgt.ids.secondary_lbl.text = ""
+            wgt.ids.secondary_lbl.color = (.7, .7, .7, 1)
+
+        def start_op(wgt):
+            wgt.ids.load_box.clear_widgets()
+            spinner = LoadSpinner()
+            counter = LoadCounter()
+            wgt_ref["spinner"] = spinner
+            wgt_ref["counter"] = counter
+            wgt.ids.load_box.add_widget(counter)
+            wgt.ids.load_box.add_widget(spinner)
+            wgt.ids.main_lbl.font_size = 18
+            wgt.ids.main_lbl.color = self._blue
+            wgt.ids.secondary_lbl.color = self._blue
+
+
         def check_process(p, dt):
             """
             Checks the status of the background process "p" and updates
             the progress dialog label
             """
 
-            # Updates progress dialog label
-            content.ids.msg.text = shared_ns.t
-            # Updates progress bar
-            content.ids.pb.value = shared_ns.c
-
-            # When the process finishes, close progress dialog and
-            #  unschedule this callback
-
-            if not p.is_alive():
-
-                Clock.unschedule(func)
-                self.dismiss_popup()
-
-                try:
-                    if shared_ns.exception:
-                        self.dialog_floatcheck(shared_ns.exception,
-                                               t="error")
-                except:
-                    pass
-
-                try:
-                    # Set the protein database file
-                    self.protein_db = join(self.ortho_dir,
-                                           "backstage_files",
-                                           self.usearch_db)
-                    self.dialog_search_report(shared_ns.stats,
-                                              shared_ns.groups)
-                except:
-                    if not shared_ns.exception:
-                        self.dialog_floatcheck("Unexpected error when "
-                                               "search orthologs. Check "
-                                               "app logs.", t="error")
-
-                manager.shutdown()
-                p.join()
-
             # Listens for cancel signal
             if self.terminate_orto_search:
-                content.ids.msg.text = "Terminating on you command. " \
-                                       "Hang tight!"
-
                 # Issuing the kill order to the child thread. This signal
                 # will propagate through the worker's methods and graciously
                 # terminate
@@ -10260,6 +10256,96 @@ class TriFusionApp(App):
                 p.join()
                 return
 
+            # Update progress dialog
+            try:
+
+                if shared_ns:
+                    # If current_op is not an empty list, it means that this
+                    # is not the first task.
+                    if current_op:
+                        # Check if the task defined in the previous cycle is
+                        # the same as the current task. If not, do this
+                        if shared_ns.task != current_op[0]:
+                            # Get the previous task progress widget
+                            pwgt = content.ids[current_op[0]]
+                            # Finish animation for previous task
+                            finish_op(pwgt, current_op[0])
+                            # Set current task progress as the current_op
+                            current_op[0] = shared_ns.task
+                            # Get the current task progress widget
+                            cwgt = content.ids[shared_ns.task]
+                            # Start progress animations for current task
+                            start_op(cwgt)
+
+                        else:
+                            pass
+                    # This means that this is the first task
+                    else:
+                        # Add the first task to current_op
+                        current_op.append(shared_ns.task)
+                        # Get current progress task widget
+                        cwgt = content.ids[shared_ns.task]
+                        # Start progress animations for current task
+                        start_op(cwgt)
+
+                    # Update the current spinner... spin
+                    wgt_ref["spinner"].ids.img.rotation -= 10
+
+                    # Update the counter percentage
+                    if shared_ns.total and shared_ns.counter and \
+                            current_op[0] != "usearch" and \
+                                    current_op[0] != "mcl":
+
+                        # Get percentage
+                        perc = int((float(shared_ns.counter) /
+                                    float(shared_ns.total)) * 100.)
+
+                        # Set percentage on progress dialog
+                        wgt_ref["counter"].text = "{}%".format(perc)
+
+                        # Set secondary progress label, if any
+                        if shared_ns.msg:
+                            content.ids[shared_ns.task].\
+                                ids.secondary_lbl.text = shared_ns.msg
+
+                    if current_op[0] == "usearch" or current_op[0] == "mcl":
+
+                        # Provide uncertain counter for usearch and mcl
+                        # operations.
+                        wgt_ref["counter"].text = "??"
+
+
+            except AttributeError:
+                pass
+
+            if not p.is_alive():
+
+                Clock.unschedule(func)
+                self.dismiss_popup()
+
+                try:
+                    if shared_ns.exception:
+                        self.dialog_floatcheck(shared_ns.exception,
+                                               t="error")
+                except:
+                    pass
+
+                try:
+                    # Set the protein database file
+                    self.protein_db = join(self.ortho_dir,
+                                           "backstage_files",
+                                           self.usearch_db)
+                    self.dialog_search_report(shared_ns.stats,
+                                              shared_ns.groups)
+                except:
+                    if not shared_ns.exception:
+                        self.dialog_floatcheck("Unexpected error when "
+                                               "search orthologs. Check "
+                                               "app logs.", t="error")
+
+                manager.shutdown()
+                p.join()
+
         # Create directory that will store intermediate files during
         # orthology search
         int_dir = join(self.ortho_dir, "backstage_files")
@@ -10273,6 +10359,10 @@ class TriFusionApp(App):
 
         shared_ns.stop = False
         shared_ns.exception = None
+        shared_ns.total = 0
+        shared_ns.counter = 0
+        shared_ns.msg = None
+        current_op = []
 
         # Remove lock from background process
         self.terminate_orto_search = False
@@ -10307,12 +10397,17 @@ class TriFusionApp(App):
         self.dismiss_popup()
         # Create Progression dialog
         content = OrtoProgressDialog()
+
+        # Populate progress dialog content
+        for op, txt in tasks_map.items():
+            content.ids[op].ids.main_lbl.text = txt
+
         self.show_popup(title="Running Orthology Search", content=content,
-                        size=(400, 200))
+                        size=(340, 600))
 
         # Schedule function that checks the process' pulse
         func = partial(check_process, p)
-        Clock.schedule_interval(func, .1)
+        Clock.schedule_interval(func, .2)
 
     def dialog_fileoverwrite(self, msg):
         """

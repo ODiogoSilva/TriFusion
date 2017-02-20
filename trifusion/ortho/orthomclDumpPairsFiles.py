@@ -120,19 +120,41 @@ def printMclAbcFile (cur, filename, nm=None):
 def execute(db_dir, dest, nm=None):
     con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
+    # Set up progression information
+    if nm:
+        if nm.stop:
+            raise KillByUser("")
+        nm.total = 4
+        nm.counter = 0
+
     with con:
 
         cur = con.cursor()
 
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+            nm.counter = 1
+
         printOrthologsFile(cur, os.path.join(dest, "backstage_files",
                                              "orthologs.txt"), nm=nm)
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+            nm.counter = 2
 
         printInparalogsFile(cur, os.path.join(dest, "backstage_files",
                                               "inparalogs.txt"), nm=nm)
-
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+            nm.counter = 3
         printCoOrthologsFile(cur, os.path.join(dest, "backstage_files",
                                                "coorthologs.txt"), nm=nm)
-
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+            nm.counter = 4
         printMclAbcFile(cur, os.path.join(dest, "backstage_files",
                                           "mclInput"), nm=nm)
 

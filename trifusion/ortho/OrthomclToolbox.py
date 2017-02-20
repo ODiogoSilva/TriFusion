@@ -425,17 +425,16 @@ class GroupLight(object):
             os.makedirs(dest)
 
         if shared_namespace:
-            shared_namespace.act = "Creating database"
+            shared_namespace.act = shared_namespace.msg = "Creating database"
             # Stores sequences that could not be retrieved
-            shared_namespace.missed = 0
+            shared_namespace.missed = shared_namespace.counter = 0
             shared_namespace.progress = 0
             # Get number of lines of protein database
             p = 0
             with open(protein_db) as fh:
                 for p, _ in enumerate(fh):
                     pass
-            shared_namespace.max_pb = p + 1
-            print(shared_namespace.max_pb)
+            shared_namespace.max_pb = shared_namespace.total = p + 1
 
         # Connect to database
         conn = sqlite3.connect(sqldb)
@@ -461,6 +460,7 @@ class GroupLight(object):
                             conn.close()
                             raise KillByUser("")
                         shared_namespace.progress += 1
+                        shared_namespace.counter += 1
 
                     if line.startswith(">"):
                         seq_id = line.strip()[1:]
@@ -474,10 +474,11 @@ class GroupLight(object):
             conn.commit()
 
         if shared_namespace:
-            shared_namespace.act = "Fetching sequences"
-            shared_namespace.good = 0
+            shared_namespace.act = shared_namespace.msg = "Fetching sequences"
+            shared_namespace.good = shared_namespace.counter = 0
             shared_namespace.progress = 0
-            shared_namespace.max_pb = self.all_compliant
+            shared_namespace.max_pb = shared_namespace.total = \
+                self.all_compliant
 
         # Set single output file, if option is set
         if outfile:
@@ -498,6 +499,7 @@ class GroupLight(object):
                 if shared_namespace:
                     shared_namespace.good += 1
                     shared_namespace.progress += 1
+                    shared_namespace.counter += 1
 
                 # Retrieve sequences from current cluster
                 if self.excluded_taxa:
