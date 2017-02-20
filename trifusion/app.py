@@ -7217,6 +7217,11 @@ class TriFusionApp(App):
                              self._subpopup.content.ids.rev_inlist.children if
                              x.state == "normal"]
 
+            if len(excluded_taxa) == \
+                    len(self._subpopup.content.ids.rev_inlist.children):
+                return self.dialog_floatcheck("At least one taxon must be "
+                                              "included.", t="error")
+
             self._popup.content.excluded_tx = excluded_taxa
             self._popup.content.ids.exclude_bt.text = "{} included".format(
                 len(sp_list) + len(ex_list) - len(excluded_taxa))
@@ -7226,6 +7231,8 @@ class TriFusionApp(App):
         ex_list = self.ortho_groups.excluded_taxa[self.active_group_name]
 
         content = InputList(cancel=self.dismiss_subpopup)
+        # Show the select/deselect all buttons
+        content.ids.selection_bx.height = 50
 
         # Add button for each taxon
         for taxon in sorted(sp_list + ex_list):
@@ -7247,6 +7254,8 @@ class TriFusionApp(App):
     def dialog_exclude_orto_taxa(self, plt_idx):
 
         content = InputList(cancel=self.dismiss_popup)
+        # Show the select/deselect all buttons
+        content.ids.selection_bx.height = 50
 
         # Add button for each taxon
         for taxon in sorted(self.active_group.species_list +
