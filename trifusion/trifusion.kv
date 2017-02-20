@@ -4658,6 +4658,37 @@
     orientation: "vertical"
     spacing: 10
     padding: 10
+
+    ScrollView:
+        id: selection_bx
+        size_hint_y: None
+        height: 0
+        spacing: 5
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            BoxLayout:
+                spacing: 5
+                size_hint_y: None
+                height: 35
+                TFButton:
+                    text: "Select All"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    on_release:
+                        for wgt in rev_inlist.children:\
+                        wgt.state = "down"
+                TFButton:
+                    text: "Deselect All"
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    on_release:
+                        for wgt in rev_inlist.children:\
+                        wgt.state = "normal"
+            Hseparator:
+                c: app._blue
+
+
     ScrollView:
         GridLayout:
             spacing: 5
