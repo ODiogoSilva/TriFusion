@@ -3688,23 +3688,70 @@
                         spacing: [10, 10]
                         id: bookmark_gl
 
-            FileChooserM:
-                id: sd_filechooser
-                previous_dir: []
-                text: "master"
-                dirselect: True
-                path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
+            BoxLayout:
+                spacing: 10
+                orientation: "vertical"
+                FileChooserM:
+                    id: sd_filechooser
+                    previous_dir: []
+                    text: "master"
+                    dirselect: True
+                    f: "/*"
+                    filters: [self.f]
+                    filter_dirs: False
+                    path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
 
-                on_selection:
-                    if txt_box.height == 30 and self.selection and not os.path.isdir(self.selection[0]): \
-                    text_input.text = self.selection[0].split(os.sep)[-1]
+                    on_selection:
+                        if txt_box.height == 30 and self.selection and not os.path.isdir(self.selection[0]): \
+                        text_input.text = self.selection[0].split(os.sep)[-1]
 
-                on_double_click:
-                    if self.text in root.load_dlgs and self.text != "main_output": \
-                    ok_bt.dispatch("on_release")
+                    on_double_click:
+                        if self.text in root.load_dlgs and self.text != "main_output": \
+                        ok_bt.dispatch("on_release")
 
-                on_dir_entry:
-                    self.previous_dir.append(self.path)
+                    on_dir_entry:
+                        self.previous_dir.append(self.path)
+
+                ScrollView:
+                    size_hint_y: None
+                    id: find_bx
+                    height: 0
+                    BoxLayout:
+                        spacing: 5
+
+                        Label:
+                            size_hint_x: None
+                            width: 50
+                            text: "Find:"
+                            bold: True
+                        TGToggleButton:
+                            id: case_bt
+                            text: "Aa"
+                            bold:True
+                            size_hint_x: None
+                            size: 40, 30
+                            state: "down"
+
+                        TFTextInput:
+                            id: text_filter
+                            multiline: False
+                            on_text:
+                                if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path.encode("utf8") + "*"+"".join(["["+x.upper().encode("utf8")+x.lower().encode("utf8")+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
+                                if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path.encode("utf8") + "*"+self.text.encode("utf8")+"*"; sd_filechooser.filter_dirs = True
+                                if self.text == "": sd_filechooser.filter_dirs = False
+                            on_text_validate:
+                                focus = True
+
+                        Button:
+                            size_hint_x: None
+                            width: 30
+                            background_normal: "data/backgrounds/clear_bt.png"
+                            background_down: "data/backgrounds/clear_bt.png"
+                            on_release:
+                                find_bx.height = 0
+                                sd_filechooser.f = "/*"
+                                text_filter.text = ""
+                                text_filter.focus = False
 
 
         BoxLayout:
