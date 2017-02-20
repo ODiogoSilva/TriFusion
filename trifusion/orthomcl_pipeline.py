@@ -31,7 +31,8 @@ with warnings.catch_warnings():
     import shutil
     import traceback
     import argparse
-    from os.path import abspath, join
+    from os.path import abspath, join, basename
+    from subprocess import PIPE
 
     try:
         from process.base import print_col, GREEN, RED
@@ -68,7 +69,7 @@ def install_schema(db_dir):
     install_sqlite.execute(db_dir)
 
 
-def check_unique_field(proteome_file, verbose=False):
+def check_unique_field(proteome_file, verbose=False, nm=None):
     """
     Checks the original proteome file for a field in the fasta header
     that is unique to all sequences
@@ -80,6 +81,11 @@ def check_unique_field(proteome_file, verbose=False):
 
     header = ""
     for line in file_handle:
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+
         if line.startswith(">"):
             header = line[1:].strip()
             # Store header in list format
@@ -89,6 +95,11 @@ def check_unique_field(proteome_file, verbose=False):
     header_field_size = len(header.split("|"))
 
     for i in range(header_field_size):
+
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+
         temp_list = []
         for header in header_list:
             temp_list.append(header[i])
@@ -164,6 +175,14 @@ def adjust_fasta(file_list, dest, nm=None):
         for f in os.listdir(cf_dir):
             os.remove(join(cf_dir, f))
 
+    # Setup progress information
+    if nm:
+        if nm.stop:
+            KillByUser("")
+        # Get total number of files for total progress
+        nm.total = len(file_list)
+        nm.counter = 0
+
     for proteome in file_list:
         # Get code for proteome
         code_name = proteome.split(os.path.sep)[-1].split(".")[0]
@@ -171,9 +190,11 @@ def adjust_fasta(file_list, dest, nm=None):
         if nm:
             if nm.stop:
                 raise KillByUser("")
+            nm.counter += 1
+            nm.msg = "Adjusting file {}".format(basename(proteome))
 
         # Check the unique ID field
-        unique_id = check_unique_field(proteome, True)
+        unique_id = check_unique_field(proteome, True, nm)
 
         # Adjust fasta
         # stg = prep_fasta(proteome, code_name, unique_id)
@@ -290,11 +311,18 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest,
 
     mcl_output = join(dest, "backstage_files", "mclOutput_")
 
+    if nm:
+        if nm.stop:
+            raise KillByUser("")
+        nm.total = len(inflation_list)
+        nm.counter = 0
+
     for val in inflation_list:
 
         if nm:
             if nm.stop:
                 raise KillByUser("")
+            nm.counter += 1
 
         MclGroups.mcl_to_groups(
             mcl_prefix,
@@ -305,12 +333,16 @@ def mcl_groups(inflation_list, mcl_prefix, start_id, group_file, dest,
 
 
 def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
-                           db, tmp_dir, dest):
+                           db, tmp_dir, dest, nm=None):
 
     print_col("Exporting filtered groups to protein sequence files", GREEN, 1)
 
     stats_storage = {}
     groups_obj = OT.MultiGroupsLight(tmp_dir)
+
+    if nm:
+        if nm.stop:
+            raise KillByUser("")
 
     for val in inflation_list:
         # Create a directory that will store the results for the current
@@ -329,8 +361,9 @@ def export_filtered_groups(inflation_list, group_prefix, gene_t, sp_t, sqldb,
         # Export filtered groups and return stats to present in the app
         stats = group_obj.basic_group_statistics()
         # Retrieve fasta sequences from the filtered groups
-        group_obj.retrieve_sequences(sqldb, db, dest=join(inflation_dir,
-                                                          "Orthologs"))
+        group_obj.retrieve_sequences(sqldb, db,
+                                     dest=join(inflation_dir, "Orthologs"),
+                                     shared_namespace=nm)
         # os.remove(sqldb)
         stats_storage[val] = stats
 

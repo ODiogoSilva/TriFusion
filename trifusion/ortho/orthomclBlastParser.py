@@ -179,20 +179,32 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir, nm):
         #global cur
         cur = con.cursor()
 
-        # parse fasta files
-        genes = get_genes(fasta_dir)
-        blast_fh = open(blast_file, "r")
-
         prev_subjectid = ''
         prev_queryid = ''
         # hash to hold subject info
         subject = {}
+
+        # Set progress information
+        if nm:
+            if nm.stop:
+                raise KillByUser("")
+            total = 0
+            for total, _ in enumerate(open(blast_file)):
+                pass
+            nm.total = total
+            nm.msg = None
+            nm.counter = 0
+
+        # parse fasta files
+        genes = get_genes(fasta_dir)
+        blast_fh = open(blast_file, "r")
 
         for line in blast_fh:
 
             if nm:
                 if nm.stop:
                     raise KillByUser("")
+                nm.counter += 1
 
             splitted = line.split()
 

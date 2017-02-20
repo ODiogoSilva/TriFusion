@@ -12,7 +12,7 @@
 
 #:import load_group_files trifusion.data.resources.background_tasks.load_group_files
 #:import orto_update_filters trifusion.data.resources.background_tasks.orto_update_filters
-#: import TreeViewM trifusion.data.resources.custom_widgets.TreeViewM
+#:import TreeViewM trifusion.data.resources.custom_widgets.TreeViewM
 
 
 <ShowcaseScreen>:
@@ -2111,15 +2111,45 @@
 
 <OrtoProgressDialog>:
     padding: 10
+    spacing: 10
     orientation: "vertical"
 
-    Label:
-        id: msg
-        bold: True
+    Widget:
+        size_hint_y: None
+        height: 10
 
-    ProgressBar:
-        max: 10
-        id: pb
+    GridLayout:
+        cols: 1
+        spacing: 10
+        id: main_grid
+
+        ProgressBox:
+            id: schema
+
+        ProgressBox:
+            id: adjust
+
+        ProgressBox:
+            id: filter
+
+        ProgressBox:
+            id: usearch
+
+
+        ProgressBox:
+            id: parse
+
+        ProgressBox:
+            id: pairs
+
+        ProgressBox:
+            id: mcl
+
+        ProgressBox:
+            id: dump
+
+        ProgressBox:
+            id: filter_groups
 
     BoxLayout:
         size_hint_y: None
