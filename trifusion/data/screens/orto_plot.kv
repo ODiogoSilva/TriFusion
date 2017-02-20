@@ -8,7 +8,7 @@ ShowcaseScreen:
         orientation: "vertical"
         BoxLayout:
             size_hint_y: None
-            height: 90
+            height: 100
             spacing: 5
             AnchorLayout:
                 anchor_x: "left"
@@ -62,7 +62,7 @@ ShowcaseScreen:
                                 Label:
                                     size_hint_y: None
                                     height: 20
-                                    font_size: 13
+                                    font_size: 14
                                     halign: "center"
                                     valign: "middle"
                                     text_size: self.size
@@ -76,13 +76,64 @@ ShowcaseScreen:
                                         step: 1
                                         min: 1
                                         id: gn_spin
+                                BoxLayout:
+                                    size_hint_y: None
+                                    height: 20
+                                    padding: [10, 0, 10, 0]
+                                    Label:
+                                        text: "Min: " + str(int(gn_spin.min))
+                                        text_size: self.size
+                                        halign: "left"
+                                        valign: "middle"
+                                        font_size: 13
+                                        bold: True
+                                        color: .7, .7, .7, 1
+                                    BoxLayout:
+                                        spacing: 5
+                                        Label:
+                                            text: "Value:"
+                                            text_size: self.size
+                                            halign: "right"
+                                            valign: "middle"
+                                            font_size: 13
+                                            bold: True
+                                            color: app._blue
+                                        TextInput:
+                                            text: str(int(gn_spin.value))
+                                            background_color: (1, 1, 1, 0)
+                                            foreground_color: app._blue
+                                            text_size: self.size
+                                            font_size: 13
+                                            text_height: 15
+                                            padding: 0,1,0,0
+                                            input_filter: "int"
+                                            multiline: False
+                                            on_text_validate:
+                                                print(self.text)
+                                                if self.text.strip() == "":\
+                                                self.text = str(gn_spin.value)
+                                                elif int(self.text) < gn_spin.min:\
+                                                gn_spin.value = gn_spin.min
+                                                elif int(self.text) > gn_spin.max:\
+                                                gn_spin.value = gn_spin.max; self.text = str(gn_spin.max)
+                                                else:\
+                                                gn_spin.value = int(self.text);
+
+                                    Label:
+                                        text: "Max: " + str(int(gn_spin.max))
+                                        text_size: self.size
+                                        halign: "right"
+                                        valign: "middle"
+                                        font_size: 13
+                                        bold: True
+                                        color: .7, .7, .7, 1
 
                             BoxLayout:
                                 orientation: "vertical"
                                 Label:
                                     size_hint_y: None
                                     height: 20
-                                    font_size: 13
+                                    font_size: 14
                                     halign: "center"
                                     valign: "middle"
                                     text_size: self.size
@@ -96,6 +147,55 @@ ShowcaseScreen:
                                         step: 1
                                         min: 1
                                         id: sp_spin
+                                BoxLayout:
+                                    size_hint_y: None
+                                    height: 20
+                                    padding: [10, 0, 10, 0]
+                                    Label:
+                                        text: "Min: " + str(int(sp_spin.min))
+                                        text_size: self.size
+                                        halign: "left"
+                                        valign: "middle"
+                                        font_size: 13
+                                        bold: True
+                                        color: .7, .7, .7, 1
+                                    BoxLayout:
+                                        spacing: 5
+                                        Label:
+                                            text: "Value:"
+                                            text_size: self.size
+                                            halign: "right"
+                                            valign: "middle"
+                                            font_size: 13
+                                            bold: True
+                                            color: app._blue
+                                        TextInput:
+                                            text: str(int(sp_spin.value))
+                                            background_color: (1, 1, 1, 0)
+                                            foreground_color: app._blue
+                                            text_size: self.size
+                                            font_size: 13
+                                            text_height: 15
+                                            padding: 0,1,0,0
+                                            input_filter: "int"
+                                            multiline: False
+                                            on_text_validate:
+                                                if self.text.strip() == "":\
+                                                self.text = str(sp_spin.value)
+                                                elif int(self.text) < sp_spin.min:\
+                                                sp_spin.value = sp_spin.min
+                                                elif int(self.text) > sp_spin.max:\
+                                                sp_spin.value = sp_spin.max; self.text = str(sp_spin.max)
+                                                else:\
+                                                sp_spin.value = int(self.text);
+                                    Label:
+                                        text: "Max: " + str(int(sp_spin.max))
+                                        text_size: self.size
+                                        halign: "right"
+                                        valign: "middle"
+                                        font_size: 13
+                                        bold: True
+                                        color: .7, .7, .7, 1
 
                     Vseparator:
                         thickness: 1.5
