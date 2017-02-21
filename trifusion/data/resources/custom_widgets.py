@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 #
 #  Copyright 2012 Unknown <diogo@arch>
 #
@@ -147,13 +148,7 @@ class LinkedLabel(Label):
         for d in path_list:
             p = join(p, d)
             if p != sep:
-                if sys.platform in ["win32", "cygwin"]:
-                    s += u"[ref={}]{}[/ref]".format(p, d) + sep
-                else:
-                    try:
-                        s += "[ref={}]{}[/ref]".format(p, d) + sep
-                    except UnicodeEncodeError:
-                        s += u"[ref={}]{}[/ref]".format(p, d) + sep
+                s += u"[ref={}]{}[/ref]".format(p, d) + sep
 
         return s[:-1]
 
@@ -241,10 +236,10 @@ class FileChooserL(FileChooserListView):
             # If entry.path is to jump to previous directory, update path with
             # parent directory
             if entry.path == "../" or entry.path == "..\\":
-                self.path = abspath(join(self.path, pardir))
+                self.path = unicode(abspath(join(self.path, pardir)))
                 self.selection = []
             else:
-                self.path = join(self.path, entry.path)
+                self.path = unicode(join(self.path, entry.path))
                 self.selection = []
 
     def entry_touched(self, entry, touch):
@@ -452,10 +447,10 @@ class FileChooserM(FileChooserListView):
             # If entry.path is to jump to previous directory, update path with
             # parent directory
             if entry.path == "../" or entry.path == "..\\":
-                self.path = abspath(join(self.path, pardir))
+                self.path = unicode(abspath(join(self.path, pardir)))
                 self.selection = []
             else:
-                self.path = join(self.path, entry.path)
+                self.path = unicode(join(self.path, entry.path))
                 self.selection = []
 
     def entry_released(self, entry, touch):

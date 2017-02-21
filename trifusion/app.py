@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 #
 #  Copyright 2012 Unknown <diogo@arch>
 #
@@ -254,7 +255,7 @@ class TriFusionApp(App):
     active_taxa_list = ListProperty()
 
     # Attribute to the home path
-    home_path = expanduser("~")
+    home_path = unicode(expanduser("~"))
 
     # Attribute with bookmarks for file chooser. The bookmark attribute is a
     # list containing a list with the full path of the bookmarks as the
@@ -1186,7 +1187,7 @@ class TriFusionApp(App):
         try:
             self.screen.ids.path_bx.children[0].text = path
             self.screen.ids.icon_view_tab.path = path
-        # When in popup, do this
+        # When in popup, do thissd_filechooser
         except AttributeError:
             try:
                 self._popup.content.ids.path_bx.children[0].text = path
@@ -2105,7 +2106,7 @@ class TriFusionApp(App):
 
         def path_updater():
             if os.path.exists(txt.text):
-                fc_wgt.path = txt.text
+                fc_wgt.path = unicode(txt.text)
                 fc_wgt.previous_dir.append(fc_wgt.path)
             else:
                 return self.dialog_floatcheck(
@@ -2138,7 +2139,7 @@ class TriFusionApp(App):
                 "The specified folder already exists", t="error")
         else:
             os.makedirs(dir_name)
-            self._popup.content.ids.sd_filechooser.path = dir_name
+            self._popup.content.ids.sd_filechooser.path = unicode(dir_name)
             self.dismiss_subpopup()
 
     # ######################### SCREEN NAVIGATION ##########################
@@ -2782,7 +2783,7 @@ class TriFusionApp(App):
                 wgt.previous_dir.append(wgt.path)
             except KeyError:
                 pass
-            wgt.path = path
+            wgt.path = unicode(path)
             wgt.selection = []
         else:
             self.dialog_floatcheck(
@@ -6705,8 +6706,8 @@ class TriFusionApp(App):
                              bookmark_init=self.bookmark_init)
 
         # Set the path from previously imported groups, if any
-        content.ids.sd_filechooser.path = self.orto_export_dir if \
-            self.orto_export_dir else self.home_path
+        content.ids.sd_filechooser.path = unicode(self.orto_export_dir) if \
+            self.orto_export_dir else unicode(self.home_path)
 
         if idx == "nucleotide" or idx == "protein":
             content.ids.txt_box.clear_widgets()
@@ -6890,7 +6891,7 @@ class TriFusionApp(App):
                              bookmark_init=self.bookmark_init)
 
         # Set the path from previously imported groups, if any
-        content.ids.sd_filechooser.path = self.orto_export_dir if \
+        content.ids.sd_filechooser.path = unicode(self.orto_export_dir) if \
             self.orto_export_dir else self.home_path
 
         title = "Generate full report in directory..."
@@ -8354,7 +8355,8 @@ class TriFusionApp(App):
         # as a starting point for the partition file chooser. Otherwise,
         # use the home path
         if self.file_list:
-            content.ids.sd_filechooser.path = dirname(self.file_list[0])
+            content.ids.sd_filechooser.path = unicode(
+                dirname(self.file_list[0]))
         else:
             content.ids.sd_filechooser.path = self.home_path
 
@@ -8477,7 +8479,7 @@ class TriFusionApp(App):
         # Custom behaviour for orthology output directory
         elif idx == "ortho_dir":
             if self.ortho_dir:
-                content.ids.sd_filechooser.path = self.ortho_dir
+                content.ids.sd_filechooser.path = unicode(self.ortho_dir)
 
         if idx == "cds_db":
             content.ids.sd_filechooser.multiselect = True

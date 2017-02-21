@@ -1,4 +1,5 @@
 #!/usr/bin/python2
+# -*- coding: utf-8 -*-
 
 try:
     from process.error_handling import KillByUser
