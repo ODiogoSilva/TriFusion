@@ -1293,7 +1293,7 @@ class TriFusionApp(App):
                     if self._popup.content.ids.find_bx.height == 30:
                         Animation(height=0, d=.3, t="out_quart").start(
                             self._popup.content.ids.find_bx)
-                        self._popup.content.ids.sd_filechooser.f = "/*"
+                        self._popup.content.ids.sd_filechooser.f = "*"
                         self._popup.content.ids.text_filter.text = ""
                         self._popup.content.ids.text_filter.focus = False
                     else:
@@ -2131,7 +2131,7 @@ class TriFusionApp(App):
     def create_folder(self, text):
 
         path = self._popup.content.ids.sd_filechooser.path
-        dir_name = join(path, text.encode("utf8"))
+        dir_name = join(path, text)
 
         if os.path.exists(dir_name):
             return self.dialog_floatcheck(

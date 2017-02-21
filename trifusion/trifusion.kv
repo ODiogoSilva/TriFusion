@@ -3696,7 +3696,7 @@
                     previous_dir: []
                     text: "master"
                     dirselect: True
-                    f: "/*"
+                    f: sd_filechooser.path + sep + "*"
                     filters: [self.f]
                     filter_dirs: False
                     path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
@@ -3736,8 +3736,8 @@
                             id: text_filter
                             multiline: False
                             on_text:
-                                if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path.encode("utf8") + "*"+"".join(["["+x.upper().encode("utf8")+x.lower().encode("utf8")+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
-                                if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path.encode("utf8") + "*"+self.text.encode("utf8")+"*"; sd_filechooser.filter_dirs = True
+                                if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
+                                if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path + "*"+self.text+"*"; sd_filechooser.filter_dirs = True
                                 if self.text == "": sd_filechooser.filter_dirs = False
                             on_text_validate:
                                 focus = True
@@ -3748,12 +3748,10 @@
                             background_normal: "data/backgrounds/clear_bt.png"
                             background_down: "data/backgrounds/clear_bt.png"
                             on_release:
-                                find_bx.height = 0
-                                sd_filechooser.f = "/*"
+                                find_bx.height = 0;
+                                sd_filechooser.f = "*"
                                 text_filter.text = ""
                                 text_filter.focus = False
-
-
         BoxLayout:
             id: txt_box
             orientation: "horizontal"
