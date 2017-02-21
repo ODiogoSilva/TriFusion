@@ -1,5 +1,10 @@
 #!/usr/bin/python2
+# -*- coding: utf-8 -*-
 
+import sys
+
+reload(sys)
+sys.setdefaultencoding("utf8")
 
 def gui_exec():
 
