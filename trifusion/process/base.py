@@ -176,9 +176,9 @@ class Base(object):
             autofind = "nexus"
             format_found = True
             while True:
-                line = file_handle.readline()
+                line = next(file_handle)
                 if line.strip().lower() == "matrix":
-                    next_line = file_handle.readline()
+                    next_line = next(file_handle)
                     sequence = "".join(next_line.split()[1:]).strip()
                     break
 
