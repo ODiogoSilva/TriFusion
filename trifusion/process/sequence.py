@@ -431,10 +431,6 @@ class Alignment(Base):
         if not self.cur.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND"
                 " name='{}'".format(self.table_name)).fetchall():
-            self.cur.execute("CREATE TABLE {}("
-                             "txId INT,"
-                             "taxon TEXT,"
-                             "seq TEXT)".format(self.table_name))
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -444,6 +440,13 @@ class Alignment(Base):
             if isinstance(finder_content, Exception) is False:
                 self.input_format, self.sequence_code = self.autofinder(
                     input_alignment)
+
+                # Create database table when there are no issues in the
+                # recognition of the file format and sequence code
+                self.cur.execute("CREATE TABLE {}("
+                                 "txId INT,"
+                                 "taxon TEXT,"
+                                 "seq TEXT)".format(self.table_name))
 
                 # In case the input format is specified, overwrite the
                 # attribute
@@ -787,9 +790,9 @@ class Alignment(Base):
             present_taxa = []
 
             for line in file_handle:
-                if line.strip().startswith(">"):
+                if not line.strip().startswith("//") and line.strip() != "":
                     fields = line.strip().split()
-                    taxon = fields[0][1:]
+                    taxon = fields[0].lstrip(">")
                     present_taxa.append(taxon)
                     sequence_data[taxon].append(fields[1].lower())
 
@@ -3053,7 +3056,8 @@ class AlignmentList(Base):
                 self.set_partition_from_alignment(aln_obj)
                 self.path_list.append(aln_obj.path)
 
-        self.taxa_names = self._get_taxa_list()
+        if self.alignments:
+            self.taxa_names = self._get_taxa_list()
 
     def retrieve_alignment(self, name):
         """
