@@ -857,8 +857,8 @@ class Alignment(Base):
 
                     # This accommodates for the interleave format
                     if taxa in sequence_data:
-                        sequence_data[taxa].append(line.strip().
-                                                    lower().split()[1:])
+                        sequence_data[taxa].extend(line.strip().
+                                                   lower().split()[1:])
                     else:
                         sequence_data[taxa] = line.strip().lower().split()[1:]
 
@@ -2388,20 +2388,16 @@ class Alignment(Base):
                 if not interleave_storage:
                     interleave_storage = get_interleave_data()
 
-                write_tx = True
                 for seq_data in interleave_storage:
 
                     for p, seq in enumerate(seq_data):
-                        if write_tx:
-                            out_file.write("{} {}\n".format(
-                                self.taxa_list[p][:cut_space_nex].ljust(
-                                    seq_space_nex), seq.upper()))
-                        else:
-                            out_file.write(seq.upper() + "\n")
+                        out_file.write("{} {}\n".format(
+                            self.taxa_list[p][:cut_space_nex].ljust(
+                                seq_space_nex), seq.upper()))
 
-                    write_tx = False
                     out_file.write("\n")
 
+                out_file.write(";\n\tend;")
                 
                 # counter = 0
                 # for i in range(0, self.locus_length, 90):
