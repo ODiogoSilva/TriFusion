@@ -154,8 +154,10 @@ class Base(object):
 
     def autofinder(self, reference_file):
         """ Autodetect the type of file to be parsed. Based on headers """
-        sequence = ""
+
         file_handle = open(reference_file, "r")
+        # Set to True when the format has been detected
+        format_found = False
 
         # If input file is not a simple text file, which means it"s invalid,
         # handle this exception
@@ -172,6 +174,7 @@ class Base(object):
         # "#NEXUS" in the first non-empty line
         if header.upper().strip().startswith("#NEXUS"):
             autofind = "nexus"
+            format_found = True
             while True:
                 line = file_handle.readline()
                 if line.strip().lower() == "matrix":
@@ -184,6 +187,7 @@ class Base(object):
         elif header.upper().strip().startswith("# STOCKHOLM") or \
                 header.upper().strip().startswith("#STOCKHOLM"):
             autofind = "stockholm"
+            format_found = True
             while True:
                 line = file_handle.readline()
                 if not line.startswith("#") and line.strip() != "":
@@ -196,9 +200,11 @@ class Base(object):
             next_line = next(file_handle)
             if next_line.strip().startswith(">"):
                 autofind = "loci"
+                format_found = True
                 sequence = header.split()[-1].strip()
             else:
                 autofind = "fasta"
+                format_found = True
                 sequence = next_line.strip()
                 for line in file_handle:
                     if line.strip() != "" and line.strip()[0] != ">":
@@ -212,11 +218,26 @@ class Base(object):
                 .isdigit() and header.strip().split()[1].isdigit():
 
             autofind = "phylip"
+            format_found = True
             sequence = "".join(file_handle.readline().split()[1:]).strip()
+
+        # Recognition of ipyrad loci file, which does not start with a ">"
+        # character
+        if not format_found:
+            while not header.startswith("//"):
+                try:
+                    header = next(file_handle)
+                except StopIteration:
+                    break
+                if header.startswith("//"):
+                    if header.count("|") == 2:
+                        autofind = "loci"
+                        format_found = True
+                        sequence = next(file_handle).split()[1]
 
         # Check if there is any sequence. If not, the alignment file has no
         # sequence
-        else:
+        if not format_found:
             return InputError("Unknown input file format.")
         if sequence.replace("-", "") == "":
             return EmptyAlignment("Alignment is empty")
@@ -238,8 +259,8 @@ class Base(object):
         taxa_list = []
 
         for line in file_handle:
-            if line.strip().startswith(">"):
-                taxon = line.strip().split()[0][1:]
+            if not line.strip().startswith("//") and line.strip() != "":
+                taxon = line.strip().split()[0].lstrip(">")
                 if taxon not in taxa_list:
                     taxa_list.append(taxon)
 
