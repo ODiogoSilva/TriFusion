@@ -1301,6 +1301,15 @@ class TriFusionApp(App):
                         Animation(height=30, d=.3, t="out_quart").start(
                             self._popup.content.ids.find_bx)
 
+        # Toggle path editor
+        if self._popup in self.root_window.children:
+            if "path_toggle" in self._popup.content.ids:
+                if modifier == "ctrl" and key_code == 108:
+                    st = self._popup.content.ids.path_toggle.state
+                    self._popup.content.ids.path_toggle.state = \
+                        "down" if st != "down" else "normal"
+                    self._popup.content.ids.path_toggle.dispatch("on_release")
+
         if self._popup in self.root_window.children:
             if "text_filter" in self._popup.content.ids:
                 # Ctrl + f toggles focus on find text input field
