@@ -146,14 +146,15 @@ def prep_fasta(proteome_file, code, unique_id, verbose=False, nm=None):
         if line.startswith(">"):
             if line not in header_list:
                 fields = line.split("|")
-                seq_storage["%s|%s" % (code, fields[unique_id])] = ""
+                unique_str = fields[unique_id].replace(" ", "_")
+                seq_storage["%s|%s" % (code, unique_str)] = ""
                 header_list.append(line)
-                file_out.write(">%s|%s\n" % (code, fields[unique_id]))
+                file_out.write(">%s|%s\n" % (code, unique_str))
                 lock = True
             else:
                 lock = False
         elif lock:
-            seq_storage["%s|%s" % (code, fields[unique_id])] += line.strip()
+            seq_storage["%s|%s" % (code, unique_str)] += line.strip()
             file_out.write(line)
 
     # Close file handles:
