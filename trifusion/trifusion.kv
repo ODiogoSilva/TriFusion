@@ -2957,8 +2957,8 @@
                     dirselect: True
                     multiselect: True
                     path: app.home_path
-                    f: "/*"
-                    filters: [self.path.encode("ascii")+self.f]
+                    f: sd_filechooser.path + "*"
+                    filters: [self.f]
                     filter_dirs: False
                     on_double_click:
                         ok_bt.dispatch("on_release")
@@ -2994,8 +2994,8 @@
                         id: text_filter
                         multiline: False
                         on_text:
-                            if case_bt.state == "down": sd_filechooser.f = "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
-                            if case_bt.state == "normal": sd_filechooser.f = "*"+self.text+"*"; sd_filechooser.filter_dirs = True
+                            if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
+                            if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path + "*"+self.text+"*"; sd_filechooser.filter_dirs = True
                             if self.text == "": sd_filechooser.filter_dirs = False
 
                         on_text_validate:
@@ -3696,7 +3696,7 @@
                     previous_dir: []
                     text: "master"
                     dirselect: True
-                    f: sd_filechooser.path + sep + "*"
+                    f: sd_filechooser.path + "*"
                     filters: [self.f]
                     filter_dirs: False
                     path: app.output_dir if app.output_dir else app._common_path() if app._common_path() else app.home_path
