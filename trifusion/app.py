@@ -10234,6 +10234,7 @@ class TriFusionApp(App):
             wgt.ids.main_lbl.text = tasks_map[op_name]
             wgt.ids.secondary_lbl.text = ""
             wgt.ids.secondary_lbl.color = (.7, .7, .7, 1)
+            closed_ops.append(op_name)
 
         def start_op(wgt):
             wgt.ids.load_box.clear_widgets()
@@ -10299,6 +10300,17 @@ class TriFusionApp(App):
                         # Check if the task defined in the previous cycle is
                         # the same as the current task. If not, do this
                         if shared_ns.task != current_op[0]:
+                            # Check if all finished tasks where closed
+                            print([x for x in shared_ns.finished_tasks
+                                       if x not in closed_ops])
+                            for op in [x for x in shared_ns.finished_tasks
+                                       if x not in closed_ops]:
+                                # This will get previously finished tasks
+                                # that were completed sooner
+                                if op != current_op[0]:
+                                    print(op)
+                                    pwgt = content.ids[op]
+                                    finish_op(pwgt, op)
                             # Get the previous task progress widget
                             pwgt = content.ids[current_op[0]]
                             # Finish animation for previous task
@@ -10395,6 +10407,7 @@ class TriFusionApp(App):
         shared_ns.counter = 0
         shared_ns.msg = None
         current_op = []
+        closed_ops = []
 
         # Remove lock from background process
         self.terminate_orto_search = False
