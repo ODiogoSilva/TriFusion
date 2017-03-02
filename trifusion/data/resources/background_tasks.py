@@ -185,14 +185,18 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
     """
 
     try:
+        nm.finished_tasks = []
+
         nm.task = "schema"
         ortho_pipe.install_schema(temp_dir)
+        nm.finished_tasks = ["schema"]
 
         if nm.stop:
             raise KillByUser("")
 
         nm.task = "adjust"
         ortho_pipe.adjust_fasta(proteome_files, ortho_dir, nm)
+        nm.finished_tasks = ["schema", "adjust"]
 
         if nm.stop:
             raise KillByUser("")
@@ -200,6 +204,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.task = "filter"
         ortho_pipe.filter_fasta(protein_min_len, protein_max_stop,
                                 usearch_db, ortho_dir, nm)
+        nm.finished_tasks = ["schema", "adjust", "filter"]
 
         if nm.stop:
             raise KillByUser("")
@@ -208,12 +213,15 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         ortho_pipe.allvsall_usearch(usearch_db, usearch_evalue, ortho_dir,
                                     usearch_threads, usearch_output,
                                     usearch_bin=usearch_file, nm=nm)
+        nm.finished_tasks = ["schema", "adjust", "filter", "usearch"]
+
         if nm.stop:
             raise KillByUser("")
 
         nm.task = "parse"
         ortho_pipe.blast_parser(usearch_output, ortho_dir,
                                 db_dir=temp_dir, nm=nm)
+        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse"]
 
         if nm.stop:
             raise KillByUser("")
@@ -221,12 +229,16 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.task = "pairs"
         ortho_pipe.pairs(temp_dir, nm=nm)
         ortho_pipe.dump_pairs(temp_dir, ortho_dir, nm=nm)
+        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",
+                             "pairs"]
 
         if nm.stop:
             raise KillByUser("")
 
         nm.task = "mcl"
         ortho_pipe.mcl(mcl_inflation, ortho_dir, mcl_file=mcl_file, nm=nm)
+        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",
+                             "pairs", "mcl"]
 
         if nm.stop:
             raise KillByUser("")
@@ -234,6 +246,8 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
         nm.task = "dump"
         ortho_pipe.mcl_groups(mcl_inflation, ortholog_prefix, "1000",
                               group_prefix, ortho_dir, nm=nm)
+        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",
+                             "pairs", "mcl", "dump"]
 
         if nm.stop:
             raise KillByUser("")
@@ -248,6 +262,8 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             join(ortho_dir, "backstage_files", usearch_db),
             temp_dir,
             ortho_dir, nm=nm)
+        nm.finished_tasks = ["schema", "adjust", "filter", "usearch", "parse",
+                             "pairs", "mcl", "dump", "filter_groups"]
 
         if nm.stop:
             raise KillByUser("")
