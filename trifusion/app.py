@@ -10872,8 +10872,12 @@ def main():
         if sys.platform == "linux2":
             mcl_path = os.path.join("data", "resources", "mcl", "linux", "mcl")
         elif sys.platform in ["win32", "cygwin"]:
-            mcl_path = os.path.join("data", "resources", "mcl", "windows",
-                                    "mcl")
+            if platform.architecture()[0] == "64bit":
+                mcl_path = os.path.join("data", "resources", "mcl", "windows",
+                                        "64bit", "mcl64.exe")
+            else:
+                mcl_path = os.path.join("data", "resources", "mcl", "windows",
+                                        "32bit", "mcl32.exe")
 
         # One-file
         try:
