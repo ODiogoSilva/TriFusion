@@ -3304,7 +3304,9 @@ class TriFusionApp(App):
 
         # Automatically set the default orthology directory as the same
         # directory of the input files
-        self.ortho_dir = self._common_path(file_list)
+        # Remove potential trailing dir separators that prevent
+        # basename from finding the last dir name
+        self.ortho_dir = self._common_path(file_list).rstrip(sep)
 
         if list(bad_proteomes.values()) != [[], [], []]:
             msg = ""
