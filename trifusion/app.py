@@ -3008,7 +3008,8 @@ class TriFusionApp(App):
                 and not partition_box \
                 and not self.sp_moreopts:
 
-            if self.screen.name == "Process":
+            if self.screen.name == "Process" or \
+                            self.screen.name == "Orthology":
                 queue_bt = self.screen.ids.queue_bt
                 if queue_bt.collide_point(mp[0], mp[1]) is False:
                     animate_sidebar()
