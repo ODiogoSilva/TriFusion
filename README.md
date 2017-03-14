@@ -1,3 +1,9 @@
+## Warning
+
+TriFusion is still in active development, so the releases are quite a bit out of date 
+and the install scripts and steps may not be properly working. If you have any issues,
+please contact me directly.
+
 ## TriFusion
 
 Website: http://odiogosilva.github.io/TriFusion/
