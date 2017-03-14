@@ -90,7 +90,8 @@ try:
     from ortho import protein2dna
     from process.base import Base
     from process.data import Partitions, InvalidPartitionFile
-    from process.error_handling import EmptyAlignment, EmptyData, KillByUser
+    from process.error_handling import EmptyAlignment, EmptyData, KillByUser, \
+        SingleAlignment
     from process.sequence import AlignmentList
     from data.resources.info_data import orthology_plots, \
         informative_storage
@@ -111,7 +112,7 @@ except ImportError:
     from trifusion.process.base import Base
     from trifusion.process.data import Partitions, InvalidPartitionFile
     from trifusion.process.error_handling import EmptyAlignment, EmptyData, \
-        KillByUser
+        KillByUser, SingleAlignment
     from trifusion.process.sequence import AlignmentList
     from trifusion.data.resources.info_data import orthology_plots, \
         informative_storage
@@ -9190,6 +9191,11 @@ class TriFusionApp(App):
                     self.screen.ids.plot_content.clear_widgets()
                     return self.dialog_floatcheck(
                         "No data available for plotting", t="error")
+                elif plot_data["exception"] is SingleAlignment:
+                    self.screen.ids.plot_content.clear_widgets()
+                    return self.dialog_floatcheck(
+                        "Selected plot cannot be executed on single "
+                        "alignments", t="error")
 
             # Set new plot attributes
             self.current_plot, self.current_lgd, self.current_table = \

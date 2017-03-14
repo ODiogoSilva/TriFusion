@@ -39,7 +39,7 @@ try:
     from process.data import PartitionException
     from process.error_handling import DuplicateTaxa, KillByUser, \
         InvalidSequenceType, EmptyData, InputError, EmptyAlignment, \
-        MultipleSequenceTypes
+        MultipleSequenceTypes, SingleAlignment
 except ImportError:
     import trifusion.process as process
     from trifusion.process.base import dna_chars, aminoacid_table, iupac, \
@@ -48,7 +48,7 @@ except ImportError:
     from trifusion.process.data import PartitionException
     from trifusion.process.error_handling import DuplicateTaxa, KillByUser, \
         InvalidSequenceType, EmptyData, InputError, EmptyAlignment, \
-        MultipleSequenceTypes
+        MultipleSequenceTypes, SingleAlignment
 
 # import pickle
 # TODO: Create a SequenceSet class for sets of sequences that do not conform
@@ -139,6 +139,12 @@ class CheckData(object):
         self.func = func
 
     def __call__(self, *args, **kwargs):
+
+        # Calling outlier method with a single alignments should immediately
+        # raise an exception
+        if self.func.__name__.startswith("outlier_"):
+            if len(args[0].alignments) == 1:
+                return {"exception": SingleAlignment}
 
         res = self.func(*args, **kwargs)
 
