@@ -6,6 +6,7 @@ except ImportError:
     from setuptools import setup
 
 import sys
+import platform
 
 with open('README.md') as f:
     readme = f.read()
@@ -24,7 +25,16 @@ def mcl_data_files():
         data_file = ["trifusion/data/resources/mcl/linux/mcl"]
 
     elif sys.platform in ["win32", "cygwin"]:
-        data_file = ["trifusion/data/resources/mcl/windows/mcl64.exe"]
+        if platform.architecture()[0] == "64bit":
+            data_file = ["trifusion/data/resources/mcl/windows/64bit/"
+                         "mcl64.exe",
+                         "trifusion/data/resources/mcl/windows/64bit/"
+                         "cygwin1.dll"]
+        else:
+            data_file = ["trifusion/data/resources/mcl/windows/32bit/"
+                         "mcl32.exe",
+                         "trifusion/data/resources/mcl/windows/32bit/"
+                         "cygwin1.dll"]
 
     return data_file
 
