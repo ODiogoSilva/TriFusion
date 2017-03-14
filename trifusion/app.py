@@ -979,7 +979,6 @@ class TriFusionApp(App):
         else:
             mcl_string = "mcl"
 
-
         # Check if MCL_FILE has been set. This happens when running TriFusion
         # from the executable binary.
         if MCL_FILE:
@@ -994,21 +993,28 @@ class TriFusionApp(App):
             if sys.platform in ["win32", "cygwin"]:
                 # For Windows 64bit
                 if platform.architecture()[0] == "64bit":
-                    mcl_path = join(mcl_dir, "windows", "mcl64.exe")
-                    dll_path = join(mcl_dir, "windows", "cygwin1.dll")
-                    # Copy mcl executable to trifusion dir
-                    shutil.copyfile(mcl_path, join(self.user_data_dir,
-                                                   mcl_string))
-                    mcl_file = join(self.user_data_dir, mcl_string)
-                    # Copy dll necessary in windows version
-                    shutil.copyfile(dll_path, join(self.user_data_dir,
-                                                   "cygwin1.dll"))
-                    # Make mcl executable
-                    st = os.stat(mcl_file)
-                    os.chmod(mcl_file, st.st_mode | stat.S_IEXEC)
-                    # Test mcl executable
-                    if self._check_exec(mcl_file, "mcl"):
-                        self.mcl_file = mcl_file
+                    mcl_path = join(mcl_dir, "windows", "64bit", "mcl64.exe")
+                    dll_path = join(mcl_dir, "windows", "64bit",
+                                    "cygwin1.dll")
+                # For Windows 32bit
+                else:
+                    mcl_path = join(mcl_dir, "windows", "32bit", "mcl32.exe")
+                    dll_path = join(mcl_dir, "windows", "32bit",
+                                    "cygwin1.dll")
+
+                # Copy mcl executable to trifusion dir
+                shutil.copyfile(mcl_path, join(self.user_data_dir,
+                                               mcl_string))
+                mcl_file = join(self.user_data_dir, mcl_string)
+                # Copy dll necessary in windows version
+                shutil.copyfile(dll_path, join(self.user_data_dir,
+                                               "cygwin1.dll"))
+                # Make mcl executable
+                st = os.stat(mcl_file)
+                os.chmod(mcl_file, st.st_mode | stat.S_IEXEC)
+                # Test mcl executable
+                if self._check_exec(mcl_file, "mcl"):
+                    self.mcl_file = mcl_file
         else:
             # If not in app_dir check is its reachable system-wide by
             # subprocess
@@ -3002,7 +3008,8 @@ class TriFusionApp(App):
                 and not partition_box \
                 and not self.sp_moreopts:
 
-            if self.screen.name == "Process":
+            if self.screen.name == "Process" or \
+                            self.screen.name == "Orthology":
                 queue_bt = self.screen.ids.queue_bt
                 if queue_bt.collide_point(mp[0], mp[1]) is False:
                     animate_sidebar()
@@ -3297,7 +3304,9 @@ class TriFusionApp(App):
 
         # Automatically set the default orthology directory as the same
         # directory of the input files
-        self.ortho_dir = self._common_path(file_list)
+        # Remove potential trailing dir separators that prevent
+        # basename from finding the last dir name
+        self.ortho_dir = self._common_path(file_list).rstrip(sep)
 
         if list(bad_proteomes.values()) != [[], [], []]:
             msg = ""
@@ -10866,8 +10875,12 @@ def main():
         if sys.platform == "linux2":
             mcl_path = os.path.join("data", "resources", "mcl", "linux", "mcl")
         elif sys.platform in ["win32", "cygwin"]:
-            mcl_path = os.path.join("data", "resources", "mcl", "windows",
-                                    "mcl")
+            if platform.architecture()[0] == "64bit":
+                mcl_path = os.path.join("data", "resources", "mcl", "windows",
+                                        "64bit", "mcl64.exe")
+            else:
+                mcl_path = os.path.join("data", "resources", "mcl", "windows",
+                                        "32bit", "mcl32.exe")
 
         # One-file
         try:
