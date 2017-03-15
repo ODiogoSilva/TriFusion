@@ -29,6 +29,7 @@ with warnings.catch_warnings():
     import shutil
     import time
     import argparse
+    from progressbar import ProgressBar, Timer, Bar, Percentage, SimpleProgress
     from glob import glob
 
     try:
@@ -44,6 +45,17 @@ with warnings.catch_warnings():
         from trifusion.process.error_handling import *
 
 
+def gen_wgt(msg):
+
+    bar_wdg = [
+        "( ", SimpleProgress(), " ) ",
+        Bar(),
+        Percentage(),
+        " [", Timer(), "] ",
+    ]
+
+    return bar_wdg
+
 @CleanUp
 def main_parser(alignment_list, arg):
     """ Function with the main operations of TriSeq """
@@ -52,8 +64,14 @@ def main_parser(alignment_list, arg):
         time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN)
 
     # Create temp directory
-    if not os.path.exists(".tmp"):
-        os.makedirs(".tmp")
+    tmp_dir = ".trifusion-temp"
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+
+    # Set path to temporary sqlite database
+    sql_db = os.path.join(tmp_dir, "trifusion.db")
+
+    pbar = ProgressBar(max_value=len(alignment_list), widgets=gen_wgt(""))
 
     # Defining main variables
     conversion = arg.conversion
@@ -68,6 +86,8 @@ def main_parser(alignment_list, arg):
         outfile = "".join(arg.outfile)
     elif conversion is None and arg.outfile is not None:
         outfile = "".join(arg.outfile)
+    elif arg.consensus and arg.consensus_single and not arg.outfile:
+        outfile = "consensus"
     elif conversion is not None and arg.outfile is None:
         outfile = "".join(alignment_list).split(".")[0]
 
@@ -92,9 +112,11 @@ def main_parser(alignment_list, arg):
 
     # Input alignments are mandatory from now on
     print_col("Parsing %s alignments" % len(alignment_list), GREEN)
-    alignments = seqset.AlignmentList(alignment_list, dest=".tmp/")
 
-    # ################################ Utilities ###############################
+    alignments = seqset.AlignmentList(alignment_list, sql_db=sql_db,
+                                      pbar=pbar)
+
+    # ################################ Utilities ##############################
     # Return a file with taxa list and exit
     if arg.get_taxa is True:
         print_col("Writing taxa to new file", GREEN)
@@ -124,7 +146,7 @@ def main_parser(alignment_list, arg):
 
             return
 
-    # ############################# Main operations ############################
+    # ############################# Main operations ###########################
     # Reverse concatenation
     if arg.reverse is not None:
         print_col("Reverse concatenating", GREEN)
@@ -137,23 +159,23 @@ def main_parser(alignment_list, arg):
         partition.read_from_file(arg.reverse)
         # Updating alignment partitions
         aln.set_partitions(partition)
-        alignments = aln.reverse_concatenate()
+        alignments = aln.reverse_concatenate(pbar=pbar)
 
     # Filtering
     # Filter by minimum taxa
     if arg.min_taxa:
         print_col("Filtering by minimum taxa", GREEN)
-        alignments.filter_min_taxa(arg.min_taxa)
+        alignments.filter_min_taxa(arg.min_taxa, pbar=pbar)
 
     # Filter by alignments that contain taxa
     if arg.contain_filter:
         print_col("Filtering alignment(s) including a taxa group", GREEN)
-        alignments.filter_by_taxa("Containing", arg.contain_filter)
+        alignments.filter_by_taxa("Contain", arg.contain_filter, pbar=pbar)
 
     # Filter by alignments that exclude taxa
     if arg.exclude_filter:
         print_col("Filtering alignments excluding a taxa group", GREEN)
-        alignments.filter_by_taxa("Exclude", arg.exclude_filter)
+        alignments.filter_by_taxa("Exclude", arg.exclude_filter, pbar=pbar)
 
     # Filter by codon position
     if arg.codon_filter:
@@ -161,19 +183,20 @@ def main_parser(alignment_list, arg):
         if alignments.sequence_code[0] == "DNA":
             codon_settings = [True if x in arg.codon_filter else False for x in
                               range(1, 4)]
-            alignments.filter_codon_positions(codon_settings)
+            alignments.filter_codon_positions(codon_settings, pbar=pbar)
 
     # Filter by missing data
     if arg.m_filter:
         print_col("Filtering by missing data", GREEN)
-        alignments.filter_missing_data(arg.m_filter[0], arg.m_filter[1])
+        alignments.filter_missing_data(arg.m_filter[0], arg.m_filter[1],
+                                       pbar=pbar)
 
     # Concatenation
     if not arg.conversion and not arg.reverse and not arg.consensus and not \
             arg.consensus_single:
         print_col("Concatenating", GREEN)
         alignments = alignments.concatenate(alignment_name=os.path.basename(
-            outfile), remove_temp=True, dest=".tmp/")
+            outfile), pbar=pbar)
 
         # Concatenate zorro files
         if arg.zorro:
@@ -183,13 +206,13 @@ def main_parser(alignment_list, arg):
     # Collapsing
     if arg.collapse:
         print_col("Collapsing", GREEN)
-        alignments.collapse()
+        alignments.collapse(use_main_table=True, pbar=pbar)
 
     # Gcoder
     if arg.gcoder:
         print_col("Coding gaps", GREEN)
         if output_format == ["nexus"]:
-            alignments.code_gaps()
+            alignments.code_gaps(use_main_table=True, pbar=pbar)
 
     # Consensus
     if arg.consensus:
@@ -197,11 +220,14 @@ def main_parser(alignment_list, arg):
         if arg.consensus_single:
             if isinstance(alignments, seqset.AlignmentList):
                 alignments = alignments.consensus(
-                    arg.consensus, single_file=arg.consensus_single)
+                    arg.consensus, single_file=arg.consensus_single,
+                    pbar=pbar, use_main_table=True)
             else:
-                alignments.consensus(consensus_type=arg.consensus)
+                alignments.consensus(consensus_type=arg.consensus, pbar=pbar,
+                                     use_main_table=True)
         else:
-            alignments.consensus(consensus_type=arg.consensus)
+            alignments.consensus(consensus_type=arg.consensus, pbar=pbar,
+                                 use_main_table=True)
 
     # Write output
     print_col("Writing output", GREEN)
@@ -210,11 +236,13 @@ def main_parser(alignment_list, arg):
                                  interleave=interleave,
                                  partition_file=True,
                                  use_charset=True,
-                                 ima2_params=arg.ima2_params)
+                                 ima2_params=arg.ima2_params,
+                                 pbar=pbar)
     elif isinstance(alignments, seqset.AlignmentList):
         alignments.write_to_file(output_format,
                                  interleave=interleave,
-                                 ima2_params=arg.ima2_params)
+                                 ima2_params=arg.ima2_params,
+                                 pbar=pbar)
 
 
 def main_check(arg):
@@ -286,7 +314,7 @@ def main():
                            "'guess' in which the program tries to guess "
                            "the input format and genetic code automatically")
     main_exec.add_argument("-of", dest="output_format", nargs="+",
-                           default="nexus",
+                           default=["nexus"],
                            choices=["nexus", "phylip", "fasta", "mcmctree",
                                     "ima2", "stockholm", "gphocs"],
                            help="Format of the output file(s). You may select "
@@ -323,7 +351,7 @@ def main():
                              const=True, default=False, help="Use this flag if "
                              "you would like to collapse the input alignment(s)"
                              " into unique haplotypes")
-    alternative.add_argument("--gcoder", dest="gcoder", action="store_const",
+    alternative.add_argument("--code-gaps", dest="gcoder", action="store_const",
                              const=True, default=False, help="Use this flag to "
                              "code the gaps of the alignment into a binary "
                              "state  matrix that is appended to the end of "
@@ -350,7 +378,8 @@ def main():
     filter_g.add_argument("--min-taxa", dest="min_taxa",
                           type=float, help="Set the minimum percentage "
                           "of taxa that needs to be present in an alignment")
-    filter_g.add_argument("--contain-taxa", dest="contain_filter", help="Only "
+    filter_g.add_argument("--contain-taxa", dest="contain_filter",
+                          nargs="*", help="Only "
                           "processes alignments that contain the specified "
                           "taxa")
     filter_g.add_argument("--exclude-taxa", dest="exclude_filter", help="Only "
@@ -372,7 +401,7 @@ def main():
 
     # Formatting options
     formatting = parser.add_argument_group("Formatting options")
-    formatting.add_argument("-model", dest="model_phy", default="LG",
+    formatting.add_argument("--model", dest="model_phy", default="LG",
                             choices=["DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG",
                                      "RTREV", "CPREV", "VT", "BLOSUM62",
                                      "MTMAM", "LG"],
@@ -381,7 +410,7 @@ def main():
                             "format. Specify the model for all partitions "
                             "defined in the partition file  (default is '%("
                             "default)s')")
-    formatting.add_argument("-interleave", dest="interleave",
+    formatting.add_argument("--interleave", dest="interleave",
                             action="store_const", const="interleave",
                             default=False, help="Specify this  option to "
                             "write output files in interleave format (currently"
