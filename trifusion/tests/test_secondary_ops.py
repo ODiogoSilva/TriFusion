@@ -33,7 +33,7 @@ class SeconaryOpsTest(unittest.TestCase):
         self.aln_obj.collapse(haplotype_name="Testing",
                               haplotypes_file="teste",
                               dest="test_collapse",
-                              table_out="_collapse")
+                              use_main_table=True)
 
         aln = self.aln_obj.alignments.values()[0]
 
@@ -52,7 +52,7 @@ class SeconaryOpsTest(unittest.TestCase):
         self.aln_obj.collapse(haplotype_name="Testing",
                               haplotypes_file="teste",
                               dest="test_collapse",
-                              table_out="_collapse")
+                              use_main_table=True)
 
         aln = self.aln_obj.alignments.values()[0]
 
@@ -81,11 +81,11 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(gcode_data)
 
-        self.aln_obj.code_gaps(table_out="master_out")
+        self.aln_obj.code_gaps(use_main_table=True)
 
         s = []
         for aln in self.aln_obj:
-            for seq in aln.iter_sequences(table_suffix="master_out"):
+            for seq in aln.iter_sequences():
                 s.append(seq)
 
         res = [
@@ -107,7 +107,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.consensus("IUPAC", table_out="master_out")
+        self.aln_obj.consensus("IUPAC", use_main_table=True)
 
         s = []
         for aln in self.aln_obj:
@@ -127,7 +127,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.consensus("Soft mask")
+        self.aln_obj.consensus("Soft mask", use_main_table=True)
 
         s = []
         for aln in self.aln_obj:
@@ -138,7 +138,7 @@ class SeconaryOpsTest(unittest.TestCase):
     def test_consensus_remove(self):
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.consensus("Remove")
+        self.aln_obj.consensus("Remove", use_main_table=True)
 
         s = []
         for aln in self.aln_obj:
@@ -149,7 +149,7 @@ class SeconaryOpsTest(unittest.TestCase):
     def test_consensus_first_seq(self):
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.consensus("First sequence")
+        self.aln_obj.consensus("First sequence", use_main_table=True)
 
         s = []
         for aln in self.aln_obj:
