@@ -10816,55 +10816,6 @@ class TriFusionApp(App):
         check_func = partial(check_process, p, manager)
         Clock.schedule_interval(check_func, .1)
 
-    def temp_dialog(self):
-
-        def testing(idx, dt):
-
-            i = "testing_"
-
-            for idx, wgt in d.items():
-                if idx == i + str(idx[0]):
-
-                    if isinstance(wgt.ids.load_box.children[0], ProgressWaiting):
-                        wgt.ids.load_box.clear_widgets()
-                        spiner = LoadSpinner()
-                        counter = LoadCounter()
-                        d["spiner"] = spiner
-                        d["counter"] = counter
-                        wgt.ids.load_box.add_widget(counter)
-                        wgt.ids.load_box.add_widget(spiner)
-                        wgt.ids.main_lbl.font_size = 18
-                        wgt.ids.main_lbl.color = self._blue
-
-                    if int(d["counter"].text[:-1]) == 100:
-
-                        wgt.ids.load_box.clear_widgets()
-                        check_wgt = ProgressFinished()
-                        wgt.ids.load_box.add_widget(check_wgt)
-                        wgt.ids.main_lbl.font_size = 16
-                        wgt.ids.main_lbl.color = (.7, .7, .7, 1)
-
-                        idx[0] += 1
-
-                    d["spiner"].ids.img.rotation -= 10
-                    c = int(d["counter"].text[:-1]) + 1
-                    d["counter"].text = "{}%".format(c)
-
-        content = ProcessExecutionProgress()
-        self.show_popup(title="Process execution...", content=content,
-                        size=(500, 560))
-
-        idx = [0]
-        d = {}
-        for i in range(8):
-            p = ProgressBox()
-            p.ids.main_lbl.text = "testing_{}".format(i)
-            d["testing_{}".format(i)] = p
-            content.ids.main_box.add_widget(p)
-
-        check_func = partial(testing, idx)
-        Clock.schedule_interval(check_func, .1)
-
 
 def main():
 
