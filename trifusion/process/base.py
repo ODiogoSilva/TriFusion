@@ -72,6 +72,7 @@ class CleanUp(object):
 
     def __init__(self, func):
         self.func = func
+        self.temp_dir = ".trifusion-temp"
         self.idx = 0 if self.func.__name__ == "main_parser" else 2
 
     def __call__(self, *args):
@@ -86,14 +87,14 @@ class CleanUp(object):
         except:
             traceback.print_exc()
             # Removing temporary directory, if any
-            if os.path.exists(".tmp"):
-                shutil.rmtree(".tmp")
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir)
 
             print_col("Program exited with errors!", RED, self.idx)
 
         # Removing temporary directory, if any
-        if os.path.exists(".tmp"):
-            shutil.rmtree(".tmp")
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
 
 def merger(ranges):

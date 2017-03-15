@@ -2,3 +2,4 @@
 data/resources/bookmarks
 data/backgrounds/process_exec.svg
 .idea/
+trifusion/benchmarks.py
