@@ -1022,13 +1022,14 @@ class Alignment(Base):
         """
 
         # Change in taxa_list
-        self.taxa_list[self.taxa_list.index(old_name)] = new_name
-        # Change in the database
-        self.cur.execute("UPDATE {} SET taxon=? WHERE txId=?".format(
-            self.table_name), (new_name, self.taxa_idx[old_name]))
-        # Change in taxa_index
-        self.taxa_idx[new_name] = self.taxa_idx[old_name]
-        del self.taxa_idx[old_name]
+        if old_name in self.taxa_list:
+            self.taxa_list[self.taxa_list.index(old_name)] = new_name
+            # Change in the database
+            self.cur.execute("UPDATE {} SET taxon=? WHERE txId=?".format(
+                self.table_name), (new_name, self.taxa_idx[old_name]))
+            # Change in taxa_index
+            self.taxa_idx[new_name] = self.taxa_idx[old_name]
+            del self.taxa_idx[old_name]
 
     @SetupDatabase
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
