@@ -56,7 +56,7 @@ TriFusion can be installed directly from source (whether from the latest stable 
 - Modify the code any way you want. Contributions are welcome.
 
 
-[Here are instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install_from_source). (Go ahead, it won't bite.)
+[Here are instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source). (Go ahead, it won't bite.)
 
 ### How to use
 
