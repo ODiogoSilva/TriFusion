@@ -3508,7 +3508,7 @@
                 on_release:
                     # Check for empty selected group
                     if not select_grid.children: \
-                    app.dialog_floatcheck("Cannot create an empty data set group", t="error")
+                    root.cancel()
                     # Check for duplicate group name for taxa and file dialogs
                     elif root.ds_type == "taxa" and root.ids.group_name.text in app.taxa_groups: \
                     #app.dialog_floatcheck("Cannot create a data set group with a duplicate name. Please use a different name.", t="error")
