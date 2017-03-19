@@ -545,8 +545,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     table_suffix=table_suffix,
                     table_name=table_name)
 
-        except IOError:
-            pass
+        except IOError as e:
+            logging.exception(e)
 
     try:
 
@@ -794,7 +794,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
     except KillByUser:
         pass
 
-    except IOError:
+    except IOError as e:
+        logging.exception(e)
         # Resets the taxa_names attribute of the aln_obj to include all taxa
         # aln_object.update_taxa_names(all_taxa=True)
         return
