@@ -3244,6 +3244,16 @@ class TriFusionApp(App):
         files
         """
 
+        # Check if alignment files have already been loaded. If so, issue
+        # warning, since the two data types cannot be loaded in simultaneous
+        if self.file_list:
+            return self.dialog_warning("Cannot mix alignment and proteome "
+                                       "data",
+                                       "TriFusion currently has alignment data"
+                                       " loaded. If you want to load proteome"
+                                       " data, please remove the current"
+                                       " data set.")
+
         # Collect input files. Search directories, if they are provided
         original_list = []
         for f in selection:
@@ -9805,6 +9815,16 @@ class TriFusionApp(App):
                 # Join child process and exit
                 p.join()
                 return
+
+        # Check if proteome files have already been loaded. If so, issue
+        # warning, since the two data types cannot be loaded in simultaneous
+        if self.proteome_files:
+            return self.dialog_warning("Cannot mix alignment and proteome "
+                                       "data",
+                                       "TriFusion currently has proteome data"
+                                       " loaded. If you want to load alignment"
+                                       " data, please remove the current"
+                                       " data set.")
 
         # To support for opening all files in one or more directories, all
         # entries in files will be checked if they are directories. If so,
