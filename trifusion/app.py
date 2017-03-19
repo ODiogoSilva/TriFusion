@@ -1039,6 +1039,22 @@ class TriFusionApp(App):
             fix_bt.bind(on_release=lambda x: self.dialog_mcl_fix())
             self.ortho_search_options.ids.mcl_fix_box.add_widget(fix_bt)
 
+        # Check USEARCH DLL in app_dir for windows only
+        if sys.platform in ["win32", "cygwin"] and \
+                not os.path.exists(join(self.user_data_dir, "vcomp100.dll")):
+            # Copy necessary DLL to app dir if it doesn't exist
+            try:
+                if platform.architecture()[0] == "64bit":
+                    shutil.copyfile(join(os.getcwd(), "data", "resources",
+                                         "usearch", "64bit", "vcomp100.dll"),
+                                    join(self.user_data_dir, "vcomp100.dll"))
+                else:
+                    shutil.copyfile(join(os.getcwd(), "data", "resources",
+                                         "usearch", "32bit", "vcomp100.dll"),
+                                    join(self.user_data_dir, "vcomp100.dll"))
+            except IOError:
+                pass
+
         # CHeck USEARCH in app_dir
         if os.path.exists(join(self.user_data_dir, "usearch")):
             self.usearch_file = join(self.user_data_dir, "usearch")
