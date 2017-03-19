@@ -365,7 +365,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             aln.set_partitions(partition_obj)
 
-        if isinstance(aln, AlignmentList):
+        if aln.__class__.__name__ == "AlignmentList":
             aln = aln.reverse_concatenate(ns=ns)
         else:
             aln = aln.reverse_concatenate(db_con=con, ns=ns)
@@ -464,7 +464,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         """
 
         if secondary_options["consensus_single"]:
-            if isinstance(aln, AlignmentList):
+            if aln.__class__.__name__ == "AlignmentList":
                 aln = aln.consensus(consensus_type=consensus_type,
                                     single_file=True,
                                     table_out=table_out,
@@ -515,7 +515,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # firstly converted into the concatenated alignment, and then all
             # additional operations are conducted in the same aln_obj
 
-            if isinstance(aln, Alignment):
+            if aln.__class__.__name__ == "Alignment":
                 aln.write_to_file(output_formats,
                     outfile if outfile else join(output_dir, "consensus"),
                     interleave=secondary_options["interleave"],
@@ -528,7 +528,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     ns_pipe=ns,
                     table_suffix=table_suffix,
                     table_name=table_name)
-            elif isinstance(aln, AlignmentList):
+            elif aln.__class__.__name__ == "AlignmentList":
                 aln.write_to_file(
                     output_formats,
                     output_suffix=suffix_str,
@@ -700,7 +700,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 main_aln = filter_aln(main_aln, table_out=suffix[1:])
 
             if main_operations["concatenation"] and \
-                    isinstance(main_aln, AlignmentList):
+                    main_aln.__class__.__name__ == "AlignmentList":
 
                 filename = output_file + suffix
 
