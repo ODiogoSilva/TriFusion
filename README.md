@@ -1,3 +1,9 @@
+## Warning
+
+TriFusion is still in active development, so the releases are quite a bit out of date 
+and the install scripts and steps may not be properly working. If you have any issues,
+please contact me directly.
+
 ## TriFusion
 
 Website: http://odiogosilva.github.io/TriFusion/
@@ -50,7 +56,7 @@ TriFusion can be installed directly from source (whether from the latest stable 
 - Modify the code any way you want. Contributions are welcome.
 
 
-[Here are instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install_from_source). (Go ahead, it won't bite.)
+[Here are instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source). (Go ahead, it won't bite.)
 
 ### How to use
 
