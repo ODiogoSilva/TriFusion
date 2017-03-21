@@ -80,8 +80,11 @@ class CleanUp(object):
         try:
             start_time = time.time()
             self.func(*args)
-            print_col("Program execution successfully completed in %s seconds" %
-                      (round(time.time() - start_time, 2)), GREEN, self.idx)
+            if not args[1].quiet:
+                print_col("Program execution successfully completed in %s "
+                          "seconds" %
+                          (round(time.time() - start_time, 2)), GREEN,
+                          self.idx)
         # The broad exception handling is used to remove the temporary
         # directory under any circumstances
         except:
@@ -90,7 +93,8 @@ class CleanUp(object):
             if os.path.exists(self.temp_dir):
                 shutil.rmtree(self.temp_dir)
 
-            print_col("Program exited with errors!", RED, self.idx)
+            if not args[1].quiet:
+                print_col("Program exited with errors!", RED, self.idx)
 
         # Removing temporary directory, if any
         if os.path.exists(self.temp_dir):
@@ -137,15 +141,16 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 has_colours = has_colours(sys.stdout)
 
 
-def print_col(text, color, i=0):
-    p = ["TriSeq", "OrthoMCl Pipeline", "TriStats", "TriOrtho"]
-    suf = {GREEN: "[%s] " % p[i], YELLOW: "[%s-Warning] " % p[i],
-           RED: "[%s-Error] " % p[i]}
-    if has_colours:
-        seq = "\x1b[1;%dm" % (30 + color) + suf[color] + "\x1b[0m" + text
-        print(seq)
-    else:
-        print(text)
+def print_col(text, color, i=0, quiet=False):
+    if not quiet:
+        p = ["TriSeq", "OrthoMCl Pipeline", "TriStats", "TriOrtho"]
+        suf = {GREEN: "[%s] " % p[i], YELLOW: "[%s-Warning] " % p[i],
+               RED: "[%s-Error] " % p[i]}
+        if has_colours:
+            seq = "\x1b[1;%dm" % (30 + color) + suf[color] + "\x1b[0m" + text
+            print(seq)
+        else:
+            print(text)
 
     if color is RED:
         raise SystemExit
