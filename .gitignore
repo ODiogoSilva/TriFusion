@@ -2,4 +2,21 @@
 data/resources/bookmarks
 data/backgrounds/process_exec.svg
 .idea/
-trifusion/benchmarks.py
+trifusion/benchmarks/
+Removeria __pycache__/
+Removeria trifusion/__pycache__/
+Removeria trifusion/base/__pycache__/
+Removeria trifusion/benchmarks/__init__.py
+Removeria trifusion/data/__pycache__/
+Removeria trifusion/data/backgrounds/__pycache__/
+Removeria trifusion/data/backgrounds/process_exec_backup.svg
+Removeria trifusion/data/resources/__pycache__/
+Removeria trifusion/data/screens/__pycache__/
+Removeria trifusion/ortho/__pycache__/
+Removeria trifusion/process/__pycache__/
+Removeria trifusion/tests/__pycache__/
+Removeria trifusion/tests/data/.directory
+Removeria trifusion/benchmarks/__pycache__/
+Removeria trifusion/benchmarks/benchmark_memread_ds1.py
+/trifusion/benchmarks_mem.py
+/trifusion/benchmarks.py

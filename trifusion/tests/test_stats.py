@@ -66,6 +66,60 @@ class SeconaryOpsTest(unittest.TestCase):
                            [1, 24, 85, '0 (0.0%)', 0.0, '1 (0.05%)', 1.0,
                             '1 (1.18%)', 1.0, '0 (0.0%)', 0.0]]])
 
+    def test_single_aln_outlier_mdata(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        print(self.aln_obj.alignments)
+
+        self.assertEqual(self.aln_obj.outlier_missing_data(),
+                         {"exception": SingleAlignment})
+
+    def test_single_aln_outlier_mdata_sp(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        print(self.aln_obj.alignments)
+
+        self.assertEqual(self.aln_obj.outlier_missing_data_sp(),
+                         {"exception": SingleAlignment})
+
+    def test_single_aln_outlier_seg(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        print(self.aln_obj.alignments)
+
+        self.assertEqual(self.aln_obj.outlier_segregating(),
+                         {"exception": SingleAlignment})
+
+    def test_single_aln_outlier_seg_sp(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        print(self.aln_obj.alignments)
+
+        self.assertEqual(self.aln_obj.outlier_segregating_sp(),
+                         {"exception": SingleAlignment})
+
+    def test_single_aln_outlier_seqsize(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        print(self.aln_obj.alignments)
+
+        self.assertEqual(self.aln_obj.outlier_sequence_size(),
+                         {"exception": SingleAlignment})
+
+    def test_single_aln_outlier_seqsize_sp(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        print(self.aln_obj.alignments)
+
+        self.assertEqual(self.aln_obj.outlier_sequence_size_sp(),
+                         {"exception": SingleAlignment})
+
     def test_no_data(self):
 
         self.aln_obj = AlignmentList([], sql_db=sql_db)
