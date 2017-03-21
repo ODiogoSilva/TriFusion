@@ -1040,6 +1040,22 @@ class TriFusionApp(App):
             fix_bt.bind(on_release=lambda x: self.dialog_mcl_fix())
             self.ortho_search_options.ids.mcl_fix_box.add_widget(fix_bt)
 
+        # Check USEARCH DLL in app_dir for windows only
+        if sys.platform in ["win32", "cygwin"] and \
+                not os.path.exists(join(self.user_data_dir, "vcomp100.dll")):
+            # Copy necessary DLL to app dir if it doesn't exist
+            try:
+                if platform.architecture()[0] == "64bit":
+                    shutil.copyfile(join(os.getcwd(), "data", "resources",
+                                         "usearch", "64bit", "vcomp100.dll"),
+                                    join(self.user_data_dir, "vcomp100.dll"))
+                else:
+                    shutil.copyfile(join(os.getcwd(), "data", "resources",
+                                         "usearch", "32bit", "vcomp100.dll"),
+                                    join(self.user_data_dir, "vcomp100.dll"))
+            except IOError:
+                pass
+
         # CHeck USEARCH in app_dir
         if os.path.exists(join(self.user_data_dir, "usearch")):
             self.usearch_file = join(self.user_data_dir, "usearch")
@@ -3227,6 +3243,16 @@ class TriFusionApp(App):
         :param selection: list. Contains complete paths to the proteome
         files
         """
+
+        # Check if alignment files have already been loaded. If so, issue
+        # warning, since the two data types cannot be loaded in simultaneous
+        if self.file_list:
+            return self.dialog_warning("Cannot mix alignment and proteome "
+                                       "data",
+                                       "TriFusion currently has alignment data"
+                                       " loaded. If you want to load proteome"
+                                       " data, please remove the current"
+                                       " data set.")
 
         # Collect input files. Search directories, if they are provided
         original_list = []
@@ -9789,6 +9815,16 @@ class TriFusionApp(App):
                 # Join child process and exit
                 p.join()
                 return
+
+        # Check if proteome files have already been loaded. If so, issue
+        # warning, since the two data types cannot be loaded in simultaneous
+        if self.proteome_files:
+            return self.dialog_warning("Cannot mix alignment and proteome "
+                                       "data",
+                                       "TriFusion currently has proteome data"
+                                       " loaded. If you want to load alignment"
+                                       " data, please remove the current"
+                                       " data set.")
 
         # To support for opening all files in one or more directories, all
         # entries in files will be checked if they are directories. If so,
