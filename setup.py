@@ -19,8 +19,6 @@ def mcl_data_files():
 
     data_file = None
 
-    print(sys.platform)
-
     if sys.platform in ["linux2"]:
         data_file = ["trifusion/data/resources/mcl/linux/mcl"]
 
@@ -29,12 +27,14 @@ def mcl_data_files():
             data_file = ["trifusion/data/resources/mcl/windows/64bit/"
                          "mcl64.exe",
                          "trifusion/data/resources/mcl/windows/64bit/"
-                         "cygwin1.dll"]
+                         "cygwin1.dll",
+                         "trifusion/data/resources/usearch/64bit/vcomp100.dll"]
         else:
             data_file = ["trifusion/data/resources/mcl/windows/32bit/"
                          "mcl32.exe",
                          "trifusion/data/resources/mcl/windows/32bit/"
-                         "cygwin1.dll"]
+                         "cygwin1.dll",
+                         "trifusion/data/resources/usearch/32bit/vcomp100.dll"]
 
     return data_file
 
