@@ -61,7 +61,8 @@ def main_parser(alignment_list, arg):
     """ Function with the main operations of TriSeq """
 
     print_col("Executing TriSeq module at %s %s" % (
-        time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN)
+        time.strftime("%d/%m/%Y"), time.strftime("%I:%M:%S")), GREEN,
+              quiet=arg.quiet)
 
     # Create temp directory
     tmp_dir = ".trifusion-temp"
@@ -71,7 +72,10 @@ def main_parser(alignment_list, arg):
     # Set path to temporary sqlite database
     sql_db = os.path.join(tmp_dir, "trifusion.db")
 
-    pbar = ProgressBar(max_value=len(alignment_list), widgets=gen_wgt(""))
+    if not arg.quiet:
+        pbar = ProgressBar(max_value=len(alignment_list), widgets=gen_wgt(""))
+    else:
+        pbar = None
 
     # Defining main variables
     conversion = arg.conversion
@@ -111,7 +115,8 @@ def main_parser(alignment_list, arg):
         alignment_list = fl
 
     # Input alignments are mandatory from now on
-    print_col("Parsing %s alignments" % len(alignment_list), GREEN)
+    print_col("Parsing %s alignments" % len(alignment_list), GREEN,
+              quiet=arg.quiet)
 
     alignments = seqset.AlignmentList(alignment_list, sql_db=sql_db,
                                       pbar=pbar)
@@ -119,23 +124,23 @@ def main_parser(alignment_list, arg):
     # ################################ Utilities ##############################
     # Return a file with taxa list and exit
     if arg.get_taxa is True:
-        print_col("Writing taxa to new file", GREEN)
+        print_col("Writing taxa to new file", GREEN, quiet=arg.quiet)
         alignments.write_taxa_to_file()
         return 0
 
     # Remove taxa
     if arg.remove:
-        print_col("Removing taxa", GREEN)
+        print_col("Removing taxa", GREEN, quiet=arg.quiet)
         alignments.remove_taxa(arg.remove)
 
     # Grep taxa
     if arg.grep:
-        print_col("Grepping taxa", GREEN)
+        print_col("Grepping taxa", GREEN, quiet=arg.quiet)
         alignments.remove_taxa(arg.grep, mode="inverse")
 
     # Select alignments
     if arg.select:
-        print_col("Selecting alignments", GREEN)
+        print_col("Selecting alignments", GREEN, quiet=arg.quiet)
         if not os.path.exists("Taxa_selection"):
             os.makedirs("Taxa_selection")
             selected_alignments = alignments.select_by_taxa(arg.select,
@@ -149,7 +154,7 @@ def main_parser(alignment_list, arg):
     # ############################# Main operations ###########################
     # Reverse concatenation
     if arg.reverse is not None:
-        print_col("Reverse concatenating", GREEN)
+        print_col("Reverse concatenating", GREEN, quiet=arg.quiet)
         if len(alignment_list) > 1:
             raise ArgumentError("Only one input file allowed for reverse "
                                 "concatenation")
@@ -164,22 +169,24 @@ def main_parser(alignment_list, arg):
     # Filtering
     # Filter by minimum taxa
     if arg.min_taxa:
-        print_col("Filtering by minimum taxa", GREEN)
+        print_col("Filtering by minimum taxa", GREEN, quiet=arg.quiet)
         alignments.filter_min_taxa(arg.min_taxa, pbar=pbar)
 
     # Filter by alignments that contain taxa
     if arg.contain_filter:
-        print_col("Filtering alignment(s) including a taxa group", GREEN)
+        print_col("Filtering alignment(s) including a taxa group", GREEN,
+                  quiet=arg.quiet)
         alignments.filter_by_taxa("Contain", arg.contain_filter, pbar=pbar)
 
     # Filter by alignments that exclude taxa
     if arg.exclude_filter:
-        print_col("Filtering alignments excluding a taxa group", GREEN)
+        print_col("Filtering alignments excluding a taxa group", GREEN,
+                  quiet=arg.quiet)
         alignments.filter_by_taxa("Exclude", arg.exclude_filter, pbar=pbar)
 
     # Filter by codon position
     if arg.codon_filter:
-        print_col("Filtering by codon positions", GREEN)
+        print_col("Filtering by codon positions", GREEN, quiet=arg.quiet)
         if alignments.sequence_code[0] == "DNA":
             codon_settings = [True if x in arg.codon_filter else False for x in
                               range(1, 4)]
@@ -187,14 +194,14 @@ def main_parser(alignment_list, arg):
 
     # Filter by missing data
     if arg.m_filter:
-        print_col("Filtering by missing data", GREEN)
+        print_col("Filtering by missing data", GREEN, quiet=arg.quiet)
         alignments.filter_missing_data(arg.m_filter[0], arg.m_filter[1],
                                        pbar=pbar)
 
     # Concatenation
     if not arg.conversion and not arg.reverse and not arg.consensus and not \
             arg.consensus_single:
-        print_col("Concatenating", GREEN)
+        print_col("Concatenating", GREEN, quiet=arg.quiet)
         alignments = alignments.concatenate(alignment_name=os.path.basename(
             outfile), pbar=pbar)
 
@@ -205,18 +212,18 @@ def main_parser(alignment_list, arg):
 
     # Collapsing
     if arg.collapse:
-        print_col("Collapsing", GREEN)
+        print_col("Collapsing", GREEN, quiet=arg.quiet)
         alignments.collapse(use_main_table=True, pbar=pbar)
 
     # Gcoder
     if arg.gcoder:
-        print_col("Coding gaps", GREEN)
+        print_col("Coding gaps", GREEN, quiet=arg.quiet)
         if output_format == ["nexus"]:
             alignments.code_gaps(use_main_table=True, pbar=pbar)
 
     # Consensus
     if arg.consensus:
-        print_col("Creating consensus sequences", GREEN)
+        print_col("Creating consensus sequences", GREEN, quiet=arg.quiet)
         if arg.consensus_single:
             if isinstance(alignments, seqset.AlignmentList):
                 alignments = alignments.consensus(
@@ -230,7 +237,7 @@ def main_parser(alignment_list, arg):
                                  use_main_table=True)
 
     # Write output
-    print_col("Writing output", GREEN)
+    print_col("Writing output", GREEN, quiet=arg.quiet)
     if isinstance(alignments, seqset.Alignment):
         alignments.write_to_file(output_format, outfile,
                                  interleave=interleave,
@@ -293,7 +300,7 @@ def main_check(arg):
         return 0
 
 
-def main():
+def get_args(arg_list=None):
 
     # The inclusion of the argument definition in main, makes it possible to
     # import this file as a module and not triggering argparse. The
@@ -465,13 +472,19 @@ def main():
                                const=True, default=False, help="Removes all "
                                "terminal output")
 
-    args = parser.parse_args()
+    args = parser.parse_args(arg_list)
 
-    main_check(args)
-    main_parser(args.infile, args)
+    return args
+
+
+def main(arguments):
+    main_parser(arguments.infile, arguments)
+
 
 if __name__ == "__main__":
-    main()
+    args = get_args()
+    main_check(args)
+    main(args)
 
 
 __author__ = "Diogo N. Silva"
