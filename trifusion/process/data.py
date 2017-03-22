@@ -269,12 +269,12 @@ class Partitions(object):
         self.reset(keep_alignments_range=True)
 
         # Get the format of the partition file
-        partition_format = self._get_file_format(partitions_file)
+        self.partition_format = self._get_file_format(partitions_file)
 
         part_file = open(partitions_file)
 
         # TODO: Add suport for codon partitions in raxml format
-        if partition_format == "raxml":
+        if self.partition_format == "raxml":
             for line in part_file:
 
                 # Ignore empty lines
@@ -314,7 +314,7 @@ class Partitions(object):
                     return InvalidPartitionFile("Badly formatted partitions "
                                                 "file")
 
-        elif partition_format == "nexus":
+        elif self.partition_format == "nexus":
             for line in part_file:
                 # Ignore empty lines
                 if line.strip() != "":
@@ -886,21 +886,20 @@ class Partitions(object):
 
         if output_format == "raxml":
             outfile_handle = open(output_file + ".part.File", "w")
-            for part in self.partitions:
-                partition_name = part[0]
-                partition_range = "-".join([x for x in part[1]])
+            for part, rge in self.partitions.items():
+                partition_range = "-".join([str(x + 1) for x in rge[0]])
                 outfile_handle.write("%s, %s = %s\n" % (model,
-                                                        partition_name,
+                                                        part,
                                                         partition_range))
 
             outfile_handle.close()
 
         elif output_format == "nexus":
             outfile_handle = open(output_file + ".charset", "w")
-            for part in self.partitions:
+            for part, rge in self.partitions.items():
                 outfile_handle.write("charset %s = %s;\n" % (
-                                     part[1],
-                                     "-".join(part[2])))
+                                     part,
+                                     "-".join([str(x + 1) for x in rge[0]])))
 
             outfile_handle.close()
 
