@@ -30,6 +30,7 @@ with warnings.catch_warnings():
     import time
     import argparse
     from progressbar import ProgressBar, Timer, Bar, Percentage, SimpleProgress
+    from os.path import dirname
     from glob import glob
 
     try:
@@ -72,11 +73,6 @@ def main_parser(alignment_list, arg):
     # Set path to temporary sqlite database
     sql_db = os.path.join(tmp_dir, "trifusion.db")
 
-    if not arg.quiet:
-        pbar = ProgressBar(max_value=len(alignment_list), widgets=gen_wgt(""))
-    else:
-        pbar = None
-
     # Defining main variables
     conversion = arg.conversion
     output_format = arg.output_format
@@ -115,6 +111,11 @@ def main_parser(alignment_list, arg):
         alignment_list = fl
 
     # Input alignments are mandatory from now on
+    if not arg.quiet:
+        pbar = ProgressBar(max_value=len(alignment_list), widgets=gen_wgt(""))
+    else:
+        pbar = None
+
     print_col("Parsing %s alignments" % len(alignment_list), GREEN,
               quiet=arg.quiet)
 
@@ -213,7 +214,8 @@ def main_parser(alignment_list, arg):
     # Collapsing
     if arg.collapse:
         print_col("Collapsing", GREEN, quiet=arg.quiet)
-        alignments.collapse(use_main_table=True, pbar=pbar)
+        alignments.collapse(use_main_table=True, pbar=pbar,
+                            haplotypes_file=outfile)
 
     # Gcoder
     if arg.gcoder:
@@ -315,11 +317,6 @@ def get_args(arg_list=None):
     main_exec.add_argument("-in", dest="infile", nargs="+", help="Provide the "
                            "input file name. If multiple files are provided"
                            ", please separated the names with spaces")
-    main_exec.add_argument("-if", dest="input_format", default="guess",
-                           choices=["fasta", "nexus", "phylip", "guess"],
-                           help="Format of the input file(s). The default is "
-                           "'guess' in which the program tries to guess "
-                           "the input format and genetic code automatically")
     main_exec.add_argument("-of", dest="output_format", nargs="+",
                            default=["nexus"],
                            choices=["nexus", "phylip", "fasta", "mcmctree",
