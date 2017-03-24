@@ -288,6 +288,18 @@ class TriSeqTest(unittest.TestCase):
         main(args)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
+    def test_informative_filter(self):
+
+        args = get_args(["-in"] + dna_data_fas +
+                        ["--informative-filter", "1", "2",
+                         "-o", join(output_dir, "teste"),
+                         "-of", "fasta",
+                         "-quiet"])
+
+        triseq_arg_check(args)
+        main(args)
+        self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
+
     def test_interleave(self):
 
         args = get_args(["-in"] + dna_data_fas +
