@@ -85,9 +85,15 @@ class CleanUp(object):
                           "seconds" %
                           (round(time.time() - start_time, 2)), GREEN,
                           self.idx)
+        except KeyboardInterrupt:
+            # Removing temporary directory, if any
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir)
+            print_col("Interrupting, by your command", RED, self.idx)
         # The broad exception handling is used to remove the temporary
         # directory under any circumstances
-        except:
+        except Exception as e:
+            print(e)
             traceback.print_exc()
             # Removing temporary directory, if any
             if os.path.exists(self.temp_dir):
