@@ -161,7 +161,6 @@ class TriSeqTest(unittest.TestCase):
         triseq_arg_check(args)
         main(args)
 
-
     def test_consensus(self):
 
         args = get_args(["-in", dna_data_fas[0],
