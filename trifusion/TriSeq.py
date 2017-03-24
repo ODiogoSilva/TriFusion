@@ -30,7 +30,6 @@ with warnings.catch_warnings():
     import time
     import argparse
     from progressbar import ProgressBar, Timer, Bar, Percentage, SimpleProgress
-    from os.path import dirname
     from glob import glob
 
     try:
@@ -38,12 +37,14 @@ with warnings.catch_warnings():
         from process import sequence as seqset
         from process import data
         from process.error_handling import *
+        from base.sanity import triseq_arg_check, mfilters
     except ImportError:
         from trifusion.process.base import print_col, RED, GREEN, YELLOW,\
             CleanUp
         from trifusion.process import sequence as seqset
         from trifusion.process import data
         from trifusion.process.error_handling import *
+        from trifusion.base.sanity import triseq_arg_check, mfilters
 
 
 def gen_wgt(msg):
@@ -79,7 +80,7 @@ def main_parser(alignment_list, arg):
     outfile = arg.outfile
     interleave = arg.interleave
     model_phy = arg.model_phy
-    outgroup_taxa = arg.outgroup_taxa
+    # outgroup_taxa = arg.outgroup_taxa
 
     # Defining output file name
     if conversion is None and arg.outfile is not None:
@@ -199,6 +200,20 @@ def main_parser(alignment_list, arg):
         alignments.filter_missing_data(arg.m_filter[0], arg.m_filter[1],
                                        pbar=pbar)
 
+    # Filtering by variable sites
+    if arg.var_filter:
+        print_col("Filtering by variable sites", GREEN, quiet=arg.quiet)
+        alignments.filter_segregating_sites(arg.var_filter[0],
+                                            arg.var_filter[1],
+                                            pbar=pbar)
+
+    # Filtering by informative sites
+    if arg.inf_filter:
+        print_col("Filtering by variable sites", GREEN, quiet=arg.quiet)
+        alignments.filter_informative_sites(arg.inf_filter[0],
+                                            arg.inf_filter[1],
+                                            pbar=pbar)
+
     # Concatenation
     if not arg.conversion and not arg.reverse and not arg.consensus and not \
             arg.consensus_single:
@@ -252,54 +267,6 @@ def main_parser(alignment_list, arg):
                                  interleave=interleave,
                                  ima2_params=arg.ima2_params,
                                  pbar=pbar)
-
-
-def main_check(arg):
-    if arg.partition_file is not None and arg.outfile is None:
-        print_col("An output file must be provided with option '-o'", RED)
-
-    if "ima2" in arg.output_format and arg.ima2_params is None:
-        print_col("Additional arguments must be provided with the"
-                  " option --ima2-params when selecting ima2 output format",
-                  RED)
-
-    if "ima2" in arg.output_format and len(arg.ima2_params) != 4:
-        print_col("Four additional arguments must be provided with"
-                  " option --ima2-params when selecting the "
-                  "ima2 output format. %s were given" %
-                  (len(arg.ima2_params)), RED)
-
-    if arg.partition_file is not None:
-        return 0
-
-    if arg.conversion is None and arg.outfile is None and arg.reverse is None\
-            and arg.select is None and arg.get_taxa is False:
-
-        print_col(
-            "If you wish to concatenate provide the output file name using "
-            "the '-o' option. If you wish to convert a "
-            "file, specify it using the '-c' option", RED)
-
-    if len(arg.infile) == 1 and arg.conversion is None and arg.reverse is None\
-            and arg.collapse is None:
-
-        print_col(
-            "Cannot perform concatenation of a single file. Please provide"
-            " additional files to concatenate, or specify the conversion "
-            "'-c' option", RED)
-
-    if arg.zorro is not None and len(arg.infile) == 1:
-        print_col(
-            "The '-z' option cannot be invoked when only a single input "
-            "file is provided. This option is reserved for"
-            " concatenation of multiple alignment files", RED)
-
-    if arg.consensus and arg.output_format != ["fasta"]:
-        print_col("Output format must be only Fasta when using the "
-                  "consensus option", RED)
-
-    else:
-        return 0
 
 
 def get_args(arg_list=None):
@@ -378,9 +345,10 @@ def get_args(arg_list=None):
                           "gap and missing data, respectively (e.g. -filter "
                           "50 75 - filters alignments columns with more "
                           "than 50%% of gap+missing data and columns with "
-                          "more than 75%% of true missing data)")
+                          "more than 75%% of true missing data)",
+                          type=mfilters)
     filter_g.add_argument("--min-taxa", dest="min_taxa",
-                          type=float, help="Set the minimum percentage "
+                          type=mfilters, help="Set the minimum percentage "
                           "of taxa that needs to be present in an alignment")
     filter_g.add_argument("--contain-taxa", dest="contain_filter",
                           nargs="*", help="Only "
@@ -392,16 +360,16 @@ def get_args(arg_list=None):
     filter_g.add_argument("--codon-filter", dest="codon_filter", nargs="*",
                           choices=["1", "2", "3"], help="Include only the "
                           "codon positions specified by this option (DNA only)")
-    filter_g.add_argument("--variable-filter", dest="var_filter",
+    filter_g.add_argument("--variable-filter", dest="var_filter", nargs=2,
                           help="Provide minimum and maximum values of "
                           "variable sites for each alignment. Filters "
                           "alignments with a number of variable sites outside "
-                          "the specified range")
-    filter_g.add_argument("--informative-filter", dest="inf_filter",
+                          "the specified range", type=int)
+    filter_g.add_argument("--informative-filter", dest="inf_filter", nargs=2,
                           help="Provide minimum and maximum values of "
                           "informative sites for each alignment. Filters "
                           "alignments with a number of informative sites "
-                          "outside the specified range")
+                          "outside the specified range", type=int)
 
     # Formatting options
     formatting = parser.add_argument_group("Formatting options")
@@ -419,7 +387,7 @@ def get_args(arg_list=None):
                             default=False, help="Specify this  option to "
                             "write output files in interleave format (currently"
                             " only supported for nexus files")
-    formatting.add_argument("--ima2-params", dest="ima2_params", nargs="*",
+    formatting.add_argument("--ima2-params", dest="ima2_params", nargs=4,
                             help="Provide 4 additional arguments needed to "
                             "write the output in a format compliant with "
                             "IMa2. The order of the required arguments "
@@ -453,10 +421,10 @@ def get_args(arg_list=None):
                               "specified in a csv file containing 1 column "
                               "with a species name in each line or in the "
                               "command line separated by whitespace")
-    manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*",
-                              help="Provide taxon names/number for the "
-                              "outgroup  (This option is only supported for "
-                              "NEXUS output format files)")
+    # manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*",
+    #                           help="Provide taxon names/number for the "
+    #                           "outgroup  (This option is only supported for "
+    #                           "NEXUS output format files)")
 
     utilities = parser.add_argument_group("Utilities")
     utilities.add_argument("--get-taxa", dest="get_taxa",
@@ -480,7 +448,7 @@ def main(arguments):
 
 if __name__ == "__main__":
     args = get_args()
-    main_check(args)
+    triseq_arg_check(args)
     main(args)
 
 
