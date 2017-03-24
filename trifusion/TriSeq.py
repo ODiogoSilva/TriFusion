@@ -451,14 +451,14 @@ def get_args(arg_list=None):
     return args
 
 
-def main(arguments):
+def main():
+    arguments = get_args()
+    triseq_arg_check(arguments)
     main_parser(arguments, arguments.infile)
 
 
 if __name__ == "__main__":
-    args = get_args()
-    triseq_arg_check(args)
-    main(args)
+    main()
 
 
 __author__ = "Diogo N. Silva"
