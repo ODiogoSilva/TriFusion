@@ -60,7 +60,7 @@ def gen_wgt(msg):
     return bar_wdg
 
 @CleanUp
-def main_parser(alignment_list, arg):
+def main_parser(arg, alignment_list):
     """ Function with the main operations of TriSeq """
 
     print_col("Executing TriSeq module at %s %s" % (
@@ -452,7 +452,7 @@ def get_args(arg_list=None):
 
 
 def main(arguments):
-    main_parser(arguments.infile, arguments)
+    main_parser(arguments, arguments.infile)
 
 
 if __name__ == "__main__":
