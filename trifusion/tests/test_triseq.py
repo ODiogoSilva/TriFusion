@@ -8,15 +8,13 @@ from os.path import join
 from data_files import *
 import shutil
 
-from argparse import ArgumentTypeError, ArgumentError
-
 try:
     from process.sequence import AlignmentList, Alignment
-    from TriSeq import get_args, main, triseq_arg_check
+    from TriSeq import get_args, main_parser, triseq_arg_check
     from base.sanity import triseq_arg_check
 except ImportError:
     from trifusion.process.sequence import AlignmentList, Alignment
-    from trifusion.TriSeq import get_args, main
+    from trifusion.TriSeq import get_args, main_parser
     from trifusion.base.sanity import triseq_arg_check
 
 output_dir = "triseq_test"
@@ -41,7 +39,7 @@ class TriSeqTest(unittest.TestCase):
                          "-o", join(output_dir, "teste"),
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         with open(join(data_path, "BaseConcatenation.fas")) as fh1, \
                 open(join(output_dir, "teste.fas")) as fh2:
@@ -54,7 +52,7 @@ class TriSeqTest(unittest.TestCase):
                          "-c",
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         with open(join(data_path, "BaseConc1.fas")) as fh1, \
                 open("BaseConc1.fas") as fh2:
@@ -69,7 +67,7 @@ class TriSeqTest(unittest.TestCase):
                          "-of", "fasta",
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         exp = []
         data = []
@@ -92,7 +90,7 @@ class TriSeqTest(unittest.TestCase):
                          "-o", join(output_dir, "test"),
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         with open(concatenated_small_parNex[0]) as fh1, \
                 open(join(output_dir, "test.charset")) as fh2:
@@ -104,7 +102,7 @@ class TriSeqTest(unittest.TestCase):
                          "-o", join(output_dir, "test"),
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         with open(concatenated_small_par[0]) as fh1, \
                 open(join(output_dir, "test.part.File")) as fh2:
@@ -117,7 +115,7 @@ class TriSeqTest(unittest.TestCase):
                          "--model", "WAG",
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         with open(concatenated_small_par[0]) as fh1, \
                 open(join(output_dir, "test.part.File")) as fh2:
@@ -129,7 +127,7 @@ class TriSeqTest(unittest.TestCase):
                         ["-s", "spa",
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         fls = sorted(os.listdir("Taxa_selection"))
 
@@ -145,7 +143,7 @@ class TriSeqTest(unittest.TestCase):
                          "-of", "fasta",
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         fls = sorted(os.listdir(output_dir))
 
@@ -159,7 +157,7 @@ class TriSeqTest(unittest.TestCase):
                          "-of", "nexus",
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
     def test_consensus(self):
 
@@ -169,7 +167,7 @@ class TriSeqTest(unittest.TestCase):
                          "-c",
                          "-quiet"])
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         with open("BaseConc1.fas") as fh:
             self.assertTrue(fh.read().startswith(">consensus"))
@@ -186,7 +184,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         self.assertTrue(os.path.exists("consensus.fas"))
         os.remove("consensus.fas")
@@ -200,7 +198,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_missing_filter_prop_val(self):
@@ -212,7 +210,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_min_taxa_perc_val(self):
@@ -224,7 +222,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_min_taxa_prop_val(self):
@@ -236,7 +234,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_contain_taxa(self):
@@ -248,7 +246,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_exclude_taxa(self):
@@ -260,7 +258,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_codon_filter(self):
@@ -272,7 +270,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_variable_filter(self):
@@ -284,7 +282,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_informative_filter(self):
@@ -296,7 +294,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_interleave(self):
@@ -308,7 +306,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.fas")))
 
     def test_ima2_output(self):
@@ -321,7 +319,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         self.assertTrue(os.path.exists(join(output_dir, "teste.txt")))
 
     def test_remove_taxa(self):
@@ -333,7 +331,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         with open(join(output_dir, "teste.fas")) as fh:
             self.assertEqual(fh.read().count("spa"), 0)
 
@@ -346,7 +344,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
         with open(join(output_dir, "teste.fas")) as fh:
             self.assertEqual(fh.read().count("spa"), 1)
 
@@ -357,7 +355,7 @@ class TriSeqTest(unittest.TestCase):
                          "-quiet"])
 
         triseq_arg_check(args)
-        main(args)
+        main_parser(args, args.infile)
 
         self.assertTrue(os.path.exists("Taxa_list.csv"))
         os.remove("Taxa_list.csv")
