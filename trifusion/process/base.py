@@ -80,7 +80,7 @@ class CleanUp(object):
         try:
             start_time = time.time()
             self.func(*args)
-            if not args[1].quiet:
+            if not args[0].quiet:
                 print_col("Program execution successfully completed in %s "
                           "seconds" %
                           (round(time.time() - start_time, 2)), GREEN,
@@ -99,7 +99,7 @@ class CleanUp(object):
             if os.path.exists(self.temp_dir):
                 shutil.rmtree(self.temp_dir)
 
-            if not args[1].quiet:
+            if not args[0].quiet:
                 print_col("Program exited with errors!", RED, self.idx)
 
         # Removing temporary directory, if any
