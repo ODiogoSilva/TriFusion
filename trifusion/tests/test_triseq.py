@@ -156,7 +156,7 @@ class TriSeqTest(unittest.TestCase):
         args = get_args(["-in"] + dna_data_fas +
                         ["--code-gaps",
                          "-o", join(output_dir, "teste"),
-                         "-of", "fasta",
+                         "-of", "nexus",
                          "-quiet"])
         triseq_arg_check(args)
         main(args)
