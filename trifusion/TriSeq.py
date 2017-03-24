@@ -37,14 +37,15 @@ with warnings.catch_warnings():
         from process import sequence as seqset
         from process import data
         from process.error_handling import *
-        from base.sanity import triseq_arg_check, mfilters
+        from base.sanity import triseq_arg_check, mfilters, post_aln_checks
     except ImportError:
         from trifusion.process.base import print_col, RED, GREEN, YELLOW,\
             CleanUp
         from trifusion.process import sequence as seqset
         from trifusion.process import data
         from trifusion.process.error_handling import *
-        from trifusion.base.sanity import triseq_arg_check, mfilters
+        from trifusion.base.sanity import triseq_arg_check, mfilters, \
+            post_aln_checks
 
 
 def gen_wgt(msg):
@@ -119,9 +120,10 @@ def main_parser(alignment_list, arg):
 
     print_col("Parsing %s alignments" % len(alignment_list), GREEN,
               quiet=arg.quiet)
-
     alignments = seqset.AlignmentList(alignment_list, sql_db=sql_db,
                                       pbar=pbar)
+
+    post_aln_checks(arg, alignments)
 
     # ################################ Utilities ##############################
     # Return a file with taxa list and exit
@@ -223,8 +225,7 @@ def main_parser(alignment_list, arg):
                                             pbar=pbar)
 
     # Concatenation
-    if not arg.conversion and not arg.reverse and not arg.consensus and not \
-            arg.consensus_single:
+    if not arg.conversion and not arg.reverse and not arg.consensus:
         print_col("Concatenating", GREEN, quiet=arg.quiet)
         alignments = alignments.concatenate(alignment_name=os.path.basename(
             outfile), pbar=pbar)

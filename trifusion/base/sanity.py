@@ -21,12 +21,31 @@
 from argparse import ArgumentTypeError
 
 try:
-    from process.base import print_col, RED
+    from process.base import print_col, RED, YELLOW
 except ImportError:
-    from trifusion.process.base import print_col, RED
+    from trifusion.process.base import print_col, RED, YELLOW
 
 
 def triseq_arg_check(arg):
+
+    if arg.gcoder and "nexus" not in arg.output_format:
+        print_col("Gap coding can only be performed for Nexus output format.",
+                  RED)
+
+    if arg.gcoder and "nexus" in arg.output_format and \
+            arg.output_format != ["nexus"]:
+        print_col("Gap coding can only be performed for Nexus output format."
+                  " This operation will be ignored for other output formats.",
+                  YELLOW, quiet=arg.quiet)
+
+    if arg.conversion and arg.reverse:
+        print_col("Ignoring conversion flag (-c) when specifying reverse"
+                  " concatenation (-r)", YELLOW, quiet=arg.quiet)
+
+    if arg.outfile and arg.reverse:
+        print_col("Ignoring output file option (-o) when specifying reverse"
+                  " concatenation (-r)", YELLOW, quiet=arg.quiet)
+
     if arg.partition_file is not None and arg.outfile is None:
         print_col("An output file must be provided with option '-o'", RED)
 
@@ -70,6 +89,23 @@ def triseq_arg_check(arg):
         print_col("Output format must be only Fasta when using the "
                   "consensus option", RED)
 
+    if not arg.consensus and arg.consensus_single:
+        print_col("Ignoring consensus single file option (--consensus-single-"
+                  "file) when the consensus operation is not specified",
+                  YELLOW, quiet=arg.quiet)
+
+    else:
+        return 0
+
+
+def post_aln_checks(arg, aln_obj):
+
+    if arg.consensus == ["IUPAC"] and aln_obj.sequence_code[0] != "DNA":
+        print_col("'IUPAC' option of the consensus operation can "
+                  "only be performed on nucleotide alignments.", RED)
+    if arg.codon_filter and aln_obj.sequence_code[0] != "DNA":
+        print_col("The codon filter option (--codon-filter) can only be"
+                  " performed on nucleotide alignments.", RED)
     else:
         return 0
 
