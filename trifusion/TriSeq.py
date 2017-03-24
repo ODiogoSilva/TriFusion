@@ -37,7 +37,8 @@ with warnings.catch_warnings():
         from process import sequence as seqset
         from process import data
         from process.error_handling import *
-        from base.sanity import triseq_arg_check, mfilters, post_aln_checks
+        from base.sanity import triseq_arg_check, mfilters, post_aln_checks, \
+            check_infile_list
     except ImportError:
         from trifusion.process.base import print_col, RED, GREEN, YELLOW,\
             CleanUp
@@ -45,7 +46,7 @@ with warnings.catch_warnings():
         from trifusion.process import data
         from trifusion.process.error_handling import *
         from trifusion.base.sanity import triseq_arg_check, mfilters, \
-            post_aln_checks
+            post_aln_checks, check_infile_list
 
 
 def gen_wgt(msg):
@@ -111,6 +112,19 @@ def main_parser(arg, alignment_list):
         for p in alignment_list:
             fl += glob(p)
         alignment_list = fl
+
+    # Check input files for directories
+    alignment_list, dirs, lost = check_infile_list(alignment_list)
+
+    if dirs:
+        print_col("Ignoring input files pointing to a directory: {}".format(
+            " ".join(dirs)), YELLOW)
+    if lost:
+        print_col("Ignoring input files that do not exist: {}".format(
+            " ".join(lost)), YELLOW)
+    if not alignment_list:
+        print_col("No valid input files have been provided. Terminating...",
+                  RED)
 
     # Input alignments are mandatory from now on
     if not arg.quiet:

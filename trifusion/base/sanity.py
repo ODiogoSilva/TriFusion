@@ -19,6 +19,7 @@
 #  MA 02110-1301, USA.
 
 from argparse import ArgumentTypeError
+import os
 
 try:
     from process.base import print_col, RED, YELLOW
@@ -106,6 +107,14 @@ def post_aln_checks(arg, aln_obj):
     if arg.codon_filter and aln_obj.sequence_code[0] != "DNA":
         print_col("The codon filter option (--codon-filter) can only be"
                   " performed on nucleotide alignments.", RED)
+    if aln_obj.bad_alignments:
+        print_col("The following input files could not be read or are empty"
+                  ": {}".format(" ".join(aln_obj.bad_alignments)), YELLOW)
+    if aln_obj.non_alignments:
+        print_col("The following input files have alignments of unequal "
+                  "length: {}".format(" ".join(aln_obj.non_alignments)),
+                  YELLOW)
+
     else:
         return 0
 
@@ -138,3 +147,23 @@ def mfilters(filt):
         filt = int(filt)
 
     return filt
+
+
+def check_infile_list(infiles):
+
+    dirs = []
+    lost = []
+    good_files = []
+
+    for fpath in infiles:
+
+        if not os.path.exists(fpath):
+            lost.append(fpath)
+
+        elif os.path.isdir(fpath):
+            dirs.append(fpath)
+
+        else:
+            good_files.append(fpath)
+
+    return good_files, dirs, lost
