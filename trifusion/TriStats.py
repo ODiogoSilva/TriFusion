@@ -125,6 +125,9 @@ def main():
     main_exec.add_argument("--generate-cfg", dest="generate_cfg",
                            action="store_const", const=True,
                            help="Generates a configuration template file")
+    main_exec.add_argument("-quiet", dest="quiet", action="store_const",
+                           const=True, default=False, help="Removes all"
+                           " terminal output")
 
     arg = parser.parse_args()
 
@@ -144,8 +147,12 @@ def stats_main(args):
         return generate_cfg_template()
 
     # Create temporary directory
-    if not os.path.exists(".tmp"):
-        os.makedirs(".tmp")
+    tmp_dir = ".trifusion-temp"
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+
+    # Set path to temporary sqlite database
+    sql_db = os.path.join(tmp_dir, "trifusion.db")
 
     # Arguments
     input_files = args.infile
@@ -166,7 +173,7 @@ def stats_main(args):
         input_files = fl
 
     print_col("Parsing %s alignments" % len(input_files), GREEN, 2)
-    alignments = AlignmentList(input_files, dest=".tmp/")
+    alignments = AlignmentList(input_files, sql_db=sql_db)
 
     # Create output dir
     if not os.path.exists(output_dir):
@@ -320,7 +327,8 @@ def stats_main(args):
                         plot_obj.savefig(join(output_dir, funcs[1][1]),
                                          bbox_extra_artists=(lgd,), dpi=200)
                     else:
-                        plot_obj.savefig(join(output_dir, funcs[1][1]), dpi=200)
+                        plot_obj.savefig(join(output_dir, funcs[1][1]),
+                                         dpi=200)
                 else:
                     print_col("Invalid option: %s - %s - %s. Skipping." %
                               (section, option, i), YELLOW, 2)
