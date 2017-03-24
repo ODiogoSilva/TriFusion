@@ -145,13 +145,21 @@ def main_parser(alignment_list, arg):
         print_col("Selecting alignments", GREEN, quiet=arg.quiet)
         if not os.path.exists("Taxa_selection"):
             os.makedirs("Taxa_selection")
-            selected_alignments = alignments.select_by_taxa(arg.select,
-                                                            mode="relaxed")
-            for aln in selected_alignments:
-                alignment_file = aln.path
-                shutil.copy(alignment_file, "Taxa_selection")
 
-            return
+        # Check if any of the provided taxa is absent from the alignments
+        absent_taxa = [x for x in arg.select if x not in alignments.taxa_names]
+        if absent_taxa:
+            print_col("The following taxa were not found in any alignment and"
+                      " will be ignored: {}".format(" ".join(absent_taxa)),
+                      YELLOW, quiet=arg.quiet)
+
+        selected_alignments = alignments.select_by_taxa(arg.select,
+                                                        mode="relaxed")
+        for aln in selected_alignments:
+            alignment_file = aln.path
+            shutil.copy(alignment_file, "Taxa_selection")
+
+        return
 
     # ############################# Main operations ###########################
     # Reverse concatenation
