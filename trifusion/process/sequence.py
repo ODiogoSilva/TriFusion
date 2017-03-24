@@ -1778,7 +1778,7 @@ class Alignment(Base):
             return False
 
     def filter_segregating_sites(self, min_val, max_val, table_in=None,
-                                    ns=None):
+                                    ns=None, pbar=None):
         """
         Evaluates the number of segregating sites of the current alignment
         and returns True if they fall between the min_val and max_val.
@@ -1794,15 +1794,21 @@ class Alignment(Base):
         in the sqlite database. Leave None to use the main Alignment table
         """
 
+        if pbar:
+            pbar.max_value = self.locus_length
+
         # Counter for segregating sites
         s = 0
 
         # Creating the column list variable
-        for column in self.iter_columns(table_name=table_in):
+        for p, column in enumerate(self.iter_columns(table_name=table_in)):
 
             if ns:
                 if ns.stop:
                     raise KillByUser("")
+
+            if pbar:
+                pbar.update(p + 1)
 
             v = len(set([i for i in column if i not in [self.sequence_code[1],
                                                         "-"]]))
@@ -1822,7 +1828,7 @@ class Alignment(Base):
         return self._test_range(s, min_val, max_val)
 
     def filter_informative_sites(self, min_val, max_val, table_in=None,
-                                    ns=None):
+                                    ns=None, pbar=None):
         """
         Similar to filter_segregating_sites method, but only considers
         informative sites (variable sites present in more than 2 taxa).
@@ -1838,11 +1844,17 @@ class Alignment(Base):
         in the sqlite database. Leave None to use the main Alignment table
         """
 
+        if pbar:
+            pbar.max_value = self.locus_length
+
         # Counter for informative sites
         s = 0
 
         # Creating the column list variable
-        for column in self.iter_columns(table_name=table_in):
+        for p, column in enumerate(self.iter_columns(table_name=table_in)):
+
+            if pbar:
+                pbar.update(p + 1)
 
             if ns:
                 if ns.stop:
@@ -3558,7 +3570,7 @@ class AlignmentList(Base):
             ns.total = ns.counter = ns.msg = None
 
     def filter_segregating_sites(self, min_val, max_val, table_in=None,
-                                    ns=None):
+                                    ns=None, pbar=None):
         """
         Wrapper of the filter_segregating_sites method of the Alignment
         object. See the method's documentation
@@ -3572,6 +3584,9 @@ class AlignmentList(Base):
         in the sqlite database. Leave None to use the main Alignment table
         """
 
+        if pbar:
+            pbar.max_value = len(self.alignments)
+
         if ns:
             if ns.stop:
                 raise KillByUser("")
@@ -3580,7 +3595,10 @@ class AlignmentList(Base):
 
         self.filtered_alignments["By variable sites"] = 0
 
-        for k, alignment_obj in list(self.alignments.items()):
+        for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
+
+            if pbar:
+                pbar.update(p + 1)
 
             if ns:
                 if ns.stop:
@@ -3602,7 +3620,7 @@ class AlignmentList(Base):
             ns.total = ns.counter = ns.msg = None
 
     def filter_informative_sites(self, min_val, max_val, table_in=None,
-                                    ns=None):
+                                    ns=None, pbar=None):
         """
         Wrapper of the filter_informative_sites method of the Alignment
         object. See the method's documentation
@@ -3612,6 +3630,9 @@ class AlignmentList(Base):
         informative sites allowed for the alignment to pass the filter
         """
 
+        if pbar:
+            pbar.max_value = len(self.alignments)
+
         if ns:
             if ns.stop:
                 raise KillByUser("")
@@ -3620,7 +3641,10 @@ class AlignmentList(Base):
 
         self.filtered_alignments["By informative sites"] = 0
 
-        for k, alignment_obj in list(self.alignments.items()):
+        for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
+
+            if pbar:
+                pbar.update(p + 1)
 
             if ns:
                 if ns.stop:
