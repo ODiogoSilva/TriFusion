@@ -3160,11 +3160,11 @@ class AlignmentList(Base):
         if pbar:
             pbar.max_value = len(file_name_list)
 
-        for aln_path in file_name_list:
+        for p, aln_path in enumerate(file_name_list):
 
             # Progress bar update for command line version
             if pbar:
-                pbar.update(file_name_list.index(aln_path) + 1)
+                pbar.update(p + 1)
 
             if shared_namespace:
                 shared_namespace.progress += 1
@@ -3272,7 +3272,7 @@ class AlignmentList(Base):
         taxa_list = []
         taxa_idx = {}
 
-        sequence_data = []
+        # sequence_data = []
         # Concatenation is performed for each taxon at a time
         for p, taxon in enumerate(self.taxa_names):
 
@@ -3307,7 +3307,7 @@ class AlignmentList(Base):
             if full_sequence:
                 seq_string = "".join(full_sequence)
 
-                sequence_data.append((p, taxon, seq_string))
+                # sequence_data.append((p, taxon, seq_string))
 
                 # Retrieve locus length
                 locus_length = len(seq_string)
@@ -3315,6 +3315,8 @@ class AlignmentList(Base):
                 # Alignment instance
                 taxa_list.append(taxon)
                 taxa_idx[taxon] = p
+                self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
+                    table), (p, taxon, seq_string))
 
         if ns:
             if ns.stop:
@@ -3322,8 +3324,8 @@ class AlignmentList(Base):
             # Reset counters
             ns.total = ns.counter = None
 
-        self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
-            table), sequence_data)
+        # self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+        #     table), sequence_data)
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():
