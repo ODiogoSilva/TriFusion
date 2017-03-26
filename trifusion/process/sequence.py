@@ -1107,6 +1107,8 @@ class Alignment(Base):
         hap_counter = 1
         sequence_data = []
         correspondence_dic = OrderedDict()
+        self.taxa_list = []
+        self.taxa_idx = {}
         for p, (seq, tx_list) in enumerate(collapsed_dic.items()):
 
             if ns:
@@ -1120,6 +1122,8 @@ class Alignment(Base):
             haplotype = "{}_{}".format(haplotype_name, hap_counter)
             sequence_data.append((p, haplotype, seq))
             correspondence_dic[haplotype] = tx_list
+            self.taxa_list.append(haplotype)
+            self.taxa_idx[haplotype] = p
             hap_counter += 1
 
         # Insert sequence data into database
