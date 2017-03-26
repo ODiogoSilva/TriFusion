@@ -3548,6 +3548,7 @@ class AlignmentList(Base):
             else:
                 ns.total = len(self.alignments)
                 ns.counter = 0
+                ns.sa = False
         if pbar:
             pbar.max_value = len(self.alignments)
 
