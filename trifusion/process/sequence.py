@@ -182,7 +182,7 @@ class SetupDatabase(object):
             if kwargs["use_main_table"]:
                 kwargs["table_out"] = args[0].table_name
                 kwargs["table_in"] = args[0].table_name
-            return self.func(*args, **kwargs)
+                return self.func(*args, **kwargs)
 
         # Get sqlite database cursor and main table name
         sql_cur = args[0].cur
