@@ -111,7 +111,7 @@ informative_storage = {
          "operations on specific sets of taxa and/or files. User specified "
          "groups can be selected by toggling the taxon or file buttons in 'Menu"
          " > Open/View data' and selecting the 'Active taxa/files' option or "
-         "by creating taxa groups in 'Menu > Taxa Groups' and selecting the "
+         "by creating taxa groups in 'Menu > Dataset Groups' and selecting the "
          "name of the corresponding group."],
     "zorro":
         ["[b]ZORRO weights - Help[/b]",
