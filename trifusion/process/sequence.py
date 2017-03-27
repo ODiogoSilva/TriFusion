@@ -140,11 +140,22 @@ class CheckData(object):
 
     def __call__(self, *args, **kwargs):
 
+        # Plot methods that should not be allowed to continue with only one
+        #  active alignment
+        no_single_plot = ["outlier_missing_data", "outlier_missing_data_sp",
+                          "outlier_segregating", "outlier_segregating_sp",
+                          "outlier_sequence_size", "outlier_sequence_size_sp",
+                          "average_seqsize_per_species", "average_seqsize",
+                          "sequence_similarity", "sequence_segregation",
+                          "length_polymorphism_correlation",
+                          "taxa_distribution", "cumulative_missing_genes",
+                          "gene_occupancy", "missing_data_distribution"]
+
         # Calling outlier method with a single alignments should immediately
         # raise an exception
-        if self.func.__name__.startswith("outlier_"):
-            if len(args[0].alignments) == 1:
-                return {"exception": SingleAlignment}
+        if len(args[0].alignments) == 1:
+            if self.func.__name__ in no_single_plot:
+                return {"exception": "single_alignment"}
 
         res = self.func(*args, **kwargs)
 
@@ -152,7 +163,7 @@ class CheckData(object):
             if np.asarray(res["data"]).any():
                 return res
             else:
-                return {"exception": EmptyData}
+                return {"exception": "empty_data"}
         elif "exception" in res:
             return res
 

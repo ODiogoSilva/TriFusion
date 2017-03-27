@@ -9207,21 +9207,25 @@ class TriFusionApp(App):
             return self.dialog_floatcheck(
                 "Active alignment is empty", t="error")
 
-        # Dismiss stats toggle widget, if present
-        self.dismiss_stats_toggle()
-
         if plot_data:
 
             if "exception" in plot_data:
-                if plot_data["exception"] is EmptyData:
+                if plot_data["exception"] == "empty_data":
                     self.screen.ids.plot_content.clear_widgets()
-                    return self.dialog_floatcheck(
+                    self.dialog_floatcheck(
                         "No data available for plotting", t="error")
-                elif plot_data["exception"] is SingleAlignment:
+                elif plot_data["exception"] == "single_alignment":
                     self.screen.ids.plot_content.clear_widgets()
-                    return self.dialog_floatcheck(
+                    self.dialog_floatcheck(
                         "Selected plot cannot be executed on single "
                         "alignments", t="error")
+
+                self.screen.ids.footer_box.clear_widgets()
+                self.populate_stats_footer(["NA", "NA"])
+                return self.dismiss_plot_wgt()
+
+            # Dismiss stats toggle widget, if present
+            self.dismiss_stats_toggle()
 
             # Set new plot attributes
             self.current_plot, self.current_lgd, self.current_table = \
