@@ -4929,7 +4929,7 @@ class AlignmentList(Base):
                 "labels": list(taxa_pos)}
 
     @CheckData
-    def sequence_similarity_gene(self, gene_name, window_size):
+    def sequence_similarity_gene(self, gene_name, window_size, ns=None):
 
         aln_obj = self.retrieve_alignment(gene_name)
 
@@ -4958,7 +4958,7 @@ class AlignmentList(Base):
 
         return {"data": data,
                 "title": "Sequence similarity sliding window for gene %s"
-                         % gene_name,
+                         % basename(gene_name),
                 "window_size": window_size,
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
@@ -5068,7 +5068,7 @@ class AlignmentList(Base):
                 "color_label": "Segregating sites"}
 
     @CheckData
-    def sequence_segregation_gene(self, gene_name, window_size):
+    def sequence_segregation_gene(self, gene_name, window_size, ns=None):
         """
         Generates data for a sliding window analysis of segregating sites
         :param gene_name: string, name of gene in self.alignments
@@ -5097,7 +5097,7 @@ class AlignmentList(Base):
 
         return {"data": data,
                 "title": "Number of segregating sites sliding window for "
-                         "gene %s" % gene_name,
+                         "gene %s" % basename(gene_name),
                 "window_size": window_size,
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
