@@ -5908,9 +5908,13 @@ class TriFusionApp(App):
         if self.lock_stats:
             return
 
-        # Check if plot has been previously loaded. If yes, ignore
-        if isinstance(plot_wgt.children[0], Image) and not force:
-            return
+        # Check if plot has been previously loaded. If yes, ignore.
+        # If there are no children, proceed as usual
+        try:
+            if isinstance(plot_wgt.children[0], Image) and not force:
+                return
+        except IndexError:
+            pass
 
         # Check if any input alignments are active. If not, depends on
         # whether there is a summary statistics widget already in
