@@ -149,7 +149,8 @@ class CheckData(object):
                           "sequence_similarity", "sequence_segregation",
                           "length_polymorphism_correlation",
                           "taxa_distribution", "cumulative_missing_genes",
-                          "gene_occupancy", "missing_data_distribution"]
+                          "gene_occupancy", "missing_data_distribution",
+                          "missing_genes_average"]
 
         # Calling outlier method with a single alignments should immediately
         # raise an exception
