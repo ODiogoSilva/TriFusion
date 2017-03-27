@@ -18,5 +18,7 @@ Removeria trifusion/tests/__pycache__/
 Removeria trifusion/tests/data/.directory
 Removeria trifusion/benchmarks/__pycache__/
 Removeria trifusion/benchmarks/benchmark_memread_ds1.py
-/trifusion/benchmarks_mem.py
-/trifusion/benchmarks.py
+trifusion/benchmarks_mem.py
+trifusion/benchmarks.py
+Removeria trifusion/tests/data/teste.part.File
+Removeria trifusion/tests/data/teste2.charset

@@ -9581,8 +9581,8 @@ class TriFusionApp(App):
 
                 # Get the current plot from the backup
                 self.current_table = self.plot_backups[plt_idx]
-                self.current_plot = pickle.load(open(join(self.temp_dir,
-                                                          plt_idx), "rb"))
+                self.current_plot = pickle.load(
+                    open(join(self.temp_dir, plt_idx.replace("/", "")), "rb"))
 
                 return self.stats_write_plot(None, None, plt_idx)
         else:
