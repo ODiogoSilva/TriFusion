@@ -73,7 +73,7 @@ class SeconaryOpsTest(unittest.TestCase):
         print(self.aln_obj.alignments)
 
         self.assertEqual(self.aln_obj.outlier_missing_data(),
-                         {"exception": SingleAlignment})
+                         {"exception": "single_alignment"})
 
     def test_single_aln_outlier_mdata_sp(self):
 
@@ -82,7 +82,7 @@ class SeconaryOpsTest(unittest.TestCase):
         print(self.aln_obj.alignments)
 
         self.assertEqual(self.aln_obj.outlier_missing_data_sp(),
-                         {"exception": SingleAlignment})
+                         {"exception": "single_alignment"})
 
     def test_single_aln_outlier_seg(self):
 
@@ -91,7 +91,7 @@ class SeconaryOpsTest(unittest.TestCase):
         print(self.aln_obj.alignments)
 
         self.assertEqual(self.aln_obj.outlier_segregating(),
-                         {"exception": SingleAlignment})
+                         {"exception": "single_alignment"})
 
     def test_single_aln_outlier_seg_sp(self):
 
@@ -100,7 +100,7 @@ class SeconaryOpsTest(unittest.TestCase):
         print(self.aln_obj.alignments)
 
         self.assertEqual(self.aln_obj.outlier_segregating_sp(),
-                         {"exception": SingleAlignment})
+                         {"exception": "single_alignment"})
 
     def test_single_aln_outlier_seqsize(self):
 
@@ -109,7 +109,7 @@ class SeconaryOpsTest(unittest.TestCase):
         print(self.aln_obj.alignments)
 
         self.assertEqual(self.aln_obj.outlier_sequence_size(),
-                         {"exception": SingleAlignment})
+                         {"exception": "single_alignment"})
 
     def test_single_aln_outlier_seqsize_sp(self):
 
@@ -118,15 +118,14 @@ class SeconaryOpsTest(unittest.TestCase):
         print(self.aln_obj.alignments)
 
         self.assertEqual(self.aln_obj.outlier_sequence_size_sp(),
-                         {"exception": SingleAlignment})
+                         {"exception": "single_alignment"})
 
     def test_no_data(self):
 
         self.aln_obj = AlignmentList([], sql_db=sql_db)
 
         self.assertEqual(self.aln_obj.gene_occupancy(),
-                         {'exception':
-                         EmptyData})
+                         {'exception': "empty_data"})
 
     def test_gene_occupancy(self):
 
