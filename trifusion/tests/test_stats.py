@@ -70,8 +70,6 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.update_active_alignments(dna_data_fas[0])
 
-        print(self.aln_obj.alignments)
-
         self.assertEqual(self.aln_obj.outlier_missing_data(),
                          {"exception": "single_alignment"})
 
@@ -87,8 +85,6 @@ class SeconaryOpsTest(unittest.TestCase):
     def test_single_aln_outlier_seg(self):
 
         self.aln_obj.update_active_alignments(dna_data_fas[0])
-
-        print(self.aln_obj.alignments)
 
         self.assertEqual(self.aln_obj.outlier_segregating(),
                          {"exception": "single_alignment"})
@@ -106,8 +102,6 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.update_active_alignments(dna_data_fas[0])
 
-        print(self.aln_obj.alignments)
-
         self.assertEqual(self.aln_obj.outlier_sequence_size(),
                          {"exception": "single_alignment"})
 
@@ -115,9 +109,77 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.update_active_alignments(dna_data_fas[0])
 
-        print(self.aln_obj.alignments)
-
         self.assertEqual(self.aln_obj.outlier_sequence_size_sp(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_average_seqsize_per_species(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.average_seqsize_per_species(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_average_seqsize(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.average_seqsize(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_sequence_similarity(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.sequence_similarity(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_sequence_segregation(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.sequence_segregation(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_length_polymorphism_correlation(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.length_polymorphism_correlation(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_taxa_distribution(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.taxa_distribution(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_cumulative_missing_genes(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.cumulative_missing_genes(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_gene_occupancy(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.gene_occupancy(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_missing_data_distribution(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.missing_data_distribution(),
+                         {"exception": "single_alignment"})
+
+    def test_single_aln_missing_genes_average(self):
+
+        self.aln_obj.update_active_alignments(dna_data_fas[0])
+
+        self.assertEqual(self.aln_obj.missing_genes_average(),
                          {"exception": "single_alignment"})
 
     def test_no_data(self):
