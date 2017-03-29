@@ -580,13 +580,29 @@ class Alignment(Base):
             lock.release()
 
     @SetupInTable
-    def iter_alignment_substr(self, start, len, table_suffix="",
+    def iter_alignment_substr(self, start, length, table_suffix="",
                               table_name=None, table=None):
+        """
+        This generator is similar to iter_alignment, but it only returns
+        a substring of the alignment sequence as specified bu the start
+        and len arguments. The 'start' argument specified the starting point
+        (index 1) and the length the, well, length of the substring from
+        the initial point
+        :param start: (int) starting point for substring (index 1)
+        :param len: (int) length of substring from the start point
+        :param table_name: string. Name of the table where the sequence data
+        will be fetched
+        :param table_suffix: string. Suffix of the table where the sequence
+        data will be fetched.
+        :param table: This argument is automatically prodived by the
+        SetupInTable decorator. DO NOT USE DIRECTLY.
+        """
+
         try:
             lock.acquire(True)
             for tx, seq in self.cur.execute(
                     "SELECT taxon, substr(seq,{},{}) from [{}]".format(
-                        start, len, table)).fetchall():
+                        start, length, table)).fetchall():
                 if tx not in self.shelved_taxa:
                     yield tx, seq
         finally:
