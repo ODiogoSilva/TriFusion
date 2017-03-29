@@ -580,6 +580,19 @@ class Alignment(Base):
             lock.release()
 
     @SetupInTable
+    def iter_alignment_substr(self, start, len, table_suffix="",
+                              table_name=None, table=None):
+        try:
+            lock.acquire(True)
+            for tx, seq in self.cur.execute(
+                    "SELECT taxon, substr(seq,{},{}) from [{}]".format(
+                        start, len, table)).fetchall():
+                if tx not in self.shelved_taxa:
+                    yield tx, seq
+        finally:
+            lock.release()
+
+    @SetupInTable
     def iter_alignment(self, table_suffix="", table_name=None, table=None):
         """
         Generator for a tuple pair with (taxon, sequece).
@@ -1386,12 +1399,14 @@ class Alignment(Base):
                                      "taxon TEXT,"
                                      "seq TEXT)".format(name + str(i)))
 
-                    for p, (taxon, seq) in enumerate(self.iter_alignment(
-                            table_name=table_in)):
+                    for p, (taxon, seq) in enumerate(
+                            self.iter_alignment_substr(
+                                part_range[0][0],
+                                part_range[0][1] - part_range[0][0] + 1,
+                                table_name=table_in)):
 
                         # Get sequence for codon partition
-                        sub_seq = seq[part_range[0][0]:
-                                      part_range[0][1] + 1][i::3]
+                        sub_seq = seq[i::3]
 
                         # If sub_seq is not empty (only gaps or missing data)
                         if sub_seq.replace(self.sequence_code[1], "") != "":
@@ -1400,10 +1415,9 @@ class Alignment(Base):
                         if not sequence_data:
                             continue
 
-                        add_alignment(name + str(i), len(sub_seq),
-                                      sequence_data)
-                        # Reset sequence_data for next partition
-                        sequence_data = []
+                    add_alignment(name + str(i), len(sub_seq), sequence_data)
+                    # Reset sequence_data for next partition
+                    sequence_data = []
 
             # Partition has no codon sub partition. Proceed normally
             else:
@@ -1414,21 +1428,20 @@ class Alignment(Base):
                                  "taxon TEXT,"
                                  "seq TEXT)".format(name))
 
-                for p, (taxon, seq) in enumerate(self.iter_alignment(
+                for p, (taxon, seq) in enumerate(self.iter_alignment_substr(
+                        part_range[0][0] + 1,
+                        part_range[0][1] - part_range[0][0] + 1,
                         table_name=table_in)):
 
-                    # Get sequence for current partition
-                    sub_seq = seq[part_range[0][0]:part_range[0][1] + 1]
-
                     # If sub_seq is not empty (only gaps or missing data)
-                    if sub_seq.replace(self.sequence_code[1], "") != "":
-                        sequence_data.append((p, taxon, sub_seq))
+                    if seq.replace(self.sequence_code[1], "") != "":
+                        sequence_data.append((p, taxon, seq))
 
                     if not sequence_data:
                         continue
 
-                    add_alignment(name, len(sub_seq), sequence_data)
-                    sequence_data = []
+                add_alignment(name, len(seq), sequence_data)
+                sequence_data = []
 
         concatenated_aln.add_alignments(alns, ignore_paths=True)
 
