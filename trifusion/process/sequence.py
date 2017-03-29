@@ -426,9 +426,11 @@ class Alignment(Base):
         """
         Creates a database table for the current alignment. This will be the
         link attribute between the sqlite database and the remaining methods
-        that require information on the sequence data.
+        that require information on the sequence data. This also removes
+        any non alpha numeric characters the table name might have and ensures
+        that it starts with a aphabetic character to avoid a database error
         """
-        self.table_name = "".join([x for x in self.path if x.isalnum()])
+        self.table_name = "t" + "".join([x for x in self.path if x.isalnum()])
 
         """
         Lists the currently active tables for the Alignment object. The
