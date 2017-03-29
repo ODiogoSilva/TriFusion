@@ -217,7 +217,7 @@ class SetupDatabase(object):
                 "SELECT name FROM sqlite_master WHERE type='table' AND"
                 " name='{}'".format(table_out)).fetchall():
 
-            sql_cur.execute("CREATE TABLE {}("
+            sql_cur.execute("CREATE TABLE [{}]("
                              "txId INT,"
                              "taxon TEXT,"
                              "seq TEXT)".format(table_out))
@@ -473,7 +473,7 @@ class Alignment(Base):
 
                 # Create database table when there are no issues in the
                 # recognition of the file format and sequence code
-                self.cur.execute("CREATE TABLE {}("
+                self.cur.execute("CREATE TABLE [{}]("
                                  "txId INT,"
                                  "taxon TEXT,"
                                  "seq TEXT)".format(self.table_name))
@@ -502,7 +502,7 @@ class Alignment(Base):
         """
 
         for tx, seq in self.cur.execute(
-                "SELECT taxon,seq from {}".format(
+                "SELECT taxon,seq from [{}]".format(
                     self.table_name)).fetchall():
             if tx not in self.shelved_taxa:
                 yield tx, seq
@@ -544,7 +544,7 @@ class Alignment(Base):
             #     print(res)
             #     yield [x[0] for x in res]
             for i in itertools.izip(*(x[1] for x in self.cur.execute(
-                    "SELECT taxon, seq from {}".format(table))
+                    "SELECT taxon, seq from [{}]".format(table))
                            if x[0] not in self.shelved_taxa)):
                 yield i
         finally:
@@ -572,7 +572,7 @@ class Alignment(Base):
 
         try:
             lock.acquire(True)
-            for tx, seq in self.cur.execute("SELECT taxon,seq FROM {}".format(
+            for tx, seq in self.cur.execute("SELECT taxon,seq FROM [{}]".format(
                     table)).fetchall():
                 if tx not in self.shelved_taxa:
                     yield seq
@@ -601,7 +601,7 @@ class Alignment(Base):
         try:
             lock.acquire(True)
             for tx, seq in self.cur.execute(
-                    "SELECT taxon,seq from {}".format(table)).fetchall():
+                    "SELECT taxon,seq from [{}]".format(table)).fetchall():
                 if tx not in self.shelved_taxa:
                     yield tx, seq
         finally:
@@ -632,7 +632,7 @@ class Alignment(Base):
             lock.acquire(True)
             if taxon in self.taxa_list and taxon not in self.shelved_taxa:
                 return self.cur.execute(
-                    "SELECT seq FROM {} WHERE txId=?".format(table),
+                    "SELECT seq FROM [{}] WHERE txId=?".format(table),
                     (self.taxa_idx[taxon],)).fetchone()[0]
 
             else:
@@ -646,11 +646,11 @@ class Alignment(Base):
         """
 
         # Drop main alignment
-        self.cur.execute("DROP TABLE {}".format(self.table_name))
+        self.cur.execute("DROP TABLE [{}]".format(self.table_name))
 
         # If additional alignments were created, drop those tables as well
         for table in self.tables:
-            self.cur.execute("DROP TABLE {}".format(table))
+            self.cur.execute("DROP TABLE [{}]".format(table))
 
     def shelve_taxa(self, taxa_list):
         """
@@ -763,7 +763,7 @@ class Alignment(Base):
             sequence_data = [(p, x, "".join(y)) for p, (x, y) in
                              enumerate(sorted(sequence_data))]
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             # Updating partitions object
@@ -797,7 +797,7 @@ class Alignment(Base):
             sequence_data = [(p, x, y) for p, (x, y) in
                              enumerate(sorted(sequence_data))]
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             self.locus_length = len(sequence_data[0][2])
@@ -852,7 +852,7 @@ class Alignment(Base):
             sequence_data = [(p, tx, "".join(seq)) for p, (tx, seq) in
                              enumerate(sorted(sequence_data.items()))]
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             self.partitions.set_length(self.locus_length)
@@ -882,7 +882,7 @@ class Alignment(Base):
                     self.partitions.set_length(self.locus_length)
 
                     self.cur.executemany(
-                        "INSERT INTO {} VALUES (?, ?, ?)".format(
+                        "INSERT INTO [{}] VALUES (?, ?, ?)".format(
                             self.table_name), sequence_data)
 
                 # Start parsing here
@@ -947,7 +947,7 @@ class Alignment(Base):
             sequence_data = [(p, x, y) for p, (x, y) in
                              enumerate(sorted(sequence_data))]
 
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 self.table_name), sequence_data)
 
             self.locus_length = len(sequence_data[0][1])
@@ -998,7 +998,7 @@ class Alignment(Base):
         def remove(list_taxa):
             for tx in list_taxa:
                 self.cur.execute(
-                    "DELETE FROM {} WHERE txId=?".format(self.table_name),
+                    "DELETE FROM [{}] WHERE txId=?".format(self.table_name),
                     (self.taxa_idx[tx],))
                 self.taxa_list.remove(tx)
                 del self.taxa_idx[tx]
@@ -1039,7 +1039,7 @@ class Alignment(Base):
         if old_name in self.taxa_list:
             self.taxa_list[self.taxa_list.index(old_name)] = new_name
             # Change in the database
-            self.cur.execute("UPDATE {} SET taxon=? WHERE txId=?".format(
+            self.cur.execute("UPDATE [{}] SET taxon=? WHERE txId=?".format(
                 self.table_name), (new_name, self.taxa_idx[old_name]))
             # Change in taxa_index
             self.taxa_idx[new_name] = self.taxa_idx[old_name]
@@ -1114,7 +1114,7 @@ class Alignment(Base):
         # The collapse operation is special in the sense that the former taxon
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the collapsed data
-        self.cur.execute("DELETE FROM {};".format(table_out))
+        self.cur.execute("DELETE FROM [{}];".format(table_out))
 
         # Insert collapsed alignment into database and create correspondance
         # dictionary
@@ -1142,7 +1142,7 @@ class Alignment(Base):
 
         # Insert sequence data into database
         self.cur.executemany(
-            "INSERT INTO {} VALUES (?, ?, ?)".format(table_out),
+            "INSERT INTO [{}] VALUES (?, ?, ?)".format(table_out),
             sequence_data)
 
         if write_haplotypes is True:
@@ -1203,7 +1203,7 @@ class Alignment(Base):
         if consensus_type == "First sequence":
             # Grab first sequence
             consensus_seq = [self.cur.execute(
-                "SELECT seq from {} WHERE txId=0".format(
+                "SELECT seq from [{}] WHERE txId=0".format(
                     table_in)).fetchone()[0]]
 
         for p, column in enumerate(self.iter_columns(table_name=table_in)):
@@ -1258,10 +1258,10 @@ class Alignment(Base):
         # The consensus operation is special in the sense that the former taxon
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the consensus data
-        self.cur.execute("DELETE FROM {};".format(table_out))
+        self.cur.execute("DELETE FROM [{}];".format(table_out))
 
         # Insert into database
-        self.cur.execute("INSERT INTO {} VALUES(?, ?, ?)".format(
+        self.cur.execute("INSERT INTO [{}] VALUES(?, ?, ?)".format(
             table_out), (0, "consensus", "".join(consensus_seq)))
 
         self.taxa_list = ["consensus"]
@@ -1337,7 +1337,7 @@ class Alignment(Base):
             current_partition.add_partition(part_name, part_len)
 
             # Add data to database
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 part_name), seq_data)
 
             # Set taxa list attributes
@@ -1381,7 +1381,7 @@ class Alignment(Base):
                 for i in range(3):
 
                     # Create table for current partition based on its name
-                    self.cur.execute("CREATE TABLE {}("
+                    self.cur.execute("CREATE TABLE [{}]("
                                      "txId INT,"
                                      "taxon TEXT,"
                                      "seq TEXT)".format(name + str(i)))
@@ -1409,7 +1409,7 @@ class Alignment(Base):
             else:
 
                 # Create table for current partition based on its name
-                self.cur.execute("CREATE TABLE {}("
+                self.cur.execute("CREATE TABLE [{}]("
                                  "txId INT,"
                                  "taxon TEXT,"
                                  "seq TEXT)".format(name))
@@ -1473,11 +1473,11 @@ class Alignment(Base):
 
             if table_in == table_out:
                 self.cur.execute(
-                    "UPDATE {} SET seq=? WHERE txId=?".format(table_out),
+                    "UPDATE [{}] SET seq=? WHERE txId=?".format(table_out),
                     (filtered_seq, self.taxa_idx[taxon]))
             else:
                 self.cur.execute(
-                    "INSERT INTO {} VALUES (?, ?, ?)".format(
+                    "INSERT INTO [{}] VALUES (?, ?, ?)".format(
                         table_out), (self.taxa_idx[taxon], taxon,
                                      filtered_seq))
 
@@ -1603,10 +1603,10 @@ class Alignment(Base):
 
         # Populate/modify table
         if table_in == table_out:
-            self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+            self.cur.executemany("UPDATE [{}] SET seq=? WHERE txId=?".format(
                 table_out), sequence_data)
         else:
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 table_out), sequence_data)
 
         self.restriction_range = "%s-%s" % (int(self.locus_length),
@@ -1665,10 +1665,10 @@ class Alignment(Base):
         # updated
         if table_in == table_out:
             sequence_data = [(x[2], x[0]) for x in sequence_data]
-            self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+            self.cur.executemany("UPDATE [{}] SET seq=? WHERE txId=?".format(
                 table_out), sequence_data)
         else:
-            self.cur.executemany("INSERT INTO {} (txId, taxon, seq)"
+            self.cur.executemany("INSERT INTO [{}] (txId, taxon, seq)"
                                  " VALUES (?, ?, ?)".format(
                 table_out), sequence_data)
 
@@ -1725,10 +1725,10 @@ class Alignment(Base):
         # updated
         if table_in == table_out:
             sequence_data = [(x[2], x[0]) for x in sequence_data]
-            self.cur.executemany("UPDATE {} SET seq=? WHERE txId=?".format(
+            self.cur.executemany("UPDATE [{}] SET seq=? WHERE txId=?".format(
                 table_out), sequence_data)
         else:
-            self.cur.executemany("INSERT INTO {} (txId, taxon, seq)"
+            self.cur.executemany("INSERT INTO [{}] (txId, taxon, seq)"
                                  " VALUES (?, ?, ?)".format(
                 table_out), sequence_data)
 
@@ -2929,7 +2929,7 @@ class AlignmentList(Base):
                              preserve_tables]
 
         for tb in tables_delete:
-            self.cur.execute("DROP TABLE {}".format(tb))
+            self.cur.execute("DROP TABLE [{}]".format(tb))
 
     def clear_alignments(self):
         """
@@ -2944,7 +2944,7 @@ class AlignmentList(Base):
         # Drop active databases of the AlignmentList instance, namely consensus
         # and concatenation, if they exist
         for table in self.active_tables:
-            self.cur.execute("DROP TABLE {}".format(table))
+            self.cur.execute("DROP TABLE [{}]".format(table))
 
         self.alignments = {}
         self.shelve_alignments = {}
@@ -3275,7 +3275,7 @@ class AlignmentList(Base):
         table = "concatenation"
 
         # Create table that will harbor the concatenated alignment
-        self.cur.execute("CREATE TABLE {}("
+        self.cur.execute("CREATE TABLE [{}]("
                          "txId INT,"
                          "taxon TEXT,"
                          "seq TEXT)".format(table))
@@ -3333,7 +3333,7 @@ class AlignmentList(Base):
                 # Alignment instance
                 taxa_list.append(taxon)
                 taxa_idx[taxon] = p
-                self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
+                self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                     table), (p, taxon, seq_string))
 
         if ns:
@@ -3962,7 +3962,7 @@ class AlignmentList(Base):
         if single_file:
             # Create a table that will harbor the consensus sequences of all
             # Alignment objects
-            self.cur.execute("CREATE TABLE {}("
+            self.cur.execute("CREATE TABLE [{}]("
                              "txId INT,"
                              "taxon TEXT,"
                              "seq TEXT)".format("consensus"))
@@ -4003,7 +4003,7 @@ class AlignmentList(Base):
                 self.remove_tables(preserve_tables=["consensus"])
 
             # Populate database table
-            self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 "consensus"), consensus_data)
 
             # Create Alignment object
