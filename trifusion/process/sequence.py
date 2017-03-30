@@ -420,8 +420,14 @@ class Alignment(Base):
         self.name = basename(input_alignment)
 
         self.sequence_code = sequence_code
-        self.taxa_list = taxa_list
-        self.taxa_idx = taxa_idx
+        if taxa_list:
+            self.taxa_list = taxa_list
+        else:
+            self.taxa_list = []
+        if taxa_idx:
+            self.taxa_idx = taxa_idx
+        else:
+            self.taxa_idx = {}
 
         """
         Creates a database table for the current alignment. This will be the
@@ -573,7 +579,7 @@ class Alignment(Base):
         try:
             lock.acquire(True)
             for tx, seq in self.cur.execute("SELECT taxon,seq FROM [{}]".format(
-                    table)).fetchall():
+                    table)):
                 if tx not in self.shelved_taxa:
                     yield seq
         finally:
@@ -688,6 +694,99 @@ class Alignment(Base):
 
         self.shelved_taxa = taxa_list
 
+    def _read_interleave_phylip(self, file_path, ntaxa):
+
+        size_list = []
+
+        for i in xrange(ntaxa):
+
+            sequence = []
+            idx = 0
+            taxa_gather = True
+
+            fh = open(file_path)
+
+            # Skip header
+            next(fh)
+
+            for line in fh:
+
+                if not line.strip():
+                    idx = 0
+                    taxa_gather = False
+                else:
+                    if idx == i:
+                        if taxa_gather:
+                            sequence.append(
+                                "".join(line.strip().lower().split()[1:]))
+                        else:
+                            sequence.append(
+                                "".join(line.strip().lower().split()))
+                    idx += 1
+
+            seq = "".join(sequence)
+            taxa = self.taxa_list[i]
+
+            size_list.append(len(seq))
+
+            self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
+                self.table_name), (i, taxa, seq))
+
+            fh.close()
+
+        return size_list
+
+    def _read_interleave_nexus(self, file_path, ntaxa):
+
+        size_list = []
+
+        for i in xrange(ntaxa):
+
+            counter = 0
+            idx = 0
+            sequence = []
+            taxa = None
+
+            fh = open(file_path)
+
+            for line in fh:
+
+                if line.strip().lower() == "matrix" and counter == 0:
+                    counter = 1
+
+                elif line.strip() == ";" and counter == 1:
+                    counter = 2
+
+                elif counter == 1:
+
+                    if not line.strip():
+                        idx = 0
+                    else:
+                        if idx == i:
+                            if not taxa:
+                                taxa = line.strip().split()[0].replace(" ",
+                                                                       "")
+                                taxa = self.rm_illegal(taxa)
+
+                            sequence.append(
+                                "".join(line.strip().lower().split()[1:]))
+
+                        idx += 1
+
+            self.taxa_list.append(taxa)
+            self.taxa_idx[taxa] = i
+
+            seq = "".join(sequence)
+            if not self.locus_length:
+                self.locus_length = len(seq)
+
+            size_list.append(len(seq))
+
+            self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
+                self.table_name), (i, taxa, seq))
+
+            fh.close()
+
     def read_alignment(self, input_alignment, alignment_format,
                        size_check=True):
         """
@@ -705,6 +804,8 @@ class Alignment(Base):
         """
 
         file_handle = open(input_alignment)
+
+        size_list = []
 
         # =====================================================================
         # PARSING PHYLIP FORMAT
@@ -724,8 +825,7 @@ class Alignment(Base):
             # Counter that makes the correspondence between the current line
             # and the appropriate taxon
             c = 0
-            # Stores sequence data that will be provided to database
-            sequence_data = []
+
             for line in file_handle:
 
                 # Ignore empty lines
@@ -746,18 +846,13 @@ class Alignment(Base):
                     #  phylip header
                     if not taxa_gather:
 
-                        # Joint multiple batches of sequence
-                        # Remove any possible whitespace by splitting
-                        # according to whitespace. This also ensures that
-                        # sequence is always a list when added to
-                        # sequence_data
-                        sequence = line.strip().lower().split()
-
-                        # Extended sequence list for the current taxa
-                        # based on the c index
-                        sequence_data[c][1].extend(sequence)
-
-                        c += 1
+                        # Oh boy, this seems like an interleave phylip file.
+                        # Redirect parsing to appropriate method
+                        self.cur.execute("DELETE FROM {}".format(
+                            self.table_name))
+                        size_list = self._read_interleave_phylip(self.path,
+                                                                 taxa_num)
+                        break
 
                     # To support interleave phylip, while the taxa_pos
                     # variable has not reached the expected number of taxa
@@ -769,9 +864,6 @@ class Alignment(Base):
                         taxa = line.split()[0].replace(" ", "")
                         taxa = self.rm_illegal(taxa)
 
-                        # Add counter for interleave processing
-                        c += 1
-
                         try:
                             # Joint multiple batches of sequence
                             # Remove any possible whitespace by splitting
@@ -782,18 +874,24 @@ class Alignment(Base):
                         except IndexError:
                             sequence = [""]
 
-                        sequence_data.append((taxa, sequence))
+                        self.taxa_list.append(taxa)
+                        self.taxa_idx[taxa] = c
+
+                        seq = "".join(sequence)
+
+                        self.cur.execute("INSERT INTO [{}] VALUES"
+                                         "(?, ?, ?)".format(
+                            self.table_name), (c, taxa, seq))
+
+                        size_list.append(len(seq))
+
+                        # Add counter for interleave processing
+                        c += 1
+
+                        # sequence_data.append((taxa, "".join(sequence)))
 
                 except IndexError:
                     pass
-
-            # Having sequences extended in a list and in the end converting to
-            # strings is much faster than having strings from the beginning
-            sequence_data = [(p, x, "".join(y)) for p, (x, y) in
-                             enumerate(sorted(sequence_data))]
-
-            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                self.table_name), sequence_data)
 
             # Updating partitions object
             self.partitions.add_partition(self.name, self.locus_length,
@@ -804,13 +902,27 @@ class Alignment(Base):
         # ====================================================================
         elif alignment_format == "fasta":
             sequence = []
-            sequence_data = []
+            idx = 0
             for line in file_handle:
                 if line.strip().startswith(">"):
 
                     if sequence:
-                        sequence_data.append((taxa, "".join(sequence)))
+                        seq = "".join(sequence)
+                        self.cur.execute("INSERT INTO [{}] VALUES"
+                                         " (?, ?, ?)".format(
+                            self.table_name), (idx, taxa, seq))
+
+                        self.taxa_list.append(taxa)
+                        self.taxa_idx[taxa] = idx
+
+                        if not self.locus_length:
+                            self.locus_length = len(seq)
+
+                        size_list.append(len(seq))
+
+                        # sequence_data.append((taxa, "".join(sequence)))
                         sequence = []
+                        idx += 1
 
                     taxa = line[1:].strip()
                     taxa = self.rm_illegal(taxa)
@@ -819,17 +931,19 @@ class Alignment(Base):
                     sequence.append(line.strip().lower().
                                     replace(" ", "").replace("*", ""))
 
-            # Get last sequence
-            sequence_data.append((taxa, "".join(sequence)))
+            if sequence:
+                seq = "".join(sequence)
+                self.cur.execute("INSERT INTO [{}] VALUES"
+                                 " (?, ?, ?)".format(
+                    self.table_name), (idx, taxa, seq))
 
-            # Create index for sequence data
-            sequence_data = [(p, x, y) for p, (x, y) in
-                             enumerate(sorted(sequence_data))]
+                self.taxa_list.append(taxa)
+                self.taxa_idx[taxa] = idx
 
-            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                self.table_name), sequence_data)
+                if not self.locus_length:
+                    self.locus_length = len(seq)
 
-            self.locus_length = len(sequence_data[0][2])
+            size_list.append(len(seq))
 
             self.partitions.set_length(self.locus_length)
 
@@ -864,6 +978,7 @@ class Alignment(Base):
 
                     locus_len = len(fields[1])
                     self.locus_length += locus_len
+                    size_list.append(locus_len)
 
                     # Adding missing data
                     for tx in taxa_list:
@@ -890,11 +1005,51 @@ class Alignment(Base):
         # PARSING NEXUS FORMAT
         # =====================================================================
         elif alignment_format == "nexus":
-            sequence_data = {}
             counter = 0
+            idx = 0
+            ntaxa = None
+            interleave = None
             for line in file_handle:
 
-                # Skips the nexus header
+                # Fetch the number of taxa from nexus header. This will be
+                # necessary for efficient interleave parsing
+                if not ntaxa:
+                    try:
+                        ntaxa = int(re.search(r".*ntax=(.+?) ",
+                                                  line).group(1))
+                    except ValueError:
+                        self.e = InputError("Could not recognize number"
+                                            " of taxa from nexus header")
+                        return
+                    except AttributeError:
+                        pass
+
+                # Fetch the number of sites from nexus header. This will be
+                # necessary for efficient interleave parsing
+                if not self.locus_length:
+                    try:
+                        self.locus_length = int(
+                            re.search(r".*nchar=(.+?)[ ,;]",
+                                      line).group(1))
+                    except ValueError:
+                        self.e = InputError("Could not recognize number"
+                                            " of sites from nexus header")
+                        return
+                    except AttributeError:
+                        pass
+
+                # Fetch the interleave value from the  nexus header. This
+                # will be necessary for efficient interleave parsing
+                if interleave == None:
+                    try:
+                        interleave = re.search(r"interleave=(.+?) ",
+                                               line).group(1).lower()
+                        interleave = True if interleave.strip() == "yes" \
+                            else False
+                    except AttributeError:
+                        pass
+
+                # Set the counter to beggin data parsing
                 if line.strip().lower() == "matrix" and counter == 0:
                     counter = 1
 
@@ -902,29 +1057,49 @@ class Alignment(Base):
                 elif line.strip() == ";" and counter == 1:
                     counter = 2
 
-                    # Convert sequence data for format to insert into
-                    # database
-                    sequence_data = [(p, tx, "".join(seq)) for p, (tx, seq) in
-                                     enumerate(sorted(sequence_data.items()))]
-
-                    self.locus_length = len(sequence_data[0][2])
+                    # self.locus_length = len(sequence_data[0][2])
                     self.partitions.set_length(self.locus_length)
 
-                    self.cur.executemany(
-                        "INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                            self.table_name), sequence_data)
-
                 # Start parsing here
-                elif line.strip() != "" and counter == 1:
-                    taxa = line.strip().split()[0].replace(" ", "")
-                    taxa = self.rm_illegal(taxa)
+                elif counter == 1:
 
-                    # This accommodates for the interleave format
-                    if taxa in sequence_data:
-                        sequence_data[taxa].extend(line.strip().
-                                                   lower().split()[1:])
+                    # If neither ntaxa or interleave are defined, return
+                    # with an error in the 'e' attribute
+                    if not ntaxa or interleave == None:
+                        self.e = InputError("Could not recognize ntax or"
+                                            " interleave parameters from"
+                                            " nexus header")
+                        return
+
+                    if interleave == False:
+
+                        # In interleave, this marks the change in matrix blocks
+                        if not line.strip():
+                            continue
+
+                        # Get taxon name
+                        taxa = line.strip().split()[0].replace(" ", "")
+                        taxa = self.rm_illegal(taxa)
+
+                        # Update taxa_list and taxa_idx attributes
+                        self.taxa_list.append(taxa)
+                        self.taxa_idx[taxa] = idx
+
+                        # Get sequence string
+                        seq = "".join(line.strip().split()[1].split())
+
+                        size_list.append(len(seq))
+
+                        # Add sequence to sqlite database
+                        self.cur.execute(
+                            "INSERT INTO {} VALUES (?, ?, ?)".format(
+                                self.table_name), (idx, taxa, seq))
+
+                        idx += 1
+
                     else:
-                        sequence_data[taxa] = line.strip().lower().split()[1:]
+                        self._read_interleave_nexus(self.path, ntaxa)
+                        counter = 2
 
                 # If partitions are specified using the charset command, this
                 # section will parse the partitions
@@ -971,6 +1146,8 @@ class Alignment(Base):
                     except IndexError:
                         sequence = ""
 
+                    size_list.append(len(sequence))
+
                     sequence_data.append((taxa, sequence))
 
             sequence_data = [(p, x, y) for p, (x, y) in
@@ -990,15 +1167,18 @@ class Alignment(Base):
 
         # Checks the size consistency of the alignment
         if size_check is True:
-            self.is_alignment = self.check_sizes(sequence_data,
-                                                 self.path)
-            if not self.is_alignment:
+            if len(set(size_list)) > 1:
                 self.e = AlignmentUnequalLength()
                 return
+        #     self.is_alignment = self.check_sizes(sequence_data,
+        #                                          self.path)
+        #     if not self.is_alignment:
+        #         self.e = AlignmentUnequalLength()
+        #         return
 
         # Checks for duplicate taxa
-        self.taxa_list = [x[1] for x in sequence_data]
-        self.taxa_idx = dict((x[1], x[0]) for x in sequence_data)
+        # self.taxa_list = [x[1] for x in sequence_data]
+        # self.taxa_idx = dict((x[1], x[0]) for x in sequence_data)
 
         if len(self.taxa_list) != len(set(self.taxa_list)):
             duplicate_taxa = self.duplicate_taxa(taxa_list)
