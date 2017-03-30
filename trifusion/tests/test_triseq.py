@@ -75,12 +75,12 @@ class TriSeqTest(unittest.TestCase):
         for fl in sorted([x for x in os.listdir(".")
                           if x.startswith("BaseConc")]):
             with open(fl) as fh:
-                data.append(fh.read().rstrip())
+                data.append(sorted([x.rstrip() for x in fh.readlines()]))
             os.remove(fl)
 
         for fl in dna_data_fas:
             with open(fl) as fh:
-                exp.append(fh.read().rstrip())
+                exp.append(sorted([x.rstrip() for x in fh.readlines()]))
 
         self.assertEqual(exp, data)
 
