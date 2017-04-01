@@ -214,8 +214,8 @@ def main_parser(arg, alignment_list):
     if arg.codon_filter:
         print_col("Filtering by codon positions", GREEN, quiet=arg.quiet)
         if alignments.sequence_code[0] == "DNA":
-            codon_settings = [True if x in arg.codon_filter else False for x in
-                              range(1, 4)]
+            codon_settings = [True if str(x) in arg.codon_filter else False
+                              for x in range(1, 4)]
             alignments.filter_codon_positions(codon_settings, pbar=pbar)
 
     # Filter by missing data
