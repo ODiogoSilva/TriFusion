@@ -301,7 +301,8 @@ class Alignment(Base):
 
     def __init__(self, input_alignment, input_format=None,
                  partitions=None, locus_length=None, sql_cursor=None,
-                 sequence_code=None, taxa_list=None, taxa_idx=None):
+                 sql_con=None, sequence_code=None, taxa_list=None,
+                 taxa_idx=None):
         """
         The basic Alignment instance requires only an alignment file path or
         sqlite table name. In case the class is initialized with a dictionary
@@ -341,6 +342,7 @@ class Alignment(Base):
         database, either to write or fetch data
         """
         self.cur = sql_cursor
+        self.con = sql_con
 
         """
         Initializing a Partitions instance for the current alignment. By
@@ -509,7 +511,7 @@ class Alignment(Base):
 
         for tx, seq in self.cur.execute(
                 "SELECT taxon,seq from [{}]".format(
-                    self.table_name)).fetchall():
+                    self.table_name)):
             if tx not in self.shelved_taxa:
                 yield tx, seq
 
@@ -636,7 +638,7 @@ class Alignment(Base):
         try:
             lock.acquire(True)
             for tx, seq in self.cur.execute(
-                    "SELECT taxon,seq from [{}]".format(table)).fetchall():
+                    "SELECT taxon,seq from [{}]".format(table)):
                 if tx not in self.shelved_taxa:
                     yield tx, seq
         finally:
@@ -685,7 +687,10 @@ class Alignment(Base):
 
         # If additional alignments were created, drop those tables as well
         for table in self.tables:
-            self.cur.execute("DROP TABLE [{}]".format(table))
+            try:
+                self.cur.execute("DROP TABLE [{}]".format(table))
+            except sqlite3.OperationalError:
+                pass
 
     def shelve_taxa(self, taxa_list):
         """
@@ -1645,7 +1650,8 @@ class Alignment(Base):
 
     @SetupDatabase
     def filter_codon_positions(self, position_list, table_in=None,
-                                  table_out="filter", ns=None):
+                               table_out="filter", ns=None,
+                               use_main_table=False):
         """
         Filter codon positions from DNA alignments.
         :param position_list: list containing a boolean value for each codon
@@ -1670,7 +1676,9 @@ class Alignment(Base):
                     else:
                         yield 0
 
-        for taxon, seq in self.iter_alignment(table_name=table_in):
+        for taxon in self.taxa_list:
+
+            seq = self.get_sequence(taxon, table_name=table_in)
 
             if ns:
                 if ns.stop:
@@ -2190,11 +2198,22 @@ class Alignment(Base):
 
         def get_interleave_data():
 
-            temp_storage = [[] for _ in xrange(self.locus_length / 90)]
-            if self.locus_length % 90:
-                temp_storage.append([])
+            if self.cur.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND"
+                    " name='.interleavedata'").fetchall():
 
-            for c, (_, seq) in enumerate(self.iter_alignment(
+                self.cur.execute("DELETE FROM [.interleavedata]")
+
+            else:
+                self.cur.execute("CREATE TABLE [.interleavedata]("
+                                 "taxon TEXT,"
+                                 "slice INT,"
+                                 "seq TEXT,"
+                                 "PRIMARY KEY (taxon, slice))")
+
+            temp_cur = self.con.cursor()
+
+            for c, (tx, seq) in enumerate(self.iter_alignment(
                     table_name=table_name,
                     table_suffix=table_suffix)):
 
@@ -2208,23 +2227,30 @@ class Alignment(Base):
 
                 counter = 0
 
-                for p, i in enumerate(xrange(90, self.locus_length, 90)):
-                    temp_storage[p].append(seq[counter:i])
+                for i in xrange(90, self.locus_length, 90):
+
+                    temp_cur.execute("INSERT INTO [.interleavedata] VALUES"
+                                     " (?, ?, ?)", (tx, i, seq[counter:i]))
+                    # temp_storage[p].append(seq[counter:i])
                     counter = i
 
                 try:
                     if self.locus_length % 90:
-                        p += 1
-                        temp_storage[p].append(seq[counter:])
+                        i += 1
+                        temp_cur.execute("INSERT INTO [.interleavedata] VALUES"
+                                         " (?, ?, ?)", (tx, i, seq[counter:]))
+                        # temp_storage[p].append(seq[c:],)
                 # This likely means that the alignment is less than
                 # 90 characters long. In this case, append to the storage's
                 # 0 index
                 except UnboundLocalError:
-                    temp_storage[0].append(seq)
+                    temp_cur.execute("INSERT INTO [.interleavedata] VALUES "
+                                     "(?, ?, ?)", (tx, 0, seq))
+                    # temp_storage[0].append(seq)
 
-            return temp_storage
+            return True
 
-        interleave_storage = None
+        interleave_storage = False
 
         # This will determine the default model value. GTR for nucleotides
         # and LG for proteins
@@ -2455,18 +2481,22 @@ class Alignment(Base):
                 interleave_storage = get_interleave_data()
 
                 write_tx = True
-                for seq_data in interleave_storage:
+                prev = 90
+                for tx, p, seq in self.cur.execute(
+                        "SELECT taxon, slice, seq FROM [.interleavedata] "
+                        "ORDER BY slice"):
 
-                    for p, seq in enumerate(seq_data):
-                        if write_tx:
-                            out_file.write("{} {}\n".format(
-                                self.taxa_list[p][:cut_space_phy].ljust(
-                                    seq_space_phy), seq.upper()))
-                        else:
-                            out_file.write(seq.upper() + "\n")
+                    if p != prev:
+                        out_file.write("\n")
+                        prev = p
+                        write_tx = False
 
-                    write_tx = False
-                    out_file.write("\n")
+                    if write_tx:
+                        out_file.write("{} {}\n".format(
+                            tx[:cut_space_phy].ljust(
+                                seq_space_phy), seq.upper()))
+                    else:
+                        out_file.write(seq.upper() + "\n")
 
             else:
 
@@ -2726,58 +2756,25 @@ class Alignment(Base):
                                     self.sequence_code[0].upper(),
                                     gap,
                                     self.sequence_code[1].upper()))
-                
+
                 if not interleave_storage:
-                    interleave_storage = get_interleave_data()
+                    get_interleave_data()
 
-                for seq_data in interleave_storage:
+                # Iterate over interleave data
+                prev = 0
+                for tx, p, seq in self.cur.execute(
+                    "SELECT taxon, slice, seq FROM [.interleavedata] "
+                    "ORDER BY slice"):
 
-                    for p, seq in enumerate(seq_data):
-                        out_file.write("{} {}\n".format(
-                            self.taxa_list[p][:cut_space_nex].ljust(
-                                seq_space_nex), seq.upper()))
+                    if p != prev:
+                        out_file.write("\n")
+                        prev = p
 
-                    out_file.write("\n")
+                    out_file.write("{} {}\n".format(
+                        tx[:cut_space_nex].ljust(seq_space_nex),
+                        seq.upper()))
 
                 out_file.write(";\n\tend;")
-                
-                # counter = 0
-                # for i in range(0, self.locus_length, 90):
-                #
-                #     if ns_pipe:
-                #         if ns_pipe.stop:
-                #             raise KillByUser("")
-                #             return
-                #         if ns_pipe.sa:
-                #             ns_pipe.counter += 1
-                #
-                #     for taxon, seq in self.iter_alignment(
-                #             table_name=table_name, table_suffix=table_suffix):
-                #         out_file.write("%s %s\n" % (
-                #                        taxon[:cut_space_nex].ljust(
-                #                          seq_space_nex),
-                #                        seq[counter:counter + 90]))
-                #
-                #     out_file.write("\n")
-                #     counter = i + 90
-
-                # else:
-                #     # Only do this when the alignment is bigger than 90
-                #     # characters. Otherwise, it will be written entirely on
-                #     # the first iteration.
-                #     if self.locus_length > 90:
-                #         for taxon, seq in self.iter_alignment(
-                #                 table_name=table_name,
-                #                 table_suffix=table_suffix):
-                #
-                #             out_file.write("%s %s\n" % (
-                #                            taxon[:cut_space_nex].ljust(
-                #                              seq_space_nex),
-                #                            seq[counter + 90:
-                #                                self.locus_length]))
-                #         else:
-                #             out_file.write("\n")
-                # out_file.write(";\n\tend;")
 
             # This writes the output in leave format (default)
             else:
@@ -3090,6 +3087,7 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values() + self.shelve_alignments.values():
             aln.cur = self.cur
+            aln.con = self.con
 
     def set_database_connections(self, cur, con):
         """
@@ -3104,6 +3102,7 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values() + self.shelve_alignments.values():
             aln.cur = cur
+            aln.con = con
 
     def get_tables(self):
         """
@@ -3401,7 +3400,8 @@ class AlignmentList(Base):
                 if shared_namespace.stop:
                     raise KillByUser("Child thread killed by user")
 
-            aln_obj = Alignment(aln_path, sql_cursor=self.cur)
+            aln_obj = Alignment(aln_path, sql_cursor=self.cur,
+                                sql_con=self.con)
 
             if isinstance(aln_obj.e, InputError):
                 self.bad_alignments.append(aln_obj.path)
@@ -3566,6 +3566,7 @@ class AlignmentList(Base):
                                            partitions=self.partitions,
                                            locus_length=locus_length,
                                            sql_cursor=self.cur,
+                                           sql_con=self.con,
                                            sequence_code=self.sequence_code,
                                            taxa_list=taxa_list,
                                            taxa_idx=taxa_idx)
@@ -3693,8 +3694,7 @@ class AlignmentList(Base):
                 raise KillByUser("")
             ns.counter = ns.total = ns.msg = None
 
-    def filter_codon_positions(self, position_list, table_in=None,
-                               table_out="filter", ns=None, pbar=None):
+    def filter_codon_positions(self, *args, **kwargs):
         """
         Filter codon positions from DNA alignments.
         :param position_list: list containing a boolean value for each codon
@@ -3707,6 +3707,9 @@ class AlignmentList(Base):
         :param table_out: string. Name of the table that will be
         created/modified in the database to harbor the collapsed alignment
         """
+
+        ns = kwargs.get("ns", None)
+        pbar = kwargs.pop("pbar", None)
 
         if ns:
             if ns.stop:
@@ -3730,10 +3733,7 @@ class AlignmentList(Base):
             if pbar:
                 pbar.update(p + 1)
 
-            alignment_obj.filter_codon_positions(position_list,
-                                                 table_in=table_in,
-                                                 table_out=table_out,
-                                                 ns=ns)
+            alignment_obj.filter_codon_positions(*args, **kwargs)
 
             self.set_partition_from_alignment(alignment_obj)
 
@@ -4217,6 +4217,7 @@ class AlignmentList(Base):
 
             # Create Alignment object
             consensus_aln = Alignment("consensus", sql_cursor=self.cur,
+                                      sql_con=self.con,
                                       sequence_code=self.sequence_code,
                                       taxa_list=taxa_list,
                                       taxa_idx=taxa_idx)
@@ -4241,43 +4242,15 @@ class AlignmentList(Base):
 
         return reverted_alns
 
-    def write_to_file(self, output_format, output_suffix="", interleave=False,
-                      outgroup_list=None, partition_file=True, output_dir=None,
-                      use_charset=True, phy_truncate_names=False, ld_hat=None,
-                      ima2_params=None, use_nexus_models=True, ns_pipe=None,
-                      conversion_suffix="", table_suffix=None,
-                      table_name=None, pbar=None):
+    def write_to_file(self, output_format, conversion_suffix="",
+                      output_suffix="", *args, **kwargs):
         """
         Wrapper of the write_to_file method of the Alignment object for multiple
         alignments.
-
-        :param output_format: List, format of the output file
-        :param output_suffix: string, optional suffix that is added at the end
-        of the original file name
-        :param interleave: boolean, Whether the output alignment will be in
-        leave (False) or interleave (True) format. Not all output formats
-        respect this option.
-        :param outgroup_list: list, containing the taxa names of the outgroup.
-        (Nexus output format only)
-        :param partition_file: boolean, If true, the auxiliary partitions file
-        will be writen.
-        :param output_dir: string, if provided, the output file will be written
-        on the specified path
-        :param use_charset: boolean, if true, partitions from the Partitions
-        object will be written in the nexus output format
-        :param phy_truncate_names: Boolean. Whether names in phylip output
-        format should be truncated to 10 characters or not.
-        :param conversion_suffix: string. Provides the suffix provided for
-        the conversion of files. This suffix will allway precede the
-        output_suffix, which is meant to apply suffixes specific to secondary
-        operations.
-        :param table_suffix: string. Suffix of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
-        :param table_name: string. SAame as table_suffix, but specifies
-        the complete table name. Takes precedence over the suffix.
         """
+
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
 
         if ns_pipe:
             if ns_pipe.stop:
@@ -4305,6 +4278,8 @@ class AlignmentList(Base):
             output_file_name = alignment_obj.name.split(".")[0] + \
                 conversion_suffix + output_suffix
 
+            kwargs["output_file"] = output_file_name
+
             # Get partition name for current alignment object
             try:
                 part_name = [x for x, y in
@@ -4323,20 +4298,7 @@ class AlignmentList(Base):
                 m = self.partitions.models[part_name]
                 alignment_obj.partitions.set_model(part_name, m[1])
 
-            alignment_obj.write_to_file(output_format,
-                                        output_file=output_file_name,
-                                        interleave=interleave,
-                                        outgroup_list=outgroup_list,
-                                        partition_file=partition_file,
-                                        output_dir=output_dir,
-                                        use_charset=use_charset,
-                                        phy_truncate_names=phy_truncate_names,
-                                        ld_hat=ld_hat,
-                                        ima2_params=ima2_params,
-                                        use_nexus_models=use_nexus_models,
-                                        ns_pipe=ns_pipe,
-                                        table_suffix=table_suffix,
-                                        table_name=table_name)
+            alignment_obj.write_to_file(output_format, *args, **kwargs)
 
         if ns_pipe:
             if ns_pipe.stop:
