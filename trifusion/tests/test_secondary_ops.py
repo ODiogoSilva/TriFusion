@@ -119,7 +119,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        aln = self.aln_obj.consensus("IUPAC", True)
+        aln = self.aln_obj.consensus("IUPAC", single_file=True)
 
         self.assertEqual(len(aln.taxa_list), 7)
 

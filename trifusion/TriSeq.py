@@ -222,7 +222,7 @@ def main_parser(arg, alignment_list):
     if arg.m_filter:
         print_col("Filtering by missing data", GREEN, quiet=arg.quiet)
         alignments.filter_missing_data(arg.m_filter[0], arg.m_filter[1],
-                                       pbar=pbar)
+                                       pbar=pbar, use_main_table=True)
 
     # Filtering by variable sites
     if arg.var_filter:
@@ -263,17 +263,18 @@ def main_parser(arg, alignment_list):
 
     # Consensus
     if arg.consensus:
+        consensus_type = arg.consensus[0]
         print_col("Creating consensus sequences", GREEN, quiet=arg.quiet)
         if arg.consensus_single:
             if isinstance(alignments, seqset.AlignmentList):
                 alignments = alignments.consensus(
-                    arg.consensus, single_file=arg.consensus_single,
+                    consensus_type, single_file=arg.consensus_single,
                     pbar=pbar, use_main_table=True)
             else:
-                alignments.consensus(consensus_type=arg.consensus, pbar=pbar,
+                alignments.consensus(consensus_type=consensus_type, pbar=pbar,
                                      use_main_table=True)
         else:
-            alignments.consensus(consensus_type=arg.consensus, pbar=pbar,
+            alignments.consensus(consensus_type=consensus_type, pbar=pbar,
                                  use_main_table=True)
 
     # Write output
