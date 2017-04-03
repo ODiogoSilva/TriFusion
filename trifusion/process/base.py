@@ -191,6 +191,8 @@ class Base(object):
                 line = next(file_handle)
                 if line.strip().lower() == "matrix":
                     next_line = next(file_handle)
+                    while next_line.startswith("\n"):
+                        next_line = next(file_handle)
                     sequence = "".join(next_line.split()[1:]).strip()
                     break
 
