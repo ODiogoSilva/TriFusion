@@ -525,6 +525,36 @@ class Alignment(Base):
 
         self.input_format = input_format
 
+    def _set_pipes(self, ns=None, pbar=None, total=None):
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+            if ns.sa:
+                ns.total = total
+                ns.counter = 0
+        if pbar:
+            pbar.max_value = total
+
+    def _update_pipes(self, ns=None, pbar=None, value=None, msg=None):
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+            if ns.sa:
+                ns.counter = value
+                ns.msg = msg
+        if pbar:
+            pbar.update(value)
+
+    def _reset_pipes(self, ns):
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+            if ns.sa:
+                ns.total = ns.counter = ns.msg = None
+
     @SetupInTable
     def iter_columns(self, table_suffix="", table_name=None, table=None):
         """
@@ -734,7 +764,7 @@ class Alignment(Base):
 
             size_list.append(len(seq))
 
-            self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 self.table_name), (i, taxa, seq))
 
             fh.close()
@@ -787,7 +817,7 @@ class Alignment(Base):
 
             size_list.append(len(seq))
 
-            self.cur.execute("INSERT INTO {} VALUES (?, ?, ?)".format(
+            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 self.table_name), (i, taxa, seq))
 
             fh.close()
@@ -853,7 +883,7 @@ class Alignment(Base):
 
                         # Oh boy, this seems like an interleave phylip file.
                         # Redirect parsing to appropriate method
-                        self.cur.execute("DELETE FROM {}".format(
+                        self.cur.execute("DELETE FROM [{}]".format(
                             self.table_name))
                         size_list = self._read_interleave_phylip(self.path,
                                                                  taxa_num)
@@ -1287,91 +1317,75 @@ class Alignment(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if ns.sa:
-                ns.total = len(self.taxa_list)
-                ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.taxa_list)
+        self._set_pipes(ns, pbar, len(self.taxa_list))
 
-        # Get collapsed alignment
-        collapsed_dic = OrderedDict()
-        for taxa, seq in self.iter_alignment(table_name=table_in):
+        # Create temporary table for storing unique sequences
+        self.cur.execute("CREATE TABLE [.collapsed] "
+                         "(idx INT,"
+                         "taxon TEXT,"
+                         "seq TEXT)")
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if ns.sa:
-                    ns.counter += 1
-                    ns.msg = "Collapsing taxon {}".format(taxa)
-            if pbar:
-                pbar.update(self.taxa_list.index(taxa) + 1)
+        # Create a new cursor to edit the database while iterating over
+        # table_in
+        col_cur = self.con.cursor()
 
-            if seq in collapsed_dic:
-                collapsed_dic[seq].append(taxa)
+        # Dict that will store the hases of each sequence. It will be used to
+        # check if the current sequence has already been processed. The value
+        # will be the haplotype
+        hash_list = {}
+
+        # hap_dic will store the haplotype name as key and a list of the
+        # taxa with the same sequence as a list value
+        hap_dic = {}
+        hap_counter = 0
+
+        for p, (taxa, seq) in enumerate(self.iter_alignment(
+                table_name=table_in)):
+
+            self._update_pipes(ns, pbar, p + 1,
+                               "Collapsing taxon {}".format(taxa))
+
+            cur_hash = hash(seq)
+
+            # If the current hash is unique, add it to the database
+            if cur_hash not in hash_list:
+
+                # Create name for new haplotype and update other haplotype
+                # related variables
+                haplotype = "{}_{}".format(haplotype_name, hap_counter + 1)
+                hash_list[cur_hash] = haplotype
+                hap_dic[haplotype] = [taxa]
+
+                # Add data to table
+                col_cur.execute("INSERT INTO [.collapsed] "
+                                "VALUES (?, ?, ?)", (hap_counter,
+                                                     haplotype,
+                                                     seq))
+
+                hap_counter += 1
+
             else:
-                collapsed_dic[seq] = [taxa]
 
-        if ns:
-            # Reset counters for progress dialog
-            if ns.stop:
-                raise KillByUser("")
-            if ns.sa:
-                ns.total = len(collapsed_dic)
-                ns.counter = 0
-                ns.msg = "Adding collapsed data to database"
-        if pbar:
-            pbar.max_value = len(collapsed_dic)
+                hap_dic[hash_list[cur_hash]].append(taxa)
 
         # The collapse operation is special in the sense that the former taxon
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the collapsed data
-        self.cur.execute("DELETE FROM [{}];".format(table_out))
+        self.cur.execute("DROP TABLE [{}];".format(table_out))
 
-        # Insert collapsed alignment into database and create correspondance
-        # dictionary
-        hap_counter = 1
-        sequence_data = []
-        correspondence_dic = OrderedDict()
-        self.taxa_list = []
-        self.taxa_idx = {}
-        for p, (seq, tx_list) in enumerate(collapsed_dic.items()):
-
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if ns.sa:
-                    ns.counter += 1
-            if pbar:
-                pbar.update(p + 1)
-
-            haplotype = "{}_{}".format(haplotype_name, hap_counter)
-            sequence_data.append((p, haplotype, seq))
-            correspondence_dic[haplotype] = tx_list
-            self.taxa_list.append(haplotype)
-            self.taxa_idx[haplotype] = p
-            hap_counter += 1
-
-        # Insert sequence data into database
-        self.cur.executemany(
-            "INSERT INTO [{}] VALUES (?, ?, ?)".format(table_out),
-            sequence_data)
+        # Replace table_out with collapsed table
+        self.cur.execute("ALTER TABLE [.collapsed] RENAME TO {}".format(
+            table_out))
 
         if write_haplotypes is True:
             # If no output file for the haplotype correspondence is provided,
             # use the input alignment name as reference
             if not haplotypes_file:
                 haplotypes_file = self.name.split(".")[0] + conversion_suffix
-            self.write_loci_correspondence(correspondence_dic, haplotypes_file,
+            self.write_loci_correspondence(hap_dic, haplotypes_file,
                                            dest)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if ns.sa:
-                ns.total = ns.counter = ns.msg = None
+        self._reset_pipes(ns)
 
     @SetupDatabase
     def consensus(self, consensus_type, table_name=None, get_sequence=False,
@@ -1488,7 +1502,7 @@ class Alignment(Base):
                 ns.counter = ns.total = None
 
     @staticmethod
-    def write_loci_correspondence(dic_obj, output_file, dest="./"):
+    def write_loci_correspondence(hap_dict, output_file, dest="./"):
         """
         This function supports the collapse method by writing the
         correspondence between the unique haplotypes and the loci into a
@@ -1497,7 +1511,7 @@ class Alignment(Base):
 
         output_handle = open(join(dest, output_file + ".haplotypes"), "w")
 
-        for haplotype, taxa_list in dic_obj.items():
+        for haplotype, taxa_list in sorted(hap_dict.items()):
             output_handle.write("%s: %s\n" % (haplotype, "; ".join(taxa_list)))
 
         output_handle.close()
@@ -2946,6 +2960,12 @@ class Alignment(Base):
             if ns_pipe.sa:
                 ns_pipe.msg = ns_pipe.counter = ns_pipe.total = None
 
+        # Remove temporary interleave data, if present
+        if self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='.interleavedata'").fetchall():
+            self.cur.execute("DROP TABLE [.interleavedata]")
+
 
 class AlignmentList(Base):
     """
@@ -4066,24 +4086,18 @@ class AlignmentList(Base):
                 raise KillByUser("")
             ns.counter = ns.total = ns.msg = None
 
-    def collapse(self, write_haplotypes=True, haplotypes_file="",
-                 haplotype_name="Hap", dest="./", conversion_suffix="",
-                 table_in=None, table_out="collapsed", ns=None, pbar=None,
-                 use_main_table=False):
+    def collapse(self, *args, **kwargs):
         """
         Wrapper for the collapse method of the Alignment object. If
         write_haplotypes is True, the haplotypes file name will be based on the
         individual input file
-
-        :param write_haplotypes: boolean. if True, a haplotype list
-        mapping the haplotype names file will be created for each individual
-        input alignment.
-
-        :param haplotype_name: string. Custom name of the haplotypes
-
-        :param dest: string. Path to write the .haplotypes file
-
         """
+
+        ns = kwargs.get("ns", None)
+        pbar = kwargs.get("pbar", None)
+        write_haplotypes = kwargs.get("write_haplotypes", None)
+        conversion_suffix = kwargs.get("conversion_suffix", None)
+        haplotypes_file = kwargs.get("haplotypes_file", None)
 
         if ns:
             if ns.stop:
@@ -4119,17 +4133,10 @@ class AlignmentList(Base):
                 # Set name for haplotypes file
                 output_file = alignment_obj.name.split(".")[0] + \
                               conversion_suffix + haplotypes_file
-                alignment_obj.collapse(haplotypes_file=output_file,
-                                       haplotype_name=haplotype_name,
-                                       dest=dest, table_out=table_out,
-                                       table_in=table_in, ns=ns,
-                                       use_main_table=use_main_table)
+                alignment_obj.collapse(haplotypes_file=output_file, *args,
+                                       **kwargs)
             else:
-                alignment_obj.collapse(write_haplotypes=False,
-                                       haplotype_name=haplotype_name,
-                                       dest=dest, table_name=table_out,
-                                       table_in=table_in, ns=ns,
-                                       use_main_table=use_main_table)
+                alignment_obj.collapse(*args, **kwargs)
 
     def consensus(self, consensus_type, single_file=False,
                   table_out="consensus", table_in=None, use_main_table=False,
