@@ -1679,29 +1679,40 @@ class Alignment(Base):
                     else:
                         yield 0
 
-        for taxon in self.taxa_list:
+        # Create temporary table for storing unique sequences
+        self.cur.execute("CREATE TABLE [.codonfilter] "
+                         "(idx INT,"
+                         "taxon TEXT,"
+                         "seq TEXT)")
 
-            seq = self.get_sequence(taxon, table_name=table_in)
+        # Create a new cursor to edit the database while iterating over
+        # table_in
+        cod_cur = self.con.cursor()
+
+        for taxon, seq in self.iter_alignment(table_name=table_in):
 
             if ns:
                 if ns.stop:
                     raise KillByUser("")
 
-            filtered_seq = "".join(list(
+            seq = "".join(list(
                 itertools.compress(seq, index(self.locus_length,
                                               position_list))))
 
-            if table_in == table_out:
-                self.cur.execute(
-                    "UPDATE [{}] SET seq=? WHERE txId=?".format(table_out),
-                    (filtered_seq, self.taxa_idx[taxon]))
-            else:
-                self.cur.execute(
-                    "INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                        table_out), (self.taxa_idx[taxon], taxon,
-                                     filtered_seq))
+            cod_cur.execute("INSERT INTO [.codonfilter] VALUES "
+                            "(?, ?, ?)", (self.taxa_idx[taxon],
+                                         taxon,
+                                         seq))
 
-        self.locus_length = len(filtered_seq)
+        if table_in == table_out:
+            self.cur.execute("DROP TABLE [{}]".format(table_out))
+
+        # Replace table_out with collapsed table
+        self.cur.execute(
+            "ALTER TABLE [.codonfilter] RENAME TO [{}]".format(
+                table_out))
+
+        self.locus_length = len(seq)
 
     @SetupDatabase
     def code_gaps(self, table_out="gaps", table_in=None, use_main_table=False,
