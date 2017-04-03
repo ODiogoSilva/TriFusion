@@ -576,15 +576,13 @@ class Alignment(Base):
 
         try:
             lock.acquire(True)
-            # for i in range(self.locus_length):
-            #     res = self.cur.execute("SELECT substr(seq, {}, 1) from "
-            #                            "{}".format(i + 1, table)).fetchall()
-            #     print(res)
-            #     yield [x[0] for x in res]
-            for i in itertools.izip(*(x[1] for x in self.cur.execute(
-                    "SELECT taxon, seq from [{}]".format(table))
-                           if x[0] not in self.shelved_taxa)):
-                yield i
+
+            for p in range(0, self.locus_length, 100000):
+                for i in itertools.izip(*(x[1] for x in self.cur.execute(
+                        "SELECT taxon, substr(seq, {}, 100000)"
+                        " FROM [{}]".format(p, table))
+                               if x[0] not in self.shelved_taxa)):
+                    yield i
         finally:
             lock.release()
 
@@ -1249,8 +1247,12 @@ class Alignment(Base):
 
 
         def inverse(list_taxa):
-            for tx in self.taxa_list:
+            for tx in list(self.taxa_list):
                 if tx not in list_taxa:
+                    self.cur.execute(
+                        "DELETE FROM [{}] WHERE txId=?".format(
+                            self.table_name),
+                        (self.taxa_idx[tx],))
                     self.taxa_list.remove(tx)
                     del self.taxa_idx[tx]
 
@@ -1374,7 +1376,7 @@ class Alignment(Base):
         self.cur.execute("DROP TABLE [{}];".format(table_out))
 
         # Replace table_out with collapsed table
-        self.cur.execute("ALTER TABLE [.collapsed] RENAME TO {}".format(
+        self.cur.execute("ALTER TABLE [.collapsed] RENAME TO [{}]".format(
             table_out))
 
         if write_haplotypes is True:
@@ -1414,15 +1416,7 @@ class Alignment(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if ns.sa:
-                ns.total = self.locus_length
-                ns.counter = 0
-
-        if pbar:
-            pbar.max_value = self.locus_length
+        self._set_pipes(ns, pbar, self.locus_length)
 
         # Empty consensus sequence
         consensus_seq = []
@@ -1436,13 +1430,7 @@ class Alignment(Base):
 
         for p, column in enumerate(self.iter_columns(table_name=table_in)):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if ns.sa:
-                    ns.counter += 1
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1)
 
             column = list(set(column))
 
@@ -1475,6 +1463,7 @@ class Alignment(Base):
                         [x if x in dna_chars else iupac_rev[x]
                          for x in column]))))
                     consensus_seq.append(iupac["".join(iupac_code)])
+                continue
 
             elif consensus_type == "Soft mask":
                 consensus_seq.append(self.sequence_code[1])
@@ -1861,7 +1850,12 @@ class Alignment(Base):
             if ns.stop:
                 raise KillByUser("")
 
-        sequence_data = []
+        self.cur.execute("CREATE TABLE [.filterterminals] "
+                         "(txId INT,"
+                         "taxon TEXT,"
+                         "seq TEXT)")
+
+        filt_cur = self.con.cursor()
 
         for tx, seq in self.iter_alignment(table_name=table_in):
 
@@ -1871,37 +1865,34 @@ class Alignment(Base):
 
             # Condition where the sequence only has gaps
             if not seq.strip("-"):
-                sequence_data.append((self.taxa_idx[tx],
-                                      tx,
-                                      self.sequence_code[1] * len(seq)))
+                seq = self.sequence_code[1] * len(seq)
+                filt_cur.execute("INSERT INTO [.filterterminals] "
+                                 "VALUES (?, ?, ?)",
+                                 (self.taxa_idx[tx], tx, seq))
                 continue
 
-            trim_seq = list(seq)
+            seq = list(seq)
             counter, reverse_counter = 0, -1
 
-            while trim_seq[counter] == "-":
-                trim_seq[counter] = self.sequence_code[1]
+            while seq[counter] == "-":
+                seq[counter] = self.sequence_code[1]
                 counter += 1
 
-            while trim_seq[reverse_counter] == "-":
-                trim_seq[reverse_counter] = self.sequence_code[1]
+            while seq[reverse_counter] == "-":
+                seq[reverse_counter] = self.sequence_code[1]
                 reverse_counter -= 1
 
-            sequence_data.append((self.taxa_idx[tx],
-                                  tx,
-                                  "".join(trim_seq)))
+            filt_cur.execute("INSERT INTO [.filterterminals] "
+                             "VALUES (?, ?, ?)",
+                             (self.taxa_idx[tx], tx, "".join(seq)))
 
         # Check if input and output tables are the same. If they are,
-        # it means that the output table already exists and is being
-        # updated
+        # drop the old table and replace with this new one
         if table_in == table_out:
-            sequence_data = [(x[2], x[0]) for x in sequence_data]
-            self.cur.executemany("UPDATE [{}] SET seq=? WHERE txId=?".format(
-                table_out), sequence_data)
-        else:
-            self.cur.executemany("INSERT INTO [{}] (txId, taxon, seq)"
-                                 " VALUES (?, ?, ?)".format(
-                table_out), sequence_data)
+            self.cur.execute("DROP TABLE [{}]".format(table_out))
+
+        self.cur.execute("ALTER TABLE [.filterterminals] "
+                         "RENAME TO [{}]".format(table_out))
 
     def _filter_columns(self, gap_threshold, missing_threshold, table_in,
                         table_out, ns=None):
@@ -1916,7 +1907,13 @@ class Alignment(Base):
         taxa_number = float(len(self.taxa_list))
 
         filtered_cols = []
-        sequence_data = []
+
+        self.cur.execute("CREATE TABLE [.filtercolumns] "
+                         "(txId INT,"
+                         "taxon TEXT,"
+                         "seq TEXT)")
+
+        filt_cur = self.con.cursor()
 
         # Creating the column list variable
         for column in self.iter_columns(table_name=table_in):
@@ -1948,26 +1945,27 @@ class Alignment(Base):
                 if ns.stop:
                     raise KillByUser("")
 
-            new_seq = "".join(compress(seq, filtered_cols))
-            sequence_data.append((self.taxa_idx[tx], tx, new_seq))
+            seq = "".join(compress(seq, filtered_cols))
+
+            filt_cur.execute("INSERT INTO [.filtercolumns] "
+                             "VALUES (?, ?, ?)",
+                             (self.taxa_idx[tx], tx, seq))
 
         # Check if input and output tables are the same. If they are,
         # it means that the output table already exists and is being
         # updated
         if table_in == table_out:
-            sequence_data = [(x[2], x[0]) for x in sequence_data]
-            self.cur.executemany("UPDATE [{}] SET seq=? WHERE txId=?".format(
-                table_out), sequence_data)
-        else:
-            self.cur.executemany("INSERT INTO [{}] (txId, taxon, seq)"
-                                 " VALUES (?, ?, ?)".format(
-                table_out), sequence_data)
+            self.cur.execute("DROP TABLE [{}];".format(table_out))
 
-        self.locus_length = len(new_seq)
+        self.cur.execute("ALTER TABLE [.filtercolumns] RENAME TO [{}]".format(
+            table_out))
+
+        self.locus_length = len(seq)
 
     @SetupDatabase
     def filter_missing_data(self, gap_threshold, missing_threshold,
-                            table_in=None, table_out="filter", ns=None):
+                            table_in=None, table_out="filter", ns=None,
+                            use_main_table=False):
         """
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
@@ -3101,6 +3099,39 @@ class AlignmentList(Base):
         """
         return iter(self.alignments.values())
 
+    def _set_pipes(self, ns=None, pbar=None, total=None, msg=None):
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+
+            if len(self.alignments) == 1:
+                ns.sa = True
+            else:
+                ns.sa = False
+                ns.total = total
+                ns.counter = 0
+        if pbar:
+            pbar.max_value = total
+
+    def _update_pipes(self, ns=None, pbar=None, value=None, msg=None):
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+            if not ns.sa:
+                ns.msg = msg
+                ns.counter = value
+        if pbar:
+            pbar.update(value)
+
+    def _reset_pipes(self, ns):
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
+            ns.counter = ns.total = ns.msg = ns.sa = None
+
     def resume_database(self):
 
         self.con = sqlite3.connect(self.sql_path, check_same_thread=False)
@@ -3763,9 +3794,7 @@ class AlignmentList(Base):
                 raise KillByUser("")
             ns.total = ns.counter = ns.msg = None
 
-    def filter_missing_data(self, gap_threshold, missing_threshold,
-                            table_in=None, table_out="filter", ns=None,
-                            pbar=None):
+    def filter_missing_data(self, *args, **kwargs):
         """
         Wrapper of the filter_missing_data method of the Alignment object.
         See the method's documentation.
@@ -3780,6 +3809,9 @@ class AlignmentList(Base):
         :param table_out: string. Name of the table that will be
         created/modified in the database to harbor the collapsed alignment
         """
+
+        ns = kwargs.get("ns", None)
+        pbar = kwargs.pop("pbar", None)
 
         # Reset partitions
         self.partitions = Partitions()
@@ -3808,10 +3840,7 @@ class AlignmentList(Base):
             if pbar:
                 pbar.update(p + 1)
 
-            alignment_obj.filter_missing_data(
-                gap_threshold=gap_threshold,
-                missing_threshold=missing_threshold,
-                table_in=table_in, table_out=table_out, ns=ns)
+            alignment_obj.filter_missing_data(*args, **kwargs)
 
             self.set_partition_from_alignment(alignment_obj)
 
@@ -4138,36 +4167,20 @@ class AlignmentList(Base):
             else:
                 alignment_obj.collapse(*args, **kwargs)
 
-    def consensus(self, consensus_type, single_file=False,
-                  table_out="consensus", table_in=None, use_main_table=False,
-                  ns=None, pbar=None):
+    def consensus(self, *args, **kwargs):
         """
         If single_file is set to False, this acts as a simple wrapper to
         to the consensus method of the Alignment object.
         If single_file is True, then a new table is created and populated here
         for the new alignment object akin to the concatenation one. That
         Alignment object is then returned.
-        :param consensus_type: string. How variation is handled when creating
-        the consensus. See the Alignment method for more information
-        :param single_file. boolean. If True, consensus will be generated
-        for each alignment and stored in a new database table and assigned
-        to a new Alignment object. If False, it will just wrap the consensus
-        method of the Alignment object.
-
         """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
+        ns = kwargs.get("ns", None)
+        pbar = kwargs.get("pbar", None)
+        single_file = kwargs.pop("single_file", None)
 
-            if len(self.alignments) == 1:
-                ns.sa = True
-            else:
-                ns.sa = False
-                ns.total = len(self.alignments)
-                ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        self._set_pipes(ns, pbar, len(self.alignments))
 
         self.taxa_names = ["consensus"]
 
@@ -4188,34 +4201,24 @@ class AlignmentList(Base):
 
         for p, alignment_obj in enumerate(self.alignments.values()):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if not ns.sa:
-                    ns.msg = "Processing file {}".format(
-                        basename(alignment_obj.name))
-                    ns.counter += 1
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, p + 1, "Processing file {}".format(
+                        basename(alignment_obj.name)))
 
-            alignment_obj.consensus(consensus_type, table_out=table_out,
-                                    table_in=table_in, ns=ns,
-                                    use_main_table=use_main_table)
+            alignment_obj.consensus(*args, **kwargs)
 
             if single_file:
+                table_out = kwargs.get("table_out", None)
                 sequence = alignment_obj.get_sequence("consensus",
                                                       table_suffix=table_out)
                 consensus_data.append((p, alignment_obj.sname, sequence))
                 taxa_list.append(alignment_obj.sname)
                 taxa_idx[alignment_obj.sname] = p
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.counter = ns.total = ns.msg = None
+        self._reset_pipes(ns)
 
         if single_file:
 
+            use_main_table = kwargs.get("use_main_table", None)
             if use_main_table:
                 self.remove_tables(preserve_tables=["consensus"])
 
