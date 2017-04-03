@@ -2208,8 +2208,9 @@ class Alignment(Base):
                 self.cur.execute("CREATE TABLE [.interleavedata]("
                                  "taxon TEXT,"
                                  "slice INT,"
-                                 "seq TEXT,"
-                                 "PRIMARY KEY (taxon, slice))")
+                                 "seq TEXT)")
+                self.cur.execute("CREATE INDEX interindex ON "
+                                "[.interleavedata](slice)")
 
             temp_cur = self.con.cursor()
 
