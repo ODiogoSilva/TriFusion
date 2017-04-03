@@ -1323,7 +1323,7 @@ class Alignment(Base):
 
         # Create temporary table for storing unique sequences
         self.cur.execute("CREATE TABLE [.collapsed] "
-                         "(idx INT,"
+                         "(txId INT,"
                          "taxon TEXT,"
                          "seq TEXT)")
 
@@ -1681,7 +1681,7 @@ class Alignment(Base):
 
         # Create temporary table for storing unique sequences
         self.cur.execute("CREATE TABLE [.codonfilter] "
-                         "(idx INT,"
+                         "(txId INT,"
                          "taxon TEXT,"
                          "seq TEXT)")
 
@@ -1704,7 +1704,9 @@ class Alignment(Base):
                                          taxon,
                                          seq))
 
-        if table_in == table_out:
+        if self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='{}'".format(table_out)).fetchall():
             self.cur.execute("DROP TABLE [{}]".format(table_out))
 
         # Replace table_out with collapsed table
@@ -1899,7 +1901,9 @@ class Alignment(Base):
 
         # Check if input and output tables are the same. If they are,
         # drop the old table and replace with this new one
-        if table_in == table_out:
+        if self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='{}'".format(table_out)).fetchall():
             self.cur.execute("DROP TABLE [{}]".format(table_out))
 
         self.cur.execute("ALTER TABLE [.filterterminals] "
@@ -1965,7 +1969,9 @@ class Alignment(Base):
         # Check if input and output tables are the same. If they are,
         # it means that the output table already exists and is being
         # updated
-        if table_in == table_out:
+        if self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='{}'".format(table_out)).fetchall():
             self.cur.execute("DROP TABLE [{}];".format(table_out))
 
         self.cur.execute("ALTER TABLE [.filtercolumns] RENAME TO [{}]".format(
@@ -2071,6 +2077,9 @@ class Alignment(Base):
             v = len(set([i for i in column if i not in [self.sequence_code[1],
                                                         "-"]]))
 
+            if v == 1:
+                continue
+
             if v > 1:
                 s += 1
 
@@ -2080,7 +2089,7 @@ class Alignment(Base):
             if min_val and s >= min_val and max_val is None:
                 return True
 
-            if max_val and s > max_val and min_val is None:
+            if max_val and s > max_val:
                 return False
 
         return self._test_range(s, min_val, max_val)
