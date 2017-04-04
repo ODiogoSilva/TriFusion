@@ -2937,6 +2937,25 @@ class AlignmentList(Base):
         """
         return iter(self.alignments.values())
 
+    def _create_table(self, table_name, cur=None):
+
+        if not cur:
+            cur = self.cur
+
+        cur.execute("CREATE TABLE [{}]("
+                    "txId INT,"
+                    "taxon TEXT,"
+                    "seq TEXT)".format(table_name))
+
+    def _table_exists(self, table_name, cur=None):
+
+        if not cur:
+            cur = self.cur
+
+        return cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND"
+            " name='{}'".format(table_name)).fetchall()
+
     def _set_pipes(self, ns=None, pbar=None, total=None, msg=None):
 
         if ns:
@@ -2952,7 +2971,8 @@ class AlignmentList(Base):
         if pbar:
             pbar.max_value = total
 
-    def _update_pipes(self, ns=None, pbar=None, value=None, msg=None):
+    @staticmethod
+    def _update_pipes(ns=None, pbar=None, value=None, msg=None):
 
         if ns:
             if ns.stop:
@@ -2963,7 +2983,8 @@ class AlignmentList(Base):
         if pbar:
             pbar.update(value)
 
-    def _reset_pipes(self, ns):
+    @staticmethod
+    def _reset_pipes(ns):
 
         if ns:
             if ns.stop:
@@ -3363,21 +3384,12 @@ class AlignmentList(Base):
         :return concatenated_alignment: Alignment object
         """
 
-        if ns:
-            ns.total = len(self.taxa_names)
-            ns.counter = 0
-
-        if pbar:
-            pbar.max_value = len(self.taxa_names)
-            pbar.value = 0
+        self._set_pipes(ns, pbar, total=len(self.taxa_names))
 
         table = "concatenation"
 
         # Create table that will harbor the concatenated alignment
-        self.cur.execute("CREATE TABLE [{}]("
-                         "txId INT,"
-                         "taxon TEXT,"
-                         "seq TEXT)".format(table))
+        self._create_table(table)
         self.active_tables.append(table)
 
         # Variable that will store the length of the concatenated alignment
@@ -3393,14 +3405,8 @@ class AlignmentList(Base):
         # Concatenation is performed for each taxon at a time
         for p, taxon in enumerate(self.taxa_names):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.msg = "Concatenating taxon {}".format(taxon)
-                ns.counter += 1
-
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Concatenating taxon {}".format(taxon))
 
             full_sequence = []
 
@@ -3435,11 +3441,7 @@ class AlignmentList(Base):
                 self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                     table), (p, taxon, seq_string))
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            # Reset counters
-            ns.total = ns.counter = None
+        self._reset_pipes(ns)
 
         # self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
         #     table), sequence_data)
@@ -3480,26 +3482,15 @@ class AlignmentList(Base):
         alignments are moved to the filtered_alignments attribute
         """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = len(self.alignments)
-            ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         self.filtered_alignments["By minimum taxa"] = 0
 
         for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
-                ns.msg = "Evaluating file {}".format(
-                    basename(alignment_obj.name))
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Evaluating file {}".format(
+                    basename(alignment_obj.name)))
 
             if len(alignment_obj.taxa_list) < \
                     (float(min_taxa) / 100.) * len(self.taxa_names):
@@ -3507,10 +3498,7 @@ class AlignmentList(Base):
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By minimum taxa"] += 1
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = ns.counter = ns.msg = None
+        self._reset_pipes(ns)
 
     def filter_by_taxa(self, filter_mode, taxa_list, ns=None, pbar=None):
         """
@@ -3522,11 +3510,7 @@ class AlignmentList(Base):
         filtering
         """
 
-        if ns:
-            ns.total = len(self.alignments)
-            ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         self.filtered_alignments["By taxa"] = 0
 
@@ -3546,14 +3530,9 @@ class AlignmentList(Base):
 
         for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
-                ns.msg = "Filtering file {}".format(
-                    basename(alignment_obj.name))
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Filtering file {}".format(
+                    basename(alignment_obj.name)))
 
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
@@ -3579,10 +3558,7 @@ class AlignmentList(Base):
         if self.alignments == {}:
             raise EmptyAlignment("Alignment is empty after taxa filter")
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.counter = ns.total = ns.msg = None
+        self._reset_pipes(ns)
 
     def filter_codon_positions(self, *args, **kwargs):
         """
@@ -3601,36 +3577,22 @@ class AlignmentList(Base):
         ns = kwargs.get("ns", None)
         pbar = kwargs.pop("pbar", None)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = len(self.alignments)
-            ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         # Reset partitions
         self.partitions = Partitions()
 
         for p, alignment_obj in enumerate(list(self.alignments.values())):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
-                ns.msg = "Filtering file {}".format(
-                    basename(alignment_obj.name))
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Filtering file {}".format(
+                    basename(alignment_obj.name)))
 
             alignment_obj.filter_codon_positions(*args, **kwargs)
 
             self.set_partition_from_alignment(alignment_obj)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = ns.counter = ns.msg = None
+        self._reset_pipes(ns)
 
     def filter_missing_data(self, *args, **kwargs):
         """
@@ -3654,41 +3616,21 @@ class AlignmentList(Base):
         # Reset partitions
         self.partitions = Partitions()
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if len(self.alignments) == 1:
-                ns.sa = True
-            else:
-                ns.total = len(self.alignments)
-                ns.counter = 0
-                ns.sa = False
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         for p, alignment_obj in enumerate(list(self.alignments.values())):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if not ns.sa:
-                    ns.counter += 1
-                    ns.msg = "Filtering file {}".format(
-                        basename(alignment_obj.name))
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Filtering file {}".format(
+                        basename(alignment_obj.name)))
 
             alignment_obj.filter_missing_data(*args, **kwargs)
 
             self.set_partition_from_alignment(alignment_obj)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = ns.counter = ns.msg = None
+        self._reset_pipes(ns)
 
-    def filter_segregating_sites(self, min_val, max_val, table_in=None,
-                                    ns=None, pbar=None):
+    def filter_segregating_sites(self, *args, **kwargs):
         """
         Wrapper of the filter_segregating_sites method of the Alignment
         object. See the method's documentation
@@ -3702,43 +3644,27 @@ class AlignmentList(Base):
         in the sqlite database. Leave None to use the main Alignment table
         """
 
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        ns = kwargs.get("ns", None)
+        pbar = kwargs.pop("pbar", None)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = len(self.alignments)
-            ns.counter = 0
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         self.filtered_alignments["By variable sites"] = 0
 
         for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
 
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Filtering file {}".format(
+                    basename(alignment_obj.name)))
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
-                ns.msg = "Filtering file {}".format(
-                    basename(alignment_obj.name))
-
-            if not alignment_obj.filter_segregating_sites(min_val, max_val,
-                                                          table_in=table_in,
-                                                          ns=ns):
+            if not alignment_obj.filter_segregating_sites(*args, **kwargs):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By variable sites"] += 1
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = ns.counter = ns.msg = None
+        self._reset_pipes(ns)
 
-    def filter_informative_sites(self, min_val, max_val, table_in=None,
-                                    ns=None, pbar=None):
+    def filter_informative_sites(self,*args, **kwargs):
         """
         Wrapper of the filter_informative_sites method of the Alignment
         object. See the method's documentation
@@ -3748,40 +3674,25 @@ class AlignmentList(Base):
         informative sites allowed for the alignment to pass the filter
         """
 
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        ns = kwargs.get("ns", None)
+        pbar = kwargs.pop("pbar", None)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = len(self.alignments)
-            ns.counter = 0
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         self.filtered_alignments["By informative sites"] = 0
 
         for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
 
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Filtering file {}".format(
+                    basename(alignment_obj.name)))
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
-                ns.msg = "Filtering file {}".format(
-                    basename(alignment_obj.name))
-
-            if not alignment_obj.filter_informative_sites(min_val, max_val,
-                                                          table_in=table_in,
-                                                          ns=ns):
+            if not alignment_obj.filter_informative_sites(*args, **kwargs):
                 self.update_active_alignment(k, "shelve")
                 self.partitions.remove_partition(file_name=alignment_obj.path)
                 self.filtered_alignments["By informative sites"] += 1
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.total = ns.counter = ns.msg = None
+        self._reset_pipes(ns)
 
     def remove_taxa(self, taxa_list, mode="remove"):
         """
@@ -3915,43 +3826,25 @@ class AlignmentList(Base):
 
         return selected_alignments
 
-    def code_gaps(self, table_in=None, table_out="gaps", use_main_table=False,
-                  pbar=None, ns=None):
+    def code_gaps(self, *args, **kwargs):
         """
         Wrapper for the code_gaps method of the Alignment object.
         """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if len(self.alignments) == 1:
-                ns.sa = True
-            else:
-                ns.sa = False
-                ns.total = len(self.alignments)
-                ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.alignments)
+        ns = kwargs.get("ns", None)
+        pbar = kwargs.pop("pbar", None)
+
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         for p, alignment_obj in enumerate(self.alignments.values()):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if not ns.sa:
-                    ns.counter += 1
-                    ns.msg = "Coding file {}".format(
-                        basename(alignment_obj.name))
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Coding file {}".format(
+                        basename(alignment_obj.name)))
 
-            alignment_obj.code_gaps(table_in=table_in, table_out=table_out,
-                                    ns=ns, use_main_table=use_main_table)
+            alignment_obj.code_gaps(*args, **kwargs)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            ns.counter = ns.total = ns.msg = None
+        self._reset_pipes(ns)
 
     def collapse(self, *args, **kwargs):
         """
@@ -3962,39 +3855,18 @@ class AlignmentList(Base):
 
         ns = kwargs.get("ns", None)
         pbar = kwargs.get("pbar", None)
+
         write_haplotypes = kwargs.get("write_haplotypes", None)
         conversion_suffix = kwargs.get("conversion_suffix", None)
         haplotypes_file = kwargs.get("haplotypes_file", None)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            # If the current alignment list contains only a single alignment,
-            # The progress should be measured inside that file
-            if len(self.alignments) == 1:
-                # Single Alignment is true
-                ns.sa = True
-            else:
-                ns.sa = False
-                ns.total = len(self.alignments)
-                ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.alignments.values())
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
         for p, alignment_obj in enumerate(self.alignments.values()):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                # Only use counter here if there are more than 1 alignment.
-                # Otherwise,the counter will be used inside the Alignment
-                # method
-                if not ns.sa:
-                    ns.counter += 1
-                    ns.msg = "Collapsing file {}".format(
-                        basename(alignment_obj.name))
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Collapsing file {}".format(
+                        basename(alignment_obj.name)))
 
             if write_haplotypes:
                 # Set name for haplotypes file
@@ -4004,6 +3876,8 @@ class AlignmentList(Base):
                                        **kwargs)
             else:
                 alignment_obj.collapse(*args, **kwargs)
+
+        self._reset_pipes(ns)
 
     def consensus(self, *args, **kwargs):
         """
@@ -4030,16 +3904,14 @@ class AlignmentList(Base):
         if single_file:
             # Create a table that will harbor the consensus sequences of all
             # Alignment objects
-            self.cur.execute("CREATE TABLE [{}]("
-                             "txId INT,"
-                             "taxon TEXT,"
-                             "seq TEXT)".format("consensus"))
+            self._create_table("consensus")
             self.active_tables.append("consensus")
             consensus_data = []
 
         for p, alignment_obj in enumerate(self.alignments.values()):
 
-            self._update_pipes(ns, pbar, p + 1, "Processing file {}".format(
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Processing file {}".format(
                         basename(alignment_obj.name)))
 
             alignment_obj.consensus(*args, **kwargs)
@@ -4103,8 +3975,6 @@ class AlignmentList(Base):
 
         self._set_pipes(ns_pipe, pbar, len(self.alignments))
 
-        print(len(self.alignments))
-
         for p, alignment_obj in enumerate(self.alignments.values()):
 
             self._update_pipes(ns_pipe, pbar, value=p + 1,
@@ -4136,10 +4006,7 @@ class AlignmentList(Base):
 
             alignment_obj.write_to_file(output_format, *args, **kwargs)
 
-        if ns_pipe:
-            if ns_pipe.stop:
-                raise KillByUser("")
-            ns_pipe.total = ns_pipe.counter =ns_pipe.msg = None
+        self._reset_pipes(ns_pipe)
 
     def get_gene_table_stats(self, active_alignments=None):
         """
