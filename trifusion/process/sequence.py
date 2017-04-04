@@ -679,16 +679,10 @@ class Alignment(Base):
 
         try:
             lock.acquire(True)
-            try:
-                for tx, seq in self.cur.execute(
-                        "SELECT taxon, seq from [{}]".format(table)):
-                    if tx not in self.shelved_taxa:
-                        yield tx, seq
-            except sqlite3.OperationalError:
-                for tx, seq in self.cur.execute(
-                        "SELECT taxon, seq from [{}]".format(table)):
-                    if tx not in self.shelved_taxa:
-                        yield tx, seq
+            for tx, seq in self.cur.execute(
+                    "SELECT taxon, seq from [{}]".format(table)):
+                if tx not in self.shelved_taxa:
+                    yield tx, seq
         finally:
             lock.release()
 
@@ -1588,6 +1582,8 @@ class Alignment(Base):
         # Populate tables, iterating over each taxa and then, each partition
         for p, (taxon, seq) in enumerate(
                 self.iter_alignment(table_name=table_in)):
+
+            print(taxon)
 
             self._update_pipes(ns, pbar, value=p + 1)
 
