@@ -1579,11 +1579,9 @@ class Alignment(Base):
 
         rev_cur = self.con.cursor()
 
-        self.cur.execute("PRAGMA read_uncommitted = false;")
+        for p, taxon in enumerate(self.taxa_list):
 
-        # Populate tables, iterating over each taxa and then, each partition
-        for p, (taxon, seq) in enumerate(
-                self.iter_alignment(table_name=table_in)):
+            seq = self.get_sequence(taxon, table_name=table_in)
 
             self._update_pipes(ns, pbar, value=p + 1)
 
