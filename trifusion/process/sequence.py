@@ -190,6 +190,8 @@ class SetupDatabase(object):
 
     def __call__(self, *args, **kwargs):
 
+        # If use_main_table is set, the table_in will be overwritten by
+        # table_out
         if "use_main_table" in kwargs:
             if kwargs["use_main_table"]:
                 kwargs["table_out"] = args[0].table_name
@@ -511,6 +513,13 @@ class Alignment(Base):
                 yield tx, seq
 
     def _create_table(self, table_name, cur=None):
+        """
+        Convenience method that creates a new table in sqlite database.
+        A custom cursor object can be provided
+        :param table_name:
+        :param cur:
+        :return:
+        """
 
         if not cur:
             cur = self.cur
@@ -846,13 +855,13 @@ class Alignment(Base):
         parse an alignment and set all the basic attributes of the class.
 
         :param input_alignment: string. File name containing the input
-        alignment
+                                alignment
 
         :param alignment_format: string. Format of the input file. It can be
-        one of three: "fasta", "nexus", "phylip"
+                                 one of three: "fasta", "nexus", "phylip"
 
         :param size_check: Boolean. If True it will check the size consistency
-        of the sequences in the alignment
+                           of the sequences in the alignment
         """
 
         file_handle = open(input_alignment)
@@ -1296,8 +1305,9 @@ class Alignment(Base):
     def change_taxon_name(self, old_name, new_name):
         """
         Changes the taxon name of a particular taxon.
-        :param old_name: string. Original taxon name
-        :param new_name: string. New taxon name
+
+        :param str old_name: Original taxon name
+        :param str new_name: New taxon name
         """
 
         # Change in taxa_list
