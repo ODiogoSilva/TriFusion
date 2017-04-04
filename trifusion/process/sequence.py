@@ -3035,7 +3035,7 @@ class AlignmentList(Base):
             self.con = sqlite3.connect(sql_db, check_same_thread=False)
             self.cur = self.con.cursor()
             self.cur.execute("PRAGMA synchronous = OFF")
-            self.cur.execute("PRAGMA journal_mode = TRUNCATED")
+            # self.cur.execute("PRAGMA journal_mode = TRUNCATED")
 
         """
         Stores the "active" Alignment objects for the current AlignmentList.
