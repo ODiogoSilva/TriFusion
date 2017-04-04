@@ -466,9 +466,7 @@ class Alignment(Base):
         # Check if table for current alignment file already exists. If it
         # does not exist, it is assumed that input_alignment is the path to
         # the alignment file
-        if not self.cur.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND"
-                " name='{}'".format(self.table_name)).fetchall():
+        if not self._table_exists(self.table_name):
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -481,10 +479,7 @@ class Alignment(Base):
 
                 # Create database table when there are no issues in the
                 # recognition of the file format and sequence code
-                self.cur.execute("CREATE TABLE [{}]("
-                                 "txId INT,"
-                                 "taxon TEXT,"
-                                 "seq TEXT)".format(self.table_name))
+                self._create_table(self.table_name)
 
                 # In case the input format is specified, overwrite the
                 # attribute
@@ -514,6 +509,25 @@ class Alignment(Base):
                     self.table_name)):
             if tx not in self.shelved_taxa:
                 yield tx, seq
+
+    def _create_table(self, table_name, cur=None):
+
+        if not cur:
+            cur = self.cur
+
+        cur.execute("CREATE TABLE [{}]("
+                    "txId INT,"
+                    "taxon TEXT,"
+                    "seq TEXT)".format(table_name))
+
+    def _table_exists(self, table_name, cur=None):
+
+        if not cur:
+            cur = self.cur
+
+        return cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND"
+            " name='{}'".format(table_name)).fetchall()
 
     def _set_format(self, input_format):
         """
@@ -1322,10 +1336,7 @@ class Alignment(Base):
         self._set_pipes(ns, pbar, len(self.taxa_list))
 
         # Create temporary table for storing unique sequences
-        self.cur.execute("CREATE TABLE [.collapsed] "
-                         "(txId INT,"
-                         "taxon TEXT,"
-                         "seq TEXT)")
+        self._create_table(".collapsed")
 
         # Create a new cursor to edit the database while iterating over
         # table_in
@@ -1373,7 +1384,8 @@ class Alignment(Base):
         # The collapse operation is special in the sense that the former taxon
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the collapsed data
-        self.cur.execute("DROP TABLE [{}];".format(table_out))
+        if self._table_exists(table_out):
+            self.cur.execute("DROP TABLE [{}];".format(table_out))
 
         # Replace table_out with collapsed table
         self.cur.execute("ALTER TABLE [.collapsed] RENAME TO [{}]".format(
@@ -1475,7 +1487,8 @@ class Alignment(Base):
         # The consensus operation is special in the sense that the former taxon
         # names are no longer valid. Therefore, we drop the previous table and
         # populate a new one with the consensus data
-        self.cur.execute("DELETE FROM [{}];".format(table_out))
+        if self._table_exists(table_out):
+            self.cur.execute("DELETE FROM [{}];".format(table_out))
 
         # Insert into database
         self.cur.execute("INSERT INTO [{}] VALUES(?, ?, ?)".format(
@@ -1547,105 +1560,96 @@ class Alignment(Base):
         :paramm
         """
 
-        def add_alignment(part_name, part_len, seq_data):
-
-            # Set partition object
-            current_partition = Partitions()
-            current_partition.add_partition(part_name, part_len)
-
-            # Add data to database
-            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                part_name), seq_data)
-
-            # Set taxa list attributes
-            taxa_list = [x[1] for x in sequence_data]
-            taxa_idx = dict((x[1], x[0]) for x in sequence_data)
+        def add_alignment(part_name, part_len):
 
             # Create Alignment object
             current_aln = Alignment(part_name, input_format=self.input_format,
-                                    partitions=current_partition,
                                     sql_cursor=self.cur,
                                     locus_length=part_len,
                                     sequence_code=self.sequence_code,
-                                    taxa_list=taxa_list, taxa_idx=taxa_idx)
+                                    taxa_list=self.taxa_list,
+                                    taxa_idx=self.taxa_idx)
+
             alns.append(current_aln)
+
+        taxa_list_master = defaultdict(list)
+        taxa_idx_master = defaultdict(dict)
+
+        self._set_pipes(ns, pbar, total=len(self.taxa_list))
+
+        rev_cur = self.con.cursor()
+
+        # Populate tables, iterating over each taxa and then, each partition
+        for p, (taxon, seq) in enumerate(
+                self.iter_alignment(table_name=table_in)):
+
+            self._update_pipes(ns, pbar, value=p + 1)
+
+            for name, part_range in self.partitions:
+
+                name = "".join([x for x in name.split(".")[0] if x.isalnum()])
+
+                if part_range[1]:
+
+                    for i in range(3):
+
+                        part_seq = seq[part_range[0][0]:
+                                       part_range[0][1] + 1][i::3]
+
+                        if part_seq.replace(self.sequence_code[1], "") == "":
+                            continue
+
+                        cname = name + str(i)
+
+                        taxa_list_master[cname].append(taxon)
+                        taxa_idx_master[cname][taxon] = p
+
+                        if not self._table_exists(cname, cur=rev_cur):
+                            self._create_table(cname)
+
+                        rev_cur.execute(
+                            "INSERT INTO [{}] VALUES"
+                            "(?, ?, ?)".format(cname), (p, taxon, part_seq))
+
+                else:
+
+                    part_seq = seq[part_range[0][0]:
+                                   part_range[0][1] + 1]
+
+                    if part_seq.replace(self.sequence_code[1], "") == "":
+                        continue
+
+                    taxa_list_master[name].append(taxon)
+                    taxa_idx_master[name][taxon] = p
+
+                    if not self._table_exists(name, cur=rev_cur):
+                        self._create_table(name, cur=rev_cur)
+
+                    rev_cur.execute(
+                        "INSERT INTO [{}] VALUES"
+                        "(?, ?, ?)".format(name), (p, taxon, part_seq))
 
         concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
         alns = []
-        sequence_data = []
 
-        if ns:
-            ns.counter = 0
-            ns.files = len(self.partitions.partitions)
-        if pbar:
-            pbar.max_value = len(self.partitions.partitions)
-
-        for p, (name, part_range) in enumerate(self.partitions):
+        # Create Alignment objects for each partition
+        for name, part_range in self.partitions:
 
             name = "".join([x for x in name.split(".")[0] if x.isalnum()])
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
-            if pbar:
-                pbar.update(p + 1)
-
-            # This adds support to the reverse concatenation of codon
-            # partitions
             if part_range[1]:
 
                 for i in range(3):
 
-                    # Create table for current partition based on its name
-                    self.cur.execute("CREATE TABLE [{}]("
-                                     "txId INT,"
-                                     "taxon TEXT,"
-                                     "seq TEXT)".format(name + str(i)))
+                    part_len = (part_range[0][1] - part_range[0][0] + 1) / 3
 
-                    for p, (taxon, seq) in enumerate(
-                            self.iter_alignment_substr(
-                                part_range[0][0],
-                                part_range[0][1] - part_range[0][0] + 1,
-                                table_name=table_in)):
+                    add_alignment(name + str(i), part_len)
 
-                        # Get sequence for codon partition
-                        sub_seq = seq[i::3]
-
-                        # If sub_seq is not empty (only gaps or missing data)
-                        if sub_seq.replace(self.sequence_code[1], "") != "":
-                            sequence_data.append((p, taxon, sub_seq))
-
-                        if not sequence_data:
-                            continue
-
-                    add_alignment(name + str(i), len(sub_seq), sequence_data)
-                    # Reset sequence_data for next partition
-                    sequence_data = []
-
-            # Partition has no codon sub partition. Proceed normally
             else:
 
-                # Create table for current partition based on its name
-                self.cur.execute("CREATE TABLE [{}]("
-                                 "txId INT,"
-                                 "taxon TEXT,"
-                                 "seq TEXT)".format(name))
+                part_len = part_range[0][1] - part_range[0][0] + 1
 
-                for p, (taxon, seq) in enumerate(self.iter_alignment_substr(
-                        part_range[0][0] + 1,
-                        part_range[0][1] - part_range[0][0] + 1,
-                        table_name=table_in)):
-
-                    # If sub_seq is not empty (only gaps or missing data)
-                    if seq.replace(self.sequence_code[1], "") != "":
-                        sequence_data.append((p, taxon, seq))
-
-                    if not sequence_data:
-                        continue
-
-                add_alignment(name, len(seq), sequence_data)
-                sequence_data = []
+                add_alignment(name, part_len)
 
         concatenated_aln.add_alignments(alns, ignore_paths=True)
 
@@ -2131,6 +2135,11 @@ class Alignment(Base):
                               [self.sequence_code[1], "-"]])
 
             if column:
+
+                # Skip if column has no variation
+                if len(column) == 1:
+                    continue
+
                 # Delete most common
                 del column[column.most_common()[0][0]]
 
@@ -2145,7 +2154,7 @@ class Alignment(Base):
                 if min_val and s >= min_val and max_val is None:
                     return True
 
-                if max_val and s > max_val and min_val is None:
+                if max_val and s > max_val:
                     return False
 
         return self._test_range(s, min_val, max_val)
@@ -4281,30 +4290,17 @@ class AlignmentList(Base):
         """
 
         ns_pipe = kwargs.get("ns_pipe", None)
-        pbar = kwargs.get("pbar", None)
+        pbar = kwargs.pop("pbar", None)
 
-        if ns_pipe:
-            if ns_pipe.stop:
-                raise KillByUser("")
-            if len(self.alignments) == 1:
-                ns_pipe.sa = True
-            else:
-                ns_pipe.sa = False
-                ns_pipe.total = len(self.alignments)
-                ns_pipe.counter = 0
+        self._set_pipes(ns_pipe, pbar, len(self.alignments))
+
+        print(len(self.alignments))
 
         for p, alignment_obj in enumerate(self.alignments.values()):
 
-            if pbar:
-                pbar.update(p + 1)
-
-            if ns_pipe:
-                if ns_pipe.stop:
-                    raise KillByUser("")
-                if not ns_pipe.sa:
-                    ns_pipe.counter += 1
-                    ns_pipe.msg = "Writting file {}".format(
-                        basename(alignment_obj.name))
+            self._update_pipes(ns_pipe, pbar, value=p + 1,
+                               msg="Writting file {}".format(
+                                   basename(alignment_obj.name)))
 
             output_file_name = alignment_obj.name.split(".")[0] + \
                 conversion_suffix + output_suffix
