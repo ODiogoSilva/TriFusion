@@ -4711,7 +4711,7 @@ class TriFusionApp(App):
         # Resets the ortho_groups variable so that new loadings will start anew
         self.ortho_groups = None
         self.ortho_group_files = []
-        self.proteome_files = []
+        #self.proteome_files = []
 
     def remove_groups(self, value):
         """
@@ -6687,24 +6687,27 @@ class TriFusionApp(App):
                     "value", t="error")
 
             if 0 < float(sp_filt) < 1:
-                self.orto_min_sp = float(sp_filt)
+                orto_min_sp = float(sp_filt)
             else:
-                self.orto_min_sp = int(sp_filt)
+                orto_min_sp = int(sp_filt)
 
         except ValueError:
             return self.dialog_floatcheck(
                 "Minimum number of taxa '{}' must be a number".format(
                     sp_filt), t="error")
 
-        self.dismiss_popup()
-
         # Add check for min species. If this filter is set to a number
         # greater that the number of proteome input files (which should
         # represent a single species each) this will issue a warning.
-        if self.proteome_files and int(sp_filt) > len(self.proteome_files):
+        if self.proteome_files and \
+                        int(sp_filt) > len(self.active_proteome_files):
             return self.dialog_floatcheck("Minimum number of "
                                           "species larger than the provided"
                                           " proteomes", t="warning")
+        else:
+            self.orto_min_sp = orto_min_sp
+
+        self.dismiss_popup()
 
         return self.orto_max_gene, self.orto_min_sp
 
