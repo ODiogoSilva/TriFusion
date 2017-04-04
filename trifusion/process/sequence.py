@@ -539,7 +539,8 @@ class Alignment(Base):
 
         self.input_format = input_format
 
-    def _set_pipes(self, ns=None, pbar=None, total=None):
+    @staticmethod
+    def _set_pipes(ns=None, pbar=None, total=None, msg=None):
 
         if ns:
             if ns.stop:
@@ -547,10 +548,13 @@ class Alignment(Base):
             if ns.sa:
                 ns.total = total
                 ns.counter = 0
+                ns.msg = msg
         if pbar:
             pbar.max_value = total
+            pbar.update(0)
 
-    def _update_pipes(self, ns=None, pbar=None, value=None, msg=None):
+    @staticmethod
+    def _update_pipes(ns=None, pbar=None, value=None, msg=None):
 
         if ns:
             if ns.stop:
@@ -561,13 +565,14 @@ class Alignment(Base):
         if pbar:
             pbar.update(value)
 
-    def _reset_pipes(self, ns):
+    @staticmethod
+    def _reset_pipes(ns):
 
         if ns:
             if ns.stop:
                 raise KillByUser("")
             if ns.sa:
-                ns.total = ns.counter = ns.msg = None
+                ns.total = ns.counter = ns.msg = ns.sa = None
 
     @SetupInTable
     def iter_columns(self, table_suffix="", table_name=None, table=None):
@@ -1684,10 +1689,7 @@ class Alignment(Base):
                         yield 0
 
         # Create temporary table for storing unique sequences
-        self.cur.execute("CREATE TABLE [.codonfilter] "
-                         "(txId INT,"
-                         "taxon TEXT,"
-                         "seq TEXT)")
+        self._create_table(".codonfilter")
 
         # Create a new cursor to edit the database while iterating over
         # table_in
@@ -1708,9 +1710,7 @@ class Alignment(Base):
                                          taxon,
                                          seq))
 
-        if self.cur.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND"
-                " name='{}'".format(table_out)).fetchall():
+        if self._table_exists(table_out):
             self.cur.execute("DROP TABLE [{}]".format(table_out))
 
         # Replace table_out with collapsed table
@@ -1736,14 +1736,7 @@ class Alignment(Base):
         created/modified in the database to harbor the collapsed alignment
         """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if ns.sa:
-                ns.total = len(self.taxa_list)
-                ns.counter = 0
-        if pbar:
-            pbar.max_value = len(self.taxa_list)
+        self._set_pipes(ns, pbar, total=len(self.taxa_list))
 
         def gap_listing(sequence, gap_symbol="-"):
             """ Function that parses a sequence string and returns the
@@ -1795,38 +1788,22 @@ class Alignment(Base):
         for p, (tx, seq) in enumerate(
                 self.iter_alignment(table_name=table_in)):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if ns.sa:
-                    ns.counter += 1
-                    ns.msg = "Fetching gaps for {}".format(tx)
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Fetching gaps for {}".format(tx))
 
             current_list = gap_listing(seq)
             complete_gap_list += [gap for gap in current_list if gap not in
                                   complete_gap_list]
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if ns.sa:
-                ns.counter = 0
+        self._set_pipes(ns, pbar, total=len(self.taxa_list))
 
         # This will add the binary matrix of the unique gaps listed at the
         # end of each alignment sequence
         for p, (tx, seq) in enumerate(
                 self.iter_alignment(table_name=table_in)):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                if ns.sa:
-                    ns.counter += 1
-                    ns.msg = "Adding gaps for {}".format(tx)
-            if pbar:
-                pbar.update(p + 1)
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Adding gaps for {}".format(tx))
 
             final_seq = gap_binary_generator(seq, complete_gap_list)
 
@@ -1850,11 +1827,7 @@ class Alignment(Base):
                                             len(complete_gap_list) +
                                             int(self.locus_length) - 1)
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
-            if ns.sa:
-                ns.counter = ns.total = ns.msg = None
+        self._reset_pipes(ns)
 
     def _filter_terminals(self, table_in, table_out, ns=None):
         """
@@ -1867,10 +1840,7 @@ class Alignment(Base):
             if ns.stop:
                 raise KillByUser("")
 
-        self.cur.execute("CREATE TABLE [.filterterminals] "
-                         "(txId INT,"
-                         "taxon TEXT,"
-                         "seq TEXT)")
+        self._create_table(".filterterminals")
 
         filt_cur = self.con.cursor()
 
@@ -1905,9 +1875,7 @@ class Alignment(Base):
 
         # Check if input and output tables are the same. If they are,
         # drop the old table and replace with this new one
-        if self.cur.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND"
-                " name='{}'".format(table_out)).fetchall():
+        if self._table_exists(table_out):
             self.cur.execute("DROP TABLE [{}]".format(table_out))
 
         self.cur.execute("ALTER TABLE [.filterterminals] "
@@ -1927,10 +1895,7 @@ class Alignment(Base):
 
         filtered_cols = []
 
-        self.cur.execute("CREATE TABLE [.filtercolumns] "
-                         "(txId INT,"
-                         "taxon TEXT,"
-                         "seq TEXT)")
+        self._create_table(".filtercolumns")
 
         filt_cur = self.con.cursor()
 
@@ -1973,9 +1938,7 @@ class Alignment(Base):
         # Check if input and output tables are the same. If they are,
         # it means that the output table already exists and is being
         # updated
-        if self.cur.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND"
-                " name='{}'".format(table_out)).fetchall():
+        if self._table_exists(table_out):
             self.cur.execute("DROP TABLE [{}];".format(table_out))
 
         self.cur.execute("ALTER TABLE [.filtercolumns] RENAME TO [{}]".format(
@@ -2259,13 +2222,8 @@ class Alignment(Base):
                     table_name=table_name,
                     table_suffix=table_suffix)):
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.counter = c
-                if pbar:
-                    pbar.update(c + 1)
+                self._update_pipes(ns_pipe, pbar,
+                                   value=c + 1)
 
                 counter = 0
 
@@ -2386,28 +2344,14 @@ class Alignment(Base):
 
             if not self.partitions.is_single():
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.partitions.partitions)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing IMa2 output"
-
-                if pbar:
-                    pbar.max_value = len(self.partitions.partitions)
+                self._set_pipes(ns_pipe, pbar,
+                                total=len(self.partitions.partitions),
+                                msg="Writing IMa2 output")
 
                 # Write each locus
                 for p, (partition, lrange) in enumerate(self.partitions):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter = p
-
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                     # Retrieving taxon names and sequence data. This step is
                     # the first because it will enable the removal of species
@@ -2460,15 +2404,9 @@ class Alignment(Base):
 
             if self.partitions.is_single():
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(population_storage)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing IMa2 output"
-                if pbar:
-                    pbar.max_value = len(population_storage)
+                self._set_pipes(ns_pipe, pbar,
+                                total=len(population_storage),
+                                msg="Writing IMa2 output")
 
                 # Write the header for the single
                 out_file.write("%s %s %s %s %s\n" % (
@@ -2482,13 +2420,8 @@ class Alignment(Base):
                 for p, (population, taxa_list) in enumerate(
                         population_storage.items()):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter = p
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar,
+                                       value=p + 1)
 
                     for taxon in taxa_list:
                         seq = self.get_sequence(
@@ -2510,15 +2443,9 @@ class Alignment(Base):
                                         self.locus_length))
             if interleave:
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.taxa_list)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing phylip output"
-                if pbar:
-                    pbar.max_value = len(self.taxa_list)
+                self._set_pipes(ns_pipe, pbar,
+                                total=len(self.taxa_list),
+                                msg="Writing phylip output")
 
                 interleave_storage = get_interleave_data()
 
@@ -2542,26 +2469,15 @@ class Alignment(Base):
 
             else:
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.taxa_list)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing phylip output"
-                if pbar:
-                    pbar.max_value = len(self.taxa_list)
+                self._set_pipes(ns_pipe, pbar,
+                                total=len(self.taxa_list),
+                                msg="Writing phylip output")
 
                 for p, (taxon, seq) in enumerate(self.iter_alignment(
                         table_name=table_name, table_suffix=table_suffix)):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter = p
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar,
+                                       value=p + 1)
 
                     out_file.write("%s %s\n" % (
                         taxon[:cut_space_phy].ljust(seq_space_phy),
@@ -2587,15 +2503,8 @@ class Alignment(Base):
 
         if "stockholm" in output_format:
 
-            if ns_pipe:
-                if ns_pipe.stop:
-                    raise KillByUser("")
-                if ns_pipe.sa:
-                    ns_pipe.total = len(self.taxa_list)
-                    ns_pipe.counter = 0
-                    ns_pipe.msg = "Writing stockholm output"
-            if pbar:
-                pbar.max_value = len(self.taxa_list)
+            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                            msg="Writing stockholm output")
 
             out_file = open(output_file + format_ext["stockholm"], "w")
 
@@ -2604,13 +2513,7 @@ class Alignment(Base):
             for p, (taxon, seq) in enumerate(self.iter_alignment(
                     table_name=table_name, table_suffix=table_suffix)):
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.counter += 1
-                if pbar:
-                    pbar.update(p + 1)
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                 out_file.write("%s\t%s\n" % (taxon, seq))
 
@@ -2626,26 +2529,14 @@ class Alignment(Base):
 
             if not self.partitions.is_single():
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.partitions.partitions)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing gphocs output"
-                if pbar:
-                    pbar.max_value = len(self.partitions.partitions)
+                self._set_pipes(ns_pipe, pbar,
+                                total=len(self.partitions.partitions),
+                                msg="Writing gphocs output")
 
                 for p, (name, lrange) in enumerate(
                         self.partitions.partitions.items()):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter = p
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                     lrange = lrange[0]
                     out_file.write("%s %s %s\n" % (name, len(self.taxa_list),
@@ -2659,15 +2550,8 @@ class Alignment(Base):
 
             else:
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.taxa_list)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing gphocs output"
-                if pbar:
-                    pbar.max_value = len(self.taxa_list)
+                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                                msg="Writing gphocs output")
 
                 out_file.write("%s %s %s\n" % (self.sname,
                                                len(self.taxa_list),
@@ -2677,13 +2561,7 @@ class Alignment(Base):
                         table_name=table_name,
                         table_suffix=table_suffix)):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter += 1
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                     out_file.write("%s\t%s\n" % (taxon, seq))
 
@@ -2696,26 +2574,14 @@ class Alignment(Base):
 
             if self.partitions.is_single() is False:
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.partitions.partitions)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing mcmctree output"
-                if pbar:
-                    pbar.max_value = len(self.partitions.partitions)
+                self._set_pipes(ns_pipe, pbar,
+                                total=len(self.partitions.partitions),
+                                msg="Writing mcmctree output")
 
                 for p, lrange in enumerate(
                         self.partitions.partitions.values()):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter = p
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                     lrange = lrange[0]
                     out_file.write("%s %s\n" % (taxa_number,
@@ -2729,27 +2595,14 @@ class Alignment(Base):
                                        seq[lrange[0]:lrange[1]].upper()))
             else:
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.taxa_list)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing mcmctree output"
-                if pbar:
-                    pbar.max_value = len(self.taxa_list)
+                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                                msg="Writing mcmctree output")
 
                 out_file.write("%s %s\n" % (taxa_number, self.locus_length))
                 for p, (taxon, seq) in enumerate(self.iter_alignment(
                         table_name=table_name, table_suffix=table_suffix)):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter += 1
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                     out_file.write("%s  %s\n" % (
                                    taxon[:cut_space_phy].ljust(seq_space_phy),
@@ -2765,16 +2618,8 @@ class Alignment(Base):
             # This writes the output in interleave format
             if interleave:
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.taxa_list)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing nexus output"
-
-                if pbar:
-                    pbar.max_value = len(self.taxa_list)
+                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                                msg="Writing nexus output")
 
                 if self.restriction_range is not None:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
@@ -2821,16 +2666,8 @@ class Alignment(Base):
             # This writes the output in leave format (default)
             else:
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.total = len(self.taxa_list)
-                        ns_pipe.counter = 0
-                        ns_pipe.msg = "Writing nexus output"
-
-                if pbar:
-                    pbar.max_value = len(self.taxa_list)
+                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                                msg="Writing nexus output")
 
                 if self.restriction_range is not None:
                     out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
@@ -2857,14 +2694,7 @@ class Alignment(Base):
                 for p, (taxon, seq) in enumerate(self.iter_alignment(
                         table_name=table_name, table_suffix=table_suffix)):
 
-                    if ns_pipe:
-                        if ns_pipe.stop:
-                            raise KillByUser("")
-                        if ns_pipe.sa:
-                            ns_pipe.counter += 1
-
-                    if pbar:
-                        pbar.update(p + 1)
+                    self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                     out_file.write("%s %s\n" % (taxon[:cut_space_nex].ljust(
                         seq_space_nex), seq))
@@ -2938,28 +2768,13 @@ class Alignment(Base):
                                                    self.locus_length,
                                                    "2"))
 
-            if ns_pipe:
-                if ns_pipe.stop:
-                    raise KillByUser("")
-                if ns_pipe.sa:
-                    ns_pipe.total = len(self.taxa_list)
-                    ns_pipe.counter = 0
-                    ns_pipe.msg = "Writing fasta output"
-
-            if pbar:
-                pbar.max_value = len(self.taxa_list)
+            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                            msg="Writing fasta output")
 
             for p, (taxon, seq) in enumerate(self.iter_alignment(
                     table_name=table_name, table_suffix=table_suffix)):
 
-                if ns_pipe:
-                    if ns_pipe.stop:
-                        raise KillByUser("")
-                    if ns_pipe.sa:
-                        ns_pipe.counter += 1
-
-                if pbar:
-                    pbar.update(p + 1)
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
 
                 if ld_hat:
                     # Truncate sequence name to 30 characters
@@ -2981,16 +2796,10 @@ class Alignment(Base):
 
             out_file.close()
 
-        if ns_pipe:
-            if ns_pipe.stop:
-                raise KillByUser("")
-            if ns_pipe.sa:
-                ns_pipe.msg = ns_pipe.counter = ns_pipe.total = None
+        self._reset_pipes(ns_pipe)
 
         # Remove temporary interleave data, if present
-        if self.cur.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND"
-                " name='.interleavedata'").fetchall():
+        if self._table_exists(".interleavedata"):
             self.cur.execute("DROP TABLE [.interleavedata]")
 
 
