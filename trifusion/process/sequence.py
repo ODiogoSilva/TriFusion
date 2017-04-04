@@ -1583,8 +1583,6 @@ class Alignment(Base):
         for p, (taxon, seq) in enumerate(
                 self.iter_alignment(table_name=table_in)):
 
-            print(taxon)
-
             self._update_pipes(ns, pbar, value=p + 1)
 
             for name, part_range in self.partitions:
@@ -1607,7 +1605,7 @@ class Alignment(Base):
                         taxa_idx_master[cname][taxon] = p
 
                         if not self._table_exists(cname, cur=rev_cur):
-                            self._create_table(cname)
+                            self._create_table(cname, cur=rev_cur)
 
                         rev_cur.execute(
                             "INSERT INTO [{}] VALUES"
@@ -1630,6 +1628,7 @@ class Alignment(Base):
                     rev_cur.execute(
                         "INSERT INTO [{}] VALUES"
                         "(?, ?, ?)".format(name), (p, taxon, part_seq))
+                    print("commited")
 
         concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
         alns = []
