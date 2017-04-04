@@ -679,11 +679,16 @@ class Alignment(Base):
 
         try:
             lock.acquire(True)
-            print(table)
-            for tx, seq in self.cur.execute(
-                    "SELECT taxon, seq from [{}]".format(table)):
-                if tx not in self.shelved_taxa:
-                    yield tx, seq
+            try:
+                for tx, seq in self.cur.execute(
+                        "SELECT taxon, seq from [{}]".format(table)):
+                    if tx not in self.shelved_taxa:
+                        yield tx, seq
+            except sqlite3.OperationalError:
+                for tx, seq in self.cur.execute(
+                        "SELECT taxon, seq from [{}]".format(table)):
+                    if tx not in self.shelved_taxa:
+                        yield tx, seq
         finally:
             lock.release()
 
