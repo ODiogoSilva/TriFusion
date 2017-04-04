@@ -4021,6 +4021,8 @@ class TriFusionApp(App):
         """
         Creates a filechooser dialog to select a text file containing a list
         of files or taxa names to be selected in the side panel
+
+        Calls: select_bt_from_file
         """
 
         content = SaveDialog(cancel=self.dismiss_popup,
@@ -4036,7 +4038,9 @@ class TriFusionApp(App):
     def dialog_remove_from_file(self):
         """
         Creates a filechooser dialog to select a text file containing a list
-        of files or taxa names to be removed in the side panel
+        of files or taxa names to be removed in the side panel.
+
+        Then calls: self.remove_bt_from_file
         """
 
         content = SaveDialog(cancel=self.dismiss_popup,
@@ -4354,12 +4358,15 @@ class TriFusionApp(App):
         if self.export_mode[0] == "files":
             # Export all files
             if self.export_mode[1] == "all":
-                for x in self.file_list:
+                fl = self.file_list if self.file_list else self.filename_map
+                for x in fl:
                     short_name = basename(x)
                     export_file.write(short_name + "\n")
             # Export selected files
             elif self.export_mode[1] == "selected":
-                for x in self.active_file_list:
+                fl = self.active_file_list if self.active_file_list else \
+                    self.active_proteome_files
+                for x in fl:
                     short_name = basename(x)
                     export_file.write(short_name + "\n")
 
@@ -4968,13 +4975,22 @@ class TriFusionApp(App):
                 else:
                     bt.state = "normal"
 
-                self.active_file_list = [self.filename_map[x] for x in
-                                         selection if x in self.filename_map]
-                self.alignment_list.update_active_alignments(
-                    [self.filename_map[x] for x in selection if
-                     x in self.filename_map])
+                if self.file_list:
 
-                self.update_file_label()
+                    self.active_file_list = [
+                        self.filename_map[x] for x in
+                        selection if x in self.filename_map]
+                    self.alignment_list.update_active_alignments(
+                        [self.filename_map[x] for x in selection if
+                         x in self.filename_map])
+
+                elif self.proteome_files:
+
+                    self.active_proteome_files = [
+                        self.filename_map[x] for x in
+                        selection if x in self.filename_map]
+
+            self.update_file_label()
 
     def select_bt(self, value):
         """
