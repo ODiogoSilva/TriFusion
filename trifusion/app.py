@@ -10255,6 +10255,20 @@ class TriFusionApp(App):
 
         content = OrtoExecutionDialog(cancel=self.dismiss_popup)
 
+        self.show_popup(
+            title="Orthology search execution summary - Processing %s"
+                  " file(s)" % len(self.active_proteome_files),
+            content=content,
+            size=(550, 350))
+
+        # Correct minimum species filter
+        if self.orto_min_sp > len(self.active_proteome_files):
+            self.orto_min_sp = len(self.active_proteome_files)
+            self.dialog_floatcheck(
+                "Corrected the minimum number of taxa per cluster value "
+                "to the maximum number allowed by the active proteomes.",
+                t="warning")
+
         content.ids.gene_filter.text = \
             "[b][size=18][color=37abc8ff]Maximum number of gene copies " \
             "per cluster:[/color][/size][/b] %s" %\
@@ -10278,12 +10292,6 @@ class TriFusionApp(App):
         content.ids.threads.text = \
             "[b][size=18][color=37abc8ff]Threads :[/color][/size][/b] %s" %\
             self.screen.ids.usearch_threads.text
-
-        self.show_popup(
-            title="Orthology search execution summary - Processing %s"
-                  " file(s)" % len(self.active_proteome_files),
-            content=content,
-            size=(550, 350))
 
     def orthology_search_exec(self):
         """
