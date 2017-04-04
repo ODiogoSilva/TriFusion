@@ -1579,13 +1579,11 @@ class Alignment(Base):
 
         rev_cur = self.con.cursor()
 
-        self.cur.execute("PRAGMA read_uncommitted = true;")
+        self.cur.execute("PRAGMA read_uncommitted = false;")
 
         # Populate tables, iterating over each taxa and then, each partition
         for p, (taxon, seq) in enumerate(
                 self.iter_alignment(table_name=table_in)):
-
-            print(taxon)
 
             self._update_pipes(ns, pbar, value=p + 1)
 
@@ -1632,7 +1630,6 @@ class Alignment(Base):
                     rev_cur.execute(
                         "INSERT INTO [{}] VALUES"
                         "(?, ?, ?)".format(name), (p, taxon, part_seq))
-                    print("commited")
 
         concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
         alns = []
