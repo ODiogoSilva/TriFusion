@@ -220,8 +220,8 @@ ShowcaseScreen:
                                     orientation: "vertical"
                                     BoxLayout
                                         orientation: "vertical"
-                                        size_hint_y: None
-                                        height: 300
+                                        #size_hint_y: None
+                                        #height: 300
                                         BoxLayout:
                                             size_hint_y: None
                                             height: 40
@@ -265,8 +265,8 @@ ShowcaseScreen:
                                         ScrollView:
                                             BoxLayout:
                                                 id: orto_group_glbx
-                                                size_hint_y: None
-                                                height: sum([x.size[1] + 5 for x in group_gl.children]) + 5
+                                                #size_hint_y: None
+                                                #height: sum([x.size[1] + 5 for x in group_gl.children]) + 5
                                                 GridLayout:
                                                     cols: 1
                                                     id: group_check
@@ -474,7 +474,6 @@ ShowcaseScreen:
                                                                     app.go_screen(7)
                                                                     app.run_in_background(get_active_group, app.orto_show_plot, [app.ortho_groups, app.active_group, str(app.active_group_name)], [gn_plot.text], False, cancel=False)
                                                                     app.show_plot_toolbar()
-                                    Widget
                                 BoxLayout:
                                     padding: 10
                                     orientation: "vertical"
