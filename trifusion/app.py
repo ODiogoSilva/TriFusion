@@ -1201,6 +1201,7 @@ class TriFusionApp(App):
         """
         This method updates the filechooser path when clicking on the path
         label
+
         :param path: string, with destination path
         """
 
