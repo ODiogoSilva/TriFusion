@@ -7646,13 +7646,12 @@ class TriFusionApp(App):
         if size:
             popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size=size,
-                size_hint=(None, None), auto_dismiss=False,
+                size_hint=(None, None),
                 separator_color=separator_color,
                 title_color=separator_color)
         else:
             popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size_hint=size_hint,
-                auto_dismiss=False,
                 separator_color=separator_color,
                 title_color=separator_color)
 
