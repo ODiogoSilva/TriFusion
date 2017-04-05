@@ -516,6 +516,13 @@
             on_release:
                 root.cancel()
                 app.load_proteomes(root.files)
+        TFButton:
+            text: "Group"
+            on_release:
+                root.cancel()
+                app.root.ids.h_ortho.dispatch("on_release"); app.root.ids.h_ortho.state = "down"
+                app.screen.ids.explore.dispatch("on_release"); app.screen.ids.explore.state = "down"
+                app.run_in_background(load_group_files, app.load_groups, [root.files, app.temp_dir, "use_ns"], None, False, "Loading group files...")
     Label:
         size_hint_y: None
         height: 30
