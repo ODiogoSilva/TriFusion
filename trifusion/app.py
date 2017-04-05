@@ -7454,7 +7454,8 @@ class TriFusionApp(App):
 
                     if gname not in self.ortho_groups.duplicate_groups:
                         # Create check box for multiple group selection
-                        chk = CheckBox(id=gname, size_hint_x=.1)
+                        chk = CheckBox(id=gname, size_hint=(.1, None),
+                                       height=30)
                         chk.bind(active=lambda i, y:
                             self.orto_check_state())
 
