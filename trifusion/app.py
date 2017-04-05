@@ -1176,12 +1176,10 @@ class TriFusionApp(App):
 
         # This functionality should only be triggered when in one of the
         # main screens
-        if self.screen.name in ["Orthology", "Process", "Statistics",
-                                "main"]:
 
-            self.drag_files.append(unicode(args[1], "utf8"))
+        self.drag_files.append(unicode(args[1], "utf8"))
 
-            Clock.schedule_once(drag_check, .1)
+        Clock.schedule_once(drag_check, .1)
 
     def _exit_clean(self):
         """
