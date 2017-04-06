@@ -1387,7 +1387,7 @@ class Alignment(Base):
                 # Add data to table
                 col_cur.execute("INSERT INTO [.collapsed] "
                                 "VALUES (?, ?, ?)", (hap_counter,
-                                                     haplotype,
+                                                     unicode(haplotype),
                                                      seq))
 
                 hap_counter += 1
