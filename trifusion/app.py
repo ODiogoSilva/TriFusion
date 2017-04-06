@@ -2624,7 +2624,8 @@ class TriFusionApp(App):
 
         # Create popup with waiting dialog
         self.show_popup(title="", content=content, size=size,
-                        separator_color=(0, 0, 0, 0))
+                        separator_color=(0, 0, 0, 0),
+                        auto_dissmiss=False)
 
         # Schedule function that checks the process' pulse
         check_func = partial(check_process_status, p,
@@ -7625,19 +7626,22 @@ class TriFusionApp(App):
     # ########################## POPUP OPS #################################
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
-                   separator_color=None, close_bt=None,
+                   separator_color=None, close_bt=None, auto_dissmiss=True,
                    popup_level=1):
         """
         General purpose method to create a popup widget
-        :param title: string. Title of the popup
-        :param content: widget object. The contents of the popup widget
-        :param size_hint: tuple. Size hint for the widget
-        :param size: tuple. The absolute size for the popup. If this
+
+        :param str title: Title of the popup
+        :param widget content: The contents of the popup widget
+        :param tuple size_hint: Size hint for the widget
+        :param tuple size: The absolute size for the popup. If this
         argument is used, the size_hint will be ignored
-        :param separator_color: List with rgb color of popup separator
-        :param close_bt: Boolean. If True, Adds a (X) button to the top
+        :param list separator_color: List with rgb color of popup separator
+        :param bool close_bt: If True, Adds a (X) button to the top
         right of the popup that dismisses the popup
-        :param popup_level: int. Determines the level of the popup. Two
+        :param bool auto_dismiss: Sets whether the popup should be
+        automatically dismissed on pressing Esc
+        :param int popup_level: Determines the level of the popup. Two
         values are currently supported. 1 assigns the popup to _popup; 2
         assigns the popup to _subpopup
         """
@@ -7651,12 +7655,14 @@ class TriFusionApp(App):
             popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size=size,
                 size_hint=(None, None),
+                auto_dismiss=auto_dissmiss,
                 separator_color=separator_color,
                 title_color=separator_color)
         else:
             popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size_hint=size_hint,
                 separator_color=separator_color,
+                auto_dismiss=auto_dissmiss,
                 title_color=separator_color)
 
         popup_obj.open()
@@ -9913,7 +9919,7 @@ class TriFusionApp(App):
                                          True))
 
         self.show_popup(title="Loading files", content=content,
-                        size=(400, 300))
+                        size=(400, 300), auto_dissmiss=False)
 
         # Schedule function that checks the process' pulse
         func = partial(check_proc, p)
@@ -10535,7 +10541,7 @@ class TriFusionApp(App):
             content.ids[op].ids.main_lbl.text = txt
 
         self.show_popup(title="Running Orthology Search", content=content,
-                        size=(340, 600))
+                        size=(340, 600), auto_dissmiss=False)
 
         # Schedule function that checks the process' pulse
         func = partial(check_process, p)
@@ -10653,7 +10659,7 @@ class TriFusionApp(App):
                                              "terminate_process_exec",
                                              True))
             self.show_popup(title="Process execution...", content=content,
-                            size=(width, height))
+                            size=(width, height), auto_dissmiss=False)
 
             return wgt_ref
 
