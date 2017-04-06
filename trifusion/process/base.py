@@ -178,86 +178,91 @@ class Base(object):
         except UnicodeDecodeError:
             return InputError("Invalid input file.")
 
-        # Skips first empty lines, if any
-        while header.startswith("\n"):
-            header = next(file_handle)
+        try:
+            # Skips first empty lines, if any
+            while header.startswith("\n"):
+                header = next(file_handle)
 
-        # Recognition of NEXUS files is based on the existence of the string
-        # "#NEXUS" in the first non-empty line
-        if header.upper().strip().startswith("#NEXUS"):
-            autofind = "nexus"
-            format_found = True
-            while True:
-                line = next(file_handle)
-                if line.strip().lower() == "matrix":
-                    next_line = next(file_handle)
-                    while next_line.startswith("\n"):
-                        next_line = next(file_handle)
-                    sequence = "".join(next_line.split()[1:]).strip()
-                    break
-
-        # Recognition of Stockhold files is based on the existence of the
-        # string "# stockholm" in the first non-empty line (case insensitive)
-        elif header.upper().strip().startswith("# STOCKHOLM") or \
-                header.upper().strip().startswith("#STOCKHOLM"):
-            autofind = "stockholm"
-            format_found = True
-            while True:
-                line = file_handle.readline()
-                if not line.startswith("#") and line.strip() != "":
-                    sequence = line.split()[1]
-                    break
-
-        # Recognition of FASTA or .loci files is based on the existence of a ">"
-        # character as the first character of a non-empty line
-        elif header.strip().startswith(">"):
-            next_line = next(file_handle)
-            if next_line.strip().startswith(">"):
-                autofind = "loci"
+            # Recognition of NEXUS files is based on the existence of the
+            # string "#NEXUS" in the first non-empty line
+            if header.upper().strip().startswith("#NEXUS"):
+                autofind = "nexus"
                 format_found = True
-                sequence = header.split()[-1].strip()
-            else:
-                autofind = "fasta"
+                while True:
+                        line = next(file_handle)
+                        if line.strip().lower() == "matrix":
+                            next_line = next(file_handle)
+                            while next_line.startswith("\n"):
+                                next_line = next(file_handle)
+                            sequence = "".join(next_line.split()[1:]).strip()
+                            break
+
+            # Recognition of Stockhold files is based on the existence of the
+            # string "# stockholm" in the first non-empty line
+            # (case insensitive)
+            elif header.upper().strip().startswith("# STOCKHOLM") or \
+                    header.upper().strip().startswith("#STOCKHOLM"):
+                autofind = "stockholm"
                 format_found = True
-                sequence = next_line.strip()
-                for line in file_handle:
-                    if line.strip() != "" and line.strip()[0] != ">":
-                        sequence += line.strip()
-                    elif line.strip() != "" and line.strip()[0] == ">":
+                while True:
+                    line = file_handle.readline()
+                    if not line.startswith("#") and line.strip() != "":
+                        sequence = line.split()[1]
                         break
 
-        # Recognition of Phylip files is based on the existence of two
-        # integers separated by whitespace on the first non-empy line
-        elif len(header.strip().split()) == 2 and header.strip().split()[0]\
-                .isdigit() and header.strip().split()[1].isdigit():
+            # Recognition of FASTA or .loci files is based on the existence
+            # of a ">" character as the first character of a non-empty line
+            elif header.strip().startswith(">"):
+                next_line = next(file_handle)
+                if next_line.strip().startswith(">"):
+                    autofind = "loci"
+                    format_found = True
+                    sequence = header.split()[-1].strip()
+                else:
+                    autofind = "fasta"
+                    format_found = True
+                    sequence = next_line.strip()
+                    for line in file_handle:
+                        if line.strip() != "" and line.strip()[0] != ">":
+                            sequence += line.strip()
+                        elif line.strip() != "" and line.strip()[0] == ">":
+                            break
 
-            autofind = "phylip"
-            format_found = True
-            sequence = "".join(file_handle.readline().split()[1:]).strip()
+            # Recognition of Phylip files is based on the existence of two
+            # integers separated by whitespace on the first non-empy line
+            elif len(header.strip().split()) == 2 and header.strip().split()[0]\
+                    .isdigit() and header.strip().split()[1].isdigit():
 
-        # Recognition of ipyrad loci file, which does not start with a ">"
-        # character
-        if not format_found:
-            while not header.startswith("//"):
-                try:
-                    header = next(file_handle)
-                except StopIteration:
-                    break
-                if header.startswith("//"):
-                    if header.count("|") == 2:
-                        autofind = "loci"
-                        format_found = True
-                        sequence = next(file_handle).split()[1]
+                autofind = "phylip"
+                format_found = True
+                sequence = "".join(file_handle.readline().split()[1:]).strip()
 
-        # Check if there is any sequence. If not, the alignment file has no
-        # sequence
-        if not format_found:
-            return InputError("Unknown input file format.")
-        if sequence.replace("-", "") == "":
+            # Recognition of ipyrad loci file, which does not start with a ">"
+            # character
+            if not format_found:
+                while not header.startswith("//"):
+                    try:
+                        header = next(file_handle)
+                    except StopIteration:
+                        break
+                    if header.startswith("//"):
+                        if header.count("|") == 2:
+                            autofind = "loci"
+                            format_found = True
+                            sequence = next(file_handle).split()[1]
+
+            # Check if there is any sequence. If not, the alignment file has no
+            # sequence
+            if not format_found:
+                return InputError("Unknown input file format.")
+            if sequence.replace("-", "") == "":
+                return EmptyAlignment("Alignment is empty")
+
+            # Guessing the genetic code
+            code = self.guess_code(sequence)
+
+        except StopIteration:
             return EmptyAlignment("Alignment is empty")
-
-        # Guessing the genetic code
-        code = self.guess_code(sequence)
 
         return autofind, code
 
