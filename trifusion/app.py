@@ -3369,7 +3369,8 @@ class TriFusionApp(App):
         """
 
         # If taxa were removed during the update, remove those buttons too
-        removed_taxa = list(set(self.active_taxa_list) - set(
+        current_tx = [x[0].text for x in self.sp_taxa_bts]
+        removed_taxa = list(set(current_tx) - set(
             self.alignment_list.taxa_names))
 
         if removed_taxa:
@@ -3379,8 +3380,12 @@ class TriFusionApp(App):
                 bt_obj = [x for x in self.root.ids.taxa_sl.children
                           if x_but_txt == x.id][0]
                 self.remove_bt(bt_obj)
+                try:
+                    self.active_taxa_list.remove(i)
+                except ValueError:
+                    pass
 
-        self.active_taxa_list = self.alignment_list.taxa_names
+        #self.active_taxa_list = self.alignment_list.taxa_names
 
     def update_partitions(self):
         """
@@ -4795,7 +4800,7 @@ class TriFusionApp(App):
                                     if x[0].text != bt.text]
                 self.mouse_over_bts["Taxa"].remove(bt)
 
-        except IndexError:
+        except (IndexError, ValueError):
             pass
         try:
             inf_bt = [x for x in parent_obj.children if inf_idx == x.id][0]
@@ -4859,20 +4864,24 @@ class TriFusionApp(App):
 
         if parent_obj == self.root.ids.taxa_sl:
             self.alignment_list.remove_taxa([bt_idx])
-            self.active_taxa_list = self.alignment_list.taxa_names
+            try:
+                self.active_taxa_list.remove(bt_idx)
+            except ValueError:
+                pass
             # Updates label
             self.update_sp_label()
 
         if not self.file_list and not self.proteome_files:
             self.clear_process_input()
 
-    def remove_bt_from_file(self, idx, txt_file):
+    def remove_bt_from_selection(self, idx, txt_file=None):
         """
         Adds functionality to the dropdown button options for removing file
         or taxa buttons contained in a text file
         :param idx: string, either 'Files' or 'Taxa'.
         :param txt_file: string, path to txt file containing the files/taxa
-        names to be selected
+        names to be selected. If this is not provided, then the selected
+        files/taxa will be removed instead
         """
 
         self.dismiss_popup()
@@ -4880,24 +4889,40 @@ class TriFusionApp(App):
         selection = []
         selection_idx = []
 
-        with open(txt_file) as fh:
+        # Get sidepanel widget where items will be removed
+        wgt = self.root.ids.taxa_sl if idx == "Taxa" else self.root.ids.file_sl
 
-            for line in fh:
-                if line.strip() != "":
-                    selection.append(line.strip())
-                    selection_idx.append(line.strip() + "X")
+        # Grab selection from text file
+        if txt_file:
+
+            with open(txt_file) as fh:
+
+                for line in fh:
+                    if line.strip() != "":
+                        selection.append(line.strip())
+                        selection_idx.append(line.strip() + "X")
+
+        # Grab selection from selected items in the sidepanel
+        else:
+            selection = self.active_taxa_list if idx == "Taxa" else \
+                [basename(x) for x in self.active_file_list]
+            selection_idx = [x + "X" for x in selection]
 
         if idx == "Taxa":
-
-            wgt = self.root.ids.taxa_sl
             missing_elements = [x for x in selection if x not in
                                 self.alignment_list.taxa_names]
+            # All taxa were selected, so remove all
+            if not [x for x in self.alignment_list.taxa_names
+                    if x not in selection]:
+                return self.remove_all()
 
         else:
-            wgt = self.root.ids.file_sl
             # If a file does not exist in the app, add it here
             missing_elements = [x for x in selection
                                 if x not in self.filename_map]
+            # All files were selected, so remove all
+            if not [x for x in self.filename_map if x not in selection]:
+                return self.remove_all()
 
         # Removes buttons from side panel. In the case of Files, some may
         # not be loaded as a button in the side panel (due to the limit
@@ -9467,7 +9492,8 @@ class TriFusionApp(App):
             # remove_bt_from_file function to remove them form the app
             self.export_table(self.temp_dir, "outlier_temp", warning_dlg=False)
 
-            self.remove_bt_from_file(ds_type, join(self.temp_dir,
+            self.remove_bt_from_selection(ds_type,
+                                     txt_file=join(self.temp_dir,
                                                    "outlier_temp.csv"))
 
             # Remove temporary outlier text file

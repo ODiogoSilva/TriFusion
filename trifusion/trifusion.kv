@@ -603,7 +603,7 @@
     orientation: "vertical"
     ds_type: ""
     size_hint: None, None
-    height: 250
+    height: 285
     width: 270
 
     canvas.before:
@@ -652,6 +652,18 @@
                 on_release:
                     app.sidepanel_remove_moreopts()
                     app.dialog_remove_from_file()
+
+            TFButton:
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                size_hint_y: None
+                height: 30
+                text: "Remove selected files" if root.ds_type == "Files" else "Remove selected taxa"
+                bold: True
+                on_release:
+                    app.sidepanel_remove_moreopts()
+                    app.remove_bt_from_selection(root.ds_type)
 
             Label:
                 size_hint_y: None
@@ -3842,7 +3854,7 @@
                         elif sd_filechooser.text == "select_from_file" and txt_box.height == 0: \
                         app.select_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
                         elif sd_filechooser.text == "remove_from_file" and txt_box.height == 0: \
-                        app.remove_bt_from_file(app.root.ids.main_tp.current_tab.text, sd_filechooser.selection[0])
+                        app.remove_bt_from_selection(app.root.ids.main_tp.current_tab.text, txt_file=sd_filechooser.selection[0])
                         elif sd_filechooser.text == "files" or sd_filechooser.text == "taxa" and txt_box.height == 0: \
                         root.cancel(); app.dataset_file = sd_filechooser.selection[0]; app.dialog_text("Name of the data set group", sd_filechooser.text)
                         # Close dialog
