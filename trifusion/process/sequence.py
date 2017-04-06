@@ -1242,7 +1242,7 @@ class Alignment(Base):
         # self.taxa_idx = dict((x[1], x[0]) for x in sequence_data)
 
         if len(self.taxa_list) != len(set(self.taxa_list)):
-            duplicate_taxa = self.duplicate_taxa(taxa_list)
+            duplicate_taxa = self.duplicate_taxa(self.taxa_list)
             self.e = DuplicateTaxa("The following taxa were duplicated in"
                                    " the alignment: {}".format(
                 "; ".join(duplicate_taxa)))
@@ -1846,19 +1846,17 @@ class Alignment(Base):
         :return:
         """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
+        self._set_pipes(ns, None, total=len(self.taxa_list))
 
         self._create_table(".filterterminals")
 
         filt_cur = self.con.cursor()
 
-        for tx, seq in self.iter_alignment(table_name=table_in):
+        for p, (tx, seq) in enumerate(
+                self.iter_alignment(table_name=table_in)):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
+            self._update_pipes(ns, None, value=p + 1,
+                               msg="Filtering terminals")
 
             # Condition where the sequence only has gaps
             if not seq.strip("-"):
@@ -1897,9 +1895,7 @@ class Alignment(Base):
          some user defined thresholds, columns with inappropriate missing
          data are removed """
 
-        if ns:
-            if ns.stop:
-                raise KillByUser("")
+        self._set_pipes(ns, None, total=self.locus_length)
 
         taxa_number = float(len(self.taxa_list))
 
@@ -1910,11 +1906,10 @@ class Alignment(Base):
         filt_cur = self.con.cursor()
 
         # Creating the column list variable
-        for column in self.iter_columns(table_name=table_in):
+        for p, column in enumerate(self.iter_columns(table_name=table_in)):
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
+            self._update_pipes(ns, None, value=p + 1,
+                               msg="Filtering columns")
 
             cadd = column.count
 
@@ -4101,6 +4096,10 @@ class AlignmentList(Base):
             cur_var, cur_inf = 0, 0
 
             for col in aln.iter_columns():
+
+                if ns:
+                    if ns.stop:
+                        raise KillByUser("")
 
                 # Get missing data and gaps
                 if self.sequence_code[1] in col:
