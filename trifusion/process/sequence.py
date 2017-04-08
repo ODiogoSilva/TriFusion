@@ -2069,7 +2069,8 @@ class Alignment(Base):
         s = 0
 
         # Creating the column list variable
-        for p, column in enumerate(self.iter_columns(table_name=table_in)):
+        for p, column in enumerate(self.iter_columns_uniq(
+                table_name=table_in)):
 
             if ns:
                 if ns.stop:
@@ -2078,8 +2079,8 @@ class Alignment(Base):
             if pbar:
                 pbar.update(p + 1)
 
-            v = len(set([i for i in column if i not in [self.sequence_code[1],
-                                                        "-"]]))
+            v = len([i for i in column if i not in
+                     [self.sequence_code[1], "-"]])
 
             if v == 1:
                 continue
