@@ -10642,7 +10642,7 @@ class TriFusionApp(App):
             # Set width of dialog based on the presence or not of additional
             # files
             if additional_ops:
-                width = 600
+                width = 650
             else:
                 width = 350
                 wgt.ids.additional_outputs.clear_widgets()
