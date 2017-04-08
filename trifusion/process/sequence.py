@@ -1624,15 +1624,15 @@ class Alignment(Base):
         :paramm
         """
 
-        def add_alignment(part_name, part_len):
+        def add_alignment(part_name, part_len, taxa_list, taxa_idx):
 
             # Create Alignment object
             current_aln = Alignment(part_name, input_format=self.input_format,
                                     sql_cursor=self.cur,
                                     locus_length=part_len,
                                     sequence_code=self.sequence_code,
-                                    taxa_list=self.taxa_list,
-                                    taxa_idx=self.taxa_idx)
+                                    taxa_list=taxa_list,
+                                    taxa_idx=taxa_idx)
 
             alns.append(current_aln)
 
@@ -1707,13 +1707,21 @@ class Alignment(Base):
 
                     part_len = (part_range[0][1] - part_range[0][0] + 1) / 3
 
-                    add_alignment(name + str(i), part_len)
+                    taxa_list = taxa_list_master[name + str(i)]
+                    taxa_idx = taxa_idx_master[name + str(i)]
+
+                    add_alignment(name + str(i), part_len,
+                                  taxa_list=taxa_list, taxa_idx=taxa_idx)
 
             else:
 
                 part_len = part_range[0][1] - part_range[0][0] + 1
 
-                add_alignment(name, part_len)
+                taxa_list = taxa_list_master[name]
+                taxa_idx = taxa_idx_master[name]
+
+                add_alignment(name, part_len, taxa_list=taxa_list,
+                              taxa_idx=taxa_idx)
 
         concatenated_aln.add_alignments(alns, ignore_paths=True)
 
