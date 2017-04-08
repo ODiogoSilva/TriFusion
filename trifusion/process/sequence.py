@@ -82,6 +82,7 @@ class pairwise_cache(object):
 
             self.con = sqlite3.connect("pw.db")
             self.c = self.con.cursor()
+            self.c.execute("PRAGMA synchronous = OFF")
 
             if not self.c.execute("SELECT name FROM sqlite_master WHERE type="
                                   "'table' AND name='pw_table'").fetchall():
@@ -4697,25 +4698,32 @@ class AlignmentList(Base):
         :param seq2: string
         """
 
-        similarity = 0.0
-        effective_len = 0.0
+        seq1 = np.array(list(seq1))
+        seq2 = np.array(list(seq2))
 
-        missing = [self.sequence_code[1], self.gap_symbol]
+        sim = np.sum(seq1 == seq2)
 
-        for c1, c2 in zip(*[seq1, seq2]):
-            # Ignore comparisons with ONLY missing data / gaps
-            if c1 in missing or c2 in missing:
-                continue
-            elif c1 == c2:
-                similarity += 1.0
-                effective_len += 1.0
-            else:
-                effective_len += 1.0
+        return sim, aln_len
 
-        if effective_len:
-            return similarity, effective_len
-        else:
-            return None, None
+        # similarity = 0.0
+        # effective_len = 0.0
+        #
+        # missing = [self.sequence_code[1], self.gap_symbol]
+        #
+        # for c1, c2 in zip(*[seq1, seq2]):
+        #     # Ignore comparisons with ONLY missing data / gaps
+        #     if c1 in missing or c2 in missing:
+        #         continue
+        #     elif c1 == c2:
+        #         similarity += 1.0
+        #         effective_len += 1.0
+        #     else:
+        #         effective_len += 1.0
+        #
+        # if effective_len:
+        #     return similarity, effective_len
+        # else:
+        #     return None, None
 
     # @pairwise_cache
     # def _get_differences(self, seq1, seq2):
