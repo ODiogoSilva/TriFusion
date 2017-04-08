@@ -5907,7 +5907,7 @@ class TriFusionApp(App):
                         self.screen.ids.stats_panel.width == 410:
 
                     # Sets animation speed
-                    ldg_wgt.ids.img.rotation -= 2
+                    ldg_wgt.ids.img.rotation -= 10
 
             # When worker has finished
             if not p.is_alive():
@@ -6029,7 +6029,7 @@ class TriFusionApp(App):
         check_func = partial(check_process, p, ldg,
                              self.screen.ids.plot_content.children[0],
                              shared_ns)
-        Clock.schedule_interval(check_func, .01)
+        Clock.schedule_interval(check_func, .1)
 
     def search_add_gene_table_line(self, gene_table):
         """
