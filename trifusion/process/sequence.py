@@ -586,7 +586,7 @@ class Alignment(Base):
     @SetupInTable
     def iter_columns(self, table_suffix="", table_name=None, table=None):
         """
-        Generator that returns the alignment columns in a tuple
+        Generator that returns the alignment columns in a list
         The sequence is retrieved from a table specified either by the
         table_name or table_suffix arguments. table_name will always take
         precedence over the table_suffix if both are provided. If none are
@@ -611,6 +611,38 @@ class Alignment(Base):
                         " FROM [{}]".format(p, table))
                                if x[0] not in self.shelved_taxa)):
                     yield i
+        finally:
+            lock.release()
+
+    @SetupInTable
+    def iter_columns_uniq(self, table_suffix="", table_name=None,
+                          table=None):
+        """
+        Generator that yields unique elements of alignment columns in a list
+        The sequence is retrieved from a table specified either by the
+        table_name or table_suffix arguments. table_name will always take
+        precedence over the table_suffix if both are provided. If none are
+        provided, the default self.table_name is used. If the table name
+        provided by either table_name or table_suffix is invalid, the default
+         self.table_name is also used.
+
+        :param table_name: string. Name of the table where the sequence data
+        will be fetched
+        :param table_suffix: string. Suffix of the table where the sequence
+        data will be fetched.
+        :param table: This argument is automatically prodived by the
+        SetupInTable decorator. DO NOT USE DIRECTLY.
+        """
+
+        try:
+            lock.acquire(True)
+
+            for p in range(0, self.locus_length, 100000):
+                for i in itertools.izip(*(x[1] for x in self.cur.execute(
+                        "SELECT taxon, substr(seq, {}, 100000)"
+                        " FROM [{}]".format(p, table))
+                               if x[0] not in self.shelved_taxa)):
+                    yield list(set(i))
         finally:
             lock.release()
 
@@ -4095,7 +4127,7 @@ class AlignmentList(Base):
             cur_gap, cur_missing = 0, 0
             cur_var, cur_inf = 0, 0
 
-            for col in aln.iter_columns():
+            for col in aln.iter_columns_uniq():
 
                 if ns:
                     if ns.stop:
