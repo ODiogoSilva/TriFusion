@@ -552,13 +552,19 @@ class Alignment(Base):
     @staticmethod
     def _set_pipes(ns=None, pbar=None, total=None, msg=None):
 
+        try:
+            sa = ns.sa
+        except AttributeError:
+            sa = True
+
         if ns:
             if ns.stop:
                 raise KillByUser("")
-            if ns.sa:
+            if sa:
                 ns.total = total
                 ns.counter = 0
                 ns.msg = msg
+
         if pbar:
             pbar.max_value = total
             pbar.update(0)
@@ -566,10 +572,15 @@ class Alignment(Base):
     @staticmethod
     def _update_pipes(ns=None, pbar=None, value=None, msg=None):
 
+        try:
+            sa = ns.sa
+        except AttributeError:
+            sa = True
+
         if ns:
             if ns.stop:
                 raise KillByUser("")
-            if ns.sa:
+            if sa:
                 ns.counter = value
                 ns.msg = msg
         if pbar:
@@ -578,10 +589,15 @@ class Alignment(Base):
     @staticmethod
     def _reset_pipes(ns):
 
+        try:
+            sa = ns.sa
+        except AttributeError:
+            sa = True
+
         if ns:
             if ns.stop:
                 raise KillByUser("")
-            if ns.sa:
+            if sa:
                 ns.total = ns.counter = ns.msg = ns.sa = None
 
     @SetupInTable
