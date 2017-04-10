@@ -6609,11 +6609,52 @@
 
     Widget:
 
-<TableCellTop@Label>:
-    bold: True
+<TableCellTop@BoxLayout>:
+    lbl: ""
     size_hint_x: None
     width: 70
-    color: (0.216, 0.67, 0.784, 1)
+    Label:
+        bold: True
+        color: (0.216, 0.67, 0.784, 1) if (sort_up.state == "down" or sort_down.state == "down") else (.7, .7, .7, 1)
+        background_color: (0, 0, 0, 0)
+        text: root.lbl
+    BoxLayout:
+        size_hint_x: None
+        width: 20
+        spacing: 2
+        orientation: "vertical"
+        padding: [0, 0, 7.5, 0]
+        AnchorLayout:
+            size_hint_y: None
+            height: 18
+            ToggleButton:
+                size_hint: None, None
+                size: 12, 12
+                group: "gene_table_sort"
+                id: sort_up
+                background_normal: "data/backgrounds/sort_up.png"
+                background_down: "data/backgrounds/sort_up_act.png"
+                background_disabled_down: "data/backgrounds/sort_up_act.png"
+                disabled: True if self.state == "down" else False
+                border: 0,0,0,0
+                on_release:
+                    app.search_sort_gene_table(sortby=root.lbl, ascending=True)
+        AnchorLayout:
+            size_hint_y: None
+            height: 18
+            ToggleButton:
+                size_hint: None, None
+                size: 12, 12
+                group: "gene_table_sort"
+                id: sort_down
+                background_normal: "data/backgrounds/sort_down.png"
+                background_down: "data/backgrounds/sort_down_act.png"
+                background_disabled_down: "data/backgrounds/sort_down_act.png"
+                disabled: True if self.state == "down" else False
+                border: 0,0,0,0
+                on_release:
+                    app.search_sort_gene_table(sortby=root.lbl, ascending=False)
+
 
 <TableCell@Label>:
     size_hint_x: None
@@ -6762,33 +6803,27 @@
     BoxLayout:
         size_hint_y: None
         height: 40
-        Label:
-            text: "Gene name"
-            bold: True
-            halign: "center"
-            valign: "middle"
-            text_size: self.width, 40
-            shorten: True
-            shorten_from: "right"
-            color: (0.216, 0.67, 0.784, 1)
+        TableCellTop:
+            lbl: "Gene name"
+            size_hint_x: 1
         Vseparator
         TableCellTop:
-            text: "N"
+            lbl: "N"
         Vseparator
         TableCellTop:
-            text: "Taxa"
+            lbl: "Taxa"
         Vseparator
         TableCellTop:
-            text: "V"
+            lbl: "V"
         Vseparator
         TableCellTop:
-            text: "P"
+            lbl: "P"
         Vseparator
         TableCellTop:
-            text: "Gap"
+            lbl: "Gap"
         Vseparator
         TableCellTop:
-            text: "M"
+            lbl: "M"
     Hseparator
 
     ScrollView:

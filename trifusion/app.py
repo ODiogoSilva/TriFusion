@@ -6038,7 +6038,9 @@ class TriFusionApp(App):
         :return:
         """
 
-        for p, (k, v) in enumerate(sorted(gene_table.items())):
+        cols = ["nsites", "taxa", "var", "inf", "gap", "missing"]
+
+        for p, row in enumerate(gene_table.itertuples()):
 
             if p > self.MAX_TABLE_N:
                 bt = MoreTableBt()
@@ -6047,10 +6049,10 @@ class TriFusionApp(App):
 
             # Create and populate TableLine
             x = TableLine()
-            x.ids.gn_name.text = "%s. %s" % (p + 1, k)
+            x.ids.gn_name.text = "{}. {}".format(row.Index + 1, row.genes)
 
-            for t1, t2 in v.items():
-                x.ids[t1].text = "%s" % t2
+            for idx, val in zip(cols, row[2:]):
+                x.ids[idx].text = "{}".format(val)
 
             # Add TableLine to main grid
             self.stats_table.ids.table_grid.add_widget(x)
@@ -6070,23 +6072,21 @@ class TriFusionApp(App):
         table = [["Gene name", "Number of sites", "Number of taxa",
                   "Variable sites", "Informative sites", "Gaps",
                   "Missing data"]]
-        # Table line keys matching summary_gene_table dict values
-        tl = ["nsites", "taxa", "var", "inf", "gap", "missing"]
 
         # clear gene table widget
         self.stats_table.ids.table_grid.clear_widgets()
 
         # Search the gene table object for gene names matching the provided
         # string
-        self.gene_table_selection = dict((gene, vals) for gene, vals in
-                                         self.gene_table.items() if s in gene)
+        self.gene_table_selection = self.gene_table[
+            self.gene_table["genes"].str.contains(s)]
 
         self.search_add_gene_table_line(self.gene_table_selection)
 
         # Create new table data
-        for k in sorted(self.gene_table_selection):
+        for k in self.gene_table_selection.itertuples():
             # Add table line
-            table.append([k] + [self.gene_table_selection[k][x] for x in tl])
+            table.append(list(k[1:]))
 
         self.current_table = table
 
@@ -6096,7 +6096,7 @@ class TriFusionApp(App):
         """
 
         # Only do this if there is an active selection being displayed
-        if self.gene_table_selection:
+        if any(self.gene_table_selection):
             # Clear gene_table widget
             self.stats_table.ids.table_grid.clear_widgets()
 
@@ -6111,6 +6111,43 @@ class TriFusionApp(App):
 
             # Set the current_table attribute to the total gene list
             self.current_table = self.gene_master_table[:]
+
+    def search_sort_gene_table(self, sortby, ascending=True):
+        """
+        Sorts the gene table by any column header.
+        :param str sortby: Column header name to perform the sort
+        :param bool ascending: Whether the sorting will be ascending or
+        descending
+        """
+
+        col_map = {"Gene name": "genes",
+                   "N": "nsites",
+                   "Taxa": "taxa",
+                   "V": "var",
+                   "P": "inf",
+                   "Gap": "gap",
+                   "M": "missing"}
+
+        # Info for new table data
+        table = [["Gene name", "Number of sites", "Number of taxa",
+                  "Variable sites", "Informative sites", "Gaps",
+                  "Missing data"]]
+
+        # clear gene table widget
+        self.stats_table.ids.table_grid.clear_widgets()
+
+        self.gene_table.sort_values([col_map[sortby]],
+                                   ascending=ascending,
+                                   inplace=True)
+
+        self.search_add_gene_table_line(self.gene_table)
+
+        # Create new table data
+        for k in self.gene_table.itertuples():
+            # Add table line
+            table.append(list(k[1:]))
+
+        self.current_table = table
 
     def statistics_populate_groups(self, ds_type):
         """
@@ -10420,14 +10457,11 @@ class TriFusionApp(App):
                         # the same as the current task. If not, do this
                         if shared_ns.task != current_op[0]:
                             # Check if all finished tasks where closed
-                            print([x for x in shared_ns.finished_tasks
-                                       if x not in closed_ops])
                             for op in [x for x in shared_ns.finished_tasks
                                        if x not in closed_ops]:
                                 # This will get previously finished tasks
                                 # that were completed sooner
                                 if op != current_op[0]:
-                                    print(op)
                                     pwgt = content.ids[op]
                                     finish_op(pwgt, op)
                             # Get the previous task progress widget

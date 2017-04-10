@@ -19,6 +19,7 @@
 #  MA 02110-1301, USA.
 
 import numpy as np
+import pandas as pd
 from collections import Counter, defaultdict, OrderedDict
 import itertools
 import re
@@ -2975,7 +2976,8 @@ class AlignmentList(Base):
         """
         Dictionary with summary statistics for each alignment.
         """
-        self.summary_gene_table = defaultdict(dict)
+        columns = ["genes", "nsites", "taxa", "var", "inf", "gap", "missing"]
+        self.summary_gene_table = pd.DataFrame(columns=columns)
 
         """
         Lists the currently active tables. This is mainly used for the
@@ -3053,6 +3055,13 @@ class AlignmentList(Base):
             if ns.stop:
                 raise KillByUser("")
             ns.counter = ns.total = ns.msg = ns.sa = None
+
+    def aln_names(self):
+        """
+        :return: List with basenames of alignment file paths
+        """
+
+        return sorted([basename(x) for x in self.alignments])
 
     def resume_database(self):
 
@@ -3145,7 +3154,8 @@ class AlignmentList(Base):
                               "avg_gaps": [], "missing": 0, "avg_missing": [],
                               "variable": 0, "avg_var": [], "informative": 0,
                               "avg_inf": []}
-        self.summary_gene_table = defaultdict(dict)
+        columns = ["genes", "nsites", "taxa", "var", "inf", "gap", "missing"]
+        self.summary_gene_table = pd.DataFrame(columns=columns)
         self.active_tables = []
         self.dest = None
         self.pw_data = None
@@ -4071,7 +4081,8 @@ class AlignmentList(Base):
 
         self._reset_pipes(ns_pipe)
 
-    def get_gene_table_stats(self, active_alignments=None):
+    def get_gene_table_stats(self, active_alignments=None, sortby=None,
+                             ascending=True):
         """
         Gets summary statistics for each individual gene for the gene table
         view. Summary statistics have already been calculated in
@@ -4089,17 +4100,25 @@ class AlignmentList(Base):
         # Table line keys matching summary_gene_table dict values
         tl = ["nsites", "taxa", "var", "inf", "gap", "missing"]
 
+        # Update the active alignments
         if active_alignments and active_alignments != list(
                 self.alignments.keys()):
             self.update_active_alignments(active_alignments)
 
-        summary_gene_table = dict((k.name, self.summary_gene_table[k.name])
-                                  for k in self.alignments.values())
+        # Filter table with active alignments
+        summary_gene_table = self.summary_gene_table[
+            self.summary_gene_table["genes"].isin(self.aln_names())]
+
+        if not sortby:
+            sortby = ["genes"]
+
+        summary_gene_table.sort_values(sortby, ascending=ascending,
+                                       inplace=True)
 
         # Populate table information
-        for k in sorted(summary_gene_table):
+        for k in self.summary_gene_table.itertuples():
             # Add table line
-            table.append([k] + [summary_gene_table[k][x] for x in tl])
+            table.append(list(k[1:]))
 
         return summary_gene_table, table
 
@@ -4140,7 +4159,7 @@ class AlignmentList(Base):
         self.summary_stats["taxa"] = len(self.taxa_names)
 
         # Get statistics that require iteration over alignments
-        for aln in self.alignments.values():
+        for p, (_, aln) in enumerate(sorted(self.alignments.items())):
 
             if ns:
                 if ns.stop:
@@ -4195,14 +4214,21 @@ class AlignmentList(Base):
             self.summary_stats["avg_var"].append(cur_var)
             self.summary_stats["avg_inf"].append(cur_inf)
 
-            # Add information for summary_gene_table
-            if aln.name not in self.summary_gene_table:
-                self.summary_gene_table[aln.name]["nsites"] = aln.locus_length
-                self.summary_gene_table[aln.name]["taxa"] = len(aln.taxa_list)
-                self.summary_gene_table[aln.name]["var"] = cur_var
-                self.summary_gene_table[aln.name]["inf"] = cur_inf
-                self.summary_gene_table[aln.name]["gap"] = cur_gap
-                self.summary_gene_table[aln.name]["missing"] = cur_missing
+            if not any(self.summary_gene_table["genes"] == aln.name):
+                # Get row information for current gene in dict format
+                row_info = (aln.name,
+                            aln.locus_length,
+                            len(aln.taxa_list),
+                            cur_var,
+                            cur_inf,
+                            cur_gap,
+                            cur_missing)
+                # Create DataFrame from dict
+                row_dt = pd.DataFrame([row_info], index=[p],
+                                      columns=self.summary_gene_table.columns)
+                # Add row DF to main DF
+                self.summary_gene_table = pd.concat([self.summary_gene_table,
+                                                     row_dt])
 
         # Get average values
         for k in ["avg_gaps", "avg_missing", "avg_var", "avg_inf"]:
