@@ -4153,17 +4153,19 @@ class AlignmentList(Base):
             cur_gap, cur_missing = 0, 0
             cur_var, cur_inf = 0, 0
 
-            for col in aln.iter_columns_uniq():
+            for col in aln.iter_columns():
 
                 if ns:
                     if ns.stop:
                         raise KillByUser("")
 
+                scol = list(set(col))
+
                 # Get missing data and gaps
-                if self.sequence_code[1] in col:
+                if self.sequence_code[1] in scol:
                     self.summary_stats["missing"] += 1
                     cur_missing += 1
-                if self.gap_symbol in col:
+                if self.gap_symbol in scol:
                     self.summary_stats["gaps"] += 1
                     cur_gap += 1
 
