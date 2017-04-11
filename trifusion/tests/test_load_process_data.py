@@ -30,7 +30,10 @@ def compare_inst(inst1, inst2, blacklist=None):
     print(d1)
     print(d2)
 
-    return d1 == d2
+    try:
+        return d1 == d2
+    except ValueError:
+        return any(d1) == any(d2)
 
 
 class LoadAlignmentsTest(unittest.TestCase):
