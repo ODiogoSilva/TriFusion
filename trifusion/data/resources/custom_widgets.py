@@ -699,6 +699,62 @@ class ExportGraphics(BoxLayout):
                                 self.ids.sd_filechooser, popup_level=2)
 
 
+class AlignedTextInput(TextInput):
+    halign = StringProperty('left')
+    valign = StringProperty('top')
+
+    DEFAULT_PADDING = 6
+
+    def __init__(self, **kwargs):
+        self.halign = kwargs.get("halign", "left")
+        self.valign = kwargs.get("valign", "top")
+
+        self.bind(on_text=self.on_text)
+
+        super(AlignedTextInput, self).__init__(**kwargs)
+
+    def on_text(self, instance, value):
+        self.redraw()
+
+    def on_size(self, instance, value):
+        self.redraw()
+
+    def redraw(self):
+        """
+        Note: This methods depends on internal variables of its TextInput
+        base class (_lines_rects and _refresh_text())
+        """
+
+        self._refresh_text(self.text)
+
+        max_size = max(self._lines_rects, key=lambda r: r.size[0]).size
+        num_lines = len(self._lines_rects)
+
+        px = [self.DEFAULT_PADDING, self.DEFAULT_PADDING]
+        py = [self.DEFAULT_PADDING, self.DEFAULT_PADDING]
+
+        if self.halign == 'center':
+            d = (self.width - max_size[0]) / 2.0 - self.DEFAULT_PADDING
+            px = [d * 1.1, d]
+        elif self.halign == 'right':
+            px[0] = self.width - max_size[0] - self.DEFAULT_PADDING
+
+        if self.valign == 'middle':
+            d = (self.height - max_size[1] * num_lines) / \
+                2.0 - self.DEFAULT_PADDING
+            py = [d * 1.1, d]
+        elif self.valign == 'bottom':
+            py[0] = self.height - max_size[1] * num_lines - \
+                    self.DEFAULT_PADDING
+
+        self.padding_x = px
+        self.padding_y = py
+
+
+class TableCell(AlignedTextInput):
+    pass
+
+
 class PlotChangeFilters(BoxLayout):
     pass
 
