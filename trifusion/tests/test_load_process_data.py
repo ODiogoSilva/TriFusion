@@ -16,6 +16,7 @@ sql_db = "sequencedb"
 
 data_path = join("trifusion/tests/data/")
 
+
 def compare_inst(inst1, inst2, blacklist=None):
     """
     Compares attributes between two instancies and returns equality test
