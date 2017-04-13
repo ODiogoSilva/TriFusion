@@ -619,7 +619,7 @@ class CustomPopup(PopupMod):
 
         super(CustomPopup, self).__init__(**kwargs)
 
-        separator_color = kwargs.get("separator_color", tm.c_popup_background)
+        border_color = kwargs.get("border_color", tm.c_popup_background)
 
         label = self.children[0].children[-1]
         label.shorten = True
@@ -627,7 +627,7 @@ class CustomPopup(PopupMod):
         label.markup = True
 
         with self.canvas.after:
-            Color(*separator_color)
+            Color(*border_color)
             self.line = Line(width=0.6,
                 rectangle=[self.x, self.y, self.width, self.height])
 
