@@ -89,6 +89,7 @@ from kivy.uix.treeview import TreeViewLabel
 
 # Local TriFusion imports
 try:
+    import data.resources.theme.default as tm
     from ortho import protein2dna
     from process.base import Base
     from process.data import Partitions, InvalidPartitionFile
@@ -110,6 +111,7 @@ try:
     from base.html_creator import HtmlTemplate
     from ortho.OrthomclToolbox import MultiGroupsLight
 except ImportError:
+    import trifusion.data.resources.theme.default as tm
     from trifusion.ortho import protein2dna
     from trifusion.process.base import Base
     from trifusion.process.data import Partitions, InvalidPartitionFile
@@ -742,6 +744,8 @@ class TriFusionApp(App):
         Window.bind(on_motion=self.mouse_zoom)
 
         Window.bind(on_dropfile=self.load_files_dragndrop)
+
+        Window.clearcolor = tm.c_main_background
 
         # Orthology widgets
         self.ortho_search_options = OrthologySearchGrid()
