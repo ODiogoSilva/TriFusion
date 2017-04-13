@@ -7179,6 +7179,8 @@
     AnchorLayout:
         anchor_x: "center"
         anchor_y: "center"
+        size_hint_y: None
+        height: 80
         BoxLayout:
             size_hint: None, None
             size: 360, 60
@@ -8230,6 +8232,12 @@ FloatLayout:
                                 Widget:
                                     size_hint_y: .1
 
+                    Vseparator:
+                        margin: -1
+                        offset: [0,0]
+                        thickness: 2
+                        c: app._blue
+                        opacity: 1 if app.show_side_panel else 0
 
             ScreenManager:
                 id: sm
