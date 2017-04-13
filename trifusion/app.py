@@ -689,11 +689,10 @@ class TriFusionApp(App):
 
         # Set icon
         self.icon = join(self.cur_dir, "data", "backgrounds",
-                         "trifusion-icon-64.png")
+                         "trifusion-icon-512.png")
 
         # Set temporary directory path
         self.temp_dir = join(self.user_data_dir, "tmp")
-        print(self.temp_dir)
         # Set directory for error records
         self.log_file = join(self.user_data_dir, "log", "error.out")
         # Set path for file hosting filechooser bookmarks
