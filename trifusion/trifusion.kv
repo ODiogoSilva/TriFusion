@@ -7781,7 +7781,8 @@ FloatLayout:
                                                     id: rm_all_File
                                                     size_hint_x: None
                                                     width: 35
-                                                    line_clr: [255 / 255., 85 / 255., 85 / 255., 1.]
+                                                    line_clr: app._red
+                                                    border: 0,0,0,0
                                                     disabled: True if not app.filename_map and not app.proteome_files else False
                                                     background_normal: "data/backgrounds/remove_all.png"
                                                     background_down: "data/backgrounds/remove_all_down.png"

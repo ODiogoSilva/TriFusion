@@ -3,6 +3,11 @@ This file contains the color scheme for some widgets and backgrounds of
 TriFusion
 """
 
+# Main colors for general usage in the application. They redirect to _blue and
+# _red in app.py
+c_app_blue = (0.216, 0.67, 0.784, 1)
+c_app_red = (1., 0.44, 0.44, 1.)
+
 # Main window background
 c_main_background = (.08, .08, .08, 1)
 
