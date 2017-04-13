@@ -1,11 +1,11 @@
 #:import orthology_storage trifusion.data.resources.info_data.orthology_storage
 #:import get_active_group trifusion.data.resources.background_tasks.get_active_group
+#:import tm data.resources.theme.default
 #:import os os
 #:import sys sys
 
 ShowcaseScreen:
     name: "Orthology"
-
 
     BoxLayout:
         orientation: "horizontal"
@@ -30,7 +30,6 @@ ShowcaseScreen:
                         #source: "data/backgrounds/orto_sidebt_small.png"
                         pos: self.pos
                         size: self.size
-
             MainSideBt:
                 text: "Search"
                 state: "down"
@@ -39,21 +38,40 @@ ShowcaseScreen:
                 disabled: True
                 on_release:
                     orto_car.load_slide(orto_car.slides[0])
+                canvas.before:
+                    Color:
+                        rgba: tm.c_orto_sidepanel if search.state == "normal" else (0,0,0,0)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+            Hseparator:
+                margin: -1
+
             MainSideBt:
                 text: "Explore"
                 id: explore
                 on_release:
                     orto_car.load_slide(orto_car.slides[1])
+                canvas.before:
+                    Color:
+                        rgba: tm.c_orto_sidepanel if explore.state == "normal" else (0,0,0,0)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+            Hseparator:
+                margin: -1
+
 #            MainSideBt:
 #                text: "Complement"
 #                id: complement
 #                on_release:
 #                    orto_car.load_slide(orto_car.slides[2])
-            BoxLayout:
-                orientation: "vertical"
+            Widget:
                 canvas.before:
                     Color:
-                        rgba: .18, .18, .18, 1
+                        rgba: tm.c_orto_sidepanel
                     Rectangle:
                         pos: self.pos
                         size: self.size
