@@ -691,6 +691,7 @@ class TriFusionApp(App):
 
         # Set temporary directory path
         self.temp_dir = join(self.user_data_dir, "tmp")
+        print(self.temp_dir)
         # Set directory for error records
         self.log_file = join(self.user_data_dir, "log", "error.out")
         # Set path for file hosting filechooser bookmarks
@@ -10976,6 +10977,8 @@ def main():
             else:
                 mcl_path = os.path.join("data", "resources", "mcl", "windows",
                                         "32bit", "mcl32.exe")
+        elif sys.platform == "darwin":
+            mcl_path = os.path.join("data", "resources", "mcl", "MacOS", "mcl")
 
         # One-file
         try:
