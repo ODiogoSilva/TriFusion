@@ -5768,7 +5768,7 @@ class TriFusionApp(App):
                 x.ids.gn_name.text = "%s. %s" % (p, k)
 
                 for t1, t2 in v.items():
-                    x.ids[t1].text = "%s" % t2
+                    x.ids[t1].text = "%s" % int(t2)
 
                 self.stats_table.ids.table_grid.add_widget(x)
 
@@ -6051,9 +6051,10 @@ class TriFusionApp(App):
             # Create and populate TableLine
             x = TableLine()
             x.ids.gn_name.text = "{}. {}".format(row.Index + 1, row.genes)
+            x.ids.gn_name.size_hint_x = 0.5
 
             for idx, val in zip(cols, row[2:]):
-                x.ids[idx].text = "{}".format(val)
+                x.ids[idx].text = "{}".format(int(val))
 
             # Add TableLine to main grid
             self.stats_table.ids.table_grid.add_widget(x)
