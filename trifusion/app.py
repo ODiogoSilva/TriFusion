@@ -1388,6 +1388,9 @@ class TriFusionApp(App):
                 if key_code == 13:
                     self._popup.content.ids.close_bt.dispatch("on_release")
 
+        if self._exit_popup in self.root_window.children:
+            return
+
         # ======================================================================
         # Filechooser keybindings
         # ======================================================================
