@@ -215,8 +215,8 @@ class TriFusionApp(App):
     #######################
 
     # Referecence to blue and red colors
-    _blue = (0.216, 0.67, 0.784, 1)
-    _red = (1., 0.33, 0.33, 1.)
+    _blue = tm.c_app_blue
+    _red = tm.c_app_red
 
     # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
