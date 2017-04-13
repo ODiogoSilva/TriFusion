@@ -19,6 +19,9 @@ c_light_box = (.2, .2, .2, 1)
 # Dark boxes
 c_dark_box = (0, 0, 0, 0)
 
+# Orthology sidepanel
+c_orto_sidepanel = (.2, .2, .2, .9)
+
 # Statistics side panel
 c_stats_sidepanel = (0.1, 0.1, 0.1, .7)
 
@@ -28,3 +31,4 @@ c_popup_border = (0.216, 0.67, 0.784, 1)
 
 # Filechoosers headers
 c_filechooser_headers = (.2, .2, .2, .9)
+
