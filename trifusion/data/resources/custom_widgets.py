@@ -36,6 +36,7 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.slider import Slider
 from kivy.uix.treeview import TreeView
 from kivy.uix.image import Image
+from kivy.uix.modalview import ModalView
 from kivy.uix.filechooser import FileChooserListView
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
 from kivy.utils import get_hex_from_color
@@ -43,6 +44,7 @@ from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
     ObjectProperty
 from kivy.uix.screenmanager import Screen
 from kivy.logger import Logger
+from kivy.graphics import Color, Line
 
 
 import re
@@ -50,6 +52,11 @@ from weakref import ref
 from os.path import (
     basename, join, sep, normpath, expanduser, abspath, pardir)
 import sys
+
+try:
+    import data.resources.theme.default as tm
+except ImportError:
+    import trifusion.data.resources.theme.default as tm
 
 
 class ShowcaseScreen(Screen):
@@ -586,7 +593,21 @@ class FileChooserM(FileChooserListView):
             yield index, total, entry
 
 
-class CustomPopup(Popup):
+class ModalView(ModalView):
+
+    def __init__(self, **kwargs):
+
+        super(ModalView, self).__init__(**kwargs)
+
+
+class PopupMod(Popup):
+
+    def __init__(self, **kwargs):
+
+        super(Popup, self).__init__(**kwargs)
+
+
+class CustomPopup(PopupMod):
     """
     Modification of Popup class with a few additional feature.
 
@@ -595,11 +616,27 @@ class CustomPopup(Popup):
     """
 
     def __init__(self, **kwargs):
+
         super(CustomPopup, self).__init__(**kwargs)
+
+        separator_color = kwargs.get("separator_color", tm.c_popup_background)
+
         label = self.children[0].children[-1]
         label.shorten = True
         label.shorten_from = "right"
         label.markup = True
+
+        with self.canvas.after:
+            Color(*separator_color)
+            self.line = Line(width=0.6,
+                rectangle=[self.x, self.y, self.width, self.height])
+
+        self.bind(pos=self.update_rect,
+                  size=self.update_rect)
+
+    def update_rect(self, *args):
+
+        self.line.rectangle = [self.x, self.y, self.width, self.height]
 
 
 class AutoCompTextInput(TextInput):

@@ -20,4 +20,8 @@ c_light_box = (.2, .2, .2, 1)
 c_dark_box = (0, 0, 0, 0)
 
 # Statistics side panel
-c_stats_sidepanel = (0.1, 0.1, 0.1, .9)
+c_stats_sidepanel = (0.1, 0.1, 0.1, .7)
+
+# Popup background color
+c_popup_background = (.1, .1, .1, .9)
+c_popup_border = (0.216, 0.67, 0.784, 1)
