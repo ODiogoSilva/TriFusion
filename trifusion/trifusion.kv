@@ -5554,13 +5554,14 @@
     width: self.thickness + 2 * self.margin
     thickness: 1
     margin: 1
+    offset: [10, 20]
     c: .5, .5, .5, 1
     canvas:
         Color:
             rgba: self.c
         Rectangle:
-            pos: self.x + self.margin + 1, self.y + self.margin + 10
-            size: self.thickness, self.height - 2 * self.margin - 20
+            pos: self.x + self.margin + 1, self.y + self.offset[0]
+            size: self.thickness, self.height - self.offset[1]
 
 <LightBox@BoxLayout>:
     height: 40
@@ -6808,22 +6809,28 @@
         TableCellTop:
             lbl: "Gene name"
             size_hint_x: .5
-        Vseparator
+        Vseparator:
+            thickness: 1.5
         TableCellTop:
             lbl: "N"
-        Vseparator
+        Vseparator:
+            thickness: 1.5
         TableCellTop:
             lbl: "Taxa"
-        Vseparator
+        Vseparator:
+            thickness: 1.5
         TableCellTop:
             lbl: "V"
-        Vseparator
+        Vseparator:
+            thickness: 1.5
         TableCellTop:
             lbl: "P"
-        Vseparator
+        Vseparator:
+            thickness: 1.5
         TableCellTop:
             lbl: "Gap"
-        Vseparator
+        Vseparator:
+            thickness: 1.5
         TableCellTop:
             lbl: "M"
     Hseparator
@@ -7368,9 +7375,6 @@ FloatLayout:
     #__safe_id: [file_dd.__self__, taxa_dd.__self__]
     BoxLayout:
         orientation: "vertical"
-        canvas.before:
-            Color:
-                rgba: (.1, .1, .1, 1)
 
         ActionBar:
             pos_hint: {'top':1}
@@ -7459,7 +7463,7 @@ FloatLayout:
                     width: 0
                     canvas.before:
                         Color:
-                            rgb: (.2, .2, .2)
+                            rgba: tm.c_side_panel_background
                         Rectangle:
                             pos: self.pos
                             size: self.size
