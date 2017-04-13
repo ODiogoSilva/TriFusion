@@ -25,3 +25,6 @@ c_stats_sidepanel = (0.1, 0.1, 0.1, .7)
 # Popup background color
 c_popup_background = (.1, .1, .1, .9)
 c_popup_border = (0.216, 0.67, 0.784, 1)
+
+# Filechoosers headers
+c_filechooser_headers = (.2, .2, .2, .9)

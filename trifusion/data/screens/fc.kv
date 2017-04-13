@@ -1,4 +1,6 @@
 #:import basename os.path.basename
+#:import tm trifusion.data.resources.theme.default
+
 
 ShowcaseScreen:
     name: "fc"
@@ -18,7 +20,7 @@ ShowcaseScreen:
                 height: 40
                 canvas.before:
                     Color:
-                        rgba: (0.3, 0.3, 0.3, .8)
+                        rgba: tm.c_filechooser_headers
                     Rectangle:
                         pos: self.pos
                         size: self.size
@@ -46,7 +48,7 @@ ShowcaseScreen:
                 height: 40
                 canvas.before:
                     Color:
-                        rgba: (0.3, 0.3, 0.3, .8)
+                        rgba: tm.c_filechooser_headers
                     Rectangle:
                         pos: self.pos
                         size: self.size
