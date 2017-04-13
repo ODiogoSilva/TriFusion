@@ -1167,6 +1167,7 @@ class TriFusionApp(App):
                     self.show_popup(title="", content=content,
                                     size=(350, 160),
                                     separator_color=(0, 0, 0, 0),
+                                    border_color=tm.c_popup_border,
                                     close_bt=True)
 
                     # Load proteomes
@@ -1182,6 +1183,8 @@ class TriFusionApp(App):
 
         # This functionality should only be triggered when in one of the
         # main screens
+
+        self.dismiss_all_popups()
 
         self.drag_files.append(unicode(args[1], "utf8"))
 
