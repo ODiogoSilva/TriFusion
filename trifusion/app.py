@@ -1254,6 +1254,13 @@ class TriFusionApp(App):
         modifier = "".join(vals[-1])
         key_code = vals[1]
 
+        # Switch between Ctrl for Windows/Linux and Cmd for MacOS as the
+        # preferred modifier
+        if sys.platform == "darwin":
+            mod_key = "meta"
+        else:
+            mod_key = "ctrl"
+
         if key_code == 305:
             self.is_control_pressed = True
 
@@ -1321,7 +1328,7 @@ class TriFusionApp(App):
 
         if self._popup in self.root_window.children:
             if "find_bx" in self._popup.content.ids:
-                if modifier == "ctrl" and key_code == 102:
+                if modifier == mod_key and key_code == 102:
                     if self._popup.content.ids.find_bx.height == 30:
                         Animation(height=0, d=.3, t="out_quart").start(
                             self._popup.content.ids.find_bx)
@@ -1335,7 +1342,7 @@ class TriFusionApp(App):
         # Toggle path editor
         if self._popup in self.root_window.children:
             if "path_toggle" in self._popup.content.ids:
-                if modifier == "ctrl" and key_code == 108:
+                if modifier == mod_key and key_code == 108:
                     st = self._popup.content.ids.path_toggle.state
                     self._popup.content.ids.path_toggle.state = \
                         "down" if st != "down" else "normal"
@@ -1344,7 +1351,7 @@ class TriFusionApp(App):
         if self._popup in self.root_window.children:
             if "text_filter" in self._popup.content.ids:
                 # Ctrl + f toggles focus on find text input field
-                if modifier == "ctrl" and key_code == 102:
+                if modifier == mod_key and key_code == 102:
                     self._popup.content.ids.text_filter.focus = True
 
         if self._subpopup in self.root_window.children:
@@ -1400,19 +1407,19 @@ class TriFusionApp(App):
         if self.screen.name == "fc":
             # Keybinding ctrl+f that brings focus to the "Find" field in the
             # Filechooser screen
-            if modifier == "ctrl" and key_code == 102:
+            if modifier == mod_key and key_code == 102:
                 self.screen.ids.text_filter.focus = True
 
             # Keybinding ctrl+backspace to clear selection
-            if modifier == "ctrl" and key_code == 8:
+            if modifier == mod_key and key_code == 8:
                 self.screen.ids.clear_s.dispatch("on_release")
 
             # Add bookmarks with ctrl+d
-            if modifier == "ctrl" and key_code == 100:
+            if modifier == mod_key and key_code == 100:
                 self.screen.ids.add_bk_bt.dispatch("on_release")
 
             # Toggle manual path writing with ctrl+l
-            if modifier == "ctrl" and key_code == 108:
+            if modifier == mod_key and key_code == 108:
                 if self.screen.ids.path_toggle.state == "down":
                     self.screen.ids.path_toggle.state = "normal"
                 else:
@@ -1420,7 +1427,7 @@ class TriFusionApp(App):
                 self.screen.ids.path_toggle.dispatch("on_release")
 
             # Select all files with ctrl+a
-            if modifier == "ctrl" and key_code == 97:
+            if modifier == mod_key and key_code == 97:
                 self.screen.ids.icon_view_tab.selection = \
                     [x for x in self.screen.ids.icon_view_tab.files if not
                     os.path.isdir(x)]
@@ -1443,18 +1450,18 @@ class TriFusionApp(App):
                 if isinstance(x, CustomPopup)]:
 
             # Keybinding ctrl+o that opens the Filechooser screen
-            if modifier == "ctrl" and key_code == 111:
+            if modifier == mod_key and key_code == 111:
                 self.go_screen(self.screen_names.index("fc"))
 
             # Changing main screens between Orthology, Process and
             # Statistics
-            if modifier == "ctrl" and key_code == 49:
+            if modifier == mod_key and key_code == 49:
                 self.root.ids.h_ortho.dispatch("on_release")
                 self.root.ids.h_ortho.state = "down"
-            if modifier == "ctrl" and key_code == 50:
+            if modifier == mod_key and key_code == 50:
                 self.root.ids.h_process.dispatch("on_release")
                 self.root.ids.h_process.state = "down"
-            if modifier == "ctrl" and key_code == 51:
+            if modifier == mod_key and key_code == 51:
                 self.root.ids.h_stat.dispatch("on_release")
                 self.root.ids.h_stat.state = "down"
 
