@@ -5571,7 +5571,7 @@
     padding: 10
     canvas.before:
         Color:
-            rgba: (.3, .3, .3, .8)
+            rgba: tm.c_light_box
         Rectangle:
             pos: self.pos
             size: self.size
@@ -5581,6 +5581,12 @@
     orientation: "horizontal"
     size_hint_y: None
     padding: 5
+    canvas.before:
+        Color:
+            rgba: tm.c_dark_box
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
 <Hseparator@Widget>:
     size_hint_y: None
