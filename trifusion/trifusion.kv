@@ -7994,7 +7994,8 @@ FloatLayout:
                                 padding: 10
                                 spacing: 5
                                 Label:
-                                    size_hint_y: .1
+                                    size_hint_y: None
+                                    height: 50
                                     text: "Dataset groups"
                                     font_size: 18
                                     halign: "center"
@@ -8003,12 +8004,13 @@ FloatLayout:
                                     bold: True
                                     canvas.before:
                                         Color:
-                                            rgba: .35, .35, .35, 1
+                                            rgba: tm.c_side_panel_headers
                                         Rectangle:
                                             pos: self.pos
                                             size: self.size
 
-                                Hseparator
+                                Hseparator:
+                                    c: tm.c_side_panel_headers
 
                                 TabbedPanel:
                                     id: dataset_tp
@@ -8084,7 +8086,8 @@ FloatLayout:
                                 padding: 10
                                 spacing: 5
                                 Label:
-                                    size_hint_y: .1
+                                    size_hint_y: None
+                                    height: 50
                                     text: "Project Management"
                                     font_size: 18
                                     halign: "center"
@@ -8093,11 +8096,12 @@ FloatLayout:
                                     bold: True
                                     canvas.before:
                                         Color:
-                                            rgba: .35, .35, .35, 1
+                                            rgba: tm.c_side_panel_headers
                                         Rectangle:
                                             pos: self.pos
                                             size: self.size
-                                Hseparator
+                                Hseparator:
+                                    c: tm.c_side_panel_headers
 
                                 BoxLayout:
                                     size_hint_y: None
@@ -8118,7 +8122,8 @@ FloatLayout:
                                         font_size: 12
                                         text: "Process project"
 
-                                Hseparator
+                                Hseparator:
+                                    c: tm.c_side_panel_headers
 
                                 GridLayout:
                                     cols: 3
@@ -8147,7 +8152,8 @@ FloatLayout:
                                 padding: 10
                                 spacing: 5
                                 Label:
-                                    size_hint_y: .1
+                                    size_hint_y: None
+                                    height: 50
                                     text: "Operations queue"
                                     font_size: 18
                                     halign: "center"
@@ -8156,11 +8162,12 @@ FloatLayout:
                                     bold: True
                                     canvas.before:
                                         Color:
-                                            rgba: .35, .35, .35, 1
+                                            rgba: tm.c_side_panel_headers
                                         Rectangle:
                                             pos: self.pos
                                             size: self.size
-                                Hseparator
+                                Hseparator:
+                                    c: tm.c_side_panel_headers
                                 ScrollView:
                                     size_hint_y: .8
                                     id: op_sv

@@ -9,3 +9,6 @@ c_main_background = (.08, .08, .08, 1)
 # Sidepanel background
 c_iner_side_panel_background = (0.1, 0.1, 0.1, .9)
 c_outer_side_panel_background = (0.1, 0.1, 0.1, .9)
+
+# Sidepanel Caroussel headers
+c_side_panel_headers = (.3, .3, .3, 1)
