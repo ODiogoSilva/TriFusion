@@ -6611,8 +6611,7 @@
 
 <TableCellTop@BoxLayout>:
     lbl: ""
-    size_hint_x: None
-    width: 70
+    size_hint_x: 0.083
     Label:
         bold: True
         color: (0.216, 0.67, 0.784, 1) if (sort_up.state == "down" or sort_down.state == "down") else (.7, .7, .7, 1)
@@ -6656,15 +6655,18 @@
                     app.search_sort_gene_table(sortby=root.lbl, ascending=False)
 
 
-<TableCell@Label>:
-    size_hint_x: None
-    width: 70
+<TableCell>:
+    size_hint_x: 0.083
     halign: "center"
     valign: "middle"
     text_size: self.size
+    multiline: False
+    readonly: True
+    background_color: (0, 0, 0, 0)
+    foreground_color: (1, 1, 1, 1)
 
 <TableCellGrey@TableCell>:
-    canvas.before:
+    canvas.after:
         Color:
             rgba: (.6, .6, .6, .3)
         Rectangle:
@@ -6672,7 +6674,7 @@
             size: self.size
 
 <TableCellGreen@TableCell>:
-    canvas.before:
+    canvas.after:
         Color:
             rgba: .78, .91, .69, .3
         Rectangle:
@@ -6680,7 +6682,7 @@
             size: self.size
 
 <TableCellOrange@TableCell>:
-    canvas.before:
+    canvas.after:
         Color:
             rgba: 1, .8, .67, .3
         Rectangle:
@@ -6805,7 +6807,7 @@
         height: 40
         TableCellTop:
             lbl: "Gene name"
-            size_hint_x: 1
+            size_hint_x: .5
         Vseparator
         TableCellTop:
             lbl: "N"
@@ -6828,13 +6830,15 @@
 
     ScrollView:
         bar_width: 10
-        scroll_type: ["bars", "content"]
+        scroll_type: ["bars"]
         id: grid_sv
         GridLayout:
             cols: 1
             id: table_grid
             size_hint_y: None
             height: self.minimum_height
+
+    Hseparator
 
     AnchorLayout:
         anchor_x: "center"
@@ -7367,10 +7371,6 @@ FloatLayout:
         canvas.before:
             Color:
                 rgba: (.1, .1, .1, 1)
-            Rectangle:
-                #source: "data/backgrounds/master_background.png"
-                pos: self.pos
-                size: self.size
 
         ActionBar:
             pos_hint: {'top':1}
