@@ -7761,6 +7761,8 @@ class TriFusionApp(App):
                 separator_height=0.6,
                 background="data/backgrounds/transparent.png")
 
+        popup_obj.bind(on_dismiss=self.dismiss_close_float)
+
         popup_obj.open()
 
         if popup_level == 1:
@@ -7784,6 +7786,19 @@ class TriFusionApp(App):
         for wgt in (x for x in self.root_window.children
                     if isinstance(x, CustomPopup)):
             wgt.dismiss()
+
+        try:
+            rm_wgt = [x for x in self.root_window.children if
+                      isinstance(x, CloseFloat)][0]
+            self.root_window.remove_widget(rm_wgt)
+        except IndexError:
+            pass
+
+    def dismiss_close_float(self, *args):
+        """
+        Use to automatically remove any possibly CloseFloat widgets from the
+        root window, when a Popup is automatically dismissed
+        """
 
         try:
             rm_wgt = [x for x in self.root_window.children if
