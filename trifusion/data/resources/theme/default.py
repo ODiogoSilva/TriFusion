@@ -7,4 +7,5 @@ TriFusion
 c_main_background = (.08, .08, .08, 1)
 
 # Sidepanel background
-c_side_panel_background = (.1, .1, .1, .8)
+c_iner_side_panel_background = (0.15, 0.15, 0.15, .9)
+c_outer_side_panel_background = (0.15, 0.15, 0.15, .9)

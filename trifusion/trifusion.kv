@@ -7462,12 +7462,6 @@ FloatLayout:
                     id: main_box
                     size_hint_x: None
                     width: 0
-                    canvas.before:
-                        Color:
-                            rgba: tm.c_side_panel_background
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
 
                     # Both these ScrollView layouts are here because it is the only way
                     # that the children layouts' width will be truly 0. If a
@@ -7477,6 +7471,13 @@ FloatLayout:
                         id: sp_bts
                         size_hint_x: None
                         width: 0
+                        canvas.before:
+                            Color:
+                                rgba: tm.c_iner_side_panel_background
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+
                         BoxLayout:
                             id: side_bt
                             orientation: "vertical"
@@ -7533,22 +7534,10 @@ FloatLayout:
                                     carousel.load_slide(carousel.slides[3])
                                     app.toggle_groups(self)
                             Widget:
-                                canvas.before:
-                                    Color:
-                                        rgba: (0.180, 0.180, 0.180, .8)
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
                             BoxLayout:
                                 padding: 10
                                 orientation: "vertical"
                                 spacing: 10
-                                canvas.before:
-                                    Color:
-                                        rgba: (0.180, 0.180, 0.180, .8)
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
                                 Button:
                                     size_hint: None, None
                                     size: 40, 40
@@ -7583,7 +7572,7 @@ FloatLayout:
 
                                 canvas.before:
                                     Color:
-                                        rgba: (0.180, 0.180, 0.180, .8)
+                                        rgba: tm.c_outer_side_panel_background
                                     Rectangle:
                                         pos: self.pos
                                         size: self.size
