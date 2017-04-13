@@ -7559,6 +7559,12 @@ FloatLayout:
 
                     BoxLayout:
                         id: sp
+                        canvas:
+                            Color:
+                                rgba: tm.c_outer_side_panel_background
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
 
                         Carousel:
                             id: carousel
@@ -7569,13 +7575,6 @@ FloatLayout:
                                 padding: 10
                                 spacing: 10
                                 id: main_slide
-
-                                canvas.before:
-                                    Color:
-                                        rgba: tm.c_outer_side_panel_background
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
 
                                 BoxLayout:
                                     size_hint_y: None
@@ -7990,12 +7989,6 @@ FloatLayout:
                                 orientation: "vertical"
                                 padding: 10
                                 spacing: 5
-                                canvas.before:
-                                    Color:
-                                        rgba: (0.180, 0.180, 0.180, .8)
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
                                 Label:
                                     size_hint_y: .1
                                     text: "Dataset groups"
@@ -8086,12 +8079,6 @@ FloatLayout:
                                 orientation: "vertical"
                                 padding: 10
                                 spacing: 5
-                                canvas.before:
-                                    Color:
-                                        rgba: (0.180, 0.180, 0.180, .8)
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
                                 Label:
                                     size_hint_y: .1
                                     text: "Project Management"
@@ -8155,12 +8142,6 @@ FloatLayout:
                                 orientation: "vertical"
                                 padding: 10
                                 spacing: 5
-                                canvas.before:
-                                    Color:
-                                        rgba: (0.180, 0.180, 0.180, .8)
-                                    Rectangle:
-                                        pos: self.pos
-                                        size: self.size
                                 Label:
                                     size_hint_y: .1
                                     text: "Operations queue"
