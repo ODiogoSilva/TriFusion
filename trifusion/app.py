@@ -2429,6 +2429,7 @@ class TriFusionApp(App):
                 size=size,
                 size_hint=(None, None),
                 separator_color=sep_color,
+                border_color=sep_color,
                 separator_height=0.6,
                 title_color=sep_color,
                 background="data/backgrounds/transparent.png")
@@ -2642,6 +2643,7 @@ class TriFusionApp(App):
         # Create popup with waiting dialog
         self.show_popup(title="", content=content, size=size,
                         separator_color=(0, 0, 0, 0),
+                        border_color=tm.c_popup_border,
                         auto_dissmiss=False)
 
         # Schedule function that checks the process' pulse
@@ -7707,7 +7709,7 @@ class TriFusionApp(App):
 
     def show_popup(self, title, content, size_hint=(.9, .9), size=None,
                    separator_color=None, close_bt=None, auto_dissmiss=True,
-                   popup_level=1):
+                   popup_level=1, border_color=None):
         """
         General purpose method to create a popup widget
 
@@ -7730,6 +7732,9 @@ class TriFusionApp(App):
         if not separator_color:
             separator_color = [47 / 255., 167 / 255., 212 / 255., 1.]
 
+        if not border_color:
+            border_color = separator_color
+
         # Ignore size_hint is absolute size is provided
         if size:
             popup_obj = CustomPopup(title="[b]%s[/b]" % title,
@@ -7737,6 +7742,7 @@ class TriFusionApp(App):
                 size_hint=(None, None),
                 auto_dismiss=auto_dissmiss,
                 separator_color=separator_color,
+                border_color=border_color,
                 separator_height=0.6,
                 title_color=separator_color,
                 background="data/backgrounds/transparent.png")
@@ -7744,6 +7750,7 @@ class TriFusionApp(App):
             popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size_hint=size_hint,
                 separator_color=separator_color,
+                border_color=border_color,
                 auto_dismiss=auto_dissmiss,
                 title_color=separator_color,
                 separator_height=0.6,
