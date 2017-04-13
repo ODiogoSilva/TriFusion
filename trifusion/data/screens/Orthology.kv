@@ -27,7 +27,6 @@ ShowcaseScreen:
                     Color:
                         rgba: (0.216, 0.67, 0.784, 1)
                     Rectangle:
-                        #source: "data/backgrounds/orto_sidebt_small.png"
                         pos: self.pos
                         size: self.size
             MainSideBt:
@@ -47,6 +46,7 @@ ShowcaseScreen:
 
             Hseparator:
                 margin: -1
+                c: app._blue
 
             MainSideBt:
                 text: "Explore"
@@ -62,6 +62,7 @@ ShowcaseScreen:
 
             Hseparator:
                 margin: -1
+                c: app._blue
 
 #            MainSideBt:
 #                text: "Complement"
@@ -75,6 +76,11 @@ ShowcaseScreen:
                     Rectangle:
                         pos: self.pos
                         size: self.size
+
+        Vseparator:
+            offset: [0, 0]
+            margin: -1
+            c: app._blue
 
         ScrollView:
             Carousel:
@@ -198,7 +204,7 @@ ShowcaseScreen:
                             Color:
                                 rgba: tm.c_light_box
                             Rectangle:
-                                pos: self.pos
+                                pos: self.pos[0] + 2, self.pos[1]
                                 size: self.size
                         BoxLayout:
                             padding: 10
