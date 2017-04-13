@@ -1,5 +1,6 @@
 #:import StatsSummary trifusion.data.resources.custom_widgets.StatsSummary
 #:import GeneTable trifusion.data.resources.custom_widgets.GeneTable
+#:import tm data.resources.theme.default
 
 ShowcaseScreen:
     name: "Statistics"
@@ -24,19 +25,19 @@ ShowcaseScreen:
                     spacing: 5
                     canvas.before:
                         Color:
-                            rgb: (.2, .2, .2)
+                            rgba: tm.c_stats_sidepanel
                         Rectangle:
                             pos: self.pos
                             size: self.size
                     StackLayout:
                         size_hint_y: None
-                        height: 2
+                        height: 0
                         canvas.after:
                             Color:
                                 rgb: (0.216, 0.67, 0.784, 1)
-                            Rectangle:
-                                pos: 0, stats_panel.height - 2
-                                size: stats_panel.width, 2
+                            Line:
+                                width: 1.5
+                                points: [0, stats_panel.height, stats_panel.width, stats_panel.height]
                     Label:
                         size_hint_y: None
                         height: 30

@@ -18,3 +18,6 @@ c_light_box = (.2, .2, .2, 1)
 
 # Dark boxes
 c_dark_box = (0, 0, 0, 0)
+
+# Statistics side panel
+c_stats_sidepanel = (0.1, 0.1, 0.1, .9)
