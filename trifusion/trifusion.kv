@@ -69,6 +69,59 @@
             text_size: self.size
             text: '{}'.format(ctx.get_nice_size())
 
+<-ModalView>
+    canvas.before:
+        Color:
+            rgba: root.background_color[:3] + [root.background_color[-1] * self._anim_alpha]
+        Rectangle:
+            size: self._window.size if self._window else (0, 0)
+
+        Color:
+            rgb: 1, 1, 1
+        BorderImage:
+            source: root.background
+            border: root.border
+            pos: self.pos
+            size: self.size
+
+<Popup>:
+    _container: container
+    canvas:
+        Color:
+            rgba: tm.c_popup_background
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    GridLayout:
+        padding: '12dp'
+        cols: 1
+        size_hint: None, None
+        pos: root.pos
+        size: root.size
+
+        Label:
+            text: root.title
+            color: root.title_color
+            size_hint_y: None
+            height: self.texture_size[1] + dp(16)
+            text_size: self.width - dp(16), None
+            font_size: root.title_size
+            font_name: root.title_font
+            halign: root.title_align
+
+        Widget:
+            size_hint_y: None
+            height: dp(4)
+            canvas:
+                Color:
+                    rgba: root.separator_color
+                Rectangle:
+                    pos: self.x, self.y + root.separator_height / 2.
+                    size: self.width, root.separator_height
+
+        BoxLayout:
+            id: container
+
 <-FileChooserListLayout>:
     on_entry_added: treeview.add_node(args[1])
     on_entries_cleared: treeview.root.nodes = []
@@ -1335,23 +1388,23 @@
 #===============================================================================
 
 <CheckBt@Button>:
-    background_normal: "data/backgrounds/bt_process.png"
+    background_normal: "data/backgrounds/check_ok.png"
+    background_down: "data/backgrounds/check_cancel.png"
     bold: True
     shorten: True
     shorten_from: "right"
     text_size: self.size
     halign: "center"
     valign: "middle"
-#    StackLayout:
-#        canvas.after:
-#            Color:
-#                rgb: (1, .33, .33, 1)
-#            Line:
-#                joint: "miter"
-#                cap: "square"
-#                close: True
-#                width: 1.05
-#                rectangle: root.x,root.y,root.width,root.height
+    StackLayout:
+        canvas.after:
+            Color:
+                rgba: app._red
+            Line:
+                width: 1.1
+                cap: "round"
+                joint: "round"
+                rectangle: root.x,root.y,root.width,root.height
 
 <CheckDialog>:
     orientation: "vertical"
@@ -1370,20 +1423,16 @@
         spacing: 10
         padding: 10
         CheckBt:
-            background_normal: "data/backgrounds/check_ok.png"
-            background_down: "data/backgrounds/check_cancel.png"
-            size_hint_x: 1
             text: "Yes"
             id: check_ok
-            on_press:
+            on_release:
                 root.cancel()
         CheckBt:
             id: check_cancel
             background_normal: "data/backgrounds/check_cancel.png"
             background_down: "data/backgrounds/check_ok.png"
-            bold: True
             text: "No"
-            on_press:
+            on_release:
                 root.cancel()
 
 <CheckProject>:

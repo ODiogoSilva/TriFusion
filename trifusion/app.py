@@ -1353,6 +1353,14 @@ class TriFusionApp(App):
                 cancel_bt = self._subpopup.content.ids["cancel_bt"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
 
+        if self._exit_popup in self.root_window.children:
+            if "check_ok" in self._exit_popup.content.ids:
+                bn = "data/backgrounds/check_ok.png"
+                bd = "data/backgrounds/check_cancel.png"
+                ok_bt = self._exit_popup.content.ids["check_ok"]
+                cancel_bt = self._exit_popup.content.ids["check_cancel"]
+                popup_keys(bn, bd, ok_bt, cancel_bt)
+
         elif self._popup in self.root_window.children:
             if "check_ok" in self._popup.content.ids:
                 bn = "data/backgrounds/check_ok.png"
@@ -2415,11 +2423,15 @@ class TriFusionApp(App):
                             size=size, popup_level=popup_level,
                             separator_color=sep_color)
         elif popup_level == 3:
-            self._exit_popup = CustomPopup(title=title,
-                                           content=check_content,
-                                           size=size,
-                                           size_hint=(None, None),
-                                           separator_color=sep_color)
+            self._exit_popup = CustomPopup(
+                title="[b]%s[/b]" % title,
+                content=check_content,
+                size=size,
+                size_hint=(None, None),
+                separator_color=sep_color,
+                separator_height=0.6,
+                title_color=sep_color,
+                background="data/backgrounds/transparent.png")
             self._exit_popup.open()
 
         return True
@@ -7725,13 +7737,17 @@ class TriFusionApp(App):
                 size_hint=(None, None),
                 auto_dismiss=auto_dissmiss,
                 separator_color=separator_color,
-                title_color=separator_color)
+                separator_height=0.6,
+                title_color=separator_color,
+                background="data/backgrounds/transparent.png")
         else:
             popup_obj = CustomPopup(title="[b]%s[/b]" % title,
                 content=content, size_hint=size_hint,
                 separator_color=separator_color,
                 auto_dismiss=auto_dissmiss,
-                title_color=separator_color)
+                title_color=separator_color,
+                separator_height=0.6,
+                background="data/backgrounds/transparent.png")
 
         popup_obj.open()
 
