@@ -20,7 +20,7 @@ c_light_box = (.2, .2, .2, 1)
 c_dark_box = (0, 0, 0, 0)
 
 # Orthology sidepanel
-c_orto_sidepanel = (.2, .2, .2, 1)
+c_orto_sidepanel = (.2, .2, .2, .5)
 
 # Statistics side panel
 c_stats_sidepanel = (0.1, 0.1, 0.1, .7)
