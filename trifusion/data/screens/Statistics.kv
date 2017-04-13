@@ -201,6 +201,7 @@ ShowcaseScreen:
                 pos_x_exp: 410
                 pos: stats_panel.width, stats_panel.top - self.height
                 background_normal: "data/backgrounds/tg_add_down.png" if self.pos[0] == self.pos_x_exp else "data/backgrounds/tg_remove_down.png"
+                background_down: "data/backgrounds/tg_add_down.png" if self.pos[0] == self.pos_x_exp else "data/backgrounds/tg_remove_down.png"
                 on_release:
                     app.toggle_stats_panel()
 
