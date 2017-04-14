@@ -208,9 +208,11 @@
             pos: int(self.center_x - sp(16)), int(self.center_y - sp(16))
     canvas.before:
         Color:
-            rgba: 1, 1, 1, 1
+            rgba: 1, 1, 1, .7
         Line:
-            width: .2
+            width: .5
+            cap: "none"
+            close: True
             rectangle: self.center_x - sp(8), self.center_y - sp(8), sp(16) , sp(16)
 
 #===============================================================================
