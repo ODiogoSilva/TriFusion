@@ -2225,6 +2225,9 @@ class TriFusionApp(App):
             if self.screen_names[idx] not in self.plot_screens:
                 self.dismiss_plot_wgt()
 
+            # Automatic removal of fancy dropdown
+            self.remove_fancy_dropdown()
+
             # Removes old toolbar when switching directly from orto plot
             #  widget to Statistics
             if self.screen_names[idx] == "Statistics" and \
