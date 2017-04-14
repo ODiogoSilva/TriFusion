@@ -3325,12 +3325,17 @@ class TriFusionApp(App):
                                  ds_type=ds_type)
 
         for wgt in dropdown.ids.grid_wgt.children:
+            if wgt.text == bt.text:
+                wgt.background_normal = "data/backgrounds/bt_process.png"
             wgt.bind(on_release=partial(set_ds, bt, wgt.text))
             wgt.bind(on_press=lambda x: self.remove_fancy_dropdown())
 
         # Create Buttons for each custom data set group
         for name in sorted(ds_dic):
-            ds_bt = TFButton(size_hint_y=None, height=30, text=name)
+            bg = "data/backgrounds/transparent.png" if name != bt.text else \
+                "data/backgrounds/bt_process.png"
+            ds_bt = TFButton(size_hint_y=None, height=30, text=name,
+                             background_normal=bg)
             ds_bt.bind(on_release=partial(set_ds, bt, name))
             ds_bt.bind(on_press=lambda x: self.remove_fancy_dropdown())
             dropdown.ids.grid_wgt.add_widget(ds_bt)
