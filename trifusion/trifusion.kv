@@ -200,13 +200,6 @@
     StackLayout:
         canvas.after:
             Color:
-                rgba: tm.c_tfbutton_background
-            Rectangle:
-                pos: self.pos
-                size: self.size
-    StackLayout:
-        canvas.after:
-            Color:
                 rgb: root.line_clr
             Line:
                 width: 1.1
@@ -691,18 +684,6 @@
             spacing: 5
             size_hint_y: None
             height: self.minimum_height
-            TFButton:
-                id: all_ds
-                size_hint_y: None
-                background_normal: "data/backgrounds/transparent.png"
-                height: 30
-                text: "All taxa" if root.ds_type == "taxa" else "All files"
-            TFButton:
-                id: active_ds
-                size_hint_y: None
-                background_normal: "data/backgrounds/transparent.png"
-                height: 30
-                text: "Active taxa" if root.ds_type == "taxa" else "Active files"
 
 <SP_MoreOpts_Dialog>:
     id: sd_moreopts_format_dlg
@@ -5766,12 +5747,12 @@
             ProcessBt:
                 id: active_file_set
                 text: "Active files"
-                on_release: app.toggle_fancy_dropdown(self, "file")
+                on_release: app.toggle_fancy_dropdown(self, sorted(app.file_groups), orientation="down", add_ds_type="files")
 
             ProcessBt:
                 id: active_taxa_set
                 text: "Active taxa"
-                on_release: app.toggle_fancy_dropdown(self, "taxa")
+                on_release: app.toggle_fancy_dropdown(self, sorted(app.taxa_groups), orientation="down", add_ds_type="taxa")
 
     Hseparator
 

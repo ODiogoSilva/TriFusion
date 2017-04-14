@@ -2288,8 +2288,6 @@ class TriFusionApp(App):
             self.disengage_groups()
 
         if basename(self.available_screens[idx]) == "Statistics.kv":
-            self.screen.ids.taxa_dropdown.dismiss()
-            self.screen.ids.file_dropdown.dismiss()
             # Add StatsToggleWidget, if present
             try:
                 if isinstance(self.screen.ids.plot_content.children[0].
@@ -3267,29 +3265,33 @@ class TriFusionApp(App):
 
         self.fancy_dropped = False
 
-    def toggle_fancy_dropdown(self, bt, ds_type):
+    def toggle_fancy_dropdown(self, bt, values, orientation="down",
+                              add_ds_type=None):
         """
         Adds functionality to the File/Taxa dropdown menus using a
         FancyDropDown widget
         :param Button bt: Button instance that was pressed
-        :param str ds_type: Dataset type. Can be either "taxa" or "file"
+        :param list values: List of values that will populate the dropdown
+        menu
+        :param str orientation: Whether the dropdown will go 'down' or 'up'
+        :param str add_ds_type: If not None, it will provide the additional
+        data set buttons of the appropriate ds_type ('files' or 'taxa')
         """
 
         def set_ds(cur_bt, ds_name, wgt):
             cur_bt.text = ds_name
 
+            self.remove_fancy_dropdown()
+
         if self.fancy_dropped:
             return self.remove_fancy_dropdown()
 
-        # Determine which ds_type object the custom groups should be fetched
-        ds_dic = self.taxa_groups if ds_type == "taxa" else self.file_groups
-
-        # Get vertical size depending on the number of datasets for the
-        # current ds_type
-        # Two data sets are always present (all files/taxa; active files/taxa)
-        ds_len = 2
-        # Add custom data sets
-        ds_len += len(ds_dic)
+        # Get vertical size from the number of entries in values
+        ds_len = len(values)
+        # If the add_ds_type option is provided, add two more items that will
+        # correspond to the "active" and "total" datasets
+        if add_ds_type:
+            ds_len += 2
 
         # Since bt may be inside a scrollview, this retrieves the real position
         # of the widget
@@ -3300,7 +3302,10 @@ class TriFusionApp(App):
 
         # Get position
         wgt_x = real_pos[0] - (width - bt.width) / 2
-        wgt_y = real_pos[1] - 10 - height
+        if orientation == "down":
+            wgt_y = real_pos[1] - 10 - height
+        else:
+            wgt_y = real_pos[1] + bt.height + 17
 
         # Correct x position, if outside screen
         if wgt_x + width > self.root.width:
@@ -3308,39 +3313,57 @@ class TriFusionApp(App):
             offset = (wgt_x + width) - self.root.width
             wgt_x -= (offset + 20)
 
+        # Correct x position to the left
+        wgt_x = wgt_x if wgt_x >= 20 else 20
+
         # Correct height and y position, if widget falls outside screen
         if wgt_y <= 0:
             height += (wgt_y - 20)
             wgt_y = 20
 
+        elif wgt_y + height >= self.root.height:
+            off_set = (wgt_y + height) - self.root.height
+            height -= (off_set + 10)
+
         # Get final size
         size = [width, height]
 
         # Generate fancy marker
+        bg = join("data", "backgrounds", "box_arrow_up.png") if \
+            orientation == "down" else \
+            join("data", "backgrounds", "box_arrow_down.png")
+
+        if orientation == "down":
+            arrow_pos = (real_pos[0] + (bt.width / 2), real_pos[1] - 10)
+        else:
+            arrow_pos = (real_pos[0] + (bt.width / 2),
+                         real_pos[1] + bt.height + 10)
+
         point_wgt = FancyMarkerPersist(
-            background_normal=join("data", "backgrounds",
-                                   "box_arrow_up.png"),
-            pos=(real_pos[0] + (bt.width / 2), real_pos[1] - 10),
-            size=(12, 7), background_color=(0.216, 0.67, 0.784, 1))
+            background_normal=bg, pos=arrow_pos, size=(12, 7),
+            background_color=(0.216, 0.67, 0.784, 1))
 
         # Generate DropDown
-        dropdown = FancyDropDown(pos=(wgt_x, wgt_y), size=size,
-                                 ds_type=ds_type)
+        dropdown = FancyDropDown(pos=(wgt_x, wgt_y), size=size)
 
-        for wgt in dropdown.ids.grid_wgt.children:
-            if wgt.text == bt.text:
-                wgt.background_normal = "data/backgrounds/bt_process.png"
-            wgt.bind(on_release=partial(set_ds, bt, wgt.text))
-            wgt.bind(on_press=lambda x: self.remove_fancy_dropdown())
+        if add_ds_type:
+            for name_tpl in ["All {}", "Active {}"]:
+                name = name_tpl.format(add_ds_type)
+                bg = "data/backgrounds/transparent.png" if name != bt.text \
+                    else "data/backgrounds/bt_process.png"
+                ds_bt = TFButton(size_hint_y=None, height=30,
+                                 text=name,
+                                 background_normal=bg)
+                ds_bt.bind(on_release=partial(set_ds, bt, name))
+                dropdown.ids.grid_wgt.add_widget(ds_bt)
 
         # Create Buttons for each custom data set group
-        for name in sorted(ds_dic):
+        for name in values:
             bg = "data/backgrounds/transparent.png" if name != bt.text else \
                 "data/backgrounds/bt_process.png"
             ds_bt = TFButton(size_hint_y=None, height=30, text=name,
                              background_normal=bg)
             ds_bt.bind(on_release=partial(set_ds, bt, name))
-            ds_bt.bind(on_press=lambda x: self.remove_fancy_dropdown())
             dropdown.ids.grid_wgt.add_widget(ds_bt)
 
         self.root_window.add_widget(point_wgt)
