@@ -9354,7 +9354,7 @@ class TriFusionApp(App):
             # Update the height of the GridLayout to allow scrolling
             self.process_grid_wgt.height = self.process_height + \
                 sum([x.height for x in
-                     self.process_options.ids.filter_grid.children]) + 65
+                     self.process_options.ids.filter_grid.children]) + 100
 
             # Change text in the toggle button
             self.process_grid_wgt.ids.opt_bt.text = \
