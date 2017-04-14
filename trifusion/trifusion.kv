@@ -200,6 +200,13 @@
     StackLayout:
         canvas.after:
             Color:
+                rgba: tm.c_tfbutton_background
+            Rectangle:
+                pos: self.pos
+                size: self.size
+    StackLayout:
+        canvas.after:
+            Color:
                 rgb: root.line_clr
             Line:
                 width: 1.1
@@ -687,13 +694,13 @@
             TFButton:
                 id: all_ds
                 size_hint_y: None
-                background_normal: "data/backgrounds/bt_process_off.png"
+                background_normal: "data/backgrounds/transparent.png"
                 height: 30
                 text: "All taxa" if root.ds_type == "taxa" else "All files"
             TFButton:
                 id: active_ds
                 size_hint_y: None
-                background_normal: "data/backgrounds/bt_process_off.png"
+                background_normal: "data/backgrounds/transparent.png"
                 height: 30
                 text: "Active taxa" if root.ds_type == "taxa" else "Active files"
 
