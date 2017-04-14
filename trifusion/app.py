@@ -1613,16 +1613,22 @@ class TriFusionApp(App):
                     "awk '{print $3}'"], shell=True, stdout=subprocess.PIPE)
                 removable_media = i.communicate()[0].split("\n")[:-1]
 
-                cur, act = set(removable_media), set(self.removable_media)
+            elif sys.platform == "darwin":
 
-                if cur == act:
-                    return False
+                removable_media = [join("/Volumes", x) for x in
+                                   os.listdir("/Volumes/")]
 
-                elif cur.difference(act):
-                    return "add", [p for p in cur.difference(act)]
+            cur, act = set(removable_media), set(self.removable_media)
 
-                elif act.difference(cur):
-                    return "remove", [p for p in act.difference(cur)]
+            if cur == act:
+                return False
+
+            elif cur.difference(act):
+                return "add", [p for p in cur.difference(act)]
+
+            elif act.difference(cur):
+                return "remove", [p for p in act.difference(cur)]
+
 
         def update_media(operation, paths, wgt, fc_wgt):
             """
@@ -2754,7 +2760,7 @@ class TriFusionApp(App):
                                          rm_bt=False)
 
         # Get main devices for windows
-        if sys.platform in ["win32", "cygwin"]:
+        elif sys.platform in ["win32", "cygwin"]:
 
             devices = re.findall(
                 r"[A-Z]+:.*$", os.popen("mountvol /").read(), re.MULTILINE)
@@ -2772,6 +2778,33 @@ class TriFusionApp(App):
                 if exists(d):
                     self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False,
                                          name=os.path.splitdrive(d)[0])
+
+        # Get some favorites for MacOS
+        elif sys.platform == "darwin":
+
+            # Get mounted volumes
+            for d in os.listdir("/Volumes"):
+                self.removable_media.append(join("/Volumes", d))
+                self.add_bookmark_bt(join("/Volumes", d), dev_wgt, fc_wgt,
+                                     name=d, rm_bt=False)
+
+            # Home
+            self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt,
+                                 name=basename(self.home_path),
+                                 rm_bt=False)
+
+            # Desktop
+            self.add_bookmark_bt(join(self.home_path, "Desktop"), wgt,
+                                 fc_wgt, "Desktop")
+
+            # Documents
+            self.add_bookmark_bt(join(self.home_path, "Documents"), wgt,
+                                 fc_wgt, "Documents")
+
+            # Downloads
+            self.add_bookmark_bt(join(self.home_path, "Downloads"), wgt,
+                                 fc_wgt, "Downloads")
+
 
     def save_bookmark(self, path, wgt, fc_wgt, popup_level=1):
         """
