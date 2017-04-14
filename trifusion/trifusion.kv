@@ -687,11 +687,13 @@
             TFButton:
                 id: all_ds
                 size_hint_y: None
+                background_normal: "data/backgrounds/bt_process_off.png"
                 height: 30
                 text: "All taxa" if root.ds_type == "taxa" else "All files"
             TFButton:
                 id: active_ds
                 size_hint_y: None
+                background_normal: "data/backgrounds/bt_process_off.png"
                 height: 30
                 text: "Active taxa" if root.ds_type == "taxa" else "Active files"
 
@@ -5725,7 +5727,6 @@
     size_hint_y: None
     height: sum([x.size[1] for x in self.children])
     opacity: 0
-    __safe_id: [taxa_dropdown.__self__, file_dropdown.__self__]
     LightBox:
         Label:
             markup: True

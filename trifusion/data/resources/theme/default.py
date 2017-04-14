@@ -38,4 +38,4 @@ c_popup_border = (0.216, 0.67, 0.784, 1)
 c_filechooser_headers = (.2, .2, .2, .9)
 
 # Dropdown backgrounds
-c_dropdown_background = (.1, .1, .1, .9)
+c_dropdown_background = (.1, .1, .1, 1)
