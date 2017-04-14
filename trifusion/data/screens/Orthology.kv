@@ -122,15 +122,13 @@ ShowcaseScreen:
                                     halign: "left"
                                     valign: "middle"
                                     text_size: self.size
-                                Spinner:
+                                ProcessBt:
                                     id: usearch_threads
-                                    background_normal: "data/backgrounds/bt_process.png"
-                                    bold: True
-                                    values: tuple(str(x) for x in range(1, multiprocessing.cpu_count() + 1))
                                     size_hint_x: None
                                     width: gl_orto_search.bt_wdt
-                                    option_cls: Factory.get("TFSpinnerOpt")
                                     text: "1"
+                                    on_release: app.toggle_fancy_dropdown(self, tuple(str(x) for x in range(1, multiprocessing.cpu_count() + 1)), orientation="down")
+
 
                             Hseparator
 
