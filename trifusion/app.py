@@ -1346,6 +1346,17 @@ class TriFusionApp(App):
         # Popup keybindings
         # ==================================================================
 
+        if self._exit_popup in self.root_window.children:
+            if "check_ok" in self._exit_popup.content.ids:
+                bn = "data/backgrounds/check_ok.png"
+                bd = "data/backgrounds/check_cancel.png"
+                ok_bt = self._exit_popup.content.ids["check_ok"]
+                cancel_bt = self._exit_popup.content.ids["check_cancel"]
+                popup_keys(bn, bd, ok_bt, cancel_bt)
+
+        if self._exit_popup in self.root_window.children:
+            return
+
         if self._popup in self.root_window.children:
             if "find_bx" in self._popup.content.ids:
                 if modifier == mod_key and key_code == 102:
@@ -1382,14 +1393,6 @@ class TriFusionApp(App):
                 cancel_bt = self._subpopup.content.ids["cancel_bt"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
 
-        if self._exit_popup in self.root_window.children:
-            if "check_ok" in self._exit_popup.content.ids:
-                bn = "data/backgrounds/check_ok.png"
-                bd = "data/backgrounds/check_cancel.png"
-                ok_bt = self._exit_popup.content.ids["check_ok"]
-                cancel_bt = self._exit_popup.content.ids["check_cancel"]
-                popup_keys(bn, bd, ok_bt, cancel_bt)
-
         elif self._popup in self.root_window.children:
             if "check_ok" in self._popup.content.ids:
                 bn = "data/backgrounds/check_ok.png"
@@ -1416,9 +1419,6 @@ class TriFusionApp(App):
             if "close_bt" in self._popup.content.ids:
                 if key_code == 13:
                     self._popup.content.ids.close_bt.dispatch("on_release")
-
-        if self._exit_popup in self.root_window.children:
-            return
 
         # ======================================================================
         # Filechooser keybindings
