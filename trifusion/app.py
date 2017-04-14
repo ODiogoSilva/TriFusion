@@ -476,6 +476,9 @@ class TriFusionApp(App):
     # Whether SidePanel's More options dialog is active or not
     sp_moreopts = BooleanProperty(False)
 
+    # Whether a FancyDropDown is... well... dropped
+    fancy_dropped = BooleanProperty(False)
+
     # Attribute that stores the last selected button in the sidepanel.
     last_sp_bt = {"Files": None, "Taxa": None, "Partitions": None}
 
@@ -3029,6 +3032,15 @@ class TriFusionApp(App):
                     self._determine_collision(self.root.ids.file_opt, mp):
                 self.sidepanel_remove_moreopts()
 
+        # If fancy dropdown is dropped, check if touch is oustide. If so,
+        # remove the widget
+        if self.fancy_dropped:
+            wgt = [x for x in self.root_window.children if
+                   isinstance(x, FancyDropDown)][0]
+
+            if not self._determine_collision(wgt, mp):
+                self.remove_fancy_dropdown()
+
         # Check for existence of a partition dialog box
         partition_box = [x for x in self.root_window.children if
                          isinstance(x, PartitionsDialog)]
@@ -3238,6 +3250,95 @@ class TriFusionApp(App):
             self.root_window.remove_widget(wgt)
 
         self.sp_moreopts = False
+
+    def remove_fancy_dropdown(self):
+        """
+        Removes FancyDropDown widgets from the root window
+        :return:
+        """
+
+        for wgt in [x for x in self.root_window.children if
+                    isinstance(x, FancyDropDown) or
+                    isinstance(x, FancyMarkerPersist)]:
+            self.root_window.remove_widget(wgt)
+
+        self.fancy_dropped = False
+
+    def toggle_fancy_dropdown(self, bt, ds_type):
+        """
+        Adds functionality to the File/Taxa dropdown menus using a
+        FancyDropDown widget
+        :param Button bt: Button instance that was pressed
+        :param str ds_type: Dataset type. Can be either "taxa" or "file"
+        """
+
+        def set_ds(cur_bt, ds_name, wgt):
+            cur_bt.text = ds_name
+
+        if self.fancy_dropped:
+            return self.remove_fancy_dropdown()
+
+        # Determine which ds_type object the custom groups should be fetched
+        ds_dic = self.taxa_groups if ds_type == "taxa" else self.file_groups
+
+        # Get vertical size depending on the number of datasets for the
+        # current ds_type
+        # Two data sets are always present (all files/taxa; active files/taxa)
+        ds_len = 2
+        # Add custom data sets
+        ds_len += len(ds_dic)
+
+        # Since bt may be inside a scrollview, this retrieves the real position
+        # of the widget
+        real_pos = bt.to_window(bt.pos[0], bt.pos[1])
+
+        width = 200
+        height = ds_len * 35 + 19
+
+        # Get position
+        wgt_x = real_pos[0] - (width - bt.width) / 2
+        wgt_y = real_pos[1] - 10 - height
+
+        # Correct x position, if outside screen
+        if wgt_x + width > self.root.width:
+            # Determine the width that is over the window bound
+            offset = (wgt_x + width) - self.root.width
+            wgt_x -= (offset + 20)
+
+        # Correct height and y position, if widget falls outside screen
+        if wgt_y <= 0:
+            height += (wgt_y - 20)
+            wgt_y = 20
+
+        # Get final size
+        size = [width, height]
+
+        # Generate fancy marker
+        point_wgt = FancyMarkerPersist(
+            background_normal=join("data", "backgrounds",
+                                   "box_arrow_up.png"),
+            pos=(real_pos[0] + (bt.width / 2), real_pos[1] - 10),
+            size=(12, 7), background_color=(0.216, 0.67, 0.784, 1))
+
+        # Generate DropDown
+        dropdown = FancyDropDown(pos=(wgt_x, wgt_y), size=size,
+                                 ds_type=ds_type)
+
+        for wgt in dropdown.ids.grid_wgt.children:
+            wgt.bind(on_release=partial(set_ds, bt, wgt.text))
+            wgt.bind(on_press=lambda x: self.remove_fancy_dropdown())
+
+        # Create Buttons for each custom data set group
+        for name in sorted(ds_dic):
+            ds_bt = TFButton(size_hint_y=None, height=30, text=name)
+            ds_bt.bind(on_release=partial(set_ds, bt, name))
+            ds_bt.bind(on_press=lambda x: self.remove_fancy_dropdown())
+            dropdown.ids.grid_wgt.add_widget(ds_bt)
+
+        self.root_window.add_widget(point_wgt)
+        self.root_window.add_widget(dropdown)
+
+        self.fancy_dropped = True
 
     def sidepanel_moreopts_dialog(self, bt):
         """
@@ -5497,8 +5598,6 @@ class TriFusionApp(App):
             check_list = self.alignment_list.taxa_names
             # Set the grid layout where the group button is to be added
             grid_layout = self.root.ids.taxa_group_grid
-            # Set dropdown widget
-            dd_wgt = self.process_grid_wgt.ids.taxa_dropdown
             # Set the current dataset group as default for taxa filter if
             # it has not been defined
             self.taxa_filter_settings[1] = name
@@ -5512,8 +5611,6 @@ class TriFusionApp(App):
             check_list = list(self.filename_map.keys())
             # Set the grid layout where the group button is to be added
             grid_layout = self.root.ids.file_group_grid
-            # Set dropdown widget
-            dd_wgt = self.process_grid_wgt.ids.file_dropdown
 
         if group_file:
             with open(self.dataset_file) as fh:
@@ -5570,13 +5667,6 @@ class TriFusionApp(App):
             # Add buttons to gridlayout
             for i in [bt, x_bt]:
                 grid_layout.add_widget(i)
-
-            # Create separator between dropdown items
-            dd_bt = Button(text=name, size_hint_y=None, height=40, bold=True,
-                           background_normal=join("data", "backgrounds",
-                                                  "spinner_opt.png"))
-            dd_bt.bind(on_release=lambda y: dd_wgt.select(name))
-            dd_wgt.add_widget(dd_bt)
 
             # Update gridlayout height
             grid_layout.height += 40

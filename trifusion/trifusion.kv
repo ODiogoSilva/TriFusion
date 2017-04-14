@@ -10,10 +10,10 @@
 #:import ListProperty kivy.properties.ListProperty
 #:import Clock kivy.clock.Clock
 
-#:import load_group_files data.resources.background_tasks.load_group_files
-#:import orto_update_filters data.resources.background_tasks.orto_update_filters
-#:import TreeViewM data.resources.custom_widgets.TreeViewM
-#:import tm data.resources.theme.default
+#:import load_group_files trifusion.data.resources.background_tasks.load_group_files
+#:import orto_update_filters trifusion.data.resources.background_tasks.orto_update_filters
+#:import TreeViewM trifusion.data.resources.custom_widgets.TreeViewM
+#:import tm trifusion.data.resources.theme.default
 
 
 <ShowcaseScreen>:
@@ -652,6 +652,49 @@
             import webbrowser
             webbrowser.open(args[1])
 
+<FancyDropDown>:
+    orientation: "vertical"
+    ds_type: ""
+    size_hint: None, None
+
+    canvas.before:
+        Color:
+            rgba: tm.c_dropdown_background
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    StackLayout:
+        size_hint_y: None
+        height: 0
+        canvas.after:
+            Color:
+                rgb: (0.216, 0.67, 0.784, 1)
+            Line:
+                width: 1.1
+                rectangle: root.x, root.y, root.width, root.height
+
+    ScrollView:
+        bar_width: 8
+        scroll_type: ["bars"]
+        GridLayout:
+            id: grid_wgt
+            cols: 1
+            padding: 12
+            spacing: 5
+            size_hint_y: None
+            height: self.minimum_height
+            TFButton:
+                id: all_ds
+                size_hint_y: None
+                height: 30
+                text: "All taxa" if root.ds_type == "taxa" else "All files"
+            TFButton:
+                id: active_ds
+                size_hint_y: None
+                height: 30
+                text: "Active taxa" if root.ds_type == "taxa" else "Active files"
+
 <SP_MoreOpts_Dialog>:
     id: sd_moreopts_format_dlg
     orientation: "vertical"
@@ -662,7 +705,7 @@
 
     canvas.before:
         Color:
-            rgb: (.2, .2, .2)
+            rgba: tm.c_dropdown_background
         Rectangle:
             pos: self.pos
             size: self.size
@@ -5715,70 +5758,12 @@
             ProcessBt:
                 id: active_file_set
                 text: "Active files"
-                on_release: file_dropdown.open(self)
+                on_release: app.toggle_fancy_dropdown(self, "file")
 
             ProcessBt:
                 id: active_taxa_set
                 text: "Active taxa"
-                on_release: taxa_dropdown.open(self)
-
-            DropDown:
-                id: taxa_dropdown
-                auto_width: False
-                size_hint_x: None
-                width: 170
-                on_select: active_taxa_set.text = args[1]
-                canvas.before:
-                    Color:
-                        rgba: (0,0,0,1)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-
-                Button:
-                    background_normal: "data/backgrounds/spinner_opt.png"
-                    text: 'All taxa'
-                    size_hint_y: None
-                    height: 40
-                    bold: True
-                    on_release: taxa_dropdown.select(self.text)
-
-                Button:
-                    background_normal: "data/backgrounds/spinner_opt.png"
-                    text: 'Active taxa'
-                    size_hint_y: None
-                    height: 40
-                    bold: True
-                    on_release: taxa_dropdown.select(self.text)
-
-            DropDown:
-                id: file_dropdown
-                auto_width: False
-                size_hint_x: None
-                width: 170
-                on_select: active_file_set.text = args[1]
-                canvas.before:
-                    Color:
-                        rgba: (0,0,0,1)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-
-                Button:
-                    background_normal: "data/backgrounds/spinner_opt.png"
-                    text: 'All files'
-                    size_hint_y: None
-                    height: 40
-                    bold: True
-                    on_release: file_dropdown.select(self.text)
-
-                Button:
-                    background_normal: "data/backgrounds/spinner_opt.png"
-                    text: 'Active files'
-                    size_hint_y: None
-                    height: 40
-                    bold: True
-                    on_release: file_dropdown.select(self.text)
+                on_release: app.toggle_fancy_dropdown(self, "taxa")
 
     Hseparator
 

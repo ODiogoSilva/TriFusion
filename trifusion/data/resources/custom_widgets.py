@@ -655,6 +655,13 @@ class AutoCompTextInput(TextInput):
                                                           from_undo=from_undo)
 
 
+class FancyDropDown(BoxLayout):
+    def __init__(self, **kwargs):
+        super(FancyDropDown, self).__init__(**kwargs)
+
+        self.ds_type = kwargs.get("ds_type", None)
+
+
 class SP_MoreOpts_Dialog(BoxLayout):
     def __init__(self, **kwargs):
         super(SP_MoreOpts_Dialog, self).__init__(**kwargs)
