@@ -36,6 +36,7 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.slider import Slider
 from kivy.uix.treeview import TreeView
 from kivy.uix.image import Image
+from kivy.uix.widget import Widget
 from kivy.uix.modalview import ModalView
 from kivy.uix.filechooser import FileChooserListView
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
@@ -655,11 +656,30 @@ class AutoCompTextInput(TextInput):
                                                           from_undo=from_undo)
 
 
-class FancyDropDown(BoxLayout):
+class SimpleModal(Widget):
+
+    def __init__(self, **kwargs):
+        super(SimpleModal, self).__init__(**kwargs)
+
+    def on_touch_down(self, touch):
+        return super(SimpleModal, self).on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        return super(SimpleModal, self).on_touch_up(touch)
+
+
+class FancyDropDown(BoxLayout, SimpleModal):
     def __init__(self, **kwargs):
         super(FancyDropDown, self).__init__(**kwargs)
 
-        self.ds_type = kwargs.get("ds_type", None)
+    def on_touch_down(self, touch):
+
+        super(FancyDropDown, self).on_touch_down(touch)
+        return True
+
+    def on_touch_up(self, touch):
+        super(FancyDropDown, self).on_touch_up(touch)
+        return True
 
 
 class SP_MoreOpts_Dialog(BoxLayout):
@@ -715,10 +735,18 @@ class FileOverwriteDialog(BoxLayout):
     cancel = ObjectProperty()
 
 
-class TFButton(Button):
+class TFButton(Button, SimpleModal):
 
     def __init__(self, **kwargs):
         super(TFButton, self).__init__(**kwargs)
+
+    def on_touch_down(self, touch):
+
+        super(TFButton, self).on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+
+        super(TFButton, self).on_touch_up(touch)
 
 
 class TFButtonOff(Button):
