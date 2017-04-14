@@ -982,6 +982,8 @@ class TriFusionApp(App):
         problem.
         """
 
+        dll_path = None
+
         # The mcl executable requires the .exe extension in windows to
         # work properly
         if sys.platform in ["win32", "cygwin"]:
@@ -1003,28 +1005,43 @@ class TriFusionApp(App):
             if sys.platform in ["win32", "cygwin"]:
                 # For Windows 64bit
                 if platform.architecture()[0] == "64bit":
-                    mcl_path = join(mcl_dir, "windows", "64bit", "mcl64.exe")
+                    mcl_path = join(mcl_dir, "windows", "64bit", mcl_string)
                     dll_path = join(mcl_dir, "windows", "64bit",
                                     "cygwin1.dll")
                 # For Windows 32bit
                 else:
-                    mcl_path = join(mcl_dir, "windows", "32bit", "mcl32.exe")
+                    mcl_path = join(mcl_dir, "windows", "32bit", mcl_string)
                     dll_path = join(mcl_dir, "windows", "32bit",
                                     "cygwin1.dll")
 
-                # Copy mcl executable to trifusion dir
-                shutil.copyfile(mcl_path, join(self.user_data_dir,
-                                               mcl_string))
-                mcl_file = join(self.user_data_dir, mcl_string)
-                # Copy dll necessary in windows version
+            # For MacOS
+            elif sys.platform == "darwin":
+                mcl_path = join(mcl_dir, "MacOS", mcl_string)
+
+            # For Linux
+            else:
+                mcl_path = join(mcl_dir, "linux", mcl_string)
+
+            # Copy mcl executable to trifusion dir
+            shutil.copyfile(mcl_path, join(self.user_data_dir,
+                                           mcl_string))
+            mcl_file = join(self.user_data_dir, mcl_string)
+            # Copy dll necessary in windows version
+            if dll_path:
                 shutil.copyfile(dll_path, join(self.user_data_dir,
                                                "cygwin1.dll"))
-                # Make mcl executable
-                st = os.stat(mcl_file)
-                os.chmod(mcl_file, st.st_mode | stat.S_IEXEC)
-                # Test mcl executable
-                if self._check_exec(mcl_file, "mcl"):
-                    self.mcl_file = mcl_file
+            # Make mcl executable
+            st = os.stat(mcl_file)
+            os.chmod(mcl_file, st.st_mode | stat.S_IEXEC)
+            # Test mcl executable
+            if self._check_exec(mcl_file, "mcl"):
+                self.mcl_file = mcl_file
+            else:
+                # Remove bad executable from app dir
+                os.remove(join(self.user_data_dir, mcl_string))
+                if dll_path:
+                    os.remove(join(self.user_data_dir, "cygwin1.dll"))
+
         else:
             # If not in app_dir check is its reachable system-wide by
             # subprocess
