@@ -438,7 +438,7 @@ class GroupLight(object):
             shared_namespace.max_pb = shared_namespace.total = p + 1
 
         # Connect to database
-        conn = sqlite3.connect(sqldb)
+        conn = sqlite3.connect(sqldb, timeout=10)
         c = conn.cursor()
         table_name = "".join([x for x in protein_db if x.isalnum()]).encode(
             "utf8")
