@@ -1005,12 +1005,12 @@ class TriFusionApp(App):
             if sys.platform in ["win32", "cygwin"]:
                 # For Windows 64bit
                 if platform.architecture()[0] == "64bit":
-                    mcl_path = join(mcl_dir, "windows", "64bit", mcl_string)
+                    mcl_path = join(mcl_dir, "windows", "64bit", "mcl64.exe")
                     dll_path = join(mcl_dir, "windows", "64bit",
                                     "cygwin1.dll")
                 # For Windows 32bit
                 else:
-                    mcl_path = join(mcl_dir, "windows", "32bit", mcl_string)
+                    mcl_path = join(mcl_dir, "windows", "32bit", "mcl32.exe")
                     dll_path = join(mcl_dir, "windows", "32bit",
                                     "cygwin1.dll")
 
@@ -1606,6 +1606,7 @@ class TriFusionApp(App):
             element is a list of paths with which to perform the operation
             """
 
+            # For linux
             if sys.platform in ["linux", "linux2"]:
 
                 # Get current removable media
@@ -1613,10 +1614,29 @@ class TriFusionApp(App):
                     "awk '{print $3}'"], shell=True, stdout=subprocess.PIPE)
                 removable_media = i.communicate()[0].split("\n")[:-1]
 
+            # For MacOS
             elif sys.platform == "darwin":
 
                 removable_media = [join("/Volumes", x) for x in
                                    os.listdir("/Volumes/")]
+
+            # For Windows
+            elif sys.platform in ["win32", "cygwin"]:
+
+                removable_media = re.findall(
+                    r"[A-Z]+:.*$", os.popen("mountvol /").read(), re.MULTILINE)
+
+                # Prevent no disk on drive popup error in windows
+                SEM_FAILCRITICALERRORS = 1
+                SEM_NOOPENFILEERRORBOX = 0x8000
+                SEM_FAIL = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS
+
+                kernel32 = ctypes.WinDLL('kernel32')
+                oldmode = ctypes.c_uint()
+                kernel32.SetThreadErrorMode(SEM_FAIL, ctypes.byref(oldmode))
+
+            else:
+                return
 
             cur, act = set(removable_media), set(self.removable_media)
 
@@ -1644,7 +1664,20 @@ class TriFusionApp(App):
             if operation == "add":
 
                 for p in paths:
-                    self.add_bookmark_bt(p, wgt, fc_wgt, rm_bt=False)
+
+                    # First, check if the provided path is a directory and
+                    # is reachable. If not, we do not add it as a bookmark
+                    if not os.path.isdir(p):
+                        return
+
+                    # For windows, get the name of the drive manually
+                    if sys.platform in ["win32", "cygwin"]:
+                        name = os.path.splitdrive(p)[0]
+                    else:
+                        name = None
+
+                    self.add_bookmark_bt(p, wgt, fc_wgt, rm_bt=False,
+                                         name=name)
                     self.removable_media.append(p)
 
             elif operation == "remove":
@@ -2776,6 +2809,7 @@ class TriFusionApp(App):
 
             for d in devices:
                 if exists(d):
+                    self.removable_media.append(d)
                     self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False,
                                          name=os.path.splitdrive(d)[0])
 
