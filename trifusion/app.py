@@ -9580,9 +9580,6 @@ class TriFusionApp(App):
                 self.populate_stats_footer(["NA", "NA"])
                 return self.dismiss_plot_wgt()
 
-            # Dismiss stats toggle widget, if present
-            self.dismiss_stats_toggle()
-
             # Set new plot attributes
             self.current_plot, self.current_lgd, self.current_table = \
                 self.stats_plt_method[plt_idx][0](**plot_data)
@@ -9605,11 +9602,11 @@ class TriFusionApp(App):
                     join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
                     bbox_inches="tight", dpi=200)
 
+        # Dismiss stats toggle widget, if present
+        self.dismiss_stats_toggle()
         if plt_idx in stats_compliant:
-
             # Show toggle widget
             self.show_stats_toggle(**stats_compliant[plt_idx])
-
         else:
             self.previous_stats_toggle = None
 
