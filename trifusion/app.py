@@ -1649,7 +1649,6 @@ class TriFusionApp(App):
             elif act.difference(cur):
                 return "remove", [p for p in act.difference(cur)]
 
-
         def update_media(operation, paths, wgt, fc_wgt):
             """
             Updates media, according to the operation and list of paths
@@ -2813,6 +2812,9 @@ class TriFusionApp(App):
                     self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False,
                                          name=os.path.splitdrive(d)[0])
 
+            # Home directory
+            self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt, rm_bt=False)
+
         # Get some favorites for MacOS
         elif sys.platform == "darwin":
 
@@ -2890,6 +2892,10 @@ class TriFusionApp(App):
         :param popup_level: int, specifies the level of the check_action popup
          that appears when attempting to remove a bookmark
         """
+
+        # Ignore if path does not exist / is not a directory
+        if not os.path.isdir(bk):
+            return
 
         bookmark_name = basename(bk)
         # Define bookmark button
