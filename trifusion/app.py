@@ -1416,7 +1416,7 @@ class TriFusionApp(App):
                 cancel_bt = self._popup.content.ids["cancel_bt"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
 
-            if "close_bt" in self._popup.content.ids:
+            elif "close_bt" in self._popup.content.ids:
                 if key_code == 13:
                     self._popup.content.ids.close_bt.dispatch("on_release")
 
@@ -10670,7 +10670,6 @@ class TriFusionApp(App):
             wgt.ids.main_lbl.font_size = 18
             wgt.ids.main_lbl.color = self._blue
             wgt.ids.secondary_lbl.color = self._blue
-
 
         def check_process(p, dt):
             """
