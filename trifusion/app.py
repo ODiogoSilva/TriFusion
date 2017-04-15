@@ -4932,7 +4932,7 @@ class TriFusionApp(App):
         self.output_dir = ""
         self.output_file = ""
         self.conversion_suffix = ""
-        self.gene_table_selection = None
+        self.gene_table_selection = []
         self.gene_master_table = []
 
         # Clear Statistics screen scatter, if screen is active
@@ -6000,25 +6000,18 @@ class TriFusionApp(App):
         self.stats_table.ids.table_grid.remove_widget(
             self.stats_table.ids.table_grid.children[0])
 
-        for p, (k, v) in enumerate(sorted(table.items())):
+        # If the current table has a search operation performed, show more
+        # lines from that searched table. If not, show more from the original
+        # table
+        if any(self.gene_table_selection):
+            table = self.gene_table_selection
+        else:
+            table = self.gene_table
 
-            if p <= self.MAX_TABLE_N:
-                pass
-            elif self.MAX_TABLE_N + 25 >= p > self.MAX_TABLE_N:
-                x = TableLine()
-                x.ids.gn_name.text = "%s. %s" % (p, k)
+        start = self.MAX_TABLE_N
+        self.MAX_TABLE_N += 25
 
-                for t1, t2 in v.items():
-                    x.ids[t1].text = "%s" % int(t2)
-
-                self.stats_table.ids.table_grid.add_widget(x)
-
-            elif p > self.MAX_TABLE_N + 50:
-                bt = MoreTableBt()
-                self.stats_table.ids.table_grid.add_widget(bt)
-                break
-
-        self.MAX_TABLE_N += 50
+        self.search_add_gene_table_line(table, start)
 
     def statistics_show_summary(self, force=False, tp="stats"):
         """
@@ -6273,7 +6266,7 @@ class TriFusionApp(App):
                              shared_ns)
         Clock.schedule_interval(check_func, .1)
 
-    def search_add_gene_table_line(self, gene_table):
+    def search_add_gene_table_line(self, gene_table, start=0):
         """
         Wraps the creation of gene table lines into the table_grid widget.
         :param gene_table
@@ -6283,6 +6276,10 @@ class TriFusionApp(App):
         cols = ["nsites", "taxa", "var", "inf", "gap", "missing"]
 
         for p, row in enumerate(gene_table.itertuples()):
+
+            # Ignore entries before the provided starting point
+            if p <= start:
+                pass
 
             if p > self.MAX_TABLE_N:
                 bt = MoreTableBt()
@@ -6347,7 +6344,7 @@ class TriFusionApp(App):
             self.search_add_gene_table_line(self.gene_table)
 
             # Reset gene_table_selection
-            self.gene_table_selection = None
+            self.gene_table_selection = []
 
             # Reset search field hint text
             self.stats_table.ids.gn_txt.text = ""
