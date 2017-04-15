@@ -220,6 +220,8 @@ class TriFusionApp(App):
 
     # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
+    # Setting Boolean that locks the sidepanel while it animates
+    lock_side_panel = BooleanProperty(False)
 
     # Attribute for current screen object
     screen = None
@@ -3174,6 +3176,9 @@ class TriFusionApp(App):
         Method controlling the animation toggling of the side panel
         """
 
+        if self.lock_side_panel:
+            return
+
         # Closes partition box, if open
         self.remove_partition_box()
 
@@ -3189,6 +3194,12 @@ class TriFusionApp(App):
         # controller of the side panel state. When its True, the side panel
         #  is extended, otherwise the side panel is hidden
         self.show_side_panel = not self.show_side_panel
+
+        # Lock the sidepanel animation. It will only be released after the
+        # animations are over
+        self.lock_side_panel = True
+        Clock.schedule_once(lambda x: setattr(self, "lock_side_panel", False),
+                            .4)
 
         if self.show_side_panel:
 
