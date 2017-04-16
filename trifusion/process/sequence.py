@@ -81,7 +81,10 @@ class pairwise_cache(object):
 
         if c_args[0] == "connect":
 
-            self.con = sqlite3.connect("pw.db")
+            # Get path to database based on the AlignmentList db
+            tmp_dir = os.path.dirname(args[0].sql_path)
+
+            self.con = sqlite3.connect(join(tmp_dir, "pw.db"))
             self.c = self.con.cursor()
             self.c.execute("PRAGMA synchronous = OFF")
 
