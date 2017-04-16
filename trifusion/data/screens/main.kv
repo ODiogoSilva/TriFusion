@@ -6,16 +6,20 @@ ShowcaseScreen:
 
     BoxLayout:
         orientation: "vertical"
-        padding: 30
-        spacing: 10
+        padding: [50,50,0, 0]
         BoxLayout:
             size_hint_y: None
-            height: 120
+            height: 100
+            spacing: 25
+            Image:
+                size_hint_x: None
+                width: 100
+                source: "data/backgrounds/trifusion_bw.png"
             Label:
                 markup: True
                 color: .7, .7, .7, .7
                 bold: True
-                valign: "bottom"
+                valign: "middle"
                 halign: "left"
                 text_size: self.size
                 text: "[size=40]Welcome to TriFusion[/size]\n[size=20]Streamlining phylogenomic data gathering, processing and visualization[/size]\n\nStart by clicking '[color=37abc8ff]Menu > Open file(s)[/color]', by typing '[color=37abc8ff]Ctrl + O[/color]' or simply [color=37abc8ff]drag and drop[/color] your files into TriFusion's window"
