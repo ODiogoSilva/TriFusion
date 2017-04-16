@@ -71,6 +71,7 @@ Config.set("graphics", "minimum_height", 700)
 Config.set("graphics", "minimum_width", 1000)
 Config.set("graphics", "height", 700)
 Config.set("graphics", "width", 1000)
+Config.set("graphics", "multisamples", 4)
 Config.set("input", "mouse", "mouse, disable_multitouch")
 
 # Force creation of main window

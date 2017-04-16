@@ -1,6 +1,6 @@
-#:import orthology_storage trifusion.data.resources.info_data.orthology_storage
-#:import get_active_group trifusion.data.resources.background_tasks.get_active_group
-#:import tm trifusion.data.resources.theme.default
+#:import orthology_storage data.resources.info_data.orthology_storage
+#:import get_active_group data.resources.background_tasks.get_active_group
+#:import tm data.resources.theme.default
 #:import os os
 #:import sys sys
 
@@ -277,7 +277,9 @@ ShowcaseScreen:
                                                     size_hint: None, None
                                                     size: 30,30
                                                     id: add_group
+                                                    border: 0,0,0,0
                                                     background_normal: "data/backgrounds/add_bt30.png"
+                                                    background_down: "data/backgrounds/add_bt30_down.png"
                                                     on_release:
                                                         app.dialog_import_groups()
 

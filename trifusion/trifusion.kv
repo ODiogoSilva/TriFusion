@@ -3074,7 +3074,9 @@
                         Button:
                             size_hint: None, None
                             size: 30, 30
+                            border: 0,0,0,0
                             background_normal: "data/backgrounds/add_bt30.png"
+                            background_down: "data/backgrounds/add_bt30_down.png"
                             on_release:
                                 app.save_bookmark(sd_filechooser.path, bookmark_gl, sd_filechooser)
 
@@ -3816,7 +3818,9 @@
                         Button:
                             size_hint: None, None
                             size: 30, 30
+                            border: 0,0,0,0
                             background_normal: "data/backgrounds/add_bt30.png"
+                            background_down: "data/backgrounds/add_bt30_down.png"
                             on_release:
                                 app.save_bookmark(sd_filechooser.path, bookmark_gl, sd_filechooser, popup_level=2)
 
