@@ -221,6 +221,8 @@ class TriFusionApp(App):
 
     # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
+    # Setting Boolean that locks the sidepanel while it animates
+    lock_side_panel = BooleanProperty(False)
 
     # Attribute for current screen object
     screen = None
@@ -1006,12 +1008,12 @@ class TriFusionApp(App):
             if sys.platform in ["win32", "cygwin"]:
                 # For Windows 64bit
                 if platform.architecture()[0] == "64bit":
-                    mcl_path = join(mcl_dir, "windows", "64bit", mcl_string)
+                    mcl_path = join(mcl_dir, "windows", "64bit", "mcl64.exe")
                     dll_path = join(mcl_dir, "windows", "64bit",
                                     "cygwin1.dll")
                 # For Windows 32bit
                 else:
-                    mcl_path = join(mcl_dir, "windows", "32bit", mcl_string)
+                    mcl_path = join(mcl_dir, "windows", "32bit", "mcl32.exe")
                     dll_path = join(mcl_dir, "windows", "32bit",
                                     "cygwin1.dll")
 
@@ -1417,7 +1419,7 @@ class TriFusionApp(App):
                 cancel_bt = self._popup.content.ids["cancel_bt"]
                 popup_keys(bn, bd, ok_bt, cancel_bt)
 
-            if "close_bt" in self._popup.content.ids:
+            elif "close_bt" in self._popup.content.ids:
                 if key_code == 13:
                     self._popup.content.ids.close_bt.dispatch("on_release")
 
@@ -1607,6 +1609,7 @@ class TriFusionApp(App):
             element is a list of paths with which to perform the operation
             """
 
+            # For linux
             if sys.platform in ["linux", "linux2"]:
 
                 # Get current removable media
@@ -1614,16 +1617,40 @@ class TriFusionApp(App):
                     "awk '{print $3}'"], shell=True, stdout=subprocess.PIPE)
                 removable_media = i.communicate()[0].split("\n")[:-1]
 
-                cur, act = set(removable_media), set(self.removable_media)
+            # For MacOS
+            elif sys.platform == "darwin":
 
-                if cur == act:
-                    return False
+                removable_media = [join("/Volumes", x) for x in
+                                   os.listdir("/Volumes/")]
 
-                elif cur.difference(act):
-                    return "add", [p for p in cur.difference(act)]
+            # For Windows
+            elif sys.platform in ["win32", "cygwin"]:
 
-                elif act.difference(cur):
-                    return "remove", [p for p in act.difference(cur)]
+                removable_media = re.findall(
+                    r"[A-Z]+:.*$", os.popen("mountvol /").read(), re.MULTILINE)
+
+                # Prevent no disk on drive popup error in windows
+                SEM_FAILCRITICALERRORS = 1
+                SEM_NOOPENFILEERRORBOX = 0x8000
+                SEM_FAIL = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS
+
+                kernel32 = ctypes.WinDLL('kernel32')
+                oldmode = ctypes.c_uint()
+                kernel32.SetThreadErrorMode(SEM_FAIL, ctypes.byref(oldmode))
+
+            else:
+                return
+
+            cur, act = set(removable_media), set(self.removable_media)
+
+            if cur == act:
+                return False
+
+            elif cur.difference(act):
+                return "add", [p for p in cur.difference(act)]
+
+            elif act.difference(cur):
+                return "remove", [p for p in act.difference(cur)]
 
         def update_media(operation, paths, wgt, fc_wgt):
             """
@@ -1639,7 +1666,20 @@ class TriFusionApp(App):
             if operation == "add":
 
                 for p in paths:
-                    self.add_bookmark_bt(p, wgt, fc_wgt, rm_bt=False)
+
+                    # First, check if the provided path is a directory and
+                    # is reachable. If not, we do not add it as a bookmark
+                    if not os.path.isdir(p):
+                        return
+
+                    # For windows, get the name of the drive manually
+                    if sys.platform in ["win32", "cygwin"]:
+                        name = os.path.splitdrive(p)[0]
+                    else:
+                        name = None
+
+                    self.add_bookmark_bt(p, wgt, fc_wgt, rm_bt=False,
+                                         name=name)
                     self.removable_media.append(p)
 
             elif operation == "remove":
@@ -2755,7 +2795,7 @@ class TriFusionApp(App):
                                          rm_bt=False)
 
         # Get main devices for windows
-        if sys.platform in ["win32", "cygwin"]:
+        elif sys.platform in ["win32", "cygwin"]:
 
             devices = re.findall(
                 r"[A-Z]+:.*$", os.popen("mountvol /").read(), re.MULTILINE)
@@ -2771,8 +2811,39 @@ class TriFusionApp(App):
 
             for d in devices:
                 if exists(d):
+                    self.removable_media.append(d)
                     self.add_bookmark_bt(d, dev_wgt, fc_wgt, rm_bt=False,
                                          name=os.path.splitdrive(d)[0])
+
+            # Home directory
+            self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt, rm_bt=False)
+
+        # Get some favorites for MacOS
+        elif sys.platform == "darwin":
+
+            # Get mounted volumes
+            for d in os.listdir("/Volumes"):
+                self.removable_media.append(join("/Volumes", d))
+                self.add_bookmark_bt(join("/Volumes", d), dev_wgt, fc_wgt,
+                                     name=d, rm_bt=False)
+
+            # Home
+            self.add_bookmark_bt(self.home_path, dev_wgt, fc_wgt,
+                                 name=basename(self.home_path),
+                                 rm_bt=False)
+
+            # Desktop
+            self.add_bookmark_bt(join(self.home_path, "Desktop"), wgt,
+                                 fc_wgt, "Desktop")
+
+            # Documents
+            self.add_bookmark_bt(join(self.home_path, "Documents"), wgt,
+                                 fc_wgt, "Documents")
+
+            # Downloads
+            self.add_bookmark_bt(join(self.home_path, "Downloads"), wgt,
+                                 fc_wgt, "Downloads")
+
 
     def save_bookmark(self, path, wgt, fc_wgt, popup_level=1):
         """
@@ -2824,6 +2895,10 @@ class TriFusionApp(App):
         :param popup_level: int, specifies the level of the check_action popup
          that appears when attempting to remove a bookmark
         """
+
+        # Ignore if path does not exist / is not a directory
+        if not os.path.isdir(bk):
+            return
 
         bookmark_name = basename(bk)
         # Define bookmark button
@@ -3102,6 +3177,9 @@ class TriFusionApp(App):
         Method controlling the animation toggling of the side panel
         """
 
+        if self.lock_side_panel:
+            return
+
         # Closes partition box, if open
         self.remove_partition_box()
 
@@ -3117,6 +3195,12 @@ class TriFusionApp(App):
         # controller of the side panel state. When its True, the side panel
         #  is extended, otherwise the side panel is hidden
         self.show_side_panel = not self.show_side_panel
+
+        # Lock the sidepanel animation. It will only be released after the
+        # animations are over
+        self.lock_side_panel = True
+        Clock.schedule_once(lambda x: setattr(self, "lock_side_panel", False),
+                            .4)
 
         if self.show_side_panel:
 
@@ -4860,7 +4944,7 @@ class TriFusionApp(App):
         self.output_dir = ""
         self.output_file = ""
         self.conversion_suffix = ""
-        self.gene_table_selection = None
+        self.gene_table_selection = []
         self.gene_master_table = []
 
         # Clear Statistics screen scatter, if screen is active
@@ -5928,25 +6012,18 @@ class TriFusionApp(App):
         self.stats_table.ids.table_grid.remove_widget(
             self.stats_table.ids.table_grid.children[0])
 
-        for p, (k, v) in enumerate(sorted(table.items())):
+        # If the current table has a search operation performed, show more
+        # lines from that searched table. If not, show more from the original
+        # table
+        if any(self.gene_table_selection):
+            table = self.gene_table_selection
+        else:
+            table = self.gene_table
 
-            if p <= self.MAX_TABLE_N:
-                pass
-            elif self.MAX_TABLE_N + 25 >= p > self.MAX_TABLE_N:
-                x = TableLine()
-                x.ids.gn_name.text = "%s. %s" % (p, k)
+        start = self.MAX_TABLE_N
+        self.MAX_TABLE_N += 25
 
-                for t1, t2 in v.items():
-                    x.ids[t1].text = "%s" % int(t2)
-
-                self.stats_table.ids.table_grid.add_widget(x)
-
-            elif p > self.MAX_TABLE_N + 50:
-                bt = MoreTableBt()
-                self.stats_table.ids.table_grid.add_widget(bt)
-                break
-
-        self.MAX_TABLE_N += 50
+        self.search_add_gene_table_line(table, start)
 
     def statistics_show_summary(self, force=False, tp="stats"):
         """
@@ -6201,7 +6278,7 @@ class TriFusionApp(App):
                              shared_ns)
         Clock.schedule_interval(check_func, .1)
 
-    def search_add_gene_table_line(self, gene_table):
+    def search_add_gene_table_line(self, gene_table, start=0):
         """
         Wraps the creation of gene table lines into the table_grid widget.
         :param gene_table
@@ -6211,6 +6288,10 @@ class TriFusionApp(App):
         cols = ["nsites", "taxa", "var", "inf", "gap", "missing"]
 
         for p, row in enumerate(gene_table.itertuples()):
+
+            # Ignore entries before the provided starting point
+            if p <= start:
+                pass
 
             if p > self.MAX_TABLE_N:
                 bt = MoreTableBt()
@@ -6275,7 +6356,7 @@ class TriFusionApp(App):
             self.search_add_gene_table_line(self.gene_table)
 
             # Reset gene_table_selection
-            self.gene_table_selection = None
+            self.gene_table_selection = []
 
             # Reset search field hint text
             self.stats_table.ids.gn_txt.text = ""
@@ -9511,9 +9592,6 @@ class TriFusionApp(App):
                 self.populate_stats_footer(["NA", "NA"])
                 return self.dismiss_plot_wgt()
 
-            # Dismiss stats toggle widget, if present
-            self.dismiss_stats_toggle()
-
             # Set new plot attributes
             self.current_plot, self.current_lgd, self.current_table = \
                 self.stats_plt_method[plt_idx][0](**plot_data)
@@ -9536,11 +9614,11 @@ class TriFusionApp(App):
                     join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
                     bbox_inches="tight", dpi=200)
 
+        # Dismiss stats toggle widget, if present
+        self.dismiss_stats_toggle()
         if plt_idx in stats_compliant:
-
             # Show toggle widget
             self.show_stats_toggle(**stats_compliant[plt_idx])
-
         else:
             self.previous_stats_toggle = None
 
@@ -10598,7 +10676,6 @@ class TriFusionApp(App):
             wgt.ids.main_lbl.font_size = 18
             wgt.ids.main_lbl.color = self._blue
             wgt.ids.secondary_lbl.color = self._blue
-
 
         def check_process(p, dt):
             """
