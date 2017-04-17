@@ -139,6 +139,7 @@ ShowcaseScreen:
                 Button:
                     size_hint_x: None
                     width: 30
+                    border: 0,0,0,0
                     background_normal: "data/backgrounds/refresh2.png"
                     background_down: "data/backgrounds/refresh2_down.png"
                     on_release:
@@ -146,16 +147,18 @@ ShowcaseScreen:
                 Button:
                     size_hint_x: None
                     width: 30
+                    border: 0,0,0,0
                     background_normal: "data/backgrounds/prev_dir.png"
-                    background_down: "data/backgrounds/prev_dir.png"
+                    background_down: "data/backgrounds/prev_dir_down.png"
                     on_release:
                         if icon_view_tab.previous_dir:\
                         icon_view_tab.path = icon_view_tab.previous_dir[-1]; icon_view_tab.previous_dir.pop(-1)
                 Button:
                     size_hint_x: None
                     width: 30
+                    border: 0,0,0,0
                     background_normal: "data/backgrounds/up_dir_bt.png"
-                    background_down: "data/backgrounds/up_dir_bt.png"
+                    background_down: "data/backgrounds/up_dir_bt_down.png"
                     on_release:
                         icon_view_tab.path = os.path.abspath(os.path.join(icon_view_tab.path, os.path.pardir))
                 Button:

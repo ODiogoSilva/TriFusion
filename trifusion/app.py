@@ -3743,6 +3743,7 @@ class TriFusionApp(App):
         # Set Information button and add the widget
         inf_bt = Button(size_hint=(None, None), width=30,
                         height=30, id="%s?" % idx,
+                        border=(0, 0, 0, 0),
                         background_normal=join("data", "backgrounds",
                                                "info_bt_down.png"),
                         background_down=join("data", "backgrounds",

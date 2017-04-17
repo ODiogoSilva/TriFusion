@@ -217,6 +217,7 @@ ShowcaseScreen:
                                 halign: "center"
                                 valign: "middle"
                                 bold: True
+                                border: 0,0,0,0
                                 background_normal: "data/backgrounds/taxa_filter_bt.png"
                                 background_down: "data/backgrounds/taxa_filter_bt_down.png"
                                 on_release:
@@ -229,6 +230,7 @@ ShowcaseScreen:
                                 halign: "center"
                                 valign: "middle"
                                 bold: True
+                                border: 0,0,0,0
                                 background_normal: "data/backgrounds/refresh_bt.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt.png"
                                 background_down: "data/backgrounds/refresh_bt_down.png" if header_content.original_filt == [int(gn_spin.value), int(sp_spin.value)] else "data/backgrounds/refresh_update_bt_down.png"
                                 on_release:
