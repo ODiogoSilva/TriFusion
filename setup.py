@@ -43,7 +43,7 @@ mcl_file = mcl_data_files()
 
 setup(
     name="trifusion",
-    version="0.5.0-3",
+    version="0.5.0-4",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
@@ -59,6 +59,7 @@ setup(
     install_requires=[
         "seaborn",
         "configparser",
+        "pandas",
         "matplotlib",
         "numpy",
         "psutil",
