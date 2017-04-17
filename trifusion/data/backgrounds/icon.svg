@@ -15,7 +15,7 @@
    viewBox="0 0 744.09448819 1052.3622047"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.1 r"
    sodipodi:docname="icon.svg"
    inkscape:export-filename="/home/diogo/Diogo/Science/Scripts/packages/TriFusión/data/backgrounds/trifusion-icon-64.png"
    inkscape:export-xdpi="14.32408"
@@ -52,16 +52,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="52.388797"
-     inkscape:cy="691.72794"
+     inkscape:cx="-57.58507"
+     inkscape:cy="292.67674"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      showguides="false"
-     inkscape:window-width="1916"
+     inkscape:window-width="1912"
      inkscape:window-height="1041"
      inkscape:window-x="0"
-     inkscape:window-y="37"
+     inkscape:window-y="3"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -147,5 +147,66 @@
        inkscape:connector-curvature="0"
        inkscape:export-xdpi="28.670666"
        inkscape:export-ydpi="28.670666" />
+    <ellipse
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#999999;stroke-width:29.98820496;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path4510-3-3"
+       cx="263.83929"
+       cy="901.33875"
+       inkscape:export-xdpi="44.797745"
+       inkscape:export-ydpi="44.797745"
+       rx="185.90811"
+       ry="185.75018" />
+    <path
+       style="fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.99960685px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 152.68169,804.81892 h 214.11254 l -20.82996,28.33834 H 123.13222 l 20.58775,-28.4207 z"
+       id="path3338-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
+       inkscape:export-xdpi="44.797745"
+       inkscape:export-ydpi="44.797745" />
+    <path
+       style="fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.89006567px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 155.03249,983.02899 49.13634,-173.91992 24.62161,30.90285 -47.07843,174.22958 -28.81392,-23.93471 z"
+       id="path3338-3-6"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
+       inkscape:export-xdpi="44.797745"
+       inkscape:export-ydpi="44.797745" />
+    <path
+       style="fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.99960685px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 200.09663,1021.5738 243.8212,857.77019 h 178.28424 l -21.4782,37.34297 H 258.99692 l 11.35961,10.47679 77.74596,0.75801 -21.45,31.22993 -75.96202,-0.75802 h -9.81671 l 7.85774,10.16168 -25.79245,99.50855 z"
+       id="path4155-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccscccc"
+       inkscape:export-xdpi="44.797745"
+       inkscape:export-ydpi="44.797745" />
+    <path
+       style="opacity:1;fill:#37abc8;fill-opacity:0;fill-rule:nonzero;stroke:#999999;stroke-width:30.27997208;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path4510-3-1-9"
+       sodipodi:type="arc"
+       sodipodi:cx="263.83475"
+       sodipodi:cy="904.2301"
+       sodipodi:rx="186.39632"
+       sodipodi:ry="188.88617"
+       sodipodi:start="4.0334559"
+       sodipodi:end="5.4140113"
+       d="m 146.78475,757.23074 a 186.39632,188.88617 0 0 1 237.36093,2.72885"
+       sodipodi:open="true"
+       inkscape:export-xdpi="44.797745"
+       inkscape:export-ydpi="44.797745" />
+    <path
+       style="fill:#333333;fill-rule:evenodd;stroke:none;stroke-width:0.99960685px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 404.6039,757.84802 -20.2037,23.71918 10.10185,10.34559 20.2037,-22.70984 z"
+       id="path4699-1"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="44.797745"
+       inkscape:export-ydpi="44.797745" />
+    <path
+       style="fill:#333333;fill-rule:evenodd;stroke:none;stroke-width:0.99960685px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 114.54439,764.8925 22.48872,21.56878 10.93993,-9.45655 -21.48033,-21.50841 z"
+       id="path4699-7-2"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="44.797745"
+       inkscape:export-ydpi="44.797745" />
   </g>
 </svg>
