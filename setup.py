@@ -19,8 +19,11 @@ def mcl_data_files():
 
     data_file = None
 
-    if sys.platform in ["linux2"]:
+    if sys.platform == "linux2":
         data_file = ["trifusion/data/resources/mcl/linux/mcl"]
+
+    elif sys.platform == "darwin":
+        data_file = ["trifusion/data/resources/mcl/MacOS/mcl"]
 
     elif sys.platform in ["win32", "cygwin"]:
         if platform.architecture()[0] == "64bit":
@@ -43,7 +46,7 @@ mcl_file = mcl_data_files()
 
 setup(
     name="trifusion",
-    version="0.5.0-4",
+    version="0.5.0-5",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
