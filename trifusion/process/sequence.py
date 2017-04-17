@@ -3821,6 +3821,11 @@ class AlignmentList(Base):
         be removed
         """
 
+        # If filename_list corresponds to all files in the current alignment
+        # list, dispatch the clear_alignments methods
+        if set(self.path_list) - set(filename_list) == set([]):
+            self.clear_alignments()
+
         for nm in filename_list:
             if nm in self.alignments:
                 self.alignments[nm].remove_alignment()
@@ -3828,7 +3833,10 @@ class AlignmentList(Base):
             elif nm in self.shelve_alignments:
                 self.shelve_alignments[nm].remove_alignment()
                 del self.shelve_alignments[nm]
-            self.partitions.remove_partition(file_name=nm)
+            try:
+                self.partitions.remove_partition(file_name=nm)
+            except PartitionException:
+                pass
 
         # Updates taxa names
         self.taxa_names = self._get_taxa_list()
