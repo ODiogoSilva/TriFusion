@@ -3150,8 +3150,8 @@
                         id: text_filter
                         multiline: False
                         on_text:
-                            if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
-                            if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path + "*"+self.text+"*"; sd_filechooser.filter_dirs = True
+                            if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
+                            if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path + "*"+self.text+"*"; sd_filechooser.filter_dirs = True
                             if self.text == "": sd_filechooser.filter_dirs = False
 
                         on_text_validate:
@@ -3899,8 +3899,8 @@
                             id: text_filter
                             multiline: False
                             on_text:
-                                if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
-                                if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path + "*"+self.text+"*"; sd_filechooser.filter_dirs = True
+                                if case_bt.state == "normal": sd_filechooser.f = sd_filechooser.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"; sd_filechooser.filter_dirs = True
+                                if case_bt.state == "down": sd_filechooser.f = sd_filechooser.path + "*"+self.text+"*"; sd_filechooser.filter_dirs = True
                                 if self.text == "": sd_filechooser.filter_dirs = False
                             on_text_validate:
                                 focus = True

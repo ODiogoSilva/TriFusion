@@ -238,8 +238,8 @@ ShowcaseScreen:
                     multiline: False
                     on_text:
                         ext = "" if ext_filter.text == "All" else ext_filter.text;
-                        if case_bt.state == "down": root.ids.icon_view_tab.f = root.ids.icon_view_tab.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"+ext; root.ids.icon_view_tab.filter_dirs = True
-                        if case_bt.state == "normal": root.ids.icon_view_tab.f = root.ids.icon_view_tab.path + "*"+self.text+"*"+ext; root.ids.icon_view_tab.filter_dirs = True
+                        if case_bt.state == "normal": root.ids.icon_view_tab.f = root.ids.icon_view_tab.path + "*"+"".join(["["+x.upper()+x.lower()+"]" for x in self.text])+"*"+ext; root.ids.icon_view_tab.filter_dirs = True
+                        if case_bt.state == "down": root.ids.icon_view_tab.f = root.ids.icon_view_tab.path + "*"+self.text+"*"+ext; root.ids.icon_view_tab.filter_dirs = True
                         if self.text == "": root.ids.icon_view_tab.filter_dirs = False
 
                     on_text_validate:
