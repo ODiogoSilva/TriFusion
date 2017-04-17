@@ -46,13 +46,14 @@ mcl_file = mcl_data_files()
 
 setup(
     name="trifusion",
-    version="0.5.0-6",
+    version="0.5.0-7",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
               "trifusion.data.backgrounds",
               "trifusion.data.resources",
               "trifusion.data.screens",
+              "trifusion.data.theme",
               "trifusion.ortho",
               "trifusion.process"],
     package_data={"trifusion": ["*.kv"],
