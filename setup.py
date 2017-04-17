@@ -8,7 +8,7 @@ except ImportError:
 import sys
 import platform
 
-with open('README.md') as f:
+with open('README.rst') as f:
     readme = f.read()
 
 
@@ -42,8 +42,8 @@ def mcl_data_files():
 mcl_file = mcl_data_files()
 
 setup(
-    name="TriFusion",
-    version="0.5.0-1",
+    name="trifusion",
+    version="0.5.0-2",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
@@ -77,9 +77,10 @@ setup(
                  "License :: OSI Approved :: GNU General Public License v3 ("
                  "GPLv3)",
                  "Natural Language :: English",
-                 "Operating System:: POSIX:: Linux",
+                 "Operating System :: POSIX :: Linux",
+                 "Operating System :: MacOS :: MacOS X",
                  "Operating System :: Microsoft :: Windows",
-                 "Programming Language:: Python:: 2:: Only",
+                 "Programming Language :: Python :: 2 :: Only",
                  "Topic :: Scientific/Engineering :: Bio-Informatics"],
     scripts=mcl_file,
     entry_points={
