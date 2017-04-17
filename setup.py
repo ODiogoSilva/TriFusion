@@ -43,7 +43,7 @@ mcl_file = mcl_data_files()
 
 setup(
     name="trifusion",
-    version="0.5.0-2",
+    version="0.5.0-3",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
@@ -80,7 +80,8 @@ setup(
                  "Operating System :: POSIX :: Linux",
                  "Operating System :: MacOS :: MacOS X",
                  "Operating System :: Microsoft :: Windows",
-                 "Programming Language :: Python :: 2 :: Only",
+                 "Programming Language :: Python",
+                 "Programming Language :: Python :: 2.7",
                  "Topic :: Scientific/Engineering :: Bio-Informatics"],
     scripts=mcl_file,
     entry_points={
