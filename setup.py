@@ -46,7 +46,7 @@ mcl_file = mcl_data_files()
 
 setup(
     name="trifusion",
-    version="0.5.0-5",
+    version="0.5.0-6",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
@@ -67,7 +67,7 @@ setup(
         "numpy",
         "psutil",
         "scipy",
-        "progressbar2"
+        "progressbar"
     ],
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),
