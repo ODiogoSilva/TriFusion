@@ -1372,6 +1372,23 @@ class TriFusionApp(App):
                     else:
                         Animation(height=30, d=.3, t="out_quart").start(
                             self._popup.content.ids.find_bx)
+                        self._popup.content.ids.text_filter.focus = True
+
+        if self._subpopup in self.root_window.children:
+            if "find_bx" in self._subpopup.content.ids:
+                if modifier == mod_key and key_code == 102:
+                    if self._subpopup.content.ids.find_bx.height == 30:
+                        Animation(height=0, d=.3,
+                                  t="out_quart").start(
+                            self._subpopup.content.ids.find_bx)
+                        self._subpopup.content.ids.sd_filechooser.f = "*"
+                        self._subpopup.content.ids.text_filter.text = ""
+                        self._subpopup.content.ids.text_filter.focus = False
+                    else:
+                        Animation(height=30, d=.3,
+                                  t="out_quart").start(
+                            self._subpopup.content.ids.find_bx)
+                        self._subpopup.content.ids.text_filter.focus = True
 
         # Toggle path editor
         if self._popup in self.root_window.children:
