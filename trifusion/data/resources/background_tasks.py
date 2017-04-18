@@ -357,13 +357,28 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         con = aln.con
 
         if not use_app_partitions:
-            partition_obj = data.Partitions()
-            # In case the partitions file is badly formatted or invalid, the
-            # exception will be returned by the read_from_file method.
-            _ = partition_obj.read_from_file(partitions_file)
+            # Retrieve the alignment object that will be reverted. This
+            # is done first in order to retrieve the length of the locus,
+            # which is provided to the Partitions object for checking and
+            # conversion of "." notation
             aln = aln.retrieve_alignment(rev_infile)
 
+            # Instanciate Partitions object and set its length attribute
+            partition_obj = data.Partitions()
+            partition_obj.set_length(aln.locus_length)
+
+            # In case the partitions file is badly formatted or invalid, the
+            # exception will be returned by the read_from_file method.
+            e = partition_obj.read_from_file(partitions_file)
+            if e:
+                ns.exception = {"InvalidPartitionFile": e.value}
+                raise data.InvalidPartitionFile("")
+
+            # If there are no issues with the partitions file, set the new
+            # partitions
             aln.set_partitions(partition_obj)
+
+            print(aln.partitions.partitions)
 
         if aln.__class__.__name__ == "AlignmentList":
             aln = aln.reverse_concatenate(ns=ns)
@@ -814,7 +829,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         logging.exception("Unexpected exit in Process execution")
         # Resets the taxa_names attribute of the aln_obj to include all taxa
         # aln_object.update_taxa_names(all_taxa=True)
-        ns.exception = "Unknown"
+        if not hasattr(ns, "exception"):
+            ns.exception = "Unknown"
 
 
 def load_group_files(group_files, temp_dir, ns=None):
