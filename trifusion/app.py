@@ -4105,6 +4105,8 @@ class TriFusionApp(App):
 
         # Clear partitions
         self.root.ids.partition_sl.clear_widgets()
+        #C Clear partition button storage
+        self.sp_partition_bts = []
         # Re-populate partitions
         self.populate_partitions()
         # Update partitions label
@@ -4955,6 +4957,7 @@ class TriFusionApp(App):
         self.previous_sets = {"Files": [], "Taxa": [], "Stats": []}
         self.sp_taxa_bts = []
         self.sp_file_bts = []
+        self.sp_partition_bts = []
         self.previous_mouse_over = ""
         self.current_plt_idx = []
         self.current_plot = None
@@ -8649,8 +8652,8 @@ class TriFusionApp(App):
                 not self.use_app_partitions and \
                 self.main_operations["reverse_concatenation"]:
             return self.dialog_floatcheck("Please provide a partition "
-                "file and file to reverse concatenate OR use defined "
-                "partitions defined in side panel.", t="error")
+                    "file and file to reverse concatenate OR use defined "
+                    "partitions defined in side panel.", t="error")
 
         if not self.use_app_partitions:
 
