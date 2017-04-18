@@ -8646,7 +8646,7 @@ class TriFusionApp(App):
         """
 
         if not self.partitions_file and not self.rev_infile and \
-                not use_parts and \
+                not self.use_app_partitions and \
                 self.main_operations["reverse_concatenation"]:
             return self.dialog_floatcheck("Please provide a partition "
                 "file and file to reverse concatenate OR use defined "

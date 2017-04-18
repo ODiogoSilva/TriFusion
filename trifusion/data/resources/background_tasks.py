@@ -378,8 +378,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # partitions
             aln.set_partitions(partition_obj)
 
-            print(aln.partitions.partitions)
-
         if aln.__class__.__name__ == "AlignmentList":
             aln = aln.reverse_concatenate(ns=ns)
         else:

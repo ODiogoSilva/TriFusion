@@ -997,8 +997,6 @@ class Zorro(object):
         self.weigth_values = []
         self.suffix = suffix
 
-        print([x.path for x in alignment_list.alignments.values()])
-
         for file_path in [x.path for x in alignment_list.alignments.values()]:
             # If zorro_dir is provided, use the specified path
             if zorro_dir:
