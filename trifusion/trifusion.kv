@@ -1135,6 +1135,8 @@
                 border: 0,0,0,0
                 background_normal: "data/backgrounds/export_group.png"
                 background_down: "data/backgrounds/export_group_down.png"
+                background_disabled_normal: "data/backgrounds/export_group_disabled.png"
+                disabled: True if app.screen.name == "group_compare" else False
                 on_release:
                     app.dialog_export_groups()
             Button:
