@@ -3632,6 +3632,8 @@ class AlignmentList(Base):
 
         # If the resulting alignment is empty, raise an Exception
         if self.alignments == {}:
+            if ns:
+                ns.exception = "EmptyAlignment"
             raise EmptyAlignment("Alignment is empty after taxa filter")
 
         self._reset_pipes(ns)
