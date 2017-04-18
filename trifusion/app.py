@@ -5628,11 +5628,8 @@ class TriFusionApp(App):
         :param ds_type: string, dataset type, whether 'taxa' or 'files'
         """
 
-        bt = TGToggleButton(text=name, size_hint_y=None, height=30,
-            state="normal",
-            background_disabled_down=join("data", "backgrounds",
-                                          "bt_process.png"),
-            disabled_color=(1, 1, 1, 1))
+        bt = ShortenToggleButton(text=name, size_hint_y=None, height=30,
+            state="normal", disabled_color=(1, 1, 1, 1))
 
         bt.bind(on_release=self.toggle_groups)
         bt.bind(on_release=lambda x: self.taxagroups_display_group(name,
@@ -5783,10 +5780,8 @@ class TriFusionApp(App):
         # App changes by adding two buttons for the taxa group
         # Taxa button itself
         if name not in [x .text for x in grid_layout.children]:
-            bt = Button(text=name, size_hint=(.8, None), height=30, id=name,
-                        background_normal="data/backgrounds/bt_process.png",
-                        background_down="data/backgrounds/bt_process_off.png",
-                        bold=True)
+            bt = ShortenButton(text=name, size_hint_y=None,
+                                     height=30, id=name)
             bt.bind(on_release=self.taxagroups_show_taxa)
             # Removal button
             x_bt = Button(size_hint=(None, None), width=30,
@@ -5801,9 +5796,6 @@ class TriFusionApp(App):
             # Add buttons to gridlayout
             for i in [bt, x_bt]:
                 grid_layout.add_widget(i)
-
-            # Update gridlayout height
-            grid_layout.height += 40
 
     def projects_init(self):
         """

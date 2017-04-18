@@ -761,6 +761,18 @@ class TGToggleButton(ToggleButton):
         super(TGToggleButton, self).__init__(**kwargs)
 
 
+class ShortenToggleButton(ToggleButton):
+
+    def __init__(self, **kwargs):
+        super(ShortenToggleButton, self).__init__(**kwargs)
+
+
+class ShortenButton(ToggleButton):
+
+    def __init__(self, **kwargs):
+        super(ShortenButton, self).__init__(**kwargs)
+
+
 class ExportGraphics(BoxLayout):
     cancel = ObjectProperty(None)
 
