@@ -8611,23 +8611,31 @@ class TriFusionApp(App):
         and whether the partitions are correctly defined
         """
 
+        aln_obj = self.alignment_list.retrieve_alignment(self.rev_infile)
+
         part_obj = Partitions()
+        part_obj.set_length(aln_obj.locus_length)
+
         er = part_obj.read_from_file(self.partitions_file)
 
-        aln_obj = self.alignment_list.retrieve_alignment(self.rev_infile)
-        aln_er = aln_obj.set_partitions(part_obj)
+        if not er:
+            return
+
+        elif isinstance(er, Exception):
+            self.dialog_warning("Invalid partitions file", er.value)
+            return er
 
         # Check for the validity of the partitions file
-        if isinstance(er, InvalidPartitionFile):
-            return self.dialog_floatcheck(
-                "The provided partitions file is invalid. Please check "
-                "the file or replace with an appropriate one.", t="error")
-
-        # Check for the validity of the partitions file
-        if isinstance(aln_er, InvalidPartitionFile):
-            return self.dialog_floatcheck(str(aln_er), t="error")
-        else:
-            return True
+        # if isinstance(er, InvalidPartitionFile):
+        #     return self.dialog_floatcheck(
+        #         "The provided partitions file is invalid. Please check "
+        #         "the file or replace with an appropriate one.", t="error")
+        #
+        # # Check for the validity of the partitions file
+        # if isinstance(aln_er, InvalidPartitionFile):
+        #     return self.dialog_floatcheck(str(aln_er), t="error")
+        # else:
+        #     return True
 
     def save_reverseconc_settings(self, use_parts=False):
         """
@@ -8644,7 +8652,7 @@ class TriFusionApp(App):
                 "file and file to reverse concatenate OR use defined "
                 "partitions defined in side panel.", t="error")
 
-        if not use_parts:
+        if not self.use_app_partitions:
 
             if not self.partitions_file:
                 # Check if partition file was selected. If not, return
@@ -8662,7 +8670,8 @@ class TriFusionApp(App):
             # Check for the validity of the partitions file
             er = self.check_partitions_file()
 
-            if not er:
+            # Prevent further action is the partitions file is invalid
+            if er:
                 return
 
         if self.main_operations["reverse_concatenation"]:
@@ -11151,16 +11160,18 @@ class TriFusionApp(App):
                 # If process execution ended with an error, issue warning.
                 try:
                     if shared_ns.exception == "EmptyAlignment":
-                        man.shutdown()
                         return self.dialog_floatcheck(
                             "The alignment is empty after applying "
                             "filters", t="error")
+                    elif "InvalidPartitionFile" in shared_ns.exception:
+                        return self.dialog_warning("Invalid Partition file",
+                            shared_ns.exception["InvalidPartitionFile"])
                     elif shared_ns.exception == "Unknown":
-                        man.shutdown()
                         return self.dialog_floatcheck(
                             "Unexpected error when generating "
                             "Process output. Check the app logs.",
                             t="error")
+                    man.shutdown()
                 except:
                     if shared_ns.proc_files == 1:
                         self.dialog_floatcheck(

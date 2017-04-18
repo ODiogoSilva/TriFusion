@@ -25,11 +25,19 @@ from collections import OrderedDict
 
 
 class PartitionException(Exception):
-    pass
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 
 class InvalidPartitionFile(Exception):
-    pass
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 
 class Partitions(object):
@@ -273,9 +281,16 @@ class Partitions(object):
 
         part_file = open(partitions_file)
 
+        # In order to support unosrted partition ranges, the complete
+        # partition set will be stored temporary in memory. Even very large
+        # partition files should result in relatively small data structures.
+        # Once this variable is populated, it will be sorted according to the
+        # first element of the range.
+        temp_ranges = []
+
         # TODO: Add suport for codon partitions in raxml format
         if self.partition_format == "raxml":
-            for line in part_file:
+            for p, line in enumerate(part_file):
 
                 # Ignore empty lines
                 if line.strip() == "":
@@ -292,8 +307,30 @@ class Partitions(object):
                     partition_name = fields[1].split("=")[0].strip()
                     # Get partition range as list of int
                     partition_range_temp = fields[1].split("=")[1]
-                    partition_range = [int(x) - 1 for x in
-                                       partition_range_temp.strip().split("-")]
+                    try:
+                        partition_range = [
+                            int(x) - 1 for x in
+                            partition_range_temp.strip().split("-")]
+
+                    except ValueError as e:
+                        # A ValueError may be raise when there is a "."
+                        # notation in the partition range. If so, convert
+                        # the "." to the sequence lenght. If no sequence lenght
+                        # has been provided raise another exception
+                        pr = partition_range_temp.strip().split("-")
+                        if pr[1] == ".":
+                            if self.partition_length:
+                                partition_range = [int(pr[0]) - 1,
+                                                   self.partition_length - 1]
+                            else:
+                                raise PartitionException(
+                                    "The length of the locus must be "
+                                    "provided when partitions are "
+                                    "defined using '.' notation to "
+                                    "mean full length")
+                        else:
+                            raise e
+
                     # Check which alignment file contains the current partition
                     if self.alignments_range:
                         try:
@@ -306,21 +343,40 @@ class Partitions(object):
                     else:
                         file_name = None
 
-                    # Add information to partitions storage
-                    self.add_partition(partition_name,
-                                       locus_range=partition_range,
-                                       file_name=file_name)
-                except IndexError:
-                    return InvalidPartitionFile("Badly formatted partitions "
-                                                "file")
+                    temp_ranges.append([partition_name, file_name,
+                                        partition_range])
+
+                except (IndexError, ValueError):
+                    return InvalidPartitionFile(
+                        "Badly formatted partitions file in line {} "
+                        "with:\n\n{}".format(p + 1, line))
 
         elif self.partition_format == "nexus":
             for line in part_file:
                 # Ignore empty lines
                 if line.strip() != "":
-                    self.read_from_nexus_string(line)
+                    try:
+                        res = self.read_from_nexus_string(line,
+                                                          return_res=True)
+                    except PartitionException as e:
+                        return e
+                    if res:
+                        temp_ranges.append(res)
 
-    def read_from_nexus_string(self, nx_string, file_name=None):
+        # Sort partition ranges according to the first element of the range
+        temp_ranges.sort(key=lambda part: part[2][0])
+
+        for name, file_name, part_range in temp_ranges:
+            # Add information to partitions storage
+            try:
+                self.add_partition(name,
+                                   locus_range=part_range,
+                                   file_name=file_name)
+            except InvalidPartitionFile as e:
+                return e
+
+    def read_from_nexus_string(self, nx_string, file_name=None,
+                               return_res=False):
         """
         Parses the partition defined in a charset command
         :param nx_string: string with the charset command.
@@ -359,12 +415,18 @@ class Partitions(object):
                 except IndexError:
                     pass
 
-            self.add_partition(partition_name, locus_range=partition_range,
-                               file_name=file_name)
+            if return_res:
+                return [partition_name, file_name, partition_range]
+            else:
+                self.add_partition(partition_name, locus_range=partition_range,
+                                   file_name=file_name)
         # If, for some reason, the current line cannot be interpreted as a
         # charset line, ignore it.
         except IndexError:
-            pass
+            if return_res:
+                return None
+            else:
+                pass
 
     def get_partition_names(self):
         """
@@ -510,6 +572,8 @@ class Partitions(object):
         # When a list/tuple range is provided
         elif locus_range:
 
+            print(locus_range[1], self.counter, locus_range[1] <= self.counter, codon)
+
             if use_counter:
                 locus_range = (self.counter,
                                self.counter + locus_range[1] - locus_range[0])
@@ -554,6 +618,14 @@ class Partitions(object):
                     self.partitions_index.append([parent_partition, 2])
 
                     self.partitions[parent_partition][1].append(locus_range[0])
+
+            # If the start of the current partition is already within the range
+            # of a previous partitions, raise an exception
+            elif locus_range[0] < self.counter:
+                raise InvalidPartitionFile(
+                    "Badly formatted partition with range [{}-{}] starts "
+                    "inside the range of a previous partitions ({})".format(
+                        locus_range[0], locus_range[1], self.counter))
 
             # Else, create the new partition. If codon is provided, the codon
             # information is automatically added
