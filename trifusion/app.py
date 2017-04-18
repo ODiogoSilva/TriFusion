@@ -5521,9 +5521,10 @@ class TriFusionApp(App):
         # Create root boxlayout
         content = BoxLayout(orientation="vertical", padding=10, spacing=10)
         # Create scroll view in which the gridlayout will be inserted
-        sv = ScrollView()
+        sv = ScrollView(bar_width=10, scroll_type=["bars"])
         # Create close button for the popup
         close_bt = Button(text="Close", size_hint_y=None, height=30,
+            bold=True,
             background_normal="data/backgrounds/bt_process.png",
             bakcground_down="data/backgrounds/bt_process_off.png")
         # Add functionality to the close button
