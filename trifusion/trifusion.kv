@@ -4986,6 +4986,7 @@
                         text: "Use defined partitions"
                         size_hint_y: None
                         height: 70
+                        state: "normal"
                         disabled: False if rev_conc.active else True
                         on_release:
                             app.use_app_partitions = True if self.state == "down" else False
@@ -5003,7 +5004,7 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "OK"
             on_release:
-                app.save_reverseconc_settings(True if use_parts.state == "down" else False)
+                app.save_reverseconc_settings()
 
         TFOKButon:
             id: cancel_bt

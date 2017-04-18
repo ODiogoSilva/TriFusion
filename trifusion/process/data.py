@@ -572,8 +572,6 @@ class Partitions(object):
         # When a list/tuple range is provided
         elif locus_range:
 
-            print(locus_range[1], self.counter, locus_range[1] <= self.counter, codon)
-
             if use_counter:
                 locus_range = (self.counter,
                                self.counter + locus_range[1] - locus_range[0])
@@ -597,6 +595,12 @@ class Partitions(object):
 
                 # Find the parent partition
                 parent_partition = self._find_parent(locus_range[1])
+
+                if not parent_partition:
+                    raise InvalidPartitionFile(
+                        "Could not find parent partition of {}. Check the"
+                        " ranges of your partitions to ensure no range "
+                        "overlaps".format(name))
 
                 # If no codon partition is present in the parent partition,
                 # create one
