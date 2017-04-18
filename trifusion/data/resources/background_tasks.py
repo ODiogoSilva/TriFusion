@@ -433,6 +433,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
         if not aln.alignments:
+            ns.exception = "EmptyAlignment"
             raise EmptyAlignment("Active alignment is empty")
 
         return aln
