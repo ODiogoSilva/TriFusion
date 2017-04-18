@@ -11097,7 +11097,10 @@ class TriFusionApp(App):
 
                         # Set secondary label, if any
                         if shared_ns.msg:
-                            cwgt.ids.secondary_lbl.text = shared_ns.msg
+                            try:
+                                cwgt.ids.secondary_lbl.text = shared_ns.msg
+                            except ValueError:
+                                pass
 
             except AttributeError:
                 pass
