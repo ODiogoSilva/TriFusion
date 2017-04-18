@@ -246,7 +246,7 @@
     valign: "middle"
     text_size: self.size
     shorten: True
-    shorten_from: "left"
+    shorten_from: "right"
     background_normal: "data/backgrounds/bt_process.png"
     background_down: "data/backgrounds/bt_process_off.png"
     opacity: .3 if self.disabled else 1
@@ -290,6 +290,26 @@
                 close: True
                 width: .9
                 rectangle: root.x+2,root.y+2,root.width-4,root.height-4
+
+<ShortenButton>:
+    background_normal: "data/backgrounds/bt_process.png"
+    background_down: "data/backgrounds/bt_process_off.png"
+    bold: True
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+    shorten: True
+    shorten_from: "right"
+
+<ShortenToggleButton>:
+    background_normal: "data/backgrounds/bt_process.png"
+    background_down: "data/backgrounds/bt_process_off.png"
+    bold: True
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+    shorten: True
+    shorten_from: "right"
 
 <TGOKToggleButton@ToggleButton>:
     bold: True
@@ -3505,18 +3525,23 @@
                         font_size: 14
                 Hseparator
 
-                GridLayout:
-                    id: group_list
-                    ds: root.ds_type
-                    cols: 2
-                    padding: 5
-                    spacing: [5, 5]
-                    Button:
-                        disabled: True
-                        text: "No groups created"
-                        bold: True
+                ScrollView:
+                    bar_width: 10
+                    scroll_type: ["bars"]
+                    GridLayout:
+                        id: group_list
+                        ds: root.ds_type
+                        cols: 2
+                        padding: [5, 5, 12, 5]
+                        spacing: [5, 5]
+                        height: self.minimum_height
                         size_hint_y: None
-                        height: 35
+                        Button:
+                            disabled: True
+                            text: "No groups created"
+                            bold: True
+                            size_hint_y: None
+                            height: 35
 
             Vseparator
 
@@ -8144,12 +8169,14 @@ FloatLayout:
                                             spacing: 20
                                             ScrollView:
                                                 size_hint_y: .8
+                                                bar_width: 10
+                                                scroll_type: ["bars"]
                                                 GridLayout:
                                                     id: file_group_grid
                                                     ds: "files"
                                                     size_hint_y: None
-                                                    height: 0
-                                                    padding: 5
+                                                    height: self.minimum_height
+                                                    padding: [5, 5, 12, 5]
                                                     spacing: 5
                                                     cols: 2
 
@@ -8176,12 +8203,14 @@ FloatLayout:
                                             spacing: 20
                                             ScrollView:
                                                 size_hint_y: .8
+                                                bar_width: 10
+                                                scroll_type: ["bars"]
                                                 GridLayout:
                                                     id: taxa_group_grid
                                                     ds: "taxa"
                                                     size_hint_y: None
-                                                    height: 0
-                                                    padding: 5
+                                                    height: self.minimum_height
+                                                    padding: [5, 5, 12, 5]
                                                     spacing: 5
                                                     cols: 2
 
@@ -8243,16 +8272,22 @@ FloatLayout:
                                 Hseparator:
                                     c: tm.c_side_panel_headers
 
-                                GridLayout:
-                                    cols: 3
-                                    spacing: 5, 5
-                                    id: project_grid
-                                    Button:
-                                        text: "No Saved Projects"
-                                        bold: True
-                                        disabled: True
+                                ScrollView:
+                                    bar_width: 10
+                                    scroll_type: ["bars"]
+                                    GridLayout:
+                                        cols: 3
+                                        padding: [5, 5, 12, 5]
+                                        spacing: 5, 5
+                                        id: project_grid
                                         size_hint_y: None
-                                        height: 35
+                                        height: self.minimum_height
+                                        Button:
+                                            text: "No Saved Projects"
+                                            bold: True
+                                            disabled: True
+                                            size_hint_y: None
+                                            height: 35
 
                                 Button:
                                     size_hint_y: None
