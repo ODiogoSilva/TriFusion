@@ -67,6 +67,9 @@ class SetProps(object):
 
     def __call__(self, *args, **kwargs):
 
+        plt.clf()
+        plt.close()
+
         res = self.func(*args, **kwargs)
 
         # Set axis names
