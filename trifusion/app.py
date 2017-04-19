@@ -7272,7 +7272,7 @@ class TriFusionApp(App):
                                          True))
 
         self.show_popup(title="Exporting...", content=content,
-                        size=(400, 250))
+                        size=(400, 250), auto_dissmiss=False)
 
         # Schedule function that checks the process' pulse
         func = partial(check_process, p)
