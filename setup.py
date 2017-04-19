@@ -77,7 +77,7 @@ setup(
     author="Diogo N Silva",
     author_email="odiogosilva@gmail.com",
     license="GPL3",
-    classifiers=["Development Status :: 3 - Alpha",
+    classifiers=["Development Status :: 4 - Beta",
                  "Intended Audience :: Science/Research",
                  "License :: OSI Approved :: GNU General Public License v3 ("
                  "GPLv3)",

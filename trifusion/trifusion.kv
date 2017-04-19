@@ -696,16 +696,33 @@
             valign: "middle"
             text_size: self.size
             text: "[b]Testing team:[/b] Diogo N. Silva, Tiago F. Jesus"
-    Label:
+    BoxLayout:
         size_hint_y: None
         height: 20
-        text: "[ref=https://github.com/ODiogoSilva/TriFusion]Website[/ref]"
-        markup: True
-        bold: True
-        color: (55./255., 171./255., 200./255., 1)
-        on_ref_press:
-            import webbrowser
-            webbrowser.open(args[1])
+        Label:
+            text: "[ref=http://odiogosilva.github.io/TriFusion/]Website[/ref]"
+            markup: True
+            bold: True
+            color: (55./255., 171./255., 200./255., 1)
+            on_ref_press:
+                import webbrowser
+                webbrowser.open(args[1])
+        Label:
+            text: "[ref=https://github.com/ODiogoSilva/TriFusion]GitHub page[/ref]"
+            markup: True
+            bold: True
+            color: (55./255., 171./255., 200./255., 1)
+            on_ref_press:
+                import webbrowser
+                webbrowser.open(args[1])
+        Label:
+            text: "[ref=https://github.com/ODiogoSilva/TriFusion/issues/]New features/Bugs[/ref]"
+            markup: True
+            bold: True
+            color: (55./255., 171./255., 200./255., 1)
+            on_ref_press:
+                import webbrowser
+                webbrowser.open(args[1])
 
 <FancyDropDown>:
     orientation: "vertical"
