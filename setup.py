@@ -20,24 +20,24 @@ def mcl_data_files():
     data_file = None
 
     if sys.platform == "linux2":
-        data_file = ["trifusion/data/resources/mcl/linux/mcl"]
+        data_file = ["data/resources/mcl/linux/mcl"]
 
     elif sys.platform == "darwin":
-        data_file = ["trifusion/data/resources/mcl/MacOS/mcl"]
+        data_file = ["data/resources/mcl/MacOS/mcl"]
 
     elif sys.platform in ["win32", "cygwin"]:
         if platform.architecture()[0] == "64bit":
-            data_file = ["trifusion/data/resources/mcl/windows/64bit/"
+            data_file = ["data/resources/mcl/windows/64bit/"
                          "mcl64.exe",
-                         "trifusion/data/resources/mcl/windows/64bit/"
+                         "data/resources/mcl/windows/64bit/"
                          "cygwin1.dll",
-                         "trifusion/data/resources/usearch/64bit/vcomp100.dll"]
+                         "data/resources/usearch/64bit/vcomp100.dll"]
         else:
-            data_file = ["trifusion/data/resources/mcl/windows/32bit/"
+            data_file = ["data/resources/mcl/windows/32bit/"
                          "mcl32.exe",
-                         "trifusion/data/resources/mcl/windows/32bit/"
+                         "data/resources/mcl/windows/32bit/"
                          "cygwin1.dll",
-                         "trifusion/data/resources/usearch/32bit/vcomp100.dll"]
+                         "data/resources/usearch/32bit/vcomp100.dll"]
 
     return data_file
 
@@ -46,7 +46,7 @@ mcl_file = mcl_data_files()
 
 setup(
     name="trifusion",
-    version="0.5.0-7",
+    version="0.5.0-8",
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
