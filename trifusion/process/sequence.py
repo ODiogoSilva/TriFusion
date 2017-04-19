@@ -4764,9 +4764,17 @@ class AlignmentList(Base):
         seq1 = np.array(list(seq1))
         seq2 = np.array(list(seq2))
 
-        sim = np.sum(seq1 == seq2)
+        ef_len_ = (seq1 != self.sequence_code[1]) & \
+            (seq1 != self.gap_symbol) & \
+            (seq2 != self.sequence_code[1]) & \
+            (seq2 != self.gap_symbol)
 
-        return sim, aln_len
+        sim_ = (seq1 == seq2) & ef_len_
+
+        sim = np.count_nonzero(sim_)
+        ef_len = np.count_nonzero(ef_len_)
+
+        return float(sim), float(ef_len)
 
         # similarity = 0.0
         # effective_len = 0.0
