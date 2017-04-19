@@ -53,7 +53,7 @@ setup(
         "numpy",
         "psutil",
         "scipy",
-        "progressbar"
+        "progressbar2"
     ],
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),
