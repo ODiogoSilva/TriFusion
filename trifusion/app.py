@@ -135,14 +135,14 @@ except ImportError:
     from trifusion.ortho.OrthomclToolbox import MultiGroupsLight
 
 __version__ = "0.5.0"
-__build__ = "020117"
+__build__ = "190417"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"
 __credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
-__license__ = "GPL"
+__license__ = "GPL3"
 __maintainer__ = "Diogo N. Silva"
 __email__ = "o.diogosilva@gmail.com"
-__status__ = "Development"
+__status__ = "4 - Beta"
 
 ###################################
 # Modifications to kivy source code
