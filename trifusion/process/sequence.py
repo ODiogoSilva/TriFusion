@@ -4191,33 +4191,31 @@ class AlignmentList(Base):
                     if ns.stop:
                         raise KillByUser("")
 
-                scol = list(set(col))
+                col = Counter(col)
 
                 # Get missing data and gaps
-                if self.sequence_code[1] in scol:
+                if self.sequence_code[1] in col:
                     self.summary_stats["missing"] += 1
                     cur_missing += 1
-                if self.gap_symbol in scol:
+                if self.gap_symbol in col:
                     self.summary_stats["gaps"] += 1
                     cur_gap += 1
 
                 # Get variability information
                 # Filter missing data
-                col = Counter([i for i in col if i not in
-                               [self.sequence_code[1], self.gap_symbol]])
+                for i in [self.sequence_code[1], self.gap_symbol]:
+                    del col[i]
 
+                # If it's only missing data, ignore
                 if col:
                     # Get variable sites
                     if len(col) > 1:
                         self.summary_stats["variable"] += 1
                         cur_var += 1
 
-                    # Delete most common
-                    del col[col.most_common()[0][0]]
-
                     # If any of the remaining sites is present in more than two
                     # taxa score the site as informative
-                    if any([x >= 2 for x in col.values()]):
+                    if len([x for x in col.values() if x >= 2]) >= 2:
                         self.summary_stats["informative"] += 1
                         cur_inf += 1
 
