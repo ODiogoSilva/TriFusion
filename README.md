@@ -11,8 +11,9 @@ Website: http://odiogosilva.github.io/TriFusion/
 [![Build Status](https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master)](https://travis-ci.org/ODiogoSilva/TriFusion)
 [![Code Health](https://landscape.io/github/ODiogoSilva/TriFusion/master/landscape.svg?style=flat)](https://landscape.io/github/ODiogoSilva/TriFusion/master)
 [![codecov](https://codecov.io/gh/ODiogoSilva/TriFusion/branch/master/graph/badge.svg)](https://codecov.io/gh/ODiogoSilva/TriFusion)
-[![PyPI](https://img.shields.io/pypi/pyversions/trifusion.svg)]()
-[![PyPI](https://img.shields.io/pypi/v/trifusion.svg)]()
+[![PyPI](https://img.shields.io/pypi/pyversions/trifusion.svg)](https://pypi.python.org/pypi/trifusion)
+[![PyPI](https://img.shields.io/pypi/v/trifusion.svg)](https://pypi.python.org/pypi/trifusion)
+[![AUR](https://img.shields.io/aur/version/trifusion.svg)](https://aur.archlinux.org/packages/trifusion/)
 
 
 ###### Streamlining phylogenomic data gathering, processing and visualization
