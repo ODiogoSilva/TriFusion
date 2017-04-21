@@ -1,9 +1,3 @@
-## Warning
-
-TriFusion is still in active development, so the releases are quite a bit out of date 
-and the install scripts and steps may not be properly working. If you have any issues,
-please contact me directly.
-
 ## TriFusion
 
 Website: http://odiogosilva.github.io/TriFusion/
@@ -33,16 +27,16 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 ##### Linux
 
-- Debian package based ([See list](https://en.wikipedia.org/wiki/Category:Debian-based_distributions)): [trifusion-bin-0.4.11-linux.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb)
+- Debian package based ([See list](https://en.wikipedia.org/wiki/Category:Debian-based_distributions)): [TriFusion-0.5.0.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.deb)
 
-- RPM package based ([See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions)): [trifusion-bin-0.4.11-linux.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm)
+- RPM package based ([See list](https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions)): [TriFusion-0.5.0.rpm](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.rpm)
 
-- ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [trifusion-bin-0.4.11](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
+- ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [TriFusion-0.5.0.tar.xz](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
 
 ##### Windows
 
-- [TriFusion-0.4.12 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows64.msi)
-- [TriFusion-0.4.12 32bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows32.msi)
+- [TriFusion-0.5.0 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win64.msi)
+- [TriFusion-0.5.0 32bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win32.msi)
 
 ###### Note for Windows 8.x and 10 users:
 
