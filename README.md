@@ -33,6 +33,10 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 - ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [TriFusion-0.5.0.tar.xz](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
 
+##### MacOS
+
+- [TriFusion-0.5.0.app.zip](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-MacOS.app.zip)
+
 ##### Windows
 
 - [TriFusion-0.5.0 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win64.msi)
