@@ -31,12 +31,11 @@ TriFusion is a modern GUI and command line application designed to make the life
 ### Process - Blazing fast processing of alignment files
 
  - **Conversion** or **concatenation** of alignment files into several popular formats ([check supported formats]()).
+ - **Collapse** identical sequences into the same haplotype.
+ - Create **consensus** sequences for each alignment with several options on how to handle sequence variation.
+ - **Filter** either alignments (according to whether they contain or exclude certain taxa, to a minimum proportion of taxa, and/or variable sites) or alignment columns (according to codon position, missing data and gaps).
+ - **Code indel patterns** of your alignments into a binary matrix that is appended.
 
-  - Apply one or more operations on top of the basic conversion/concatenation in any combination. Be wild. Be free:
-     - **Collapse**: Collapse identical sequences into the same haplotype.
-     - **Consensus**: Create consensus sequences for each alignment with several options on how to handle sequence variation.
-     - **Filters**: Filter either alignments (according to whether they contain or exclude certain taxa, to a minimum proportion of taxa, and/or variable sites) or alignment columns (according to codon position, missing data and gaps).
-     - **Gap coding**: Transform the indel patterns of your alignments into a binary matrix that is appended.
  - It's **fast** and **memory efficient**. Converting 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
 - Revert concatenated alignments or export sub-regions into individual files
 - Set gene and codon partitions as well as substitution models (Nexus format)
