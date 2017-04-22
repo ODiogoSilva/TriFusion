@@ -15,11 +15,11 @@ Website: http://odiogosilva.github.io/TriFusion/
 
 [comment]: <> (<img align="right" height="128" src="https://github.com/ODiogoSilva/TriFusion/blob/43a41005ee8b1f69d7ae04684b0a0e595c527b4f/trifusion/data/backgrounds/trifusion-icon-256.png?raw=true"/>)
 
-### What can TriFusion do for you
+## What can TriFusion do for you
 
 TriFusion is a modern GUI and command line application designed to make the life of anyone with **proteome** and/or **alignment sequence data** easier and more pleasurable. Regardless of your experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerfull features to help you deal with your data. At the same time, it was developed to handle the enormous amount of data that is generated nowadays. Here is an overview of what it can do for you
 
-#### Orthology - Search and explore orthologs across proteomes
+### Orthology - Search and explore orthologs across proteomes
 
  - Searches for ortholog sequences across multiple species.
  - Filters ortholog sequences according to the gene copy number and/or number of taxa present.
@@ -28,7 +28,7 @@ TriFusion is a modern GUI and command line application designed to make the life
 
  [Find out more]()
 
-#### Process - Blazing fast processing of alignment files
+### Process - Blazing fast processing of alignment files
 
  - **Conversion** or **concatenation** of alignment files into several popular formats ([check supported formats]()).
 
@@ -43,7 +43,7 @@ TriFusion is a modern GUI and command line application designed to make the life
 
 [Find out more]()
 
-#### Statistics - Graphical visualization suite of your alignment data
+### Statistics - Graphical visualization suite of your alignment data
 
 - 
 
