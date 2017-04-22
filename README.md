@@ -89,16 +89,14 @@ Executing the TriFusion installer may generate a warning from SmartScreen. To co
 
 ### Installation from source
 
-TriFusion can be installed directly from source (whether from the latest stable release or from the git version), which has its advantages:
+TriFusion is on [PyPi](https://pypi.python.org/pypi/trifusion/) and can be easily installed from the source. If you want to use the command line version only, it can be easily installed with `pip`.
 
-- Stay on the bleeding edge of the application's development (Git version)
+```
+pip install trifusion --user
+```
 
-- Minimize the application size install
+If you want to install the complete TriFusion package, [follow these instructions according to your operating system](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source).
 
-- Modify the code any way you want. Contributions are welcome.
-
-
-[Here are instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source). (Go ahead, it won't bite.)
 
 ## How to use
 
