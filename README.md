@@ -32,11 +32,11 @@ Here is an overview of what it can do for you across its three main modules.
  - **Graphical visualization** of ortholog data.
  - Exports your orthologs as **protein or nucleotide sequences**.
 
- [Find out more]()
+ [Find out more](http://odiogosilva.github.io/TriFusion/#tutorials#features)
 
 ### Process - Blazing fast processing of alignment files
 
- - **Conversion** or **concatenation** of alignment files into several popular formats ([check supported formats]()).
+ - **Conversion** or **concatenation** of alignment files into several popular formats ([check supported formats](https://github.com/ODiogoSilva/TriFusion/wiki/Supported-Process-formats)).
  - **Collapse** identical sequences into the same haplotype.
  - Create **consensus** sequences for each alignment with several options on how to handle sequence variation.
  - **Filter** either alignments (according to whether they contain or exclude certain taxa, to a minimum proportion of taxa, and/or variable sites) or alignment columns (according to codon position, missing data and gaps).
@@ -46,7 +46,7 @@ Here is an overview of what it can do for you across its three main modules.
  - Create **file/taxa groups** to quickly perform operations on different sets of data.
  - It's **fast** and **memory efficient**. Converting 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
 
-[Find out more]()
+[Find out more](http://odiogosilva.github.io/TriFusion/#tutorials#features)
 
 ### Statistics - Effortless visual exploration of your data
 
@@ -58,7 +58,7 @@ Here is an overview of what it can do for you across its three main modules.
      - Outlier plots.
 - Publication ready figures
 
-[Find out more]()
+[Find out more](http://odiogosilva.github.io/TriFusion/#tutorials#features)
 
 ## Installation
 
