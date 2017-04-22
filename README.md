@@ -1,6 +1,6 @@
 ## TriFusion
 
-##### Streamlining phylogenomic data gathering, processing and visualization
+##### Making life easier for phylogenomic data gathering, processing and visualization
 
 Website: http://odiogosilva.github.io/TriFusion/
 
@@ -15,7 +15,21 @@ Website: http://odiogosilva.github.io/TriFusion/
 
 [comment]: <> (<img align="right" height="128" src="https://github.com/ODiogoSilva/TriFusion/blob/43a41005ee8b1f69d7ae04684b0a0e595c527b4f/trifusion/data/backgrounds/trifusion-icon-256.png?raw=true"/>)
 
-TriFusion is a GUI and command line application designed to streamline the workflow of phylogenomic projects. With the dramatic increase in size of data sets for phylogenetics and population genetics, programming has become a crucial tool to gather, process and analyze the data. However, this may still represent a hurdle that precludes the execution of such projects by a broader range of researchers. TriFusion aims to mitigate this issue by providing a user-friendly visual interface that empowers users without any programming knowledge with a set of tools and operations that can handle large sets of data.
+#### What can TriFusion do for you
+
+TriFusion is a modern GUI and command line application designed to make the life of anyone with proteome and/or alignment sequence data easier and more pleasurable. Regardless of your experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerfull features to help you deal with your data. Here is an overview of what it can do for you
+
+##### Orthology - Search and explore orthologs across proteomes
+
+ - Searches for ortholog sequences across any number of proteomes and delivers ready to use Fasta files with the desired sequences (Uses the OrthoMCL framework).
+ - Filter ortholog sequences according to the gene copy number and/or number of taxa present.
+ - Visualize the impact of these filters on the final number of orthologs with several graphical options that focus on several characteristics of the data, such as taxa coverage, distribution of gene copies, and more.
+ 
+##### Process - Blazing fast processing of alignment files
+
+
+##### Statistics - Graphical visualization suite of your alignment data
+
 
 TriFusion is an open source, cross-platform application written in [Python 2.7](https://www.python.org/) and using the [Kivy](https://github.com/kivy/kivy) framework to construct graphical interface.
 
