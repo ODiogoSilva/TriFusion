@@ -99,7 +99,7 @@ For additional installation information or if you want to install the complete T
 
 ___
 
-If you are unconvinced that a terminal version would be useful/pratical, check out how easy and fast it is to convert, concatenate and collapse 614 Fasta alignments into phylip and nexus output formats :-) :
+If you are unconvinced that a terminal version would be useful/pratical, check out how easy and fast it is to use TriFusion to process 614 Fasta alignments into phylip and nexus output formats :-):
 
 <img src="https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/gifs/terminal_showcase.gif"/>
 
