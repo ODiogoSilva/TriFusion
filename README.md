@@ -89,7 +89,7 @@ Executing the TriFusion installer may generate a warning from SmartScreen. To co
 
 ### Installation from source
 
-TriFusion is on [PyPi](https://pypi.python.org/pypi/trifusion/) and can be easily installed from the source. If you want to use the command line version only, it can be easily installed with `pip`.
+TriFusion is on [PyPi](https://pypi.python.org/pypi/trifusion/) and can be easily installed from the source. If you want to use the command line version only, it can be easily installed with `pip` in any operating system.
 
 ```
 pip install trifusion --user
