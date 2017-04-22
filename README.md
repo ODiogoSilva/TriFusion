@@ -17,19 +17,36 @@ Website: http://odiogosilva.github.io/TriFusion/
 
 #### What can TriFusion do for you
 
-TriFusion is a modern GUI and command line application designed to make the life of anyone with proteome and/or alignment sequence data easier and more pleasurable. Regardless of your experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerfull features to help you deal with your data. Here is an overview of what it can do for you
+TriFusion is a modern GUI and command line application designed to make the life of anyone with **proteome** and/or **alignment sequence data** easier and more pleasurable. Regardless of your experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerfull features to help you deal with your data. At the same time, it was developed to handle the enormous amount of data that is generated nowadays. Here is an overview of what it can do for you
 
 ##### Orthology - Search and explore orthologs across proteomes
 
  - Searches for ortholog sequences across any number of proteomes and delivers ready to use Fasta files with the desired sequences (Uses the OrthoMCL framework).
- - Filter ortholog sequences according to the gene copy number and/or number of taxa present.
+ - Filters ortholog sequences according to the gene copy number and/or number of taxa present.
  - Visualize the impact of these filters on the final number of orthologs with several graphical options that focus on several characteristics of the data, such as taxa coverage, distribution of gene copies, and more.
- 
+ - Exports your orthologs as protein or nucleotide sequences. 
+
+ [Find out more]()
+
 ##### Process - Blazing fast processing of alignment files
 
+ - At its most basic form, TriFusion perfoms the **conversion** or **concatenation** of alignment files into several popular formats ([check supported formats]()).
+ - It was designed to be **fast** and **memory efficient**, even when dealing with large amounts of data. For instance, tshe conversion of 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
+ - Apply one or more operations on top of the basic conversion/concatenation in any combination. Be wild. Be free:
+     - **Collapse**: Collapse identical sequences into the same haplotype.
+     - **Consensus**: Create consensus sequences for each alignment with several options on how to handle sequence variation.
+     - **Filters**: Filter either alignments (according to whether they contain or exclude certain taxa, to a minimum proportion of taxa, and/or variable sites) or alignment columns (according to codon position, missing data and gaps). 
+     - **Gap coding**: Transform the indel patterns of your alignments into a binary matrix that is appended.
+- Revert a concatenated alignment to its individual alignment files, or just export sub-regions of your alignment into new files
+- Set gene and codon partitions as well as substitution models (Nexus format)
+
+[Find out more]()
 
 ##### Statistics - Graphical visualization suite of your alignment data
 
+- 
+
+[Find out more]()
 
 TriFusion is an open source, cross-platform application written in [Python 2.7](https://www.python.org/) and using the [Kivy](https://github.com/kivy/kivy) framework to construct graphical interface.
 
