@@ -1,6 +1,10 @@
 ## TriFusion
 
+##### Streamlining phylogenomic data gathering, processing and visualization
+
 Website: http://odiogosilva.github.io/TriFusion/
+
+<img src="https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/images/trifusion_home_screen.png"/>
 
 [![Build Status](https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master)](https://travis-ci.org/ODiogoSilva/TriFusion)
 [![Code Health](https://landscape.io/github/ODiogoSilva/TriFusion/master/landscape.svg?style=flat)](https://landscape.io/github/ODiogoSilva/TriFusion/master)
@@ -9,12 +13,7 @@ Website: http://odiogosilva.github.io/TriFusion/
 [![PyPI](https://img.shields.io/pypi/v/trifusion.svg)](https://pypi.python.org/pypi/trifusion)
 [![AUR](https://img.shields.io/aur/version/trifusion.svg)](https://aur.archlinux.org/packages/trifusion/)
 
-
-###### Streamlining phylogenomic data gathering, processing and visualization
-
 [comment]: <> (<img align="right" height="128" src="https://github.com/ODiogoSilva/TriFusion/blob/43a41005ee8b1f69d7ae04684b0a0e595c527b4f/trifusion/data/backgrounds/trifusion-icon-256.png?raw=true"/>)
-
-<img align="right" src="https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/images/trifusion_home_screen.png"/>
 
 TriFusion is a GUI and command line application designed to streamline the workflow of phylogenomic projects. With the dramatic increase in size of data sets for phylogenetics and population genetics, programming has become a crucial tool to gather, process and analyze the data. However, this may still represent a hurdle that precludes the execution of such projects by a broader range of researchers. TriFusion aims to mitigate this issue by providing a user-friendly visual interface that empowers users without any programming knowledge with a set of tools and operations that can handle large sets of data.
 
