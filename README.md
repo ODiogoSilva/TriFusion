@@ -15,9 +15,13 @@ Website: http://odiogosilva.github.io/TriFusion/
 
 [comment]: <> (<img align="right" height="128" src="https://github.com/ODiogoSilva/TriFusion/blob/43a41005ee8b1f69d7ae04684b0a0e595c527b4f/trifusion/data/backgrounds/trifusion-icon-256.png?raw=true"/>)
 
-## What can TriFusion do for you
+## What is TriFusion?
 
-TriFusion is a modern GUI and command line application designed to make the life of anyone with **proteome** and/or **alignment sequence data** easier and more pleasurable. Regardless of your experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerfull features to help you deal with your data. At the same time, it was developed to handle the enormous amount of data that is generated nowadays. Here is an overview of what it can do for you
+TriFusion is a modern GUI and command line application designed to make the life of anyone with **proteome** and/or **alignment sequence data** easier and more pleasurable. Regardless of your experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerfull features to help you deal with your data. At the same time, it was developed to handle the enormous amount of data that is generated nowadays.
+
+## What can TriFusion do for you?
+
+Here is an overview of what it can do for you across its three main modules.
 
 ### Orthology - Search and explore orthologs across proteomes
 
@@ -55,11 +59,13 @@ TriFusion is a modern GUI and command line application designed to make the life
 
 TriFusion is an open source, cross-platform application written in [Python 2.7](https://www.python.org/) and using the [Kivy](https://github.com/kivy/kivy) framework to construct graphical interface.
 
+___
+
 ### Installation
 
 #### Executables binaries
 
-The latest stable release of TriFusion can be installed as a standalone application using one of the following installers.
+The latest stable release of TriFusion can be installed as a standalone application using one of the following installers. This only includes the GUI component of TriFusion.
 
 ##### Linux
 
