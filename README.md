@@ -19,7 +19,7 @@ Website: http://odiogosilva.github.io/TriFusion/
 
 TriFusion is a modern GUI and command line application designed to make the life of anyone with **proteome** and/or **alignment sequence data** easier and more pleasurable. Regardless of your experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerfull features to help you deal with your data. At the same time, it was developed to handle the enormous amount of data that is generated nowadays.
 
-TriFusion is an open source, cross-platform application written in [Python 2.7](https://www.python.org/) and using the [Kivy](https://github.com/kivy/kivy) framework to construct graphical interface.
+TriFusion is an open source, cross-platform application written in [Python 2.7](https://www.python.org/) and using the [Kivy](https://github.com/kivy/kivy) framework to build the graphical interface.
 
 ## What can TriFusion do for you?
 
@@ -43,6 +43,7 @@ Here is an overview of what it can do for you across its three main modules.
  - **Code indel patterns** of your alignments into a binary matrix that is appended to the alignment.
  - **Revert concatenated alignments** or export sub-regions into individual files
  - Set **gene and codon partitions** as well as **substitution models** (Nexus format)
+ - Create file/taxa groups to quickly perform operations on different sets of data.
  - It's **fast** and **memory efficient**. Converting 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
 
 [Find out more]()
