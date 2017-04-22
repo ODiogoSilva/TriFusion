@@ -21,16 +21,16 @@ TriFusion is a modern GUI and command line application designed to make the life
 
 #### Orthology - Search and explore orthologs across proteomes
 
- - Searches for ortholog sequences across any number of proteomes and delivers ready to use Fasta files with the desired sequences (Uses the OrthoMCL framework).
+ - Searches for ortholog sequences across multiple species.
  - Filters ortholog sequences according to the gene copy number and/or number of taxa present.
- - Visualize the impact of these filters on the final number of orthologs with several graphical options that focus on several characteristics of the data, such as taxa coverage, distribution of gene copies, and more.
+ - Graphical visualization of ortholog data
  - Exports your orthologs as protein or nucleotide sequences. 
 
  [Find out more]()
 
 #### Process - Blazing fast processing of alignment files
 
- - At its most basic form, TriFusion perfoms the **conversion** or **concatenation** of alignment files into several popular formats ([check supported formats]()).
+ - **Conversion** or **concatenation** of alignment files into several popular formats ([check supported formats]()).
  - It was designed to be **fast** and **memory efficient**, even when dealing with large amounts of data. For instance, tshe conversion of 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
  - Apply one or more operations on top of the basic conversion/concatenation in any combination. Be wild. Be free:
      - **Collapse**: Collapse identical sequences into the same haplotype.
