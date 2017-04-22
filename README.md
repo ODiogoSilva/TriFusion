@@ -100,44 +100,18 @@ TriFusion can be installed directly from source (whether from the latest stable 
 
 [Here are instructions on how to install TriFusion from source](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source). (Go ahead, it won't bite.)
 
-### How to use
+## How to use
 
-#### GUI version
+Tutorials on how to use TriFusion for its many tasks can be perused [here](http://odiogosilva.github.io/TriFusion/#tutorials).
 
-##### Windows
-
-TriFusion should be available in the Start Menu, ready to launch.
-
-##### Linux
-
-If TriFusion was installed using package managers, a TriFusion shortcut should have been created and available using your distribution's application launcher (Under the Science category). Alternatively, TriFusion can be executed from the terminal with the command `TriFusion`.
-
-#### Command line versions
-
-Command line versions for each of the three modules in TriFusion are only available when installing the program from source. Once installed, each module can be executed in the terminal using the following commands:
-
-- Orthology search module:
-
-    `orthomcl_pipeline`
-
-- Process module:
-
-    `TriSeq`
-
-- Statistics module:
-
-    `TriStats`
-
-For more information on the command line versions, see the manual.
-
-### Documentation
+## Documentation
 
 You can download TriFusion User Guide [here](https://github.com/ODiogoSilva/TriFusion/raw/master/docs/manual.pdf).
 
-### Citation
+## Citation
 
 When using OrthoMCL to find ortholog clusters, please cite the original software:
 
 Fischer, S., Brunk, B. P., Chen, F., Gao, X., Harb, O. S., Iodice, J. B., Shanmugam, D., Roos, D. S. and Stoeckert, C. J. Using OrthoMCL to Assign Proteins to OrthoMCL-DB Groups or to Cluster Proteomes Into New Ortholog Groups Current Protocols in Bioinformatics. 2011 35:6.12.1–6.12.19.
 
-Coming soon!
+We're working on a manuscript for TriFusion now.
