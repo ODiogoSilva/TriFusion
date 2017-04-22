@@ -43,7 +43,7 @@ Here is an overview of what it can do for you across its three main modules.
  - **Code indel patterns** of your alignments into a binary matrix that is appended to the alignment.
  - **Revert concatenated alignments** or export sub-regions into individual files
  - Set **gene and codon partitions** as well as **substitution models** (Nexus format)
- - Create file/taxa groups to quickly perform operations on different sets of data.
+ - Create **file/taxa groups** to quickly perform operations on different sets of data.
  - It's **fast** and **memory efficient**. Converting 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
 
 [Find out more]()
@@ -60,15 +60,13 @@ Here is an overview of what it can do for you across its three main modules.
 
 [Find out more]()
 
-___
+## Installation
 
-### Installation
-
-#### Executables binaries
+### Executables binaries
 
 The latest stable release of TriFusion can be installed as a standalone application using one of the following installers. This only includes the GUI component of TriFusion.
 
-##### Linux
+#### Linux
 
 - Debian package based ([See list](https://en.wikipedia.org/wiki/Category:Debian-based_distributions)): [TriFusion-0.5.0.deb](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.deb)
 
@@ -76,20 +74,20 @@ The latest stable release of TriFusion can be installed as a standalone applicat
 
 - ArchLinux/Manjaro ([See list](https://wiki.archlinux.org/index.php/Arch_based_distributions)): [TriFusion-0.5.0.tar.xz](https://aur.archlinux.org/packages/trifusion-bin/) is available on AUR.
 
-##### MacOS
+#### MacOS
 
 - [TriFusion-0.5.0.app.zip](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-MacOS.app.zip)
 
-##### Windows
+#### Windows
 
 - [TriFusion-0.5.0 64bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win64.msi)
 - [TriFusion-0.5.0 32bit installer](https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win32.msi)
 
-###### Note for Windows 8.x and 10 users:
+##### Note for Windows 8.x and 10 users:
 
 Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".
 
-#### Installation from source
+### Installation from source
 
 TriFusion can be installed directly from source (whether from the latest stable release or from the git version), which has its advantages:
 
