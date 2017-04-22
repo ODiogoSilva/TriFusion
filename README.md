@@ -64,7 +64,7 @@ Here is an overview of what it can do for you across its three main modules.
 
 ### Executables binaries
 
-The latest stable release of TriFusion can be installed as a standalone application using one of the following installers. This **only includes the GUI component** of TriFusion. If you also want the command line version, see [Installation from source](#installation-from-source)
+The latest stable release of TriFusion can be installed as a standalone application using one of the following installers. This **only includes the GUI component** of TriFusion. If you also want the command line version, see [Installation from source](#installation-from-source).
 
 #### Linux
 
@@ -89,13 +89,13 @@ Executing the TriFusion installer may generate a warning from SmartScreen. To co
 
 ### Installation from source
 
-TriFusion is on [PyPi](https://pypi.python.org/pypi/trifusion/) and can be easily installed from the source. If you want to use the command line version only, it can be easily installed with `pip` in any operating system.
+TriFusion is on [PyPi](https://pypi.python.org/pypi/trifusion/) and can be easily installed with `pip`. If you want to use the only the command line version run this command on any operating system with `pip`.
 
 ```
 pip install trifusion --user
 ```
 
-If you want to install the complete TriFusion package, [follow these instructions according to your operating system](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source).
+For additional installation information or if you want to install the complete TriFusion package, [follow these instructions according to your operating system](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source).
 
 ___
 
