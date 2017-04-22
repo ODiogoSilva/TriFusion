@@ -21,10 +21,10 @@ TriFusion is a modern GUI and command line application designed to make the life
 
 ### Orthology - Search and explore orthologs across proteomes
 
- - Searches for ortholog sequences across multiple species.
- - Filters ortholog sequences according to the gene copy number and/or number of taxa present.
- - Graphical visualization of ortholog data
- - Exports your orthologs as protein or nucleotide sequences. 
+ - **Searches for ortholog sequences** across multiple species.
+ - Filters ortholog sequences according to the **gene copy number** and/or **number of tax**a present.
+ - **Graphical visualization** of ortholog data
+ - Exports your orthologs as **protein or nucleotide sequences**.
 
  [Find out more]()
 
@@ -35,15 +35,21 @@ TriFusion is a modern GUI and command line application designed to make the life
  - Create **consensus** sequences for each alignment with several options on how to handle sequence variation.
  - **Filter** either alignments (according to whether they contain or exclude certain taxa, to a minimum proportion of taxa, and/or variable sites) or alignment columns (according to codon position, missing data and gaps).
  - **Code indel patterns** of your alignments into a binary matrix that is appended.
- - Revert concatenated alignments or export sub-regions into individual files
- - Set gene and codon partitions as well as substitution models (Nexus format)
+ - **Revert concatenated alignments** or export sub-regions into individual files
+ - Set **gene and codon partitions** as well as **substitution models** (Nexus format)
  - It's **fast** and **memory efficient**. Converting 3,093 files with 376 taxa can be performed in just 30 seconds and using less than 90Mb of RAM memory ([check the benchmarks table](https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks)).
 
 [Find out more]()
 
-### Statistics - Graphical visualization suite of your alignment data
+### Statistics - Effortless visual exploration of your data
 
-- 
+- Provides instant information on overall and per gene **summary statistcs**.
+- TriFusion offers **dozens of graphical and statistical options** to explore your data:
+     - General information plots.
+     - Polymorphism and sequence variation plots.
+     - Missing data plots.
+     - Outlier plots.
+- Publication ready figures
 
 [Find out more]()
 
