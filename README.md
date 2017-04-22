@@ -64,7 +64,7 @@ Here is an overview of what it can do for you across its three main modules.
 
 ### Executables binaries
 
-The latest stable release of TriFusion can be installed as a standalone application using one of the following installers. This only includes the GUI component of TriFusion.
+The latest stable release of TriFusion can be installed as a standalone application using one of the following installers. This **only includes the GUI component** of TriFusion. If you also want the command line version, see [Installation from source](#installation-from-source)
 
 #### Linux
 
