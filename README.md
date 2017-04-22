@@ -97,6 +97,9 @@ pip install trifusion --user
 
 If you want to install the complete TriFusion package, [follow these instructions according to your operating system](https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source).
 
+IF you are unconvinced that a terminal version would be useful/pratical, check out how easy and fast it is to convert, concatenate and collapse 614 Fasta alignments:
+
+<img src="https://github.com/ODiogoSilva/TriFusion-tutorials/raw/master/tutorials/gifs/terminal_showcase.gif"/>
 
 ## How to use
 
