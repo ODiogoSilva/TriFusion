@@ -275,8 +275,8 @@ b {
 .w3-container{padding:0.5em 8px}
 .w3-row-padding,.w3-row-padding>.w3-half,.w3-row-padding>.w3-third,.w3-row-padding>.w3-twothird,.w3-row-padding>.w3-threequarter,.w3-row-padding>.w3-quarter,w3-fifth,.w3-row-padding>.w3-col{padding:0 8px}
 .w3-col.s12,.w3-half,.w3-third,.w3-twothird,.w3-threequarter,.w3-quarter,.w3-fifth{width:99.99999%}
-.w3-col.l3,.w3-quarter{width:24.5555%}
-.w3-col.m3,.w3-quarter{width:24.5555%}
+.w3-col.l3,.w3-quarter{width:19.9999%}
+.w3-col.m3,.w3-quarter{width:19.9999%}
 .w3-col,.w3-half,.w3-third,.w3-twothird,.w3-threequarter,.w3-quarter,.w3-fifth{float:left}
 .w3-topbar{border-top:6px solid #ccc!important}.w3-bottombar{border-bottom:6px solid #ccc!important}
 .w3-light-grey,.w3-hover-light-grey:hover,.w3-light-gray,.w3-hover-light-gray:hover{color:#000!important;background-color:#f1f1f1!important}

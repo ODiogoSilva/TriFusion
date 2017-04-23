@@ -157,7 +157,7 @@
         <div class="col-lg-4">
           <i class="fa fa-arrow-circle-o-down" id="main-icons" aria-hidden="true"></i>
           <h2>Download</h2>
-          <p>Installers are available for Windows and several Unix distro's. PPAs are available Debian and Ubuntu and AUR packages for ArchLinux.</p>
+          <p>Installers are available for Windows, MacOS and several Unix distro's. PPAs are available Debian and Ubuntu and AUR packages for ArchLinux.</p>
           <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal" style="font-weight: bold">Get TriFusion</button>
 
         </div><!-- /.col-lg-4 -->
@@ -190,6 +190,9 @@
                   <a href="javascript:void(0)" onclick="openTab(event, 'Windows');">
                     <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center w3-border-tfblue">Windows</div>
                   </a>
+                  <a href="javascript:void(0)" onclick="openTab(event, 'MacOS');">
+                    <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">MacOS</div>
+                  </a>
                   <a href="javascript:void(0)" onclick="openTab(event, 'Ubuntu');">
                     <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">Ubuntu/Debian</div>
                   </a>
@@ -213,6 +216,29 @@
                 <br>
                 <h4 class="modalh">Note for Windows 8.x and 10 users:</h4>
                 <p>Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".</p>
+                </div>
+
+                <div id="MacOS" class="w3-container tab">
+                <h3 class="modalh">Package App</h3>
+
+                <p> Ready to use TriFusion package bundle for MacOS: </p>
+
+                  <div id ="download-section">
+
+                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-MacOS.app.zip" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.app.zip</a>
+
+                  </div>
+
+                <h3 class="modalh">From source (Using Homebrew)</h4>
+                    <p>If you do not have homebrew yet, you'll need to install it:</p>
+                    <pre><code class="shell">/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</code></pre>
+
+                    <p>Then, install the SLD dependencies, kivy and TriFusion</p>
+                    <pre><code class="shell">brew install sdl2 sdl2_image sdl2_ttf sdl2_mixer
+pip install -I Cython==0.23
+USE_OSX_FRAMEWORKS=0 pip install kivy
+pip install trifusion</code></pre>
+
                 </div>
 
                 <div id="Ubuntu" class="w3-container tab">
