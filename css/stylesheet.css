@@ -4,8 +4,41 @@
 /* Padding below the footer and lighter body text */
 
 body {
-  padding-bottom: 40px;
+  padding-bottom: 100px;
+  position: relative;
   color: #5a5a5a;
+}
+
+    .tour {
+      position: relative;
+      padding-top: 90px;
+    }
+
+footer {
+  position: absolute;
+  display: inline!important;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  background-color: #2f2f2f;
+  border-top: 2px solid grey;
+}
+
+.footer-text {
+  font-size: 15px;
+  color: white!important;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 50px;
+}
+
+/* This container makes use of all width */
+
+@media screen and (min-width: 1300px) {
+    .container-fluid {
+      margin-left: 5%;
+      margin-right: 10%;
+  }
 }
 
 .modalh {
@@ -57,9 +90,9 @@ body {
 
 .navbar-nav > li {
   margin-left: 20px;
-	font-weight: bold;
-	font-family: 'Jura', sans-serif;
-	font-size: 20px;
+  font-weight: bold;
+  font-family: 'Jura', sans-serif;
+  font-size: 20px;
 }
 
  .navbar-nav > li > a:focus {
@@ -162,7 +195,7 @@ body {
 /* MARKETING CONTENT
 -------------------------------------------------- */
 
-#marketing-header {
+.marketing-header {
 	font-size: 60px;
 	color: #37abc8;
 	font-weight: bold;
@@ -172,11 +205,22 @@ body {
 
 }
 
+#tour-header {
+	font-size: 60px;
+	color: #37abc8;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 40px;
+	font-family: 'Jura', sans-serif;
+}
+
 /* Center align the text within the three columns below the carousel */
 .marketing .col-lg-4 {
   margin-bottom: 20px;
   text-align: center;
 }
+
+.jumbotron h1,
 .marketing h2 {
   font-weight: bold;
   color: #37abc8;
@@ -184,13 +228,18 @@ body {
 
 }
 .marketing .col-lg-4 p {
-  margin-right: 10px;
-  margin-left: 10px;
+  margin-right: 0;
+  margin-left: 0;
 }
 
 #main-icons {
   font-size: 140px;
   color: #37abc8;
+}
+
+.feat > .btn-primary {
+  font-size: 16px;
+  font-weight: bold;
 }
 
 /* Featurettes
@@ -227,19 +276,15 @@ b {
 /* RESPONSIVE CSS
 -------------------------------------------------- */
 
-@media only screen and (min-width: 1000px) {
+@media only screen and (min-width: 991px) {
   /* Navbar positioning foo */
   .navbar-wrapper {
     margin-top: 20px;
   }
-  
+
   .navbar-wrapper .container {
     padding-right: 15px;
     padding-left: 15px;
-  }
-
-  .nav-tour-container {
-    margin-bottom: 50px;
   }
 
   .navbar-wrapper .navbar {
@@ -268,6 +313,12 @@ b {
   .carousel-caption h3 {
     font-size: 30px;
   }
+  .ar-right {
+    display: inline-block;
+  }
+  .ar-down {
+    display: none;
+  }
 }
 
 @media (min-width: 992px) {
@@ -275,6 +326,19 @@ b {
     margin-top: 120px;
   }
 }
+
+@media screen and (min-width: 0px) and (max-width: 991px) {
+  .ar-right {
+    display: none;
+  }
+
+  .ar-down {
+    display: inline-block
+  }
+
+}
+
+@media
 
 .w3-container:after,.w3-panel:after,.w3-row:after,.w3-row-padding:after,.w3-topnav:after,.w3-clear:after,.w3-btn-group:before,.w3-btn-group:after,.w3-btn-bar:before,.w3-btn-bar:after
 {content:"";display:table;clear:both}
@@ -297,4 +361,212 @@ b {
 
 .btn-space {
   margin-right: 50px;
+}
+
+/**/
+/*Tour stuff*/
+/**/
+
+/* Color for tour header */
+.top-tour {
+  background-color: #37abc8;
+}
+
+/* Style for tour text */
+.tour-text {
+  color: grey;
+  font-size: 20px;
+  text-align: justify;
+}
+
+/* Style for featurette items */
+.tour-featurette-heading {
+  padding-top: 20px;
+  margin-bottom: 20px;
+  font-size: 50px;
+  letter-spacing: -1px;
+  border-bottom: 1px solid #37abc8;
+  text-align: left;
+}
+
+/* Centers featurette images on div */
+#tour-img {
+  display:block;
+  margin:auto;
+  margin-top: 0!important;
+}
+
+@media screen and (max-width: 1050px) {
+  .affix {
+  display: none;
+  }
+}
+
+/* Affix functionality of side navbar */
+.affix {
+  top: 30px;
+  bottom: 90px;
+  width: 298px;
+}
+
+/* Style for side navbar */
+#navheader {
+  font-size: 25px;
+  color: #37abc8;
+  font-weight: bold;
+  border-bottom: 1x solid #37abc8;
+}
+
+/* Set line spacing for submenu itens */
+.nav-tour > li > ul {
+  line-height: 60%;
+}
+
+
+/* Style for all entries in side nav (including non links) */
+.nav-tour > li {
+  color: #37abc8;
+  font-family: 'Jura', sans-serif;
+  font-size: 25px;
+}
+
+/* Set general style for links in side nav */
+.nav > li > a {
+  color: grey;
+}
+.nav-tour > li > a {
+  padding-bottom: 0;
+}
+
+/* Hide submenus when inactive */
+.nav-tour .nav {
+  display: none;
+}
+
+/* Display submenus when active */
+.nav-tour > .active > ul {
+  display: block;
+}
+
+/* Style for sub-menus when active */
+.nav-tour > .active > .nav > li {
+  font-size: 15px;
+}
+
+/* Add margin for items in active sub-menu that are not active */
+.nav-tour > .active > .nav > li > a{
+  margin-left: 10px;
+  padding-bottom: 5px;
+}
+
+/* Style for active submenu itens */
+.nav-tour > .active > .nav > .active > a,
+.nav-tour > .active > .nav > .active > a:hover {
+  font-weight: bold;
+  border-left: 2px solid #37abc8;
+  margin-left: 0px;
+}
+
+/* when hovering over inactive submensu */
+
+/* Style for active itens */
+.nav-tour > .active > a,
+.nav-tour > .active > a:hover {
+  font-weight: bold;
+  border-left: 2px solid #37abc8
+}
+
+/* when hovering over inactive menus */
+.nav-tour > .active > .nav > li > a:hover,
+.nav-tour > li > a:hover {
+  border-left: 2px solid #ccc;
+  background-color: transparent;
+}
+
+.feat-video {
+
+  margin-top: 20px;
+  z-index: 0;
+}
+
+/* Adds margin to the bottom of every feature block and a bottom border */
+.feat-block {
+  padding-bottom: 20px!important;
+  position:relative;
+}
+
+/* Adds style for tutorial button div */
+.tutorial-bt {
+    padding-top: 20px;
+    padding-bottom: 20px
+}
+
+/* Style for tutorial link buttons */
+.tutorial-bt > .btn {
+  font-weight: bold;
+  background-color: #37abc8;
+  border-color: #37abc8;
+}
+
+/* Remove outline when button is focused */
+.tutorial-bt > .btn-primary:focus {
+  outline: none;
+}
+
+/* Style for when tutorial button is clicked */
+.tutorial-bt > .btn-primary:active {
+  background-color: transparent;
+  border-color: #37abc8;
+  color: #37abc8;
+  box-shadow: none;
+}
+
+/* Style for workflow content */
+.workflow {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-left:0;
+  margin-right:0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.workflow-container {
+  padding: 20px;
+}
+
+.workflow-header {
+  padding: 10px 30px;
+  background-color: grey;
+  height: 50px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid grey;
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+}
+
+.workflow-header > p {
+  color: white;
+  font-weight: bold;
+}
+
+.center-text {
+  text-align: center;
+}
+
+.overview {
+  text-align:center;
+}
+
+.overview p {
+  padding-top: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  color: grey;
+}
+
+.overview i {
+  font-size: 100px;
 }

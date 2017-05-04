@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>TriFusion - Streamlining phylogenomic data gathering, processing and visualization</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <script src="../javascripts/jquery-3.1.1.min.js"></script>
+    <script src="../javascripts/bootstrap.min.js"></script>
+
+    <!-- Font awesome -->
+    <link rel="stylesheet" type="text/css" href="../fonts/font-awesome/css/font-awesome.css">
+
+    <!-- Additional font -->
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Jura|Lato:300|Quicksand|Righteous" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+    <link href="../css/stylesheet.css" rel="stylesheet">
+
+</head>
+
+<body class="tour" data-spy="scroll" data-target="#navscrollspy" data-offset="15">
+
+    <!-- Nav header -->
+
+    <div class="navbar-wrapper" id="home">
+      <div class="container">
+        <nav class="navbar navbar-static-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a href="../index.html#" class="navbar-left"><img id="logo" src="../images/trifusion-icon-256.png"></a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active bottom-bar w3-hover-border-tfblue"><a href="../index.html">Home</a></li>
+                <li class="bottom-bar w3-hover-border-tfblue"><a href="../index.html#marketing-header">Installation</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Features <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li ><a href="../index.html#featurette" id="smooth-link">Quick Features</a></li>
+                    <li ><a href="#">Full Features</a></li>
+                  </ul>
+                <li class="bottom-bar w3-hover-border-tfblue"><a href="../index.html#tutorials">Tutorials</a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+  <!-- Tour heading -->
+
+  <div class="jumbotron">
+    <div class="container-fluid">
+      <h1>TriFusion features</h1>
+      <p class="lead"><b>Take a look at the three main sections of TriFusion and
+        discover what it can do for you. Scroll away!</b></p>
+    </div>
+  </div>
+
+  <div id=tour-header></div>
+  <div class="container-fluid marketing">
+    <div class="row">
+
+      <!-- Side navbar -->
+
+      <div class="col-md-3" id="navscrollspy">
+
+        <ul class="nav nav-stacked nav-tour" id="sidebar" data-spy="affix" data-offset-top="320">
+          <li id="navheader">Feature sections:</li>
+          <li>
+            <a href="#overview">Overview</a>
+          </li>
+          <li>
+            <a href="#orto-main">Orthology</a>
+            <ul class="nav">
+              <li><a href="#orto1">Search orthologs across proteomes</a></li>
+              <li><a href="#orto2">Explore and filter your orthologs</a></li>
+              <li><a href="#orto3">Export ortholog groups into protein/nucleotide files</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#process-main">Process</a>
+            <ul class="nav">
+              <li><a href="#process_conc">Blazing fast alignment conversion/concatenation</a></li>
+              <li><a href="#process_high_perf">High performance and efficiency</a></li>
+              <li><a href="#process_collapse">Collapse identical sequences</a></li>
+              <li><a href="#process_consensus">Create consensus sequences from alignments</a></li>
+              <li><a href="#process_filter_taxa">Filter alignments by taxa</a></li>
+              <li><a href="#process_filter_codon">Filter alignments by codons</a></li>
+              <li><a href="#process_filter_missing">Filter alignments by missing data/genes</a></li>
+              <li><a href="#process_filter_var">Filter alignments by sequence variation</a></li>
+              <li><a href="#process_code_gaps">Code gaps into the alignment matrix</a></li>
+              <li><a href="#process_reverse">Reverse a concatenated alignment</a></li>
+              <li><a href="#process_combine">Combine multiple operations on a single run</a></li>
+              <li><a href="#process_ds_groups">Setup and usage of data set groups</a></li>
+              <li><a href="#process_projects">Save frequently used data sets as projects</a></li>
+              <li><a href="#process_models">Set partitions and substitution models</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#stats-main">Statistics</a>
+            <ul class="nav">
+              <li><a href="#stats_sumstats">Summary statistics</a></li>
+              <li><a href="#stats_plots">Plot categories</a></li>
+              <li><a href="#stats_single">Data visualization focusing on single alignments</a></li>
+              <li><a href="#stats_taxa">Data visualization focusing on taxa</a></li>
+              <li><a href="#stats_average">Data visualization focusing on genes</a></li>
+              <li><a href="#stats_fast_switch">Plot fast switching</a></li>
+              <li><a href="#stats_groups">Usage of data set groups</a></li>
+              <li><a href="#stats_export">Export plots as figures or tables</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Main column with content -->
+
+      <div class="col-md-9 featurette">
+
+        <div class="marketing-header" id="overview">Overview</div>
+
+        <p class="lead">
+          TriFusion is a modern GUI and command line application designed to make the life of anyone
+          with proteome and/or alignment sequence data easier and more pleasurable. Regardless of your
+          experience in bioinformatics, TriFusion is easy to use and offers a wide array of powerful
+          features to help you deal with your data. At the same time, it was developed to handle the
+          enormous amount of data that is generated nowadays.
+        </p>
+
+        <div class="container overview" style="width:100%">
+          <div class="col-md-3">
+            <i class="fa fa-rocket fa-5x" aria-hidden="true"></i>
+            <p>Fast and efficient</p>
+          </div>
+          <div class="col-md-3">
+            <i class="fa fa-universal-access fa-5x" aria-hidden="true"></i>
+            <p>User friendly</p>
+          </div>
+          <div class="col-md-3">
+            <i class="fa fa-terminal fa-5x" aria-hidden="true"></i>
+            <p>CLI version available</p>
+          </div>
+          <div class="col-md-3">
+            <i class="fa fa-github fa-5x" aria-hidden="true"></i>
+            <p>Open Source</p>
+          </div>
+        </div>
+
+        <hr>
+        <div class="marketing-header" id="orto-main">Orthology</div>
+
+        <!-- Start of tour content -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading" id="orto1">Search orthologs across proteomes</h2>
+          <p class="tour-text">Searching for orthologs across multiple proteomes can be a daunting and
+            complex task. Current pipelines are great, but they often require
+            a long and tedious setup and/or execution processes. TriFusion handles all of that for you, while providing
+            a user-friendly interface that leverages the most popular framework for finding orthologs,
+            <a href="http://orthomcl.org/orthomcl/">OrthoMCL</a>.
+            <br><br>No fuss. No complications. Searching for orthologs in TriFusion is as simples as it gets.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video vid-overlay" width="100%" class="vcenter" controls>
+            <source src="../videos/orto_search_showcase.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Basic%20search%20of%20orthologs%20among%2010%20proteome%20files.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to orthology search tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="orto2">Explore and filter your orthologs</h2>
+          <p class="tour-text">So, you have completed your search for orthologs. Now what? <br><br>
+            The <b>Explore</b> section of TriFusion's orthology module was designed to let you easily explore your
+          ortholog search results. You can filter orthologs groups according to gene copy number,
+          taxon taxon and/or taxon representation. You can also check the effect of these filters on your
+          ortholog groups using a suite of interactive plot screens that let explore your data visually.</p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/orto_explore_showcase.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="https://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Import%20and%20explore%20multiple%20orthology%20search%20results.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to orthology exploration tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="orto3">Export ortholog groups into protein/nucleotide files</h2>
+          <p class="lead">The final step of an ortholog search operation is usually the generation of sequence files
+          for each potential ortholog group. TriFusion lets you apply multiple filters on your ortholog groups
+          and export only the groups that you are interested in.<br><br>
+          But that's not all. If you provide the corresponding CDS files for each proteome that you used in your
+          search, you can also export those ortholog groups directly into nucleotide sequences. And don't worry
+          if the headers of the sequences in the CDS and proteome files don't match. TriFusion searches for
+          sequence equality, not header equality, so you can be sure that the sequences are always correctly
+          converted.</p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/orto_export.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Export%20ortholog%20groups%20into%20protein%20and%20nucleotide%20sequence%20files.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to ortholog export tutorial</a>
+          </div>
+        </div>
+
+        <!-- Start of Process features -->
+
+        <div class="marketing-header" id="process-main">Process</div>
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_conc">Blazing fast alignment conversion/concatenation</h2>
+          <p class="lead">Designed from the ground up to handle the massive number of alignments that are currently being
+            processed in phylogenomic analyses, TriFusion is able to convert and concatenate thousands of alignment
+            files from several input formats into one or more popular output formats (check the <a href="https://github.com/ODiogoSilva/TriFusion/wiki/Supported-Process-formats">supported formats</a>).<br><br>
+            Easily load your data and get the desired converted/concatenated output in seconds.</p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_conv_cont.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Basic%20conversion%20and%20concatenation%20of%20multiple%20alignment%20files.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to basic conversion/concatenation tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_high_perf">High performance and efficiency</h2>
+          <p class="lead">So you have a 1Gb alignment file? Or perhaps a set of 7,000 individual alignment files.
+          Don't panic, TriFusion can handle it!
+          With the inclusion of high performance libraries and several efficient programming techniques, even the largest
+          data sets can be processed in seconds or a few minutes. Here's a sample of the run time and RAM consumption
+          benchmarks for the main operations of TriFusion for different types of data sets.</p>
+        </div>
+        <div class="feat-block">
+
+          <table class="table table-striped table-bordered">
+            <thead align="center">
+              <tr>
+                <td style="width: 152px;"></td>
+                <td style="width: 66px;"><strong>DS1</strong></td>
+                <td style="width: 81px;"><strong>DS4</strong></td>
+                <td style="width: 80px;"><strong>DS5</strong></td>
+                <td style="width: 74px;"><strong>DS9</strong></td>
+              </tr
+            </thead>
+            <tbody align="center">
+              <tr>
+                <th style="width: 152px;">Files</th>
+                <td style="width: 66px;">614</td>
+                <td style="width: 81px;">3093</td>
+                <td style="width: 80px;">7378</td>
+                <td style="width: 74px;">1</td>
+              </tr>
+              <tr>
+                <th style="width: 152px;">Taxa</th>
+                <td style="width: 66px;">48</td>
+                <td style="width: 81px;">376</td>
+                <td style="width: 80px;">29</td>
+                <td style="width: 74px;">376</td>
+              </tr>
+              <tr>
+                <th style="width: 152px;">Total bases</th>
+                <td style="width: 66px;">~350k</td>
+                <td style="width: 81px;">1.25M</td>
+                <td style="width: 80px;">~601k</td>
+                <td style="width: 74px;">1.25M</td>
+              </tr>
+              <tr>
+                <td colspan="5" style="width: 152px;"><strong>Parsing</strong></td>
+              </tr>
+              <tr>
+                <th style="width: 152px;"><em>Alignment reading</em></th>
+                <td style="width: 66px;">0.8s / 13.9Mb</td>
+                <td style="width: 81px;">14.5s /&nbsp;169.5Mb</td>
+                <td style="width: 80px;">13.6s /&nbsp;117.6Mb</td>
+                <td style="width: 74px;">2.9s / 14.5Mb</td>
+              </tr>
+              <tr>
+                <td colspan="5" style="width: 152px;"><strong>Main operations</strong></td>
+              </tr>
+              <tr>
+                <th style="width: 152px;"><em>Conversion (nexus)</em></th>
+                <td style="width: 66px;">0.5s /&nbsp;0.3Mb</td>
+                <td style="width: 81px;">17.0s / 0.6Mb</td>
+                <td style="width: 80px;">93.7s /&nbsp;1.0Mb</td>
+                <td style="width: 74px;">2.4s / 22.8Mb</td>
+              </tr>
+              <tr>
+                <th style="width: 152px;"><em>Conversion (interleave)</em></th>
+                <td style="width: 66px;">2.4s / 0.4Mb</td>
+                <td style="width: 81px;">49.9s / 0.6Mb</td>
+                <td style="width: 80px;">110.1s / 1.0Mb</td>
+                <td style="width: 74px;">74.9s / 17.0Mb</td>
+              </tr>
+              <tr>
+                <th style="width: 152px;"><em>Concatenation</em></th>
+                <td style="width: 66px;">4.7s / 5.1Mb</td>
+                <td style="width: 81px;">554.4s / 21.6Mb</td>
+                <td style="width: 80px;">211.2s / 7.1Mb</td>
+                <td style="width: 74px;">NA</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="lead">
+          You can check out the complete <a target="_blank" href="https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks">benchmarks table</a>
+            to see in detail how particular operations of TriFusion fare in terms of run time and memory usage
+            across a wide range of datasets.</p>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_collapse">Collapse identical sequences</h2>
+          <p class="lead">With the <b>Collapse</b> operation, you can collapse identical sequences into the same haplotype,
+            creating an alignment that contains only unique sequences.<br><br>
+            Here's a demonstration of how <b>Collapse</b> transforms an alignment:
+          </p>
+
+          <div class="container-fluid workflow">
+            <div class="workflow-header">
+              <p class="lead">Example:</p>
+            </div>
+            <div class="workflow-container">
+              <pre>
+# Four taxon alignment where there are only two unique sequences
+>TaxonA
+AAAAAA
+>TaxonB
+AAAAAA
+>TaxonC
+TTTTTT
+>TaxonD
+TTTTTT
+              </pre>
+
+              <div style="text-align:center;vertical-align:middle;line-height:100px">
+                <i class="fa fa-chevron-down fa-5x" aria-hidden="true"></i>
+              </div>
+
+              <pre>
+# Collapsed alignment with only the two unique sequences
+>Hap1
+AAAAAA
+>Hap2
+TTTTTT
+              </pre>
+            </div>
+          </div>
+
+          <p class="lead">A <i><b>.haplotypes</b></i> files is generated alongside the collapsed
+            alignment with the correspondence
+          between haplotype names and the original taxon names.</p>
+
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_collapse.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Collapse"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Collapse tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_consensus">Create consensus sequences from alignments</h2>
+          <p class="lead">With the <b>Consensus</b> operation, you can create a consensus sequence for each
+            alignment individually or for the concatenated alignment.
+            There are several methods available on how to deal with sequence variation.</p>
+
+          <div style="padding: 20px; 0">
+            <table class="table table-bordered">
+              <thead align="center">
+              <td colspan="4"><strong>Options for sequence variation handling during consensus</strong></td>
+              </thead>
+              <tbody align="center">
+                <tr>
+                  <td><strong>IUPAC</strong></td>
+                  <td><strong>Soft mask</strong></td>
+                  <td><strong>Remove</strong></td>
+                  <td><strong>First sequence</strong></td>
+                </tr>
+                <tr>
+                  <td> (Nucleotide sequences only) Converts variable sites using the <a target="_blank" href="http://www.bioinformatics.org/sms/iupac.html">IUPAC nucleotide
+                    ambiguity code</a></td>
+                  <td>Replaces variable sites with the missing data symbol</td>
+                  <td>Removes variable sites from the consensus</td>
+                  <td>An arbitrary method that simply uses the first sequence without modification</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="lead">
+            Optionally, consensus
+            sequences from multiple alignments can be merged into a single output file, ready for downstream analyses.
+            Here's an example of how consensus sequences are created for three input alignments.
+          </p>
+
+          <div class="container-fluid workflow">
+            <div class="workflow-header">
+              <p class="lead">Example:</p>
+            </div>
+            <div class="workflow-container">
+              <div class="col-md-4">
+                <pre>
+# Alignment1.fas
+>TaxonA
+ATAAAA
+>TaxonB
+AAAAAA
+>TaxonC
+AAAAAG
+>TaxonD
+AAAAAA
+                </pre>
+              </div>
+              <div class="col-md-4">
+                <pre>
+# Alignment2.fas
+>TaxonA
+TATTTT
+>TaxonB
+TTTTTC
+>TaxonC
+TTTTTT
+>TaxonD
+TTTTTT
+                </pre>
+              </div>
+              <div class="col-md-4">
+                <pre>
+# Alignment3.fas
+>TaxonA
+GAGGGG
+>TaxonB
+GGGGGG
+>TaxonC
+GGGGGG
+>TaxonD
+GGGGGG
+                </pre>
+              </div>
+
+              <div style="text-align:center;vertical-align:middle;margin-top:20px; padding-bottom:20px">
+                <p><b>Create individual consensus masking sequence variation</b></p>
+                <i class="fa fa-chevron-down fa-5x" aria-hidden="true"></i>
+              </div>
+
+              <div class="col-md-4">
+                <pre>
+# Alignment1_consensus.fas
+>consensus
+ANAAAN
+                </pre>
+              </div>
+              <div class="col-md-4">
+                <pre>
+# Alignment2_consensus.fas
+>consensus
+TNTTTN
+                </pre>
+              </div>
+              <div class="col-md-4">
+                <pre>
+# Alignment3_consensus.fas
+>consensus
+GNGGGG
+                </pre>
+              </div>
+
+              <div style="text-align:center;vertical-align:middle;padding-top:20px; padding-bottom:20px">
+                <p><b>Optionally, merge all consensus into a single file</b></p>
+                <i class="fa fa-chevron-down fa-5x" aria-hidden="true"></i>
+              </div>
+
+              <div style="width:500px; margin: auto">
+                <pre>
+# consensus.fas
+>Alignment1_consensus
+ANAAAN
+>Alignment2_consensus
+TNTTTN
+>Alignment3_consensus
+GNGGGG
+                </pre>
+              </div>
+            </div>
+          </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_consensus.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Consensus"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Consensus tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_filter_taxa">Filter alignments by taxa</h2>
+          <p class="lead">Alignments can be filtered depending on whether the contain or excluded user-defined
+            taxa groups. These taxa groups can be easily defined in TriFusion or imported from text files
+            and can represent any number of samples in the data set. For instance, in the example below,
+            we filter out alignments that do not contain both <b>TaxonA</b> and <b>TaxonD</b>, resulting
+            in only 2 out of 4 alignments being further processed.
+          </p>
+
+          <div class="container-fluid workflow">
+            <div class="workflow-header">
+              <p class="lead"><strong>Example:</strong></p>
+            </div>
+            <div class="workflow-container">
+              <div class="container" style="width:100%">
+                <div class="col-md-3">
+                  <pre>
+# Alignment1.fas
+><strong>TaxonA</strong>
+AAAAAA
+>TaxonB
+TTTTTT
+>TaxonC
+CCCCCC
+><strong>TaxonD</strong>
+DDDDDD
+                  </pre>
+                </div>
+                <div class="col-md-3">
+                  <pre>
+# Alignment2.fas
+><strong>TaxonA</strong>
+AAAAAA
+>TaxonB
+TTTTTT
+                </pre>
+              </div>
+              <div class="col-md-3">
+                <pre>
+# Alignment3.fas
+>TaxonB
+TTTTTT
+>TaxonC
+CCCCCC
+><strong>TaxonD</strong>
+DDDDDD
+                </pre>
+              </div>
+              <div class="col-md-3">
+                <pre>
+# Alignment4.fas
+><strong>TaxonA</strong>
+AAAAAA
+><strong>TaxonD</strong>
+DDDDDD
+                  </pre>
+                </div>
+              </div>
+
+              <div style="text-align:center;vertical-align:middle;margin-top:20px; padding-bottom:20px">
+                <p><b>Preserving only alignments that contain <b>TaxonA</b> and <b>TaxonD</b> </b></p>
+                <i class="fa fa-chevron-down fa-5x" aria-hidden="true"></i>
+              </div>
+
+              <div class="container" style="max-width:800px; margin:auto">
+                <div class="col-md-6">
+                  <pre style="height: 190">
+# Alignment1.fas
+><strong>TaxonA</strong>
+AAAAAA
+>TaxonB
+TTTTTT
+>TaxonC
+CCCCCC
+><strong>TaxonD</strong>
+DDDDDD
+                  </pre>
+                </div>
+              <div class="col-md-6">
+                <pre>
+# Alignment4.fas
+><strong>TaxonA</strong>
+AAAAAA
+><strong>TaxonD</strong>
+DDDDDD
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_filter_taxa.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Taxa-filter"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to taxa filter tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_filter_codon">Filter alignments by codons</h2>
+          <p class="lead">Alignment columns can be filtered according to their codon positions in any combination.
+            This is quite useful when you wish to remove, for example, saturated codon positions for downstream analyses.
+            However, note that, for now, TriFusion will filter the same codon positions for each input alignment.
+          </p>
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_filter_codons.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Codon-position-filter"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to codon filter tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_filter_missing">Filter alignments by missing data/genes</h2>
+          <p class="lead">Filtering alignments and alignments columns according to missing taxa and missing data,
+            respectively, is one of the most common processing steps when dealing with large amounts of data.
+          </p>
+
+          <div class="container-fluid workflow">
+            <div class="workflow-header">
+              <p class="lead">Filter missing data within alignments</p>
+            </div>
+            <div class="workflow-container">
+              <p class="lead"><b>1. Replace gaps at the extremities </b></p>
+              <p class="lead">The first step when filtering alignment columns for missing data is to replace
+                the gap symbols at the extremities of the alignment by missing data symbols. Gaps at the
+                extremities of the alignment are usually introduced by alignment programs but they actually
+                represent missing data. The distinction may be important for several downstream analyses,
+                for filtering according to gaps/missing data or for coding gaps at the end of the alignment
+                matrix.</p>
+
+              <div class="container-fluid">
+                <div class="col-md-5">
+                  <pre>
+>TaxonA
+--AA-AA--A-
+>TaxonB
+-AAAA--AAAA
+>TaxonC
+AAA--AAAA--
+>TaxonD
+AAA--AA-AAA
+                  </pre>
+                </div>
+
+                <div class="col-md-2" style="line-height:200px; text-align:center">
+                  <i class="fa fa-chevron-right fa-5x ar-right" aria-hidden="true"></i>
+                  <i class="fa fa-chevron-down fa-5x ar-down" aria-hidden="true"></i>
+                </div>
+
+                <div class="col-md-5">
+                  <pre>
+>TaxonA
+<strong>NN</strong>AA-AA--A<strong>N</strong>
+>TaxonB
+<strong>N</strong>AAAA--AAAA
+>TaxonC
+AAA--AAAA<strong>NN</strong>
+>TaxonD
+AAA--AA-AAA
+                  </pre>
+                </div>
+              </div>
+
+              <p class="lead"><b>2. Filter columns with excessive gaps/missing data </b></p>
+              <p class="lead">You may want to filter your alignments in order to reduce the amount of columns
+              with excessive missing data, or just plainly remove all missing data from the alignments.
+              TriFusion allows you to set two independent thresholds for gaps and missing data and then
+              removes all alignment columns that exceed those thresholds.</p>
+
+              <div class="container-fluid">
+                <div class="col-md-5">
+                  <pre>
+# Filter columns with max gap 50%
+# and max missing data 50%
+>TaxonA
+<strong>N</strong>NAA<strong>-</strong>AA--AN
+>TaxonB
+<strong>N</strong>AAA<strong>A</strong>--AAAA
+>TaxonC
+<strong>A</strong>AA-<strong>-</strong>AAAANN
+>TaxonD
+<strong>A</strong>AA-<strong>-</strong>AA-AAA
+                  </pre>
+                </div>
+
+                <div class="col-md-2 container" style="line-height:200px; text-align:center">
+                  <i class="fa fa-chevron-right fa-5x var-ar ar-right" aria-hidden="true"></i>
+                  <i class="fa fa-chevron-down fa-5x var-ar ar-down" aria-hidden="true"></i>
+                </div>
+
+                <div class="col-md-5">
+                  <pre>
+# Two columns filtered
+>TaxonA
+NAAAA--AN
+>TaxonB
+AAA--AAAA
+>TaxonC
+AA-AAAANN
+>TaxonD
+AA-AA-AAA
+                  </pre>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="container-fluid workflow">
+            <div class="workflow-header">
+              <p class="lead">Filter alignments with low taxa coverage</p>
+            </div>
+            <div class="workflow-container">
+              <p class="lead">When you have multiple files you may want to filter alignments that have low taxa coverage
+              in order to produce more dense alignment matrices. This can be easily accomplished by setting
+              a minimum taxa representation proportion that alignments will have to pass to be further
+              processed. This can be used in combination with the taxa filter option for more fine grained
+              control on the resulting alignment matrices.</p>
+
+              <div class="container" style="width:100%">
+                <div class="col-md-3">
+                  <pre>
+  # 6 taxa file
+  >TaxonA
+  AAAAAA
+  >TaxonB
+  AAAAAA
+  >TaxonC
+  AAAAAA
+  >TaxonD
+  AAAAAA
+  >TaxonE
+  AAAAAA
+                  </pre>
+                </div>
+                <div class="col-md-3">
+                  <pre>
+  # 3 taxa file
+  >TaxonA
+  AAAAAA
+  >TaxonD
+  AAAAAA
+  >TaxonE
+  AAAAAA
+                  </pre>
+                </div>
+                <div class="col-md-3">
+                  <pre>
+  # 2 taxa file
+  >TaxonA
+  AAAAAA
+  >TaxonB
+  AAAAAA
+                  </pre>
+                </div>
+                <div class="col-md-3">
+                  <pre>
+  # 5 taxa file
+  >TaxonA
+  AAAAAA
+  >TaxonB
+  AAAAAA
+  >TaxonC
+  AAAAAA
+  >TaxonD
+  AAAAAA
+  >TaxonE
+  AAAAAA
+                  </pre>
+                </div>
+              </div>
+
+              <div style="text-align:center;line-height:10px; width:100%; padding: 20px 0px">
+                <p><b>Minimum taxa representation of 50%</b></p>
+                <i class="fa fa-chevron-down fa-5x" aria-hidden="true"></i>
+              </div>
+
+              <div style="max-width:600px;margin:auto">
+                <div class="col-md-6">
+                  <pre>
+  # 6 taxa file
+  >TaxonA
+  AAAAAA
+  >TaxonB
+  AAAAAA
+  >TaxonC
+  AAAAAA
+  >TaxonD
+  AAAAAA
+  >TaxonE
+  AAAAAA
+                  </pre>
+                </div>
+                <div class="col-md-6">
+                  <pre>
+  # 5 taxa file
+  >TaxonA
+  AAAAAA
+  >TaxonB
+  AAAAAA
+  >TaxonC
+  AAAAAA
+  >TaxonD
+  AAAAAA
+  >TaxonE
+  AAAAAA
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_filter_missing_data.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Gap/Missing-data-filter"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to missing data filter tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_filter_var">Filter alignments by sequence variation</h2>
+          <p class="lead">Alignments can be filtered according to the number of variable and/or parsimoniously
+            informative columns. You can specify a range of acceptable values for either metric and keep only the
+            alignments with the type of variation that you are interested in.
+          </p>
+
+          <div class="container-fluid workflow">
+            <div class="workflow-header">
+              <p class="lead">Example:</p>
+            </div>
+            <div class="workflow-container">
+              <div class="container" style="width:100%">
+                <div class="col-md-3">
+                  <pre>
+# 4 variable sites
+# Alignment1.fas
+>TaxonA
+AAAAAA
+>TaxonB
+A<strong>T</strong>AA<strong>T</strong>A
+>TaxonC
+<strong>T</strong>AAAAA
+>TaxonD
+AAAAA<strong>T</strong>
+                  </pre>
+                </div>
+                <div class="col-md-3">
+                  <pre>
+# 1 variable site
+# Alignment2.fas
+>TaxonA
+AAAAAA
+>TaxonB
+AAAA<strong>T</strong>A
+>TaxonC
+AAAAAA
+>TaxonD
+AAAAAA
+                  </pre>
+                </div>
+                <div class="col-md-3">
+                  <pre>
+# 0 variable sites
+# Alignment3.fas
+>TaxonA
+AAAAAA
+>TaxonB
+AAAAAA
+>TaxonC
+AAAAAA
+>TaxonD
+AAAAAA
+                  </pre>
+                </div>
+                <div class="col-md-3">
+                  <pre>
+# 3 variable sites
+# Alignment4.fas
+>TaxonA
+A<strong>T</strong>AA<strong>T</strong>A
+>TaxonB
+AAAAAA
+>TaxonC
+AAAAAA
+>TaxonD
+AAAAA<strong>T</strong>
+                  </pre>
+                </div>
+              </div>
+
+
+              <div style="text-align:center;line-height:10px; width:100%; padding: 20px 0px">
+                <p><b>Filter alignments w/ less than 4 var sites</b></p>
+                <i class="fa fa-chevron-down fa-5x" aria-hidden="true"></i>
+              </div>
+
+              <div class="container" style="width:100%;max-width:300px;margin:auto">
+                <div class="col-md-12">
+                  <pre>
+# 4 variable sites
+>TaxonA
+AAAAAA
+>TaxonB
+A<strong>T</strong>AA<strong>T</strong>A
+>TaxonC
+<strong>T</strong>AAAAA
+>TaxonD
+AAAAA<strong>T</strong>
+                  </pre>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_filter_variation.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Sequence-variation-filter"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to sequence variation filter tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_code_gaps">Code gaps into the alignment matrix</h2>
+          <p class="lead">If you suspect that the indel patterns in your alignments may contain valuable
+            phylogenetic information, TriFusion has the option to code you indel patterns as binary states
+            at the end of the alignment matrix and creates a well formatted <b>Nexus</b> file ready for downstream
+            analysis with programs such as MrBayes. If you are concatenating multiple alignments, the binary
+            matrix will be concatenated as well.
+          </p>
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_code_gaps.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Gap-coding"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to gap coding tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_reverse">Reverse a concatenated alignment</h2>
+          <p class="lead">If you have a concatenated alignment and a partitions file, you can easily export those
+            partitions as individual alignment files. More generally, TriFusion allows you to export
+            subsets of any given alignment that are defined in a provided partitions file OR defined
+            within TriFusion - even codon partitions!
+          </p>
+
+          <div class="container-fluid workflow">
+            <div class="workflow-header">
+              <p class="lead">Example:</p>
+            </div>
+            <div class="workflow-container">
+              <p class="lead">If you have a 1,000bp alignment and wish to export 4 partitions of equal
+              length as individual alignment files, you just need to write a partitions file like this
+                (Alternatively you could also define those partitions inside TriFusion - see <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Reverting%20a%20concatenated%20file.ipynb">this tutorial</a>):</p>
+              <pre>
+# Export these 4 partitions
+charset alignment1 = 1:250;
+charset alignment2 = 251:500;
+charset alignment3 = 501:750;
+charset alignment4 = 751:1000;</pre>
+              <p class="lead">
+                The export of codon partitions is also possible using the <code>/3</code> notation. For instance,
+                to split the first partition in the example above into three codon partitions you could do
+                the following:</p>
+              <pre>
+# Export these 4 partitions
+charset alignment1_1 = 1:250/3;
+charset alignment1_2 = 2:250/3;
+charset alignment1_3 = 3:250/3;
+charset alignment2 = 251:500;
+charset alignment3 = 501:750;
+charset alignment4 = 751:1000;</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_reverse_concat.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Reverting%20a%20concatenated%20file.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to reverse concatenation tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_combine">Combine multiple operations on a single run</h2>
+          <p class="lead">
+            <b>All operations of TriFusion's Process can be combined in any way during a single run</b>. For instance,
+            you may want to concatenate your alignments, filter alignments that exclude a given taxa group, remove
+            alignment columns with high missing data and collapse sequences in unique haplotypes. All in the same
+            execution.<br><br>
+            In addition, <b>the output of any individual operation can be saved on a new file that is independent from
+            the main output file</b>. For instance, you can select the concatenation and collapse of your alignments, but
+            save the output of the collapse operation on an second file.<br><br>
+            For performance reasons all these operations follow a specific order:
+          </p>
+
+          <ol class="lead">
+            <li><b>Main operation</b> (Concatenation/Conversion/Reverse concatenation)</li>
+            <li><b>Filter</b></li>
+            <ol>
+              <li>Taxa filter</li>
+              <li>Minimum taxa representation</li>
+              <li>Taxa filter</li>
+              <li>Codon filter</li>
+              <li>Missing data filter</li>
+              <li>Sequence variation filter</li>
+            </ol>
+            <li><b>Collapse</b></li>
+            <li><b>Gap coding</b></li>
+            <li><b>Consensus</b></li>
+          </ol>
+
+          <p class="lead">
+            The video below demonstrates a single run where 141 alignments are concatenated, collapsed,
+            filtered by taxa group, filtered by minimum taxa representation, filtered by missing data
+            and filtered by sequence variation, and the consensus sequence of the concatenated
+            alignment is also generated in an additional output file.
+          </p>
+
+        </div>
+
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_multiple_ops.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb#Combination-of-three-secondary-operations"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to multiple Process operations tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_ds_groups">Setup and usage of data set groups</h2>
+          <p class="lead">Sometimes it may be desired to perform different tasks on different sets
+            of taxa or alignments.<br><br>
+            For instance, you may have a data set of nuclear and mitochondrial
+            alignments and wish to create a concatenated alignment for each set of alignments.<br><br>
+            Or perhaps your data set includes several taxonomic groups of interest and you want
+            to create multiple concatenated data matrices that maximize the data for those particular
+            groups of taxa.<br><br>
+            To make your life easier when these needs arise, TriFusion allows you to create or import
+            groups of taxa and/or alignment groups and then rapidly switch between them. The video below
+            demonstrates how groups of files and taxa can be quickly created and then how you
+            can perform different tasks on them.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_ds_groups.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Creating%20and%20using%20active%20data%20set%20groups..ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to data set groups tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_projects">Save frequently used data sets as projects</h2>
+          <p class="lead">If you have one or more data sets that you need to process or
+            analyze frequently, TriFusion offers the possibility of saving any set of files
+            currently loaded into the application as a project, so that they can be quickly loaded on future sessions.
+            This can be useful in the same session as well, as a way of quickly switching between
+            different sets of files.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_projects.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="process_models">Set partitions and substitution models</h2>
+          <p class="lead">Partitions can be easily defined and changed within TriFusion, imported
+            from partitions files, or specified within the alignment file in the Nexus format.
+            You can also set and modify the substitution model for each partition, which can
+            be useful for several downstream analyses. In the case of nucleotide sequences,
+            codon partitions can also be defined in any possible combination and with independent
+            substitution models.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/process_partitions_models.mp4" type="video/mp4">
+          </video>
+        </div>
+        <!-- Start of Statistics features -->
+
+        <div class="marketing-header" id="stats-main">Statistics</div>
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="stats_sumstats">Quick summary statistics</h2>
+          <p class="lead">As soon as you load your alignment data and enter the <b>Statistics</b> screen,
+            calculation of summary statistics will in the background. When completed, you will able
+            to see several statistics related to <b>general</b>, <b>missing data</b> and <b>sequence variation</b>
+            information averaged across the data set. In addition, you can also see these statistics detailed
+            for each input alignment file in a tabular format with sorting and search functions.
+            Both of these formats can be exported into a .csv file that can be
+            opened in any spreadsheet software.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_sumstats.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+        <div class="col">
+          <h2 class="tour-featurette-heading text-center" id="stats_plots">Plot categories</h2>
+          <p class="lead">One of the main challenges of dealing with very large sets of alignment files
+            is the difficulty in getting a good feel for the data, that is, understanding its characteristics
+            and peculiarities.<br><br>
+            <b>How much missing data do I have? And sequence variation? How are these metrics distributed
+              across taxa and alignments? Are there any outlier taxa/alignments?</b>
+            <br><br>
+            Answering these questions is the main purpose of the <b>Statistics</b> module. There are dozens
+            of plotting options available for you to quickly explore and visualize many aspects of data.
+            You can check the plot gallery to see some examples.</p>
+
+          <h2>Plotting options</h2>
+
+          <ul class="lead">
+            <li><b>General information</b></li>
+            <ul>
+              <li>Distribution of sequence size</li>
+              <li>Proportion of nucleotides or residues</li>
+              <li>Distribution of taxa frequency</li>
+            </ul>
+            <li><b>Polymorphism and variation</b></li>
+            <ul>
+              <li>Pairwise sequence similarity</li>
+              <li>Segregating sites</li>
+              <li>Alignment length/polymorphism correlation</li>
+              <li>Allele frequency spectrum</li>
+            </ul>
+            <li><b>Missing data</b></li>
+            <ul>
+              <li>Gene occupancy</li>
+              <li>Distribution of missing taxa</li>
+              <li>Distribution of missing data</li>
+              <li>Cumulative distribution of missing genes</li>
+            </ul>
+            <li><b>Outlier detection</b></li>
+            <ul>
+              <li>Missing data outliers</li>
+              <li>Segregating sites outliers</li>
+              <li>Sequence size outliers</li>
+            </ul>
+          </ul>
+
+          <h2>Plot types</h2>
+
+          <p class="lead">For each of these plotting options, you may have <strong>up to three</strong> plot types
+            that provide a different focus on the same analysis: </p>
+
+          <ul class="lead">
+            <li><b>Single gene:</b> Plots the information along the alignment length (Sliding window).</li>
+            <li><b>Per species:</b> Plots the information with the taxa along the x-axis or in triangular matrices.</li>
+            <li><b>Average</b>: Plots information averaged across the active data set.</li>
+          </ul>
+
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_plot_cat.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading" id="stats_single">Data visualization focusing on single alignments</h2>
+          <p class="tour-text">Some plotting analyses can be performed on individual analyses and
+            generate a sliding window plot with the variation of a given metric along the length of the
+            alignments. For the moment, these plot types are only provided for some <b>Polymorphism and
+            sequence variation plots</b> plot options<br><br>
+
+            Here's an example of the sliding window analyses for individual alignments.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_plot_sg.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading" id="stats_taxa">Data visualization focusing on taxa</h2>
+          <p class="tour-text">If you are interested in evaluating the impact of that some metric has on
+            individual taxa use the <b>Taxa</b> plot type, when available. This will focus
+            the analysis to give particular focus on taxa by discriminating them along the x-axis, in
+            a triangular matrix or along a distribution.<br><br>
+
+            Here's an example with the generation of some taxa focused plots.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_plot_taxa.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading" id="stats_average">Data visualization focusing on genes</h2>
+          <p class="tour-text">If you are interested in getting data set wide trends or distribution
+            use the <b>Average</b> plot type, when available. These plot types will usually generate
+            the averaged distribution of the metric of interest across the active data set.<br><br>
+
+            Here's an example with the generation of some data set wide distributions.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_plot_average.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading" id="stats_fast_switch">Plot fast switching</h2>
+          <p class="tour-text">During the exploration endeavour, it's frequent to switch back and
+            forth among several plots. Since some plots may take a while to be generated, depending on the
+            size of the active data set, several techniques were implemented to allow fast switching among
+            plots that have already been generated. In addition, some computations are stored locally on
+            a SQLite database in order to reduce waiting times when changing the active data set.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_fast_switch.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading" id="stats_groups">Usage of data set groups</h2>
+          <p class="tour-text">Just like in the <b>Process</b> section, you can create or import groups of
+            taxa/files and switch between them to generate the plots. Simply create your groups of interest
+            and then select the ones you want for any plotting options.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_groups.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+        <!-- Tour element separator -->
+
+        <div class="col">
+          <h2 class="tour-featurette-heading" id="stats_export">Export plots as figures or tables</h2>
+          <p class="tour-text">All plots generated in the <b>Statistics</b> module can be exported
+            as a figure (in several graphical formats, including vectorial). Generally, the plot generators
+            were designed to produce high quality and publication ready graphics. However, you may want to tweak,
+            change or add content to these plots. To make life easier for you, you can also export the data
+            used to generate the plot as a .csv files, which can be easily loaded by other graphical libraries and
+            software.
+          </p>
+        </div>
+        <div class="feat-block">
+          <video class="feat-video" width="100%" class="vcenter" controls>
+            <source src="../videos/stats_export.mp4" type="video/mp4">
+          </video>
+          <div class="text-center tutorial-bt">
+            <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb"
+               type="button" class="btn btn-primary btn-lg" role="button">Jump to Statistics tutorial</a>
+          </div>
+        </div>
+
+      </div>
+      </div>
+      <!-- FOOTER -->
+      <footer class="footer">
+        <div class="container">
+          <p class="footer-text"><strong>TriFusion</strong> &#9728 <b>2017</b> &#9728 <b>Designed and built by
+          </b><strong><a href="https://twitter.com/ODiogoSilva">@ODiogoSilva</a></strong> <b>with</b>
+            <strong><a href="http://getbootstrap.com/">Bootstrap3</a></strong> <b>and</b>
+            <strong><a href="http://fontawesome.io/">Font Awesome</a></strong> &#9728 <b>Licensed under</b>
+            <strong><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></strong></p>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+</body>
+
+<script>
+$('.feat-video').click(function(){this.paused?this.play():this.pause();});
+</script>
+
+<script>
+var body = $("body");
+
+$(window).resize(function() {
+  var w = body.width()
+
+  arrows_r = document.getElementsByClassName("var-ar")
+
+
+  991
+  });
+</script>
+
+</html>

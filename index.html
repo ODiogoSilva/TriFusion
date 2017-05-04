@@ -7,7 +7,6 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
 
     <title>TriFusion - Streamlining phylogenomic data gathering, processing and visualization</title>
 
@@ -33,14 +32,16 @@
 <!-- NAVBAR
 ================================================== -->
   <body>
+  <div>
     <div class="navbar-wrapper" id="home">
       <div class="container">
-
         <nav class="navbar navbar-static-top">
           <div class="container">
             <div class="navbar-header">
               <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                 <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
               <a href="#" class="navbar-left"><img id="logo" src="images/trifusion-icon-256.png"></a>
@@ -49,7 +50,13 @@
               <ul class="nav navbar-nav">
                 <li class="active bottom-bar w3-hover-border-tfblue"><a href="#" id="smooth-link">Home</a></li>
                 <li class="bottom-bar w3-hover-border-tfblue"><a href="#marketing-header" id="smooth-link">Installation</a></li>
-                <li class="bottom-bar w3-hover-border-tfblue"><a href="#featurette" id="smooth-link">Features</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Features <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li ><a href="#featurette" id="smooth-link">Quick Features</a></li>
+                    <li ><a href="content/features.html">Full Features</a></li>
+                  </ul>
+                </li>
                 <li class="bottom-bar w3-hover-border-tfblue"><a href="#tutorials" id="smooth-link">Tutorials</a></li>
                   </ul>
                 </li>
@@ -61,388 +68,395 @@
       </div>
     </div>
 
-
-    <!-- Carousel
-    ================================================== -->
-    <div id="myCarousel" class="carousel slide" data-ride="carousel">
-      <!-- Indicators -->
-      <ol class="carousel-indicators">
-        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-        <li data-target="#myCarousel" data-slide-to="1"></li>
-        <li data-target="#myCarousel" data-slide-to="2"></li>
-        <li data-target="#myCarousel" data-slide-to="3"></li>
-        <li data-target="#myCarousel" data-slide-to="4"></li>
-        <li data-target="#myCarousel" data-slide-to="5"></li>
-      </ol>
-      <div class="carousel-inner" role="listbox">
-        <div class="item active">
-          <img class="first-slide" src="images/trifusion-icon-500.png" width="500" height="500" alt="First slide">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1>TriFusion</h1>
-              <h3>Phylogenomic data gathering, processing and visualization for everyone!</h3>
+      <!-- Carousel
+      ================================================== -->
+      <div id="myCarousel" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+          <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+          <li data-target="#myCarousel" data-slide-to="1"></li>
+          <li data-target="#myCarousel" data-slide-to="2"></li>
+          <li data-target="#myCarousel" data-slide-to="3"></li>
+          <li data-target="#myCarousel" data-slide-to="4"></li>
+          <li data-target="#myCarousel" data-slide-to="5"></li>
+        </ol>
+        <div class="carousel-inner" role="listbox">
+          <div class="item active">
+            <img class="first-slide" src="images/trifusion-icon-500.png" width="500" height="500" alt="First slide">
+            <div class="container">
+              <div class="carousel-caption">
+                <h1>TriFusion</h1>
+                <h3>Phylogenomic data gathering, processing and visualization for everyone!</h3>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <img class="second-slide" src="images/fungi_wide.png" alt="">
+            <div class="container">
+              <div class="carousel-caption">
+                <h1>TriFusion</h1>
+                <h3>Designed with two goals: Simplicity and User-friendly</h3>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <img class="third-slide cimg" src="images/fish_wide.png" alt="">
+            <div class="container">
+              <div class="carousel-caption">
+                <h1>TriFusion</h1>
+                <h3>Detection and exploration of orthologs across multiple species... made easy!</h3>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <img class="fourth-slide cimg" src="images/flower_wide.png" alt="Third slide">
+            <div class="container">
+              <div class="carousel-caption">
+                <h1>TriFusion</h1>
+                <h3>Convert, manipulate and export thousands of multiple sequence alignments in a breeze</h3>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <img class="fifth-slide cimg" src="images/bird_wide.png" alt="Third slide">
+            <div class="container">
+              <div class="carousel-caption">
+                <h1>TriFusion</h1>
+                <h3>Full graphical visualization of your data</h3>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <img class="sixth-slide cimg" src="images/medusa_wide.png" alt="Third slide">
+            <div class="container">
+              <div class="carousel-caption">
+                <h1>TriFusion</h1>
+                <h3>Bringing the control back to the researcher</h3>
+              </div>
             </div>
           </div>
         </div>
-        <div class="item">
-          <img class="second-slide" src="/home/diogo/Diogo/Science/Scripts/packages/TriFusion-tutorials/tutorials/gifs/process_tutorial1_dragNdrop.gif" alt="">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1>TriFusion</h1>
-              <h3>Designed with two goals: Simplicity and User-friendly</h3>
-            </div>
-          </div>
-        </div>
-        <div class="item">
-          <img class="third-slide cimg" src="images/fish_wide.png" alt="">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1>TriFusion</h1>
-              <h3>Detection and exploration of orthologs across multiple species... made easy!</h3>
-            </div>
-          </div>
-        </div>
-        <div class="item">
-          <img class="fourth-slide cimg" src="images/flower_wide.png" alt="Third slide">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1>TriFusion</h1>
-              <h3>Convert, manipulate and export thousands of multiple sequence alignments in a breeze</h3>
-            </div>
-          </div>
-        </div>
-        <div class="item">
-          <img class="fifth-slide cimg" src="images/bird_wide.png" alt="Third slide">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1>TriFusion</h1>
-              <h3>Full graphical visualization of your data</h3>
-            </div>
-          </div>
-        </div>
-        <div class="item">
-          <img class="sixth-slide cimg" src="images/medusa_wide.png" alt="Third slide">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1>TriFusion</h1>
-              <h3>Bringing the control back to the researcher</h3>
-            </div>
-          </div>
-        </div>
+        <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+          <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+          <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
       </div>
-      <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
-    </div>
-    <!-- /.carousel -->
+      <!-- /.carousel -->
 
-    <div id=marketing-header>Get Started on TriFusion</div>
+      <div class="marketing-header" id=marketing-header>Get Started on TriFusion</div>
 
-    <div class="container marketing">
+      <div class="container marketing">
 
-      <!-- Three columns of text below the carousel -->
-      <div class="row">
-        <div class="col-lg-4">
-          <i class="fa fa-arrow-circle-o-down" id="main-icons" aria-hidden="true"></i>
-          <h2>Download</h2>
-          <p>Installers are available for Windows, MacOS and several Unix distro's. PPAs are available Debian and Ubuntu and AUR packages for ArchLinux.</p>
-          <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal" style="font-weight: bold">Get TriFusion</button>
+        <!-- Three columns of text below the carousel -->
+        <div class="row">
+          <div class="col-lg-4">
+            <i class="fa fa-arrow-circle-o-down" id="main-icons" aria-hidden="true"></i>
+            <h2>Download</h2>
+            <p>Installers are available for Windows, MacOS and several Unix distro's. PPAs are available Debian and Ubuntu and AUR packages for ArchLinux.</p>
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#downloadModal" style="font-weight: bold">Get TriFusion</button>
 
-        </div><!-- /.col-lg-4 -->
-        <div class="col-lg-4">
-          <i class="fa fa-book" id="main-icons" aria-hidden="true"></i>
-          <h2>User Guide</h2>
-          <p>Get the lattest documentation on the full features of TriFusion, how to operate GUI and command line versions of TriFusion, and more!</p>
-          <a href="https://github.com/ODiogoSilva/TriFusion/raw/master/docs/manual.pdf" type="button" class="btn btn-info" style="font-weight: bold">Download guide</a>
-        </div><!-- /.col-lg-4 -->
-        <div class="col-lg-4">
-          <i class="fa fa-github" id="main-icons" aria-hidden="true"></i>
-          <h2>View on GitHub</h2>
-          <p>TriFusion is and will always be free software (under GPLv3 license). Feel free to view and modify the source code, hosted on GitHub.</p>
-          <a href="https://github.com/ODiogoSilva/TriFusion" target="_blank" type="button" class="btn btn-info" style="font-weight: bold">View Source</a>
-        </div><!-- /.col-lg-4 -->
-      </div><!-- /.row -->
+          </div><!-- /.col-lg-4 -->
+          <div class="col-lg-4">
+            <i class="fa fa-book" id="main-icons" aria-hidden="true"></i>
+            <h2>User Guide</h2>
+            <p>Get the lattest documentation on the full features of TriFusion, how to operate GUI and command line versions of TriFusion, and more!</p>
+            <a href="https://github.com/ODiogoSilva/TriFusion/raw/master/docs/manual.pdf" type="button" class="btn btn-info" style="font-weight: bold">Download guide</a>
+          </div><!-- /.col-lg-4 -->
+          <div class="col-lg-4">
+            <i class="fa fa-github" id="main-icons" aria-hidden="true"></i>
+            <h2>View on GitHub</h2>
+            <p>TriFusion is and will always be free software (under GPLv3 license). Feel free to view and modify the source code, hosted on GitHub.</p>
+            <a href="https://github.com/ODiogoSilva/TriFusion" target="_blank" type="button" class="btn btn-info" style="font-weight: bold">View Source</a>
+          </div><!-- /.col-lg-4 -->
+        </div><!-- /.row -->
 
-      <!-- Download modal view -->
-      <!--=================================================================-->
-      <div id="downloadModal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title">Download TriFusion</h4>
-            </div>
-            <div class="modal-body">
-              <div class="w3-container">
-                <div class="w3-row">
-                  <a href="javascript:void(0)" onclick="openTab(event, 'Windows');">
-                    <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center w3-border-tfblue">Windows</div>
-                  </a>
-                  <a href="javascript:void(0)" onclick="openTab(event, 'MacOS');">
-                    <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">MacOS</div>
-                  </a>
-                  <a href="javascript:void(0)" onclick="openTab(event, 'Ubuntu');">
-                    <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">Ubuntu/Debian</div>
-                  </a>
-                  <a href="javascript:void(0)" onclick="openTab(event, 'RPM-based');">
-                    <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">RPM</div>
-                  </a>
-                  <a href="javascript:void(0)" onclick="openTab(event, 'ArchLinux');">
-                    <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">ArchLinux</div>
-                  </a>
-                </div>
-
-                <div id="Windows" class="w3-container tab">
-                  <h3 class="modalh">Installers</h3>
-
-                  <p> Installers with the latest stable release are available with 32 and 64 bits versions: </p>
-
-                <div id="download-section">
-                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win64.msi" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 64bit</a>
-                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win32.msi" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 32bit</a>
-                </div>
-                <br>
-                <h4 class="modalh">Note for Windows 8.x and 10 users:</h4>
-                <p>Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".</p>
-                </div>
-
-                <div id="MacOS" class="w3-container tab">
-                <h3 class="modalh">Package App</h3>
-
-                <p> Ready to use TriFusion package bundle for MacOS: </p>
-
-                  <div id ="download-section">
-
-                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-MacOS.app.zip" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.app.zip</a>
-
+        <!-- Download modal view -->
+        <!--=================================================================-->
+        <div id="downloadModal" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Download TriFusion</h4>
+              </div>
+              <div class="modal-body">
+                <div class="w3-container">
+                  <div class="w3-row">
+                    <a href="javascript:void(0)" onclick="openTab(event, 'Windows');">
+                      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center w3-border-tfblue">Windows</div>
+                    </a>
+                    <a href="javascript:void(0)" onclick="openTab(event, 'MacOS');">
+                      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">MacOS</div>
+                    </a>
+                    <a href="javascript:void(0)" onclick="openTab(event, 'Ubuntu');">
+                      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">Ubuntu/Debian</div>
+                    </a>
+                    <a href="javascript:void(0)" onclick="openTab(event, 'RPM-based');">
+                      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">RPM</div>
+                    </a>
+                    <a href="javascript:void(0)" onclick="openTab(event, 'ArchLinux');">
+                      <div class="w3-quarter tablink w3-bottombar w3-hover-light-grey w3-padding w3-text-center">ArchLinux</div>
+                    </a>
                   </div>
 
-                <h3 class="modalh">From source (Using Homebrew)</h4>
-                    <p>If you do not have homebrew yet, you'll need to install it:</p>
-                    <pre><code class="shell">/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</code></pre>
+                  <div id="Windows" class="w3-container tab">
+                    <h3 class="modalh">Installers</h3>
 
-                    <p>Then, install the SLD dependencies, kivy and TriFusion</p>
-                    <pre><code class="shell">brew install sdl2 sdl2_image sdl2_ttf sdl2_mixer
-pip install -I Cython==0.23
-USE_OSX_FRAMEWORKS=0 pip install kivy
-pip install trifusion</code></pre>
-
-                </div>
-
-                <div id="Ubuntu" class="w3-container tab">
-                  <h3 class="modalh">Debian package</h4>
-                  <p>A debian package with the latest stable release is available for Debian based distributions, using the software center or simply by double-clicking</p>
-
-                  <div id ="download-section">
-
-                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.deb" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.deb</a>
-
-                  </div>
-
-                  <h3 class="modalh">PPA (Ubuntu)</h4>
-
-                  <ul>
-                    <li> Add one of the following PPAs:</li>
-                      <pre><code class="shell"># Stable release
-sudo add-apt-repository ppa:o-diogosilva/trifusion
-# Daily release
-sudo add-apt-repository ppa:o-diogosilva/trifusion-daily</code></pre>
-                    <li> Update your package list: </li>
-                    <pre><code class="shell">sudo apt update</code></pre>
-                    <li>Install/Update TriFusion:</li>
-                    <pre><code class="shell">sudo apt install trifusion</code></pre>
-                  </ul>
-                  <h3 class="modalh">PPA (Debian)</h4>
-
-                  <ul>
-                    <li>Add one of the following PPAs manually to the sources.list file</li>
-                    <pre><code class="shell"># Stable release
-http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main
-# Daily release
-http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main</code></pre>
-                    <li>Add the GPG key to your apt keyring</li>
-                    <pre><code class="shell">sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D4F1E8E6</code></pre>
-                    <li>Refresh your package list and install TriFusion</li>
-                    <pre><code class="shell">sudo apt-get update && sudo apt-get install trifusion</code></pre>
-                  </ul>
-                </div>
-
-                <div id="RPM-based" class="w3-container tab">
-                  <h3 class="modalh">RPM package</h4>
-                  <p>A package with the latest stable release is available for RPM based distributions, using the software center or simply by double-clicking</p>
-
+                    <p> Installers with the latest stable release are available with 32 and 64 bits versions: </p>
 
                   <div id="download-section">
-                    <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.rpm" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.rpm</a>
+                      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win64.msi" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 64bit</a>
+                      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win32.msi" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> Windows 32bit</a>
+                  </div>
+                  <br>
+                  <h4 class="modalh">Note for Windows 8.x and 10 users:</h4>
+                  <p>Executing the TriFusion installer may generate a warning from SmartScreen. To continue with the installation, click the "More info" label and then "Run anyway".</p>
                   </div>
 
-                  <!-- <ul style="list-style: none;">
-                    <li><a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm"><i class="fa fa-download" aria-hidden="true"></i>  trifusion-bin-0.4.11-linux.rpm</a></p></li></li>
-                  </ul> -->
+                  <div id="MacOS" class="w3-container tab">
+                  <h3 class="modalh">Package App</h3>
 
-                  <h3 class="modalh">Build from source</h4>
-                  <p>Before installing TriFusion, you will need to install kivy:</p>
-                  <pre><code class="shell">dnf install python-pip python-devel redhat-rpm-config freeglut-devel SDL*
-pip install cython==0.23
-pip install kivy</code></pre>
-                <p>Then, <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-0.4.11-linux.rpm">download</a> the latest RPM release of TriFusion and install it as a regular RPM package. Note that the RPM package is not in any repository yet, which means that it will not received updates of the latest version of TriFusion from GitHub. However, it's possible to stay on the bleeding edge of the development by following these steps:</p>
-                <ul>
-                  <li>After installing the RPM package, remove ONLY the TriFusion package, but leave the dependencies installed. For example, in Fedora:</li>
-                  <pre><code class="shell">dnf remove TriFusion</code></pre>
-                  <li>Clone the git repository of TriFusion to your computer</li>
-                  <pre><code class="shell">git clone https://github.com/ODiogoSilva/TriFusion.git</code></pre>
-                  <li>In a terminal, navigate to TriFusion's directory and execute:</li>
-                  <pre><code class="shell">sudo python setup.py install</code></pre>
-                </ul>
-                <p>Since all dependencies are already installed, this will install only the most recent version of TriFusion. To keep TriFusion up to date afterwards, you'll just need to pull the most recent code and re-install it.</p>
-                <pre><code class="shell">git pull
-sudo python setup.py install --force</code></pre>
-                </div>
+                  <p> Ready to use TriFusion package bundle for MacOS: </p>
 
-                <div id="ArchLinux" class="w3-container tab">
-                  <h3 class="modalh">AUR packages</h4>
-                  <p>There are three <a href="https://aur.archlinux.org/">AUR</a> packages for TriFusion:</p>
+                    <div id ="download-section">
+
+                      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-MacOS.app.zip" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.app.zip</a>
+
+                    </div>
+
+                  <h3 class="modalh">From source (Using Homebrew)</h4>
+                      <p>If you do not have homebrew yet, you'll need to install it:</p>
+                      <pre><code class="shell">/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</code></pre>
+
+                      <p>Then, install the SLD dependencies, kivy and TriFusion</p>
+                      <pre><code class="shell">brew install sdl2 sdl2_image sdl2_ttf sdl2_mixer
+  pip install -I Cython==0.23
+  USE_OSX_FRAMEWORKS=0 pip install kivy
+  pip install trifusion</code></pre>
+
+                  </div>
+
+                  <div id="Ubuntu" class="w3-container tab">
+                    <h3 class="modalh">Debian package</h4>
+                    <p>A debian package with the latest stable release is available for Debian based distributions, using the software center or simply by double-clicking</p>
+
+                    <div id ="download-section">
+
+                      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.deb" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.deb</a>
+
+                    </div>
+
+                    <h3 class="modalh">PPA (Ubuntu)</h4>
+
+                    <ul>
+                      <li> Add one of the following PPAs:</li>
+                        <pre><code class="shell"># Stable release
+  sudo add-apt-repository ppa:o-diogosilva/trifusion
+  # Daily release
+  sudo add-apt-repository ppa:o-diogosilva/trifusion-daily</code></pre>
+                      <li> Update your package list: </li>
+                      <pre><code class="shell">sudo apt update</code></pre>
+                      <li>Install/Update TriFusion:</li>
+                      <pre><code class="shell">sudo apt install trifusion</code></pre>
+                    </ul>
+                    <h3 class="modalh">PPA (Debian)</h4>
+
+                    <ul>
+                      <li>Add one of the following PPAs manually to the sources.list file</li>
+                      <pre><code class="shell"># Stable release
+  http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main
+  # Daily release
+  http://ppa.launchpad.net/o-diogosilva/trifusion/ubuntu trusty main</code></pre>
+                      <li>Add the GPG key to your apt keyring</li>
+                      <pre><code class="shell">sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D4F1E8E6</code></pre>
+                      <li>Refresh your package list and install TriFusion</li>
+                      <pre><code class="shell">sudo apt-get update && sudo apt-get install trifusion</code></pre>
+                    </ul>
+                  </div>
+
+                  <div id="RPM-based" class="w3-container tab">
+                    <h3 class="modalh">RPM package</h4>
+                    <p>A package with the latest stable release is available for RPM based distributions, using the software center or simply by double-clicking</p>
+
+
+                    <div id="download-section">
+                      <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.rpm" type="button" class="btn btn-info btn-space" style="font-weight: bold"><i class="fa fa-download fa-lg" aria-hidden="true"></i> TriFusion.rpm</a>
+                    </div>
+
+                    <!-- <ul style="list-style: none;">
+                      <li><a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm"><i class="fa fa-download" aria-hidden="true"></i>  trifusion-bin-0.4.11-linux.rpm</a></p></li></li>
+                    </ul> -->
+
+                    <h3 class="modalh">Build from source</h4>
+                    <p>Before installing TriFusion, you will need to install kivy:</p>
+                    <pre><code class="shell">dnf install python-pip python-devel redhat-rpm-config freeglut-devel SDL*
+  pip install cython==0.23
+  pip install kivy</code></pre>
+                  <p>Then, <a href="https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-0.4.11-linux.rpm">download</a> the latest RPM release of TriFusion and install it as a regular RPM package. Note that the RPM package is not in any repository yet, which means that it will not received updates of the latest version of TriFusion from GitHub. However, it's possible to stay on the bleeding edge of the development by following these steps:</p>
                   <ul>
-                    <li><a href="https://aur.archlinux.org/packages/trifusion/">trifusion</a> - The latest stable version of TriFusion, based on source code.</li>
-                    <li><a href="https://aur.archlinux.org/packages/trifusion-bin/">trifusion-bin</a> - The latest version of TriFusion. Installs a large binary package, but does not require dependencies to be installed, as all the necessary libs are bundled with the distributed binary.</li>
-                    <li><a href="https://aur.archlinux.org/packages/trifusion-git/">trifusion-git</a> - The bleeding edge version directly from git</li>
+                    <li>After installing the RPM package, remove ONLY the TriFusion package, but leave the dependencies installed. For example, in Fedora:</li>
+                    <pre><code class="shell">dnf remove TriFusion</code></pre>
+                    <li>Clone the git repository of TriFusion to your computer</li>
+                    <pre><code class="shell">git clone https://github.com/ODiogoSilva/TriFusion.git</code></pre>
+                    <li>In a terminal, navigate to TriFusion's directory and execute:</li>
+                    <pre><code class="shell">sudo python setup.py install</code></pre>
                   </ul>
-                </div>
-              </div>
+                  <p>Since all dependencies are already installed, this will install only the most recent version of TriFusion. To keep TriFusion up to date afterwards, you'll just need to pull the most recent code and re-install it.</p>
+                  <pre><code class="shell">git pull
+  sudo python setup.py install --force</code></pre>
+                  </div>
 
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <div id="ArchLinux" class="w3-container tab">
+                    <h3 class="modalh">AUR packages</h4>
+                    <p>There are three <a href="https://aur.archlinux.org/">AUR</a> packages for TriFusion:</p>
+                    <ul>
+                      <li><a href="https://aur.archlinux.org/packages/trifusion/">trifusion</a> - The latest stable version of TriFusion, based on source code.</li>
+                      <li><a href="https://aur.archlinux.org/packages/trifusion-bin/">trifusion-bin</a> - The latest version of TriFusion. Installs a large binary package, but does not require dependencies to be installed, as all the necessary libs are bundled with the distributed binary.</li>
+                      <li><a href="https://aur.archlinux.org/packages/trifusion-git/">trifusion-git</a> - The bleeding edge version directly from git</li>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- START THE FEATURETTES -->
+        <!-- START THE FEATURETTES -->
 
-      <hr class="featurette-divider" id="featurette">
+        <hr class="featurette-divider" id="featurette">
+        <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+      <div class="marketing-header">Features</div>
+
+        <div class="row featurette">
+          <div class="col-md-7 feat">
+            <h2 class="featurette-heading">Handling phylogenomic data <span class="text-muted">is much easier now.</span></h2>
+            <p class="lead">TriFusion was specifically developed to streamline several stages of <b>phylogenomic</b> and <b>population genomic</b> projects, from the gathering of orthologs from hundreds of proteomes, to the processing of thousands of alignment files, to data exploration via  an assortment of graphical and statistical analyses.</p>
+            <a class="btn btn-primary btn-content" target="_blank" href="content/features.html" role="button">See full features</a>
+          </div>
+          <div class="col-md-5 ">
+            <img class="featurette-image img-responsive vcenter" style="margin-top: 10%" src="images/tf_main_mod.png" alt="Generic placeholder image">
+          </div>
+        </div>
+
+        <hr class="featurette-divider">
+        <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+
+        <div class="row featurette">
+          <div class="col-md-7 col-md-push-5 feat">
+            <h2 class="featurette-heading">Gather and explore orthologs from multiple proteomes <span class="text-muted">with just a few clicks.</span></h2>
+            <p class="lead">Load proteome files in Fasta format from <b>hundreds of species</b> into TriFusion and get the full coverage of <b>high quality ortholog clusters</b> with minimal user input. Take advantage of several filters and graphical options to explore your ortholog groups and export them into protein and/or nucleotide sequences. </p>
+            <a class="btn btn-primary" href="content/features.html#orto-main" role="button" style="float:right">See Orthology features</a>
+          </div>
+          <div class="col-md-5 col-md-pull-7 ">
+            <img class="featurette-image img-responsive vcenter" style="margin-top: 15%" src="images/tf_orto_montage.png" alt="Generic placeholder image">
+          </div>
+        </div>
+
+        <hr class="featurette-divider">
+        <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+
+        <div class="row featurette">
+          <div class="col-md-7 feat">
+            <h2 class="featurette-heading">Convert, concatenate, filter, collapse alignments <span class="text-muted">and so much more!</span></h2>
+            <p class="lead">TriFusion offers a wide variety of useful and common operations that can be quickly and easily applied to <b>thousands of alignment files</b>. Want to collapse identical sequences into haplotypes? <b>Check!</b> Want to filter alignments with excess of missing data? <b>Check!</b> Want to remove certain codon positions? <b>Check!</b> Want to create a consensus from multiple sequences in an alignments? <b>Check!</b> See the user manual for the complete set of operations that you can do.</p>
+            <a class="btn btn-primary btn-content" target="_blank" href="content/features.html#process-main" role="button">See Process features</a>
+
+          </div>
+          <div class="col-md-5">
+            <img class="featurette-image img-responsive center-block" style="margin-top: 10%" src="images/tf_process_montage.png" alt="Generic placeholder image">
+          </div>
+        </div>
+
+        <hr class="featurette-divider">
+        <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+
+        <div class="row featurette">
+          <div class="col-md-7 col-md-push-5 feat">
+            <h2 class="featurette-heading">Full graphical visualization <span class="text-muted">of your data</span></h2>
+            <p class="lead">TriFusion tackles one of the biggest challenges in big phylogenomic and population genomics projects: <b>How to explore your data quickly and efficiently</b>. Designed from the start to handle thousands of alignment files, the Statistics module offers dozens of statistical and graphical options to explore your data according to four main categories: <b>General Information</b>, <b>Polymorphism and Variation</b>, <b>Missing Data</b> and <b>Outlier Dectection</b></p>
+            <a class="btn btn-primary" href="content/features.html#stats-main" role="button" style="float:right">See Statistics features</a>
+
+          </div>
+          <div class="col-md-5 col-md-pull-7 ">
+            <img class="featurette-image img-responsive center-block" style="margin-top: 10%" src="images/tf_stats_montage.png" alt="Generic placeholder image">
+          </div>
+        </div>
+
+        <hr class="featurette-divider">
+        <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+
+        <div class="row featurette">
+          <div class="col-md-7">
+            <h2 class="featurette-heading">For command line lovers <span class="text-muted"><3 </span></h2>
+            <p class="lead">Almost all functionalities of TriFusion can be executed from a terminal by using the appropriate CLI programs: <b>orthomcl_pipeline</b> (Orthology Search), <b>TriSeq</b> (Process) and <b>TriStats</b> (Statistics). The CLI programs are faster, modular and can be easily included in your scripts. This also means that TriFusion can be executed in "GUI-free" servers for tasks that may require high uptimes and/or computational resources. </p>
+          </div>
+          <div class="col-md-5">
+            <img class="featurette-image img-responsive center-block" style="margin-top: 25%" src="images/terminal_showcase.gif" alt="Generic placeholder image">
+          </div>
+        </div>
+
+        <!-- /END THE FEATURETTES -->
+
+      <hr class="featurette-divider" id="tutorials">
       <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
-    <div id=marketing-header>Features</div>
-    
-      <div class="row featurette">
-        <div class="col-md-7">
-          <h2 class="featurette-heading">Handling phylogenomic data <span class="text-muted">is much easier now.</span></h2>
-          <p class="lead">TriFusion was specifically developed to streamline several stages of <b>phylogenomic</b> and <b>population genomic</b> projects, from the gathering of orthologs from hundreds of proteomes, to the processing of thousands of alignment files, to data exploration via  an assortment of graphical and statistical analyses.</p>
-        </div>
-        <div class="col-md-5 ">
-          <img class="featurette-image img-responsive vcenter" style="margin-top: 10%" src="images/tf_main_mod.png" alt="Generic placeholder image">
-        </div>
-      </div>
 
-      <hr class="featurette-divider">
-      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+        <!-- START THE TUTORIALS -->
 
-      <div class="row featurette">
-        <div class="col-md-7 col-md-push-5 ">
-          <h2 class="featurette-heading">Gather and explore orthologs from multiple proteomes <span class="text-muted">with just a few clicks.</span></h2>
-          <p class="lead">Load proteome files in Fasta format from <b>hundreds of species</b> into TriFusion and get the full coverage of <b>high quality ortholog clusters</b> with minimal user input. Take advantage of several filters and graphical options to explore your ortholog groups and export them into protein and/or nucleotide sequences. </p>
-        </div>
-        <div class="col-md-5 col-md-pull-7 ">
-          <img class="featurette-image img-responsive vcenter" style="margin-top: 15%" src="images/tf_orto_montage.png" alt="Generic placeholder image">
-        </div>
-      </div>
+      <div class=marketing-header>Tutorials</div>
 
-      <hr class="featurette-divider">
-      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+      <p class="lead">Jump right in into TriFusion using any of the following quick start guides. These are sorted according to TriFusion's three main modules: </p>
 
-      <div class="row featurette">
-        <div class="col-md-7">
-          <h2 class="featurette-heading">Convert, concatenate, filter, collapse alignments <span class="text-muted">and so much more!</span></h2>
-          <p class="lead">TriFusion offers a wide variety of useful and common operations that can be quickly and easily applied to <b>thousands of alignment files</b>. Want to collapse identical sequences into haplotypes? <b>Check!</b> Want to filter alignments with excess of missing data? <b>Check!</b> Want to remove certain codon positions? <b>Check!</b> Want to create a consensus from multiple sequences in an alignments? <b>Check!</b> See the user manual for the complete set of operations that you can do.</p>
-        </div>
-        <div class="col-md-5">
-          <img class="featurette-image img-responsive center-block" style="margin-top: 10%" src="images/tf_process_montage.png" alt="Generic placeholder image">
-        </div>
-      </div>
+        <h2>General</h2>
+        <ul class="lead">
+          <li>The three ways to load data into TriFusion. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/The%2Bthree%2Bways%2Bto%2Bload%2Bdata%2Binto%2BTriFusion.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/The%20three%20ways%20to%20load%20data%20into%20TriFusion.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+          <li>Creating and using active data set groups. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Creating%2Band%2Busing%2Bactive%2Bdata%2Bset%2Bgroups.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Creating%20and%20using%20active%20data%20set%20groups..ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        </ul>
 
-      <hr class="featurette-divider">
-      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
+      <h2>Orthology</h2>
 
-      <div class="row featurette">
-        <div class="col-md-7 col-md-push-5 ">
-          <h2 class="featurette-heading">Full graphical visualization <span class="text-muted">of your data</span></h2>
-          <p class="lead">TriFusion tackles one of the biggest challenges in big phylogenomic and population genomics projects: <b>How to explore your data quickly and efficiently</b>. Designed from the start to handle thousands of alignment files, the Statistics module offers dozens of statistical and graphical options to explore your data according to four main categories: <b>General Information</b>, <b>Polymorphism and Variation</b>, <b>Missing Data</b> and <b>Outlier Dectection</b></p>
-        </div>
-        <div class="col-md-5 col-md-pull-7 ">
-          <img class="featurette-image img-responsive center-block" style="margin-top: 10%" src="images/tf_stats_montage.png" alt="Generic placeholder image">
-        </div>
-      </div>
-
-      <hr class="featurette-divider">
-      <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
-
-      <div class="row featurette">
-        <div class="col-md-7">
-          <h2 class="featurette-heading">For command line lovers <span class="text-muted"><3 </span></h2>
-          <p class="lead">Almost all functionalities of TriFusion can be executed from a terminal by using the appropriate CLI programs: <b>orthomcl_pipeline</b> (Orthology Search), <b>TriSeq</b> (Process) and <b>TriStats</b> (Statistics). The CLI programs are faster, modular and can be easily included in your scripts. This also means that TriFusion can be executed in "GUI-free" servers for tasks that may require high uptimes and/or computational resources. </p>
-        </div>
-        <div class="col-md-5">
-          <img class="featurette-image img-responsive center-block" style="margin-top: 25%" src="images/terminal_showcase.gif" alt="Generic placeholder image">
-        </div>
-      </div>
-
-      <!-- /END THE FEATURETTES -->
-
-    <hr class="featurette-divider" id="tutorials">
-    <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
-
-      <!-- START THE TUTORIALS -->
-
-    <div id=marketing-header>Tutorials</div>
-
-    <p class="lead">Jump right in into TriFusion using any of the following quick start guides. These are sorted according to TriFusion's three main modules: </p>
-
-      <h2>General</h2>
       <ul class="lead">
-        <li>The three ways to load data into TriFusion. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/The%2Bthree%2Bways%2Bto%2Bload%2Bdata%2Binto%2BTriFusion.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/The%20three%20ways%20to%20load%20data%20into%20TriFusion.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-        <li>Creating and using active data set groups. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Creating%2Band%2Busing%2Bactive%2Bdata%2Bset%2Bgroups.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Creating%20and%20using%20active%20data%20set%20groups..ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        <li>Installation of third party software (USEARCH and MCL).<p class="small-link">[<a href="http://htmlpreview.github.io/?https://github.com/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Installation%2Bof%2Bthird%2Bparty%2Bsoftware%2B(USEARCH%2Band%2BMCL).html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Installation%20of%20third%20party%20software%20%28USEARCH%20and%20MCL%29.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        <li>Basic search of orthologs among 10 proteome files. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Basic%2Bsearch%2Bof%2Borthologs%2Bamong%2B10%2Bproteome%2Bfiles.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Basic%20search%20of%20orthologs%20among%2010%20proteome%20files.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        <li>Import and explore multiple orthology search results. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Import%2Band%2Bexplore%2Bmultiple%2Borthology%2Bsearch%2Bresults.html" target="_blank">html</a>; <a href="https://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Import%20and%20explore%20multiple%20orthology%20search%20results.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        <li>Export ortholog groups into protein and nucleotide sequence files. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Export%2Bortholog%2Bgroups%2Binto%2Bprotein%2Band%2Bnucleotide%2Bsequence%2Bfiles.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Export%20ortholog%20groups%20into%20protein%20and%20nucleotide%20sequence%20files.ipynb" target="_blank">jupyter notebook</a>]</p></li>
       </ul>
 
-    <h2>Orthology</h2>
+      <h2>Process</h2>
 
-    <ul class="lead">
-      <li>Installation of third party software (USEARCH and MCL).<p class="small-link">[<a href="http://htmlpreview.github.io/?https://github.com/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Installation%2Bof%2Bthird%2Bparty%2Bsoftware%2B(USEARCH%2Band%2BMCL).html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Installation%20of%20third%20party%20software%20%28USEARCH%20and%20MCL%29.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-      <li>Basic search of orthologs among 10 proteome files. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Basic%2Bsearch%2Bof%2Borthologs%2Bamong%2B10%2Bproteome%2Bfiles.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Basic%20search%20of%20orthologs%20among%2010%20proteome%20files.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-      <li>Import and explore multiple orthology search results. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Import%2Band%2Bexplore%2Bmultiple%2Borthology%2Bsearch%2Bresults.html" target="_blank">html</a>; <a href="https://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Import%20and%20explore%20multiple%20orthology%20search%20results.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-      <li>Export ortholog groups into protein and nucleotide sequence files. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Export%2Bortholog%2Bgroups%2Binto%2Bprotein%2Band%2Bnucleotide%2Bsequence%2Bfiles.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Export%20ortholog%20groups%20into%20protein%20and%20nucleotide%20sequence%20files.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-    </ul>
+      <ul class="lead">
+        <li>Basic conversion and concatenation of multiple alignment files. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Basic%2Bconversion%2Band%2Bconcatenation%2Bof%2Bmultiple%2Balignment%2Bfiles.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Basic%20conversion%20and%20concatenation%20of%20multiple%20alignment%20files.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        <li>Applying secondary operations (collapse, consensus, filtering, gap coding). <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Applying%2Bsecondary%2Boperations%2B%2528collapse%252C%2Bconsensus%252C%2Bfiltering%252C%2Bgap%2Bcoding%2529.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        <li>Reverting a concatenated file. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Reverting%2Ba%2Bconcatenated%2Bfile.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Reverting%20a%20concatenated%20file.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+        <li>Working with partitions and substitution models<p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Working%2Bwith%2Bpartitions%2Band%2Bsubstitution%2Bmodels.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Working%20with%20partitions%20and%20substitution%20models.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+      </ul>
 
-    <h2>Process</h2>
+      <h2>Statistics</h2>
 
-    <ul class="lead">
-      <li>Basic conversion and concatenation of multiple alignment files. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Basic%2Bconversion%2Band%2Bconcatenation%2Bof%2Bmultiple%2Balignment%2Bfiles.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Basic%20conversion%20and%20concatenation%20of%20multiple%20alignment%20files.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-      <li>Applying secondary operations (collapse, consensus, filtering, gap coding). <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Applying%2Bsecondary%2Boperations%2B%2528collapse%252C%2Bconsensus%252C%2Bfiltering%252C%2Bgap%2Bcoding%2529.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Applying%20secondary%20operations%20%28collapse%2C%20consensus%2C%20filtering%2C%20gap%20coding%29.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-      <li>Reverting a concatenated file. <p class="small-link">[<a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Reverting%2Ba%2Bconcatenated%2Bfile.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Reverting%20a%20concatenated%20file.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-      <li>Working with partitions and substitution models<p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Working%2Bwith%2Bpartitions%2Band%2Bsubstitution%2Bmodels.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Working%20with%20partitions%20and%20substitution%20models.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-    </ul>
-
-    <h2>Statistics</h2>
-
-    <ul  class="lead">
-      <li>Walkthrough on how to visualize your data, change and update the active data set and taking advantage of fast plot switching. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Alignment%2Bdata%2Bvisualization%2Bwith%2BTriFusion%2527s%2BStatistics.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb" target="_blank">jupyter notebook</a>]</p></li>
-    </ul>
-
-    <!-- /END THE TUTORIALS -->
-
-      <!-- FOOTER -->
-      <footer>
-        <p class="pull-right"><a href="#home" id="smooth-link">Back to top</a></p>
-        <p>&copy; Diogo N Silva.
+      <ul  class="lead">
+        <li>Walkthrough on how to visualize your data, change and update the active data set and taking advantage of fast plot switching. <p class="small-link">[<a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/Alignment%2Bdata%2Bvisualization%2Bwith%2BTriFusion%2527s%2BStatistics.html" target="_blank">html</a>; <a href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Alignment%20data%20visualization%20with%20TriFusion%27s%20Statistics.ipynb" target="_blank">jupyter notebook</a>]</p></li>
+      </ul>
+      </div>
+      <footer class="footer">
+        <div class="container">
+                    <p class="footer-text"><strong>TriFusion</strong> &#9728 <b>2017</b> &#9728 <b>Designed and built by
+          </b><strong><a href="https://twitter.com/ODiogoSilva">@ODiogoSilva</a></strong> <b>with</b>
+            <strong><a href="http://getbootstrap.com/">Bootstrap3</a></strong> <b>and</b>
+            <strong><a href="http://fontawesome.io/">Font Awesome</a></strong> &#9728 <b>Licensed under</b>
+            <strong><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></strong></p>
+        </div>
       </footer>
-
-    </div><!-- /.container -->
-
-
+  </div>
+    <!-- /END THE TUTORIALS -->
+      <!-- FOOTER -->
+    </body>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -456,9 +470,8 @@ sudo python setup.py install --force</code></pre>
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  </body>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 $(document).on('click', '#smooth-link', function(event){
     event.preventDefault();
 
@@ -487,5 +500,4 @@ function openTab(evt, tabName) {
 }
 openTab(event, "Windows")
 </script>
-
 </html>
