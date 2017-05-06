@@ -115,6 +115,15 @@ footer {
 }
 
 
+.navbar-fixed-top {
+  background-color: #ccc;
+  opacity: .9;
+}
+
+.fixed-nav {
+  margin-left: 30%;
+}
+
 /* CUSTOMIZE THE CAROUSEL
 -------------------------------------------------- */
 
@@ -280,6 +289,7 @@ b {
   /* Navbar positioning foo */
   .navbar-wrapper {
     margin-top: 20px;
+    height: 77px;
   }
 
   .navbar-wrapper .container {
@@ -404,7 +414,7 @@ b {
 
 /* Affix functionality of side navbar */
 .affix {
-  top: 30px;
+  top: 70px;
   bottom: 90px;
   width: 298px;
 }
