@@ -570,3 +570,52 @@ b {
 .overview i {
   font-size: 100px;
 }
+
+/* */
+/* Statistics plot gallery stuff */
+/* */
+
+.plot-grid {
+  margin:0;
+  position:relative;
+}
+
+.plot-grid h3 {
+  font-size: 22px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.plot-obj {
+    overflow: hidden;
+    position: relative;
+}
+
+.plot-img {
+  display: inline-block;
+  vertical-align: middle;
+  height: 300px;
+  width: 100%;
+}
+
+.plot-img:hover {
+  opacity: .7;
+  border: 2px solid #37abc8;;
+  border-radius: 5px;
+}
+
+.modal-content {
+  height: 100%;
+  width: 100%;
+}
+
+.modal-body {
+  height: 85%;
+}
+
+.modal-body img {
+  display: inline-block;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+}
