@@ -504,7 +504,7 @@ color: white;}
 
 .vid-overlay {
   position: absolute;
-  top: 20%;
+  top: 5%;
   height: 100%;
   width: 100%;
   vertical-align: middle;
@@ -518,7 +518,7 @@ color: white;}
 .vid-banner > h2 {
   margin-left: 30px;
   line-height: 50px;
-  vertical-align: middle;
+  font-size: 22px;
 }
 
 /* Adds margin to the bottom of every feature block and a bottom border */
