@@ -36,7 +36,7 @@ footer {
 
 @media screen and (min-width: 1300px) {
     .container-fluid {
-      margin-left: 5%;
+      margin-left: 10%;
       margin-right: 10%;
   }
 }
@@ -348,7 +348,8 @@ b {
 
 }
 
-@media
+
+}
 
 .w3-container:after,.w3-panel:after,.w3-row:after,.w3-row-padding:after,.w3-topnav:after,.w3-clear:after,.w3-btn-group:before,.w3-btn-group:after,.w3-btn-bar:before,.w3-btn-bar:after
 {content:"";display:table;clear:both}
@@ -408,15 +409,23 @@ b {
 
 @media screen and (max-width: 1050px) {
   .affix {
-  display: none;
+  display:none;
   }
 }
 
+.navbar-collapse {
+background:#ccc;
+}
+
+.navbar-collapse  a {
+color: white;}
+
 /* Affix functionality of side navbar */
 .affix {
-  top: 70px;
+  top: 30px;
   bottom: 90px;
-  width: 298px;
+  width: 300px;
+  min-height: 50px;
 }
 
 /* Style for side navbar */
@@ -429,7 +438,6 @@ b {
 
 /* Set line spacing for submenu itens */
 .nav-tour > li > ul {
-  line-height: 60%;
 }
 
 
@@ -460,13 +468,13 @@ b {
 
 /* Style for sub-menus when active */
 .nav-tour > .active > .nav > li {
-  font-size: 15px;
+  font-size: 50%;
 }
 
 /* Add margin for items in active sub-menu that are not active */
 .nav-tour > .active > .nav > li > a{
   margin-left: 10px;
-  padding-bottom: 5px;
+  padding: 5px;
 }
 
 /* Style for active submenu itens */
