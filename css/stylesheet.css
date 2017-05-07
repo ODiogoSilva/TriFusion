@@ -524,7 +524,6 @@ color: white;}
 /* Adds margin to the bottom of every feature block and a bottom border */
 .feat-block {
   padding-bottom: 20px!important;
-  position:relative;
 }
 
 /* Adds style for tutorial button div */
