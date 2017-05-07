@@ -186,7 +186,7 @@
         </div>
         <div class="feat-block">
           <div class="vid-container">
-            <div class="vid-overlay">
+            <div class="vid-overlay" style="display:block">
               <div class="vid-banner">
                 <h2>Orthology search demo</h2>
               </div>
@@ -1414,6 +1414,13 @@ charset alignment4 = 751:1000;</pre>
 <script>
 $('.feat-video').click(function(){
   this.paused?this.play():this.pause();
+});
+
+$(".feat-video").bind("play", function (e) {
+
+  overlay = this.parentNode.childNodes[1]
+  overlay.style.display = "none"
+ 
 });
 </script>
 
