@@ -185,9 +185,16 @@
           </p>
         </div>
         <div class="feat-block">
-          <video class="feat-video" preload="metadata" width="100%" class="vcenter" controls>
-            <source src="../videos/orto_search_showcase.mp4" type="video/mp4">
-          </video>
+          <div class="vid-container">
+            <div class="vid-overlay" sytle="display:block">
+              <div class="vid-banner">
+                <h2>Orthology search demo</h2>
+              </div>
+            </div>
+            <video class="feat-video vcenter" preload="none" width="100%" controls>
+              <source src="../videos/orto_search_showcase.mp4" type="video/mp4">
+            </video>
+          </div>
           <div class="text-center tutorial-bt">
             <a target="_blank" href="http://nbviewer.jupyter.org/github/ODiogoSilva/TriFusion-tutorials/blob/master/tutorials/Basic%20search%20of%20orthologs%20among%2010%20proteome%20files.ipynb"
                type="button" class="btn btn-primary btn-lg" role="button">Jump to orthology search tutorial</a>
@@ -1405,7 +1412,11 @@ charset alignment4 = 751:1000;</pre>
 </body>
 
 <script>
-$('.feat-video').click(function(){this.paused?this.play():this.pause();});
+$('.feat-video').click(function(){
+  overlay = this.parentNode.childNodes[1]
+  overlay.style.display = "none"
+  this.paused?this.play():this.pause();
+});
 </script>
 
 <script type="text/javascript">

@@ -439,8 +439,8 @@ color: white;}
 
 /* Style for all entries in side nav (including non links) */
 .nav-tour > li {
-  color: #37abc8;
   font-family: 'Jura', sans-serif;
+  color: #37abc8;
   font-size: 25px;
 }
 
@@ -464,7 +464,7 @@ color: white;}
 
 /* Style for sub-menus when active */
 .nav-tour > .active > .nav > li {
-  font-size: 50%;
+  font-size: 60%;
 }
 
 /* Add margin for items in active sub-menu that are not active */
@@ -498,9 +498,27 @@ color: white;}
 }
 
 .feat-video {
-
   margin-top: 20px;
   z-index: 0;
+}
+
+.vid-overlay {
+  position: absolute;
+  top: 20%;
+  height: 100%;
+  width: 100%;
+  vertical-align: middle;
+}
+
+.vid-banner {
+  background-color: #dcdcdc;
+  height: 50px;
+}
+
+.vid-banner > h2 {
+  margin-left: 30px;
+  line-height: 50px;
+  vertical-align: middle;
 }
 
 /* Adds margin to the bottom of every feature block and a bottom border */
@@ -589,6 +607,10 @@ color: white;}
   margin-top: 20px;
   color: #37abc8;
   border-left: none;
+}
+
+.vid-container {
+  position: relative
 }
 
 /* */
