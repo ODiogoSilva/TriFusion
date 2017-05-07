@@ -235,7 +235,7 @@
           converted.</p>
         </div>
         <div class="feat-block">
-          <video class="feat-video" preload="metadata" width="100%" class="vcenter" controls>
+          <video class="feat-video" preload="none" width="100%" class="vcenter" controls>
             <source src="../videos/orto_export.mp4" type="video/mp4">
           </video>
           <div class="text-center tutorial-bt">
@@ -1415,7 +1415,6 @@ charset alignment4 = 751:1000;</pre>
 $('.feat-video').click(function(){
   overlay = this.parentNode.childNodes[1]
   overlay.style.display = "none";
-  this.load();
   this.paused?this.play():this.pause();
 });
 </script>
