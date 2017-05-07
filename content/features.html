@@ -1414,7 +1414,8 @@ charset alignment4 = 751:1000;</pre>
 <script>
 $('.feat-video').click(function(){
   overlay = this.parentNode.childNodes[1]
-  overlay.style.display = "none"
+  overlay.style.display = "none";
+  this.load();
   this.paused?this.play():this.pause();
 });
 </script>
