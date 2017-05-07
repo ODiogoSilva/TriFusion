@@ -502,7 +502,24 @@ color: white;}
   z-index: 0;
 }
 
+.vid-overlay {
+  position: absolute;
+  top: 20%;
+  height: 100%;
+  width: 100%;
+  vertical-align: middle;
+}
 
+.vid-banner {
+  background-color: #dcdcdc;
+  height: 50px;
+}
+
+.vid-banner > h2 {
+  margin-left: 30px;
+  line-height: 50px;
+  vertical-align: middle;
+}
 
 /* Adds margin to the bottom of every feature block and a bottom border */
 .feat-block {
@@ -591,6 +608,9 @@ color: white;}
   border-left: none;
 }
 
+.vid-container {
+  position: relative
+}
 
 /* */
 /* Statistics plot gallery stuff */
