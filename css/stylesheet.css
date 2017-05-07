@@ -581,6 +581,12 @@ b {
   font-size: 100px;
 }
 
+#go-top {
+  margin-top: 20px;
+  color: #37abc8;
+  border-left: none;
+}
+
 /* */
 /* Statistics plot gallery stuff */
 /* */

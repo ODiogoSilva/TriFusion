@@ -39,8 +39,8 @@
 
     <div class="navbar-wrapper" id="home">
       <div class="container">
-        <nav class="navbar navbar-fixed-top">
-          <div class="container fixed-nav">
+        <nav class="navbar navbar-static-top">
+          <div class="container">
             <div class="navbar-header">
               <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                 <span class="sr-only">Toggle navigation</span>
@@ -132,6 +132,7 @@
               <li><a href="#stats_export">Export plots as figures or tables</a></li>
             </ul>
           </li>
+          <li><a style="display:none;" id="go-top" href="#">Go to Top <i class="fa fa-arrow-up" aria-hidden="true"></i></a></li>
         </ul>
       </div>
 
@@ -1407,17 +1408,20 @@ charset alignment4 = 751:1000;</pre>
 $('.feat-video').click(function(){this.paused?this.play():this.pause();});
 </script>
 
-<script>
-var body = $("body");
+<script type="text/javascript">
+$(window).scroll(function()  {
+  var scroll = $(window).scrollTop();
 
-$(window).resize(function() {
-  var w = body.width()
+  go = document.getElementById("go-top");
 
-  arrows_r = document.getElementsByClassName("var-ar")
-
-
-  991
-  });
+  if (scroll < 500) {
+    go.style.display = "none";
+    console.log("here");
+  } else {
+    go.style.display = "block";
+    console.log(go.style.display );
+  }
+})
 </script>
 
 </html>
