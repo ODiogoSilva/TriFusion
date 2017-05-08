@@ -208,8 +208,8 @@
           <p class="tour-text">So, you have completed your search for orthologs. Now what? <br><br>
             The <b>Explore</b> section of TriFusion's orthology module was designed to let you easily explore your
           ortholog search results. You can filter orthologs groups according to gene copy number,
-          taxon taxon and/or taxon representation. You can also check the effect of these filters on your
-          ortholog groups using a suite of interactive plot screens that let explore your data visually.</p>
+          taxon taxon and/or taxon representation. You can also check the effect that these filters have on
+          the final number of ortholog groups using a suite of interactive plot screens.</p>
         </div>
         <div class="feat-block">
           <div class="vid-container">
@@ -235,7 +235,7 @@
           <p class="lead">The final step of an ortholog search operation is usually the generation of sequence files
           for each potential ortholog group. TriFusion lets you apply multiple filters on your ortholog groups
           and export only the groups that you are interested in.<br><br>
-          But that's not all. If you provide the corresponding CDS files for each proteome that you used in your
+          But that's not all. If you provide the CDS files corresponding to each proteome that you used in your
           search, you can also export those ortholog groups directly into nucleotide sequences. And don't worry
           if the headers of the sequences in the CDS and proteome files don't match. TriFusion searches for
           sequence equality, not header equality, so you can be sure that the sequences are always correctly
@@ -368,7 +368,7 @@
           </table>
 
           <p class="lead">
-          You can check out the complete <a target="_blank" href="https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks">benchmarks table</a>
+          You can check the complete <a target="_blank" href="https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks">benchmarks table</a>
             to see in detail how particular operations of TriFusion fare in terms of run time and memory usage
             across a wide range of datasets.</p>
         </div>
@@ -550,7 +550,7 @@ GNGGGG
                 <i class="fa fa-chevron-down fa-5x" aria-hidden="true"></i>
               </div>
 
-              <div style="width:500px; margin: auto">
+              <div style="max-width:500px; margin: auto">
                 <pre>
 # consensus.fas
 >Alignment1_consensus
@@ -585,7 +585,7 @@ GNGGGG
 
         <div class="col">
           <h2 class="tour-featurette-heading text-center" id="process_filter_taxa">Filter alignments by taxa</h2>
-          <p class="lead">Alignments can be filtered depending on whether the contain or excluded user-defined
+          <p class="lead">Alignments can be filtered depending on whether they contain or excluded user-defined
             taxa groups. These taxa groups can be easily defined in TriFusion or imported from text files
             and can represent any number of samples in the data set. For instance, in the example below,
             we filter out alignments that do not contain both <b>TaxonA</b> and <b>TaxonD</b>, resulting
@@ -1062,7 +1062,7 @@ AAAAA<strong>T</strong>
         <div class="col">
           <h2 class="tour-featurette-heading text-center" id="process_code_gaps">Code gaps into the alignment matrix</h2>
           <p class="lead">If you suspect that the indel patterns in your alignments may contain valuable
-            phylogenetic information, TriFusion has the option to code you indel patterns as binary states
+            phylogenetic information, TriFusion has the option to code your indel patterns as binary states
             at the end of the alignment matrix and creates a well formatted <b>Nexus</b> file ready for downstream
             analysis with programs such as MrBayes. If you are concatenating multiple alignments, the binary
             matrix will be concatenated as well.
@@ -1148,7 +1148,7 @@ charset alignment4 = 751:1000;</pre>
         <div class="col">
           <h2 class="tour-featurette-heading text-center" id="process_combine">Combine multiple operations on a single run</h2>
           <p class="lead">
-            <b>All operations of TriFusion's Process can be combined in any way during a single run</b>. For instance,
+            <b>All operations of TriFusion's Process can be chained in any way during a single run</b>. For instance,
             you may want to concatenate your alignments, filter alignments that exclude a given taxa group, remove
             alignment columns with high missing data and collapse sequences in unique haplotypes. All in the same
             execution.<br><br>
@@ -1212,7 +1212,7 @@ charset alignment4 = 751:1000;</pre>
             to create multiple concatenated data matrices that maximize the data for those particular
             groups of taxa.<br><br>
             To make your life easier when these needs arise, TriFusion allows you to create or import
-            groups of taxa and/or alignment groups and then rapidly switch between them. The video below
+            groups of taxa and/or alignment and then rapidly switch between them. The video below
             demonstrates how groups of files and taxa can be quickly created and then how you
             can perform different tasks on them.
           </p>
@@ -1559,7 +1559,7 @@ charset alignment4 = 751:1000;</pre>
       </div>
       <!-- FOOTER -->
       <footer class="footer">
-        <div class="container">
+        <div class="container footer-container">
           <p class="footer-text"><strong>TriFusion</strong> &#9728 <b>2017</b> &#9728 <b>Designed and built by
           </b><strong><a href="https://twitter.com/ODiogoSilva">@ODiogoSilva</a></strong> <b>with</b>
             <strong><a href="http://getbootstrap.com/">Bootstrap3</a></strong> <b>and</b>
