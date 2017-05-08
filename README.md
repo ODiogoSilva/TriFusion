@@ -1,5 +1,7 @@
 ## TriFusion
 
+[![Join the chat at https://gitter.im/TriFusion-dev/Lobby](https://badges.gitter.im/TriFusion-dev/Lobby.svg)](https://gitter.im/TriFusion-dev/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ##### Making life easier for phylogenomic data gathering, processing and visualization
 
 Website: http://odiogosilva.github.io/TriFusion/
