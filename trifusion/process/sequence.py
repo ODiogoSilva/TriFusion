@@ -1206,7 +1206,7 @@ class Alignment(Base):
 
                         # Add sequence to sqlite database
                         self.cur.execute(
-                            "INSERT INTO {} VALUES (?, ?, ?)".format(
+                            "INSERT INTO [{}] VALUES (?, ?, ?)".format(
                                 self.table_name), (idx, taxa, seq))
 
                         idx += 1
@@ -4403,6 +4403,7 @@ class AlignmentList(Base):
                 "title": "Distribution of missing data per species",
                 "labels": list(data_storage.keys()),
                 "legend": legend,
+                "ax_names": [None, "Frequency"],
                 "table_header": ["Taxon", "Gaps", "%", "Missing", "%", "Data",
                                  "%"],
                 "normalize": True,
@@ -4966,7 +4967,7 @@ class AlignmentList(Base):
                 data.append(np.mean(window_similarities))
 
         return {"data": data,
-                "title": "Sequence similarity sliding window for gene %s"
+                "title": "Sequence similarity sliding window for gene\n %s"
                          % basename(gene_name),
                 "window_size": window_size,
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
@@ -5106,7 +5107,7 @@ class AlignmentList(Base):
 
         return {"data": data,
                 "title": "Number of segregating sites sliding window for "
-                         "gene %s" % basename(gene_name),
+                         "gene\n %s" % basename(gene_name),
                 "window_size": window_size,
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}

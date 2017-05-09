@@ -26,6 +26,7 @@ matplotlib.use("agg")
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.stats import spearmanr
+from scipy.interpolate import spline
 import numpy as np
 from itertools import chain
 from collections import Counter
@@ -73,15 +74,20 @@ class SetProps(object):
         res = self.func(*args, **kwargs)
 
         # Set axis names
+        override = {
+            "fontsize": 14,
+            "fontweight": "bold",
+            "color": "grey"
+        }
         if "ax_names" in kwargs:
             if kwargs["ax_names"][0]:
-                plt.xlabel(kwargs["ax_names"][0])
+                plt.xlabel(kwargs["ax_names"][0], labelpad=15, **override)
             if kwargs["ax_names"][1]:
-                plt.ylabel(kwargs["ax_names"][1])
+                plt.ylabel(kwargs["ax_names"][1], labelpad=15, **override)
 
         # Set title
         if "title" in kwargs:
-            plt.title(kwargs["title"])
+            plt.title(kwargs["title"], y=1.05, **override)
 
         return res
 
@@ -380,14 +386,17 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
 
     for c, d in enumerate(data):
 
-        c1 = c if c < 14 else c - 14.5
-
-        clr = cm.Set1(c1 / 14., 1)
+        if len(data) <= 10:
+            c1 = c if c < 9 else c - 10
+            clr = cm.Vega10(c1, 1)
+        else:
+            c1 = c if c < 19 else c - 20
+            clr = cm.Vega20c(c1, 1)
 
         if c == 0:
-            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c])
+            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c], alpha=.9)
         else:
-            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c],
+            bplot = ax.bar(xpos, d, w, color=clr, label=legend[c], alpha=.9,
                            bottom=bottoms[c])
 
     # Set x labels
@@ -395,9 +404,14 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
 
     # Set legend
     if legend:
-        cols = len(legend) if len(legend) < 6 else 6
-        lgd = plt.legend(bbox_to_anchor=(0.5, 1.02), loc=8, fancybox=True,
-                         shadow=True, framealpha=.8, ncol=cols)
+        if len(legend) <= 4:
+            cols = 1
+        else:
+            cols = len(legend) if len(legend) < 3 else 3
+        borderpad = cols * -6
+        lgd = plt.legend(loc=7, fancybox=True,
+                         shadow=True, framealpha=.8, ncol=cols,
+                         borderaxespad=borderpad)
 
     if ax_names:
         _add_labels(ax_names)
@@ -575,7 +589,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     # Add cutom artist for legend
     mean_artist = plt.Line2D((0, 1), (0, 1), color="r", linestyle="--")
 
-    lgd = ax.legend([mean_artist], ["Mean"], loc=2, frameon=True, fancybox=True,
+    lgd = ax.legend([mean_artist], ["Mean"], loc=0, frameon=True, fancybox=True,
                     shadow=True, framealpha=.8, fontsize="large")
     lgd.get_frame().set_facecolor("white")
 
@@ -721,10 +735,17 @@ def sliding_window(data, window_size, ax_names=None, table_header=None,
 
     fig, ax = plt.subplots()
 
-    for i in range(0, len(data)):
-        ax.plot(x[i:i + 2], data[i:i + 2], color=cm.jet(data[i] / float(max(
-            data)), 1), linewidth=2.)
-        table_data.append([x[i], data[i]])
+    ax.set_axis_bgcolor("#f2f2f2")
+
+    xnew = np.linspace(x.min(), x.max(), 500)
+    xsmooth = spline(x, data, xnew)
+
+    # p = ax.plot(xnew, xsmooth)
+
+    for i in range(0, len(xsmooth)):
+        ax.plot(xnew[i:i + 2], xsmooth[i:i + 2], color=cm.rainbow(1 - (xsmooth[i] / float(max(
+            xsmooth))), 1), linewidth=2.5)
+        table_data.append([xnew[i], xsmooth[i]])
 
     ax.set_ylim([min(data) - min(data) * .1, max(data) + max(data) * .1])
 

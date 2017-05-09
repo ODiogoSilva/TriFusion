@@ -1,0 +1,19 @@
+# Changelog for upcoming 0.6.0 release
+
+## Improvements
+
+### Statistics
+
+- Improved legend positioning [0.5.1].
+- Homogenized axis labels and title aesthetic style across plots [0.5.1].
+- Color maps are dynamically selected based on the number of categories, resulting
+in more distinguishable color palettes [0.5.1].
+- Improved sliding window line plots. These line plots are now smoothed with
+  an interpolation,  allowing for a much better and fine grained color transition [0.5.1].
+
+## Bug fixes
+
+### Statistics
+
+- Fixed color scheme for stacked bar plots that lumped together pairs
+of categories [0.5.1].
