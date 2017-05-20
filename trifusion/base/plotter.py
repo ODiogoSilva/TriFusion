@@ -21,7 +21,7 @@
 import matplotlib
 # Using the agg backend prevent a segmentation fault when quiting the
 # application
-matplotlib.use("agg")
+# matplotlib.use("agg")
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm

@@ -41,6 +41,7 @@ import stat
 import sys
 import os
 import threading
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvas
 
 # Move to Application's directory. This is a way of avoiding encoding
 # issues when the full path to the application's directory contains
@@ -80,7 +81,6 @@ EventLoop.ensure_window()
 
 from kivy.app import App
 from kivy.animation import Animation
-from kivy.uix.widget import Widget
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
@@ -7583,8 +7583,7 @@ class TriFusionApp(App):
         self.load_plot(plot_path,
                        self.screen.ids.plot_content)
 
-    @staticmethod
-    def load_plot(file_path, scatter_wgt):
+    def load_plot(self, file_path, scatter_wgt):
         """
         Loads a new plot into a ScatterLayout. This will clear all previous
         content and load a new image based on the file_path argument.
@@ -7599,8 +7598,10 @@ class TriFusionApp(App):
         scatter_wgt.children[0].clear_widgets()
 
         # Add content
-        img_wgt = Image(source=file_path, nocache=True)
-        scatter_wgt.children[0].add_widget(img_wgt)
+        # img_wgt = Image(source=file_path, nocache=True)
+        kv_wgt = FigureCanvas(self.current_plot)
+        scatter_wgt.children[0].add_widget(kv_wgt)
+        # scatter_wgt.children[0].add_widget(self.current_plot.canvas)
 
         # Reset position and scale of Scatter
         scatter_wgt.scale = 1
