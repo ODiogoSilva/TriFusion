@@ -49,6 +49,40 @@ class ProcessWriteSinglesTest(unittest.TestCase):
                                    self.output_file)
 
 
+class ProcessWriteMultisTest(unittest.TestCase):
+
+    def setUp(self):
+
+        self.aln_obj = AlignmentList([dna_data_fas[0]], sql_db=sql_db)
+        os.makedirs("output")
+        self.output_dir = os.path.join("output")
+
+    def tearDown(self):
+
+        shutil.rmtree("output")
+        self.aln_obj.clear_alignments()
+        os.remove(sql_db)
+
+    def test_custom_taxaset_nexus(self):
+        """
+        Test explicitly for the head of the nexus, which should update the
+        ntax parameter when changing the active taxa set
+        """
+
+        self.aln_obj.update_taxa_names(["spa", "spb", "spc"])
+
+        self.aln_obj.write_to_file(["nexus"], output_dir=self.output_dir)
+
+        # Get the specific line with the ntax parameter
+        header_line = ""
+        with open(os.path.join(self.output_dir, "BaseConc1.nex")) as fh:
+            while not header_line.startswith("dimensions"):
+                header_line = next(fh).strip()
+
+        ref_header = "dimensions ntax=3 nchar=85 ;"
+        self.assertEqual(header_line, ref_header)
+
+
 class ProcessWriteTest(unittest.TestCase):
 
     def setUp(self):
