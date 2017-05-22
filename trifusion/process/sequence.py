@@ -807,6 +807,8 @@ class Alignment(Base):
         """
 
         self.shelved_taxa = taxa_list
+        self.taxa_list = [x for x in self.taxa_list
+                          if x not in self.shelved_taxa]
 
     def _read_interleave_phylip(self, file_path, ntaxa):
 
