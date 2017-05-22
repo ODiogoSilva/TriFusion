@@ -580,7 +580,7 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     else:
         bins = len(c_data)
 
-    vals, b, _ = plt.hist(data, bins, histtype="stepfilled",
+    vals, b, _ = plt.hist(data, bins,
                                 color=clr_list[0])
 
     plt.axvline(np.mean(data), linewidth=2, color="r", alpha=.8,

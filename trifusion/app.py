@@ -110,6 +110,7 @@ try:
         histogram_plot, triangular_heat, outlier_densisty_dist, \
         sliding_window
     from base.html_creator import HtmlTemplate
+    from base.mpl_events import ShowTooltip, Selector
     from ortho.OrthomclToolbox import MultiGroupsLight
 except ImportError:
     import trifusion.data.resources.theme.default as tm
@@ -131,6 +132,7 @@ except ImportError:
         interpolation_plot, stacked_bar_plot, box_plot, histogram_smooth, \
         histogram_plot, triangular_heat, outlier_densisty_dist, \
         sliding_window
+    from trifusion.base.mpl_events import ShowTooltip, Selector
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroupsLight
 
@@ -7583,7 +7585,7 @@ class TriFusionApp(App):
         self.load_plot(plot_path,
                        self.screen.ids.plot_content)
 
-    def load_plot(self, file_path, scatter_wgt):
+    def load_plot(self, file_path, scatter_wgt, plt_idx=None):
         """
         Loads a new plot into a ScatterLayout. This will clear all previous
         content and load a new image based on the file_path argument.
@@ -7591,6 +7593,10 @@ class TriFusionApp(App):
         :param file_path: string. Path to the image to be loaded
         :param scatter_wgt: ScatterLayout object, where the plot is to be
         loaded
+        :param plt_idx: string. Provide the plot identifier for the
+        stats_plt_method dictionary containing the plot method.
+        If this is not provide, then the matplotlib events will not be
+        triggered
         :return:
         """
 
@@ -7598,8 +7604,15 @@ class TriFusionApp(App):
         scatter_wgt.children[0].clear_widgets()
 
         # Add content
-        # img_wgt = Image(source=file_path, nocache=True)
         kv_wgt = FigureCanvas(self.current_plot)
+
+        if plt_idx:
+            mtd = ShowTooltip(self.current_plot,
+                              self.stats_plt_method[plt_idx][0])
+            kv_wgt.mpl_connect("motion_notify_event", mtd)
+            self.sel = Selector(kv_wgt)
+            self.sel.connect()
+
         scatter_wgt.children[0].add_widget(kv_wgt)
         # scatter_wgt.children[0].add_widget(self.current_plot.canvas)
 
@@ -9732,8 +9745,9 @@ class TriFusionApp(App):
         self.show_plot_toolbar(toolbar_type="stats")
 
         self.load_plot(
-                join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
-                self.screen.ids.plot_content)
+            join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
+            self.screen.ids.plot_content,
+            plt_idx)
 
         if footer:
             self.populate_stats_footer(footer)
