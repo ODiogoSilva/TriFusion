@@ -1,5 +1,11 @@
 # Changelog for upcoming 0.6.0 release
 
+## New Features
+
+## General
+
+- Progressbar2 is now bundled with TriFusion to prevent import issues [0.5.3].
+
 ## Improvements
 
 ### Statistics

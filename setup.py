@@ -5,8 +5,9 @@ except ImportError:
     ez_setup.use_setuptools()
     from setuptools import setup
 
-import sys
-import platform
+import trifusion
+
+VERSION = trifusion.__version__
 
 with open('README.rst') as f:
     readme = f.read()
@@ -31,7 +32,7 @@ mcl_file = mcl_data_files()
 
 setup(
     name="trifusion",
-    version="0.5.2-1",
+    version=VERSION,
     packages=["trifusion",
               "trifusion.base",
               "trifusion.data",
@@ -40,7 +41,8 @@ setup(
               "trifusion.data.resources.theme",
               "trifusion.data.screens",
               "trifusion.ortho",
-              "trifusion.process"],
+              "trifusion.process",
+              "trifusion.progressbar"],
     package_data={"trifusion": ["*.kv"],
                   "trifusion.data.screens": ["*.kv"],
                   "trifusion.data.backgrounds": ["*.png", "*.ico"],
@@ -53,7 +55,6 @@ setup(
         "numpy",
         "psutil",
         "scipy",
-        "progressbar2"
     ],
     description=("Streamlining phylogenomic data gathering, processing and "
                  "visualization"),

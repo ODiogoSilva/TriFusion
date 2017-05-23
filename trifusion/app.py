@@ -90,6 +90,7 @@ from kivy.uix.treeview import TreeViewLabel
 
 # Local TriFusion imports
 try:
+    from __init__ import __version__
     import data.resources.theme.default as tm
     from ortho import protein2dna
     from process.base import Base
@@ -112,6 +113,7 @@ try:
     from base.html_creator import HtmlTemplate
     from ortho.OrthomclToolbox import MultiGroupsLight
 except ImportError:
+    from trifusion import __version__
     import trifusion.data.resources.theme.default as tm
     from trifusion.ortho import protein2dna
     from trifusion.process.base import Base
@@ -134,7 +136,6 @@ except ImportError:
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroupsLight
 
-__version__ = "0.5.2"
 __build__ = "220517"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

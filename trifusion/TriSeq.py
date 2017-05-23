@@ -29,7 +29,6 @@ with warnings.catch_warnings():
     import shutil
     import time
     import argparse
-    from progressbar import ProgressBar, Timer, Bar, Percentage, SimpleProgress
     from glob import glob
 
     try:
@@ -39,6 +38,8 @@ with warnings.catch_warnings():
         from process.error_handling import *
         from base.sanity import triseq_arg_check, mfilters, post_aln_checks, \
             check_infile_list
+        from progressbar import ProgressBar, Timer, Bar, Percentage, \
+            SimpleProgress
     except ImportError:
         from trifusion.process.base import print_col, RED, GREEN, YELLOW,\
             CleanUp
@@ -47,6 +48,8 @@ with warnings.catch_warnings():
         from trifusion.process.error_handling import *
         from trifusion.base.sanity import triseq_arg_check, mfilters, \
             post_aln_checks, check_infile_list
+        from trifusion.progressbar import ProgressBar, Timer, Bar,\
+            Percentage, SimpleProgress
 
 
 def gen_wgt(msg):

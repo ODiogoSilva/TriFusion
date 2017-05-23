@@ -32,7 +32,6 @@ with warnings.catch_warnings():
     import traceback
     import argparse
     from os.path import abspath, join, basename
-    from subprocess import PIPE
 
     try:
         from process.base import print_col, GREEN, RED
