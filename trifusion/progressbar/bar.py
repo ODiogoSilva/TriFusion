@@ -12,8 +12,6 @@ import warnings
 from datetime import datetime, timedelta
 import collections
 
-from python_utils import converters
-
 from . import widgets
 from . import widgets as widgets_module  # Avoid name collision
 from . import six
@@ -51,7 +49,7 @@ class DefaultFdMixin(ProgressBarMixinBase):
 
     def update(self, *args, **kwargs):
         ProgressBarMixinBase.update(self, *args, **kwargs)
-        line = converters.to_unicode('\r' + self._format_line())
+        line = '\r' + self._format_line()
         self.fd.write(line)
 
     def finish(self, *args, **kwargs):  # pragma: no cover
@@ -465,7 +463,7 @@ class ProgressBar(StdRedirectMixin, ResizableMixin, ProgressBarBase):
                 result.append(widget)
                 width -= len(widget)
             else:
-                widget_output = converters.to_unicode(widget(self, data))
+                widget_output = widget(self, data)
                 result.append(widget_output)
                 width -= len(widget_output)
 
@@ -485,7 +483,7 @@ class ProgressBar(StdRedirectMixin, ResizableMixin, ProgressBarBase):
     @classmethod
     def _to_unicode(cls, args):
         for arg in args:
-            yield converters.to_unicode(arg)
+            yield arg
 
     def _format_line(self):
         'Joins the widgets and justifies the line'
