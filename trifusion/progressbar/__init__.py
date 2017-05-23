@@ -1,25 +1,47 @@
 from datetime import date
 
-from trifusion.progressbar.widgets import (
-    Timer,
-    ETA,
-    AdaptiveETA,
-    AbsoluteETA,
-    DataSize,
-    FileTransferSpeed,
-    AdaptiveTransferSpeed,
-    AnimatedMarker,
-    Counter,
-    Percentage,
-    FormatLabel,
-    SimpleProgress,
-    Bar,
-    ReverseBar,
-    BouncingBar,
-    RotatingMarker,
-    DynamicMessage,
-    FormatCustomText
-)
+try:
+    from trifusion.progressbar.widgets import (
+        Timer,
+        ETA,
+        AdaptiveETA,
+        AbsoluteETA,
+        DataSize,
+        FileTransferSpeed,
+        AdaptiveTransferSpeed,
+        AnimatedMarker,
+        Counter,
+        Percentage,
+        FormatLabel,
+        SimpleProgress,
+        Bar,
+        ReverseBar,
+        BouncingBar,
+        RotatingMarker,
+        DynamicMessage,
+        FormatCustomText
+    )
+except ImportError:
+    from progressbar.widgets import (
+        Timer,
+        ETA,
+        AdaptiveETA,
+        AbsoluteETA,
+        DataSize,
+        FileTransferSpeed,
+        AdaptiveTransferSpeed,
+        AnimatedMarker,
+        Counter,
+        Percentage,
+        FormatLabel,
+        SimpleProgress,
+        Bar,
+        ReverseBar,
+        BouncingBar,
+        RotatingMarker,
+        DynamicMessage,
+        FormatCustomText
+    )
 
 from .bar import (
     ProgressBar,

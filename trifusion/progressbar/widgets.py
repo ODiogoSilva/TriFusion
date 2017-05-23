@@ -9,8 +9,6 @@ import datetime
 import pprint
 import sys
 
-from python_utils import converters
-
 from . import base
 from . import six
 from . import utils
@@ -40,7 +38,6 @@ def create_marker(marker):
             return marker
 
     if isinstance(marker, six.basestring):
-        marker = converters.to_unicode(marker)
         assert len(marker) == 1, 'Markers are required to be 1 char'
         return _marker
     else:
@@ -586,11 +583,11 @@ class Bar(AutoWidthWidgetBase):
     def __call__(self, progress, data, width):
         '''Updates the progress bar and its subcomponents'''
 
-        left = converters.to_unicode(self.left(progress, data, width))
-        right = converters.to_unicode(self.right(progress, data, width))
+        left = self.left(progress, data, width)
+        right = self.right(progress, data, width)
         width -= len(left) + len(right)
-        marker = converters.to_unicode(self.marker(progress, data, width))
-        fill = converters.to_unicode(self.fill(progress, data, width))
+        marker = self.marker(progress, data, width)
+        fill = self.fill(progress, data, width)
 
         if self.fill_left:
             marker = marker.ljust(width, fill)
@@ -625,12 +622,12 @@ class BouncingBar(Bar, TimeSensitiveWidgetBase):
     def __call__(self, progress, data, width):
         '''Updates the progress bar and its subcomponents'''
 
-        left = converters.to_unicode(self.left(progress, data, width))
-        right = converters.to_unicode(self.right(progress, data, width))
+        left = self.left(progress, data, width)
+        right = self.right(progress, data, width)
         width -= len(left) + len(right)
-        marker = converters.to_unicode(self.marker(progress, data, width))
+        marker = self.marker(progress, data, width)
 
-        fill = converters.to_unicode(self.fill(progress, data, width))
+        fill = self.fill(progress, data, width)
 
         if width:  # pragma: no branch
             value = int(
