@@ -466,6 +466,11 @@ def get_args(arg_list=None):
 
     args = parser.parse_args(arg_list)
 
+    # Print help when no arguments are provided
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
     return args
 
 
@@ -476,6 +481,7 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
 
 

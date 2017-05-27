@@ -131,6 +131,10 @@ def main():
 
     arg = parser.parse_args()
 
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
     main_checks(arg)
 
     stats_main(arg)

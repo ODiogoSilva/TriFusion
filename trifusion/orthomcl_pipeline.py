@@ -25,6 +25,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
 
     import os
+    import sys
     import time
     import codecs
     import subprocess
@@ -466,6 +467,10 @@ def main():
     misc_options.add_argument("-np", dest="cpus", default=1, help="Number of "
                               "CPUs to be used during search operation ("
                               "default is '%(default)s')")
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
 
     arg = parser.parse_args()
 
