@@ -1,1 +1,9 @@
-__version__ = "0.5.3"
+__version__ = "0.5.4"
+__build__ = "270517"
+__author__ = "Diogo N. Silva"
+__copyright__ = "Diogo N. Silva"
+__credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
+__license__ = "GPL3"
+__maintainer__ = "Diogo N. Silva"
+__email__ = "o.diogosilva@gmail.com"
+__status__ = "4 - Beta"
