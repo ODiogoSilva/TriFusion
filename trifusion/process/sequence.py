@@ -3007,7 +3007,7 @@ class AlignmentList(Base):
         """
         return iter(self.alignments.values())
 
-    def _create_table(self, table_name, cur=None):
+    def _create_table(self, table_name, index=None, cur=None):
 
         if not cur:
             cur = self.cur
@@ -3016,6 +3016,10 @@ class AlignmentList(Base):
                     "txId INT,"
                     "taxon TEXT,"
                     "seq TEXT)".format(table_name))
+
+        if index:
+            cur.execute("CREATE INDEX {} ON [{}]({})".format(
+                index[0], table_name, index[1]))
 
     def _table_exists(self, table_name, cur=None):
 
@@ -3456,73 +3460,103 @@ class AlignmentList(Base):
         Concatenates multiple sequence alignments creating a single alignment
         object and the auxiliary Partitions object defining the partitions
         of the concatenated alignment
+        
+        Rationale behind the concatenation procedure: 
+          Since sqlite queries are quite expensive, the previous approach
+          of querying the sequence for each taxa AND alignment table was 
+          dropped. In this approach, sqlite will do all the heavy lifting.
+          First, a temporary table with the same definition as all alignment
+          tables and populated with data from all taxa and alignments. It is
+          important that and index is created on the new txId column, which
+          will redifine the txId of individual alignments according to the 
+          global self.tax_names attribute. In the first procedure, there 
+          will be only one query per alignment. When the temporary table is
+          complete, some sql magic is used to group sequences from each
+          taxon for all alignments and then concatenated them, all in a single
+          query. This query returns the concatenated sequences, corrected txId
+          and taxon information, ready to populate the final concatenation
+          table. This approach is an order o magnitude faster than the
+          previous one where thousands of queries could be performed.
+        
+        
         :param alignment_name: string. Optional. Name of the new concatenated
         alignment object. This should be used when collapsing the alignment
         afterwards.
         :return concatenated_alignment: Alignment object
         """
 
-        self._set_pipes(ns, pbar, total=len(self.taxa_names))
+        self._set_pipes(ns, pbar, total=len(self.alignments))
 
-        table = "concatenation"
-
-        # Create table that will harbor the concatenated alignment
-        self._create_table(table)
-        self.active_tables.append(table)
-
-        # Variable that will store the length of the concatenated alignment
-        # and provided it when initializing the Alignment object
-        locus_length = None
+        # Create table temporary table and create an index
+        temp_table = "concatenation_temp"
+        self._create_table(temp_table, index=("concidex", "txId"))
 
         # Variables that will store the taxa_list and taxa_idx that will be
         # provided when instantiating an Alignment object
-        taxa_list = []
-        taxa_idx = {}
+        taxa_list = self.taxa_names
+        taxa_idx = dict((tx, idx) for idx, tx in enumerate(self.taxa_names))
 
-        # sequence_data = []
-        # Concatenation is performed for each taxon at a time
-        for p, taxon in enumerate(self.taxa_names):
+        # Create new cursor to insert data into database while the main
+        # cursor returns the query
+        conc_cur = self.con.cursor()
+
+        for p, aln in enumerate(self.alignments.values()):
+
+            # Update progress information
+            self._update_pipes(ns, pbar, value=p + 1,
+                               msg="Processing alignment {}".format(aln.name))
+
+            # For each taxon present in the current Alignment object,
+            # update the txId in the new table using the taxa_idx local
+            # variable.
+            for tx, seq in aln.iter_alignment(table_suffix=table_in):
+
+                conc_cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
+                    temp_table), (taxa_idx[tx], tx, seq))
+
+            # Get all the taxa missing from the current Alignment object
+            missing_tx = set(self.taxa_names) - set(aln.taxa_list)
+
+            # Insert missing data for the missing taxa in the teporary database
+            for tx in missing_tx:
+
+                conc_cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
+                    temp_table),
+                    (taxa_idx[tx], tx, aln.sequence_code[1] * aln.locus_length))
+
+        # Set the name of the final concatenated table
+        table = "concatenation"
+
+        # Create the table
+        self._create_table(table)
+        self.active_tables.append(table)
+
+        # Reset progress information for next loop
+        self._reset_pipes(ns)
+        self._set_pipes(ns, pbar, total=len(self.taxa_names))
+
+        # Here is where sqlite will do the heavy lifting of grouping sequences
+        # from the same taxon across all alignments and then concatenating
+        # them. It is important that the column that will be grouped has
+        # an index (for perfomance and memory reasons). While seqs are
+        # grouped by txId, the GROUP_CONCAT() method is used to return
+        # concatenated strings.
+        for p, (idx, tx, seq) in enumerate(self.cur.execute(
+            "SELECT txId, taxon, GROUP_CONCAT(seq, '') FROM [{}] "
+            "GROUP BY txId".format(temp_table))):
 
             self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Concatenating taxon {}".format(taxon))
+                               msg="Concatenating taxon {}".format(tx))
 
-            full_sequence = []
+            conc_cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
+                table), (idx, tx, seq))
 
-            for aln in self.alignments.values():
+        # Variable that will store the length of the concatenated alignment
+        # and provided it when initializing the Alignment object
+        locus_length = len(seq)
 
-                if ns:
-                    if ns.stop:
-                        raise KillByUser("")
-
-                # Setting missing data symbol
-                missing = aln.sequence_code[1]
-
-                if taxon in aln.taxa_list:
-                    seq = aln.get_sequence(taxon, table_suffix=table_in)
-                    full_sequence.append(seq)
-                else:
-                    full_sequence.append(missing * aln.locus_length)
-
-            # Add taxon to the table. If a taxon has no effective data,
-            # it will not be added to the table
-            if full_sequence:
-                seq_string = "".join(full_sequence)
-
-                # sequence_data.append((p, taxon, seq_string))
-
-                # Retrieve locus length
-                locus_length = len(seq_string)
-                # Update taxa_list and taxa_idx that will be provided to
-                # Alignment instance
-                taxa_list.append(taxon)
-                taxa_idx[taxon] = p
-                self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                    table), (p, taxon, seq_string))
-
-        self._reset_pipes(ns)
-
-        # self.cur.executemany("INSERT INTO {} VALUES (?, ?, ?)".format(
-        #     table), sequence_data)
+        # DROP the temporary table
+        self.cur.execute("DROP TABLE [{}]".format(temp_table))
 
         # Removes partitions that are currently in the shelve
         for aln_obj in self.shelve_alignments.values():

@@ -8,6 +8,11 @@
 
 ## Improvements
 
+### Process
+
+- Refactored concatenation procedure increasing performance up to 29x in run
+time [0.5.4]
+
 ### Statistics
 
 - Improved legend positioning [0.5.1].

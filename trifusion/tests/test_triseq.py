@@ -288,7 +288,7 @@ class TriSeqTest(unittest.TestCase):
     def test_informative_filter(self):
 
         args = get_args(["-in"] + dna_data_fas +
-                        ["--informative-filter", "1", "2",
+                        ["--informative-filter", "0", "2",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
                          "-quiet"])
