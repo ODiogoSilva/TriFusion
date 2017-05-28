@@ -240,6 +240,11 @@
 
                     </div>
 
+                    <h4>Troubleshooting:</h4>
+                    <p>If you get an error "The application 'TriFusion' can't be opened", check that the binary file inside the .app file is executable. Open a terminal on the .app
+                      directory and run:</p>
+                    <pre><code class="shell">chmod +x TriFusion.app/Contents/MacOS/TriFusion</code></pre>
+
                   <h3 class="modalh">From source (Using Homebrew)</h4>
                       <p>If you do not have homebrew yet, you'll need to install it:</p>
                       <pre><code class="shell">/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</code></pre>
