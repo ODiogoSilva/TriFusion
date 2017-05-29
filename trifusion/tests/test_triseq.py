@@ -37,7 +37,7 @@ class TriSeqTest(unittest.TestCase):
         args = get_args(["-in"] + dna_data_fas +
                         ["-of", "fasta",
                          "-o", join(output_dir, "teste"),
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -50,7 +50,7 @@ class TriSeqTest(unittest.TestCase):
         args = get_args(["-in", dna_data_fas[0],
                          "-of", "fasta",
                          "-c",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -65,7 +65,7 @@ class TriSeqTest(unittest.TestCase):
         args = get_args(["-in", concatenated_small_phy[0],
                          "-r", concatenated_small_par[0],
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -88,7 +88,7 @@ class TriSeqTest(unittest.TestCase):
 
         args = get_args(["-p", concatenated_small_par[0],
                          "-o", join(output_dir, "test"),
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -100,7 +100,7 @@ class TriSeqTest(unittest.TestCase):
 
         args = get_args(["-p", concatenated_small_parNex[0],
                          "-o", join(output_dir, "test"),
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -113,7 +113,7 @@ class TriSeqTest(unittest.TestCase):
         args = get_args(["-p", concatenated_small_parNex[0],
                          "-o", join(output_dir, "test"),
                          "--model", "WAG",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -125,7 +125,7 @@ class TriSeqTest(unittest.TestCase):
 
         args = get_args(["-in"] + dna_data_fas +
                         ["-s", "spa",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -141,7 +141,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--collapse",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -155,7 +155,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--code-gaps",
                          "-o", join(output_dir, "teste"),
                          "-of", "nexus",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -165,7 +165,7 @@ class TriSeqTest(unittest.TestCase):
                         "--consensus", "Soft mask",
                          "-of", "fasta",
                          "-c",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
         triseq_arg_check(args)
         main_parser(args, args.infile)
 
@@ -181,7 +181,7 @@ class TriSeqTest(unittest.TestCase):
                          "--consensus-single-file",
                          "-of", "fasta",
                          "-c",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -195,7 +195,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--missing-filter", "10", "50",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -207,7 +207,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--missing-filter", "0.1", "0.5",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -219,7 +219,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--min-taxa", "50",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -231,7 +231,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--min-taxa", "0.5",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -243,7 +243,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--contain-taxa", "spa",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -255,7 +255,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--exclude-taxa", "spa",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -267,7 +267,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--codon-filter", "1", "2",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -279,7 +279,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--variable-filter", "1", "2",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -291,7 +291,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--informative-filter", "0", "2",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -303,7 +303,7 @@ class TriSeqTest(unittest.TestCase):
                         ["--interleave",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -316,7 +316,7 @@ class TriSeqTest(unittest.TestCase):
                          "1",
                          "-o", join(output_dir, "teste"),
                          "-of", "ima2",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -328,7 +328,7 @@ class TriSeqTest(unittest.TestCase):
                         ["-rm", "spa",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -341,7 +341,7 @@ class TriSeqTest(unittest.TestCase):
                         ["-grep", "spa",
                          "-o", join(output_dir, "teste"),
                          "-of", "fasta",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)
@@ -352,7 +352,7 @@ class TriSeqTest(unittest.TestCase):
 
         args = get_args(["-in"] + dna_data_fas +
                         ["--get-taxa",
-                         "-quiet"])
+                         "-quiet"], unittest=True)
 
         triseq_arg_check(args)
         main_parser(args, args.infile)

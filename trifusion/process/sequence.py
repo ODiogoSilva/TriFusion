@@ -903,7 +903,390 @@ class Alignment(Base):
 
             fh.close()
 
-    def read_alignment(self, input_alignment, alignment_format,
+    def _eval_missing_symbol(self, sequence):
+
+        if not self.sequence_code[1]:
+
+            if sequence.count("?"):
+                self.sequence_code[1] = "?"
+
+            elif sequence.count("n") and self.sequence_code[0] == "DNA":
+                self.sequence_code[1] = "n"
+
+            elif sequence.count("x") and self.sequence_code[0] == "Protein":
+                self.sequence_code[1] = "x"
+
+    def _read_phylip(self, fh, size_list):
+
+        # Get the number of taxa and sequence length from the file header
+        header = fh.readline().split()
+        self.locus_length = int(header[1])
+        self.partitions.set_length(self.locus_length)
+        taxa_num = int(header[0])
+
+        # These three following attributes allow the support for
+        # interleave phylip files
+        # Flags whether the current line should be parsed for taxon name
+        taxa_gather = True
+        # Counter that makes the correspondence between the current line
+        # and the appropriate taxon
+        c = 0
+
+        for line in fh:
+
+            # Ignore empty lines
+            if line.strip() == "":
+                continue
+
+            # The counter is reset when surpassing the number of
+            # expected taxa.
+            if c + 1 > taxa_num:
+                c = 0
+                taxa_gather = False
+
+            try:
+
+                # Here, assume that all lines with taxon names have
+                # already been processed, since he taxa_pos variable
+                # already has the same number as the expected taxa in the
+                #  phylip header
+                if not taxa_gather:
+
+                    # Oh boy, this seems like an interleave phylip file.
+                    # Redirect parsing to appropriate method
+                    self.cur.execute("DELETE FROM [{}]".format(
+                        self.table_name))
+                    size_list = self._read_interleave_phylip(self.path,
+                                                             taxa_num)
+                    break
+
+                # To support interleave phylip, while the taxa_pos
+                # variable has not reached the expected number of taxa
+                # provided in header[0], treat the line as the first
+                # lines of the phylip where the first field is the taxon
+                # name
+                elif taxa_gather:
+
+                    taxa = line.split()[0].replace(" ", "")
+                    taxa = self.rm_illegal(taxa)
+
+                    try:
+                        # Joint multiple batches of sequence
+                        # Remove any possible whitespace by splitting
+                        # according to whitespace. This also ensures that
+                        # sequence is always a list when added to
+                        # sequence_data
+                        sequence = line.strip().lower().split()[1:]
+                    except IndexError:
+                        sequence = [""]
+
+                    self.taxa_list.append(taxa)
+                    self.taxa_idx[taxa] = c
+
+                    seq = "".join(sequence)
+
+                    # Evaluate missing data symbol if undefined
+                    self._eval_missing_symbol(seq)
+
+                    self.cur.execute("INSERT INTO [{}] VALUES"
+                                     "(?, ?, ?)".format(
+                        self.table_name), (c, taxa, seq))
+
+                    size_list.append(len(seq))
+
+                    # Add counter for interleave processing
+                    c += 1
+
+                    # sequence_data.append((taxa, "".join(sequence)))
+
+            except IndexError:
+                pass
+
+        # Updating partitions object
+        self.partitions.add_partition(self.name, self.locus_length,
+                                      file_name=self.path)
+
+        return size_list
+
+    def _read_fasta(self, fh, size_list):
+
+        sequence = []
+        idx = 0
+        for line in fh:
+            if line.strip().startswith(">"):
+
+                if sequence:
+                    seq = "".join(sequence)
+
+                    # Evaluate missing data symbol if undefined
+                    self._eval_missing_symbol(seq)
+
+                    self.cur.execute("INSERT INTO [{}] VALUES"
+                                     " (?, ?, ?)".format(
+                        self.table_name), (idx, taxa, seq))
+
+                    self.taxa_list.append(taxa)
+                    self.taxa_idx[taxa] = idx
+
+                    if not self.locus_length:
+                        self.locus_length = len(seq)
+
+                    size_list.append(len(seq))
+
+                    # sequence_data.append((taxa, "".join(sequence)))
+                    sequence = []
+                    idx += 1
+
+                taxa = line[1:].strip()
+                taxa = self.rm_illegal(taxa)
+
+            elif line.strip() != "" and taxa:
+                sequence.append(line.strip().lower().
+                                replace(" ", "").replace("*", ""))
+
+        if sequence:
+            seq = "".join(sequence)
+
+            # Evaluate missing data symbol if undefined
+            self._eval_missing_symbol(seq)
+
+            self.cur.execute("INSERT INTO [{}] VALUES"
+                             " (?, ?, ?)".format(
+                self.table_name), (idx, taxa, seq))
+
+            self.taxa_list.append(taxa)
+            self.taxa_idx[taxa] = idx
+
+            if not self.locus_length:
+                self.locus_length = len(seq)
+
+        size_list.append(len(seq))
+
+        self.partitions.set_length(self.locus_length)
+
+        # Updating partitions object
+        self.partitions.add_partition(self.name, self.locus_length,
+                                      file_name=self.path)
+
+        return size_list
+
+    def _read_loci(self, fh, size_list):
+
+        taxa_list = self.get_loci_taxa(self.path)
+
+        # Create empty dict
+        sequence_data = dict([(tx, []) for tx in taxa_list])
+
+        # Add a counter to name each locus
+        locus_c = 1
+        # This variable is used in comparison with taxa_list to check which
+        # taxa are missing from the current partition. Missing taxa
+        # are filled with missing data.
+        present_taxa = []
+
+        for line in fh:
+            if not line.strip().startswith("//") and line.strip() != "":
+                fields = line.strip().split()
+                taxon = fields[0].lstrip(">")
+                present_taxa.append(taxon)
+                sequence_data[taxon].append(fields[1].lower())
+
+            elif line.strip().startswith("//"):
+
+                locus_len = len(fields[1])
+                self.locus_length += locus_len
+                size_list.append(locus_len)
+
+                # Adding missing data
+                for tx in taxa_list:
+                    if tx not in present_taxa:
+                        sequence_data[tx].append(self.sequence_code[1] *
+                                                 locus_len)
+
+                present_taxa = []
+
+                self.partitions.add_partition("locus_{}".format(locus_c),
+                                              locus_len,
+                                              file_name=self.path)
+                locus_c += 1
+
+        sequence_data = [(p, tx, "".join(seq)) for p, (tx, seq) in
+                         enumerate(sorted(sequence_data.items()))]
+
+        self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
+            self.table_name), sequence_data)
+
+        self.partitions.set_length(self.locus_length)
+
+        return size_list
+
+    def _read_nexus(self, fh, size_list):
+
+        counter = 0
+        idx = 0
+        ntaxa = None
+        interleave = None
+        for line in fh:
+
+            # Fetch the number of taxa from nexus header. This will be
+            # necessary for efficient interleave parsing
+            if not ntaxa:
+                try:
+                    ntaxa = int(re.search(r".*ntax=(.+?) ",
+                                          line).group(1))
+                except ValueError:
+                    self.e = InputError("Could not recognize number"
+                                        " of taxa from nexus header")
+                    return
+                except AttributeError:
+                    pass
+
+            # Fetch the number of sites from nexus header. This will be
+            # necessary for efficient interleave parsing
+            if not self.locus_length:
+                try:
+                    self.locus_length = int(
+                        re.search(r".*nchar=(.+?)[ ,;]",
+                                  line).group(1))
+                except ValueError:
+                    self.e = InputError("Could not recognize number"
+                                        " of sites from nexus header")
+                    return
+                except AttributeError:
+                    pass
+
+            # Fetch the interleave value from the  nexus header. This
+            # will be necessary for efficient interleave parsing
+            if interleave == None:
+                try:
+                    interleave = re.search(r"interleave=(.+?) ",
+                                           line).group(1).lower()
+                    interleave = True if interleave.strip() == "yes" \
+                        else False
+                except AttributeError:
+                    pass
+
+            # Set the counter to beggin data parsing
+            if line.strip().lower() == "matrix" and counter == 0:
+                counter = 1
+
+            # Stop sequence parser here
+            elif line.strip() == ";" and counter == 1:
+                counter = 2
+
+                # self.locus_length = len(sequence_data[0][2])
+                self.partitions.set_length(self.locus_length)
+
+            # Start parsing here
+            elif counter == 1:
+
+                # If neither ntaxa or interleave are defined, return
+                # with an error in the 'e' attribute
+                if not ntaxa or interleave == None:
+                    self.e = InputError("Could not recognize ntax or"
+                                        " interleave parameters from"
+                                        " nexus header")
+                    return
+
+                if interleave == False:
+
+                    # In interleave, this marks the change in matrix blocks
+                    if not line.strip():
+                        continue
+
+                    # Get taxon name
+                    taxa = line.strip().split()[0].replace(" ", "")
+                    taxa = self.rm_illegal(taxa)
+
+                    # Update taxa_list and taxa_idx attributes
+                    self.taxa_list.append(taxa)
+                    self.taxa_idx[taxa] = idx
+
+                    # Get sequence string
+                    seq = "".join(line.strip().split()[1].split())
+
+                    # Evaluate missing data symbol if undefined
+                    self._eval_missing_symbol(seq)
+
+                    size_list.append(len(seq))
+
+                    # Add sequence to sqlite database
+                    self.cur.execute(
+                        "INSERT INTO [{}] VALUES (?, ?, ?)".format(
+                            self.table_name), (idx, taxa, seq))
+
+                    idx += 1
+
+                else:
+                    self._read_interleave_nexus(self.path, ntaxa)
+                    counter = 2
+
+            # If partitions are specified using the charset command, this
+            # section will parse the partitions
+            elif line.strip().startswith("charset"):
+                self.partitions.read_from_nexus_string(line,
+                                                       file_name=self.path)
+
+            # If substitution models are specified using the lset or prset
+            # commands, this will parse the model parameters
+            if ("lset" in line.lower() or "prset" in line.lower()) and \
+                            counter == 2:
+                self.partitions.parse_nexus_model(line)
+
+        # If no partitions have been added during the parsing of the nexus
+        # file, set a single partition
+        if self.partitions.partitions == OrderedDict():
+            self.partitions.add_partition(self.name, self.locus_length,
+                                          file_name=self.path)
+
+        return size_list
+
+    def _read_stockholm(self, fh, size_list):
+
+        sequence_data = []
+        # Skip first header line
+        next(fh)
+
+        for line in fh:
+            # Skip header and comments
+            if line.startswith("#"):
+                pass
+            # End of file
+            elif line.strip() == "//":
+                break
+            # Parse sequence data
+            elif line.strip() != "":
+
+                taxa = line.split()[0].split("/")[0]
+                taxa = self.rm_illegal(taxa)
+
+                try:
+                    sequence = line.split()[1].strip().lower()
+                    # Evaluate missing data symbol if undefined
+                    self._eval_missing_symbol(sequence)
+                except IndexError:
+                    sequence = ""
+
+                size_list.append(len(sequence))
+
+                sequence_data.append((taxa, sequence))
+
+        sequence_data = [(p, x, y) for p, (x, y) in
+                         enumerate(sorted(sequence_data))]
+
+        self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
+            self.table_name), sequence_data)
+
+        self.locus_length = len(sequence_data[0][1])
+        self.partitions.set_length(self.locus_length)
+
+        # Updating partitions object
+        self.partitions.add_partition(self.name, self.locus_length,
+                                      file_name=self.path)
+
+        return size_list
+
+    def read_alignment(self, input_alignment, fmt,
                        size_check=True):
         """
         The read_alignment method is run when the class is initialized to
@@ -912,7 +1295,7 @@ class Alignment(Base):
         :param input_alignment: string. File name containing the input
                                 alignment
 
-        :param alignment_format: string. Format of the input file. It can be
+        :param fmt: string. Format of the input file. It can be
                                  one of three: "fasta", "nexus", "phylip"
 
         :param size_check: Boolean. If True it will check the size consistency
@@ -923,378 +1306,31 @@ class Alignment(Base):
 
         size_list = []
 
-        # =====================================================================
-        # PARSING PHYLIP FORMAT
-        # ====================================================================
-
-        if alignment_format == "phylip":
-            # Get the number of taxa and sequence length from the file header
-            header = file_handle.readline().split()
-            self.locus_length = int(header[1])
-            self.partitions.set_length(self.locus_length)
-            taxa_num = int(header[0])
-
-            # These three following attributes allow the support for
-            # interleave phylip files
-            # Flags whether the current line should be parsed for taxon name
-            taxa_gather = True
-            # Counter that makes the correspondence between the current line
-            # and the appropriate taxon
-            c = 0
-
-            for line in file_handle:
-
-                # Ignore empty lines
-                if line.strip() == "":
-                    continue
-
-                # The counter is reset when surpassing the number of
-                # expected taxa.
-                if c + 1 > taxa_num:
-                    c = 0
-                    taxa_gather = False
-
-                try:
-
-                    # Here, assume that all lines with taxon names have
-                    # already been processed, since he taxa_pos variable
-                    # already has the same number as the expected taxa in the
-                    #  phylip header
-                    if not taxa_gather:
-
-                        # Oh boy, this seems like an interleave phylip file.
-                        # Redirect parsing to appropriate method
-                        self.cur.execute("DELETE FROM [{}]".format(
-                            self.table_name))
-                        size_list = self._read_interleave_phylip(self.path,
-                                                                 taxa_num)
-                        break
-
-                    # To support interleave phylip, while the taxa_pos
-                    # variable has not reached the expected number of taxa
-                    # provided in header[0], treat the line as the first
-                    # lines of the phylip where the first field is the taxon
-                    # name
-                    elif taxa_gather:
-
-                        taxa = line.split()[0].replace(" ", "")
-                        taxa = self.rm_illegal(taxa)
-
-                        try:
-                            # Joint multiple batches of sequence
-                            # Remove any possible whitespace by splitting
-                            # according to whitespace. This also ensures that
-                            # sequence is always a list when added to
-                            # sequence_data
-                            sequence = line.strip().lower().split()[1:]
-                        except IndexError:
-                            sequence = [""]
-
-                        self.taxa_list.append(taxa)
-                        self.taxa_idx[taxa] = c
-
-                        seq = "".join(sequence)
-
-                        self.cur.execute("INSERT INTO [{}] VALUES"
-                                         "(?, ?, ?)".format(
-                            self.table_name), (c, taxa, seq))
-
-                        size_list.append(len(seq))
-
-                        # Add counter for interleave processing
-                        c += 1
-
-                        # sequence_data.append((taxa, "".join(sequence)))
-
-                except IndexError:
-                    pass
-
-            # Updating partitions object
-            self.partitions.add_partition(self.name, self.locus_length,
-                                          file_name=self.path)
-
-        # ====================================================================
-        # PARSING FASTA FORMAT
-        # ====================================================================
-        elif alignment_format == "fasta":
-            sequence = []
-            idx = 0
-            for line in file_handle:
-                if line.strip().startswith(">"):
-
-                    if sequence:
-                        seq = "".join(sequence)
-                        self.cur.execute("INSERT INTO [{}] VALUES"
-                                         " (?, ?, ?)".format(
-                            self.table_name), (idx, taxa, seq))
-
-                        self.taxa_list.append(taxa)
-                        self.taxa_idx[taxa] = idx
-
-                        if not self.locus_length:
-                            self.locus_length = len(seq)
-
-                        size_list.append(len(seq))
-
-                        # sequence_data.append((taxa, "".join(sequence)))
-                        sequence = []
-                        idx += 1
-
-                    taxa = line[1:].strip()
-                    taxa = self.rm_illegal(taxa)
-
-                elif line.strip() != "" and taxa:
-                    sequence.append(line.strip().lower().
-                                    replace(" ", "").replace("*", ""))
-
-            if sequence:
-                seq = "".join(sequence)
-                self.cur.execute("INSERT INTO [{}] VALUES"
-                                 " (?, ?, ?)".format(
-                    self.table_name), (idx, taxa, seq))
-
-                self.taxa_list.append(taxa)
-                self.taxa_idx[taxa] = idx
-
-                if not self.locus_length:
-                    self.locus_length = len(seq)
-
-            size_list.append(len(seq))
-
-            self.partitions.set_length(self.locus_length)
-
-            # Updating partitions object
-            self.partitions.add_partition(self.name, self.locus_length,
-                                          file_name=self.path)
-
-        # =====================================================================
-        # PARSING LOCI FORMAT
-        # =====================================================================
-        elif alignment_format == "loci":
-            taxa_list = self.get_loci_taxa(self.path)
-
-            # Create empty dict
-            sequence_data = dict([(tx, []) for tx in taxa_list])
-
-            # Add a counter to name each locus
-            locus_c = 1
-            # This variable is used in comparison with taxa_list to check which
-            # taxa are missing from the current partition. Missing taxa
-            # are filled with missing data.
-            present_taxa = []
-
-            for line in file_handle:
-                if not line.strip().startswith("//") and line.strip() != "":
-                    fields = line.strip().split()
-                    taxon = fields[0].lstrip(">")
-                    present_taxa.append(taxon)
-                    sequence_data[taxon].append(fields[1].lower())
-
-                elif line.strip().startswith("//"):
-
-                    locus_len = len(fields[1])
-                    self.locus_length += locus_len
-                    size_list.append(locus_len)
-
-                    # Adding missing data
-                    for tx in taxa_list:
-                        if tx not in present_taxa:
-                            sequence_data[tx].append(self.sequence_code[1] *
-                                                      locus_len)
-
-                    present_taxa = []
-
-                    self.partitions.add_partition("locus_{}".format(locus_c),
-                                                  locus_len,
-                                                  file_name=self.path)
-                    locus_c += 1
-
-            sequence_data = [(p, tx, "".join(seq)) for p, (tx, seq) in
-                             enumerate(sorted(sequence_data.items()))]
-
-            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                self.table_name), sequence_data)
-
-            self.partitions.set_length(self.locus_length)
-
-        # =====================================================================
-        # PARSING NEXUS FORMAT
-        # =====================================================================
-        elif alignment_format == "nexus":
-            counter = 0
-            idx = 0
-            ntaxa = None
-            interleave = None
-            for line in file_handle:
-
-                # Fetch the number of taxa from nexus header. This will be
-                # necessary for efficient interleave parsing
-                if not ntaxa:
-                    try:
-                        ntaxa = int(re.search(r".*ntax=(.+?) ",
-                                                  line).group(1))
-                    except ValueError:
-                        self.e = InputError("Could not recognize number"
-                                            " of taxa from nexus header")
-                        return
-                    except AttributeError:
-                        pass
-
-                # Fetch the number of sites from nexus header. This will be
-                # necessary for efficient interleave parsing
-                if not self.locus_length:
-                    try:
-                        self.locus_length = int(
-                            re.search(r".*nchar=(.+?)[ ,;]",
-                                      line).group(1))
-                    except ValueError:
-                        self.e = InputError("Could not recognize number"
-                                            " of sites from nexus header")
-                        return
-                    except AttributeError:
-                        pass
-
-                # Fetch the interleave value from the  nexus header. This
-                # will be necessary for efficient interleave parsing
-                if interleave == None:
-                    try:
-                        interleave = re.search(r"interleave=(.+?) ",
-                                               line).group(1).lower()
-                        interleave = True if interleave.strip() == "yes" \
-                            else False
-                    except AttributeError:
-                        pass
-
-                # Set the counter to beggin data parsing
-                if line.strip().lower() == "matrix" and counter == 0:
-                    counter = 1
-
-                # Stop sequence parser here
-                elif line.strip() == ";" and counter == 1:
-                    counter = 2
-
-                    # self.locus_length = len(sequence_data[0][2])
-                    self.partitions.set_length(self.locus_length)
-
-                # Start parsing here
-                elif counter == 1:
-
-                    # If neither ntaxa or interleave are defined, return
-                    # with an error in the 'e' attribute
-                    if not ntaxa or interleave == None:
-                        self.e = InputError("Could not recognize ntax or"
-                                            " interleave parameters from"
-                                            " nexus header")
-                        return
-
-                    if interleave == False:
-
-                        # In interleave, this marks the change in matrix blocks
-                        if not line.strip():
-                            continue
-
-                        # Get taxon name
-                        taxa = line.strip().split()[0].replace(" ", "")
-                        taxa = self.rm_illegal(taxa)
-
-                        # Update taxa_list and taxa_idx attributes
-                        self.taxa_list.append(taxa)
-                        self.taxa_idx[taxa] = idx
-
-                        # Get sequence string
-                        seq = "".join(line.strip().split()[1].split())
-
-                        size_list.append(len(seq))
-
-                        # Add sequence to sqlite database
-                        self.cur.execute(
-                            "INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                                self.table_name), (idx, taxa, seq))
-
-                        idx += 1
-
-                    else:
-                        self._read_interleave_nexus(self.path, ntaxa)
-                        counter = 2
-
-                # If partitions are specified using the charset command, this
-                # section will parse the partitions
-                elif line.strip().startswith("charset"):
-                    self.partitions.read_from_nexus_string(line,
-                                                    file_name=self.path)
-
-                # If substitution models are specified using the lset or prset
-                # commands, this will parse the model parameters
-                if ("lset" in line.lower() or "prset" in line.lower()) and \
-                        counter == 2:
-                    self.partitions.parse_nexus_model(line)
-
-            # If no partitions have been added during the parsing of the nexus
-            # file, set a single partition
-            if self.partitions.partitions == OrderedDict():
-                self.partitions.add_partition(self.name, self.locus_length,
-                                              file_name=self.path)
-
-        # =====================================================================
-        # PARSING Stockholm FORMAT
-        # =====================================================================
-        elif alignment_format == "stockholm":
-
-            sequence_data = []
-            # Skip first header line
-            next(file_handle)
-
-            for line in file_handle:
-                # Skip header and comments
-                if line.startswith("#"):
-                    pass
-                # End of file
-                elif line.strip() == "//":
-                    break
-                # Parse sequence data
-                elif line.strip() != "":
-
-                    taxa = line.split()[0].split("/")[0]
-                    taxa = self.rm_illegal(taxa)
-
-                    try:
-                        sequence = line.split()[1].strip().lower()
-                    except IndexError:
-                        sequence = ""
-
-                    size_list.append(len(sequence))
-
-                    sequence_data.append((taxa, sequence))
-
-            sequence_data = [(p, x, y) for p, (x, y) in
-                             enumerate(sorted(sequence_data))]
-
-            self.cur.executemany("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                self.table_name), sequence_data)
-
-            self.locus_length = len(sequence_data[0][1])
-            self.partitions.set_length(self.locus_length)
-
-            # Updating partitions object
-            self.partitions.add_partition(self.name, self.locus_length,
-                                          file_name=self.path)
+        parsing_methods = {
+            "phylip": self._read_phylip,
+            "fasta": self._read_fasta,
+            "loci": self._read_loci,
+            "nexus": self._read_nexus,
+            "stockholm": self._read_stockholm
+        }
+
+        read_args = [file_handle, size_list]
+
+        size_list = parsing_methods[fmt](*read_args)
 
         file_handle.close()
+
+        # If the missing data symbol could not be evaluated during alignment
+        # parsing, set the defaults
+        default_missing = {"DNA": "n", "Protein": "x"}
+        if not self.sequence_code[1]:
+            self.sequence_code[1] = default_missing[self.sequence_code[0]]
 
         # Checks the size consistency of the alignment
         if size_check is True:
             if len(set(size_list)) > 1:
                 self.e = AlignmentUnequalLength()
                 return
-        #     self.is_alignment = self.check_sizes(sequence_data,
-        #                                          self.path)
-        #     if not self.is_alignment:
-        #         self.e = AlignmentUnequalLength()
-        #         return
-
-        # Checks for duplicate taxa
-        # self.taxa_list = [x[1] for x in sequence_data]
-        # self.taxa_idx = dict((x[1], x[0]) for x in sequence_data)
 
         if len(self.taxa_list) != len(set(self.taxa_list)):
             duplicate_taxa = self.duplicate_taxa(self.taxa_list)
@@ -2449,7 +2485,7 @@ class Alignment(Base):
                                       "in the alignment")
                                 raise SystemExit
 
-                            if seq.replace("N", "") != "":
+                            if seq.replace(self.sequence_code[1], "") != "":
                                 new_alignment.append((taxon[:cut_space_ima2]
                                                       .ljust(seq_space_ima2),
                                                       seq))

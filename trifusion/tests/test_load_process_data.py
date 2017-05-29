@@ -124,6 +124,36 @@ class LoadAlignmentsTest(unittest.TestCase):
 
         self.aln_obj = AlignmentList(no_data, sql_db=sql_db)
 
+    def test_alternative_missing(self):
+
+        self.aln_obj = AlignmentList(alternative_missing, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "?")
+
+    def test_dna_missing_default(self):
+
+        self.aln_obj = AlignmentList(single_dna, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "n")
+
+    def test_protein_missing_default(self):
+
+        self.aln_obj = AlignmentList(protein_no_missing, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "x")
+
+    def test_dna_missing_eval(self):
+
+        self.aln_obj = AlignmentList(concatenated_medium_nexus, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "n")
+
+    def test_protein_missing_eval(self):
+
+        self.aln_obj = AlignmentList(protein_normal_missing, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "x")
+
 
 class AlignmentManipulationTest(unittest.TestCase):
 

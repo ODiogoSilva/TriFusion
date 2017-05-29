@@ -11,7 +11,9 @@
 ### Process
 
 - Refactored concatenation procedure increasing performance up to 29x in run
-time [0.5.4]
+time [0.5.4].
+- Added automatic recognition of "?" as missing data symbols, in addition to
+"n" and "x" [0.5.5].
 
 ### Statistics
 

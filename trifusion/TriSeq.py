@@ -296,7 +296,7 @@ def main_parser(arg, alignment_list):
                                  pbar=pbar)
 
 
-def get_args(arg_list=None):
+def get_args(arg_list=None, unittest=False):
 
     # The inclusion of the argument definition in main, makes it possible to
     # import this file as a module and not triggering argparse. The
@@ -467,7 +467,7 @@ def get_args(arg_list=None):
     args = parser.parse_args(arg_list)
 
     # Print help when no arguments are provided
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 1 and not unittest:
         parser.print_help()
         sys.exit(1)
 
