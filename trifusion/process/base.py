@@ -69,31 +69,88 @@ iupac_conv = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
 
 
 class CleanUp(object):
+    """Decorator class that handles temporary data for TriSeq and TriStats
+    
+    This decorator class wraps the main execution functions of TriSeq and
+    TriStats programs. The __init__ requires only the function reference,
+    defines the name of the temporary directory and evaluates whether the
+    provided `func` is from TriSeq or TriStats. The only requirement of 
+    `func` is that its first argument is the argparser namespace (that is,
+    the arguments must be parsed in the corresponding program before 
+    calling the main function).
+    
+    Parameters
+    ----------
+    func : function
+        Main function of TriSeq or TriStats
+    
+    Attributes
+    ----------
+    func : function
+        Main function of TriSeq or TriStats
+    temp_dir : str
+        Path to temporary directory where the temporary data will be stored
+    idx : int
+        Integer identifier of the main function's program. 0 for TriSeq and
+        2 for TriStats
+        
+    See Also
+    --------
+    print_col
+    
+    """
 
     def __init__(self, func):
         self.func = func
+        # Set name of temporary directory
         self.temp_dir = ".trifusion-temp"
+        # Evaluate whether func is from TriSeq or TriStats from its name
         self.idx = 0 if self.func.__name__ == "main_parser" else 2
 
     def __call__(self, *args):
+        """Wraps the call of `func`
+        
+        When the main `func` is called, this code is wrapped around its
+        execution. This mainly ensures that the temporary data stored in
+        `temp_dir` is correctly removed at the end of the execution, whether
+        it terminals successfully or not. It also clocks the duration of the
+        execution.
+        
+        Parameters
+        ----------
+        args : list
+            Arbitrary list of positional arguments of `func`. The only 
+            requirement is that the first element is the argparse namespace
+            object.
+
+        """
 
         try:
+            # Set starting time for clocking execution duration
             start_time = time.time()
+
+            # Execute main function
             self.func(*args)
+
+            # If program was not executed with 'quiet' flag, print final
+            # execution message
             if not args[0].quiet:
                 print_col("Program execution successfully completed in %s "
                           "seconds" %
                           (round(time.time() - start_time, 2)), GREEN,
                           self.idx)
+
+        # Handle execution termination via Ctrl+C. Ensures that all temporary
+        # data is remove.
         except KeyboardInterrupt:
             # Removing temporary directory, if any
             if os.path.exists(self.temp_dir):
                 shutil.rmtree(self.temp_dir)
             print_col("Interrupting, by your command", RED, self.idx)
+
         # The broad exception handling is used to remove the temporary
         # directory under any circumstances
-        except Exception as e:
-            print(e)
+        except Exception:
             traceback.print_exc()
             # Removing temporary directory, if any
             if os.path.exists(self.temp_dir):
@@ -108,10 +165,18 @@ class CleanUp(object):
 
 
 def merger(ranges):
-    """
-    Generator that merges ranges in a list of tuples. For example,
-    if ranges is [(1, 234), (235, 456), (560, 607), (607,789)]
-    this generator will yield [(1, 456), (560, 789)]
+    """Generator that merges continuous ranges of tuples in a list
+    
+    Parameters
+    ----------
+    ranges : list
+        List of tuples, each with two integer elements defining a range,
+        (0, 100) for instance.
+    
+    Example
+    -------
+    If the provide ranges are [(1, 234), (235, 456), (560, 607), (607,789)]
+    this generator will yield the elements (1, 456) and (560, 789)
     """
     previous = 0
     last_start = 0
@@ -148,6 +213,37 @@ has_colours = has_colours(sys.stdout)
 
 
 def print_col(text, color, i=0, quiet=False):
+    """Custom print function for terminal updates of CLI programs
+    
+    This print function homogenizes the progress logging of all CLI programs
+    while providing some freedom on the formatting of the progress message,
+    name the colors of the messages. A list of terminal colors is provided
+    and a `has_colors` function checks whether they are supported on the 
+    terminal. The colors in use are green for normal logging, yellow for
+    warnings and red for errors. The final formatting of the message is 
+    something like:
+    
+    [<Program Name>[-Error/Warning]] <message>
+    
+    Parameters
+    ----------
+    text : str
+        The message that will appear in the terminal
+    color : variable reference
+        Reference to the terminal colors defined in process.base. Provided 
+        that they are imported in the module where they are being called, the
+        options are: {GREEN, YELLOW, RED}
+    i : int
+        Integer that specified which CLI program is being logged. The options
+        are:
+        0: TriSeq
+        1: OrthoMCL Pipeline
+        2: TriStats
+        3: TriOrtho
+    quiet : bool
+        Determines whether the message is logged. If True, no messages are
+        printed to the terminal
+    """
     if not quiet:
         p = ["TriSeq", "OrthoMCl Pipeline", "TriStats", "TriOrtho"]
         suf = {GREEN: "[%s] " % p[i], YELLOW: "[%s-Warning] " % p[i],
@@ -163,14 +259,17 @@ def print_col(text, color, i=0, quiet=False):
 
 
 class Base(object):
-    """
-    Collection of basic methods that can be inherited by Alignment-like
-    objects
-    """
 
     def autofinder(self, reference_file):
-        """
-        Autodetects format, missing data symbol and sequence type
+        """Autodetects format, missing data symbol and sequence type
+        
+        Attempts to find the file format, missing data symbol and sequence
+        type from a reference file. Due to performance reasons, this function
+        will only read the `referenced_file` until it finds the first sequence.
+        Then, it evaluates the file format and sequence type. It also
+        attempts to get the missing data symbol, but the first sequence may
+        have no missing data. In that case, the missing data symbol will remain
+        undefined and will be re-evaluated during alignment parsing.
         
         Parameters
         ----------
@@ -184,6 +283,10 @@ class Base(object):
         code : tuple
             The sequence type as string in first element and missing data
             symbol as string in the second element
+        
+        See Also
+        --------
+        guess_code
         
         """
 
@@ -470,44 +573,6 @@ class Base(object):
             result.append(line.strip())
 
         return result
-
-
-class Progression(object):
-
-    def record(self, name, obj_size, window_size=50):
-
-        self.name = name
-        self.size = obj_size
-        self.width = window_size
-
-    def progress_bar(self, position):
-        """ this function requires the record method to be previously defined,
-        as it will need its attributes. It will print a progress bar with a
-        specified weight according to the position on the current data
-        structure """
-
-        # If there is a previous message in the output, erase it
-        try:
-            sys.stdout.write("\r" + " " * len(self.msg))
-        except AttributeError:
-            pass
-
-        # The progress bar
-        position_proportion = int((position / self.size) * self.width)
-
-        msg = "\r%s [%s%s] %s%%" % (self.name, "#" * position_proportion,
-                                    "-" * (self.width - position_proportion),
-                                    int((position_proportion / self.width) *
-                                        100))
-
-        # Erase the last message
-        if int((position_proportion / self.width) * 100) == 100:
-            sys.stdout.write("\r" + " " * len(msg))
-
-    def write(self, msg):
-        """ This will simply write a provided string to the terminal """
-
-        self.msg = msg
 
 
 __author__ = "Diogo N. Silva"

@@ -79,6 +79,10 @@ def main_parser(arg, alignment_list):
     # Set path to temporary sqlite database
     sql_db = os.path.join(tmp_dir, "trifusion.db")
 
+    # If database already exists, erase it. Make sure we start fresh.
+    if os.path.exists(sql_db):
+        os.remove(sql_db)
+
     # Defining main variables
     conversion = arg.conversion
     output_format = arg.output_format

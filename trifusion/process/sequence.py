@@ -35,7 +35,7 @@ import sqlite3
 try:
     import process
     from process.base import dna_chars, aminoacid_table, iupac, \
-        iupac_rev, iupac_conv, Base, Progression
+        iupac_rev, iupac_conv, Base
     from process.data import Partitions
     from process.data import PartitionException
     from process.error_handling import DuplicateTaxa, KillByUser, \
@@ -44,7 +44,7 @@ try:
 except ImportError:
     import trifusion.process as process
     from trifusion.process.base import dna_chars, aminoacid_table, iupac, \
-        iupac_rev, iupac_conv, Base, Progression
+        iupac_rev, iupac_conv, Base
     from trifusion.process.data import Partitions
     from trifusion.process.data import PartitionException
     from trifusion.process.error_handling import DuplicateTaxa, KillByUser, \
@@ -341,8 +341,6 @@ class Alignment(Base):
         :param taxa_idx: dict. Contains the correspondance between the taxon
         names and their index in the sqlite database
         """
-
-        self.log_progression = Progression()
 
         """
         Provides the sqlite database cursor to communicate with the sequence
@@ -2409,9 +2407,6 @@ class Alignment(Base):
         # alignment's gap have been coded
         if self.restriction_range is not None:
             if output_format != ["nexus"]:
-                self.log_progression.write("OutputFormatError: Alignments "
-                                           "with gaps coded can only be written"
-                                           " in Nexus format")
                 return 0
         else:
             pass
@@ -2933,8 +2928,6 @@ class AlignmentList(Base):
         the sql_db argument will be ignored. Therefore, no new connection will
         be open
         """
-
-        self.log_progression = Progression()
 
         """
         Create connection and cursor for sqlite database
