@@ -80,7 +80,6 @@ EventLoop.ensure_window()
 
 from kivy.app import App
 from kivy.animation import Animation
-from kivy.uix.widget import Widget
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
@@ -460,7 +459,7 @@ class TriFusionApp(App):
     mouse_over_ready = BooleanProperty(True)
     # Stores the previous mouse over label button so that it can be removed
     old_mouse_over = None
-    fancy_bt = ObjectProperty(FancyButton())
+    fancy_bt = None
     touch = None
     # Attribute that stores paths of currently active removable media
     removable_media = []
@@ -763,6 +762,8 @@ class TriFusionApp(App):
 
         # Initialize projects
         self.projects_init()
+
+        self.fancy_bt = ObjectProperty(FancyButton())
 
         # Set schedule for mouse over events on side panel
         Clock.schedule_interval(lambda x: self._on_mouseover_tabs(), .1)
