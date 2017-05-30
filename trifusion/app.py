@@ -7591,6 +7591,11 @@ class TriFusionApp(App):
         :param plt_idx: string, identification string of the plot.
         """
 
+        if not plot_data["data"]:
+            self.screen.ids.plot_content.children[0].clear_widgets()
+            return self.dialog_floatcheck("There is not data to plot with"
+                                          "the current filters", t="error")
+
         # Update excluded taxa attribute
         self.screen.ids.header_content.excluded_taxa = \
             self.active_group.excluded_taxa

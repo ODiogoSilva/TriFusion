@@ -30,6 +30,11 @@ transition [0.5.1].
 
 ## Bug fixes
 
+### Orthology
+
+- Handled exception when orthology filters result in no data to be
+plotted [0.5.6].
+
 ### Process
 
 - Fixed 'ntax' parameter of NEXUS format when converting with custom active

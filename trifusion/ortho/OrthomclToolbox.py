@@ -579,6 +579,10 @@ class GroupLight(object):
         x_labels = [x for x in list(data)]
         data = list(data.values())
 
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
+
         # Sort lists
         x_labels = [list(x) for x in zip(*sorted(zip(x_labels, data)))][0]
 
@@ -612,6 +616,10 @@ class GroupLight(object):
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
+
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
 
         x_labels, data = (list(x) for x in zip(*sorted(zip(x_labels, data))))
 
@@ -649,6 +657,10 @@ class GroupLight(object):
 
         data = data.most_common()
 
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
+
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data], [self.all_clusters - x[1] if not
                                       filt else self.all_compliant - x[1]
@@ -678,6 +690,10 @@ class GroupLight(object):
                 data += Counter(dict((x, y) for x, y in cl.items() if y > 1))
 
         data = data.most_common()
+
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
 
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data]]
