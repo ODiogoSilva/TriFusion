@@ -4813,7 +4813,6 @@ class TriFusionApp(App):
 
             self.update_file_label()
 
-
     def toggle_selection(self, value):
         """
         Adds functionality for the file and taxa toggle buttons in the side
