@@ -762,7 +762,7 @@
     orientation: "vertical"
     ds_type: ""
     size_hint: None, None
-    height: 285
+    height: 310
     width: 270
 
     canvas.before:
@@ -833,6 +833,17 @@
                 text: "Select options"
                 bold: True
                 color: (0.216, 0.67, 0.784, 1)
+
+            TFButton:
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                size_hint_y: None
+                height: 30
+                text: "Invert selection"
+                bold: True
+                on_release:
+                    app.sidepanel_invert_selection(root.ds_type)
 
             TFButton:
                 text_size: self.size
@@ -1418,16 +1429,6 @@
         text: "Change taxon name"
         on_touch_down:
             app.change_taxa_name()
-
-
-#    PopupBox:
-#        PopupLabel:
-#            size_hint_x: .6
-#            text: "Taxon name"
-#        TextInput:
-#            size_hint_x: .4
-#            id: taxa_txt
-#            multiline: False
 
 <TaxaPopup>
     orientation: "vertical"

@@ -4737,6 +4737,83 @@ class TriFusionApp(App):
 
         self.prev_tb = value
 
+    def sidepanel_invert_selection(self, panel):
+        """
+        
+        Parameters
+        ----------
+        panel
+
+        Returns
+        -------
+
+        """
+
+        # Set gridlayout and taxa/file list of the appropraite panel
+        if panel == "Files":
+            grid_wgt = self.root.ids.file_sl
+            lst = self.file_list if self.file_list else self.proteome_files
+            active_lst = self.active_file_list if self.file_list \
+                else self.active_proteome_files
+
+        else:
+            grid_wgt = self.root.ids.taxa_sl
+            lst = self.alignment_list.taxa_names
+            active_lst = self.active_taxa_list
+
+        # Storage of active itens
+        active_items = []
+
+        # Invert selection and get the active elements
+        for item in lst:
+
+            if item not in active_lst:
+                active_items.append(item)
+
+        # Update panel with new active elements
+        for wgt in grid_wgt.children:
+
+            # Get only toggle buttons
+            if isinstance(wgt, ToggleButton):
+
+                # Get text. File togglebuttons have the basename of the
+                # active list
+                txt = self.filename_map[wgt.text] if panel == "Files" \
+                    else wgt.text
+
+                if txt in active_items:
+                    wgt.state = "down"
+                
+                else:
+                    wgt.state = "normal"
+
+        # Core changes to taxa
+        if panel == "Taxa":
+
+            self.active_taxa_list = active_items
+            self.update_sp_label()
+
+        elif panel == "Files":
+
+            # Update when alignment files are loaded
+            if self.file_list:
+
+                # update active file list
+                self.active_file_list = active_items
+
+                # Update AlignmentList object
+                self.alignment_list.update_active_alignments(
+                    active_items
+                )
+                
+            # Update when proteome files are loaded
+            if self.proteome_files:
+
+                self.active_proteome_files = active_items
+
+            self.update_file_label()
+
+
     def toggle_selection(self, value):
         """
         Adds functionality for the file and taxa toggle buttons in the side
