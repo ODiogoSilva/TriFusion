@@ -6,6 +6,7 @@ Website: http://odiogosilva.github.io/TriFusion/
 
 <img src="https://raw.githubusercontent.com/ODiogoSilva/TriFusion-tutorials/master/tutorials/images/trifusion_home_screen.png"/>
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2f82dbed42cb4a26b89d264447890e5c)](https://www.codacy.com/app/o.diogosilva/TriFusion?utm_source=github.com&utm_medium=referral&utm_content=ODiogoSilva/TriFusion&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master)](https://travis-ci.org/ODiogoSilva/TriFusion)
 [![Code Health](https://landscape.io/github/ODiogoSilva/TriFusion/master/landscape.svg?style=flat)](https://landscape.io/github/ODiogoSilva/TriFusion/master)
 [![codecov](https://codecov.io/gh/ODiogoSilva/TriFusion/branch/master/graph/badge.svg)](https://codecov.io/gh/ODiogoSilva/TriFusion)
