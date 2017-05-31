@@ -21,7 +21,7 @@ install:
     - python setup.py install
 
 script:
-    - nosetests --with-coverage
+    - nosetests --with-coverage --exclude-dir=trifusion/progressbar
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)  -g trifusion/progressbar/
