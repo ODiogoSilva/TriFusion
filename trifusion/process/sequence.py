@@ -782,7 +782,7 @@ class Alignment(Base):
                     self.input_format = input_format
 
                 # parsing the alignment
-                self.read_alignment(input_alignment, self.input_format)
+                self.read_alignment()
             else:
                 # Setting the sequence code attribute for seq type checking
                 # in AlignmentList
@@ -1091,9 +1091,15 @@ class Alignment(Base):
         sites are fetch at any given time. Several tests were performed to
         ensure that this block size provided a good trade-off between
         RAM usage and speed.
+
+        All generators ignore data associated with taxa present in the
+        `shelved_taxa` attribute.
         """
 
         try:
+            # Locking mechanism necessary to avoid concurrency issues when
+            # accessing the database. This ensures that only one Cursor
+            # object is querying the database at any given time
             lock.acquire(True)
 
             for p in range(0, self.locus_length, 100000):
@@ -1152,9 +1158,15 @@ class Alignment(Base):
         sites are fetch at any given time. Several tests were performed to
         ensure that this block size provided a good trade-off between
         RAM usage and speed.
+
+        All generators ignore data associated with taxa present in the
+        `shelved_taxa` attribute.
         """
 
         try:
+            # Locking mechanism necessary to avoid concurrency issues when
+            # accessing the database. This ensures that only one Cursor
+            # object is querying the database at any given time
             lock.acquire(True)
 
             for p in range(0, self.locus_length, 100000):
@@ -1168,82 +1180,98 @@ class Alignment(Base):
 
     @SetupInTable
     def iter_sequences(self, table_suffix="", table_name=None, table=None):
-        """ Generator over
-        Generator for sequence data of the alignment object. Akin to
-        values() method of a dictionary.
-        The sequence is retrieved from a table specified either by the
-        table_name or table_suffix arguments. table_name will always take
-        precedence over the table_suffix if both are provided. If none are
-        provided, the default self.table_name is used. If the table name
-        provided by either table_name or table_suffix is invalid, the default
-         self.table_name is also used.
+        """ Generator over sequence strings in the alignment
 
-        :param table_name: string. Name of the table where the sequence data
-        will be fetched
-        :param table_suffix: string. Suffix of the table where the sequence
-        data will be fetched.
-        :param table: This argument is automatically prodived by the
-        SetupInTable decorator. DO NOT USE DIRECTLY.
+        Generator for sequence data of the `Alignment` object.
+        Sequence data is retrieved from a database table specified either by
+        the `table_name` or `table_suffix` arguments. `table_name` will always
+        take precedence over `table_suffix` if both are provided. If none
+        are provided, the default `Alignment.table_name` is used. If the
+        table name provided by either `table_name` or `table_suffix` is
+        invalid, the default `Alignment.table_name` is also used.
+
+        Parameters
+        ----------
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        table : string
+            This argument will be automatically setup by the `SetupInTable`
+            decorator. Do not use directly.
+
+        Yields
+        ------
+        seq : string
+            Sequence string for a given taxon
+
+        See Also
+        --------
+        SetupInTable
+
+        Notes
+        -----
+        All generators ignore data associated with taxa present in the
+        `shelved_taxa` attribute.
         """
 
         try:
+            # Locking mechanism necessary to avoid concurrency issues when
+            # accessing the database. This ensures that only one Cursor
+            # object is querying the database at any given time
             lock.acquire(True)
-            for tx, seq in self.cur.execute("SELECT taxon,seq FROM [{}]".format(
-                    table)):
+            for tx, seq in self.cur.execute(
+                    "SELECT taxon,seq FROM [{}]".format(table)):
                 if tx not in self.shelved_taxa:
                     yield seq
         finally:
             lock.release()
 
     @SetupInTable
-    def iter_alignment_substr(self, start, length, table_suffix="",
-                              table_name=None, table=None):
-        """
-        This generator is similar to iter_alignment, but it only returns
-        a substring of the alignment sequence as specified bu the start
-        and len arguments. The 'start' argument specified the starting point
-        (index 1) and the length the, well, length of the substring from
-        the initial point
-        :param start: (int) starting point for substring (index 1)
-        :param len: (int) length of substring from the start point
-        :param table_name: string. Name of the table where the sequence data
-        will be fetched
-        :param table_suffix: string. Suffix of the table where the sequence
-        data will be fetched.
-        :param table: This argument is automatically prodived by the
-        SetupInTable decorator. DO NOT USE DIRECTLY.
-        """
-
-        try:
-            lock.acquire(True)
-            for tx, seq in self.cur.execute(
-                    "SELECT taxon, substr(seq,{},{}) from [{}]".format(
-                        start, length, table)).fetchall():
-                if tx not in self.shelved_taxa:
-                    yield tx, seq
-        finally:
-            lock.release()
-
-    @SetupInTable
     def iter_alignment(self, table_suffix="", table_name=None, table=None):
-        """
-        Generator for a tuple pair with (taxon, sequece).
-        The sequence is retrieved from a table specified either by the
-        table_name or table_suffix arguments. table_name will always take
-        precedence over the table_suffix if both are provided. If none are
-        provided, the default self.table_name is used. If the table name
-        provided by either table_name or table_suffix is invalid, the default
-         self.table_name is also used.
+        """Generator for (taxon, sequence) tuples
 
-        :param table_name: string. Name of the table where the sequence data
-        will be fetched
-        :param table_suffix: string. Suffix of the table where the sequence
-        data will be fetched.
-        :param table: This argument is automatically prodived by the
-        SetupInTable decorator. DO NOT USE DIRECTLY.
+        Generator that yields (taxon, sequence) tuples from the database.
+        Sequence data is retrieved from a database table specified either by
+        the `table_name` or `table_suffix` arguments. `table_name` will always
+        take precedence over `table_suffix` if both are provided. If none
+        are provided, the default `Alignment.table_name` is used. If the
+        table name provided by either `table_name` or `table_suffix` is
+        invalid, the default `Alignment.table_name` is also used.
+
+        Parameters
+        ----------
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        table : string
+            This argument will be automatically setup by the `SetupInTable`
+            decorator. Do not use directly.
+
+        Yields
+        ------
+        tx : string
+            Taxon name.
+        seq : string
+            Sequence string.
+
+        See Also
+        --------
+        SetupInTable
+
+        Notes
+        -----
+        All generators ignore data associated with taxa present in the
+        `shelved_taxa` attribute.
         """
 
         try:
+            # Locking mechanism necessary to avoid concurrency issues when
+            # accessing the database. This ensures that only one Cursor
+            # object is querying the database at any given time
             lock.acquire(True)
             for tx, seq in self.cur.execute(
                     "SELECT taxon, seq from [{}]".format(table)):
@@ -1255,30 +1283,56 @@ class Alignment(Base):
     @SetupInTable
     def get_sequence(self, taxon, table_name=None, table_suffix="",
                        table=None):
-        """
-        Returns the sequence string of the corresponding taxon. The sequence
-        is retrieved from a table specified either by the table_name or
-        table_suffix arguments. table_name will always take precedence over
-        the table_suffix if both are provided. If none are provided, the
-        default self.table_name is used. If the table name provided by either
-        table_name or table_suffix is invalid, the default self.table_name
-        is also used.
+        """Returns the sequence string for a given taxon
 
-        :param taxon: string. Taxon name. Must be in self.taxa_list
-        :param table_name: string. Name of the table where the sequence data
-        will be fetched
-        :param table_suffix: string. Suffix of the table where the sequence
-        data will be fetched.
-        :param table: This argument is automatically prodived by the
-        SetupInTable decorator. DO NOT USE DIRECTLY.
+        Returns the sequence string of the corresponding `taxon`. If the
+        taxon does not exist in the table, raises a KeyError.
+        The sequence is retrieved from a database table specified either by
+        the `table_name` or `table_suffix` arguments. `table_name` will always
+        take precedence over `table_suffix` if both are provided. If none
+        are provided, the default `Alignment.table_name` is used. If the
+        table name provided by either `table_name` or `table_suffix` is
+        invalid, the default `Alignment.table_name` is also used.
+
+        Parameters
+        ----------
+        taxon : str
+            Name of the taxon.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        table : string
+            This argument will be automatically setup by the `SetupInTable`
+            decorator. Do not use directly.
+
+        Returns
+        -------
+        seq : str
+            Sequence string.
+
+        Raises
+        ------
+        KeyError
+            If the taxon does not exist in the specified table.
+
+        Notes
+        -----
+        Ignores data associated with taxa present in the `shelved_taxa`
+        attribute.
         """
 
         try:
+            # Locking mechanism necessary to avoid concurrency issues when
+            # accessing the database. This ensures that only one Cursor
+            # object is querying the database at any given time
             lock.acquire(True)
             if taxon in self.taxa_list and taxon not in self.shelved_taxa:
-                return self.cur.execute(
+                seq = self.cur.execute(
                     "SELECT seq FROM [{}] WHERE txId=?".format(table),
                     (self.taxa_idx[taxon],)).fetchone()[0]
+                return seq
 
             else:
                 raise KeyError
@@ -1286,9 +1340,7 @@ class Alignment(Base):
             lock.release()
 
     def remove_alignment(self):
-        """
-        Removes the alignment table from the sql database
-        """
+        """ Removes alignment data from the database """
 
         # Drop main alignment
         self.cur.execute("DROP TABLE [{}]".format(self.table_name))
@@ -1300,37 +1352,99 @@ class Alignment(Base):
             except sqlite3.OperationalError:
                 pass
 
-    def shelve_taxa(self, taxa_list):
-        """
-        Updates the shelved_taxa attribute
+    def shelve_taxa(self, lst):
+        """Shelves taxa from `Alignment` methods
+
+        The taxa provided in the `lst` argument will be ignored in
+        subsequent operations. In practice, taxa from the `taxa_list`
+        attribute that are present in `lst` will be moved to the
+        `shelved_taxa` attribute and ignored in all methods of the class.
+        To revert all taxa to the `taxa_list` attribute, simply call this
+        method with an empty list.
+
+        Parameters
+        ----------
+        lst : list
+            List with taxa names that should be ignored.
         """
 
-        self.shelved_taxa = taxa_list
+        self.shelved_taxa = lst
         self.taxa_list = [x for x in self.taxa_list
                           if x not in self.shelved_taxa]
 
-    def _read_interleave_phylip(self, file_path, ntaxa):
+    def _read_interleave_phylip(self, ntaxa):
+        """ Alignment parser for interleave phylip format
+
+        Parses an interleave phylip alignment file and stores taxa and
+        sequence data in the database. This method is only called from the
+        `_read_phylip` method, when the regular phylip parser detects that the
+        file is in interleave format.
+
+        Parameters
+        ----------
+        ntaxa : int
+            Number of taxa contained in the alignment file.
+
+        Returns
+        -------
+        size_list : list
+            List of sequence size (int) for each taxon in the alignment file.
+            Used to check size consistency at the end of the alignment parsing
+            in `read_alignment`.
+
+        See Also
+        --------
+        _read_phylip
+
+        Notes
+        -----
+        The phylip interleave format splits the alignment into blocks of
+        a certain lenght (usually 90 characters) separated by blank lines.
+        This means that to gather the complete sequence of a given taxon,
+        the parser has to read the entire file. To prevent the entire
+        alignment to be loaded into memory, we actually iterate over a range
+        determined by the number of taxa in the alignment. In each iteration,
+        we open a file handle and we retrieve only the sequence of the
+        taxon for a particular taxon. This ensures that only sequence data for
+        a single taxon is store in memory at any given time. This also means
+        that the alignment file has to be read N times, where N = number of
+        taxa. However, since the vast majority of lines are actually skipped
+        in each iteration, the decrease in speed is marginal, while the
+        gains in memory efficient are much larger.
+        """
 
         size_list = []
 
         for i in xrange(ntaxa):
 
+            # Variable that will store the sequence for the current taxon.
             sequence = []
+            # Index identifier of the current taxon
             idx = 0
+            # When True, it means that the alignment line has the taxon
+            # and sequence. When False, it means that the line contains
+            # only sequence.
             taxa_gather = True
 
-            fh = open(file_path)
+            fh = open(self.path)
 
-            # Skip header
-            next(fh)
+            # Skip header an any potential blank lines
+            header = ""
+            while not header:
+                header = next(fh)
 
             for line in fh:
 
+                # At blank lines, reset the idx and set taxa_gather to False.
+                # All lines from this point on will only contain sequence.
                 if not line.strip():
                     idx = 0
                     taxa_gather = False
                 else:
+                    # If the idx of the alignment block matches the taxon
+                    # from the current iteration, add to sequence variable
                     if idx == i:
+                        # Remove the taxon from the gathering
                         if taxa_gather:
                             sequence.append(
                                 "".join(line.strip().lower().split()[1:]))
@@ -1344,6 +1458,7 @@ class Alignment(Base):
 
             size_list.append(len(seq))
 
+            # Insert data into database
             self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 self.table_name), (i, taxa, seq))
 
@@ -1351,18 +1466,60 @@ class Alignment(Base):
 
         return size_list
 
-    def _read_interleave_nexus(self, file_path, ntaxa):
+    def _read_interleave_nexus(self, ntaxa):
+        """ Alignment parser for interleave nexus format
+
+        Parses an interleave nexus alignment file and stores taxa and
+        sequence data in the database.This method is only called from the
+        `_read_nexus` method, when the regular nexus parser detects that the
+        file is in interleave format.
+
+        Parameters
+        ----------
+        ntaxa : int
+            Number of taxa contained in the alignment file.
+
+        Returns
+        -------
+        size_list : list
+            List of sequence size (int) for each taxon in the alignment file.
+            Used to check size consistency at the end of the alignment parsing
+            in `read_alignment`.
+
+        See Also
+        --------
+        _read_nexus
+
+        Notes
+        -----
+        The nexus interleave format splits the alignment into blocks of
+        a certain lenght (usually 90 characters) separated by blank lines.
+        This means that to gather the complete sequence of a given taxon,
+        the parser has to read the entire file. To prevent the entire
+        alignment to be loaded into memory, we actually iterate over a range
+        determined by the number of taxa in the alignment. In each iteration,
+        we open a file handle and we retrieve only the sequence of the
+        taxon for a particular taxon. This ensures that only sequence data for
+        a single taxon is store in memory at any given time. This also means
+        that the alignment file has to be read N times, where N = number of
+        taxa. However, since the vast majority of lines are actually skipped
+        in each iteration, the decrease in speed is marginal, while the
+        gains in memory efficient are much larger.
+        """
 
         size_list = []
 
         for i in xrange(ntaxa):
 
-            counter = 0
-            idx = 0
+            # Variable that will store the sequence for the current taxon.
             sequence = []
+            # counter used to skip the Nexus header and footer
+            counter = 0
+            # Index identifier of the current taxon
+            idx = 0
             taxa = None
 
-            fh = open(file_path)
+            fh = open(self.path)
 
             for line in fh:
 
@@ -1403,6 +1560,24 @@ class Alignment(Base):
             fh.close()
 
     def _eval_missing_symbol(self, sequence):
+        """Evaluates missing data symbol from sequence string
+
+        This method is performed when sequence data is being parsed from the
+        alignment and only executes when the missing data symbol stored in
+        `Alignment.sequence_code` is not defined. It attempts to count
+        the regular characters used to denote missing data. First, tries to
+        find "?" characters, which are set as the symbol if they exist.
+        Then, it finds "n" characters and if sequence type is set to DNA,
+        this character is set as the symbol.
+        Finally, it finds "x" characters and if sequence type is set to
+        Protein, this character is set as the symbol.
+
+        Parameters
+        ----------
+        sequence : str
+            Sequence string
+
+        """
 
         if not self.sequence_code[1]:
 
@@ -1415,7 +1590,28 @@ class Alignment(Base):
             elif sequence.count("x") and self.sequence_code[0] == "Protein":
                 self.sequence_code[1] = "x"
 
-    def _read_phylip(self, fh, size_list):
+    def _read_phylip(self):
+        """Alignment parser for phylip format
+
+        Parses a phylip alignment file and stored taxa and sequence data in
+        the database.
+
+        Returns
+        -------
+        size_list : list
+            List of sequence size (int) for each taxon in the alignment file.
+            Used to check size consistency at the end of the alignment parsing
+            in `read_alignment`.
+
+        See Also
+        --------
+        read_alignment
+        """
+
+        fh = open(self.path)
+
+        # Variable storing the lenght of each sequence
+        size_list = []
 
         # Get the number of taxa and sequence length from the file header
         header = fh.readline().split()
@@ -1455,8 +1651,7 @@ class Alignment(Base):
                     # Redirect parsing to appropriate method
                     self.cur.execute("DELETE FROM [{}]".format(
                         self.table_name))
-                    size_list = self._read_interleave_phylip(self.path,
-                                                             taxa_num)
+                    size_list = self._read_interleave_phylip(taxa_num)
                     break
 
                 # To support interleave phylip, while the taxa_pos
@@ -1504,10 +1699,33 @@ class Alignment(Base):
         # Updating partitions object
         self.partitions.add_partition(self.name, self.locus_length,
                                       file_name=self.path)
+        
+        fh.close()
 
         return size_list
 
-    def _read_fasta(self, fh, size_list):
+    def _read_fasta(self):
+        """Alignment parser for fasta format
+
+        Parses a fasta alignment file and stored taxa and sequence data in
+        the database.
+
+        Returns
+        -------
+        size_list : list
+            List of sequence size (int) for each taxon in the alignment file.
+            Used to check size consistency at the end of the alignment parsing
+            in `read_alignment`.
+
+        See Also
+        --------
+        read_alignment
+        """
+
+        fh = open(self.path)
+
+        # Variable storing the lenght of each sequence
+        size_list = []
 
         sequence = []
         idx = 0
@@ -1567,9 +1785,29 @@ class Alignment(Base):
         self.partitions.add_partition(self.name, self.locus_length,
                                       file_name=self.path)
 
+        fh.close()
+
         return size_list
 
-    def _read_loci(self, fh, size_list):
+    def _read_loci(self):
+        """Alignment parser for pyRAD and ipyrad loci format
+
+        Returns
+        -------
+        size_list : list
+            List of sequence size (int) for each taxon in the alignment file.
+            Used to check size consistency at the end of the alignment parsing
+            in `read_alignment`.
+
+        See Also
+        --------
+        read_alignment
+        """
+
+        fh = open(self.path)
+
+        # Variable storing the lenght of each sequence
+        size_list = []
 
         taxa_list = self.get_loci_taxa(self.path)
 
@@ -1617,9 +1855,32 @@ class Alignment(Base):
 
         self.partitions.set_length(self.locus_length)
 
+        fh.close()
+
         return size_list
 
-    def _read_nexus(self, fh, size_list):
+    def _read_nexus(self):
+        """Alignment parser for nexus format
+
+        Parses a nexus alignment file and stored taxa and sequence data in
+        the database.
+
+        Returns
+        -------
+        size_list : list
+            List of sequence size (int) for each taxon in the alignment file.
+            Used to check size consistency at the end of the alignment parsing
+            in `read_alignment`.
+
+        See Also
+        --------
+        read_alignment
+        """
+
+        fh = open(self.path)
+
+        # Variable storing the lenght of each sequence
+        size_list = []
 
         counter = 0
         idx = 0
@@ -1738,9 +1999,32 @@ class Alignment(Base):
             self.partitions.add_partition(self.name, self.locus_length,
                                           file_name=self.path)
 
+        fh.close()
+
         return size_list
 
-    def _read_stockholm(self, fh, size_list):
+    def _read_stockholm(self):
+        """Alignment parser for stockholm format
+
+        Parses a stockholm alignment file and stored taxa and sequence data in
+        the database.
+
+        Returns
+        -------
+        size_list : list
+            List of sequence size (int) for each taxon in the alignment file.
+            Used to check size consistency at the end of the alignment parsing
+            in `read_alignment`.
+
+        See Also
+        --------
+        read_alignment
+        """
+
+        fh = open(self.path)
+
+        # Variable storing the lenght of each sequence
+        size_list = []
 
         sequence_data = []
         # Skip first header line
@@ -1783,27 +2067,26 @@ class Alignment(Base):
         self.partitions.add_partition(self.name, self.locus_length,
                                       file_name=self.path)
 
+        fh.close()
+
         return size_list
 
-    def read_alignment(self, input_alignment, fmt,
-                       size_check=True):
+    def read_alignment(self, size_check=True):
+        """Main alignment parser method
+
+        This is the main alignment parsing method that is called when the
+        `Alignment` object is instantiated with a file path as the argument.
+        Given the alignment format automatically detected in `__init__`,
+        it calls the specific method that parses that alignment format.
+        After the execution of this method, all attributes of the class will
+        be set and the full range of methods can be applied.
+        
+        Parameters
+        ----------
+        size_check : bool
+            If True, perform a check for sequence size consistency across
+            taxa (default is True).
         """
-        The read_alignment method is run when the class is initialized to
-        parse an alignment and set all the basic attributes of the class.
-
-        :param input_alignment: string. File name containing the input
-                                alignment
-
-        :param fmt: string. Format of the input file. It can be
-                                 one of three: "fasta", "nexus", "phylip"
-
-        :param size_check: Boolean. If True it will check the size consistency
-                           of the sequences in the alignment
-        """
-
-        file_handle = open(input_alignment)
-
-        size_list = []
 
         parsing_methods = {
             "phylip": self._read_phylip,
@@ -1813,11 +2096,7 @@ class Alignment(Base):
             "stockholm": self._read_stockholm
         }
 
-        read_args = [file_handle, size_list]
-
-        size_list = parsing_methods[fmt](*read_args)
-
-        file_handle.close()
+        size_list = parsing_methods[self.input_format]()
 
         # If the missing data symbol could not be evaluated during alignment
         # parsing, set the defaults
@@ -1838,21 +2117,27 @@ class Alignment(Base):
                 "; ".join(duplicate_taxa)))
 
     def remove_taxa(self, taxa_list_file, mode="remove"):
-        """
-        Removes specified taxa from taxa list but not from the database.
-        This is done to prevent slow removal operations that are really
-        not necessary.
-        As taxa_list, this method supports a list or an input csv file with
-        a single column containing the unwanted species in separate lines. It
-        currently supports two modes:
-            ..:remove: removes the specified taxa
-            ..:inverse: removes all but the specified taxa
+        """ Removes taxa from the `Alignment` object
 
-        :param taxa_list_file: list/string. A list of taxa names or a csv file
-        with taxa names in each line
+        Removes taxa based on the  `taxa_list_file` argument from the
+        `Alignment` object.
 
-        :param mode: string. Mode of execution. It can be either "remove" or
-        "inverse
+        This method supports a list or path to CSV file as the
+        `taxa_list_file` argument. In case of CSV path, it parses the CSV
+        file into a list. The CSV file should be a simple text file containing
+        taxon names in each line.
+
+        This method also supports two removal modes.
+            - remove: removes the specified taxa
+            - inverse: removes all but the specified taxa
+
+        Parameters
+        ----------
+        taxa_list_file : list or string
+            List containing taxa names or string with path to a CSV file
+            containig the taxa names.
+        mode : {"remove", "inverse"}
+            The removal mode (default is remove).
         """
 
         def remove(list_taxa):
@@ -1862,7 +2147,6 @@ class Alignment(Base):
                     (self.taxa_idx[tx],))
                 self.taxa_list.remove(tx)
                 del self.taxa_idx[tx]
-
 
         def inverse(list_taxa):
             for tx in list(self.taxa_list):
@@ -1893,11 +2177,14 @@ class Alignment(Base):
             inverse(taxa_list)
 
     def change_taxon_name(self, old_name, new_name):
-        """
-        Changes the taxon name of a particular taxon.
+        """Changes the name of a particular taxon
 
-        :param str old_name: Original taxon name
-        :param str new_name: New taxon name
+        Parameters
+        ----------
+        old_name : str
+            Original taxon name.
+        new_name : str
+            New taxon name.
         """
 
         # Change in taxa_list
@@ -1912,30 +2199,67 @@ class Alignment(Base):
 
     @SetupDatabase
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
-                 haplotype_name="Hap", dest=".", conversion_suffix="",
-                 table_in=None, table_out="collapsed", ns=None, pbar=None,
-                 use_main_table=False):
-        """
-        Collapses equal sequences into haplotypes. This method fetches
-        the sequences for the current alignment and creates a new database
-        table with the collapsed haplotypes
+                 dest=".", conversion_suffix="", haplotype_name="Hap",
+                 table_in=None, table_out="collapsed", use_main_table=False,
+                 ns=None, pbar=None):
+        """Collapses equal sequences into unique haplotypes
 
-        :param write_haplotypes: boolean. If True, a haplotype list
-        mapping the haplotype names file will be created for each individual
-        input alignment.
-        :param haplotypes_file: string. Name of the haplotype list mapping file
-        referenced in write_haplotypes
-        :param haplotype_name: string. Custom name of the haplotypes
-        :param dest: string. Path to where the haplotype map file will be
-        written
-        :param conversion_suffix: string. The provided suffix for file
-        conversion
-        :param table_in: string. Name of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
-        :param table_out: string. Name of the table that will be
-        created/modified in the database to harbor the collapsed alignment
+        Collapses equal sequences into unique haplotypes. This method fetches
+        the sequences for the current alignment and creates a new database
+        table with the collapsed haplotypes.
+
+        Parameters
+        ----------
+        write_haplotypes : bool
+            If True, a file mapping the taxa names name to their respective
+            haplotype name will be generated (default is True).
+        haplotypes_file : string
+            Name of the file mapping taxa names to their respective haplotype.
+            Only used when `write_haplotypes` is True. If it not provided and
+            `write_haplotypes` is True, the file name will be determined
+            from `Alignment.name`.
+        dest : string
+            Path of directory where `haplotypes_file` will be generated
+            (default is ".").
+        conversion_suffix : string
+            Suffix appended to the haplotypes file. Only used when
+            `write_haplotypes` is True and `haplotypes_file` is None.
+        haplotype_name : string
+            Prefix of the haplotype string. The final haplotype name will be
+            `haplotype_name` + <int> (default is "Hap").
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        table_out : string
+            Name of database table where the final alignment will be inserted
+            (default is "collapsed").
+        use_main_table : bool
+            If True, both `table_in` and `table_out` are ignore and the main
+            table `Alignment.table_name` is used as the input and output
+            table (default is False).
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+
+        See Also
+        --------
+        SetupDatabase
+
+        Notes
+        -----
+        In order to collapse an alignment, all sequence would need to be
+        compared and somehow stored until the last sequence is processed.
+        This creates the immediate issue that, if all sequences are different,
+        the entire alignment could have to be stored in memory. To increase
+        memory efficiency and increase performance, sequences are converted
+        into hashes, and these hashes are compared among each other instead
+        of the actual sequences. This means that instead of comparing
+        potentially very long string and maintaining them in memory, only a
+        small hash string is maintained and compared. In this way, only a
+        fraction of the information is stored in memory and the comparisons
+        are much faster.
         """
 
         self._set_pipes(ns, pbar, len(self.taxa_list))
@@ -1947,7 +2271,7 @@ class Alignment(Base):
         # table_in
         col_cur = self.con.cursor()
 
-        # Dict that will store the hases of each sequence. It will be used to
+        # Dict that will store the hashes of each sequence. It will be used to
         # check if the current sequence has already been processed. The value
         # will be the haplotype
         hash_list = {}
@@ -2006,31 +2330,68 @@ class Alignment(Base):
 
         self._reset_pipes(ns)
 
-    @SetupDatabase
-    def consensus(self, consensus_type, table_name=None, get_sequence=False,
-                 table_in=None, table_out="consensus", use_main_table=False,
-                 ns=None, pbar=None):
+    @staticmethod
+    def write_loci_correspondence(hap_dict, output_file, dest="./"):
+        """Writes the file mapping taxa to unique haplotypes for `collapse`
+
+        Parameters
+        ----------
+        hap_dict : dict
+            Dictionary mapping the haplotype (key) to a list of taxa (value)
+            sharing the same haplotype.
+        output_file : str
+            Name of the haplotype correspondence file
+        dest : str
+            Path to directory where the `output_file` will be written.
         """
-        Converts the current Alignment object dictionary into a single
-        consensus  sequence. The consensus_type argument determines how
+
+        output_handle = open(join(dest, output_file + ".haplotypes"), "w")
+
+        for haplotype, taxa_list in sorted(hap_dict.items()):
+            output_handle.write("%s: %s\n" % (haplotype, "; ".join(taxa_list)))
+
+        output_handle.close()
+
+    @SetupDatabase
+    def consensus(self, consensus_type, table_in=None, table_out="consensus",
+                  use_main_table=False, ns=None, pbar=None):
+        """Creates a consensus sequence from the alignment
+
+        Converts the current `Alignment` alignment data into a single
+        consensus sequence. The `consensus_type` argument determines how
         variation in the original alignment is handled for the generation
-        of the consensus sequence. The options are:
-            ..:iupac: Converts variable sites according to the corresponding
-            IUPAC symbols
-            ..:soft mask: Converts variable sites into missing data
-            ..:remove: Removes variable sites
-            ..:first sequence: Uses the first sequence in the dictionary
-        :param consensus_type: string. From the list above.
-        :param table_name: string. Name of the table that will be created
-        in the database to harbor the collapsed alignment
-        :param get_sequence: boolean. If True, returns the consensus sequence
-        instead of generating and populating a table (False).
-        :param table_in: string. Name of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
-        :param table_out: string. Name of the table that will be
-        created/modified in the database to harbor the collapsed alignment
+        of the consensus sequence.
+
+        The options for handling sequence variation are:
+            - IUPAC: Converts variable sites according to the corresponding
+            IUPAC symbols (DNA sequence type only)
+            - Soft mask: Converts variable sites into missing data
+            - Remove: Removes variable sites
+            - First sequence: Uses the first sequence in the dictionary
+
+        Parameters
+        ----------
+        consensus_type : {"IUPAC", "Soft mask", "Remove", "First sequence"}
+            Type of variation handling. See summary above.
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        table_out : string
+            Name of database table where the final alignment will be inserted
+            (default is "consensus").
+        use_main_table : bool
+            If True, both `table_in` and `table_out` are ignore and the main
+            table `Alignment.table_name` is used as the input and output
+            table (default is False).
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+
+        See Also
+        --------
+        SetupDatabase
         """
 
         self._set_pipes(ns, pbar, self.locus_length)
@@ -2040,10 +2401,16 @@ class Alignment(Base):
 
         # If sequence type is first sequence
         if consensus_type == "First sequence":
-            # Grab first sequence
-            consensus_seq = [self.cur.execute(
-                "SELECT seq from [{}] WHERE txId=0".format(
-                    table_in)).fetchone()[0]]
+            # Grab first available sequence
+            consensus_seq = ""
+            idx = 0
+            while not consensus_seq:
+                try:
+                    consensus_seq = [self.cur.execute(
+                        "SELECT seq from [{}] WHERE txId={}".format(
+                            table_in, idx)).fetchone()[0]]
+                except TypeError:
+                    idx += 1
 
         for p, column in enumerate(self.iter_columns(table_name=table_in)):
 
@@ -2108,24 +2475,16 @@ class Alignment(Base):
             if ns.sa:
                 ns.counter = ns.total = None
 
-    @staticmethod
-    def write_loci_correspondence(hap_dict, output_file, dest="./"):
-        """
-        This function supports the collapse method by writing the
-        correspondence between the unique haplotypes and the loci into a
-        new file
-        """
-
-        output_handle = open(join(dest, output_file + ".haplotypes"), "w")
-
-        for haplotype, taxa_list in sorted(hap_dict.items()):
-            output_handle.write("%s: %s\n" % (haplotype, "; ".join(taxa_list)))
-
-        output_handle.close()
-
     def _check_partitions(self, partition_obj):
-        """
-        Internal. Makes a consistency check for the self.partitions attribute
+        """Consistency check of the `partition_obj` for `Alignment` object
+
+        Performs checks to ensure that a `partition_obj` is consistent
+        with the alignment data of the `Alignment` object.
+
+        Parameters
+        ----------
+        partition_obj : trifusion.process.data.Partitions
+            Partitions object.
         """
 
         # Checks if total lenght of partitions matches the lenght of the
@@ -2139,12 +2498,12 @@ class Alignment(Base):
             ))
 
     def set_partitions(self, partitions):
-        """
-        Updates the Partitions object of the current alignment.
+        """Updates the `partition` attribute.
 
-        :param partitions: Partitions object. Use one of the Partition parsers
-        to retrieve partitions information from files or python data structures.
-        See process.data.Partitions documentation
+        Parameters
+        ----------
+        partitions : trifusion.process.data.Partitions
+            Partitions object.
         """
 
         # Checks partition's consistency
@@ -2157,12 +2516,25 @@ class Alignment(Base):
 
     def reverse_concatenate(self, table_in="", db_con=None, ns=None,
                             pbar=None):
-        """
-        This function divides a concatenated file according to the
-        partitions set in self.partitions and returns an AlignmentList object
-        :param table_in: string. Name of the table from where the sequence data
-        will be fetched. Leave None to retrieve data from the main alignment
-        :paramm
+        """Reverses the alignment according to the `partitions` attribute
+
+        This method splits the current alignment according to the
+        partitions set in the `partitions` attribute. Returns an
+        `AlignmentList` object where each partition is an `Alignment` object.
+
+        Parameters
+        ----------
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        db_con : sqlite3.Connection
+            Database connection object that will be provided to each new
+            `Alignment` object.
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
         """
 
         def add_alignment(part_name, part_len, taxa_list, taxa_idx):
@@ -2272,17 +2644,39 @@ class Alignment(Base):
     def filter_codon_positions(self, position_list, table_in=None,
                                table_out="filter", ns=None,
                                use_main_table=False):
-        """
-        Filter codon positions from DNA alignments.
-        :param position_list: list containing a boolean value for each codon
-        position. Ex. [True, True, True] will save all positions while
-        [True, True, False] will exclude the third codon position
-        :param table_in: string. Name of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
-        :param table_out: string. Name of the table that will be
-        created/modified in the database to harbor the collapsed alignment
+        """ Filter alignment according to codon positions
+
+        Filters codon positions from `Alignment` object with DNA sequence
+        type. The `position_list` argument determines which codon positions
+        will be stored. It should be a three element list, corresponding to
+        the three codon position, and the positions that are saved are the
+        ones with a True value.
+
+        Parameters
+        ----------
+        position_list : list
+            List of three bool elements that correspond to each codon position.
+            Ex. [True, True, True] will save all positions while
+            [True, True, False] will exclude the third codon position
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        table_out : string
+            Name of database table where the final alignment will be inserted
+            (default is "filter").
+        use_main_table : bool
+            If True, both `table_in` and `table_out` are ignore and the main
+            table `Alignment.table_name` is used as the input and output
+            table (default is False).
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+
+        See Also
+        --------
+        SetupDatabase
         """
 
         def index(length, pos):
@@ -2331,17 +2725,34 @@ class Alignment(Base):
     @SetupDatabase
     def code_gaps(self, table_out="gaps", table_in=None, use_main_table=False,
                   pbar=None, ns=None):
-        """
+        """Code gap patterns as binary matrix at the end of alignment
+
         This method codes gaps present in the alignment in binary format,
         according to the method of Simmons and Ochoterena (2000), to be read
         by phylogenetic programs such as MrBayes. The resultant alignment,
-        however, can only be output in the Nexus format
-        :param table_in: string. Name of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
-        :param table_out: string. Name of the table that will be
-        created/modified in the database to harbor the collapsed alignment
+        however, can only be output in the Nexus format.
+
+        Parameters
+        ----------
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        table_out : string
+            Name of database table where the final alignment will be inserted
+            (default is "gaps").
+        use_main_table : bool
+            If True, both `table_in` and `table_out` are ignore and the main
+            table `Alignment.table_name` is used as the input and output
+            table (default is False).
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+
+        See Also
+        --------
+        SetupDatabase
         """
 
         self._set_pipes(ns, pbar, total=len(self.taxa_list))
@@ -2438,10 +2849,22 @@ class Alignment(Base):
         self._reset_pipes(ns)
 
     def _filter_terminals(self, table_in, table_out, ns=None):
-        """
-        This will replace the gaps in the extremities of the alignment with
-        missing data symbols
-        :return:
+        """Replace gaps at alignment's extremities with missing data
+        
+        This method should not be called directly. Instead it is used by the
+        `filter_missing_data` method.
+
+        Parameters
+        ----------
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        table_out : string
+            Name of database table where the final alignment will be inserted
+            (default is "collapsed").
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
         """
 
         self._set_pipes(ns, None, total=len(self.taxa_list))
@@ -2489,9 +2912,35 @@ class Alignment(Base):
 
     def _filter_columns(self, gap_threshold, missing_threshold, table_in,
                         table_out, ns=None):
-        """ Here several missing data metrics are calculated, and based on
-         some user defined thresholds, columns with inappropriate missing
-         data are removed """
+        """Filters alignment columns based on missing data content
+        
+        Filters alignment columns based on the amount of missing data and
+        gap content. If the calculated content is higher than a defined
+        threshold, the column is removed from the final alignment. Settings
+        `gap_threshold` and `missing_threshold` to 0 results in an alignment
+        with no missing data, while setting them to 100 not remove any column.
+
+        This method should not be called directly. Instead it is used by the
+        `filter_missing_data` method.
+
+        Parameters
+        ----------
+        gap_threshold : int
+            Integer between 0 and 100 defining the percentage above which
+            a column with that gap percentage is removed.
+        missing_threshold : int
+            Integer between 0 and 100 defining the percentage above which
+            a column with that gap+missing percentage is removed.
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        table_out : string
+            Name of database table where the final alignment will be inserted
+            (default is "collapsed").
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        """
 
         self._set_pipes(ns, None, total=self.locus_length)
 
@@ -2553,26 +3002,35 @@ class Alignment(Base):
     def filter_missing_data(self, gap_threshold, missing_threshold,
                             table_in=None, table_out="filter", ns=None,
                             use_main_table=False):
-        """
+        """Filters alignment according to missing data
+
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
         percentages of sites in an alignment column containing the type of
         missing data. If gap_threshold=50, for example, alignment columns with
         more than 50% of sites with gaps are removed.
 
-        This method will create a new temporary sequence file for each taxa,
-        with the modified sequence. The modified file will have the _filtered
-        suffix. All temporary files should only be created when creating the
-        output files and removed as soon as possible
-
-        :param gap_threshold: int ranging from 0 to 100.
-        :param missing_threshold: int ranging from 0 to 100.
-        :param table_in: string. Name of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
-        :param table_out: string. Name of the table that will be
-        created/modified in the database to harbor the collapsed alignment
+        Parameters
+        ----------
+        gap_threshold : int
+            Integer between 0 and 100 defining the percentage above which
+            a column with that gap percentage is removed.
+        missing_threshold : int
+            Integer between 0 and 100 defining the percentage above which
+            a column with that gap+missing percentage is removed.
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        table_out : string
+            Name of database table where the final alignment will be inserted
+            (default is "filter").
+        use_main_table : bool
+            If True, both `table_in` and `table_out` are ignore and the main
+            table `Alignment.table_name` is used as the input and output
+            table (default is False).
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
         """
 
         self._filter_terminals(table_in=table_in, table_out=table_out, ns=ns)
@@ -2586,16 +3044,26 @@ class Alignment(Base):
 
     @staticmethod
     def _test_range(s, min_val, max_val):
-        """
-        Wrapper for the tests that determine whether a certain alignment
-        statistic (s) is within the range provided by min_val and max_val
-        :param s: integer, test statistic
-        :param min_val: integer, minimum number of test statistic for the
-        alignment to pass. Can be None, in which case there is no lower bound
-        :param max_val: integer, maximum number of test statistic for the
-        alignment to pass. Can be None, in which case there is no upper bound
-        :returns: Boolean. True if the alignment's test statistic is within the
-        provided range
+        """Test if a given `s` integer in inside a specified range
+
+        Wrapper for the tests that determine whether a certain value
+        (`s`) is within the range provided by `min_val` and `max_val`.
+        Both of these arguments can be None, in which case there are not
+        lower and/or upper boundaries, respectively.
+
+        Parameters
+        ----------
+        s : int
+            Test value
+        min_val : int
+            Minimum range allowed for the test value.
+        max_val : int
+            Maximum range allowed for the test value.
+
+        Returns
+        -------
+        _ : bool
+            True if `s` within boundaries. False if not.
         """
 
         # If both values were specified, check if s is within range
@@ -2613,19 +3081,38 @@ class Alignment(Base):
 
     def filter_segregating_sites(self, min_val, max_val, table_in=None,
                                     ns=None, pbar=None):
-        """
+        """Checks if the segregating sites from alignment are within range
+
         Evaluates the number of segregating sites of the current alignment
-        and returns True if they fall between the min_val and max_val.
-        :param min_val: integer, minimum number of segregating sites for the
-        alignment to pass. Can be None, in which case there is no lower bound
-        :param max_val: integer, maximum number of segregating sites for the
-        alignment to pass. Can be None, in which case there is no upper bound
-        :returns: Boolean. True if the alignment's number of segregating
-        sites is within the provided range
-        :param table_in: string. Name of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
+        and returns True if it falls between the range specified by the
+        `min_val` and `max_val` arguments.
+
+        Parameters
+        ----------
+        min_val : int
+            Minimum number of segregating sites for the alignment to pass.
+            Can be None, in which case there is no lower bound.
+        max_val : int
+            Maximum number of segregating sites for the alignment to pass.
+            Can be None, in which case there is no upper bound.
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+
+        Returns
+        -------
+        _ : bool
+            True if the number of segregating sites are within the specified
+            range. False if not.
+
+        See Also
+        --------
+        filter_informative_sites
         """
 
         if pbar:
@@ -2667,19 +3154,37 @@ class Alignment(Base):
 
     def filter_informative_sites(self, min_val, max_val, table_in=None,
                                     ns=None, pbar=None):
-        """
-        Similar to filter_segregating_sites method, but only considers
+        """Checks if the variable sites from alignment are within range
+
+        Similar to `filter_segregating_sites` method, but only considers
         informative sites (variable sites present in more than 2 taxa).
-        :param min_val: integer, minimum number of informative sites for the
-        alignment to pass. Can be None, in which case there is no lower bound
-        :param max_val: integer, maximum number of informative sites for the
-        alignment to pass. Can be None, in which case there is no upper bound
-        :returns: Boolean. True if the alignment's number of informative
-        sites is within the provided range
-        :param table_in: string. Name of the table from where the sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
+
+        Parameters
+        ----------
+        min_val : int
+            Minimum number of informative sites for the alignment to pass.
+            Can be None, in which case there is no lower bound.
+        max_val : int
+            Maximum number of informative sites for the alignment to pass.
+            Can be None, in which case there is no upper bound.
+        table_in : string
+            Name of database table containing the alignment data that is
+            used for this operation.
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+
+        Returns
+        -------
+        _ : bool
+            True if the number of informative sites are within the specified
+            range. False if not.
+
+        See Also
+        --------
+        filter_segregating_sites
         """
 
         if pbar:
@@ -2735,14 +3240,24 @@ class Alignment(Base):
                       phy_truncate_names=False, ld_hat=None,
                       use_nexus_models=True, ns_pipe=None, table_suffix=None,
                       table_name=None, pbar=None):
-        """ Writes the alignment object into a specified output file,
-        automatically adding the extension, according to the output format
+        """Writes alignment data into an output file.
+
+        Writes the alignment object into a specified output file,
+        automatically adding the extension, according to the specified
+        output formats.
+
         This function supports the writing of both converted (no partitions)
         and concatenated (partitioned files). The choice between these modes
         is determined by the Partitions object associated with the Alignment
         object. If it contains multiple partitions, it will produce a
         concatenated alignment and the auxiliary partition files where
         necessary. Otherwise it will treat the alignment as a single partition.
+
+        Parameters
+        ----------
+        output_format : list
+            List with the output formats to generate. Options are:
+            {}
 
         :param output_format: List. Format of the output file. It can be one
         of five: "fasta", "nexus", "phylip", "mcmctree" and "ima2"
