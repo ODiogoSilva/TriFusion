@@ -580,37 +580,37 @@ class Alignment(Base):
          be used when `input_alignment` is a database table name. Otherwise, 
          it is automatically set during alignment parsing.
     sql_cursor : sqlite3.Cursor
-        Cursor object of the sqlite database
+        Cursor object of the sqlite database.
     sql_con : sqlite3.Connection
-        Connection object of the sqlite database
+        Connection object of the sqlite database.
     
     Attributes
     ----------
     cur : sqlite3.Cursor
-        Cursor object of the sqlite database
+        Cursor object of the sqlite database.
     con : sqlite3.Connection
-        Connection object of the sqlite database
+        Connection object of the sqlite database.
     table_name : str 
         Name of the sqlite database's table storing the sequence
         data.
     tables : list
         Lists the sqlite database's tables created for the `Alignment`
         instance. The "master" table is always present and represents the
-        original alignment
+        original alignment.
     partitions : `trifusion.process.data.Partitions`
         Stores the partitions and substitution model definition for the
-        alignment
+        alignment.
     locus_length : int
-        Length of the alignment in base pairs or residures
+        Length of the alignment in base pairs or residues.
     restriction_range : str
         Only used when gaps are coded in a binary matrix. Stores a string
         with the range of the restriction-type data that will encode
-        gaps and will only be used when nexus is in the output format
+        gaps and will only be used when nexus is in the output format.
     e : None or Exception
         Stores any exceptions that occur during the parsing of the 
-        alignment file. If remains None unless something wrong happens
+        alignment file. If remains None unless something wrong happens.
     taxa_list : list
-        List with the active taxon names
+        List with the active taxon names.
     taxa_idx: dict
         Maps the taxon names to their corresponding index in the sqlite 
         database. The index is not retrieve from the position of the taxon
@@ -619,20 +619,23 @@ class Alignment(Base):
     shelved_taxa : list
         List of ignored taxon names. 
     path : str
-        Full path to alignment file
+        Full path to alignment file.
     sname : str
-        Basename of the alignment file without the extension
+        Basename of the alignment file without the extension.
     name : str
-        Basename of the alignment file with the extension
+        Basename of the alignment file with the extension.
     sequence_code : tuple
         Contains information on (<sequence type>, <missing data symbol>),
-        e.g. ("Protein", "x")
+        e.g. ("Protein", "x").
     
     Notes
     -----
+    The `Alignment` class was designed to be a ligthweight, fast and
+    powerful interface between alignment data and a set of manipulation
+    and transformative methods.
     For performance and efficiency purposes, all alignment data is stored 
     in a sqlite database that prevents the entire alignment from being
-    loaded into RAM. To facilitate the retrieval and iteration over the
+    loaded into memory. To facilitate the retrieval and iteration over the
     alignment data, several methods (`iter_columns`, 'iter_sequences`, etc)
     are available to handle the interface with the database and retrieve
     only the necessary information.
@@ -791,9 +794,19 @@ class Alignment(Base):
             self.input_format = input_format
 
     def __iter__(self):
-        """
-        Generator of Alignment object.
-        :returns : tuple with (taxa, sequence)
+        """Iterator behavior for `Alignment` 
+        
+        Iterates over taxa and sequence data from the alignment. Taxon names
+        in the `shelved_taxa` attribute are ignored. This will always
+        retrieve the alignment data from the master database table, 
+        `table_name`.
+        
+        Yields
+        ------
+        tx : str
+            taxon name.
+        seq : str
+            sequence string.
         """
 
         for tx, seq in self.cur.execute(
@@ -803,13 +816,18 @@ class Alignment(Base):
                 yield tx, seq
 
     def _create_table(self, table_name, cur=None):
-        """Creates a new table in the sqlite database
+        """Creates a new table in the database
         
-        Convenience method that creates a new table in sqlite database.
-        A custom cursor object can be provided
-        :param table_name:
-        :param cur:
-        :return:
+        Convenience method that creates a new table in the sqlite database.
+        It accepts a custom Cursor object, which overrides the `cur`
+        attribute.
+        
+        Parameters
+        ----------
+        table_name : str
+            Name of the table to be created.
+        cur : sqlite3.Cursor
+            Custom Cursor object used to query the database.
         """
 
         if not cur:
@@ -821,35 +839,120 @@ class Alignment(Base):
                     "seq TEXT)".format(table_name))
 
     def _table_exists(self, table_name, cur=None):
+        """ Checks if a table exists in the database
+        
+        Convenience method that checks if a table exists in the database.
+        It accepts a custom Cursor object, which overrides the `cur`
+        attribute.
+        
+        Parameters
+        ----------
+        table_name : str
+            Name of the table.
+        cur: sqlite3.Cursor
+            Custom Cursor object used to query the database.
+
+        Returns
+        -------
+        res : list
+            List with the results of a query for 'table' type with 
+            `table_name` name. Is empty when the table does not exist.
+        
+        Notes
+        -----
+        This returns a list that will contain one item if the table exists
+        in the database. If it doesn't exist, returns an empty list.
+        Therefore, this can be used simply like
+        
+            `if self._table_exists("my_table"):`
+            `     # Do stuff`
+        """
 
         if not cur:
             cur = self.cur
 
-        return cur.execute(
+        res = cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND"
             " name='{}'".format(table_name)).fetchall()
 
-    def _set_format(self, input_format):
-        """
-        Manually sets the input format associated with the Alignment object
+        return res
 
-        :param input_format: string. Input format. It can be one out of
-        "fasta", "nexus" and "phylip"
+    def _set_format(self, input_format):
+        """Manually set the input format of the `Alignment` object
+        
+        Manually sets the input format associated with the `Alignment` object
+
+        Parameters
+        ----------
+        input_format : str
+            The input format.
         """
 
         self.input_format = input_format
 
     @staticmethod
     def _set_pipes(ns=None, pbar=None, total=None, msg=None):
+        """Setup of progress indicators for both GUI and CLI task executions
+         
+         This handles the setup of the objects responsible for updating
+         the progress of task's execution of both TriFusion (GUI) and
+         TriSeq (CLI). At the beginning of any given task, these objects
+         can be initialized by providing either the Namespace object (`ns`)
+         in the case of TriFusion, or the ProgressBar object (`pbar`), in
+         the case of TriSeq. Along with one of these objects, the expected
+         `total` of the progress should also be provided. The `ns` and
+         `pbar` objects are updated at each iteration of a given task,
+         and the `total` is used to get a measure of the progress.
 
+         Optionally, a message can be also provided for the Namespace object
+         that will be used by TriFusion.
+
+        Parameters
+        ----------
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        total : int
+            Expected total of the task's progress.
+        msg : str
+            A secondary message that appears in TriFusion's progress dialogs.
+
+        Notes
+        -----
+        The progress of any given task can be provided by either an
+        `Alignment` or `AlignmentList` instance. Generally, the tasks follow
+        the progress of the `AlignmentList` instance, unless that instance
+        contains only one `Alignment` object. In that case, the progress
+        information is piped from the `Alignment` instance. For that reason,
+        and for the Namespace (`ns`) object only, this method first checks
+        if the `ns.sa` attribute exists. If it does, it means that the parent
+        `AlignmentList` instance contains only one `Alignment` object and,
+        therefore, the progress information shoud come from here.
+
+        Examples
+        --------
+        Start a progress counter  for a task that will make 100 iterations:
+
+        self._set_pipes(ns=ns_obj, pbar=pbar_obj, total=100,
+                        msg="Some message")
+        """
+
+        # Check if the `sa` attribute exists in the Namespace object.
+        # If yes, then the logging will be performed here. If not,
+        # The progress attributes will not be set for `ns`.
         try:
             sa = ns.sa
         except AttributeError:
             sa = True
 
         if ns:
+            # Listen for kill switch
             if ns.stop:
                 raise KillByUser("")
+            # Set attributes only if parent AlignmentList contains a single
+            # Alignment object
             if sa:
                 ns.total = total
                 ns.counter = 0
@@ -857,10 +960,49 @@ class Alignment(Base):
 
         if pbar:
             pbar.max_value = total
+            # Reset ProgressBar object counter
             pbar.update(0)
 
     @staticmethod
     def _update_pipes(ns=None, pbar=None, value=None, msg=None):
+        """Update progress indicators for both GUI and CLI task executions
+
+        This method provides a single interface for updating the progress
+        objects `ns` or `pbar`, which should have been initialized at the
+        beginning of the task with the `_set_pipes` method.
+
+        Parameters
+        ----------
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        value : int
+            Value of the current progress index
+        msg : str
+            A secondary message that appears in TriFusion's progress dialogs.
+
+        Notes
+        -----
+        The progress of any given task can be provided by either an
+        `Alignment` or `AlignmentList` instance. Generally, the tasks follow
+        the progress of the `AlignmentList` instance, unless that instance
+        contains only one `Alignment` object. In that case, the progress
+        information is piped from the `Alignment` instance. For that reason,
+        and for the Namespace (`ns`) object only, this method first checks
+        if the `ns.sa` attribute exists. If it does, it means that the parent
+        `AlignmentList` instance contains only one `Alignment` object and,
+        therefore, the progress information shoud come from here.
+
+        Examples
+        --------
+        Update the counter in an iteration of 100:
+
+            for i in range(100):
+                self._update_pipes(ns=ns_obj, pbar=pbar_obj, value=i,
+                                   msg="Some string")
+        """
 
         try:
             sa = ns.sa
@@ -878,6 +1020,18 @@ class Alignment(Base):
 
     @staticmethod
     def _reset_pipes(ns):
+        """Reset progress indicators for both GUI and CLI task executions
+
+        This should be done at the end of any task that initialized the
+        progress objects, but it only affects the Namespace object. It
+        resets all Namespace attributes to None.
+
+        Parameters
+        ----------
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        """
 
         try:
             sa = ns.sa
@@ -892,21 +1046,51 @@ class Alignment(Base):
 
     @SetupInTable
     def iter_columns(self, table_suffix="", table_name=None, table=None):
-        """
-        Generator that returns the alignment columns in a list
-        The sequence is retrieved from a table specified either by the
-        table_name or table_suffix arguments. table_name will always take
-        precedence over the table_suffix if both are provided. If none are
-        provided, the default self.table_name is used. If the table name
-        provided by either table_name or table_suffix is invalid, the default
-         self.table_name is also used.
+        """Generator over alignment columns
 
-        :param table_name: string. Name of the table where the sequence data
-        will be fetched
-        :param table_suffix: string. Suffix of the table where the sequence
-        data will be fetched.
-        :param table: This argument is automatically prodived by the
-        SetupInTable decorator. DO NOT USE DIRECTLY.
+        Generator that yields the alignment columns in a list of characters.
+        Sequence data is retrieved from a database table specified either by
+        the `table_name` or `table_suffix` arguments. `table_name` will always
+        take precedence over `table_suffix` if both are provided. If none
+        are provided, the default `Alignment.table_name` is used. If the
+        table name provided by either `table_name` or `table_suffix` is
+        invalid, the default `Alignment.table_name` is also used.
+
+        The `table` variable will be automatically setup in the `SetupInTable`
+        decorator according to `table_suffix` and `table_name`, and should
+        not be used directly (values provided when calling it are actually
+        ignored). The decorator will set this variable
+
+        Parameters
+        ----------
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        table : string
+            This argument will be automatically setup by the `SetupInTable`
+            decorator. Do not use directly.
+
+        Yields
+        ------
+        i : list
+            List with alignment column characters as elements
+            (["A", "A", "C", "A", "A"]).
+
+        See Also
+        --------
+        SetupInTable
+
+        Notes
+        -----
+        To prevent the query from loading the entire alignment data into
+        memory, two techniques are employed. First, the iteration over the
+        query results is lazy, using `itertools.izip`. Second, a `range`
+        iteration is performed to ensure that only blocks of 100k alignment
+        sites are fetch at any given time. Several tests were performed to
+        ensure that this block size provided a good trade-off between
+        RAM usage and speed.
         """
 
         try:
@@ -924,21 +1108,50 @@ class Alignment(Base):
     @SetupInTable
     def iter_columns_uniq(self, table_suffix="", table_name=None,
                           table=None):
-        """
-        Generator that yields unique elements of alignment columns in a list
-        The sequence is retrieved from a table specified either by the
-        table_name or table_suffix arguments. table_name will always take
-        precedence over the table_suffix if both are provided. If none are
-        provided, the default self.table_name is used. If the table name
-        provided by either table_name or table_suffix is invalid, the default
-         self.table_name is also used.
+        """ Generator over unique characters of an alignment column
 
-        :param table_name: string. Name of the table where the sequence data
-        will be fetched
-        :param table_suffix: string. Suffix of the table where the sequence
-        data will be fetched.
-        :param table: This argument is automatically prodived by the
-        SetupInTable decorator. DO NOT USE DIRECTLY.
+        Generator that yields unique elements of alignment columns in a list.
+        Sequence data is retrieved from a database table specified either by
+        the `table_name` or `table_suffix` arguments. `table_name` will always
+        take precedence over `table_suffix` if both are provided. If none
+        are provided, the default `Alignment.table_name` is used. If the
+        table name provided by either `table_name` or `table_suffix` is
+        invalid, the default `Alignment.table_name` is also used.
+
+        The `table` variable will be automatically setup in the `SetupInTable`
+        decorator according to `table_suffix` and `table_name`, and should
+        not be used directly (values provided when calling it are actually
+        ignored). The decorator will set this variable
+
+        Parameters
+        ----------
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        table : string
+            This argument will be automatically setup by the `SetupInTable`
+            decorator. Do not use directly.
+
+        Yields
+        ------
+        i : list
+            List with alignment column characters as elements (["A", "C"]).
+
+        See Also
+        --------
+        SetupInTable
+
+        Notes
+        -----
+        To prevent the query from loading the entire alignment data into
+        memory, two techniques are employed. First, the iteration over the
+        query results is lazy, using `itertools.izip`. Second, a `range`
+        iteration is performed to ensure that only blocks of 100k alignment
+        sites are fetch at any given time. Several tests were performed to
+        ensure that this block size provided a good trade-off between
+        RAM usage and speed.
         """
 
         try:
@@ -955,7 +1168,7 @@ class Alignment(Base):
 
     @SetupInTable
     def iter_sequences(self, table_suffix="", table_name=None, table=None):
-        """
+        """ Generator over
         Generator for sequence data of the alignment object. Akin to
         values() method of a dictionary.
         The sequence is retrieved from a table specified either by the
