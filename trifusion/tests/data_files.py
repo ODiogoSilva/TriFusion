@@ -14,6 +14,10 @@ concatenated_medium_nexus = [
     "trifusion/tests/data/BaseConcatenation.nex"
 ]
 
+concatenated_interleave_nexus = [
+    "trifusion/tests/data/BaseConcatenation_interleave.nex"
+]
+
 concatenated_small_phy = [
     "trifusion/tests/data/BaseConcatenation.phy"
 ]
