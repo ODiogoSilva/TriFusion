@@ -115,6 +115,10 @@ Tutorials on how to use TriFusion for its many tasks can be perused [here](http:
 
 You can download TriFusion User Guide [here](https://github.com/ODiogoSilva/TriFusion/raw/master/docs/manual.pdf).
 
+## Mozilla Community Participation Guidelines
+
+The code of conduct for participating on Mozilla's Global Sprint 2017 can be read [here](https://www.mozilla.org/en-US/about/governance/policies/participation/).
+
 ## Citation
 
 When using OrthoMCL to find ortholog clusters, please cite the original software:
