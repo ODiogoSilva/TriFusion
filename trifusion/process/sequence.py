@@ -67,18 +67,89 @@ except ImportError:
 lock = Lock()
 
 
-class pairwise_cache(object):
+class LookupDatabase(object):
+    """Decorator handling hash lookup table with pre-calculated values
+    
+    This decorator class is used to decorate class methods that calculate 
+    pairwise sequence similarity. To ensure proper functionality, the
+    decorated method should be called first with a single "connect" argument
+    and after finishing all calculations, with a single "disconnect" argument.
+    These special method callings are necessary to setup and close the
+    database storing the calculated values, respectively.
+    
+    Parameters
+    ----------
+    func : function
+        Decorated function
+    
+    Attributes
+    ----------
+    func : function
+        Decorated function
+    con : None or sqlite.Connection
+        Connection object of the sqlite database
+    c : None or sqlite.Cursor
+        Cursor object of the sqlite database
+    
+    Notes
+    -----
+    The `con` and `c` attributes are initialized when the decorated function
+    is called with the single "connect" argument 
+    (e.g. decorated_func("connect")). When the decorated function is called
+    with the single "disconnect" argument (e.g. decorated_func("disconnect")),
+    the database changes are committed, the sqlite Connection is closed and
+    the Cursor is reset.
+    """
 
     def __init__(self, func):
-        self.func = func
-        self.cache = {}
 
+        self.func = func
+        self.con = None
         self.c = None
 
     def __call__(self, *args):
+        """Wraps the call of `func`
+        
+        When the decorated method is called, this code is wrapped around
+        its execution. It accepts an arbitrary number of positional arguments
+        but is is currently designed to decorate the `_get_similarity`
+        method of the `AlignmentList` class. There are three expected calling
+        modes:
+        
+            1. decorated_func("connect") : Initializes the Connection and
+            Cursor objects of the database
+            2. decorated_func(seq1, seq2, locus_lenght) : The typical main
+            execution of the method, providing the sequence1 and sequence2
+            strings along with the integer with their lenght
+            3. decorated_func("disconnect") : Commits changes to database
+            and closes Connection and Cursor objects.
+        
+        The path of this sqlite database is automatically obtained from 
+        the `AlignmentList` attribute `sql_path`. We use the path to the 
+        same directory, but with a different name for the database, "pw.db".
+        
+        Parameters
+        ----------
+        args : list
+            List of positional arguments for decorated method
+        
+        Notes
+        -----
+        When the decorated method is called normally (i.e., not with a 
+        "connect" or "disconnect" argument"), it first creates an hash
+        of the argument list (excluding `self`). This hash is used to query
+        the database to check if a value for that combination of sequence
+        strings and sequence length has already been calculated. If yes, 
+        the result is immediately  returned without executing the decorated
+        method. If no, the method is executed to perform calculations. The
+        result of this calculation is then stored in the database and the 
+        result is returned.
+
+        """
 
         c_args = args[1:3]
 
+        # Initialize database connection.
         if c_args[0] == "connect":
 
             # Get path to database based on the AlignmentList db
@@ -88,6 +159,7 @@ class pairwise_cache(object):
             self.c = self.con.cursor()
             self.c.execute("PRAGMA synchronous = OFF")
 
+            # Create table, if it does not yet exist
             if not self.c.execute("SELECT name FROM sqlite_master WHERE type="
                                   "'table' AND name='pw_table'").fetchall():
                 self.c.execute("CREATE TABLE pw_table (hash integer"
@@ -119,31 +191,71 @@ class pairwise_cache(object):
                 h = hash(c_args)
                 self.c.execute("INSERT INTO pw_table VALUES (?, ?, ?, ?)",
                                (h, args[-1], value[0], value[1]))
-                self.cache[c_args] = value
                 return value
 
         else:
             return self.func(*args)
 
     def __repr__(self):
-        """
-        Return the function's docstring.
-        """
+        """ Return the function's docstring. """
         return self.func.__doc__
 
     def __get__(self, obj, objtype):
-        """
-        Support instance methods
-        """
+        """ Support instance methods """
         return functools.partial(self.__call__, obj)
 
 
 class CheckData(object):
+    """Decorator handling the result from AlignmentList plotting methods
+    
+    This should decorate all plotting methods from the `AlignmentList` class.
+    It can be used to control warnings and handle exceptions when calling
+    the plotting methods. Currently, it ensures that a list of methods are
+    not executed when the `AlignmentList` instance contains a single 
+    alignment, and handles cases where the plotting methods return an
+    empty array of data. Further control can be added here to prevent
+    methods from being executed in certain conditions and handling 
+    certain outputs of the plotting methods.
+    
+    The only requirement is that, even when the plotting methods are not
+    executed, this should always return a dictionary. In such cases,
+    this dictionary should contain a single key:value with
+    {"exception":<exception_type_string>}. The <exception_type_string> should
+    be a simple string with an informative name that will be handled in
+    the `stats_write_plot` of the `TriFusionApp` class.
+    
+    Parameters
+    ----------
+    func : function
+        Decorated function
+    
+    Attributes
+    ----------
+    func : function
+        Decorated function
+    """
 
     def __init__(self, func):
         self.func = func
 
     def __call__(self, *args, **kwargs):
+        """ Wraps the call of `func`
+        
+        First, checks if the current `AlignmentList` contains only a single
+        alignment. If yes, and if the plotting method provided via `func`
+        is in the `no_single_plot` list, then, return an exception dictionary.
+        
+        Second, after executing the plotting method, evaluate the `data` 
+        array. If it is empty, return an exception dictionary.
+        
+        Parameters
+        ----------
+        args : list
+            List of position arguments for `func`
+        kwargs : dictionary
+            Keyword arguments for `func`
+
+        """
 
         # Plot methods that should not be allowed to continue with only one
         #  active alignment
@@ -181,10 +293,83 @@ class CheckData(object):
 
 
 class SetupDatabase(object):
-    """
-    Decorator used to setup sqlite database tables. It is executed for every
-    operation that changes the main alignment data. It checks whether the
-    table name already exists in the database and, if not, creates it.
+    """Decorator handling the active database tables
+    
+    This class decorates methods from the `Alignment` object that use and
+    perform modifications to the original alignment data. All methods 
+    decorated with this class must have the keyword arguments `table_in` and 
+    `table_out` (and `use_main_table`, optionally). The values associated with 
+    these arguments will determine which tables will be used and created 
+    before the execution of the decorated method (See Notes for the 
+    rationale). The strings provided as arguments for `table_in` and 
+    `table_out` will serve as a suffix to the `Alignment` instance attribute
+    `table_name`.
+    
+    If `use_main_table` is provided, and is set to True, both `table_in`
+    and `table_out` will default to `Alignment.table_name`. Values provided
+    for `table_in` and `table_out` at calling time will be ignored.
+    
+    The following cases assume `use_main_table` is not provided or set to 
+    False.
+    
+    If both `table_in` and `table_out` are provided, `table_out` is modified
+    so that `table_out = Alignment.table_name + table_out`. If `table_out`
+    is not provided, it defaults to `Alignment.table_name`.
+    
+    If the final `table_out` does not exist in the database, create it. 
+    In this case, if `table_in` will default to `Alignment.table_name`. If 
+    `table_out` already exists in the database, then `table_in=table_out`.
+    
+    Parameters
+    ----------
+    func : function
+        Decorated function
+    
+    Attributes
+    ----------
+    func : function
+        Decorated function
+    
+    Notes
+    -----
+    In order to fully understand the mechanism behind the setup of the
+    database tables, one must first know that when an `Alignment` instance
+    is created, it generates a table in the database containing the
+    original data from the alignment.
+    In TriFusion (GUI), this original table MUST NOT be modified, since users
+    may want to execute several methods on the same `Alignment` object. 
+    Therefore, when a particular method needs to modify the original alignment,
+    a new temporary table is created to store the modified version
+    until the end of the execution. If a second modification is requested,
+    it will also be necessary to set the input table as the output table
+    of the previous alignment modification.
+    In the case of TriSeq (CLI), there is no such requirement, 
+    so it's much simpler to use the same table  for all modifications. 
+    
+    This decorator greatly simplifies this process in the same way for 
+    all methods of the `Alignment` object that modify the original alignment
+    data. To accomplish this, all decorated method must have the keyword
+    arguments: `table_in` and `table_out` (and `use_main_table`, optionally).
+    
+    For methods called within the execution of TriFusion, the idea is simple.
+    Since we don't know which methods will be used by the user, all chained
+    methods that will create the same output file can be called with 
+    `table_in=new_table` and `table_out=new_table`. 
+    Note that bot arguments have the same value. Whatever is the first method
+    being called, it will face the fact that "new_table" does not yet exist.
+    In this case, the decorator will create a "new_table" in the database and 
+    reset `table_in` to the original `Alignment.table_name`. This ensures that
+    the first method will still be able to fetch the alignment data. In the
+    following methods, `table_in` and `table_out` will be used based on the
+    original values, ensuring that the alignment data is being fetched
+    from the last modification made and that the modification chain is 
+    maintained. In this way, the execution of `Alignment` methods can
+    be the same, regardless of the order or number of operations requested
+    by the user.
+    
+    In the case of TriSeq, the methods should set `use_main_table=True`.
+    This will always set `table_in=table_out=Alignment.table_name`, which
+    means that the main database will be used for all methods.
     """
     def __init__(self, func):
         self.func = func
@@ -240,10 +425,44 @@ class SetupDatabase(object):
 
 
 class SetupInTable(object):
-    """
-    Decorator used to setup sqlite database tables. It is executed for every
-    operation that changes the main alignment data. It checks whether the
-    table name already exists in the database and, if not, creates it.
+    """Decorator handling active database table when fetching data
+    
+    This class is mean to decorate methods of the `Alignment` class that
+    retrieves alignment data from the database. The requirement is that
+    these methods have the positional arguments `table_suffix`, 
+    `table_name` and `table`. These are all optional, and only `table_suffix`
+    and `table_name` should be used when calling these methods. The values
+    of these two will be used to define the value of `table`, so any
+    value provided to this argument when calling the decorated method will
+    be ignored. In the end, the `table` variable will contain the final
+    table name and only this variable will be used to retrieve the alignment
+    data.
+    
+    `table_suffix` is a suffix that is appended to `Alignment.table_name`.
+    `table_name` defines a complete table name.
+    
+    If neither `table_suffix` nor `table_name` are provided, then `table`
+    will default to `Alignment.table_name`.
+    
+    If `table_name` is provided, `table=table_name`. If `table_suffix`
+    is provided, `table=Alignment.table_name + table_suffix`.
+    
+    If both are provided, `table_name` takes precedence over `table_suffix`
+    and `table=table_name`.
+    
+    In any case, we test the existence of the final `table` value in the
+    database. If it does not exist, `table` will revert to 
+    `Alignment.table_name` to prevent errors.
+    
+    Parameters
+    ----------
+    func : function
+        Decorated function
+    
+    Attributes
+    ----------
+    func : function
+        Decorated function
     """
     def __init__(self, func):
         self.func = func
@@ -297,55 +516,132 @@ class SetupInTable(object):
 
 
 class AlignmentException(Exception):
+    """ Generic Alignment object exception """
     pass
 
 
 class AlignmentUnequalLength(Exception):
+    """ Raised when sequences in alignment have unequal length """
     pass
 
 
 class Alignment(Base):
+    """ Main interface with single alignment files
+    
+    The `Alignment` class is the main interface with single alignment files, 
+    providing methods to parse, query, retrieve and modify alignment data.
+    `Alignment` instances can be created by providing only a single argument
+    that can be the the path to the alignment file, in which case the file
+    is parsed and stored in a sqlite database, or the name of a table in the
+    sqlite database. 
+    
+    When an `Alignment` object is instantiated, it first generates the 
+    `table_name` based on the `input_alignment` string, filtering all
+    characters that are not alpha numeric. Then, it queries the database
+    to check is a table already exists with that name. If yes, it is assumed
+    that the alignment data is stored in the provided table name. If there
+    is no table with that name, it is assumed that `input_alignment` is a 
+    path to the alignment file and the regular parsing ensues. An empty
+    table is created, the sequence type, format and missing data symbol are
+    automatically detected and the alignment is parsed according to the
+    detected format.
+    
+    Parameters
+    ----------
+    input_alignment : str
+        Can be either the path to an alignment file or the name of a table
+        in the sqlite database.
+    input_format : basestring
+        File format of `input_alignment`. If `input_alignment` is a
+        file path, the format will be automatically detect from the file.
+        The value provided with this argument overrides the automatic 
+        detection's result.
+    partitions : `trifusion.process.data.Partitions`
+        If provided, it will set the `partitions` attribute. This should
+        be used only when `input_alignment` is a database table name.
+    locus_length : int
+        Sets the length of the current alignment, stored in the `locus_length`
+        attribute. This option should only be used when `input_alignment`
+        is a database table name. Otherwise, it is automatically set during
+        alignment parsing.
+    sequence_code : tuple
+        Sets the `sequence_code` attribute with the information on
+        (<sequence_type>, <missing data symbol>). This option should only be
+         used when `input_alignment` is a database table name. Otherwise, 
+         it is automatically set during alignment parsing.
+    taxa_list : list
+        Sets the list attribute `taxa_list` with the names of the taxa
+        present in the alignment. This option should only be
+         used when `input_alignment` is a database table name. Otherwise, 
+         it is automatically set during alignment parsing.
+    taxa_idx : dict
+        Sets the dictionary attribute `taxa_idx` that maps the taxon names
+        to their index in the sqlite database table. This option should only
+         be used when `input_alignment` is a database table name. Otherwise, 
+         it is automatically set during alignment parsing.
+    sql_cursor : sqlite3.Cursor
+        Cursor object of the sqlite database
+    sql_con : sqlite3.Connection
+        Connection object of the sqlite database
+    
+    Attributes
+    ----------
+    cur : sqlite3.Cursor
+        Cursor object of the sqlite database
+    con : sqlite3.Connection
+        Connection object of the sqlite database
+    table_name : str 
+        Name of the sqlite database's table storing the sequence
+        data.
+    tables : list
+        Lists the sqlite database's tables created for the `Alignment`
+        instance. The "master" table is always present and represents the
+        original alignment
+    partitions : `trifusion.process.data.Partitions`
+        Stores the partitions and substitution model definition for the
+        alignment
+    locus_length : int
+        Length of the alignment in base pairs or residures
+    restriction_range : str
+        Only used when gaps are coded in a binary matrix. Stores a string
+        with the range of the restriction-type data that will encode
+        gaps and will only be used when nexus is in the output format
+    e : None or Exception
+        Stores any exceptions that occur during the parsing of the 
+        alignment file. If remains None unless something wrong happens
+    taxa_list : list
+        List with the active taxon names
+    taxa_idx: dict
+        Maps the taxon names to their corresponding index in the sqlite 
+        database. The index is not retrieve from the position of the taxon
+        in `taxa_list` to prevent messing up when taxa are removed from the
+        `Alignment` object.
+    shelved_taxa : list
+        List of ignored taxon names. 
+    path : str
+        Full path to alignment file
+    sname : str
+        Basename of the alignment file without the extension
+    name : str
+        Basename of the alignment file with the extension
+    sequence_code : tuple
+        Contains information on (<sequence type>, <missing data symbol>),
+        e.g. ("Protein", "x")
+    
+    Notes
+    -----
+    For performance and efficiency purposes, all alignment data is stored 
+    in a sqlite database that prevents the entire alignment from being
+    loaded into RAM. To facilitate the retrieval and iteration over the
+    alignment data, several methods (`iter_columns`, 'iter_sequences`, etc)
+    are available to handle the interface with the database and retrieve
+    only the necessary information.
+    """
 
-    def __init__(self, input_alignment, input_format=None,
-                 partitions=None, locus_length=None, sql_cursor=None,
-                 sql_con=None, sequence_code=None, taxa_list=None,
-                 taxa_idx=None):
-        """
-        The basic Alignment instance requires only an alignment file path or
-        sqlite table name. In case the class is initialized with a dictionary
-        object information on the partitions must be provide using the
-        partitions argument.
+    def __init__(self, input_alignment, input_format=None, partitions=None,
+                 locus_length=None, sequence_code=None, taxa_list=None,
+                 taxa_idx=None, sql_cursor=None, sql_con=None):
 
-        :param input_alignment: string. The path to the input alignment file
-        or name of sqlite table where the sequence data is.
-
-        :param input_format: string. Input format of the Alignment object. If
-        input_alignment is a file name, the input format is automatically
-        detected. If it is an OrderedDict, it must be specified
-
-        :param partitions: Partitions object. If provided, it will overwrite
-        self.partitions.
-
-        :param locus_length: Manually sets the length of the locus. Usually
-        provided when input_alignment is a dict object and the result of
-        concatenation.
-
-        :param sql_cursor: sqlite3.connection.cursor object. Used to
-        populate sqlite database with sequence data
-
-        :param sequence_code: tuple. First element is sequence type and
-        second element is missing data character. E.g. ("DNA", "n")
-
-        :param taxa_list: list. Contains the taxa names of the alignment
-
-        :param taxa_idx: dict. Contains the correspondance between the taxon
-        names and their index in the sqlite database
-        """
-
-        """
-        Provides the sqlite database cursor to communicate with the sequence
-        database, either to write or fetch data
-        """
         self.cur = sql_cursor
         self.con = sql_con
 
@@ -379,15 +675,6 @@ class Alignment(Base):
         gaps and will only be used when nexus is in the output format
         """
         self.restriction_range = None
-
-        """
-        Attribute informing whether the current object is an actual alignment
-        (defined as a sequence set with sequences of the same length), in which
-        case it is set to True, or a sequence set (with sequences of unequal
-        length), in which case it is set to False. This is automatically set
-        in the read_alignment method
-        """
-        self.is_alignment = None
 
         """
         The e attribute will store any exceptions that occur during the
@@ -516,7 +803,8 @@ class Alignment(Base):
                 yield tx, seq
 
     def _create_table(self, table_name, cur=None):
-        """
+        """Creates a new table in the sqlite database
+        
         Convenience method that creates a new table in sqlite database.
         A custom cursor object can be provided
         :param table_name:
@@ -4817,7 +5105,7 @@ class AlignmentList(Base):
         # except KeyError:
         #     return None, None
 
-    @pairwise_cache
+    @LookupDatabase
     def _get_similarity(self, seq1, seq2, aln_len):
         """
         Gets the similarity between two sequences in proportion. The
