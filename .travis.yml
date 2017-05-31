@@ -24,4 +24,4 @@ script:
     - nosetests --with-coverage
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)  -g trifusion/progressbar/*
+  - bash <(curl -s https://codecov.io/bash)  -g trifusion/progressbar/
