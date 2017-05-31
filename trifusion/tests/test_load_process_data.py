@@ -83,6 +83,11 @@ class LoadAlignmentsTest(unittest.TestCase):
 
         single_aln = Alignment(dna_data_nex[0], sql_cursor=self.aln_obj.cur)
 
+    def test_load_interleave_nex(self):
+
+        single_aln = Alignment(concatenated_interleave_nexus[0],
+                               sql_cursor=self.aln_obj.cur)
+
     def test_load_stc(self):
 
         self.aln_obj = AlignmentList(dna_data_stc, sql_db=sql_db)
