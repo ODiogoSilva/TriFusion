@@ -11239,18 +11239,9 @@ class TriFusionApp(App):
 
                 # If process execution ended with an error, issue warning.
                 try:
-                    if shared_ns.exception == "EmptyAlignment":
-                        return self.dialog_floatcheck(
-                            "The alignment is empty after applying "
-                            "filters", t="error")
-                    elif "InvalidPartitionFile" in shared_ns.exception:
-                        return self.dialog_warning("Invalid Partition file",
-                            shared_ns.exception["InvalidPartitionFile"])
-                    elif shared_ns.exception == "Unknown":
-                        return self.dialog_floatcheck(
-                            "Unexpected error when generating "
-                            "Process output. Check the app logs.",
-                            t="error")
+
+                    self.dialog_warning(shared_ns.exception["exception"][0],
+                                        shared_ns.exception["exception"][1])
                     man.shutdown()
                 except:
                     if shared_ns.proc_files == 1:
