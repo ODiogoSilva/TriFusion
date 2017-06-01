@@ -499,7 +499,7 @@ class AlignmentUnequalLength(Exception):
 
 
 class Alignment(Base):
-    """ Main interface with single alignment files.
+    """Main interface with single alignment files.
     
     The `Alignment` class is the main interface with single alignment files, 
     providing methods to parse, query, retrieve and modify alignment data.
@@ -1966,7 +1966,7 @@ class Alignment(Base):
                     idx += 1
 
                 else:
-                    self._read_interleave_nexus(self.path, ntaxa)
+                    self._read_interleave_nexus(ntaxa)
                     counter = 2
 
             # If partitions are specified using the charset command, this
@@ -4197,99 +4197,199 @@ class Alignment(Base):
 
 
 class AlignmentList(Base):
-    """
-    At the most basic instance, this class contains a list of Alignment
-    objects upon which several methods can be applied. It only requires either
-    a list of alignment files or. It inherits methods from Base and
-    Alignment classes for the write_to_file methods.
+    """Main interface with a groups of `Alignment` objects.
+
+    The `AlignmentList` class can be seen as a group of `Alignment` objects
+    that is treated as a single cohesive data set. It is the main class
+    used to perform alignment operations on TriFusion and TriSeq programs,
+    even when there is only a single alignment.
+
+    An instance can be created by simply providing a list of paths to
+    alignment files, which can be empty (and alignments added later). It
+    is recommended that the path to the sqlite database be specified
+    via the `sql_db` argument, but this is optional.
+
+    Individual alignment files can be provided when instantiating the class
+    or added later, and each is processed and stored as an `Alignment` object.
+    The `AlignmentList` object provides attributes that are relative to the
+    global data set. For instance, each `Alignment` object may have their
+    individual and unique list of taxa, but the corresponding attribute in the
+    `AlignmentList` object contains the list of all taxa that are found
+    in the `Alignment` object list.
+    
+    Several methods of the `Alignment` class are also present in this class
+    with the same usage (e.g. `collapse`). These are basically wrappers that
+    apply the method to all `Alignment` objects and may have some
+    modifications adapted to multiple alignments.
+    
+    Other methods are exclusive and desgined to deal with multiple alignments,
+    such as concatenation (`concatenate`), filter by taxa (`filter_by_taxa`),
+    etc.
+
+    Plotting method are exclusive to the `AlignmentList` object, even the
+    ones that are focused on single alignments. In this case, the
+    `Alignment` object can be retrieved and processed individually directly
+    from this class.
+
+    Parameters
+    ----------
+    alignment_list : list
+        List with paths to alignment files. Can be empty.
+    sql_db : str
+        Path where the sqlite3 database will be created.
+    db_cur : sqlite3.Cursor
+        Provide a database Cursor object in conjunction with the Connection
+        object (`db_con`) to connect to an existing database.
+    db_con : sqlite3.Connection
+        Provide a database Connection object in conjunction with the Cursor
+        object (`db_cur`) to connect to an existing database.
+    pbar : ProgressBar
+        A ProgressBar object used to log the progress of TriSeq execution.
+
+    Attributes
+    ----------
+    con : sqlite3.Connection
+        Connection object of the sqlite database.
+    cur : sqlite3.Cursor
+        Cursor object of the sqlite database.
+    sql_path : str
+        Path to sqlite3 database file.
+    alignments : collections.OrderedDict
+        Stores the 'active' `Alignment objects` as values, with the
+        corresponding key being `Alignment.path`.
+    shelve_alignments : collections.OrderedDict
+        Stores the 'inactive' or 'shelved' `Alignment` objects.
+        `AlignmentList` methods will operate only on the `alignments`
+        attribute, unless explicitly stated otherwise. The key:value is the
+        same as in the `alignments` attribute.
+    bad_alignments : list
+        Stores the `Alignment.name` attribute of badly formatted alignments.
+    duplicate_alignments : list
+        Stores the `Alignment.name` attribute of duplicated alignment paths.
+    non_alignments : list
+        Stores the `Alignment.name` attribute of sequence sets of unequal
+        length.
+    taxa_names : list
+        Stores the name of all taxa across the `Alignment` object list.
+    shelved_taxa : list
+        Stores the 'inactive' or 'shelved' taxa. `AlignmentList` methods
+        will operate only on the `taxa_names` attribute, unless explicitly
+        stated otherwise.
+    path_list : list
+        List of `Alignment.paths` for all `Alignment` objects.
+    filtered_alignments : collections.OrderedDict
+        Ordered dictionary of four key:values used to count the number
+        of `Alignment` objects that were filtered by four operations. The
+        keys are {"By minimum taxa", "By taxa", "By variable sites",
+        "By informative sites"}.
+    sequence_code : tuple
+        Contains information on (<sequence type>, <missing data symbol>),
+        e.g. ("Protein", "x").
+    gap_symbol : str
+        Symbol used to denote gaps in the alignment (default is '-').
+    summary_stats : dict
+        Dictionary that stores several summary statistics that are calculated
+        once the `get_summary_stats` method is executed.
+    summary_gene_table : pandas.DataFrame
+        DataFrame containing the summary statistics for each `Alignment`
+        object. Also populated when the `get_summary_stats` method is
+        executed.
+    active_tables : list
+        List of active database tables associated with the `AlignmentList`
+        instance.
+    partitions : trifusion.process.data.Partitions
+        Partitions object that refers to the total `AlignmentList`.
     """
 
-    def __init__(self, alignment_list, dest=None,
-                 sql_db=None, db_cur=None, db_con=None, pbar=None):
-        """
-        :param alignment_list: List of Alignment objects
-        :param dest: String. Path to temporary directory that will store
-        the sequence data of each alignment object
-        :param sql_db: string. Path to sqlite database file where sequence data
-        will be stored
-        :param db_cur: sqlite cursors. If provided, along with the db_con
-        argument, it provides the necessary hooks to the sqlite database and
-        the sql_db argument will be ignored. Therefore, no new connection will
-        be open
-        :param db_con:sqlite connection. If provided, along with the db_cur
-        argument, it provides the necessary hooks to the sqlite database and
-        the sql_db argument will be ignored. Therefore, no new connection will
-        be open
-        """
+    def __init__(self, alignment_list, sql_db=None, db_cur=None, db_con=None,
+                 pbar=None):
 
-        """
-        Create connection and cursor for sqlite database
-        """
+        # Create connection and cursor for sqlite database
+        # If `db_cur` and `db_con` are both provided, setup the database
+        # connection and ignore `sql_db`
         if db_cur and db_con:
             self.con = db_con
+            """
+            Database Connection object
+            """
             self.cur = db_cur
+            """
+            Database Cursor object
+            """
+        # If only `sql_db` is provided, set it as the attribute
         elif sql_db:
             self.sql_path = sql_db
-            self.con = sqlite3.connect(sql_db, check_same_thread=False)
-            self.cur = self.con.cursor()
-            self.cur.execute("PRAGMA synchronous = OFF")
-            # self.cur.execute("PRAGMA journal_mode = TRUNCATED")
+        # If no database information is provided, set a temporary database
+        # file in the current working directory
+        else:
+            self.sql_path = "trifusion.sqlite3"
+            """
+            Path to sqlite3 database file 
+            """
 
-        """
-        Stores the "active" Alignment objects for the current AlignmentList.
-        Keys will be the Alignment.path for quick lookup of Alignment object
-        values
-        """
+        self.con = sqlite3.connect(self.sql_path, check_same_thread=False)
+        self.cur = self.con.cursor()
+        self.cur.execute("PRAGMA synchronous = OFF")
+
         self.alignments = OrderedDict()
+        """
+        Stores the "active" `Alignment` objects for the current 
+        `AlignmentList`. Keys will be the `Alignment.path` for quick lookup of 
+        `Alignment` object values
+        """
 
-        """
-        Stores the "inactive" or "shelved" Alignment objects. All AlignmentList
-        methods will operate only on the alignments attribute, unless explicitly
-        stated otherwise. Key-value is the same as self.alignments
-        """
         self.shelve_alignments = OrderedDict()
+        """
+        Stores the "inactive" or "shelved" `Alignment` objects. All 
+        `AlignmentList` methods will operate only on the alignments 
+        attribute, unless explicitly stated otherwise. 
+        Key-value is the same as the `alignments` attribute.
+        """
 
+        self.bad_alignments = []
         """
         Attribute list that stores the Alignment.name attribute of badly
         formatted alignments
         """
-        self.bad_alignments = []
 
+        self.duplicate_alignments = []
         """
         Attribute list that stores duplicate Alignment.name.
         """
-        self.duplicate_alignments = []
 
+        self.non_alignments = []
         """
         Attribute list that stores sequence sets of unequal lenght
         """
-        self.non_alignments = []
 
+        self.taxa_names = []
         """
         List with the name of the taxa included in the AlignmentList object
         """
-        self.taxa_names = []
 
+        self.shelved_taxa = []
         """
         List with non active taxa
         """
-        self.shelved_taxa = []
 
         self.path_list = []
+        """
+        List of `Alignment.path`
+        """
 
-        """
-        Records the number of filtered alignments by each individual filter type
-        """
         self.filtered_alignments = OrderedDict([("By minimum taxa", None),
                                                ("By taxa", None),
                                                ("By variable sites", None),
                                                ("By informative sites", None)])
+        """
+        Records the number of filtered alignments by each individual filter type
+        """
 
+        self.sequence_code = None
         """
         Tuple with the AlignmentList sequence code. Either ("DNA", "n") or
         ("Protein", "x")
         """
-        self.sequence_code = None
         self.gap_symbol = "-"
 
         """
@@ -4311,9 +4411,6 @@ class AlignmentList(Base):
         conversion of the consensus alignments into a single Alignment object
         """
         self.active_tables = []
-
-        self.dest = dest
-        self.pw_data = None
 
         # Set partitions object
         self.partitions = Partitions()
@@ -4488,8 +4585,6 @@ class AlignmentList(Base):
         columns = ["genes", "nsites", "taxa", "var", "inf", "gap", "missing"]
         self.summary_gene_table = pd.DataFrame(columns=columns)
         self.active_tables = []
-        self.dest = None
-        self.pw_data = None
         self.partitions = Partitions()
 
     def _reset_summary_stats(self):
