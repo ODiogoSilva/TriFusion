@@ -16,6 +16,8 @@ time [0.5.4].
 "n" and "x" [0.5.5].
 - Added option to invert selection of active Taxon/File buttons in the main
 side panel [0.5.6].
+- Greatly improved performance when importing partition scheme for large
+alignments [0.5.7]
 
 ### Statistics
 
