@@ -281,14 +281,14 @@ class Partitions(object):
 
         part_file = open(partitions_file)
 
-        # In order to support unosrted partition ranges, the complete
+        # In order to support unsorted partition ranges, the complete
         # partition set will be stored temporary in memory. Even very large
         # partition files should result in relatively small data structures.
         # Once this variable is populated, it will be sorted according to the
         # first element of the range.
         temp_ranges = []
 
-        # TODO: Add suport for codon partitions in raxml format
+        # TODO: Add support for codon partitions in raxml format
         if self.partition_format == "raxml":
             for p, line in enumerate(part_file):
 
@@ -301,8 +301,6 @@ class Partitions(object):
                 # handle that exception
                 try:
                     fields = line.split(",")
-                    # Get model name as string
-                    #model_name = fields[0]
                     # Get partition name as string
                     partition_name = fields[1].split("=")[0].strip()
                     # Get partition range as list of int
@@ -336,8 +334,7 @@ class Partitions(object):
                         try:
                             file_name = \
                                 [x for x, y in self.alignments_range.items() if
-                                 partition_range[0] in xrange(*y) and
-                                 partition_range[1] - 1 in xrange(*y)][0]
+                                 y[0] <= partition_range[0] < y[1]][0]
                         except IndexError:
                             file_name = None
                     else:
