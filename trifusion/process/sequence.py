@@ -68,7 +68,7 @@ lock = Lock()
 
 
 class LookupDatabase(object):
-    """Decorator handling hash lookup table with pre-calculated values
+    """Decorator handling hash lookup table with pre-calculated values.
     
     This decorator class is used to decorate class methods that calculate 
     pairwise sequence similarity. To ensure proper functionality, the
@@ -108,7 +108,7 @@ class LookupDatabase(object):
         self.c = None
 
     def __call__(self, *args):
-        """Wraps the call of `func`
+        """Wraps the call of `func`.
         
         When the decorated method is called, this code is wrapped around
         its execution. It accepts an arbitrary number of positional arguments
@@ -205,8 +205,8 @@ class LookupDatabase(object):
         return functools.partial(self.__call__, obj)
 
 
-class CheckData(object):
-    """Decorator handling the result from AlignmentList plotting methods
+def check_data(func):
+    """Decorator handling the result from AlignmentList plotting methods.
     
     This should decorate all plotting methods from the `AlignmentList` class.
     It can be used to control warnings and handle exceptions when calling
@@ -228,34 +228,20 @@ class CheckData(object):
     ----------
     func : function
         Decorated function
-    
-    Attributes
-    ----------
-    func : function
-        Decorated function
+
+    Returns
+    -------
+    res : dict
+        The value returned by `func` is always a dictionary. If the
+        decorator prevents the execution of `func` for some reason, ensure
+        that a dictionary is always return with a single key:value
+        {"exception": <exception_type_string>}
     """
 
-    def __init__(self, func):
-        self.func = func
-
-    def __call__(self, *args, **kwargs):
-        """ Wraps the call of `func`
-        
-        First, checks if the current `AlignmentList` contains only a single
-        alignment. If yes, and if the plotting method provided via `func`
-        is in the `no_single_plot` list, then, return an exception dictionary.
-        
-        Second, after executing the plotting method, evaluate the `data` 
-        array. If it is empty, return an exception dictionary.
-        
-        Parameters
-        ----------
-        args : list
-            List of position arguments for `func`
-        kwargs : dictionary
-            Keyword arguments for `func`
-
-        """
+    # functools.wraps(func) allows the correct generation of docstrings
+    # by sphinx of the decorated objects.
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
 
         # Plot methods that should not be allowed to continue with only one
         #  active alignment
@@ -272,10 +258,10 @@ class CheckData(object):
         # Calling outlier method with a single alignments should immediately
         # raise an exception
         if len(args[0].alignments) == 1:
-            if self.func.__name__ in no_single_plot:
+            if func.__name__ in no_single_plot:
                 return {"exception": "single_alignment"}
 
-        res = self.func(*args, **kwargs)
+        res = func(*args, **kwargs)
 
         if "data" in res:
             if np.asarray(res["data"]).any():
@@ -285,19 +271,15 @@ class CheckData(object):
         elif "exception" in res:
             return res
 
-    def __get__(self, obj, objtype):
-        """
-        Support instance methods
-        """
-        return functools.partial(self.__call__, obj)
+    return wrapper
 
 
-class SetupDatabase(object):
-    """Decorator handling the active database tables
+def setup_database(func):
+    """Decorator handling the active database tables.
     
-    This class decorates methods from the `Alignment` object that use and
+    Decorates methods from the `Alignment` object that use and
     perform modifications to the original alignment data. All methods 
-    decorated with this class must have the keyword arguments `table_in` and 
+    decorated with this must have the keyword arguments `table_in` and
     `table_out` (and `use_main_table`, optionally). The values associated with 
     these arguments will determine which tables will be used and created 
     before the execution of the decorated method (See Notes for the 
@@ -321,11 +303,6 @@ class SetupDatabase(object):
     `table_out` already exists in the database, then `table_in=table_out`.
     
     Parameters
-    ----------
-    func : function
-        Decorated function
-    
-    Attributes
     ----------
     func : function
         Decorated function
@@ -371,14 +348,9 @@ class SetupDatabase(object):
     This will always set `table_in=table_out=Alignment.table_name`, which
     means that the main database will be used for all methods.
     """
-    def __init__(self, func):
-        self.func = func
 
-    def __get__(self, obj, objtype):
-        """Support instance methods."""
-        return functools.partial(self.__call__, obj)
-
-    def __call__(self, *args, **kwargs):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
 
         # If use_main_table is set, the table_in will be overwritten by
         # table_out
@@ -386,7 +358,7 @@ class SetupDatabase(object):
             if kwargs["use_main_table"]:
                 kwargs["table_out"] = args[0].table_name
                 kwargs["table_in"] = args[0].table_name
-                return self.func(*args, **kwargs)
+                return func(*args, **kwargs)
 
         # Get sqlite database cursor and main table name
         sql_cur = args[0].cur
@@ -421,11 +393,13 @@ class SetupDatabase(object):
             # from this table instead of the main table name
             kwargs["table_in"] = table_out
 
-        return self.func(*args, **kwargs)
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
-class SetupInTable(object):
-    """Decorator handling active database table when fetching data
+def setup_intable(func):
+    """Decorator handling active database table when fetching data.
     
     This class is mean to decorate methods of the `Alignment` class that
     retrieves alignment data from the database. The requirement is that
@@ -464,21 +438,18 @@ class SetupInTable(object):
     func : function
         Decorated function
     """
-    def __init__(self, func):
-        self.func = func
 
-    def __get__(self, obj, objtype):
-        """Support instance methods."""
-        return functools.partial(self.__call__, obj)
-
-    def __call__(self, *args, **kwargs):
+    # functools.wraps(func) allows the correct generation of docstrings
+    # by sphinx of the decorated objects.
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
 
         # Get sqlite database cursor and main table name
         sql_cur = args[0].cur
 
         if "table_name" not in kwargs and "table_suffix" not in kwargs:
             kwargs["table"] = args[0].table_name
-            return self.func(*args, **kwargs)
+            return func(*args, **kwargs)
 
         try:
             tb_name = kwargs["table_name"]
@@ -512,21 +483,23 @@ class SetupInTable(object):
 
         kwargs["table"] = table
 
-        return self.func(*args, **kwargs)
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 class AlignmentException(Exception):
-    """ Generic Alignment object exception """
+    """ Generic Alignment object exception. """
     pass
 
 
 class AlignmentUnequalLength(Exception):
-    """ Raised when sequences in alignment have unequal length """
+    """ Raised when sequences in alignment have unequal length. """
     pass
 
 
 class Alignment(Base):
-    """ Main interface with single alignment files
+    """ Main interface with single alignment files.
     
     The `Alignment` class is the main interface with single alignment files, 
     providing methods to parse, query, retrieve and modify alignment data.
@@ -551,7 +524,7 @@ class Alignment(Base):
     input_alignment : str
         Can be either the path to an alignment file or the name of a table
         in the sqlite database.
-    input_format : basestring
+    input_format : str
         File format of `input_alignment`. If `input_alignment` is a
         file path, the format will be automatically detect from the file.
         The value provided with this argument overrides the automatic 
@@ -572,13 +545,13 @@ class Alignment(Base):
     taxa_list : list
         Sets the list attribute `taxa_list` with the names of the taxa
         present in the alignment. This option should only be
-         used when `input_alignment` is a database table name. Otherwise, 
-         it is automatically set during alignment parsing.
+        used when `input_alignment` is a database table name. Otherwise,
+        it is automatically set during alignment parsing.
     taxa_idx : dict
         Sets the dictionary attribute `taxa_idx` that maps the taxon names
         to their index in the sqlite database table. This option should only
-         be used when `input_alignment` is a database table name. Otherwise, 
-         it is automatically set during alignment parsing.
+        be used when `input_alignment` is a database table name. Otherwise,
+        it is automatically set during alignment parsing.
     sql_cursor : sqlite3.Cursor
         Cursor object of the sqlite database.
     sql_con : sqlite3.Connection
@@ -627,6 +600,9 @@ class Alignment(Base):
     sequence_code : tuple
         Contains information on (<sequence type>, <missing data symbol>),
         e.g. ("Protein", "x").
+    interleave_data : bool
+        Attribute that is set to True when interleave data has been
+        created for the alignment data.
     
     Notes
     -----
@@ -648,73 +624,77 @@ class Alignment(Base):
         self.cur = sql_cursor
         self.con = sql_con
 
-        """
-        Initializing a Partitions instance for the current alignment. By
-        default, the Partitions instance will assume that the whole Alignment
-        object is one single partition. However, if the current alignment is the
-        result of a concatenation, or if a partitions file is provided, the
-        partitions argument can be used. Partitions can be later changed using
-        the set_partitions method. Substitution models objects are associated
-        with each partition and they default to None
-        """
+
         if isinstance(partitions, Partitions):
             self.partitions = partitions
         else:
             self.partitions = Partitions()
+            """
+            Initializing a Partitions instance for the current alignment. By
+            default, the Partitions instance will assume that the whole Alignment
+            object is one single partition. However, if the current alignment is the
+            result of a concatenation, or if a partitions file is provided, the
+            partitions argument can be used. Partitions can be later changed using
+            the set_partitions method. Substitution models objects are associated
+            with each partition and they default to None
+            """
 
-        """
-        The length of the alignment object. Even if the current alignment
-        object is partitioned, this will return the length of the entire
-        alignment
-        """
         if not locus_length:
             self.locus_length = 0
         else:
             self.locus_length = locus_length
+            """
+            The length of the alignment object. Even if the current alignment
+            object is partitioned, this will return the length of the entire
+            alignment
+            """
 
+        self.restriction_range = None
         """
         This option is only relevant when gaps are coded. This will store a
         string with the range of the restriction-type data that will encode
         gaps and will only be used when nexus is in the output format
         """
-        self.restriction_range = None
 
+        self.e = None
         """
-        The e attribute will store any exceptions that occur during the
+        The `e` attribute will store any exceptions that occur during the
         parsing of the alignment object. It remains None unless something
         wrong happens.
         """
-        self.e = None
 
+        self.taxa_list = None
         """
         Attribute that will store the taxa names.
         """
-        self.taxa_list = None
 
+        self.shelved_taxa = []
         """
         Attribute that will store shelved taxa. When retrieving taxa from
         the database, this list will be checked and present taxa will
         be ignored
         """
-        self.shelved_taxa = []
 
+        self.taxa_idx = None
         """
         Attribute that will store the index of the taxa in the sql database.
         This index is stored in a dictionary instead of being retrieved
         from the index position of the taxa_list list because taxa may
         be removed (which would mess up the link between the two indexes)
         """
-        self.taxa_idx = None
 
-        """
-        Sets the full path of the current alignment and other name attributes,
-        based on the provided input_alignment argument
-        """
         self.path = input_alignment
-        # Short name - No extension
+        """
+        Attribute with full path to alignment file
+        """
         self.sname = basename(splitext(input_alignment)[0])
-        # Full name - with extension
+        """
+        Attribute with basename of alignment file without extension
+        """
         self.name = basename(input_alignment)
+        """
+        Attribute with basename of alignment file
+        """
 
         self.sequence_code = sequence_code
         if taxa_list:
@@ -726,6 +706,7 @@ class Alignment(Base):
         else:
             self.taxa_idx = {}
 
+        self.table_name = "".join([x for x in self.path if x.isalnum()])
         """
         Creates a database table for the current alignment. This will be the
         link attribute between the sqlite database and the remaining methods
@@ -733,8 +714,8 @@ class Alignment(Base):
         any non alpha numeric characters the table name might have and ensures
         that it starts with a aphabetic character to avoid a database error
         """
-        self.table_name = "".join([x for x in self.path if x.isalnum()])
 
+        self.tables = []
         """
         Lists the currently active tables for the Alignment object. The
         'master' table is always present and represents the original
@@ -743,7 +724,14 @@ class Alignment(Base):
         be removed, this attribute can be used to quickly drop all derived
         tables
         """
-        self.tables = []
+
+        self.interleave_data = False
+        """
+        Attribute that is set to True when interleave data has been 
+        created for the alignment data. Buiding the interleave matrix is a bit
+        costly, so when it is requested by the user it is built once and
+        stored in the database, and then further usages will use that table.
+        """
 
         """
         NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the responsibility
@@ -794,7 +782,7 @@ class Alignment(Base):
             self.input_format = input_format
 
     def __iter__(self):
-        """Iterator behavior for `Alignment` 
+        """Iterator behavior for `Alignment`.
         
         Iterates over taxa and sequence data from the alignment. Taxon names
         in the `shelved_taxa` attribute are ignored. This will always
@@ -816,7 +804,7 @@ class Alignment(Base):
                 yield tx, seq
 
     def _create_table(self, table_name, cur=None):
-        """Creates a new table in the database
+        """Creates a new table in the database.
         
         Convenience method that creates a new table in the sqlite database.
         It accepts a custom Cursor object, which overrides the `cur`
@@ -839,7 +827,7 @@ class Alignment(Base):
                     "seq TEXT)".format(table_name))
 
     def _table_exists(self, table_name, cur=None):
-        """ Checks if a table exists in the database
+        """ Checks if a table exists in the database.
         
         Convenience method that checks if a table exists in the database.
         It accepts a custom Cursor object, which overrides the `cur`
@@ -878,7 +866,7 @@ class Alignment(Base):
         return res
 
     def _set_format(self, input_format):
-        """Manually set the input format of the `Alignment` object
+        """Manually set the input format of the `Alignment` object.
         
         Manually sets the input format associated with the `Alignment` object
 
@@ -892,7 +880,7 @@ class Alignment(Base):
 
     @staticmethod
     def _set_pipes(ns=None, pbar=None, total=None, msg=None):
-        """Setup of progress indicators for both GUI and CLI task executions
+        """Setup of progress indicators for both GUI and CLI task executions.
          
          This handles the setup of the objects responsible for updating
          the progress of task's execution of both TriFusion (GUI) and
@@ -965,7 +953,7 @@ class Alignment(Base):
 
     @staticmethod
     def _update_pipes(ns=None, pbar=None, value=None, msg=None):
-        """Update progress indicators for both GUI and CLI task executions
+        """Update progress indicators for both GUI and CLI task executions.
 
         This method provides a single interface for updating the progress
         objects `ns` or `pbar`, which should have been initialized at the
@@ -1020,7 +1008,7 @@ class Alignment(Base):
 
     @staticmethod
     def _reset_pipes(ns):
-        """Reset progress indicators for both GUI and CLI task executions
+        """Reset progress indicators for both GUI and CLI task executions.
 
         This should be done at the end of any task that initialized the
         progress objects, but it only affects the Namespace object. It
@@ -1044,9 +1032,9 @@ class Alignment(Base):
             if sa:
                 ns.total = ns.counter = ns.msg = ns.sa = None
 
-    @SetupInTable
+    @setup_intable
     def iter_columns(self, table_suffix="", table_name=None, table=None):
-        """Generator over alignment columns
+        """Generator over alignment columns.
 
         Generator that yields the alignment columns in a list of characters.
         Sequence data is retrieved from a database table specified either by
@@ -1065,7 +1053,7 @@ class Alignment(Base):
         ----------
         table_suffix : string
             Suffix of the table from where the sequence data is fetched.
-            The suffix is append to `Alignment.table_name`.
+            The suffix is appended to `Alignment.table_name`.
         table_name : string
             Name of the table from where the sequence data is fetched.
         table : string
@@ -1111,10 +1099,10 @@ class Alignment(Base):
         finally:
             lock.release()
 
-    @SetupInTable
+    @setup_intable
     def iter_columns_uniq(self, table_suffix="", table_name=None,
                           table=None):
-        """ Generator over unique characters of an alignment column
+        """ Generator over unique characters of an alignment column.
 
         Generator that yields unique elements of alignment columns in a list.
         Sequence data is retrieved from a database table specified either by
@@ -1133,7 +1121,7 @@ class Alignment(Base):
         ----------
         table_suffix : string
             Suffix of the table from where the sequence data is fetched.
-            The suffix is append to `Alignment.table_name`.
+            The suffix is appended to `Alignment.table_name`.
         table_name : string
             Name of the table from where the sequence data is fetched.
         table : string
@@ -1178,9 +1166,9 @@ class Alignment(Base):
         finally:
             lock.release()
 
-    @SetupInTable
+    @setup_intable
     def iter_sequences(self, table_suffix="", table_name=None, table=None):
-        """ Generator over sequence strings in the alignment
+        """ Generator over sequence strings in the alignment.
 
         Generator for sequence data of the `Alignment` object.
         Sequence data is retrieved from a database table specified either by
@@ -1194,7 +1182,7 @@ class Alignment(Base):
         ----------
         table_suffix : string
             Suffix of the table from where the sequence data is fetched.
-            The suffix is append to `Alignment.table_name`.
+            The suffix is appended to `Alignment.table_name`.
         table_name : string
             Name of the table from where the sequence data is fetched.
         table : string
@@ -1228,9 +1216,9 @@ class Alignment(Base):
         finally:
             lock.release()
 
-    @SetupInTable
+    @setup_intable
     def iter_alignment(self, table_suffix="", table_name=None, table=None):
-        """Generator for (taxon, sequence) tuples
+        """Generator for (taxon, sequence) tuples.
 
         Generator that yields (taxon, sequence) tuples from the database.
         Sequence data is retrieved from a database table specified either by
@@ -1280,10 +1268,10 @@ class Alignment(Base):
         finally:
             lock.release()
 
-    @SetupInTable
+    @setup_intable
     def get_sequence(self, taxon, table_name=None, table_suffix="",
                        table=None):
-        """Returns the sequence string for a given taxon
+        """Returns the sequence string for a given taxon.
 
         Returns the sequence string of the corresponding `taxon`. If the
         taxon does not exist in the table, raises a KeyError.
@@ -1340,7 +1328,7 @@ class Alignment(Base):
             lock.release()
 
     def remove_alignment(self):
-        """ Removes alignment data from the database """
+        """ Removes alignment data from the database. """
 
         # Drop main alignment
         self.cur.execute("DROP TABLE [{}]".format(self.table_name))
@@ -1353,7 +1341,7 @@ class Alignment(Base):
                 pass
 
     def shelve_taxa(self, lst):
-        """Shelves taxa from `Alignment` methods
+        """Shelves taxa from `Alignment` methods.
 
         The taxa provided in the `lst` argument will be ignored in
         subsequent operations. In practice, taxa from the `taxa_list`
@@ -1373,7 +1361,7 @@ class Alignment(Base):
                           if x not in self.shelved_taxa]
 
     def _read_interleave_phylip(self, ntaxa):
-        """ Alignment parser for interleave phylip format
+        """ Alignment parser for interleave phylip format.
 
         Parses an interleave phylip alignment file and stores taxa and
         sequence data in the database. This method is only called from the
@@ -1467,7 +1455,7 @@ class Alignment(Base):
         return size_list
 
     def _read_interleave_nexus(self, ntaxa):
-        """ Alignment parser for interleave nexus format
+        """ Alignment parser for interleave nexus format.
 
         Parses an interleave nexus alignment file and stores taxa and
         sequence data in the database.This method is only called from the
@@ -1560,7 +1548,7 @@ class Alignment(Base):
             fh.close()
 
     def _eval_missing_symbol(self, sequence):
-        """Evaluates missing data symbol from sequence string
+        """Evaluates missing data symbol from sequence string.
 
         This method is performed when sequence data is being parsed from the
         alignment and only executes when the missing data symbol stored in
@@ -1591,7 +1579,7 @@ class Alignment(Base):
                 self.sequence_code[1] = "x"
 
     def _read_phylip(self):
-        """Alignment parser for phylip format
+        """Alignment parser for phylip format.
 
         Parses a phylip alignment file and stored taxa and sequence data in
         the database.
@@ -1705,7 +1693,7 @@ class Alignment(Base):
         return size_list
 
     def _read_fasta(self):
-        """Alignment parser for fasta format
+        """Alignment parser for fasta format.
 
         Parses a fasta alignment file and stored taxa and sequence data in
         the database.
@@ -1790,7 +1778,7 @@ class Alignment(Base):
         return size_list
 
     def _read_loci(self):
-        """Alignment parser for pyRAD and ipyrad loci format
+        """Alignment parser for pyRAD and ipyrad loci format.
 
         Returns
         -------
@@ -1860,7 +1848,7 @@ class Alignment(Base):
         return size_list
 
     def _read_nexus(self):
-        """Alignment parser for nexus format
+        """Alignment parser for nexus format.
 
         Parses a nexus alignment file and stored taxa and sequence data in
         the database.
@@ -2004,7 +1992,7 @@ class Alignment(Base):
         return size_list
 
     def _read_stockholm(self):
-        """Alignment parser for stockholm format
+        """Alignment parser for stockholm format.
 
         Parses a stockholm alignment file and stored taxa and sequence data in
         the database.
@@ -2072,7 +2060,7 @@ class Alignment(Base):
         return size_list
 
     def read_alignment(self, size_check=True):
-        """Main alignment parser method
+        """Main alignment parser method.
 
         This is the main alignment parsing method that is called when the
         `Alignment` object is instantiated with a file path as the argument.
@@ -2117,7 +2105,7 @@ class Alignment(Base):
                 "; ".join(duplicate_taxa)))
 
     def remove_taxa(self, taxa_list_file, mode="remove"):
-        """ Removes taxa from the `Alignment` object
+        """ Removes taxa from the `Alignment` object.
 
         Removes taxa based on the  `taxa_list_file` argument from the
         `Alignment` object.
@@ -2177,7 +2165,7 @@ class Alignment(Base):
             inverse(taxa_list)
 
     def change_taxon_name(self, old_name, new_name):
-        """Changes the name of a particular taxon
+        """Changes the name of a particular taxon.
 
         Parameters
         ----------
@@ -2197,12 +2185,12 @@ class Alignment(Base):
             self.taxa_idx[new_name] = self.taxa_idx[old_name]
             del self.taxa_idx[old_name]
 
-    @SetupDatabase
+    @setup_database
     def collapse(self, write_haplotypes=True, haplotypes_file=None,
                  dest=".", conversion_suffix="", haplotype_name="Hap",
                  table_in=None, table_out="collapsed", use_main_table=False,
                  ns=None, pbar=None):
-        """Collapses equal sequences into unique haplotypes
+        """Collapses equal sequences into unique haplotypes.
 
         Collapses equal sequences into unique haplotypes. This method fetches
         the sequences for the current alignment and creates a new database
@@ -2332,7 +2320,7 @@ class Alignment(Base):
 
     @staticmethod
     def write_loci_correspondence(hap_dict, output_file, dest="./"):
-        """Writes the file mapping taxa to unique haplotypes for `collapse`
+        """Writes the file mapping taxa to unique haplotypes for `collapse`.
 
         Parameters
         ----------
@@ -2352,10 +2340,10 @@ class Alignment(Base):
 
         output_handle.close()
 
-    @SetupDatabase
+    @setup_database
     def consensus(self, consensus_type, table_in=None, table_out="consensus",
                   use_main_table=False, ns=None, pbar=None):
-        """Creates a consensus sequence from the alignment
+        """Creates a consensus sequence from the alignment.
 
         Converts the current `Alignment` alignment data into a single
         consensus sequence. The `consensus_type` argument determines how
@@ -2363,10 +2351,14 @@ class Alignment(Base):
         of the consensus sequence.
 
         The options for handling sequence variation are:
+
             - IUPAC: Converts variable sites according to the corresponding
-            IUPAC symbols (DNA sequence type only)
+              IUPAC symbols (DNA sequence type only)
+
             - Soft mask: Converts variable sites into missing data
+
             - Remove: Removes variable sites
+
             - First sequence: Uses the first sequence in the dictionary
 
         Parameters
@@ -2476,7 +2468,7 @@ class Alignment(Base):
                 ns.counter = ns.total = None
 
     def _check_partitions(self, partition_obj):
-        """Consistency check of the `partition_obj` for `Alignment` object
+        """Consistency check of the `partition_obj` for `Alignment` object.
 
         Performs checks to ensure that a `partition_obj` is consistent
         with the alignment data of the `Alignment` object.
@@ -2516,7 +2508,7 @@ class Alignment(Base):
 
     def reverse_concatenate(self, table_in="", db_con=None, ns=None,
                             pbar=None):
-        """Reverses the alignment according to the `partitions` attribute
+        """Reverses the alignment according to the `partitions` attribute.
 
         This method splits the current alignment according to the
         partitions set in the `partitions` attribute. Returns an
@@ -2640,11 +2632,11 @@ class Alignment(Base):
 
         return concatenated_aln
 
-    @SetupDatabase
+    @setup_database
     def filter_codon_positions(self, position_list, table_in=None,
                                table_out="filter", ns=None,
                                use_main_table=False):
-        """ Filter alignment according to codon positions
+        """ Filter alignment according to codon positions.
 
         Filters codon positions from `Alignment` object with DNA sequence
         type. The `position_list` argument determines which codon positions
@@ -2722,10 +2714,10 @@ class Alignment(Base):
 
         self.locus_length = len(seq)
 
-    @SetupDatabase
+    @setup_database
     def code_gaps(self, table_out="gaps", table_in=None, use_main_table=False,
                   pbar=None, ns=None):
-        """Code gap patterns as binary matrix at the end of alignment
+        """Code gap patterns as binary matrix at the end of alignment.
 
         This method codes gaps present in the alignment in binary format,
         according to the method of Simmons and Ochoterena (2000), to be read
@@ -2849,7 +2841,7 @@ class Alignment(Base):
         self._reset_pipes(ns)
 
     def _filter_terminals(self, table_in, table_out, ns=None):
-        """Replace gaps at alignment's extremities with missing data
+        """Replace gaps at alignment's extremities with missing data.
         
         This method should not be called directly. Instead it is used by the
         `filter_missing_data` method.
@@ -2912,7 +2904,7 @@ class Alignment(Base):
 
     def _filter_columns(self, gap_threshold, missing_threshold, table_in,
                         table_out, ns=None):
-        """Filters alignment columns based on missing data content
+        """Filters alignment columns based on missing data content.
         
         Filters alignment columns based on the amount of missing data and
         gap content. If the calculated content is higher than a defined
@@ -2998,11 +2990,11 @@ class Alignment(Base):
 
         self.locus_length = len(seq)
 
-    @SetupDatabase
+    @setup_database
     def filter_missing_data(self, gap_threshold, missing_threshold,
                             table_in=None, table_out="filter", ns=None,
                             use_main_table=False):
-        """Filters alignment according to missing data
+        """Filters alignment according to missing data.
 
         Filters gaps and true missing data from the alignment using tolerance
         thresholds for each type of missing data. Both thresholds are maximum
@@ -3044,7 +3036,7 @@ class Alignment(Base):
 
     @staticmethod
     def _test_range(s, min_val, max_val):
-        """Test if a given `s` integer in inside a specified range
+        """Test if a given `s` integer in inside a specified range.
 
         Wrapper for the tests that determine whether a certain value
         (`s`) is within the range provided by `min_val` and `max_val`.
@@ -3081,7 +3073,7 @@ class Alignment(Base):
 
     def filter_segregating_sites(self, min_val, max_val, table_in=None,
                                     ns=None, pbar=None):
-        """Checks if the segregating sites from alignment are within range
+        """Checks if the segregating sites from alignment are within range.
 
         Evaluates the number of segregating sites of the current alignment
         and returns True if it falls between the range specified by the
@@ -3154,7 +3146,7 @@ class Alignment(Base):
 
     def filter_informative_sites(self, min_val, max_val, table_in=None,
                                     ns=None, pbar=None):
-        """Checks if the variable sites from alignment are within range
+        """Checks if the variable sites from alignment are within range.
 
         Similar to `filter_segregating_sites` method, but only considers
         informative sites (variable sites present in more than 2 taxa).
@@ -3231,15 +3223,806 @@ class Alignment(Base):
 
         return self._test_range(s, min_val, max_val)
 
-    def write_to_file(self, output_format, output_file,
-                      seq_space_nex=40, seq_space_phy=30, seq_space_ima2=10,
-                      cut_space_nex=50, cut_space_phy=258, cut_space_ima2=8,
-                      interleave=False, gap="-", model_phylip=None,
-                      outgroup_list=None, ima2_params=None, use_charset=True,
-                      partition_file=True, output_dir=None,
-                      phy_truncate_names=False, ld_hat=None,
-                      use_nexus_models=True, ns_pipe=None, table_suffix=None,
-                      table_name=None, pbar=None):
+    def _get_interleave_data(self, table_name=None, table_suffix=None,
+                             ns_pipe=None, pbar=None):
+        """Builds an interleave matrix on the database.
+
+        When the user requests an interleave output format, this method
+        rearranges the data matrix (which is leave in the database) in
+        interleave format in a new table. This should be performed only once,
+        even when multiple formats are specified in interleave. The first one
+        calls this class, and the subsequent ones use the this table.
+
+        Parameters
+        ----------
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        if self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='.interleavedata'").fetchall():
+
+            self.cur.execute("DELETE FROM [.interleavedata]")
+
+        else:
+            self.cur.execute("CREATE TABLE [.interleavedata]("
+                             "taxon TEXT,"
+                             "slice INT,"
+                             "seq TEXT)")
+            self.cur.execute("CREATE INDEX interindex ON "
+                            "[.interleavedata](slice)")
+
+        temp_cur = self.con.cursor()
+
+        for c, (tx, seq) in enumerate(self.iter_alignment(
+                table_name=table_name,
+                table_suffix=table_suffix)):
+
+            self._update_pipes(ns_pipe, pbar,
+                               value=c + 1)
+
+            counter = 0
+
+            for i in xrange(90, self.locus_length, 90):
+
+                temp_cur.execute("INSERT INTO [.interleavedata] VALUES"
+                                 " (?, ?, ?)", (tx, i, seq[counter:i]))
+                # temp_storage[p].append(seq[counter:i])
+                counter = i
+
+            try:
+                if self.locus_length % 90:
+                    i += 1
+                    temp_cur.execute("INSERT INTO [.interleavedata] VALUES"
+                                     " (?, ?, ?)", (tx, i, seq[counter:]))
+                    # temp_storage[p].append(seq[c:],)
+            # This likely means that the alignment is less than
+            # 90 characters long. In this case, append to the storage's
+            # 0 index
+            except UnboundLocalError:
+                temp_cur.execute("INSERT INTO [.interleavedata] VALUES "
+                                 "(?, ?, ?)", (tx, 0, seq))
+
+        return True
+
+    def _write_fasta(self, output_file, **kwargs):
+        """Writes `Alignment` object into fast output format.
+
+        Parameters
+        ----------
+        output_file : str
+            Name of the output file. If using `ns_pipe` in TriFusion,
+            it will prompt the user if the output file already exists.
+        interleave : bool
+            Determines whether the output alignment
+            will be in leave (False) or interleave (True) format. Not all
+            output formats support this option.
+        ld_hat : bool
+            If True, the fasta output format will include a first line
+            compliant with the format of LD Hat and will truncate sequence
+            names and sequence length per line accordingly.
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        # Get relevant keyword arguments
+        ld_hat = kwargs.get("ld_hat", False)
+        interleave = kwargs.get("interleave", False)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        out_file = open("{}.fas".format(output_file), "w")
+
+        # If LD HAT sub format has been specificed, write the first line
+        # containing the number of sequences, sites and genotype phase
+        if ld_hat:
+            out_file.write("{} {} {}\n".format(
+                len(self.taxa_list), self.locus_length, "2"))
+
+        self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                        msg="Writing fasta output")
+
+        for p, (taxon, seq) in enumerate(self.iter_alignment(
+                table_name=table_name, table_suffix=table_suffix)):
+
+            self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+            if ld_hat:
+                # Truncate sequence name to 30 characters
+                out_file.write(">%s\n" % (taxon[:30]))
+                # Limit each sequence line to 2000 characters
+                if len(seq) > 2000:
+                    for i in range(0, len(seq), 2000):
+                        out_file.write("%s\n" % (seq[i:i + 2000].upper()))
+            elif interleave:
+                out_file.write(">%s\n" % taxon)
+                counter = 0
+                for i in range(90, self.locus_length, 90):
+                    out_file.write("%s\n" % seq[counter:i])
+                    counter = i
+                else:
+                    out_file.write("%s\n" % seq[counter:])
+            else:
+                out_file.write(">%s\n%s\n" % (taxon, seq.upper()))
+
+        out_file.close()
+
+    def _write_phylip(self, output_file, **kwargs):
+        """Writes `Alignment` object into phylip format.
+
+        Parameters
+        ----------
+        output_file : str
+            Name of the output file. If using `ns_pipe` in TriFusion,
+            it will prompt the user if the output file already exists.
+        tx_space_phy : int
+            Space (in characters) provided for the taxon name in phylip
+            format (default is 40).
+        cut_space_phy : int
+            Set the maximum allowed character length for taxon names in
+            phylip format. Longer  names are truncated (default is 39).
+        interleave : bool
+            Determines whether the output alignment
+            will be in leave (False) or interleave (True) format. Not all
+            output formats support this option.
+        phy_truncate_names : bool
+            If True, taxon names in phylip format are truncated to a maximum
+            of 10 characters (default is False).
+        partition_file : bool
+            If True, the auxiliary partitions file will be written (default
+            is True).
+        model_phylip : str
+            Substitution model for the auxiliary partition file of phylip
+            format, compliant with RAxML.
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        # Get relevant keyword arguments
+        interleave = kwargs.get("interleave", False)
+        tx_space_phy = kwargs.get("tx_space_phy", 40)
+        cut_space_phy = kwargs.get("cut_space_phy", 39)
+        phy_truncate_names = kwargs.get("phy_truncate_names", False)
+        partition_file = kwargs.get("partition_file", None)
+        model_phylip = kwargs.get("model_phylip", None)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        # Change taxa space if phy_truncate_names option is set to True
+        if phy_truncate_names:
+            cut_space_phy = 10
+
+        out_file = open("{}.phy".format(output_file), "w")
+
+        out_file.write("{} {}\n".format(len(self.taxa_list),
+                                        self.locus_length))
+        if interleave:
+
+            self._set_pipes(ns_pipe, pbar,
+                            total=len(self.taxa_list),
+                            msg="Writing phylip output")
+
+            if not self.interleave_data:
+                self.interleave_data = self._get_interleave_data(
+                    table_name=table_name, table_suffix=table_suffix,
+                    ns_pipe=ns_pipe, pbar=pbar
+                )
+
+            write_tx = True
+            prev = 90
+            for tx, p, seq in self.cur.execute(
+                    "SELECT taxon, slice, seq FROM [.interleavedata] "
+                    "ORDER BY slice"):
+
+                if p != prev:
+                    out_file.write("\n")
+                    prev = p
+                    write_tx = False
+
+                if write_tx:
+                    out_file.write("{} {}\n".format(
+                        tx[:cut_space_phy].ljust(
+                            tx_space_phy), seq.upper()))
+                else:
+                    out_file.write(seq.upper() + "\n")
+
+        else:
+
+            self._set_pipes(ns_pipe, pbar,
+                            total=len(self.taxa_list),
+                            msg="Writing phylip output")
+
+            for p, (taxon, seq) in enumerate(self.iter_alignment(
+                    table_name=table_name, table_suffix=table_suffix)):
+                self._update_pipes(ns_pipe, pbar,
+                                   value=p + 1)
+
+                out_file.write("%s %s\n" % (
+                    taxon[:cut_space_phy].ljust(tx_space_phy),
+                    seq.upper()))
+
+        # In case there is a concatenated alignment being written
+        if not self.partitions.is_single() and partition_file:
+            partition_file = open(output_file + "_part.File", "w")
+            for name, lrange in self.partitions:
+                # Get model from app if it exists and there are no codon
+                # positions
+                model = model_phylip if self.partitions.models[name] == \
+                                        [None] or len(
+                    self.partitions.models[name][1]) > 1 \
+                    else self.partitions.models[name][1][0]
+                partition_file.write("%s, %s = %s\n" % (
+                    model if model else
+                    self.sequence_code[0], name,
+                    "-".join([str(x + 1) for x in
+                              lrange[0]])))
+            partition_file.close()
+
+        out_file.close()
+
+    def _write_nexus(self, output_file, **kwargs):
+        """Writes `Alignment` object into nexus file format.
+
+        Parameters
+        ----------
+        output_format : list
+            List with the output formats to generate. Options are:
+            {"fasta", "phylip", "nexus", "stockholm", "gphocs", "ima2"}.
+        tx_space_nex : int
+            Space (in characters) provided for the taxon name in nexus
+            format (default is 40).
+        cut_space_nex : int
+            Set the maximum allowed character length for taxon names in
+            nexus format. Longer  names are truncated (default is 39).
+        interleave : bool
+            Determines whether the output alignment
+            will be in leave (False) or interleave (True) format. Not all
+            output formats support this option.
+        gap : str
+            Symbol for alignment gaps (default is '-').
+        use_charset : bool
+            If True, partitions from the `Partitions` object will be written
+            in the nexus output format (default is True).
+        use_nexus_models : bool
+            If True, writes the partitions charset block in nexus format.
+        outgroup_list : list
+            Specify list of taxon names that will be defined as the outgroup
+            in the nexus output format. This may be useful for analyses with
+            MrBayes or other software that may require outgroups.
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        # Get relevant keyword arguments
+        interleave = kwargs.get("interleave", False)
+        tx_space_nex = kwargs.get("tx_space_nex", 40)
+        cut_space_nex = kwargs.get("cut_space_nex", 39)
+        gap = kwargs.get("gap", "-")
+        use_charset = kwargs.get("use_charset", True)
+        use_nexus_models = kwargs.get("use_nexus_models", True)
+        outgroup_list = kwargs.get("outgroup_list", None)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        out_file = open("{}.nex".format(output_file), "w")
+
+        # This writes the output in interleave format
+        if interleave:
+
+            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                            msg="Writing nexus output")
+
+            if self.restriction_range is not None:
+                out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
+                               "ntax=%s nchar=%s ;\n\tformat datatype="
+                               "mixed(%s:1-%s, restriction:%s) interleave="
+                               "yes gap=%s missing=%s ;\n\tmatrix\n" %
+                               (len(self.taxa_list),
+                                self.locus_length,
+                                self.sequence_code[0].upper(),
+                                self.locus_length - 1,
+                                self.restriction_range,
+                                gap,
+                                self.sequence_code[1].upper()))
+            else:
+                out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
+                               "ntax=%s nchar=%s ;\n\tformat datatype=%s "
+                               "interleave=yes gap=%s missing=%s ;\n\t"
+                               "matrix\n" %
+                               (len(self.taxa_list),
+                                self.locus_length,
+                                self.sequence_code[0].upper(),
+                                gap,
+                                self.sequence_code[1].upper()))
+
+            if not self.interleave_data:
+                self.interleave_data = self._get_interleave_data(
+                    table_suffix=table_suffix, table_name=table_name,
+                    ns_pipe=ns_pipe, pbar=pbar
+                )
+
+            # Iterate over interleave data
+            prev = 0
+            for tx, p, seq in self.cur.execute(
+                    "SELECT taxon, slice, seq FROM [.interleavedata] "
+                    "ORDER BY slice"):
+
+                if p != prev:
+                    out_file.write("\n")
+                    prev = p
+
+                out_file.write("{} {}\n".format(
+                    tx[:cut_space_nex].ljust(tx_space_nex),
+                    seq.upper()))
+
+            out_file.write(";\n\tend;")
+
+        # This writes the output in leave format (default)
+        else:
+
+            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                            msg="Writing nexus output")
+
+            if self.restriction_range is not None:
+                out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
+                               "ntax=%s nchar=%s ;\n\tformat datatype=mixed"
+                               "(%s:1-%s, restriction:%s) interleave=no "
+                               "gap=%s missing=%s ;\n\tmatrix\n" %
+                               (len(self.taxa_list),
+                                self.locus_length,
+                                self.sequence_code[0],
+                                self.locus_length - 1,
+                                self.restriction_range,
+                                gap,
+                                self.sequence_code[1].upper()))
+            else:
+                out_file.write("#NEXUS\n\nBegin data;\n\tdimensions ntax=%s"
+                               " nchar=%s ;\n\tformat datatype=%s "
+                               "interleave=no gap=%s missing=%s ;\n\t"
+                               "matrix\n" % (
+                                   len(self.taxa_list),
+                                   self.locus_length,
+                                   self.sequence_code[0],
+                                   gap, self.sequence_code[1].upper()))
+
+            for p, (taxon, seq) in enumerate(self.iter_alignment(
+                    table_name=table_name, table_suffix=table_suffix)):
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+                out_file.write("%s %s\n" % (taxon[:cut_space_nex].ljust(
+                    tx_space_nex), seq))
+
+            out_file.write(";\n\tend;")
+
+        if use_charset:
+            # Writing partitions, if any
+            if not self.partitions.is_single():
+                out_file.write("\nbegin mrbayes;\n")
+                p = 0
+                # Full gene partitions
+                for name, lrange in self.partitions:
+                    # If there are codon partitions, write those
+                    if lrange[1]:
+                        for i in lrange[1]:
+                            out_file.write("\tcharset %s_%s = %s-%s\\3;\n" %
+                                           (name, i + 1, i + 1,
+                                            lrange[0][1] + 1))
+                            p += 1
+                    else:
+                        out_file.write("\tcharset %s = %s-%s;\n" %
+                                       (name, lrange[0][0] + 1,
+                                        lrange[0][1] + 1))
+                        p += 1
+
+                out_file.write("\tpartition part = %s: %s;\n\tset "
+                               "partition=part;\nend;\n" %
+                               (p, ", ".join([name for name in
+                                              self.partitions.get_partition_names()])))
+
+        # Write models, if any
+        if use_nexus_models:
+            out_file.write("\nbegin mrbayes;\n")
+            i = 1
+            for name, models in self.partitions.models.items():
+                if models[1]:
+                    for m in models[1]:
+                        if m:
+                            m_str = self.partitions._models["mrbayes"][m]
+                            if not self.partitions.is_single():
+                                out_file.write("applyto=({}) "
+                                               "lset ".format(i) +
+                                               " ".join(m_str) + "\n")
+                            else:
+                                out_file.write("lset " +
+                                               " ".join(m_str) + "\n")
+                        i += 1
+            out_file.write("end;\n")
+
+        # In case outgroup taxa are specified
+        if outgroup_list is not None:
+
+            # This assures that only the outgroups present in the current
+            #  file are written
+            compliant_outgroups = [taxon for taxon in outgroup_list
+                                   if taxon in self.taxa_list]
+            if compliant_outgroups is not []:
+                out_file.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" %
+                               (" ".join(compliant_outgroups)))
+
+        out_file.close()
+
+    def _write_stockholm(self, output_file, **kwargs):
+        """Writes `Alignment` object into stockholm file format.
+
+        Parameters
+        ----------
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                        msg="Writing stockholm output")
+
+        out_file = open("{}.stockholm".format(output_file), "w")
+
+        out_file.write("# STOCKHOLM V1.0\n")
+
+        for p, (taxon, seq) in enumerate(self.iter_alignment(
+                table_name=table_name, table_suffix=table_suffix)):
+            self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+            out_file.write("{}\t{}\n".format(taxon, seq))
+
+        out_file.write("//\n")
+        out_file.close()
+
+    def _write_gphocs(self, output_file, **kwargs):
+        """Writes `Alignment` object into gphocs file format.
+
+        Parameters
+        ----------
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        out_file = open("{}.txt".format(output_file), "w")
+
+        # Write number of loci
+        out_file.write("%s\n" % (len(self.partitions.partitions)))
+
+        if not self.partitions.is_single():
+
+            self._set_pipes(ns_pipe, pbar,
+                            total=len(self.partitions.partitions),
+                            msg="Writing gphocs output")
+
+            for p, (name, lrange) in enumerate(
+                    self.partitions.partitions.items()):
+
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+                lrange = lrange[0]
+                out_file.write("%s %s %s\n" % (name, len(self.taxa_list),
+                                               lrange[1] - lrange[0]))
+
+                for taxon, seq in self.iter_alignment(
+                        table_name=table_name,
+                        table_suffix=table_suffix):
+                    out_file.write("%s\t%s\n" % (taxon,
+                                                 seq[lrange[0]:lrange[1]]))
+
+        else:
+
+            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                            msg="Writing gphocs output")
+
+            out_file.write("%s %s %s\n" % (self.sname,
+                                           len(self.taxa_list),
+                                           self.locus_length))
+
+            for p, (taxon, seq) in enumerate(self.iter_alignment(
+                    table_name=table_name,
+                    table_suffix=table_suffix)):
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+                out_file.write("%s\t%s\n" % (taxon, seq))
+
+        out_file.close()
+
+    def _write_ima2(self, output_file, **kwargs):
+        """Writes `Alignment` object into ima2 file format.
+
+        Parameters
+        ----------
+        tx_space_ima2 : int
+            Space (in characters) provided for the taxon name in ima2
+            format (default is 10).
+        cut_space_ima2 : int
+            Set the maximum allowed character length for taxon names in
+            ima2 format. Longer  names are truncated (default is 8).
+        ima2_params : list
+            A list with the additional information required for the ima2
+            output format. The list should contains the following information:
+
+               1. (str) path to file containing the species and populations.
+               2. (str) Population tree in newick format, e.g. (0,1):2.
+               3. (str) Mutational model for all alignments.
+               4. (str) inheritance scalar.
+
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        tx_space_ima2 = kwargs.get("tx_space_ima2", 10)
+        cut_space_ima2 = kwargs.get("cut_space_ima2", 8)
+        ima2_params = kwargs.get("ima2_params", None)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        population_file = ima2_params[0]
+        population_tree = ima2_params[1]
+        mutational_model = ima2_params[2]
+        inheritance_scalar = ima2_params[3]
+
+        # Get information on which species belong to each population from
+        #  the populations file
+        population_handle = open(population_file)
+        population_storage = OrderedDict()
+        for line in population_handle:
+            taxon, population = line.strip().split()
+            try:
+                population_storage[population.strip()].append(taxon)
+            except KeyError:
+                population_storage[population.strip()] = [taxon]
+
+        # Write the general header of the IMa2 input file
+        out_file = open("{}.txt".format(output_file), "w")
+        # First line with general description
+        out_file.write("Input file for IMa2 using %s alignments\n"
+                       "%s\n"  # Line with number of loci
+                       "%s\n"  # Line with name of populations
+                       "%s\n"  # Line with population string
+                       % (len(self.partitions.partitions),
+                          len(population_storage),
+                          " ".join(population_storage.keys()),
+                          population_tree))
+
+        if not self.partitions.is_single():
+
+            self._set_pipes(ns_pipe, pbar,
+                            total=len(self.partitions.partitions),
+                            msg="Writing IMa2 output")
+
+            # Write each locus
+            for p, (partition, lrange) in enumerate(self.partitions):
+
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+                # Retrieving taxon names and sequence data. This step is
+                # the first because it will enable the removal of species
+                # containing only missing data.
+                new_alignment = []
+
+                # This temporary ordered dictionary is created so that
+                # the number of taxa per populations is corrected in
+                # each locus
+                current_locus_populations = OrderedDict(
+                    (x, []) for x in population_storage)
+
+                for population, taxa_list in population_storage.items():
+                    for taxon in taxa_list:
+                        # This try statement catches common errors, such as
+                        #  providing a species in the mapping file that
+                        # does not exist in the alignment
+                        try:
+                            seq = self.get_sequence(
+                                taxon, table_name=table_name,
+                                table_suffix=table_suffix)[
+                                  lrange[0][0]:lrange[0][1]].upper()
+                        except KeyError:
+                            print("Taxon %s provided in auxiliary "
+                                  "population mapping file is not found "
+                                  "in the alignment")
+                            raise SystemExit
+
+                        if seq.replace(self.sequence_code[1], "") != "":
+                            new_alignment.append((taxon[:cut_space_ima2]
+                                                  .ljust(tx_space_ima2),
+                                                  seq))
+
+                            current_locus_populations[population] \
+                                .append(taxon)
+
+                # Write the header of each partition
+                out_file.write("%s %s %s %s %s\n" % (
+                    partition,
+                    " ".join([str(len(x)) for x in
+                              list(current_locus_populations.values())]),
+                    (lrange[0][1]) - lrange[0][0],
+                    mutational_model,
+                    inheritance_scalar))
+
+                # Write sequence data according to the order of the
+                # population mapping file
+                for taxon, seq in new_alignment:
+                    out_file.write("%s%s\n" % (taxon, seq))
+
+        if self.partitions.is_single():
+
+            self._set_pipes(ns_pipe, pbar,
+                            total=len(population_storage),
+                            msg="Writing IMa2 output")
+
+            # Write the header for the single
+            out_file.write("%s %s %s %s %s\n" % (
+                partition,
+                " ".join(population_storage.values()),
+                self.locus_length,
+                mutational_model,
+                inheritance_scalar))
+
+            # Write sequence data
+            for p, (population, taxa_list) in enumerate(
+                    population_storage.items()):
+
+                self._update_pipes(ns_pipe, pbar,
+                                   value=p + 1)
+
+                for taxon in taxa_list:
+                    seq = self.get_sequence(
+                        taxon, table_name=table_name,
+                        table_suffix=table_suffix).upper()
+                    out_file.write("%s%s\n" %
+                                   (
+                                   taxon[:cut_space_ima2].ljust(tx_space_ima2),
+                                   seq))
+
+    def _write_mcmctree(self, output_file, **kwargs):
+        """Writes `Alignment` object into mcmctree file format.
+
+        Parameters
+        ----------
+        tx_space_phy : int
+            Space (in characters) provided for the taxon name in phylip
+            format (default is 40).
+        cut_space_phy : int
+            Set the maximum allowed character length for taxon names in
+            phylip format. Longer  names are truncated (default is 39).
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
+        """
+
+        tx_space_phy = kwargs.get("tx_space_phy", 40)
+        cut_space_phy = kwargs.get("cut_space_phy", 39)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns_pipe = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        out_file = open("{}_mcmctree.phy".format(output_file), "w")
+        taxa_number = len(self.taxa_list)
+
+        if self.partitions.is_single() is False:
+
+            self._set_pipes(ns_pipe, pbar,
+                            total=len(self.partitions.partitions),
+                            msg="Writing mcmctree output")
+
+            for p, lrange in enumerate(
+                    self.partitions.partitions.values()):
+
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+                lrange = lrange[0]
+                out_file.write("%s %s\n" % (taxa_number,
+                                            (lrange[1] - (lrange[0]))))
+
+                for taxon, seq in self.iter_alignment(
+                        table_name=table_name, table_suffix=table_suffix):
+                    out_file.write("%s  %s\n" % (
+                        taxon[:cut_space_phy].ljust(
+                            tx_space_phy),
+                        seq[lrange[0]:lrange[1]].upper()))
+        else:
+
+            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
+                            msg="Writing mcmctree output")
+
+            out_file.write("%s %s\n" % (taxa_number, self.locus_length))
+            for p, (taxon, seq) in enumerate(self.iter_alignment(
+                    table_name=table_name, table_suffix=table_suffix)):
+                self._update_pipes(ns_pipe, pbar, value=p + 1)
+
+                out_file.write("%s  %s\n" % (
+                    taxon[:cut_space_phy].ljust(tx_space_phy),
+                    seq.upper()))
+
+        out_file.close()
+
+    def write_to_file(self, output_format, output_file, **kwargs):
         """Writes alignment data into an output file.
 
         Writes the alignment object into a specified output file,
@@ -3257,130 +4040,97 @@ class Alignment(Base):
         ----------
         output_format : list
             List with the output formats to generate. Options are:
-            {}
+            {"fasta", "phylip", "nexus", "stockholm", "gphocs", "ima2"}.
+        output_file : str
+            Name of the output file. If using `ns_pipe` in TriFusion,
+            it will prompt the user if the output file already exists.
+        tx_space_nex : int
+            Space (in characters) provided for the taxon name in nexus
+            format (default is 40).
+        tx_space_phy : int
+            Space (in characters) provided for the taxon name in phylip
+            format (default is 40).
+        tx_space_ima2 : int
+            Space (in characters) provided for the taxon name in ima2
+            format (default is 10).
+        cut_space_nex : int
+            Set the maximum allowed character length for taxon names in
+            nexus format. Longer  names are truncated (default is 39).
+        cut_space_phy : int
+            Set the maximum allowed character length for taxon names in
+            phylip format. Longer  names are truncated (default is 39).
+        cut_space_ima2 : int
+            Set the maximum allowed character length for taxon names in
+            ima2 format. Longer  names are truncated (default is 8).
+        interleave : bool
+            Determines whether the output alignment
+            will be in leave (False) or interleave (True) format. Not all
+            output formats support this option.
+        gap : str
+            Symbol for alignment gaps (default is '-').
+        model_phylip : str
+            Substitution model for the auxiliary partition file of phylip
+            format, compliant with RAxML.
+        outgroup_list : list
+            Specify list of taxon names that will be defined as the outgroup
+            in the nexus output format. This may be useful for analyses with
+            MrBayes or other software that may require outgroups.
+        ima2_params : list
+            A list with the additional information required for the ima2
+            output format. The list should contains the following information:
 
-        :param output_format: List. Format of the output file. It can be one
-        of five: "fasta", "nexus", "phylip", "mcmctree" and "ima2"
+               1. (str) path to file containing the species and populations.
+               2. (str) Population tree in newick format, e.g. (0,1):2.
+               3. (str) Mutational model for all alignments.
+               4. (str) inheritance scalar.
 
-        :param output_file: string. Name of the output file. It will overwrite
-        files with the same name.
-
-        :param interleave: Boolean. Determines whether the output alignment
-        will be in leave (False) or interleave (True) format. Not all
-        output formats support this option.
-
-        :param gap: string. Symbol for gap data.
-
-        :param model_phylip. string. Substitution model for the auxiliary
-        partition file of phylip format, compliant with RAxML.
-
-        :param outgroup_list. list. The outgroup_list argument is used only for
-        Nexus output format and consists in writing a line defining the
-        outgroup. This may be useful for analyses with MrBayes or other
-        software that may require outgroups
-
-        :param ima2_params: The ima2_params argument is used to provide
-        information for the ima2 output format. If the argument is used,
-        it should be in a list format and contain the following information:
-          [[str, file_name containing the species and populations],
-          [str, the population tree in newick format, e.g. (0,1):2],
-          [mut_model:[str, mutational model for all alignments],
-          [str, inheritance scalar]]
-
-        :param use_charset: Boolean. If true, partitions from the Partitions
-        object will be written in the nexus output format
-
-        :param partition_file: Boolean. If true, the auxiliary partitions file
-        will be writen.
-
-        :param output_dir: String. If provided, the output file will be written
-        on the specified path
-
-        :param phy_truncate_names: Boolean. Whether names in phylip output
-        format should be truncated to 10 characters or not.
-
-        :param ld_hat: Boolean: If not None, the Fasta output format will
-        include a first line compliant with the format of LD Hat and will
-        truncate sequence names and sequence lenght per line accordingly.
-
-        :param ns_pipe: To connect with the app for file overwrite issues,
-        provide the NameSpace object.
-
-        :param table_suffix: string. Suffix of the table from where the
-        sequence data
-        will be retrieved. This will be determined from the SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
-
-        :param table_name: string. Name of the table from where the
-        sequence data will be retrieved. This will be determined from the
-        SetupDatabase
-        decorator depending on whether the table_out table already exists
-        in the sqlite database. Leave None to use the main Alignment table
+        use_charset : bool
+            If True, partitions from the `Partitions` object will be written
+            in the nexus output format (default is True).
+        partition_file : bool
+            If True, the auxiliary partitions file will be written (default
+            is True).
+        output_dir : str
+            If provided, the output file will be written on the specified
+            directory.
+        phy_truncate_names : bool
+            If True, taxon names in phylip format are truncated to a maximum
+            of 10 characters (default is False).
+        ld_hat : bool
+            If True, the fasta output format will include a first line
+            compliant with the format of LD Hat and will truncate sequence
+            names and sequence length per line accordingly.
+        use_nexus_models : bool
+            If True, writes the partitions charset block in nexus format.
+        ns_pipe : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
+        table_suffix : string
+            Suffix of the table from where the sequence data is fetched.
+            The suffix is append to `Alignment.table_name`.
+        table_name : string
+            Name of the table from where the sequence data is fetched.
         """
 
-        def get_interleave_data():
+        # Get relevant keyword arguments
+        ns_pipe = kwargs.get("ns_pipe", None)
+        model_phylip = kwargs.get("model_phylip", None)
 
-            if self.cur.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND"
-                    " name='.interleavedata'").fetchall():
-
-                self.cur.execute("DELETE FROM [.interleavedata]")
-
-            else:
-                self.cur.execute("CREATE TABLE [.interleavedata]("
-                                 "taxon TEXT,"
-                                 "slice INT,"
-                                 "seq TEXT)")
-                self.cur.execute("CREATE INDEX interindex ON "
-                                "[.interleavedata](slice)")
-
-            temp_cur = self.con.cursor()
-
-            for c, (tx, seq) in enumerate(self.iter_alignment(
-                    table_name=table_name,
-                    table_suffix=table_suffix)):
-
-                self._update_pipes(ns_pipe, pbar,
-                                   value=c + 1)
-
-                counter = 0
-
-                for i in xrange(90, self.locus_length, 90):
-
-                    temp_cur.execute("INSERT INTO [.interleavedata] VALUES"
-                                     " (?, ?, ?)", (tx, i, seq[counter:i]))
-                    # temp_storage[p].append(seq[counter:i])
-                    counter = i
-
-                try:
-                    if self.locus_length % 90:
-                        i += 1
-                        temp_cur.execute("INSERT INTO [.interleavedata] VALUES"
-                                         " (?, ?, ?)", (tx, i, seq[counter:]))
-                        # temp_storage[p].append(seq[c:],)
-                # This likely means that the alignment is less than
-                # 90 characters long. In this case, append to the storage's
-                # 0 index
-                except UnboundLocalError:
-                    temp_cur.execute("INSERT INTO [.interleavedata] VALUES "
-                                     "(?, ?, ?)", (tx, 0, seq))
-                    # temp_storage[0].append(seq)
-
-            return True
-
-        interleave_storage = False
-
-        # This will determine the default model value. GTR for nucleotides
-        # and LG for proteins
-        if not model_phylip:
-            if self.sequence_code[0] == "DNA":
-                model_phylip = "GTR"
-            else:
-                model_phylip = "LG"
+        write_methods = {
+            "fasta": self._write_fasta,
+            "phylip": self._write_phylip,
+            "nexus": self._write_nexus,
+            "stockholm": self._write_stockholm,
+            "gphocs": self._write_gphocs,
+            "ima2": self._write_ima2,
+            "mcmctree": self._write_mcmctree
+        }
 
         # If a specific output directory is provided, the output file will be
         # written there
+        output_dir = kwargs.pop("output_dir", None)
         if output_dir:
             output_file = join(output_dir, output_file)
             if not exists(output_dir):
@@ -3419,6 +4169,15 @@ class Alignment(Base):
         if ns_pipe:
             ns_pipe.status = None
 
+        # This will determine the default model value. GTR for nucleotides
+        # and LG for proteins
+        if not model_phylip:
+            if self.sequence_code[0] == "DNA":
+                model_phylip = "GTR"
+            else:
+                model_phylip = "LG"
+            kwargs["model_phylip"] = model_phylip
+
         # Checks if there is any other format besides Nexus if the
         # alignment's gap have been coded
         if self.restriction_range is not None:
@@ -3427,490 +4186,8 @@ class Alignment(Base):
         else:
             pass
 
-        # Writes file in IMa2 format
-        if "ima2" in output_format:
-
-            population_file = ima2_params[0]
-            population_tree = ima2_params[1]
-            mutational_model = ima2_params[2]
-            inheritance_scalar = ima2_params[3]
-
-            # Get information on which species belong to each population from
-            #  the populations file
-            population_handle = open(population_file)
-            population_storage = OrderedDict()
-            for line in population_handle:
-                taxon, population = line.strip().split()
-                try:
-                    population_storage[population.strip()].append(taxon)
-                except KeyError:
-                    population_storage[population.strip()] = [taxon]
-
-            # Write the general header of the IMa2 input file
-            out_file = open(output_file + format_ext["ima2"], "w")
-            # First line with general description
-            out_file.write("Input file for IMa2 using %s alignments\n"
-                        "%s\n"  # Line with number of loci
-                        "%s\n"  # Line with name of populations
-                        "%s\n"  # Line with population string
-                        % (len(self.partitions.partitions),
-                           len(population_storage),
-                           " ".join(population_storage.keys()),
-                           population_tree))
-
-            if not self.partitions.is_single():
-
-                self._set_pipes(ns_pipe, pbar,
-                                total=len(self.partitions.partitions),
-                                msg="Writing IMa2 output")
-
-                # Write each locus
-                for p, (partition, lrange) in enumerate(self.partitions):
-
-                    self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                    # Retrieving taxon names and sequence data. This step is
-                    # the first because it will enable the removal of species
-                    # containing only missing data.
-                    new_alignment = []
-
-                    # This temporary ordered dictionary is created so that
-                    # the number of taxa per populations is corrected in
-                    # each locus
-                    current_locus_populations = OrderedDict(
-                        (x, []) for x in population_storage)
-
-                    for population, taxa_list in population_storage.items():
-                        for taxon in taxa_list:
-                            # This try statement catches common errors, such as
-                            #  providing a species in the mapping file that
-                            # does not exist in the alignment
-                            try:
-                                seq = self.get_sequence(
-                                    taxon, table_name=table_name,
-                                    table_suffix=table_suffix)[
-                                      lrange[0][0]:lrange[0][1]].upper()
-                            except KeyError:
-                                print("Taxon %s provided in auxiliary "
-                                      "population mapping file is not found "
-                                      "in the alignment")
-                                raise SystemExit
-
-                            if seq.replace(self.sequence_code[1], "") != "":
-                                new_alignment.append((taxon[:cut_space_ima2]
-                                                      .ljust(seq_space_ima2),
-                                                      seq))
-
-                                current_locus_populations[population]\
-                                    .append(taxon)
-
-                    # Write the header of each partition
-                    out_file.write("%s %s %s %s %s\n" % (
-                        partition,
-                        " ".join([str(len(x)) for x in
-                                  list(current_locus_populations.values())]),
-                        (lrange[0][1]) - lrange[0][0],
-                        mutational_model,
-                        inheritance_scalar))
-
-                    # Write sequence data according to the order of the
-                    # population mapping file
-                    for taxon, seq in new_alignment:
-                        out_file.write("%s%s\n" % (taxon, seq))
-
-            if self.partitions.is_single():
-
-                self._set_pipes(ns_pipe, pbar,
-                                total=len(population_storage),
-                                msg="Writing IMa2 output")
-
-                # Write the header for the single
-                out_file.write("%s %s %s %s %s\n" % (
-                               partition,
-                               " ".join(population_storage.values()),
-                               self.locus_length,
-                               mutational_model,
-                               inheritance_scalar))
-
-                # Write sequence data
-                for p, (population, taxa_list) in enumerate(
-                        population_storage.items()):
-
-                    self._update_pipes(ns_pipe, pbar,
-                                       value=p + 1)
-
-                    for taxon in taxa_list:
-                        seq = self.get_sequence(
-                            taxon, table_name=table_name,
-                            table_suffix=table_suffix).upper()
-                        out_file.write("%s%s\n" %
-                            (taxon[:cut_space_ima2].ljust(seq_space_ima2),
-                             seq))
-
-        # Writes file in phylip format
-        if "phylip" in output_format:
-
-            # Change taxa space if phy_truncate_names option is set to True
-            if phy_truncate_names:
-                cut_space_phy = 10
-
-            out_file = open(output_file + format_ext["phylip"], "w")
-            out_file.write("%s %s\n" % (len(self.taxa_list),
-                                        self.locus_length))
-            if interleave:
-
-                self._set_pipes(ns_pipe, pbar,
-                                total=len(self.taxa_list),
-                                msg="Writing phylip output")
-
-                interleave_storage = get_interleave_data()
-
-                write_tx = True
-                prev = 90
-                for tx, p, seq in self.cur.execute(
-                        "SELECT taxon, slice, seq FROM [.interleavedata] "
-                        "ORDER BY slice"):
-
-                    if p != prev:
-                        out_file.write("\n")
-                        prev = p
-                        write_tx = False
-
-                    if write_tx:
-                        out_file.write("{} {}\n".format(
-                            tx[:cut_space_phy].ljust(
-                                seq_space_phy), seq.upper()))
-                    else:
-                        out_file.write(seq.upper() + "\n")
-
-            else:
-
-                self._set_pipes(ns_pipe, pbar,
-                                total=len(self.taxa_list),
-                                msg="Writing phylip output")
-
-                for p, (taxon, seq) in enumerate(self.iter_alignment(
-                        table_name=table_name, table_suffix=table_suffix)):
-
-                    self._update_pipes(ns_pipe, pbar,
-                                       value=p + 1)
-
-                    out_file.write("%s %s\n" % (
-                        taxon[:cut_space_phy].ljust(seq_space_phy),
-                        seq.upper()))
-
-            # In case there is a concatenated alignment being written
-            if not self.partitions.is_single() and partition_file:
-                partition_file = open(output_file + "_part.File", "w")
-                for name, lrange in self.partitions:
-                    # Get model from app if it exists and there are no codon
-                    # positions
-                    model = model_phylip if self.partitions.models[name] == \
-                        [None] or len(self.partitions.models[name][1]) > 1 \
-                        else self.partitions.models[name][1][0]
-                    partition_file.write("%s, %s = %s\n" % (
-                                         model if model else
-                                         self.sequence_code[0], name,
-                                         "-".join([str(x + 1) for x in
-                                                   lrange[0]])))
-                partition_file.close()
-
-            out_file.close()
-
-        if "stockholm" in output_format:
-
-            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
-                            msg="Writing stockholm output")
-
-            out_file = open(output_file + format_ext["stockholm"], "w")
-
-            out_file.write("# STOCKHOLM V1.0\n")
-
-            for p, (taxon, seq) in enumerate(self.iter_alignment(
-                    table_name=table_name, table_suffix=table_suffix)):
-
-                self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                out_file.write("%s\t%s\n" % (taxon, seq))
-
-            out_file.write("//\n")
-            out_file.close()
-
-        if "gphocs" in output_format:
-
-            out_file = open(output_file + format_ext["gphocs"], "w")
-
-            # Write number of loci
-            out_file.write("%s\n" % (len(self.partitions.partitions)))
-
-            if not self.partitions.is_single():
-
-                self._set_pipes(ns_pipe, pbar,
-                                total=len(self.partitions.partitions),
-                                msg="Writing gphocs output")
-
-                for p, (name, lrange) in enumerate(
-                        self.partitions.partitions.items()):
-
-                    self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                    lrange = lrange[0]
-                    out_file.write("%s %s %s\n" % (name, len(self.taxa_list),
-                                                 lrange[1] - lrange[0]))
-
-                    for taxon, seq in self.iter_alignment(
-                            table_name=table_name,
-                            table_suffix=table_suffix):
-                        out_file.write("%s\t%s\n" % (taxon,
-                                                     seq[lrange[0]:lrange[1]]))
-
-            else:
-
-                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
-                                msg="Writing gphocs output")
-
-                out_file.write("%s %s %s\n" % (self.sname,
-                                               len(self.taxa_list),
-                                               self.locus_length))
-
-                for p, (taxon, seq) in enumerate(self.iter_alignment(
-                        table_name=table_name,
-                        table_suffix=table_suffix)):
-
-                    self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                    out_file.write("%s\t%s\n" % (taxon, seq))
-
-            out_file.close()
-
-        if "mcmctree" in output_format:
-
-            out_file = open(output_file + format_ext["mcmctree"], "w")
-            taxa_number = len(self.taxa_list)
-
-            if self.partitions.is_single() is False:
-
-                self._set_pipes(ns_pipe, pbar,
-                                total=len(self.partitions.partitions),
-                                msg="Writing mcmctree output")
-
-                for p, lrange in enumerate(
-                        self.partitions.partitions.values()):
-
-                    self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                    lrange = lrange[0]
-                    out_file.write("%s %s\n" % (taxa_number,
-                                                (lrange[1] - (lrange[0]))))
-
-                    for taxon, seq in self.iter_alignment(
-                            table_name=table_name, table_suffix=table_suffix):
-                        out_file.write("%s  %s\n" % (
-                                       taxon[:cut_space_phy].ljust(
-                                         seq_space_phy),
-                                       seq[lrange[0]:lrange[1]].upper()))
-            else:
-
-                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
-                                msg="Writing mcmctree output")
-
-                out_file.write("%s %s\n" % (taxa_number, self.locus_length))
-                for p, (taxon, seq) in enumerate(self.iter_alignment(
-                        table_name=table_name, table_suffix=table_suffix)):
-
-                    self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                    out_file.write("%s  %s\n" % (
-                                   taxon[:cut_space_phy].ljust(seq_space_phy),
-                                   seq.upper()))
-
-            out_file.close()
-
-        # Writes file in nexus format
-        if "nexus" in output_format:
-
-            out_file = open(output_file + format_ext["nexus"], "w")
-
-            # This writes the output in interleave format
-            if interleave:
-
-                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
-                                msg="Writing nexus output")
-
-                if self.restriction_range is not None:
-                    out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
-                                   "ntax=%s nchar=%s ;\n\tformat datatype="
-                                   "mixed(%s:1-%s, restriction:%s) interleave="
-                                   "yes gap=%s missing=%s ;\n\tmatrix\n" %
-                                   (len(self.taxa_list),
-                                    self.locus_length,
-                                    self.sequence_code[0].upper(),
-                                    self.locus_length - 1,
-                                    self.restriction_range,
-                                    gap,
-                                    self.sequence_code[1].upper()))
-                else:
-                    out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
-                                   "ntax=%s nchar=%s ;\n\tformat datatype=%s "
-                                   "interleave=yes gap=%s missing=%s ;\n\t"
-                                   "matrix\n" %
-                                   (len(self.taxa_list),
-                                    self.locus_length,
-                                    self.sequence_code[0].upper(),
-                                    gap,
-                                    self.sequence_code[1].upper()))
-
-                if not interleave_storage:
-                    get_interleave_data()
-
-                # Iterate over interleave data
-                prev = 0
-                for tx, p, seq in self.cur.execute(
-                    "SELECT taxon, slice, seq FROM [.interleavedata] "
-                    "ORDER BY slice"):
-
-                    if p != prev:
-                        out_file.write("\n")
-                        prev = p
-
-                    out_file.write("{} {}\n".format(
-                        tx[:cut_space_nex].ljust(seq_space_nex),
-                        seq.upper()))
-
-                out_file.write(";\n\tend;")
-
-            # This writes the output in leave format (default)
-            else:
-
-                self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
-                                msg="Writing nexus output")
-
-                if self.restriction_range is not None:
-                    out_file.write("#NEXUS\n\nBegin data;\n\tdimensions "
-                                   "ntax=%s nchar=%s ;\n\tformat datatype=mixed"
-                                   "(%s:1-%s, restriction:%s) interleave=no "
-                                   "gap=%s missing=%s ;\n\tmatrix\n" %
-                                   (len(self.taxa_list),
-                                    self.locus_length,
-                                    self.sequence_code[0],
-                                    self.locus_length - 1,
-                                    self.restriction_range,
-                                    gap,
-                                    self.sequence_code[1].upper()))
-                else:
-                    out_file.write("#NEXUS\n\nBegin data;\n\tdimensions ntax=%s"
-                                   " nchar=%s ;\n\tformat datatype=%s "
-                                   "interleave=no gap=%s missing=%s ;\n\t"
-                                   "matrix\n" % (
-                                    len(self.taxa_list),
-                                    self.locus_length,
-                                    self.sequence_code[0],
-                                    gap, self.sequence_code[1].upper()))
-
-                for p, (taxon, seq) in enumerate(self.iter_alignment(
-                        table_name=table_name, table_suffix=table_suffix)):
-
-                    self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                    out_file.write("%s %s\n" % (taxon[:cut_space_nex].ljust(
-                        seq_space_nex), seq))
-
-                out_file.write(";\n\tend;")
-
-            if use_charset:
-                # Writing partitions, if any
-                if not self.partitions.is_single():
-                    out_file.write("\nbegin mrbayes;\n")
-                    p = 0
-                    # Full gene partitions
-                    for name, lrange in self.partitions:
-                        # If there are codon partitions, write those
-                        if lrange[1]:
-                            for i in lrange[1]:
-                                out_file.write("\tcharset %s_%s = %s-%s\\3;\n" %
-                                       (name, i + 1, i + 1, lrange[0][1] + 1))
-                                p += 1
-                        else:
-                            out_file.write("\tcharset %s = %s-%s;\n" %
-                                       (name, lrange[0][0] + 1,
-                                        lrange[0][1] + 1))
-                            p += 1
-
-                    out_file.write("\tpartition part = %s: %s;\n\tset "
-                                   "partition=part;\nend;\n" %
-                                   (p, ", ".join([name for name in
-                                    self.partitions.get_partition_names()])))
-
-            # Write models, if any
-            if use_nexus_models:
-                out_file.write("\nbegin mrbayes;\n")
-                i = 1
-                for name, models in self.partitions.models.items():
-                    if models[1]:
-                        for m in models[1]:
-                            if m:
-                                m_str = self.partitions._models["mrbayes"][m]
-                                if not self.partitions.is_single():
-                                    out_file.write("applyto=({}) "
-                                                   "lset ".format(i) +
-                                                   " ".join(m_str) + "\n")
-                                else:
-                                    out_file.write("lset " +
-                                                   " ".join(m_str) + "\n")
-                            i += 1
-                out_file.write("end;\n")
-
-            # In case outgroup taxa are specified
-            if outgroup_list is not None:
-
-                # This assures that only the outgroups present in the current
-                #  file are written
-                compliant_outgroups = [taxon for taxon in outgroup_list
-                                       if taxon in self.taxa_list]
-                if compliant_outgroups is not []:
-                    out_file.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" %
-                                   (" ".join(compliant_outgroups)))
-
-            out_file.close()
-
-        # Writes file in fasta format
-        if "fasta" in output_format:
-            out_file = open(output_file + format_ext["fasta"], "w")
-
-            # If LD HAT sub format has been specificed, write the first line
-            # containing the number of sequences, sites and genotype phase
-            if ld_hat:
-                out_file.write("{} {} {}\n".format(len(self.taxa_list),
-                                                   self.locus_length,
-                                                   "2"))
-
-            self._set_pipes(ns_pipe, pbar, total=len(self.taxa_list),
-                            msg="Writing fasta output")
-
-            for p, (taxon, seq) in enumerate(self.iter_alignment(
-                    table_name=table_name, table_suffix=table_suffix)):
-
-                self._update_pipes(ns_pipe, pbar, value=p + 1)
-
-                if ld_hat:
-                    # Truncate sequence name to 30 characters
-                    out_file.write(">%s\n" % (taxon[:30]))
-                    # Limit each sequence line to 2000 characters
-                    if len(seq) > 2000:
-                        for i in range(0, len(seq), 2000):
-                            out_file.write("%s\n" % (seq[i:i + 2000].upper()))
-                elif interleave:
-                    out_file.write(">%s\n" % taxon)
-                    counter = 0
-                    for i in range(90, self.locus_length, 90):
-                        out_file.write("%s\n" % seq[counter:i])
-                        counter = i
-                    else:
-                        out_file.write("%s\n" % seq[counter:])
-                else:
-                    out_file.write(">%s\n%s\n" % (taxon, seq.upper()))
-
-            out_file.close()
+        for fmt in output_format:
+            write_methods[fmt](output_file, **kwargs)
 
         self._reset_pipes(ns_pipe)
 
@@ -4886,9 +5163,7 @@ class AlignmentList(Base):
             self.taxa_names = [tx for tx in taxa_list if tx in self.taxa_names]
 
     def change_taxon_name(self, old_name, new_name):
-        """
-        Changes the name of a taxon
-        """
+        """ Changes the name of a taxon. """
 
         for alignment_obj in list(self.alignments.values()):
             alignment_obj.change_taxon_name(old_name, new_name)
@@ -5345,7 +5620,7 @@ class AlignmentList(Base):
 
         return dict(self.summary_stats), table
 
-    @CheckData
+    @check_data
     def gene_occupancy(self, ns=None):
         """
         Creates data for an interpolation plot to visualize the amount of
@@ -5370,7 +5645,7 @@ class AlignmentList(Base):
                 "ax_names": ["Genes", "Taxa"],
                 "title": "Gene occupancy"}
 
-    @CheckData
+    @check_data
     def missing_data_distribution(self, ns=None):
         """
         Creates data for an overall distribution of missing data
@@ -5425,7 +5700,7 @@ class AlignmentList(Base):
                 "ax_names": ["Proportion", "Number of genes"],
                 "table_header": ["Bin"] + legend}
 
-    @CheckData
+    @check_data
     def missing_data_per_species(self, ns=None):
         """
         Creates data for a distribution of missing data per species
@@ -5490,7 +5765,7 @@ class AlignmentList(Base):
                 "normalize": True,
                 "normalize_factor": total_len}
 
-    @CheckData
+    @check_data
     def missing_genes_per_species(self, ns=None):
         """
         Creates data for the distribution of missing genes per species
@@ -5528,7 +5803,7 @@ class AlignmentList(Base):
                 "table_header": ["Taxon", "Missing genes"]
                 }
 
-    @CheckData
+    @check_data
     def missing_genes_average(self, ns=None):
         """
         Creates histogram data for average missing taxa
@@ -5555,7 +5830,7 @@ class AlignmentList(Base):
                 "ax_names": ["Number of missing taxa", "Frequency"],
                 "table_header": ["Number of missing taxa", "Frequency"]}
 
-    @CheckData
+    @check_data
     def average_seqsize_per_species(self, ns=None):
         """
         Creates data for the average sequence size for each taxa
@@ -5591,7 +5866,7 @@ class AlignmentList(Base):
                 "title": "Sequence size distribution per species",
                 "ax_names": [None, ax_ylabel]}
 
-    @CheckData
+    @check_data
     def average_seqsize(self, ns=None):
         """
         Creates data for the average sequence size for the entire data set
@@ -5623,7 +5898,7 @@ class AlignmentList(Base):
                 "ax_names": [ax_xlabel, "Frequency"],
                 "table_header": [ax_xlabel, "Frequency"]}
 
-    @CheckData
+    @check_data
     def characters_proportion(self, ns=None):
         """
         Creates data for the proportion of nucleotides/residues for the data set
@@ -5668,7 +5943,7 @@ class AlignmentList(Base):
                 "ax_names": [ax_xlabel, "Proportion"],
                 "table_header": [ax_xlabel, "Proportion"]}
 
-    @CheckData
+    @check_data
     def characters_proportion_per_species(self, ns=None):
         """
         Creates data for the proportion of nucleotides/residures per species
@@ -5926,7 +6201,7 @@ class AlignmentList(Base):
 
         return informative_sites
 
-    @CheckData
+    @check_data
     def sequence_similarity(self, ns=None):
         """
         Creates average sequence similarity data
@@ -5968,7 +6243,7 @@ class AlignmentList(Base):
         return {"data": data,
                 "ax_names": ["Similarity (%)", "Frequency"]}
 
-    @CheckData
+    @check_data
     def sequence_similarity_per_species(self, ns=None):
         """
         Creates data for a triangular matrix of sequence similarity for pairs
@@ -6019,7 +6294,7 @@ class AlignmentList(Base):
                 "color_label": "Pairwise sequence similarity",
                 "labels": list(taxa_pos)}
 
-    @CheckData
+    @check_data
     def sequence_similarity_gene(self, gene_name, window_size, ns=None):
 
         aln_obj = self.retrieve_alignment(gene_name)
@@ -6054,7 +6329,7 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
 
-    @CheckData
+    @check_data
     def sequence_segregation(self, ns=None, proportions=False):
         """
         Generates data for distribution of segregating sites
@@ -6104,7 +6379,7 @@ class AlignmentList(Base):
                 "table_header": ax_names,
                 "real_bin_num": real_bin}
 
-    @CheckData
+    @check_data
     def sequence_segregation_per_species(self, ns=None):
         """
         Creates a data for a triangular matrix of sequence segregation for
@@ -6158,7 +6433,7 @@ class AlignmentList(Base):
                 "labels": list(taxa_pos),
                 "color_label": "Segregating sites"}
 
-    @CheckData
+    @check_data
     def sequence_segregation_gene(self, gene_name, window_size, ns=None):
         """
         Generates data for a sliding window analysis of segregating sites
@@ -6193,7 +6468,7 @@ class AlignmentList(Base):
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
 
-    @CheckData
+    @check_data
     def length_polymorphism_correlation(self, ns=None):
         """
         Generates data for a scatter plot and correlation analysis between
@@ -6231,7 +6506,7 @@ class AlignmentList(Base):
                 "table_header": ["Alignment length", "Informative sites"],
                 "correlation": True}
 
-    @CheckData
+    @check_data
     def allele_frequency_spectrum(self, ns=None, proportions=False):
         """
         Generates data for the allele frequency spectrum of the entire
@@ -6284,7 +6559,7 @@ class AlignmentList(Base):
                 "table_header": ["Derived allele frequency", "Frequency"],
                 "real_bin_num": True}
 
-    @CheckData
+    @check_data
     def allele_frequency_spectrum_gene(self, gene_name):
         """
         Generates data for the allele frequency spectrum of the gene
@@ -6320,7 +6595,7 @@ class AlignmentList(Base):
                 "table_header": ["Derived allele frequency", "Frequency"],
                 "real_bin_num": True}
 
-    @CheckData
+    @check_data
     def taxa_distribution(self, ns=None):
         """
         Generates data for a distribution of taxa frequency across alignments
@@ -6347,7 +6622,7 @@ class AlignmentList(Base):
                 "table_header": ["Number of taxa", "Frequency"],
                 "real_bin_num": True}
 
-    @CheckData
+    @check_data
     def cumulative_missing_genes(self, ns=None):
         """
         Generates data for a distribution of the maximum number of genes
@@ -6414,7 +6689,7 @@ class AlignmentList(Base):
 
         return z_score > threshold
 
-    @CheckData
+    @check_data
     def outlier_missing_data(self, ns=None):
         """
         Get data for outlier detection of genes based on the distribution of
@@ -6467,7 +6742,7 @@ class AlignmentList(Base):
                 "outliers_labels": outliers_labels,
                 "ax_names": ["Proportion of missing data", "Frequency"]}
 
-    @CheckData
+    @check_data
     def outlier_missing_data_sp(self, ns=None):
         """
         Gets data for outlier detection of species based on missing data. For
@@ -6528,7 +6803,7 @@ class AlignmentList(Base):
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of missing data", "Frequency"]}
 
-    @CheckData
+    @check_data
     def outlier_segregating(self, ns=None):
         """
         Generates data for the outlier detection of genes based on
@@ -6582,7 +6857,7 @@ class AlignmentList(Base):
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
-    @CheckData
+    @check_data
     def outlier_segregating_sp(self, ns=None):
         """
         Generates data for the outlier detection of species based on their
@@ -6650,7 +6925,7 @@ class AlignmentList(Base):
                 "outliers_labels": outlier_labels,
                 "ax_names": ["Proportion of segregating sites", "Frequency"]}
 
-    @CheckData
+    @check_data
     def outlier_sequence_size(self, ns=None):
         """
         Generates data for the outlier detection of genes based on their
@@ -6697,7 +6972,7 @@ class AlignmentList(Base):
                 "outliers_labels": outliers_labels,
                 "ax_names": ["Sequence size", "Frequency"]}
 
-    @CheckData
+    @check_data
     def outlier_sequence_size_sp(self, ns=None):
         """
         Generates data for the outlier detection of species based on their
