@@ -1,4 +1,4 @@
-__version__ = "0.5.7"
+__version__ = "0.5.8"
 __build__ = "010617"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

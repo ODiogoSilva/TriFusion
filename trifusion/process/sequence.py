@@ -1632,7 +1632,7 @@ class Alignment(Base):
 
         if partition_obj.counter != self.locus_length:
             return process.data.InvalidPartitionFile("Partitions in partition"
-                   "file are inconsistency with current alignment. Last "
+                   " file are inconsistent with current alignment. Last "
                    "partition range: {}; Alignmet length: {}".format(
                 partition_obj.counter, self.locus_length
             ))

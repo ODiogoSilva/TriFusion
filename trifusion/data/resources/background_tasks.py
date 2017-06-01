@@ -371,12 +371,18 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # exception will be returned by the read_from_file method.
             e = partition_obj.read_from_file(partitions_file)
             if e:
-                ns.exception = {"InvalidPartitionFile": e.value}
+                ns.exception = {
+                    "exception": ["Invalid partition file", e.value]}
                 raise data.InvalidPartitionFile("")
 
             # If there are no issues with the partitions file, set the new
             # partitions
-            aln.set_partitions(partition_obj)
+            res = aln.set_partitions(partition_obj)
+            if res:
+                ns.exception = {
+                    "exception": ["Invalid partition file", res.value]
+                }
+                raise data.InvalidPartitionFile("")
 
         if aln.__class__.__name__ == "AlignmentList":
             aln = aln.reverse_concatenate(ns=ns)
@@ -446,7 +452,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
         if not aln.alignments:
-            ns.exception = "EmptyAlignment"
+            ns.exception = {
+                "exception": ["Empty alignment",
+                              "The alignment is empty after applying filters"]}
             raise EmptyAlignment("Active alignment is empty")
 
         return aln
@@ -828,7 +836,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Resets the taxa_names attribute of the aln_obj to include all taxa
         # aln_object.update_taxa_names(all_taxa=True)
         if not hasattr(ns, "exception"):
-            ns.exception = "Unknown"
+            ns.exception = {
+                "exception": ["Unknown",
+                              "Unexpected error when generating Process "
+                              "output. Check the app logs."]}
 
 
 def load_group_files(group_files, temp_dir, ns=None):

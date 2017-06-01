@@ -41,6 +41,8 @@ plotted [0.5.6].
 
 - Fixed 'ntax' parameter of NEXUS format when converting with custom active
 taxa sets [0.5.2].
+- Fixed issue when reverse concatenating directly from an incorrect partitions
+file [0.5.8].
 
 ### Statistics
 
