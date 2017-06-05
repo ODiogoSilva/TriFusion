@@ -32,10 +32,11 @@ from itertools import chain
 from collections import Counter
 import seaborn as sns
 import os
+import functools
 
-# Set of 10 easily distinguishable colors that will be used when generating plots
-# to ensure consistency in color usage. In case more than 10 colors are required
-# (ugh...) they will be randomly generated henceforth.
+# Set of 10 easily distinguishable colors that will be used when generating
+# plots to ensure consistency in color usage. In case more than 10 colors
+#  are required (ugh...) they will be randomly generated henceforth.
 
 clr_list = [[0, .53, .66],  # light blue
             [1, .16, .16],     # light red
@@ -52,26 +53,27 @@ two_clr_list = [[0, .53, .66],
                 [.62, .80, .85]]
 
 
-class SetProps(object):
-    """
+def set_props(func):
+    """Decorator used to set general plot attributes
+
     This decorator is use to automatically set several plot properties based
     on the arguments provided to the plotting functions. In this way,
-    there is no need to write repetitive code in each function. The supported
+    there is no need to write repetitive code in each function. The accepted
     arguments are:
 
-    .: ax_names: list, first element x-axis label; second element y-axis label
-    .: title: string, title of the plot
+      - ax_names : list.
+        Axis names. First element is x-axis label, second is y-axis label
+      - title : str.
+        Title of the plot
     """
 
-    def __init__(self, func):
-        self.func = func
-
-    def __call__(self, *args, **kwargs):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
 
         plt.clf()
         plt.close()
 
-        res = self.func(*args, **kwargs)
+        res = func(*args, **kwargs)
 
         # Set axis names
         override = {
@@ -91,32 +93,43 @@ class SetProps(object):
 
         return res
 
-
-def _add_labels(ax_names):
-    """
-    Wrapper to the add labels routine
-    :param ax_names: List of two items. [x-axis name, y-axis name]
-    """
-
-    if ax_names[0]:
-        plt.xlabel(ax_names[0])
-
-    if ax_names[1]:
-        plt.ylabel(ax_names[1])
+    return wrapper
 
 
-@SetProps
+@set_props
 def scatter_plot(data, correlation=False, ax_names=None, table_header=None,
                  title=None):
-    """
-    Builds a scatter plot from a 2D data list. Also calculates the
-    correlation coefficient is requested.
-    :param data: 2D list, containing the x and y data points
-    :param correlation: Boolean. If True, the spearman's rank correlation
-    coefficient is also calculated
-    :param ax_names: list, with two string elements for the x and y axis
-    :param table_header: list, with table header. Each element represents a
-    column
+    """Generates a scatter plot from a 2D array.
+
+    Builds a scatter plot from a 2D array. Also calculates the
+    correlation coefficient if requested by the `correlation` argument.
+
+    Parameters
+    ----------
+    data : numpy.array
+        2D array containing the x and y data points.
+    correlation : bool
+        If True, the spearman's rank correlation coefficient is calculated
+        and added to the plot as an annotation
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+    table_header : list
+        List with the header of the table object. Each element represents
+        a column.
+    title : str
+        Title of the plot.
+
+    Returns
+    -------
+    fig : matplotlib.pyplot.Figure
+        Figure object of the plot.
+    _ : None
+        Placeholder for the legend object. Not used here but assures
+        consistency across other plotting methods.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -159,16 +172,42 @@ def scatter_plot(data, correlation=False, ax_names=None, table_header=None,
     return fig, None, table
 
 
-@SetProps
+@set_props
 def bar_plot(data, labels=None, title=None, ax_names=None,
              lgd_list=None, reverse_x=False, table_header=None):
-    """
-    Builds simple bar plot from a data_list
-    :param data: list with data to be plotted.
-    :param labels: list with x axis labels
-    :param title: string, plot title
-    :param ax_names: list. Names of the axis [yaxis_name, xaxis_name]
-    :param reverse_x: Boolean, determines whether the x-axis is reversed or not
+    """Creates a bar plot from a `data` array.
+
+    If a multi-dimensional array is provided, it will create a stacked bar
+    plot.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Single or multi-dimensional array with plot data.
+    labels : list
+        List of xtick labels. Should have the same length as `data`.
+    title : str
+        Title of the plot.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+    lgd_list : list
+        For categorical plots, provide the label of each category.
+    reverse_x : bool
+        If True, reverse the x-axis orientation.
+    table_header : list
+        List with the header of the table object. Each element represents
+        a column.
+
+    Returns
+    -------
+    fig : matplotlib.Figure
+        Figure object of the plot.
+    lgd : matplotlib.Legend
+        Legend object of the plot.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     if len(labels) > 10:
@@ -239,16 +278,37 @@ def bar_plot(data, labels=None, title=None, ax_names=None,
     return fig, lgd, table
 
 
-@SetProps
-def multi_bar_plot(data_list, labels=None, lgd_list=None, title=None,
+@set_props
+def multi_bar_plot(data, labels=None, lgd_list=None, title=None,
                    ax_names=None):
-    """
-    General purpose multiple bar plot with custom layout. Returns a pyplot
-    object.
-    :param data_list: list with data to be plotted in list/array type in each
-    entry. Data with two groups would be like [[1.23, .53], [1.55, .12]]
-    :param labels: list, containing the labels
-    :param lgd_list: list, The legend string for each data set in data_list
+    """Creates a multiple bar plot.
+
+    Creates a multiple bar plot from a multi-dimensional array. The bar
+    plots from each array will be grouped and displayed side by side.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Single or multi-dimensional array.
+    labels : list
+        List of xtick labels. Should have the same length as `data`.
+    title : str
+        Title of the plot.
+    lgd_list : list
+        For categorical plots, provide the label of each category.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+
+    Returns
+    -------
+    fig : matplotlib.Figure
+        Figure object of the plot.
+    lgd : matplotlib.Legend
+        Legend object of the plot.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -262,12 +322,12 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None, title=None,
     margin = 0.1
 
     # Determine bar group width according to the number of data lists
-    w = (1. - 2. * margin) / len(data_list)
+    w = (1. - 2. * margin) / len(data)
     # Determine max plt height to calculate text label space
-    max_height = max((x for y in data_list for x in y))
+    max_height = max((x for y in data for x in y))
 
     # Create bar plots
-    for i, d in enumerate(data_list):
+    for i, d in enumerate(data):
         # Get color from 10 color list. If more than 10 colors are required,
         # randomly generate new ones
         try:
@@ -324,12 +384,33 @@ def multi_bar_plot(data_list, labels=None, lgd_list=None, title=None,
     return fig, lgd
 
 
-@SetProps
+@set_props
 def interpolation_plot(data, title=None, ax_names=None):
-    """
+    """Creates black and white interpolation plot
+
     Creates a black and white interpolation plot from data, which must consist
-    of a 0/1 matrix for absence/presence of taxa in genes
-    :param data: numpy array of variable shape.
+    of a 0/1 matrix for absence/presence of taxa in genes.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Single or multi-dimensional array with plot data.
+    title : str
+        Title of the plot.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+
+    Returns
+    -------
+    fig : matplotlib.pyplot.Figure
+        Figure object of the plot.
+    _ : None
+        Placeholder for the legend object. Not used here but assures
+        consistency across other plotting methods.
+    _ : None
+        Placeholder for the table header list. Not used here but assures
+        consistency across other plotting methods.
     """
 
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -349,13 +430,42 @@ def interpolation_plot(data, title=None, ax_names=None):
     return fig, None, None
 
 
-@SetProps
+@set_props
 def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
                      ax_names=None, normalize=False, normalize_factor=None):
-    """
-    Creates a tight stacked bar plot
-    :param data: list, data for 2 groups should be like [[1,2], [2,3]]
-    :param labels: list, should match the number of items in data.
+    """Creates a stacked bar plot.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Multi-dimensional array.
+    labels : list
+        List of xtick labels. Should have the same length as `data`.
+    title : str
+        Title of the plot.
+    table_header : list
+        List with the header of the table object. Each element represents
+        a column.
+    title : str
+        Title of the plot.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+    normalize : bool
+        If True, values of the `data` array will be normalized by the
+        `normalize_factor`
+    normalize_factor : int or float
+        Number used to normalize values of the `data` array.
+
+    Returns
+    -------
+    fig : matplotlib.Figure
+        Figure object of the plot.
+    lgd : matplotlib.Legend
+        Legend object of the plot.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -413,9 +523,6 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
                          shadow=True, framealpha=.8, ncol=cols,
                          borderaxespad=borderpad)
 
-    if ax_names:
-        _add_labels(ax_names)
-
     # Generate table structure
     if table_header:
         table = [table_header]
@@ -432,14 +539,32 @@ def stacked_bar_plot(data, labels, legend=None, table_header=None, title=None,
     return fig, lgd, table
 
 
-@SetProps
+@set_props
 def box_plot(data, labels=None, title=None, ax_names=None):
-    """
-    Creates a boxplot from a data series
-    :param data: list, data to be plotted
-    :param labels: list, x-axis labels
-    :param title: string, plot title
-    :param ax_names: list, first element for x-axis, second for y-axis
+    """Creates box (whisker) plot.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Single or multi-dimensional array with plot data.
+    labels : list
+        List of xtick labels. Should have the same length as `data`.
+    title : str
+        Title of the plot.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+
+    Returns
+    -------
+    fig : matplotlib.pyplot.Figure
+        Figure object of the plot.
+    _ : None
+        Placeholder for the legend object. Not used here but assures
+        consistency across other plotting methods.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -492,15 +617,38 @@ def box_plot(data, labels=None, title=None, ax_names=None):
 
 def histogram_smooth(data, ax_names=None, table_header=None, title=None,
                      legend=None):
-    """
+    """Creates a smooth histogram-like plot.
+
     Creates a smooth line plot with colored areas with the same distribution
-    as an histogram
-    :param data: list, with histogram data. To support multiple plots,
-    provide each plot data as a list. If you want to produce two smooth
-    histograms, provide a data list with two lists.
-    :param title: string, title for the plot
-    :param ax_names: list, names for the x-axis and y-axis, respectively
-    :param table_header: list, header for the table
+    as an histogram. It supports a multi-dimensional array, in which case
+    each array will be used to create vertically stacked subplots.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Array with plot data.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+    table_header : list
+        List with the header of the table object. Each element represents
+        a column.
+    title : str
+        Title of the plot.
+    legend : list
+        If using a multi-dimensional array, provide the name of each
+        subplot.
+
+    Returns
+    -------
+    fig : matplotlib.pyplot.Figure
+        Figure object of the plot.
+    _ : None
+        Placeholder for the legend object. Not used here but assures
+        consistency across other plotting methods.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     from scipy.interpolate import UnivariateSpline
@@ -551,18 +699,35 @@ def histogram_smooth(data, ax_names=None, table_header=None, title=None,
     return fig, None, table
 
 
-@SetProps
+@set_props
 def histogram_plot(data, title=None, ax_names=None, table_header=None,
                    real_bin_num=False):
-    """
-    Creates an histogram from data
-    :param data: list
-    :param title: string
-    :param ax_names: list, first element for x-axis, second for y-axis
-    :param table_header: list, containing the header of the table as the
-    first element
-    :param real_bin_num: boolean, if true, the histogram bins will be real
-    numbers
+    """Creates an histogram from data.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Array with plot data.
+    title : str
+        Title of the plot.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+    table_header : list
+        List with the header of the table object. Each element represents
+        a column.
+    real_bin_num : bool
+        If True, then the table data will be forced to be in real numbers.
+
+    Returns
+    -------
+    fig : matplotlib.Figure
+        Figure object of the plot.
+    lgd : matplotlib.Legend
+        Legend object of the plot.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     # Use ggpot style
@@ -618,12 +783,31 @@ def histogram_plot(data, title=None, ax_names=None, table_header=None,
     return fig, lgd, table
 
 
-@SetProps
+@set_props
 def triangular_heat(data, labels, color_label=None, title=None):
-    """
-    Creates a triangular heatmap plot based on an array of triangular shape,
-    or with a masked triangle
-    :return:
+    """Creates a triangular heatmap plot.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Triangular array with plot data.
+    labels : list
+        List of xtick labels. Should have the same length as `data`.
+    title : str
+        Title of the plot.
+    color_label : str
+        Label for colorbar.
+
+    Returns
+    -------
+    fig : matplotlib.pyplot.Figure
+        Figure object of the plot.
+    _ : None
+        Placeholder for the legend object. Not used here but assures
+        consistency across other plotting methods.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     plt.style.use("ggplot")
@@ -678,16 +862,31 @@ def triangular_heat(data, labels, color_label=None, title=None):
     return fig, None, table
 
 
-@SetProps
+@set_props
 def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None,
                           title=None):
-    """
-    Creates a density distribution for data and highlights outliers
-    :param data: 1D array containing data points
-    :param outliers: 1D array containing the outliers
-    :param outliers_labels: 1D array containing the name of the outliers.
-    Must match outliers in size
-    :param ax_names: list, with names for x and y axis, respectively
+    """Creates a density distribution for outlier plots.
+
+    Parameters
+    ----------
+    data : numpy.array
+        1D array containing data points.
+    outliers : numpy.array
+        1D array containing the outliers.
+    outliers_labels : list or numpy.array
+        1D array containing the labels for each outlier.
+    title : str
+        Title of the plot.
+
+    Returns
+    -------
+    fig : matplotlib.Figure
+        Figure object of the plot.
+    lgd : matplotlib.Legend
+        Legend object of the plot.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -713,15 +912,36 @@ def outlier_densisty_dist(data, outliers, outliers_labels=None, ax_names=None,
     return fig, lgd, table
 
 
-@SetProps
+@set_props
 def sliding_window(data, window_size, ax_names=None, table_header=None,
                    title=None):
-    """
-    Creates a sliding window plot
-    :param data:
-    :param window_size:
-    :param ax_names:
-    :param table_header:
+    """Creates a sliding window plot.
+
+    Parameters
+    ----------
+    data : numpy.array
+        Array with plot data.
+    window_size : int
+        Length of window size for sliding window.
+    table_header : list
+        List with the header of the table object. Each element represents
+        a column.
+    title : str
+        Title of the plot.
+    ax_names : list
+        List with the labels for the x-axis (first element) and y-axis
+        (second element).
+
+    Returns
+    -------
+    fig : matplotlib.pyplot.Figure
+        Figure object of the plot.
+    _ : None
+        Placeholder for the legend object. Not used here but assures
+        consistency across other plotting methods.
+    table : list
+        Table data in list format. Each item in the list corresponds to a
+        table row.
     """
 
     plt.style.use("ggplot")
@@ -748,9 +968,6 @@ def sliding_window(data, window_size, ax_names=None, table_header=None,
         table_data.append([xnew[i], xsmooth[i]])
 
     ax.set_ylim([min(data) - min(data) * .1, max(data) + max(data) * .1])
-
-    if ax_names:
-        _add_labels(ax_names)
 
     if table_header:
         table = [table_header] + table_data
