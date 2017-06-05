@@ -1,22 +1,587 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-#
-#  Copyright 2012 Unknown <diogo@arch>
-#  
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#  
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#  
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
+"""
+The `sequence` module of TriFusion contains the main classes handing alignment
+sequence data. These are `Alignment` and `AlignmentList`. Here follows a
+brief explanation of how these classes work and how to deal with the
+sqlite database.
+
+`Alignment` class
+-----------------
+
+The `Alignment` class is the main interface with single alignment files. It
+can be viewed as the building block of an `AlignmentList` object, which
+can have one or more `Alignment` objects. It contains all methods and
+attributes that pertain to a given alignment and are used to retrieve
+information
+or modify it. **However, it is NOT meant to be used independently**, but rather
+within the context of an `AlignmentList` object (See `AlignmentList class`_).
+The data from each alignment is stored in a single sqlite database during
+the execution of TriFusion or the TriSeq/TriStats CLI programs. The connection
+to this database is automatically handled by `AlignmentList`
+for all `Alignment` objects included in it. In this way, we can use the
+`AlignmentList` class to handle the setup of the sqlite3 database, and
+focus on single alignment data handling in general in this class.
+
+The main types of methods defined in this class are:
+
+Parsers
+~~~~~~~
+
+Parsing methods are defined with `_read_<format>` (e.g. `_read_fasta`) and
+they are always called
+from the `read_alignment` method. When an `Alignment` object is instantiated
+with a path to an alignment file, it automatically detects the format of
+the alignment and keeps that information on the `input_format` attribute.
+The `read_alignment` method then calls the parsing method corresponding to
+that format. That information is stored in a dictionary::
+
+    parsing_methods = {
+        "phylip": self._read_phylip,
+        "fasta": self._read_fasta,
+        "loci": self._read_loci,
+        "nexus": self._read_nexus,
+        "stockholm": self._read_stockholm
+    }
+
+    # Call the appropriate method
+    parsing_methods[self.input_format]()
+
+Each format has its own parsing method (which can be modified directly). To
+add a new format, it is necessary to add it to the automatic format
+recognition in `trifusion.process.base.Base`. Then, create the new parsing
+method, using the same `_read_<format>` notation and add it to the
+`parsing_methods` dictionary in `read_alignment`.
+
+Data fetching
+~~~~~~~~~~~~~
+
+To facilitate fetching alignment data from the database, several generators
+and data retrieval methods are defined. These should always use the
+`setup_intable` decorator and defined with the `table_suffix`, `table_name`
+and `table` arguments. For instance, the `iter_sequences` method is a
+generator that allows the iteration over the sequences in the alignment
+and is defined as::
+
+    @setup_intable
+    def iter_sequences(self, table_suffix="", table_name=None, table=None):
+
+When calling these methods, only the `table_suffix` and `table_name` have
+to be provided. In fact, the value provided to the `table` argument
+at calling time is ignored. The decorator will check the values of both
+`table_suffix` and `table_name` and evaluate the database table that will
+be used. This final table name will then be provided as
+the `table` argument value within the decorator. In this way, these methods
+can be called like::
+
+    for seq in self.iter_sequences(table_suffix="_collapse"):
+        # Do stuff
+
+In this case, the `setup_intable` decorator will append the `table_suffix`
+to the name of the original alignment table. If `Alignment.table_name="main"`,
+then the final table name in this case will be "main_collapse".
+
+Alternatively, we can use `table_name`::
+
+    for seq in self.iter_sequences(table_name="main_2"):
+        # Do stuff
+
+In this case, the final table name will be "main_2".
+
+If the final table name does not exist, the method falls back to the original
+table name defined by the `table_name` attribute.
+
+Alignment modifiers
+~~~~~~~~~~~~~~~~~~~
+
+Methods that perform modifications to the alignment are also defined here.
+For example, the `collapse` method transforms the original alignment into a
+new one that contains only unique sequences. An important factor to
+take into account with alignment modifying methods, is that it may be
+important to preserve the original alignment data for future operations.
+In TriFusion, the original alignment must be available at all times since
+users may perform any number of process executions in a single session.
+Therefore, all methods that can potentially modify the original alignment
+need to be decorated with the `setup_database` function, and must be
+defined with at least the `table_in` and `table_out` arguments. The decorator
+and these arguments will work together to determine the database's table
+from where the data will be fetched, and to where the modified alignment
+will be written. For
+instance, the `collapse` method is defined as::
+
+    @setup_database
+    def collapse(..., table_in=None, table_out="collapsed",
+                 use_main_table=False):
+
+If we want to perform a collapse of the original alignment and store
+the modified alignment in a new table, we could call `collapse` like::
+
+    collapse(table_out="new_table")
+
+The `setup_database` decorator interprets `table_in=None` as an instruction
+to use the table
+with the original alignment, and stores the modified alignment in
+`"new_table"`.
+
+However, we may want to perform a collapse operation after a previous
+modification from other method. In that case, we can specify a
+`table_in`::
+
+    collapse(table_in="other_table", table_out="collapse")
+
+One issue with this approach is that we do not know *a priori* which
+operations will be requested by the user nor the order. If one execution
+performs, say, a `consensus` and a `collapse`, the new table should be created
+in `consensus` and then used as input in `collapse`. However, if only
+`collapse`
+is called, then the new table should only be created there. To solve this
+issue, the `setup_database` decorator is smart about its arguments.
+We can create a sequence of operations with the same `table_in` and `table_out`
+arguments::
+
+    new_table = "master_table"
+    if "consensus" in operations:
+        consensus(table_in=new_table, table_out=new_table)
+    if "collapse" in operations:
+        collapse(table_in=new_table, table_out=new_table)
+
+In this simple pipeline, the user may perform either a `consensus`, a
+`collapse`, or both. When the first method is called, the
+`setup_database` decorator will check if the table
+provided in `table_in` exists. In the first called method it will not exist,
+so instead of returning an error, it falls back to the original alignment
+table and then writes the modified alignment to "master_table". In the second
+method, `table_in` already exists, so it fetches alignment data from the
+"master_table". This will work whether these methods are called individually
+or in combination.
+
+When there is no need to keep the original alignment data (in single
+execution of TriSeq, for instance), the special `use_main_table` argument
+can be provided to tell the method to use the original table as the input and
+output table. If this argument is True, it supersedes
+any information provided by `table_in` or `table_out`::
+
+    collapse(use_main_table=True)
+
+Writers
+~~~~~~~
+
+Like parsers, writer methods are defined with `_write_<format>` and are
+always called from the `write_to_file` method. When the `write_to_file`
+method is called, a list with the requested output formats is also provided.
+Then, for each format specified in the argument, the corresponding writer
+method is called. That method is responsible for fetching the data from
+the database and write it to an output file in the appropriate format.
+The map between the formats and the methods is stored in a dictionary::
+
+    write_methods = {
+        "fasta": self._write_fasta,
+        "phylip": self._write_phylip,
+        "nexus": self._write_nexus,
+        "stockholm": self._write_stockholm,
+        "gphocs": self._write_gphocs,
+        "ima2": self._write_ima2,
+        "mcmctree": self._write_mcmctree
+    }
+
+    # Call apropriate method for each output format
+    for fmt in output_format:
+        write_methods[fmt](output_file, **kwargs)
+
+The `output_file` and a `kwargs` dictionary are provided as arguments
+to each of these methods. The `kwargs` dictionary contains all keyword
+arguments used when calling `write_to_file` and each writer method
+fetches the ones relevant to the format. For instance, in the beggining
+of the `_write_fasta` method, the relevant keyword arguments are retrieved::
+
+    # Get relevant keyword arguments
+    ld_hat = kwargs.get("ld_hat", False)
+    interleave = kwargs.get("interleave", False)
+    table_suffix = kwargs.get("table_suffix", None)
+    table_name = kwargs.get("table_name", None)
+    ns_pipe = kwargs.get("ns_pipe", None)
+    pbar = kwargs.get("pbar", None)
+
+In addition to the `write_methods` dictionary, a dictionary mapping the
+formats and their corresponding file extensions is also defined::
+
+    format_ext = {"ima2": ".txt",
+                  "mcmctree": "_mcmctree.phy",
+                  "phylip": ".phy",
+                  "nexus": ".nex",
+                  "fasta": ".fas",
+                  "stockholm": ".stockholm",
+                  "gphocs": ".txt"}
+
+To add a new output format writer, simply create the method using the
+`_write_<format>` notation and include it in the `write_methods` dictionary,
+along with the extension in the `format_ext` variable.
+
+`AlignmentList` class
+---------------------
+
+The `AlignmentList` is the main interface between the user and the alignment
+data. It may contain one or more `Alignment` objects, which are considered
+the building blocks of the total data set. These `Alignment` objects are bound
+by the same sqlite database connection.
+
+How to create an instance
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An `AlignmentList` instance can be created with a single argument, which
+is a list of paths to alignment files::
+
+    aln_obj = AlignmentList(["file1.fas", "file2.fas"])
+
+Even when no information is provided, an sqlite database connection is
+established automatically (generating a "trifusion.sqlite3" file in the
+current working directory by default). However, it is possible and advisable
+to specify the path to the sqlite database::
+
+    aln_obj = AlignmentList(["file1.fas", "file2.fas"], sql_path=".sql.db")
+
+A connection to the database can also be provided when instantiating
+the class, so it's perhaps more useful to see how the `__init__` works::
+
+    def __init__(self, alignment_list, sql_db=None, db_cur=None, db_con=None,
+                 pbar=None):
+
+        if db_cur and db_con:
+            self.con = db_con
+            self.cur = db_cur
+        elif sql_db:
+            self.sql_path = sql_db
+        else:
+            self.sql_path = "trifusion.sqlite3"
+
+As we can see, if a database connection is provided via the `db_cur` and
+`db_con` arguments, the `sql_path` is ignored. If no sqlite information
+is provided, the `sql_path` attribute defaults to "trifusion.sqlite3".
+
+Adding alignment data
+~~~~~~~~~~~~~~~~~~~~~
+
+Alignment data can be loaded when initializing the class as above and/or
+added later via the `add_alignments` and `add_alignment_files` methods
+(in fact, the `add_alignment_files` method is the one called at `__init__`)::
+
+    aln_obj.add_alignment_files(["file3.fas", "file4.fas"])
+
+The most important aspects when adding alignment data is how each alignment
+is processed and how errors and exceptions are handled. Briefly, the flow is:
+
+  1. Check for file duplications within the loaded file list. Duplications
+     are stored in the `duplicate_alignments` attribute.
+  2. Check for file duplications between the loaded files and any
+     alignment already present. The duplications go to the same attribute
+     as above.
+  3. For each provided file, create an `Alignment` object. Errors that occur
+     when creating an `Alignment` object are stored in its `e` attribute.
+     This attribute is then checked before adding the alignment to the
+     `AlignmentList` object.
+      1. Check for `InputError` exception. These are malformated files
+         and are stored in the `bad_alignments` attribute.
+      2. Check for `AlignmentUnequalLength` exception. These are sequence
+         sets of
+         unequal length (not alignments) and are stored in the
+         `non_alignments` attribute.
+      3. Check for `EmptyAlignment` exception. These are empty alignments
+         and are
+         stored in the `bad_alignments` attribute.
+      4. Check the sequence code of the `Alignment` object. For now,
+         the `AlignmentList` object only accepts alignments of the same
+         sequence type (e.g. DNA, protein).
+      5. If all of the previous checks pass, add the `Alignment` object
+         to the `alignments` attribute.
+  4. Update the overall taxa names of the full data set after the
+     inclusion of the new alignments.
+
+Wrapping `Alignment` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The majority of the methods defined in the `Alignment` object can also be
+accessed in the `AlignmentList` object. These are defined roughly with the
+same arguments in both classes so that their behavior is the same.
+These can be simple wrappers that call the respective `Alignment` method for
+each alignment in the `alignments` attribute. For instance, the
+`change_taxon_name` method is simply::
+
+    def change_taxon_name(self, old_name, new_name):
+
+        for alignment_obj in list(self.alignments.values()):
+            alignment_obj.change_taxon_name(old_name, new_name)
+
+        self.taxa_names = [new_name if x == old_name else x
+                           for x in self.taxa_names]
+
+To avoid duplicating the argument list, the wrapping method
+can use `args` and `kwargs` to transfer arguments. This ensures that if
+the argument list is modified in the `Alignment` method, it doesn't need
+any modification in the wrapper method. For instance, the `write_to_file`
+method of `Alignment` accepts a large number of positional and keyword
+arguments, which would be an hassle to define an maintain in the wrapper
+method of `AlignmentList`. So, the `write_to_file` method of
+`AlignmentList` is simply defined as::
+
+    def write_to_file(self, output_format, conversion_suffix="",
+                      output_suffix="", *args, **kwargs):
+
+The `output_format`, `conversion_suffix` and `output_suffix` are the only
+positional arguments required when calling this wrapper. All the remaining
+arguments are packed in the `args` and `kwargs` objects and used
+normally by the wrapped method.
+
+Exclusive `AlignmentList` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some methods are exclusive of `AlignmentList` because they only make sense
+to be applied to lists of alignments (e.g. `concatenate`). These have 
+more freedom in how they are defined and called.
+
+Active and inactive datasets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Taxa and/or alignments can become 'inactive', that is, they
+are temporarily removed from their respective attributes, `taxa_names`
+and `alignments`. This means that these 'inactive' elements are ignored
+when performing most operations. To
+change the 'active' status of alignments, the `update_active_alignments`
+and `update_active_alignment` methods are available. For taxa, the
+`update_taxa_names` method can be used::
+
+    # Set only two active alignments
+    self.update_active_alignments(["file1.fas", "file2.fas"])
+
+    # Set only two active taxa
+    self.update_taxa_names(["taxonA", "taxonB"])
+
+Note that all these modifications
+are reversible. 'Inactive' elements are stored in the `shelve_alignments`
+attribute for alignments, and `shelved_taxa` for taxa.
+
+Updating `Alignment` objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some tasks perform changes to core attributes of `AlignmentList`, but they
+may also be necessary on each `Alignment` object. For instance, the
+`remove_taxa` method is used to remove a list of taxa from the
+`AlignmentList` object. It is easy to change only the relevant `AlignmentList`
+attributes, but this change also requires those particular taxa to be
+removed in all `Alignment` objects. For this reason, such methods should
+be defined in the same way in both classes. Using the `remove_taxa` example::
+
+    def remove_taxa(self, taxa_list, mode="remove"):
+
+        # <changes to AlignmentList>
+
+        for alignment_obj in list(self.alignments.values()):
+            alignment_obj.remove_taxa(taxa_list, mode=mode)
+
+As you can see, the usage is the same for both methods.
+
+Plot data methods
+~~~~~~~~~~~~~~~~~
+
+The `AlignmentList` object contains all methods that generate data for plotting
+in TriFusion's Statistics screen and TriStats CLI program. However, it's
+important to establish a separation between the generation of plot data,
+and the generation of the plot itself. The `AlignmentList` methods only
+generate the data and relevant instructions necessary to
+to draw the plot. This information is then passed on to the appropriate
+plot generation functions, which are defined in `trifusion.base.plotter`.
+The reason for this separation of tasks is that many different alignment
+analyses are represented by the same plot.
+
+The complete process of how new plots can be added to TriFusion is
+described here_. In this section, we provide only a few guidelines on what
+to expect from these methods.
+
+All plot data methods must be decorated with the `check_data` function
+and take at least a `Namespace` argument. In most cases, no more arguments
+are required::
+
+    @check_data
+    def gene_occupancy(self, ns=None):
+
+The `check_data` decorator is responsible for performing checks before and
+after executing the method. The `Namespace` argument, `ns`, is used to allow
+communication between the main and worker threads of TriFusion.
+
+Additional keyword arguments may be defined, but in that case they must
+be provided in TriFusion when the `trifusion.app.TriFusionApp.stats_show_plot`
+method is called, using the `additional_args` argument. This object will
+be passed to the `get_stats_data` function in
+`trifusion.data.resources.background_tasks` and used when calling the
+plot data methods::
+
+    if additional_args:
+        plot_data = methods[stats_idx](ns=ns, **additional_args)
+    else:
+        plot_data = methods[stats_idx](ns)
+
+The other requirement of plot data methods, is that they must always return
+a single dictionary object. This dictionary must contain at least one
+`key:value` with the "data" key and a numpy.array with the plot data as the
+value. The other entries in the dictionary are optional and refer to
+instructions for plot generation. For example, the
+`missing_data_distribution` method returns::
+
+    return {"data": data,
+            "title": "Distribution of missing data",
+            "legend": legend,
+            "ax_names": ["Proportion", "Number of genes"],
+            "table_header": ["Bin"] + legend}
+
+The first entry is the mandatory "data" key with the numpy.array `data`.
+The other instructions are "title", which sets the title of the plot, "legend",
+which provides the labels for the plot legend, "ax_names", which provides
+the name of the `x` and `y` axis, and the "table_header", which specified
+the header for the table of that plot.
+
+The allowed plot instructions depend on the plot function that will be used
+and not all of them need to be specified.
+
+.. _here: https://github.com/ODiogoSilva/TriFusion/wiki/
+          Add-Statistics-plot-analysis
+
+Logging progress
+~~~~~~~~~~~~~~~~
+
+The majority of `AlignmentList` methods support the setup and update of
+progress indicators that can be used in TriFusion (GUI) and the CLI programs.
+In the case of TriFusion, the progress indicator is provided via a
+`multiprocessing.Namespace` object that transfers information between the
+main thread (where the GUI changes take place) and the working thread.
+In the case of the CLI programs, the indicator is provided via a `ProgressBar`
+object. In either case, the setup, update and reseting of the progress
+indicators is perfomed by the same methods.
+
+At the beginning of an operation, the `_set_pipes` method is called::
+
+    self._set_pipes(ns, pbar, total=len(self.alignments))
+
+The `Namespace` object is defined as `ns` and the `ProgressBar` is defined
+as `pbar`. Usually, only one of them is provided, depending on whether it
+was called from TriFusion or from a CLI program. We also set the total
+of the progress indicator. In this case it's the number of alignments. In case
+the operation is called from TriFusion using the `Namespace` object, this
+method also checks the number of active alignments. If there is only one
+active alignment, it sets a Namespace attribute that will silence the
+progress logging of the `AlignmentList` object and receive the information
+from the `Alignment` object instead::
+
+    if ns:
+        if len(self.alignments) == 1:
+            ns.sa = True
+        else:
+            ns.sa = False
+
+Then, inside the task, we can update the progress within a loop using
+the `_update_pipes` method::
+
+    for p, alignment_obj in enumerate(list(self.alignments.values())):
+        self._update_pipes(ns, pbar, value=p + 1,
+                           msg="Some message")
+
+Here, we provide the `Namespace` and `ProgressBar` objects as before.
+In addition we provide the `value` associated with each iteration.
+Optionally, the `msg` argument can be specified, which is used exclusively
+by TriFusion to show a custom message.
+
+At the end of a task its good pratice to reset the progress indicators
+by using the `_reset_pipes` method::
+
+    self._reset_pipes(ns)
+
+Here, only the `Namespace` object is necessary, since the `ProgressBar`
+indicator is automatically reset on `_set_pipes`.
+
+Incorporating a kill switch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All time consuming methods of `AlignmentList` accept a `Namespace` object
+when called from TriFusion, allowing communication between the main thread
+and the worker thread. Since python `threads` cannot be forcibly terminated
+like `processes`, most methods should listen to a kill switch
+flag that is actually an attribute of the `Namespace` object.
+This kill switch is already incorporated into the `_set_pipes`,
+`_update_pipes` and `_reset_pipes` methods. ::
+
+    if ns:
+        if ns.stop:
+            raise KillByUser("")
+
+What it does is to listen to a kill signal from TriFusion's window (it can
+be clicking on the "Cancel" button, for example). When this kill signal is
+received in the main thread, it sets the `Namespace.stop` attribute to True
+in both main and worker threads. In the worker thread, when the `stop`
+attribute evaluates to True, a custom `KillByUser` exception is raised,
+immediatelly stopping the task. The exeption is then handled in the
+`trifusion.data.resources.background_tasks.process_execution` function
+and transmitted to the main thread.
+
+Using SQLite
+------------
+
+A great deal of the high performance and memory efficiency of the `sequence`
+module comes from the
+use of sqlite to store and manipulate alignment data on disk rather than RAM.
+This means that parsing, modifying and writing alignment data must be
+done with great care to ensure that only the essential data is loaded into
+memory, while minimizing the number of (expensive) database queries. This
+has some implications for the methods of both `Alignment` and `AlignmentList`
+objects with respect to how parsing, alignment modification and output
+writing is performed.
+
+Implications for parsing
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+When writing or modifying parsing methods it is important to take into account
+that alignment files can be very large (> 1Gb) and loading the entire
+data into memory should be avoided. Whenever possible, only the data of a
+single taxon should be kept in memory before inserting it into the database
+and then releasing that memory. For most formats,
+particularly leave formats, it's
+fairly straightforward to do this. However, interleave formats can fragment
+the data from each taxon across the entire file. Since database insertions
+and updates are expensive, loading the data in each line can greatly
+decrease the performance in these formats. Therefore, it's preferable
+to read the alignment file once per taxon, join the entire sequence
+of that taxon, and then insert it into the database. This ensures that
+only sequence data from one taxon is kept in memory at any given time and
+only a minimal number of database insertions are performed. It will
+also result in the same file being parsed N times, where N is the number of
+taxa. However, the decrease in speed is marginal, since most lines are
+actually skipped, whereas the efficiency increase is substantial.
+
+Implications for fetching data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Retrieving data from an sqlite database is not as simple as accessing python
+native data structure. Therefore, a set of methods and generators have
+been defined in the `Alignment` object to facilitate the interface with
+the data in the database (See `Data fetching`_). When some kind of data
+is required from the database, it is preferable to modify or create a
+dedicated method, instead of interacting with the database directly. This
+creates a layer of abstraction between the database and `Alignment`/
+`AlignmentList` methods that greatly facilitates future updates.
+
+Implications for alignment modification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When performing modification to the alignment data it is important to take
+into account that the original alignment data may need to be preserved for
+future operations. These methods must be defined and called using
+appropriate decorators and arguments that establish the name of the
+database table from where information will be retrieved, and the name of the
+table where the information will be written (See `Alignment modifiers`_).
+
+Implications for writing files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When writing alignment data into new output files, the same caution of the
+alignment parsing is advised. It's quite easy to let the entire alignment
+be loaded into RAM, particularly when writing in interleave format.
+
+"""
 
 import numpy as np
 import pandas as pd
@@ -5614,7 +6179,7 @@ class AlignmentList(Base):
 
         self._reset_pipes(ns)
 
-    def filter_informative_sites(self,*args, **kwargs):
+    def filter_informative_sites(self, *args, **kwargs):
         """Filters `Alignment` objects according to informative sites number.
 
         Filters `alignments` according to whether or not their number
