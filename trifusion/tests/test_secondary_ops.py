@@ -68,7 +68,7 @@ class SeconaryOpsTest(unittest.TestCase):
         if not os.path.exists("test_collapse"):
             os.makedirs("test_collapse")
 
-        aln = self.aln_obj.concatenate(alignment_name="test")
+        aln = self.aln_obj.concatenate()
         aln.collapse(haplotype_name="Testing", haplotypes_file="teste",
                      dest="test_collapse", table_out="_collapse")
 
@@ -165,12 +165,11 @@ class SeconaryOpsTest(unittest.TestCase):
         # In case the partitions file is badly formatted or invalid, the
         # exception will be returned by the read_from_file method.
         partition_obj.read_from_file(concatenated_small_par[0])
-        aln = self.aln_obj.concatenate(alignment_name="test")
+        aln = self.aln_obj.concatenate()
 
         aln.set_partitions(partition_obj)
 
-        alns = aln.reverse_concatenate(table_in="concatenation",
-                                       db_con=self.aln_obj.con)
+        alns = aln.reverse_concatenate(db_con=self.aln_obj.con)
 
         self.assertEqual(len(alns.alignments), 7)
 

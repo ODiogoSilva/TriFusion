@@ -89,7 +89,7 @@ class ProcessWriteTest(unittest.TestCase):
 
         aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
         self.con = aln_obj.con
-        self.aln_obj = aln_obj.concatenate(alignment_name="test")
+        self.aln_obj = aln_obj.concatenate()
         os.makedirs("output")
         self.output_file = os.path.join("output", "test")
 

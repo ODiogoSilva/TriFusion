@@ -4571,8 +4571,6 @@ class TriFusionApp(App):
                     self.active_file_inf["aln_format"]
                 content.ids.seq_type.text = "%s" % \
                     self.active_file_inf["seq_type"]
-                content.ids.is_aln.text = "%s" % \
-                    self.active_file_inf["is_aln"]
                 content.ids.seq_size.text = "%s" % \
                     self.active_file_inf["aln_len"]
                 content.ids.n_taxa.text = "%s" % \
@@ -10589,8 +10587,6 @@ class TriFusionApp(App):
                 - seq_type: The sequence type. If DNA, RNA, Protein.
                 - n_taxa: Number of taxa
                 - aln_len: Length of the alignment
-                - is_aln: If the input file is in alignment format of
-                non-aligned sequence set format
                 - model: The model of sequence evolution, if applicable.
                  This is
                 usually only present on Nexus input format
@@ -10618,9 +10614,6 @@ class TriFusionApp(App):
                 # Get number of species
                 file_inf["n_taxa"] = len([x for x in
                     aln.taxa_list if x in self.active_taxa_list])
-
-                # Get if is alignment
-                file_inf["is_aln"] = str(aln.is_alignment)
 
                 # Get length of largest sequence if not aligned, or
                 # alignment length

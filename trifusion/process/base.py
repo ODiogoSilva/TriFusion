@@ -69,7 +69,7 @@ iupac_conv = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
 
 
 class CleanUp(object):
-    """Decorator class that handles temporary data for TriSeq and TriStats
+    """Decorator class that handles temporary data for TriSeq and TriStats.
     
     This decorator class wraps the main execution functions of TriSeq and
     TriStats programs. The __init__ requires only the function reference,
@@ -108,7 +108,7 @@ class CleanUp(object):
         self.idx = 0 if self.func.__name__ == "main_parser" else 2
 
     def __call__(self, *args):
-        """Wraps the call of `func`
+        """Wraps the call of `func`.
         
         When the main `func` is called, this code is wrapped around its
         execution. This mainly ensures that the temporary data stored in
@@ -165,7 +165,7 @@ class CleanUp(object):
 
 
 def merger(ranges):
-    """Generator that merges continuous ranges of tuples in a list
+    """Generator that merges continuous ranges of tuples in a list.
     
     Parameters
     ----------
@@ -213,7 +213,7 @@ has_colours = has_colours(sys.stdout)
 
 
 def print_col(text, color, i=0, quiet=False):
-    """Custom print function for terminal updates of CLI programs
+    """Custom print function for terminal updates of CLI programs.
     
     This print function homogenizes the progress logging of all CLI programs
     while providing some freedom on the formatting of the progress message,
@@ -261,7 +261,7 @@ def print_col(text, color, i=0, quiet=False):
 class Base(object):
 
     def autofinder(self, reference_file):
-        """Autodetects format, missing data symbol and sequence type
+        """Autodetects format, missing data symbol and sequence type.
         
         Attempts to find the file format, missing data symbol and sequence
         type from a reference file. Due to performance reasons, this function
@@ -393,7 +393,7 @@ class Base(object):
     @staticmethod
     def get_loci_taxa(loci_file):
         """
-        Get the list of taxa from a .loci file
+        Get the list of taxa from a .loci file.
         
         This is required prior to parsing the alignment in order to 
         correctly add missing data when certain taxa are not present in 
@@ -429,7 +429,7 @@ class Base(object):
     @staticmethod
     def guess_code(sequence):
         """
-        Guess the sequence type, i.e. protein
+        Guess the sequence type, i.e. protein.
         
         Guesses the code of the provided `sequence`, that is, if it is a
         DNA or Protein sequence based on the first sequence of 
@@ -498,7 +498,7 @@ class Base(object):
     @staticmethod
     def rm_illegal(taxon_string):
         """
-        Removes illegal characters from taxon name
+        Removes illegal characters from taxon name.
         
         The illegal characters are defined in the `illegal_chars`
         variable
@@ -526,7 +526,7 @@ class Base(object):
     @staticmethod
     def duplicate_taxa(taxa_list):
         """
-        Identified duplicate items in a list
+        Identified duplicate items in a list.
         
         Used to detect, for instance, duplicated taxa in the Alignment object
         
@@ -549,7 +549,7 @@ class Base(object):
     @staticmethod
     def read_basic_csv(file_handle):
         """
-        Reads a basic CSV into a list
+        Reads a basic CSV into a list.
         
         Parses a simples CSV file with only one column and one
         or more lines while stripping whitespace.

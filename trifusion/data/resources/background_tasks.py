@@ -59,7 +59,7 @@ def load_proc(aln_list, file_list, nm, queue):
     try:
         if aln_list:
             aln_list.add_alignment_files(file_list,
-                                         shared_namespace=nm)
+                                         ns=nm)
             aln_obj = aln_list
         else:
             aln_obj = AlignmentList(file_list, shared_namespace=nm)
@@ -410,7 +410,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # Get taxa list from taxa groups
             ns.main_msg = "Filter (by taxa)"
             taxa_list = taxa_groups[taxa_filter_settings[1]]
-            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list, ns=ns)
+            aln.filter_by_taxa(taxa_list, taxa_filter_settings[0], ns=ns)
 
         # Filter codon positions
         if secondary_options["codon_filter"]:
@@ -470,8 +470,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             zorro_data = data.Zorro(aln, zorro_suffix)
             zorro_data.write_to_file(output_file)
 
-        aln = aln.concatenate(alignment_name=basename(output_file),
-                              table_in=table_in, ns=ns)
+        aln = aln.concatenate(table_in=table_in, ns=ns)
 
         # Sets the single alignment to True, for other method to be aware of
         # this
@@ -793,8 +792,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                                                    table_out=suffix[1:])
                     if main_operations["concatenation"]:
                         ns.main_msg = "Concatenation"
-                        main_aln = aln_object.concatenate(table_in=suffix[1:],
-                                                          ns=ns)
+                        main_aln = aln_object.concatenate(ns=ns)
 
                 ns.main_msg = "Collapse"
                 main_aln.collapse(haplotype_name=hap_prefix,

@@ -499,14 +499,23 @@ class AlignmentUnequalLength(Exception):
 
 
 class Alignment(Base):
-    """Main interface with single alignment files.
+    """Main interface for single alignment files.
     
-    The `Alignment` class is the main interface with single alignment files, 
-    providing methods to parse, query, retrieve and modify alignment data.
-    `Alignment` instances can be created by providing only a single argument
-    that can be the the path to the alignment file, in which case the file
-    is parsed and stored in a sqlite database, or the name of a table in the
-    sqlite database. 
+    The `Alignment` class is the main interface for single alignment files,
+    providing methods that parse, query, retrieve and modify alignment data.
+    It is usually created within the context of `AlignmentList`,
+    which handles the connection with the sqlite database. Nevertheless,
+    `Alignment` instances can be created by providing the `input_alignment`
+    argument, which can be one of the following:
+
+    - path to alignment file. In this case, the file is parsed and
+      information stored in a new sqlite table.
+
+    - sqlite table name. In this case, the table name must be present
+      in the database.
+
+    In either case, the sqlite `Connection` and `Cursor` objects should
+    be provided.
     
     When an `Alignment` object is instantiated, it first generates the 
     `table_name` based on the `input_alignment` string, filtering all
@@ -524,38 +533,38 @@ class Alignment(Base):
     input_alignment : str
         Can be either the path to an alignment file or the name of a table
         in the sqlite database.
-    input_format : str
-        File format of `input_alignment`. If `input_alignment` is a
-        file path, the format will be automatically detect from the file.
-        The value provided with this argument overrides the automatic 
-        detection's result.
-    partitions : `trifusion.process.data.Partitions`
-        If provided, it will set the `partitions` attribute. This should
-        be used only when `input_alignment` is a database table name.
-    locus_length : int
-        Sets the length of the current alignment, stored in the `locus_length`
-        attribute. This option should only be used when `input_alignment`
-        is a database table name. Otherwise, it is automatically set during
-        alignment parsing.
-    sequence_code : tuple
-        Sets the `sequence_code` attribute with the information on
-        (<sequence_type>, <missing data symbol>). This option should only be
-         used when `input_alignment` is a database table name. Otherwise, 
-         it is automatically set during alignment parsing.
-    taxa_list : list
-        Sets the list attribute `taxa_list` with the names of the taxa
-        present in the alignment. This option should only be
-        used when `input_alignment` is a database table name. Otherwise,
-        it is automatically set during alignment parsing.
-    taxa_idx : dict
-        Sets the dictionary attribute `taxa_idx` that maps the taxon names
-        to their index in the sqlite database table. This option should only
-        be used when `input_alignment` is a database table name. Otherwise,
-        it is automatically set during alignment parsing.
     sql_cursor : sqlite3.Cursor
         Cursor object of the sqlite database.
     sql_con : sqlite3.Connection
         Connection object of the sqlite database.
+    input_format : str, optional
+        File format of `input_alignment`. If `input_alignment` is a
+        file path, the format will be automatically detect from the file.
+        The value provided with this argument overrides the automatic 
+        detection's result.
+    partitions : `trifusion.process.data.Partitions`, optional
+        If provided, it will set the `partitions` attribute. This should
+        be used only when `input_alignment` is a database table name.
+    locus_length : int, optional
+        Sets the length of the current alignment, stored in the `locus_length`
+        attribute. This option should only be used when `input_alignment`
+        is a database table name. Otherwise, it is automatically set during
+        alignment parsing.
+    sequence_code : tuple, optional
+        Sets the `sequence_code` attribute with the information on
+        (<sequence_type>, <missing data symbol>). This option should only be
+         used when `input_alignment` is a database table name. Otherwise, 
+         it is automatically set during alignment parsing.
+    taxa_list : list, optional
+        Sets the list attribute `taxa_list` with the names of the taxa
+        present in the alignment. This option should only be
+        used when `input_alignment` is a database table name. Otherwise,
+        it is automatically set during alignment parsing.
+    taxa_idx : dict, optional
+        Sets the dictionary attribute `taxa_idx` that maps the taxon names
+        to their index in the sqlite database table. This option should only
+        be used when `input_alignment` is a database table name. Otherwise,
+        it is automatically set during alignment parsing.
     
     Attributes
     ----------
@@ -581,12 +590,12 @@ class Alignment(Base):
         gaps and will only be used when nexus is in the output format.
     e : None or Exception
         Stores any exceptions that occur during the parsing of the 
-        alignment file. If remains None unless something wrong happens.
+        alignment file. It remains None unless something wrong happens.
     taxa_list : list
         List with the active taxon names.
-    taxa_idx: dict
+    taxa_idx : dict
         Maps the taxon names to their corresponding index in the sqlite 
-        database. The index is not retrieve from the position of the taxon
+        database. The index is not retrieved from the position of the taxon
         in `taxa_list` to prevent messing up when taxa are removed from the
         `Alignment` object.
     shelved_taxa : list
@@ -606,15 +615,27 @@ class Alignment(Base):
     
     Notes
     -----
-    The `Alignment` class was designed to be a ligthweight, fast and
+    The `Alignment` class is not meant to be used directly (although it is
+    quite possible to do so if you handle the database connections before).
+    Instead, use the `AlignmentList` class, even if there is only one
+    alignment. All `Alignment` methods are available from the `AlignmentList`
+    and it is also possible to retrieve specific `Alignment` objects.
+
+    The `Alignment` class was designed to be a lightweight, fast and
     powerful interface between alignment data and a set of manipulation
-    and transformative methods.
+    and transformation methods.
     For performance and efficiency purposes, all alignment data is stored 
     in a sqlite database that prevents the entire alignment from being
     loaded into memory. To facilitate the retrieval and iteration over the
     alignment data, several methods (`iter_columns`, 'iter_sequences`, etc)
     are available to handle the interface with the database and retrieve
     only the necessary information.
+
+    See Also
+    --------
+    AlignmentList
+    AlignmentList.add_alignment_files
+    AlignmentList.retrieve_alignment
     """
 
     def __init__(self, input_alignment, input_format=None, partitions=None,
@@ -814,7 +835,7 @@ class Alignment(Base):
         ----------
         table_name : str
             Name of the table to be created.
-        cur : sqlite3.Cursor
+        cur : sqlite3.Cursor, optional
             Custom Cursor object used to query the database.
         """
 
@@ -837,7 +858,7 @@ class Alignment(Base):
         ----------
         table_name : str
             Name of the table.
-        cur: sqlite3.Cursor
+        cur: sqlite3.Cursor, optional
             Custom Cursor object used to query the database.
 
         Returns
@@ -850,10 +871,10 @@ class Alignment(Base):
         -----
         This returns a list that will contain one item if the table exists
         in the database. If it doesn't exist, returns an empty list.
-        Therefore, this can be used simply like
+        Therefore, this can be used simply like::
         
-            `if self._table_exists("my_table"):`
-            `     # Do stuff`
+            if self._table_exists("my_table"):
+                 # Do stuff`
         """
 
         if not cur:
@@ -904,7 +925,7 @@ class Alignment(Base):
             A ProgressBar object used to log the progress of TriSeq execution.
         total : int
             Expected total of the task's progress.
-        msg : str
+        msg : str, optional
             A secondary message that appears in TriFusion's progress dialogs.
 
         Notes
@@ -921,10 +942,15 @@ class Alignment(Base):
 
         Examples
         --------
-        Start a progress counter  for a task that will make 100 iterations:
+        Start a progress counter  for a task that will make 100 iterations::
 
-        self._set_pipes(ns=ns_obj, pbar=pbar_obj, total=100,
-                        msg="Some message")
+          self._set_pipes(ns=ns_obj, pbar=pbar_obj, total=100,
+          msg="Some message")
+
+        See Also
+        --------
+        _reset_pipes
+        _update_pipes
         """
 
         # Check if the `sa` attribute exists in the Namespace object.
@@ -968,7 +994,7 @@ class Alignment(Base):
             A ProgressBar object used to log the progress of TriSeq execution.
         value : int
             Value of the current progress index
-        msg : str
+        msg : str, optional
             A secondary message that appears in TriFusion's progress dialogs.
 
         Notes
@@ -985,11 +1011,16 @@ class Alignment(Base):
 
         Examples
         --------
-        Update the counter in an iteration of 100:
+        Update the counter in an iteration of 100::
 
             for i in range(100):
                 self._update_pipes(ns=ns_obj, pbar=pbar_obj, value=i,
                                    msg="Some string")
+
+        See Also
+        --------
+        _set_pipes
+        _reset_pipes
         """
 
         try:
@@ -1019,6 +1050,11 @@ class Alignment(Base):
         ns : multiprocesssing.Manager.Namespace
             A Namespace object used to communicate with the main thread
             in TriFusion.
+
+        See Also
+        --------
+        _set_pipes
+        _update_pipes
         """
 
         try:
@@ -1392,8 +1428,8 @@ class Alignment(Base):
         the parser has to read the entire file. To prevent the entire
         alignment to be loaded into memory, we actually iterate over a range
         determined by the number of taxa in the alignment. In each iteration,
-        we open a file handle and we retrieve only the sequence of the
-        taxon for a particular taxon. This ensures that only sequence data for
+        we open a file handle and we retrieve only the sequence of
+        a particular taxon. This ensures that only sequence data for
         a single taxon is store in memory at any given time. This also means
         that the alignment file has to be read N times, where N = number of
         taxa. However, since the vast majority of lines are actually skipped
@@ -1486,8 +1522,8 @@ class Alignment(Base):
         the parser has to read the entire file. To prevent the entire
         alignment to be loaded into memory, we actually iterate over a range
         determined by the number of taxa in the alignment. In each iteration,
-        we open a file handle and we retrieve only the sequence of the
-        taxon for a particular taxon. This ensures that only sequence data for
+        we open a file handle and we retrieve only the sequence of a
+        particular taxon. This ensures that only sequence data for
         a single taxon is store in memory at any given time. This also means
         that the alignment file has to be read N times, where N = number of
         taxa. However, since the vast majority of lines are actually skipped
@@ -1695,7 +1731,7 @@ class Alignment(Base):
     def _read_fasta(self):
         """Alignment parser for fasta format.
 
-        Parses a fasta alignment file and stored taxa and sequence data in
+        Parses a fasta alignment file and stores taxa and sequence data in
         the database.
 
         Returns
@@ -1850,7 +1886,7 @@ class Alignment(Base):
     def _read_nexus(self):
         """Alignment parser for nexus format.
 
-        Parses a nexus alignment file and stored taxa and sequence data in
+        Parses a nexus alignment file and stores taxa and sequence data in
         the database.
 
         Returns
@@ -1994,7 +2030,7 @@ class Alignment(Base):
     def _read_stockholm(self):
         """Alignment parser for stockholm format.
 
-        Parses a stockholm alignment file and stored taxa and sequence data in
+        Parses a stockholm alignment file and stores taxa and sequence data in
         the database.
 
         Returns
@@ -2071,7 +2107,7 @@ class Alignment(Base):
         
         Parameters
         ----------
-        size_check : bool
+        size_check : bool, optional
             If True, perform a check for sequence size consistency across
             taxa (default is True).
         """
@@ -2124,7 +2160,7 @@ class Alignment(Base):
         taxa_list_file : list or string
             List containing taxa names or string with path to a CSV file
             containig the taxa names.
-        mode : {"remove", "inverse"}
+        mode : {"remove", "inverse"}, optional
             The removal mode (default is remove).
         """
 
@@ -2198,37 +2234,37 @@ class Alignment(Base):
 
         Parameters
         ----------
-        write_haplotypes : bool
+        write_haplotypes : bool, optional
             If True, a file mapping the taxa names name to their respective
             haplotype name will be generated (default is True).
-        haplotypes_file : string
+        haplotypes_file : string, optional
             Name of the file mapping taxa names to their respective haplotype.
             Only used when `write_haplotypes` is True. If it not provided and
             `write_haplotypes` is True, the file name will be determined
             from `Alignment.name`.
-        dest : string
+        dest : string, optional
             Path of directory where `haplotypes_file` will be generated
             (default is ".").
-        conversion_suffix : string
+        conversion_suffix : string, optional
             Suffix appended to the haplotypes file. Only used when
             `write_haplotypes` is True and `haplotypes_file` is None.
-        haplotype_name : string
+        haplotype_name : string, optional
             Prefix of the haplotype string. The final haplotype name will be
             `haplotype_name` + <int> (default is "Hap").
-        table_in : string
+        table_in : string, optional
             Name of database table containing the alignment data that is
             used for this operation.
-        table_out : string
+        table_out : string, optional
             Name of database table where the final alignment will be inserted
             (default is "collapsed").
-        use_main_table : bool
+        use_main_table : bool, optional
             If True, both `table_in` and `table_out` are ignore and the main
             table `Alignment.table_name` is used as the input and output
             table (default is False).
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
 
         See Also
@@ -2329,7 +2365,7 @@ class Alignment(Base):
             sharing the same haplotype.
         output_file : str
             Name of the haplotype correspondence file
-        dest : str
+        dest : str, optional
             Path to directory where the `output_file` will be written.
         """
 
@@ -2365,20 +2401,20 @@ class Alignment(Base):
         ----------
         consensus_type : {"IUPAC", "Soft mask", "Remove", "First sequence"}
             Type of variation handling. See summary above.
-        table_in : string
+        table_in : string, optional
             Name of database table containing the alignment data that is
             used for this operation.
-        table_out : string
+        table_out : string, optional
             Name of database table where the final alignment will be inserted
             (default is "consensus").
-        use_main_table : bool
+        use_main_table : bool, optional
             If True, both `table_in` and `table_out` are ignore and the main
             table `Alignment.table_name` is used as the input and output
             table (default is False).
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
 
         See Also
@@ -2477,6 +2513,10 @@ class Alignment(Base):
         ----------
         partition_obj : trifusion.process.data.Partitions
             Partitions object.
+
+        See Also
+        --------
+        trifusion.process.data.Partitions
         """
 
         # Checks if total lenght of partitions matches the lenght of the
@@ -2650,20 +2690,20 @@ class Alignment(Base):
             List of three bool elements that correspond to each codon position.
             Ex. [True, True, True] will save all positions while
             [True, True, False] will exclude the third codon position
-        table_in : string
+        table_in : string, optional
             Name of database table containing the alignment data that is
             used for this operation.
-        table_out : string
+        table_out : string, optional
             Name of database table where the final alignment will be inserted
             (default is "filter").
-        use_main_table : bool
+        use_main_table : bool, optional
             If True, both `table_in` and `table_out` are ignore and the main
             table `Alignment.table_name` is used as the input and output
             table (default is False).
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
 
         See Also
@@ -2726,20 +2766,20 @@ class Alignment(Base):
 
         Parameters
         ----------
-        table_in : string
+        table_in : string, optional
             Name of database table containing the alignment data that is
             used for this operation.
-        table_out : string
+        table_out : string, optional
             Name of database table where the final alignment will be inserted
             (default is "gaps").
-        use_main_table : bool
+        use_main_table : bool, optional
             If True, both `table_in` and `table_out` are ignore and the main
             table `Alignment.table_name` is used as the input and output
             table (default is False).
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
 
         See Also
@@ -2854,9 +2894,13 @@ class Alignment(Base):
         table_out : string
             Name of database table where the final alignment will be inserted
             (default is "collapsed").
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
+
+        See Also
+        --------
+        filter_missing_data
         """
 
         self._set_pipes(ns, None, total=len(self.taxa_list))
@@ -2908,9 +2952,10 @@ class Alignment(Base):
         
         Filters alignment columns based on the amount of missing data and
         gap content. If the calculated content is higher than a defined
-        threshold, the column is removed from the final alignment. Settings
+        threshold, the column is removed from the final alignment. Setting
         `gap_threshold` and `missing_threshold` to 0 results in an alignment
-        with no missing data, while setting them to 100 not remove any column.
+        with no missing data, while setting them to 100 will not remove any
+        column.
 
         This method should not be called directly. Instead it is used by the
         `filter_missing_data` method.
@@ -2929,9 +2974,13 @@ class Alignment(Base):
         table_out : string
             Name of database table where the final alignment will be inserted
             (default is "collapsed").
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocessing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
+
+        See Also
+        --------
+        filter_missing_data
         """
 
         self._set_pipes(ns, None, total=self.locus_length)
@@ -3010,17 +3059,17 @@ class Alignment(Base):
         missing_threshold : int
             Integer between 0 and 100 defining the percentage above which
             a column with that gap+missing percentage is removed.
-        table_in : string
+        table_in : string, optional
             Name of database table containing the alignment data that is
             used for this operation.
-        table_out : string
+        table_out : string, optional
             Name of database table where the final alignment will be inserted
             (default is "filter").
-        use_main_table : bool
+        use_main_table : bool, optional
             If True, both `table_in` and `table_out` are ignore and the main
             table `Alignment.table_name` is used as the input and output
             table (default is False).
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
         """
@@ -3087,13 +3136,13 @@ class Alignment(Base):
         max_val : int
             Maximum number of segregating sites for the alignment to pass.
             Can be None, in which case there is no upper bound.
-        table_in : string
+        table_in : string, optional
             Name of database table containing the alignment data that is
             used for this operation.
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
 
         Returns
@@ -3159,13 +3208,13 @@ class Alignment(Base):
         max_val : int
             Maximum number of informative sites for the alignment to pass.
             Can be None, in which case there is no upper bound.
-        table_in : string
+        table_in : string, optional
             Name of database table containing the alignment data that is
             used for this operation.
-        ns : multiprocesssing.Manager.Namespace
+        ns : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
 
         Returns
@@ -3235,15 +3284,15 @@ class Alignment(Base):
 
         Parameters
         ----------
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -3295,30 +3344,30 @@ class Alignment(Base):
         return True
 
     def _write_fasta(self, output_file, **kwargs):
-        """Writes `Alignment` object into fast output format.
+        """Writes `Alignment` object into fasta output format.
 
         Parameters
         ----------
         output_file : str
             Name of the output file. If using `ns_pipe` in TriFusion,
             it will prompt the user if the output file already exists.
-        interleave : bool
+        interleave : bool, optional
             Determines whether the output alignment
             will be in leave (False) or interleave (True) format. Not all
             output formats support this option.
-        ld_hat : bool
+        ld_hat : bool, optional
             If True, the fasta output format will include a first line
             compliant with the format of LD Hat and will truncate sequence
             names and sequence length per line accordingly.
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -3374,34 +3423,34 @@ class Alignment(Base):
         output_file : str
             Name of the output file. If using `ns_pipe` in TriFusion,
             it will prompt the user if the output file already exists.
-        tx_space_phy : int
+        tx_space_phy : int, optional
             Space (in characters) provided for the taxon name in phylip
             format (default is 40).
-        cut_space_phy : int
+        cut_space_phy : int, optional
             Set the maximum allowed character length for taxon names in
             phylip format. Longer  names are truncated (default is 39).
-        interleave : bool
+        interleave : bool, optional
             Determines whether the output alignment
             will be in leave (False) or interleave (True) format. Not all
             output formats support this option.
-        phy_truncate_names : bool
+        phy_truncate_names : bool, optional
             If True, taxon names in phylip format are truncated to a maximum
             of 10 characters (default is False).
-        partition_file : bool
+        partition_file : bool, optional
             If True, the auxiliary partitions file will be written (default
             is True).
-        model_phylip : str
+        model_phylip : str, optional
             Substitution model for the auxiliary partition file of phylip
             format, compliant with RAxML.
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -3497,36 +3546,36 @@ class Alignment(Base):
         output_format : list
             List with the output formats to generate. Options are:
             {"fasta", "phylip", "nexus", "stockholm", "gphocs", "ima2"}.
-        tx_space_nex : int
+        tx_space_nex : int, optional
             Space (in characters) provided for the taxon name in nexus
             format (default is 40).
-        cut_space_nex : int
+        cut_space_nex : int, optional
             Set the maximum allowed character length for taxon names in
             nexus format. Longer  names are truncated (default is 39).
-        interleave : bool
+        interleave : bool, optional
             Determines whether the output alignment
             will be in leave (False) or interleave (True) format. Not all
             output formats support this option.
-        gap : str
+        gap : str, optional
             Symbol for alignment gaps (default is '-').
-        use_charset : bool
+        use_charset : bool, optional
             If True, partitions from the `Partitions` object will be written
             in the nexus output format (default is True).
-        use_nexus_models : bool
+        use_nexus_models : bool, optional
             If True, writes the partitions charset block in nexus format.
-        outgroup_list : list
+        outgroup_list : list, optional
             Specify list of taxon names that will be defined as the outgroup
             in the nexus output format. This may be useful for analyses with
             MrBayes or other software that may require outgroups.
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -3695,15 +3744,15 @@ class Alignment(Base):
 
         Parameters
         ----------
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -3733,15 +3782,15 @@ class Alignment(Base):
 
         Parameters
         ----------
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -3799,10 +3848,10 @@ class Alignment(Base):
 
         Parameters
         ----------
-        tx_space_ima2 : int
+        tx_space_ima2 : int, optional
             Space (in characters) provided for the taxon name in ima2
             format (default is 10).
-        cut_space_ima2 : int
+        cut_space_ima2 : int, optional
             Set the maximum allowed character length for taxon names in
             ima2 format. Longer  names are truncated (default is 8).
         ima2_params : list
@@ -3814,15 +3863,15 @@ class Alignment(Base):
                3. (str) Mutational model for all alignments.
                4. (str) inheritance scalar.
 
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -3957,21 +4006,21 @@ class Alignment(Base):
 
         Parameters
         ----------
-        tx_space_phy : int
+        tx_space_phy : int, optional
             Space (in characters) provided for the taxon name in phylip
             format (default is 40).
-        cut_space_phy : int
+        cut_space_phy : int, optional
             Set the maximum allowed character length for taxon names in
             phylip format. Longer  names are truncated (default is 39).
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -4044,38 +4093,38 @@ class Alignment(Base):
         output_file : str
             Name of the output file. If using `ns_pipe` in TriFusion,
             it will prompt the user if the output file already exists.
-        tx_space_nex : int
+        tx_space_nex : int, optional
             Space (in characters) provided for the taxon name in nexus
             format (default is 40).
-        tx_space_phy : int
+        tx_space_phy : int, optional
             Space (in characters) provided for the taxon name in phylip
             format (default is 40).
-        tx_space_ima2 : int
+        tx_space_ima2 : int, optional
             Space (in characters) provided for the taxon name in ima2
             format (default is 10).
-        cut_space_nex : int
+        cut_space_nex : int, optional
             Set the maximum allowed character length for taxon names in
             nexus format. Longer  names are truncated (default is 39).
-        cut_space_phy : int
+        cut_space_phy : int, optional
             Set the maximum allowed character length for taxon names in
             phylip format. Longer  names are truncated (default is 39).
-        cut_space_ima2 : int
+        cut_space_ima2 : int, optional
             Set the maximum allowed character length for taxon names in
             ima2 format. Longer  names are truncated (default is 8).
-        interleave : bool
+        interleave : bool, optional
             Determines whether the output alignment
             will be in leave (False) or interleave (True) format. Not all
             output formats support this option.
-        gap : str
+        gap : str, optional
             Symbol for alignment gaps (default is '-').
-        model_phylip : str
+        model_phylip : str, optional
             Substitution model for the auxiliary partition file of phylip
             format, compliant with RAxML.
-        outgroup_list : list
+        outgroup_list : list, optional
             Specify list of taxon names that will be defined as the outgroup
             in the nexus output format. This may be useful for analyses with
             MrBayes or other software that may require outgroups.
-        ima2_params : list
+        ima2_params : list, optional
             A list with the additional information required for the ima2
             output format. The list should contains the following information:
 
@@ -4084,33 +4133,33 @@ class Alignment(Base):
                3. (str) Mutational model for all alignments.
                4. (str) inheritance scalar.
 
-        use_charset : bool
+        use_charset : bool, optional
             If True, partitions from the `Partitions` object will be written
             in the nexus output format (default is True).
-        partition_file : bool
+        partition_file : bool, optional
             If True, the auxiliary partitions file will be written (default
             is True).
-        output_dir : str
+        output_dir : str, optional
             If provided, the output file will be written on the specified
             directory.
-        phy_truncate_names : bool
+        phy_truncate_names : bool, optional
             If True, taxon names in phylip format are truncated to a maximum
             of 10 characters (default is False).
-        ld_hat : bool
+        ld_hat : bool, optional
             If True, the fasta output format will include a first line
             compliant with the format of LD Hat and will truncate sequence
             names and sequence length per line accordingly.
-        use_nexus_models : bool
+        use_nexus_models : bool, optional
             If True, writes the partitions charset block in nexus format.
-        ns_pipe : multiprocesssing.Manager.Namespace
+        ns_pipe : multiprocesssing.Manager.Namespace, optional
             A Namespace object used to communicate with the main thread
             in TriFusion.
-        pbar : ProgressBar
+        pbar : ProgressBar, optional
             A ProgressBar object used to log the progress of TriSeq execution.
-        table_suffix : string
+        table_suffix : string, optional
             Suffix of the table from where the sequence data is fetched.
             The suffix is append to `Alignment.table_name`.
-        table_name : string
+        table_name : string, optional
             Name of the table from where the sequence data is fetched.
         """
 
@@ -4197,7 +4246,7 @@ class Alignment(Base):
 
 
 class AlignmentList(Base):
-    """Main interface with a groups of `Alignment` objects.
+    """Main interface for groups of `Alignment` objects.
 
     The `AlignmentList` class can be seen as a group of `Alignment` objects
     that is treated as a single cohesive data set. It is the main class
@@ -4226,24 +4275,24 @@ class AlignmentList(Base):
     such as concatenation (`concatenate`), filter by taxa (`filter_by_taxa`),
     etc.
 
-    Plotting method are exclusive to the `AlignmentList` object, even the
+    Plotting methods are exclusive to `AlignmentList`, even the
     ones that are focused on single alignments. In this case, the
-    `Alignment` object can be retrieved and processed individually directly
+    `Alignment` object can be specified and processed individually directly
     from this class.
 
     Parameters
     ----------
     alignment_list : list
         List with paths to alignment files. Can be empty.
-    sql_db : str
+    sql_db : str, optional
         Path where the sqlite3 database will be created.
-    db_cur : sqlite3.Cursor
+    db_cur : sqlite3.Cursor, optional
         Provide a database Cursor object in conjunction with the Connection
         object (`db_con`) to connect to an existing database.
-    db_con : sqlite3.Connection
+    db_con : sqlite3.Connection, optional
         Provide a database Connection object in conjunction with the Cursor
         object (`db_cur`) to connect to an existing database.
-    pbar : ProgressBar
+    pbar : ProgressBar, optional
         A ProgressBar object used to log the progress of TriSeq execution.
 
     Attributes
@@ -4327,9 +4376,10 @@ class AlignmentList(Base):
             Path to sqlite3 database file 
             """
 
-        self.con = sqlite3.connect(self.sql_path, check_same_thread=False)
-        self.cur = self.con.cursor()
-        self.cur.execute("PRAGMA synchronous = OFF")
+        if not db_cur and not db_con:
+            self.con = sqlite3.connect(self.sql_path, check_same_thread=False)
+            self.cur = self.con.cursor()
+            self.cur.execute("PRAGMA synchronous = OFF")
 
         self.alignments = OrderedDict()
         """
@@ -4443,10 +4493,10 @@ class AlignmentList(Base):
         ----------
         table_name : str
             Name of the table to be created.
-        index : list
+        index : list, optional
             Provide a list with [<name of index>, <columns to be indexed>].
             (e.g., ["concindex", "txId"]).
-        cur : sqlite3.Cursor
+        cur : sqlite3.Cursor, optional
             Custom Cursor object used to query the database.
         """
 
@@ -4473,7 +4523,7 @@ class AlignmentList(Base):
         ----------
         table_name : str
             Name of the table.
-        cur: sqlite3.Cursor
+        cur: sqlite3.Cursor, optional
             Custom Cursor object used to query the database.
 
         Returns
@@ -4486,10 +4536,10 @@ class AlignmentList(Base):
         -----
         This returns a list that will contain one item if the table exists
         in the database. If it doesn't exist, returns an empty list.
-        Therefore, this can be used simply like
+        Therefore, this can be used simply like::
 
-            `if self._table_exists("my_table"):`
-            `     # Do stuff`
+            if self._table_exists("my_table"):
+                 # Do stuff
         """
 
         if not cur:
@@ -4502,18 +4552,18 @@ class AlignmentList(Base):
     def _set_pipes(self, ns=None, pbar=None, total=None, msg=None):
         """Setup of progress indicators for both GUI and CLI task executions.
 
-         This handles the setup of the objects responsible for updating
-         the progress of task's execution of both TriFusion (GUI) and
-         TriSeq (CLI). At the beginning of any given task, these objects
-         can be initialized by providing either the Namespace object (`ns`)
-         in the case of TriFusion, or the ProgressBar object (`pbar`), in
-         the case of TriSeq. Along with one of these objects, the expected
-         `total` of the progress should also be provided. The `ns` and
-         `pbar` objects are updated at each iteration of a given task,
-         and the `total` is used to get a measure of the progress.
+        This handles the setup of the objects responsible for updating
+        the progress of task's execution of both TriFusion (GUI) and
+        TriSeq (CLI). At the beginning of any given task, these objects
+        can be initialized by providing either the Namespace object (`ns`)
+        in the case of TriFusion, or the ProgressBar object (`pbar`), in
+        the case of TriSeq. Along with one of these objects, the expected
+        `total` of the progress should also be provided. The `ns` and
+        `pbar` objects are updated at each iteration of a given task,
+        and the `total` is used to get a measure of the progress.
 
-         Optionally, a message can be also provided for the Namespace object
-         that will be used by TriFusion.
+        Optionally, a message can be also provided for the Namespace object
+        that will be used by TriFusion.
 
         Parameters
         ----------
@@ -4524,7 +4574,7 @@ class AlignmentList(Base):
             A ProgressBar object used to log the progress of TriSeq execution.
         total : int
             Expected total of the task's progress.
-        msg : str
+        msg : str, optional
             A secondary message that appears in TriFusion's progress dialogs.
 
         Notes
@@ -4541,10 +4591,10 @@ class AlignmentList(Base):
 
         Examples
         --------
-        Start a progress counter  for a task that will make 100 iterations:
+        Start a progress counter  for a task that will make 100 iterations::
 
-        self._set_pipes(ns=ns_obj, pbar=pbar_obj, total=100,
-                        msg="Some message")
+            self._set_pipes(ns=ns_obj, pbar=pbar_obj, total=100,
+                            msg="Some message")
         """
 
         if ns:
@@ -4577,7 +4627,7 @@ class AlignmentList(Base):
             A ProgressBar object used to log the progress of TriSeq execution.
         value : int
             Value of the current progress index
-        msg : str
+        msg : str, optional
             A secondary message that appears in TriFusion's progress dialogs.
 
         Notes
@@ -4593,7 +4643,7 @@ class AlignmentList(Base):
 
         Examples
         --------
-        Update the counter in an iteration of 100:
+        Update the counter in an iteration of 100::
 
             for i in range(100):
                 self._update_pipes(ns=ns_obj, pbar=pbar_obj, value=i,
@@ -4685,7 +4735,7 @@ class AlignmentList(Base):
                 self.alignments.values() + self.shelve_alignments.values()]
 
     def remove_tables(self, preserve_tables=None, trash_tables=None):
-        """Drops tables from the database
+        """Drops tables from the database.
 
         This method can be used to drop tables from the database.
 
@@ -4698,9 +4748,9 @@ class AlignmentList(Base):
 
         Parameters
         ----------
-        preserve_tables : list
+        preserve_tables : list, optional
             If provided, the table names in this list will NOT be dropped.
-        trash_tables : list
+        trash_tables : list, optional
             If provided, only the table names in this list will be dropped.
             Takes precedence over `preserve_tables` if both are provided.
         """
@@ -4842,7 +4892,7 @@ class AlignmentList(Base):
         self.taxa_names = self._get_taxa_list()
 
     def update_taxa_names(self, taxa_list=None, all_taxa=False):
-        """Sets the active taxa
+        """Sets the active taxa.
 
         Sets the 'active' taxa stored in the `taxa_names` attribute and the
         'inactive' taxa stored in the `shelved_taxa` attribute, based on
@@ -4889,7 +4939,7 @@ class AlignmentList(Base):
             aln_obj.shelve_taxa(self.shelved_taxa)
 
     def format_list(self):
-        """Returns list of unique sequence types from `Alignment` objects
+        """Returns list of unique sequence types from `Alignment` objects.
 
         Returns
         -------
@@ -4902,7 +4952,7 @@ class AlignmentList(Base):
                          self.alignments.values() if x]))
 
     def _get_taxa_list(self, only_active=False):
-        """Gets the global taxa list from all alignments
+        """Gets the global taxa list from all alignments.
 
         If called with no arguments, it returns the taxa list from *all*
         alignments, including the 'inactive' ones. The `only_active`
@@ -4931,7 +4981,7 @@ class AlignmentList(Base):
         return full_taxa
 
     def _get_filename_list(self):
-        """Returns list with the `Alignment.name` of alignments
+        """Returns list with the `Alignment.name` of alignments.
 
         Returns
         -------
@@ -4941,7 +4991,7 @@ class AlignmentList(Base):
         return [alignment.name for alignment in self.alignments.values()]
 
     def set_partition_from_alignment(self, alignment_obj):
-        """Updates `partitions` object with the provided `Alignment` object
+        """Updates `partitions` object with the provided `Alignment` object.
 
         Uses the `partitions` of an `Alignment` object to set the `partitions`
         attribute of `AlignmentList`
@@ -5335,7 +5385,7 @@ class AlignmentList(Base):
         self._reset_pipes(ns)
 
     def filter_by_taxa(self, taxa_list, filter_mode, ns=None, pbar=None):
-        """Filters `alignments` if they contain or exclude certain taxa
+        """Filters `alignments` if they contain or exclude certain taxa.
 
         Filters the `alignments` attribute by a given taxa list.
         The filtering may be performed to filter alignments
@@ -5617,7 +5667,7 @@ class AlignmentList(Base):
         self._reset_pipes(ns)
 
     def remove_taxa(self, taxa_list, mode="remove"):
-        """Removes the specified taxa
+        """Removes the specified taxa.
 
         Removes the specified taxa from the global `AlignmentList` attributes
         and from each `Alignment` object.
@@ -5710,7 +5760,7 @@ class AlignmentList(Base):
         self.taxa_names = self._get_taxa_list()
 
     def select_by_taxa(self, taxa_list, mode="strict"):
-        """Selects a list of `Alignment` objects by taxa
+        """Selects a list of `Alignment` objects by taxa.
 
         This method is used to select `Alignments` based on whether they
         contain or exclude certain taxa. The selected alignments are
@@ -5986,7 +6036,7 @@ class AlignmentList(Base):
             return consensus_aln
 
     def reverse_concatenate(self, ns=None):
-        """Reverse a concatenated file according to the partitions
+        """Reverse a concatenated file according to the partitions.
 
         This is basically a wrapper of the `reverse_concatenate` method
         of `Alignment` and is rarely useful. It is preferable to retrieve
@@ -6016,7 +6066,7 @@ class AlignmentList(Base):
 
     def write_to_file(self, output_format, conversion_suffix="",
                       output_suffix="", *args, **kwargs):
-        """Writes `Alignment` objects into files
+        """Writes `Alignment` objects into files.
 
         Wrapper of the `write_to_file` method of the `Alignment` object.
 
@@ -6196,7 +6246,7 @@ class AlignmentList(Base):
 
     # Stats methods
     def get_summary_stats(self, active_alignments=None, ns=None):
-        """Calculates summary statistics for the 'active' alignments
+        """Calculates summary statistics for the 'active' alignments.
 
         Creates/Updates summary statistics for the active alignments.
 
@@ -6350,10 +6400,11 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title}
+            "data": `numpy.array` with data for plotting,
 
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title
         """
 
         data = []
@@ -6386,11 +6437,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "legend": mpl Legend object,
-             "table_header": list with headers of table}.
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "legend": mpl Legend object,
+
+            "table_header": list with headers of table.
         """
 
         if ns:
@@ -6442,7 +6497,7 @@ class AlignmentList(Base):
 
     @check_data
     def missing_data_per_species(self, ns=None):
-        """Creates data for missing data proportion per species plot
+        """Creates data for missing data proportion per species plot.
 
         For each taxon in `taxon_list` calculate the proportion of gap,
         missing and actual data.
@@ -6456,13 +6511,19 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "legend": mpl Legend object,
-             "table_header": list with headers of table,
-             "normalize": bool, whether data values should be normalized,
-             "normalize_factor": int, factor to use in normalization}.
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "legend": mpl Legend object,
+
+            "table_header": list with headers of table,
+
+            "normalize": bool, whether data values should be normalized,
+
+            "normalize_factor": int, factor to use in normalization
         """
 
         # Data for a stacked bar plot. First element for gaps, second for
@@ -6538,11 +6599,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table,
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table
         """
 
         data_storage = OrderedDict((taxon, 0) for taxon in self.taxa_names)
@@ -6576,7 +6641,7 @@ class AlignmentList(Base):
 
     @check_data
     def missing_genes_average(self, ns=None):
-        """Creates histogram data with average missing taxa
+        """Creates histogram data with average missing taxa.
 
         Parameters
         ----------
@@ -6587,10 +6652,13 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table,
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table
         """
 
         data = []
@@ -6615,7 +6683,7 @@ class AlignmentList(Base):
 
     @check_data
     def average_seqsize_per_species(self, ns=None):
-        """Creates data for average sequence size per taxon
+        """Creates data for average sequence size per taxon.
 
         Parameters
         ----------
@@ -6626,10 +6694,13 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title
         """
 
         data_storage = OrderedDict((taxon, []) for taxon in self.taxa_names)
@@ -6663,7 +6734,7 @@ class AlignmentList(Base):
 
     @check_data
     def average_seqsize(self, ns=None):
-        """Creates data for the average sequence size for the entire data set
+        """Creates data for the average sequence size for the entire data set.
 
         Parameters
         ----------
@@ -6674,10 +6745,13 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table,
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table
         """
 
         data_storage = []
@@ -6706,7 +6780,7 @@ class AlignmentList(Base):
 
     @check_data
     def characters_proportion(self, ns=None):
-        """Creates data for the proportion of nt/aa for the data set
+        """Creates data for the proportion of nt/aa for the data set.
 
         Parameters
         ----------
@@ -6717,11 +6791,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table,
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table,
         """
 
         data_storage = Counter()
@@ -6764,7 +6842,7 @@ class AlignmentList(Base):
 
     @check_data
     def characters_proportion_per_species(self, ns=None):
-        """Creates data for the proportion of nt/aa per species
+        """Creates data for the proportion of nt/aa per species.
 
         Parameters
         ----------
@@ -6775,12 +6853,17 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "ax_names": 2 element list with axis labels [x, y],
-             "legend": mpl Legend object,
-             "title": str with title,
-             "table_header": list with headers of table}
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "legend": mpl Legend object,
+
+            "title": str with title,
+
+            "table_header": list with headers of table}
         """
 
         if ns:
@@ -6871,7 +6954,7 @@ class AlignmentList(Base):
         return float(sim), float(ef_len)
 
     def _get_informative_sites(self, aln):
-        """Calculates number of informative sites in an `Alignment`
+        """Calculates number of informative sites in an `Alignment`.
 
         Parameters
         ----------
@@ -6912,8 +6995,9 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y]}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y]
         """
 
         self._get_similarity("connect")
@@ -6964,9 +7048,11 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "color_label": str, label for colorbar}
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "color_label": str, label for colorbar
         """
 
         if ns:
@@ -7013,7 +7099,7 @@ class AlignmentList(Base):
 
     @check_data
     def sequence_similarity_gene(self, gene_name, window_size, ns=None):
-        """Creates data for sliding window sequence similarity for alignment
+        """Creates data for sliding window sequence similarity for alignment.
 
         Retrieves an alignment using `gene_name` and calculates the
         average pair-wise sequence similarity along the alignment length
@@ -7032,11 +7118,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "window_size": int, size of sliding window,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table}
+            "data": `numpy.array` with data for plotting,
+
+            "window_size": int, size of sliding window,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table
         """
 
         aln_obj = self.retrieve_alignment(gene_name)
@@ -7073,7 +7163,7 @@ class AlignmentList(Base):
 
     @check_data
     def sequence_segregation(self, ns=None, proportions=False):
-        """Creates data for overall distribution of segregating sites
+        """Creates data for overall distribution of segregating sites.
 
         Parameters
         ----------
@@ -7086,11 +7176,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table,
-             "real_bin_num":}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table,
+
+            "real_bin_num":
         """
 
         if ns:
@@ -7136,7 +7230,7 @@ class AlignmentList(Base):
     @check_data
     def sequence_segregation_per_species(self, ns=None):
         """Creates data for a triangular matrix of sequence segregation for
-        pairs of taxa
+        pairs of taxa.
 
         Parameters
         ----------
@@ -7147,9 +7241,11 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "color_label": str, label for colorbar}
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "color_label": str, label for colorbar
         """
 
         if ns:
@@ -7199,7 +7295,7 @@ class AlignmentList(Base):
 
     @check_data
     def sequence_segregation_gene(self, gene_name, window_size, ns=None):
-        """Create data for a sliding window analysis of segregating sites
+        """Create data for a sliding window analysis of segregating sites.
 
         Retrieves an alignment using `gene_name` and calculates the
         number of segregating sites along the alignment length
@@ -7218,11 +7314,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "window_size": int, size of sliding window,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table}
+            "data": `numpy.array` with data for plotting,
+
+            "window_size": int, size of sliding window,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table
         """
 
         aln_obj = self.retrieve_alignment(gene_name)
@@ -7266,11 +7366,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "correlation": bool, whether to perform spearman correlation,
-             "title": str with title,
-             "table_header": list with headers of table}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "correlation": bool, whether to perform spearman correlation,
+
+            "title": str with title,
+
+            "table_header": list with headers of table
         """
 
         if ns:
@@ -7303,7 +7407,7 @@ class AlignmentList(Base):
 
     @check_data
     def allele_frequency_spectrum(self, ns=None, proportions=False):
-        """Creates data for the allele frequency spectrum
+        """Creates data for the allele frequency spectrum.
 
         Calculates the allele frequency spectrum of the entire
         alignment data set. Here, multiple alignments are effectively treated
@@ -7321,10 +7425,13 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table
         """
 
         # Make check for sequence type consistency here for TriStats.py. In
@@ -7373,7 +7480,7 @@ class AlignmentList(Base):
 
     @check_data
     def allele_frequency_spectrum_gene(self, gene_name):
-        """Creates data for the allele frequency spectrum of an `Alignment`
+        """Creates data for the allele frequency spectrum of an `Alignment`.
 
         Parameters
         ----------
@@ -7383,13 +7490,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table,
-             "real_bin_num":}
+            "data": `numpy.array` with data for plotting,
 
-        :param gene_name: string, gene name present in the AlignmentList object
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table,
+
+            "real_bin_num":
         """
 
         # Make check for sequence type consistency here for TriStats.py. In
@@ -7422,7 +7531,7 @@ class AlignmentList(Base):
 
     @check_data
     def taxa_distribution(self, ns=None):
-        """Creates data for a distribution of taxa frequency across alignments
+        """Creates data for a distribution of taxa frequency across alignments.
 
         Parameters
         ----------
@@ -7433,11 +7542,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "title": str with title,
-             "color_label": str, label for colorbar,
-             "real_bin_num": }
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "title": str with title,
+
+            "color_label": str, label for colorbar,
+
+            "real_bin_num":
         """
 
         if ns:
@@ -7475,11 +7588,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "labels": list, label for xticks,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "table_header": list with headers of table}
+            "data": `numpy.array` with data for plotting,
+
+            "labels": list, label for xticks,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "table_header": list with headers of table}
         """
 
         size_storage = []
@@ -7518,7 +7635,8 @@ class AlignmentList(Base):
 
     @staticmethod
     def _mad_based_outlier(p, threshold=3.5):
-        """Calculate MAD based outliers
+        """Calculate MAD based outliers.
+
         An outlier detection method based on median absolute deviation. This
         code was adapted from http://stackoverflow.com/a/22357811/1990165.
         The usage of the median is much less biased that the mean and is
@@ -7548,7 +7666,7 @@ class AlignmentList(Base):
 
     @check_data
     def outlier_missing_data(self, ns=None):
-        """Create data for missing data alignment outliers
+        """Create data for missing data alignment outliers.
 
         Get data for outlier detection of genes based on the distribution of
         average missing data per gene. Data points will be based on the
@@ -7567,11 +7685,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "outliers": list of outlier data points,
-             "outliers_labels": list of outlier labels}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "outliers": list of outlier data points,
+
+            "outliers_labels": list of outlier labels
         """
 
         if ns:
@@ -7615,7 +7737,7 @@ class AlignmentList(Base):
 
     @check_data
     def outlier_missing_data_sp(self, ns=None):
-        """Create data for missing data taxa outliers
+        """Create data for missing data taxa outliers.
 
         Gets data for outlier detection of species based on missing data. For
         this analysis, genes for which a taxa is completely absent will be
@@ -7634,11 +7756,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "outliers": list of outlier data points,
-             "outliers_labels": list of outlier labels}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "outliers": list of outlier data points,
+
+            "outliers_labels": list of outlier labels}
         """
 
         if ns:
@@ -7691,7 +7817,7 @@ class AlignmentList(Base):
 
     @check_data
     def outlier_segregating(self, ns=None):
-        """Creates data for segregating site alignment outliers
+        """Creates data for segregating site alignment outliers.
 
         Generates data for the outlier detection of genes based on
         segregating sites. The data will be based on the number of alignments
@@ -7707,11 +7833,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "outliers": list of outlier data points,
-             "outliers_labels": list of outlier labels}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "outliers": list of outlier data points,
+
+            "outliers_labels": list of outlier labels
         """
 
         if ns:
@@ -7759,7 +7889,7 @@ class AlignmentList(Base):
 
     @check_data
     def outlier_segregating_sp(self, ns=None):
-        """Create data for segregating sites taxa outliers
+        """Create data for segregating sites taxa outliers.
 
         Generates data for the outlier detection of species based on their
         average pair-wise proportion of segregating sites. Comparisons
@@ -7774,11 +7904,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "outliers": list of outlier data points,
-             "outliers_labels": list of outlier labels}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "outliers": list of outlier data points,
+
+            "outliers_labels": list of outlier labels
         """
 
         if ns:
@@ -7842,7 +7976,7 @@ class AlignmentList(Base):
 
     @check_data
     def outlier_sequence_size(self, ns=None):
-        """Creates data for sequence size alignment outliers
+        """Creates data for sequence size alignment outliers.
 
         Generates data for the outlier detection of genes based on their
         sequence length (excluding missing data).
@@ -7856,11 +7990,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "outliers": list of outlier data points,
-             "outliers_labels": list of outlier labels}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "outliers": list of outlier data points,
+
+            "outliers_labels": list of outlier labels
         """
 
         if ns:
@@ -7918,11 +8056,15 @@ class AlignmentList(Base):
         Returns
         -------
         _ : dict
-            {"data": `numpy.array` with data for plotting,
-             "ax_names": 2 element list with axis labels [x, y],
-             "title": str with title,
-             "outliers": list of outlier data points,
-             "outliers_labels": list of outlier labels}
+            "data": `numpy.array` with data for plotting,
+
+            "ax_names": 2 element list with axis labels [x, y],
+
+            "title": str with title,
+
+            "outliers": list of outlier data points,
+
+            "outliers_labels": list of outlier labels
         """
 
         if ns:
