@@ -645,7 +645,6 @@ class Alignment(Base):
         self.cur = sql_cursor
         self.con = sql_con
 
-
         if isinstance(partitions, Partitions):
             self.partitions = partitions
         else:
