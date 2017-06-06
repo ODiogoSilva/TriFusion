@@ -18,6 +18,15 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+"""
+The `base` module includes the `Base` class, which is inherited by `Alignment`
+and `AlignmentList` classes and provides several methods of general use.
+
+It also defines the `CleanUp` decorator used by TriSeq and TriStats
+to handle the generation of temporary data during their execution as well
+as keyboard interruptions.
+"""
+
 try:
     from process.error_handling import InputError, EmptyAlignment
 except ImportError:

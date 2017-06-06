@@ -59,6 +59,7 @@ multiprocessing.freeze_support()
 # Bypass default argument handling from kivy
 os.environ["KIVY_NO_ARGS"] = "1"
 
+# Comment this section until the EventLoop for sphinx building.
 # Kivy imports
 from kivy.config import Config
 
@@ -210,10 +211,10 @@ class TriFusionApp(App):
     _blue = tm.c_app_blue
     _red = tm.c_app_red
 
-    # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
-    # Setting Boolean that locks the sidepanel while it animates
+    """ Setting Boolean controlling the toggling of main headers """
     lock_side_panel = BooleanProperty(False)
+    """Setting Boolean that locks the sidepanel while it animates"""
 
     # Attribute for current screen object
     screen = None
@@ -670,8 +671,8 @@ class TriFusionApp(App):
     zorro_suffix = StringProperty("")
     zorro_dir = StringProperty("")
 
-    # Attribute storing the haplotype prefix
     hap_prefix = StringProperty("Hap")
+    """Attribute storing the haplotype prefix."""
 
     ##################################
     #
