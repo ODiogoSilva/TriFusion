@@ -1,7 +1,0 @@
-trifusion\.base\.plotter module
-===============================
-
-.. automodule:: trifusion.base.plotter
-    :members:
-    :undoc-members:
-    :show-inheritance:

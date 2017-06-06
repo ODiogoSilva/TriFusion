@@ -1,7 +1,0 @@
-trifusion\.ortho\.orthomclFilterFasta module
-============================================
-
-.. automodule:: trifusion.ortho.orthomclFilterFasta
-    :members:
-    :undoc-members:
-    :show-inheritance:

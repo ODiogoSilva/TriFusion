@@ -1,7 +1,0 @@
-trifusion\.ortho\.orthomclPairs module
-======================================
-
-.. automodule:: trifusion.ortho.orthomclPairs
-    :members:
-    :undoc-members:
-    :show-inheritance:

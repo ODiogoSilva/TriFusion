@@ -1,7 +1,0 @@
-trifusion\.base\.html\_creator module
-=====================================
-
-.. automodule:: trifusion.base.html_creator
-    :members:
-    :undoc-members:
-    :show-inheritance:

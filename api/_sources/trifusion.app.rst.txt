@@ -1,7 +1,0 @@
-trifusion\.app module
-=====================
-
-.. automodule:: trifusion.app
-    :members:
-    :undoc-members:
-    :show-inheritance:

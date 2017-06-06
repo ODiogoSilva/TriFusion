@@ -1,7 +1,0 @@
-trifusion\.process\.data module
-===============================
-
-.. automodule:: trifusion.process.data
-    :members:
-    :undoc-members:
-    :show-inheritance:

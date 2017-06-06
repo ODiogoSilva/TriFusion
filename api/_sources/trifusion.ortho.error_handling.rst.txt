@@ -1,7 +1,0 @@
-trifusion\.ortho\.error\_handling module
-========================================
-
-.. automodule:: trifusion.ortho.error_handling
-    :members:
-    :undoc-members:
-    :show-inheritance:

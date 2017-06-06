@@ -1,7 +1,0 @@
-trifusion\.TriOrtho module
-==========================
-
-.. automodule:: trifusion.TriOrtho
-    :members:
-    :undoc-members:
-    :show-inheritance:

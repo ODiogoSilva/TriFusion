@@ -1,7 +1,0 @@
-trifusion\.ortho\.orthomclDumpPairsFiles module
-===============================================
-
-.. automodule:: trifusion.ortho.orthomclDumpPairsFiles
-    :members:
-    :undoc-members:
-    :show-inheritance:
