@@ -2,10 +2,11 @@
 Introduction to TriFusion's process module
 ==========================================
 
-The `process` sub-package is the main backend of TriFusion's Process and
+The `process` subpackage is the main backend of TriFusion's Process and
 Statistics modules and of TriSeq and TriStats CLI programs. The most
-important classes are defined in the `sequence` module: `Alignment` and
-`AlignmentList`.
+important classes are defined in the :mod:`~trifusion.process.sequence` module:
+:class:`~trifusion.process.sequence.Alignment` and
+:class:`~trifusion.process.sequence.AlignmentList`.
 
 What it does
 ------------
@@ -13,27 +14,31 @@ What it does
 The `process` module contains the classes and functions responsible for
 parsing, modifying, writing and plotting alignment data.
 
-Sub modules
------------
+Submodules description
+----------------------
 
-base
-~~~~
+:mod:`~trifusion.process.base`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Contains several methods and function that are inherited or used by
-`Alignment` and `AlignmentList` objects, as well as by the TriSeq and
-TriStats CLI programs.
+:class:`~trifusion.process.sequence.Alignment` and
+:class:`~trifusion.process.sequence.AlignmentList` objects, as well as by
+the TriSeq and TriStats CLI programs.
 
-data
+:mod:`~trifusion.process.data`
 ~~~~
-Contains the `Partition` class, used by `Alignment` and `AlignmentList`
+Contains the :class:`~trifusion.process.data.Partitions`  class, used by
+:class:`~trifusion.process.sequence.Alignment` and
+:class:`~trifusion.process.sequence.AlignmentList`
 classes to handle partitions in the alignments.
 
-error_handling
+:mod:`~trifusion.process.error_handling`
 ~~~~~~~~~~~~~~
 Contains custom made Exception sub-classes.
 
-sequence
+:mod:`~trifusion.process.sequence`
 ~~~~~~~~
-Contains the `Alignment` and `AlignmentList` classes, responsible for the
-majority of the heavy lifting when dealing with alignment files. See the
-module's documentation for further details.
+Contains the :class:`~trifusion.process.sequence.Alignment`  and
+:class:`~trifusion.process.sequence.AlignmentList` classes, responsible
+for the majority of the heavy lifting when dealing with alignment files. See
+the module's documentation for further details.
 """
