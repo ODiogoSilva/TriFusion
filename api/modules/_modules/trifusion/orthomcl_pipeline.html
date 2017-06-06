@@ -1,0 +1,800 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.orthomcl_pipeline &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../trifusion.html">TriFusion modules and API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>trifusion.orthomcl_pipeline</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trifusion.orthomcl_pipeline</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python2</span>
+<span class="c1">#</span>
+<span class="c1">#  Copyright 2012 Unknown &lt;diogo@arch&gt;</span>
+<span class="c1">#</span>
+<span class="c1">#  This program is free software; you can redistribute it and/or modify</span>
+<span class="c1">#  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">#  the Free Software Foundation; either version 2 of the License, or</span>
+<span class="c1">#  (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">#  GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU General Public License</span>
+<span class="c1">#  along with this program; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,</span>
+<span class="c1">#  MA 02110-1301, USA.</span>
+
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># Suppress import warnings</span>
+<span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="kn">import</span> <span class="nn">codecs</span>
+    <span class="kn">import</span> <span class="nn">subprocess</span>
+    <span class="kn">import</span> <span class="nn">shutil</span>
+    <span class="kn">import</span> <span class="nn">traceback</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">basename</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">process.base</span> <span class="k">import</span> <span class="n">print_col</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="n">RED</span>
+        <span class="kn">from</span> <span class="nn">ortho</span> <span class="k">import</span> <span class="n">OrthomclToolbox</span> <span class="k">as</span> <span class="n">OT</span>
+        <span class="kn">import</span> <span class="nn">ortho.orthomclInstallSchema</span> <span class="k">as</span> <span class="nn">install_sqlite</span>
+        <span class="kn">import</span> <span class="nn">ortho.orthomclPairs</span> <span class="k">as</span> <span class="nn">make_pairs_sqlite</span>
+        <span class="kn">import</span> <span class="nn">ortho.orthomclDumpPairsFiles</span> <span class="k">as</span> <span class="nn">dump_pairs_sqlite</span>
+        <span class="kn">import</span> <span class="nn">ortho.orthomclFilterFasta</span> <span class="k">as</span> <span class="nn">FilterFasta</span>
+        <span class="kn">import</span> <span class="nn">ortho.orthomclBlastParser</span> <span class="k">as</span> <span class="nn">BlastParser</span>
+        <span class="kn">import</span> <span class="nn">ortho.orthomclMclToGroups</span> <span class="k">as</span> <span class="nn">MclGroups</span>
+        <span class="kn">from</span> <span class="nn">ortho.error_handling</span> <span class="k">import</span> <span class="o">*</span>
+        <span class="kn">from</span> <span class="nn">process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">trifusion.process.base</span> <span class="k">import</span> <span class="n">print_col</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="n">RED</span>
+        <span class="kn">from</span> <span class="nn">trifusion.ortho</span> <span class="k">import</span> <span class="n">OrthomclToolbox</span> <span class="k">as</span> <span class="n">OT</span>
+        <span class="kn">import</span> <span class="nn">trifusion.ortho.orthomclInstallSchema</span> <span class="k">as</span> <span class="nn">install_sqlite</span>
+        <span class="kn">import</span> <span class="nn">trifusion.ortho.orthomclPairs</span> <span class="k">as</span> <span class="nn">make_pairs_sqlite</span>
+        <span class="kn">import</span> <span class="nn">trifusion.ortho.orthomclDumpPairsFiles</span> <span class="k">as</span> <span class="nn">dump_pairs_sqlite</span>
+        <span class="kn">import</span> <span class="nn">trifusion.ortho.orthomclFilterFasta</span> <span class="k">as</span> <span class="nn">FilterFasta</span>
+        <span class="kn">import</span> <span class="nn">trifusion.ortho.orthomclBlastParser</span> <span class="k">as</span> <span class="nn">BlastParser</span>
+        <span class="kn">import</span> <span class="nn">trifusion.ortho.orthomclMclToGroups</span> <span class="k">as</span> <span class="nn">MclGroups</span>
+        <span class="kn">from</span> <span class="nn">trifusion.ortho.error_handling</span> <span class="k">import</span> <span class="o">*</span>
+        <span class="kn">from</span> <span class="nn">trifusion.process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span>
+
+
+<div class="viewcode-block" id="install_schema"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.install_schema">[docs]</a><span class="k">def</span> <span class="nf">install_schema</span><span class="p">(</span><span class="n">db_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Install the schema for the mySQL database</span>
+
+<span class="sd">    :param db_dir: string, directory for the sqlite database</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Creating sqlite database&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">install_sqlite</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db_dir</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_unique_field"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.check_unique_field">[docs]</a><span class="k">def</span> <span class="nf">check_unique_field</span><span class="p">(</span><span class="n">proteome_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks the original proteome file for a field in the fasta header</span>
+<span class="sd">    that is unique to all sequences</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Some files may have utf8 encoding problems so I used codecs here</span>
+    <span class="n">file_handle</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">proteome_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;cp1252&quot;</span><span class="p">)</span>
+    <span class="n">header_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_handle</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">):</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="c1"># Store header in list format</span>
+            <span class="n">header_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Get the size of the header fields</span>
+    <span class="n">header_field_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">header_field_size</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">temp_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">header_list</span><span class="p">:</span>
+            <span class="n">temp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">temp_list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">temp_list</span><span class="p">))</span> <span class="o">==</span>\
+                <span class="nb">len</span><span class="p">(</span><span class="n">header_list</span><span class="p">):</span>
+
+            <span class="c1"># The orthoMCL program uses an index starting from 1, so the +1 is</span>
+            <span class="c1">#  a necessary adjustment</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> Using unique header field </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">i</span>
+
+    <span class="c1"># Ideally, a unique field should be found before this code. If not, raise</span>
+    <span class="c1">#  exception</span>
+    <span class="k">raise</span> <span class="n">NoUniqueField</span><span class="p">(</span><span class="s2">&quot;The proteome file </span><span class="si">{}</span><span class="s2"> has no unique field&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">proteome_file</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="prep_fasta"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.prep_fasta">[docs]</a><span class="k">def</span> <span class="nf">prep_fasta</span><span class="p">(</span><span class="n">proteome_file</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> Preparing file for USEARCH&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Storing header list to check for duplicates</span>
+    <span class="n">header_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Storing dictionary with header and sequence for later use</span>
+    <span class="n">seq_storage</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Will prevent writing</span>
+    <span class="n">lock</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># File handles</span>
+    <span class="n">file_in</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">proteome_file</span><span class="p">)</span>
+    <span class="n">file_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">proteome_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_mod.fas&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file_in</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">header_list</span><span class="p">:</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
+                <span class="n">unique_str</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="n">unique_id</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="n">seq_storage</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">|</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">unique_str</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">header_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">file_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&gt;</span><span class="si">%s</span><span class="s2">|</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">unique_str</span><span class="p">))</span>
+                <span class="n">lock</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lock</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">lock</span><span class="p">:</span>
+            <span class="n">seq_storage</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">|</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">unique_str</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">file_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="c1"># Close file handles:</span>
+    <span class="n">file_in</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">file_out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">seq_storage</span></div>
+
+
+<div class="viewcode-block" id="adjust_fasta"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.adjust_fasta">[docs]</a><span class="k">def</span> <span class="nf">adjust_fasta</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Adjusting proteome files&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Create compliant fasta directory</span>
+    <span class="n">cf_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="s2">&quot;compliantFasta&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cf_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cf_dir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">cf_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">cf_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+
+    <span class="c1"># Setup progress information</span>
+    <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="c1"># Get total number of files for total progress</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">proteome</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+        <span class="c1"># Get code for proteome</span>
+        <span class="n">code_name</span> <span class="o">=</span> <span class="n">proteome</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Adjusting file </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">basename</span><span class="p">(</span><span class="n">proteome</span><span class="p">))</span>
+
+        <span class="c1"># Check the unique ID field</span>
+        <span class="n">unique_id</span> <span class="o">=</span> <span class="n">check_unique_field</span><span class="p">(</span><span class="n">proteome</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span>
+
+        <span class="c1"># Adjust fasta</span>
+        <span class="c1"># stg = prep_fasta(proteome, code_name, unique_id)</span>
+        <span class="n">prep_fasta</span><span class="p">(</span><span class="n">proteome</span><span class="p">,</span> <span class="n">code_name</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span>
+
+        <span class="n">protome_file_name</span> <span class="o">=</span> <span class="n">proteome</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> \
+                            <span class="s2">&quot;.fasta&quot;</span>
+
+        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">proteome</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_mod.fas&quot;</span><span class="p">,</span>
+                    <span class="n">join</span><span class="p">(</span><span class="n">cf_dir</span><span class="p">,</span> <span class="n">protome_file_name</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="filter_fasta"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.filter_fasta">[docs]</a><span class="k">def</span> <span class="nf">filter_fasta</span><span class="p">(</span><span class="n">min_len</span><span class="p">,</span> <span class="n">max_stop</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Filtering proteome files&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cp_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="s2">&quot;compliantFasta&quot;</span><span class="p">)</span>
+
+    <span class="n">FilterFasta</span><span class="o">.</span><span class="n">orthomcl_filter_fasta</span><span class="p">(</span><span class="n">cp_dir</span><span class="p">,</span> <span class="n">min_len</span><span class="p">,</span> <span class="n">max_stop</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="allvsall_usearch"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.allvsall_usearch">[docs]</a><span class="k">def</span> <span class="nf">allvsall_usearch</span><span class="p">(</span><span class="n">goodproteins</span><span class="p">,</span> <span class="n">evalue</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">cpus</span><span class="p">,</span> <span class="n">usearch_outfile</span><span class="p">,</span>
+                     <span class="n">usearch_bin</span><span class="o">=</span><span class="s2">&quot;usearch&quot;</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Perfoming USEARCH All-vs-All (may take a while...)&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># FNULL = open(os.devnull, &quot;w&quot;)</span>
+    <span class="n">usearch_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">usearch_bin</span><span class="p">,</span>
+                   <span class="s2">&quot;-ublast&quot;</span><span class="p">,</span>
+                   <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="n">goodproteins</span><span class="p">),</span>
+                   <span class="s2">&quot;-db&quot;</span><span class="p">,</span>
+                   <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="n">goodproteins</span><span class="p">),</span>
+                   <span class="s2">&quot;-blast6out&quot;</span><span class="p">,</span>
+                   <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="n">usearch_outfile</span><span class="p">),</span>
+                   <span class="s2">&quot;-evalue&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">evalue</span><span class="p">),</span>
+                   <span class="s2">&quot;--maxaccepts&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;-threads&quot;</span><span class="p">,</span>
+                   <span class="nb">str</span><span class="p">(</span><span class="n">cpus</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+        <span class="c1"># The subprocess.Popen handler cannot be passed directly in Windows</span>
+        <span class="c1"># due to pickling issues. So I pass the pid of the process instead.</span>
+        <span class="n">subp</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">usearch_cmd</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">subp</span> <span class="o">=</span> <span class="n">subp</span><span class="o">.</span><span class="n">pid</span>
+        <span class="n">subp</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">subp</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">usearch_cmd</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="blast_parser"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.blast_parser">[docs]</a><span class="k">def</span> <span class="nf">blast_parser</span><span class="p">(</span><span class="n">usearch_ouput</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">db_dir</span><span class="p">,</span> <span class="n">nm</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Parsing BLAST output&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">BlastParser</span><span class="o">.</span><span class="n">orthomcl_blast_parser</span><span class="p">(</span>
+        <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="n">usearch_ouput</span><span class="p">),</span>
+        <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="s2">&quot;compliantFasta&quot;</span><span class="p">),</span>
+        <span class="n">db_dir</span><span class="p">,</span>
+        <span class="n">nm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pairs"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.pairs">[docs]</a><span class="k">def</span> <span class="nf">pairs</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Finding pairs for orthoMCL&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">make_pairs_sqlite</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dump_pairs"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.dump_pairs">[docs]</a><span class="k">def</span> <span class="nf">dump_pairs</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Dump files from the database produced by the orthomclPairs &quot;</span>
+              <span class="s2">&quot;program&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">dump_pairs_sqlite</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="mcl"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.mcl">[docs]</a><span class="k">def</span> <span class="nf">mcl</span><span class="p">(</span><span class="n">inflation_list</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">mcl_file</span><span class="o">=</span><span class="s2">&quot;mcl&quot;</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Running mcl algorithm&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mcl_input</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="s2">&quot;mclInput&quot;</span><span class="p">)</span>
+    <span class="n">mcl_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="s2">&quot;mclOutput_&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">inflation_list</span><span class="p">:</span>
+
+        <span class="n">mcl_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">mcl_file</span><span class="p">,</span>
+                   <span class="n">mcl_input</span><span class="p">,</span>
+                   <span class="s2">&quot;--abc&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;-I&quot;</span><span class="p">,</span>
+                   <span class="n">val</span><span class="p">,</span>
+                   <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+                   <span class="n">mcl_output</span> <span class="o">+</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="c1"># The subprocess.Popen handler cannot be passed directly in Windows</span>
+            <span class="c1"># due to pickling issues. So I pass the pid of the process instead.</span>
+            <span class="n">subp</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">mcl_cmd</span><span class="p">)</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">subp</span> <span class="o">=</span> <span class="n">subp</span><span class="o">.</span><span class="n">pid</span>
+            <span class="n">subp</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">subp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">mcl_cmd</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="mcl_groups"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.mcl_groups">[docs]</a><span class="k">def</span> <span class="nf">mcl_groups</span><span class="p">(</span><span class="n">inflation_list</span><span class="p">,</span> <span class="n">mcl_prefix</span><span class="p">,</span> <span class="n">start_id</span><span class="p">,</span> <span class="n">group_file</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span>
+                <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Dumping groups&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Create a results directory</span>
+    <span class="n">results_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;Orthology_results&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">results_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">results_dir</span><span class="p">)</span>
+
+    <span class="n">mcl_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="s2">&quot;mclOutput_&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inflation_list</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">inflation_list</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">MclGroups</span><span class="o">.</span><span class="n">mcl_to_groups</span><span class="p">(</span>
+            <span class="n">mcl_prefix</span><span class="p">,</span>
+            <span class="n">start_id</span><span class="p">,</span>
+            <span class="n">mcl_output</span> <span class="o">+</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results_dir</span><span class="p">,</span> <span class="n">group_file</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span><span class="p">),</span>
+            <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="export_filtered_groups"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.export_filtered_groups">[docs]</a><span class="k">def</span> <span class="nf">export_filtered_groups</span><span class="p">(</span><span class="n">inflation_list</span><span class="p">,</span> <span class="n">group_prefix</span><span class="p">,</span> <span class="n">gene_t</span><span class="p">,</span> <span class="n">sp_t</span><span class="p">,</span> <span class="n">sqldb</span><span class="p">,</span>
+                           <span class="n">db</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Exporting filtered groups to protein sequence files&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">stats_storage</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">groups_obj</span> <span class="o">=</span> <span class="n">OT</span><span class="o">.</span><span class="n">MultiGroupsLight</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">inflation_list</span><span class="p">:</span>
+        <span class="c1"># Create a directory that will store the results for the current</span>
+        <span class="c1"># inflation value</span>
+        <span class="n">inflation_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;Orthology_results&quot;</span><span class="p">,</span> <span class="s2">&quot;Inflation</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">inflation_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">inflation_dir</span><span class="p">)</span>
+
+        <span class="n">group_file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;Orthology_results&quot;</span><span class="p">,</span>
+                          <span class="n">group_prefix</span> <span class="o">+</span> <span class="s2">&quot;_</span><span class="si">%s</span><span class="s2">.txt&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="c1"># Create Group object</span>
+        <span class="n">group_obj</span> <span class="o">=</span> <span class="n">OT</span><span class="o">.</span><span class="n">GroupLight</span><span class="p">(</span><span class="n">group_file</span><span class="p">,</span> <span class="n">gene_t</span><span class="p">,</span> <span class="n">sp_t</span><span class="p">)</span>
+        <span class="c1"># Add group to the MultiGroups object</span>
+        <span class="n">groups_obj</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">group_obj</span><span class="p">)</span>
+        <span class="c1"># Export filtered groups and return stats to present in the app</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">group_obj</span><span class="o">.</span><span class="n">basic_group_statistics</span><span class="p">()</span>
+        <span class="c1"># Retrieve fasta sequences from the filtered groups</span>
+        <span class="n">group_obj</span><span class="o">.</span><span class="n">retrieve_sequences</span><span class="p">(</span><span class="n">sqldb</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span>
+                                     <span class="n">dest</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="n">inflation_dir</span><span class="p">,</span> <span class="s2">&quot;Orthologs&quot;</span><span class="p">),</span>
+                                     <span class="n">shared_namespace</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="c1"># os.remove(sqldb)</span>
+        <span class="n">stats_storage</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats</span>
+
+    <span class="k">return</span> <span class="n">stats_storage</span><span class="p">,</span> <span class="n">groups_obj</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../trifusion.orthomcl_pipeline.html#trifusion.orthomcl_pipeline.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="c1"># The inclusion of the argument definition in main, makes it possible to</span>
+    <span class="c1"># import this file as a module and not triggering argparse. The</span>
+    <span class="c1"># alternative of using a if __name__ == &quot;__main__&quot; statement does not</span>
+    <span class="c1"># work well with the entry_points parameter of setup.py, since they call</span>
+    <span class="c1"># the main function but do nothing inside said statement.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Command line interface for &quot;</span>
+        <span class="s2">&quot;TriFusion Orthology search module&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-in&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;infile&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Provide the path &quot;</span>
+                        <span class="s2">&quot;to the directory containing the proteome files&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Execution modes</span>
+    <span class="n">exec_modes</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Execution modes&quot;</span><span class="p">)</span>
+    <span class="n">exec_modes</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Complete run of the pipeline&quot;</span><span class="p">)</span>
+    <span class="n">exec_modes</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;adjust&quot;</span><span class="p">,</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only adjust proteome fasta files&quot;</span><span class="p">)</span>
+    <span class="n">exec_modes</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-na&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;no_adjust&quot;</span><span class="p">,</span>
+                            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Complete run of the pipeline without &quot;</span>
+                                 <span class="s2">&quot;adjusting fasta files&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Input formatting</span>
+    <span class="n">input_format</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Input formatting&quot;</span><span class="p">)</span>
+    <span class="n">input_format</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                              <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not convert input proteome&quot;</span>
+                              <span class="s2">&quot; file names because the file names are already &quot;</span>
+                              <span class="s2">&quot;in code (e.g. Homo_sapiens.fas -&gt; HoSap.fas&quot;</span><span class="p">)</span>
+    <span class="n">input_format</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-sep&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;separator&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify the &quot;</span>
+                              <span class="s2">&quot;separator in the input files (e.g. &#39;_&#39; is the&quot;</span>
+                              <span class="s2">&quot; separator in &#39;Homo_sapiens.fas&#39;). This &quot;</span>
+                              <span class="s2">&quot;parameter is ignored if the &#39;-d&#39; option is set&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Search options</span>
+    <span class="n">search_opts</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Ortholog search options&quot;</span><span class="p">)</span>
+    <span class="n">search_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--min-length&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;min_length&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set minimum length allowed &quot;</span>
+                             <span class="s2">&quot;for protein sequences (default is &#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">search_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--max-stop&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;max_stop&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set maximum percentage of &quot;</span>
+                             <span class="s2">&quot;stop codons in protein sequences (default is &quot;</span>
+                             <span class="s2">&quot;&#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">search_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--db&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;database&quot;</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="s2">&quot;goodProteins&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of search &quot;</span>
+                             <span class="s2">&quot;database (default is &#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">search_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--search-out&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;search_out&quot;</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="s2">&quot;AllVsAll.out&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the &quot;</span>
+                             <span class="s2">&quot;search output file containing the All-vs-All &quot;</span>
+                             <span class="s2">&quot;protein comparisons&quot;</span><span class="p">)</span>
+    <span class="n">search_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-evalue&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;evalue&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1E-5</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the e-value cut off for search &quot;</span>
+                             <span class="s2">&quot;operation (default is &#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">search_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-inflation&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;inflation&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;3&quot;</span><span class="p">],</span>
+                             <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)],</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set inflation values for ortholog group&quot;</span>
+                             <span class="s2">&quot; clustering. Multiple values may be provided &quot;</span>
+                             <span class="s2">&quot;but values are limited to the range [1, 5]&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Output options</span>
+    <span class="n">output_opts</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Output options&quot;</span><span class="p">)</span>
+    <span class="n">output_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory&quot;</span><span class="p">)</span>
+    <span class="n">output_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-prefix&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Ortholog&quot;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the prefix name for each ortholog &quot;</span>
+                             <span class="s2">&quot;cluster (default is &#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">output_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-id&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;id_num&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the starting number for the ortholog &quot;</span>
+                             <span class="s2">&quot;clusters (default is &#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">output_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--groups-file&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;groups_file&quot;</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="s2">&quot;groups&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the name of the &quot;</span>
+                             <span class="s2">&quot;group files from the output of MCL (default is &quot;</span>
+                             <span class="s2">&quot;&#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">output_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--min-species&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;min_sp&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the minimum number of &quot;</span>
+                             <span class="s2">&quot;species required for an ortholog cluster to be &quot;</span>
+                             <span class="s2">&quot;converted into protein sequence. This option &quot;</span>
+                             <span class="s2">&quot;will only affect the protein sequence files, &quot;</span>
+                             <span class="s2">&quot;not the group file output.&quot;</span><span class="p">)</span>
+    <span class="n">output_opts</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--max-gene-copy&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;max_gn&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                             <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the maximum number of gene &quot;</span>
+                             <span class="s2">&quot;copies from the same taxon for each ortholog &quot;</span>
+                             <span class="s2">&quot;cluster. This option will only affect the &quot;</span>
+                             <span class="s2">&quot;protein sequence files, not the group file &quot;</span>
+                             <span class="s2">&quot;output.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Miscellaneous options</span>
+    <span class="n">misc_options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Miscellaneous options&quot;</span><span class="p">)</span>
+    <span class="n">misc_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-np&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;cpus&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of &quot;</span>
+                              <span class="s2">&quot;CPUs to be used during search operation (&quot;</span>
+                              <span class="s2">&quot;default is &#39;</span><span class="si">%(default)s</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">arg</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># Crete temp directory</span>
+    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">&quot;.tmp&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Executing OrthoMCL pipeline at </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">),</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%I:%M:%S&quot;</span><span class="p">)),</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Arguments</span>
+        <span class="n">input_dir</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">infile</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">output_dir</span>
+        <span class="c1"># name_separator = arg.separator</span>
+        <span class="n">min_length</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">min_length</span>
+        <span class="n">max_percent_stop</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">max_stop</span>
+        <span class="n">database_name</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span>
+                             <span class="n">arg</span><span class="o">.</span><span class="n">database</span><span class="p">)</span>
+        <span class="n">usearch_out_name</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">search_out</span>
+        <span class="n">evalue_cutoff</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">evalue</span>
+        <span class="n">cpus</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">cpus</span>
+        <span class="n">inflation</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">inflation</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">prefix</span>
+        <span class="n">start_id</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">id_num</span>
+        <span class="n">groups_file</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">groups_file</span>
+        <span class="n">min_sp</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">min_sp</span>
+        <span class="n">max_gn</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">max_gn</span>
+
+        <span class="c1"># Get proteome files</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_dir</span><span class="p">):</span>
+            <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;The input directory </span><span class="si">%s</span><span class="s2"> does not exist. Exiting.&quot;</span> <span class="o">%</span>
+                      <span class="n">input_dir</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">proteome_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">abspath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span>
+            <span class="n">input_dir</span><span class="p">)]</span>
+
+        <span class="c1"># Create and change working directory</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="c1"># os.chdir(output_dir)</span>
+
+        <span class="c1"># Create directory that will store intermediate files during orthology</span>
+        <span class="c1"># search</span>
+        <span class="n">int_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">int_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">int_dir</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">int_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">normal</span><span class="p">:</span>
+            <span class="n">install_schema</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+            <span class="n">adjust_fasta</span><span class="p">(</span><span class="n">proteome_files</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">filter_fasta</span><span class="p">(</span><span class="n">min_length</span><span class="p">,</span> <span class="n">max_percent_stop</span><span class="p">,</span> <span class="n">database_name</span><span class="p">,</span>
+                         <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">allvsall_usearch</span><span class="p">(</span><span class="n">database_name</span><span class="p">,</span> <span class="n">evalue_cutoff</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">cpus</span><span class="p">,</span>
+                             <span class="n">usearch_out_name</span><span class="p">)</span>
+            <span class="n">blast_parser</span><span class="p">(</span><span class="n">usearch_out_name</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">pairs</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+            <span class="n">dump_pairs</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">mcl</span><span class="p">(</span><span class="n">inflation</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">mcl_groups</span><span class="p">(</span><span class="n">inflation</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">start_id</span><span class="p">,</span> <span class="n">groups_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">export_filtered_groups</span><span class="p">(</span><span class="n">inflation</span><span class="p">,</span> <span class="n">groups_file</span><span class="p">,</span> <span class="n">max_gn</span><span class="p">,</span> <span class="n">min_sp</span><span class="p">,</span>
+                                   <span class="s2">&quot;tmp.sql3&quot;</span><span class="p">,</span> <span class="n">database_name</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span>
+                                   <span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">arg</span><span class="o">.</span><span class="n">adjust</span><span class="p">:</span>
+            <span class="n">adjust_fasta</span><span class="p">(</span><span class="n">proteome_files</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">arg</span><span class="o">.</span><span class="n">no_adjust</span><span class="p">:</span>
+            <span class="n">install_schema</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+            <span class="n">filter_fasta</span><span class="p">(</span><span class="n">min_length</span><span class="p">,</span> <span class="n">max_percent_stop</span><span class="p">,</span> <span class="n">database_name</span><span class="p">,</span>
+                         <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">allvsall_usearch</span><span class="p">(</span><span class="n">database_name</span><span class="p">,</span> <span class="n">evalue_cutoff</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">cpus</span><span class="p">,</span>
+                             <span class="n">usearch_out_name</span><span class="p">)</span>
+            <span class="n">blast_parser</span><span class="p">(</span><span class="n">usearch_out_name</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">pairs</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+            <span class="n">dump_pairs</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">mcl</span><span class="p">(</span><span class="n">inflation</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">mcl_groups</span><span class="p">(</span><span class="n">inflation</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">start_id</span><span class="p">,</span> <span class="n">groups_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">export_filtered_groups</span><span class="p">(</span><span class="n">inflation</span><span class="p">,</span> <span class="n">groups_file</span><span class="p">,</span> <span class="n">max_gn</span><span class="p">,</span> <span class="n">min_sp</span><span class="p">,</span>
+                                   <span class="s2">&quot;tmp.sql3&quot;</span><span class="p">,</span> <span class="n">database_name</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span>
+                                   <span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;OrthoMCL pipeline execution successfully completed in </span><span class="si">%s</span><span class="s2"> &quot;</span>
+                  <span class="s2">&quot;seconds&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+        <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Program exited with errors!&quot;</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">main</span><span class="p">()</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Diogo N. Silva&quot;</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

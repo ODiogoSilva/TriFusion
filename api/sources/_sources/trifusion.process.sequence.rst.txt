@@ -1,0 +1,11 @@
+trifusion\.process\.sequence module
+===================================
+
+.. automodule:: trifusion.process.sequence
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :special-members: __call__
+    :private-members:
+    :special-members: __call__
+    :private-members:

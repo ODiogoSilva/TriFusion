@@ -98,11 +98,12 @@
 <li class="toctree-l2"><a class="reference internal" href="trifusion.html#orthology-backend">Orthology backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="trifusion.html#process-backend">Process backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="trifusion.html#statistics-backend">Statistics backend</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#table-of-contents">Table of Contents</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">trifusion.process package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#introduction-to-trifusion-s-process-module">Introduction to TriFusion&#8217;s process module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
 </ul>
 </li>
@@ -176,8 +177,49 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="trifusion-process-package">
-<h1>trifusion.process package<a class="headerlink" href="#trifusion-process-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-trifusion.process">
+<span id="trifusion-process-package"></span><h1>trifusion.process package<a class="headerlink" href="#module-trifusion.process" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction-to-trifusion-s-process-module">
+<h2>Introduction to TriFusion&#8217;s process module<a class="headerlink" href="#introduction-to-trifusion-s-process-module" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>process</cite> subpackage is the main backend of TriFusion&#8217;s Process and
+Statistics modules and of TriSeq and TriStats CLI programs. The most
+important classes are defined in the <a class="reference internal" href="trifusion.process.sequence.html#module-trifusion.process.sequence" title="trifusion.process.sequence"><code class="xref py py-mod docutils literal"><span class="pre">sequence</span></code></a> module:
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> and
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>.</p>
+<div class="section" id="what-it-does">
+<h3>What it does<a class="headerlink" href="#what-it-does" title="Permalink to this headline">¶</a></h3>
+<p>The <cite>process</cite> module contains the classes and functions responsible for
+parsing, modifying, writing and plotting alignment data.</p>
+</div>
+<div class="section" id="submodules-description">
+<h3>Submodules description<a class="headerlink" href="#submodules-description" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="base">
+<h4><a class="reference internal" href="trifusion.process.base.html#module-trifusion.process.base" title="trifusion.process.base"><code class="xref py py-mod docutils literal"><span class="pre">base</span></code></a><a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h4>
+<p>Contains several methods and function that are inherited or used by
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> and
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> objects, as well as by
+the TriSeq and TriStats CLI programs.</p>
+</div>
+<div class="section" id="data">
+<h4><a class="reference internal" href="trifusion.process.data.html#module-trifusion.process.data" title="trifusion.process.data"><code class="xref py py-mod docutils literal"><span class="pre">data</span></code></a><a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h4>
+<p>Contains the <a class="reference internal" href="trifusion.process.data.html#trifusion.process.data.Partitions" title="trifusion.process.data.Partitions"><code class="xref py py-class docutils literal"><span class="pre">Partitions</span></code></a>  class, used by
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> and
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>
+classes to handle partitions in the alignments.</p>
+</div>
+<div class="section" id="error-handling">
+<h4><a class="reference internal" href="trifusion.process.error_handling.html#module-trifusion.process.error_handling" title="trifusion.process.error_handling"><code class="xref py py-mod docutils literal"><span class="pre">error_handling</span></code></a><a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h4>
+<p>Contains custom made Exception sub-classes.</p>
+</div>
+<div class="section" id="sequence">
+<h4><a class="reference internal" href="trifusion.process.sequence.html#module-trifusion.process.sequence" title="trifusion.process.sequence"><code class="xref py py-mod docutils literal"><span class="pre">sequence</span></code></a><a class="headerlink" href="#sequence" title="Permalink to this headline">¶</a></h4>
+<p>Contains the <a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a>  and
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> classes, responsible
+for the majority of the heavy lifting when dealing with alignment files. See
+the module&#8217;s documentation for further details.</p>
+</div>
+</div>
+</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -221,42 +263,6 @@
 </ul>
 </li>
 </ul>
-</div>
-<span class="target" id="module-trifusion.process"></span><div class="section" id="introduction-to-trifusion-s-process-module">
-<h3>Introduction to TriFusion&#8217;s process module<a class="headerlink" href="#introduction-to-trifusion-s-process-module" title="Permalink to this headline">¶</a></h3>
-<p>The <cite>process</cite> sub-package is the main backend of TriFusion&#8217;s Process and
-Statistics modules and of TriSeq and TriStats CLI programs. The most
-important classes are defined in the <cite>sequence</cite> module: <cite>Alignment</cite> and
-<cite>AlignmentList</cite>.</p>
-<div class="section" id="what-it-does">
-<h4>What it does<a class="headerlink" href="#what-it-does" title="Permalink to this headline">¶</a></h4>
-<p>The <cite>process</cite> module contains the classes and functions responsible for
-parsing, modifying, writing and plotting alignment data.</p>
-</div>
-<div class="section" id="sub-modules">
-<h4>Sub modules<a class="headerlink" href="#sub-modules" title="Permalink to this headline">¶</a></h4>
-<div class="section" id="base">
-<h5>base<a class="headerlink" href="#base" title="Permalink to this headline">¶</a></h5>
-<p>Contains several methods and function that are inherited or used by
-<cite>Alignment</cite> and <cite>AlignmentList</cite> objects, as well as by the TriSeq and
-TriStats CLI programs.</p>
-</div>
-<div class="section" id="data">
-<h5>data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h5>
-<p>Contains the <cite>Partition</cite> class, used by <cite>Alignment</cite> and <cite>AlignmentList</cite>
-classes to handle partitions in the alignments.</p>
-</div>
-<div class="section" id="error-handling">
-<h5>error_handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h5>
-<p>Contains custom made Exception sub-classes.</p>
-</div>
-<div class="section" id="sequence">
-<h5>sequence<a class="headerlink" href="#sequence" title="Permalink to this headline">¶</a></h5>
-<p>Contains the <cite>Alignment</cite> and <cite>AlignmentList</cite> classes, responsible for the
-majority of the heavy lifting when dealing with alignment files. See the
-module&#8217;s documentation for further details.</p>
-</div>
-</div>
 </div>
 </div>
 </div>

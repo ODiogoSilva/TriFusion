@@ -1,0 +1,1385 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.process.data &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../trifusion.html">TriFusion modules and API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>trifusion.process.data</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trifusion.process.data</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python2</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#  </span>
+<span class="c1">#  Copyright 2012 Unknown &lt;diogo@arch&gt;</span>
+<span class="c1">#  </span>
+<span class="c1">#  This program is free software; you can redistribute it and/or modify</span>
+<span class="c1">#  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">#  the Free Software Foundation; either version 2 of the License, or</span>
+<span class="c1">#  (at your option) any later version.</span>
+<span class="c1">#  </span>
+<span class="c1">#  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">#  GNU General Public License for more details.</span>
+<span class="c1">#  </span>
+<span class="c1">#  You should have received a copy of the GNU General Public License</span>
+<span class="c1">#  along with this program; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,</span>
+<span class="c1">#  MA 02110-1301, USA.</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">splitext</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">sep</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+
+
+<div class="viewcode-block" id="PartitionException"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.PartitionException">[docs]</a><span class="k">class</span> <span class="nc">PartitionException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InvalidPartitionFile"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.InvalidPartitionFile">[docs]</a><span class="k">class</span> <span class="nc">InvalidPartitionFile</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Partitions"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions">[docs]</a><span class="k">class</span> <span class="nc">Partitions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Alignment partitions interface for `Alignment` and `AlignmentList`.</span>
+
+<span class="sd">    The Partitions class is used to define partitions for `Alignment`</span>
+<span class="sd">    and `AlignmentList` objects and associate substitution models to</span>
+<span class="sd">    each partition. After instantiating, partitions may be set in two ways:</span>
+
+<span class="sd">      - Partition files: Being Nexus charset blocks and RAxML partition files</span>
+<span class="sd">        currently supported</span>
+<span class="sd">      - Tuple-like objects: Containing the ranges and names of the partitions</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    partition_length : int</span>
+<span class="sd">        Length of the total partitions.</span>
+<span class="sd">    partitions : OrderedDict</span>
+<span class="sd">        Storage of partition names (key) and their range (values).</span>
+<span class="sd">    partitions_index : list</span>
+<span class="sd">        The index (starting point) for each partition, including codon</span>
+<span class="sd">        partitions.</span>
+<span class="sd">    partitions_alignments : OrderedDict</span>
+<span class="sd">        Storage of the partition names (key) and their corresponding</span>
+<span class="sd">        alignment files (values).</span>
+<span class="sd">    alignments_range : OrderedDict</span>
+<span class="sd">        Storage of the alignment names (key) and their range (values).</span>
+<span class="sd">    models : OrderedDict</span>
+<span class="sd">        Storage of partition names (key) and their models (values).</span>
+<span class="sd">    merged_files : dict</span>
+<span class="sd">        Storage of the original range (values) of every alignment file (key).</span>
+<span class="sd">    counter : int</span>
+<span class="sd">        Indicator of where the last partition ended.</span>
+<span class="sd">    partition_format : str</span>
+<span class="sd">        Format of the original partition file, if any.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1">#   MrBayes models</span>
+    <span class="c1"># =========================================================================</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MrBayes substitution models are stored in the dictionary </span>
+<span class="sd">    _models[&quot;mrbayes&quot;]. The keys of the dictionary are the name of the </span>
+<span class="sd">    substitution models (usually in capital letters) and the values will </span>
+<span class="sd">    contain the instructions to specific such model in a list. Each element </span>
+<span class="sd">    of the list corresponds to one line</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># GTR</span>
+    <span class="n">_models</span><span class="p">[</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">][</span><span class="s2">&quot;GTR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nst=6&quot;</span><span class="p">,</span> <span class="s2">&quot;statefreqpr=dirichlet(1,1,1,1)&quot;</span><span class="p">]</span>
+
+    <span class="c1"># SYM</span>
+    <span class="n">_models</span><span class="p">[</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">][</span><span class="s2">&quot;SYM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nst=6&quot;</span><span class="p">,</span> <span class="s2">&quot;statefreqpr=fixed(equal)&quot;</span><span class="p">]</span>
+
+    <span class="c1"># HKY</span>
+    <span class="n">_models</span><span class="p">[</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">][</span><span class="s2">&quot;HKY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nst=2&quot;</span><span class="p">,</span> <span class="s2">&quot;statefreqpr=dirichlet(1,1,1,1)&quot;</span><span class="p">]</span>
+
+    <span class="c1"># K2P</span>
+    <span class="n">_models</span><span class="p">[</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">][</span><span class="s2">&quot;K2P&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nst=2&quot;</span><span class="p">,</span> <span class="s2">&quot;statefreqpr=fixed(equal)&quot;</span><span class="p">]</span>
+
+    <span class="c1"># F81</span>
+    <span class="n">_models</span><span class="p">[</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">][</span><span class="s2">&quot;F81&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nst=1&quot;</span><span class="p">,</span> <span class="s2">&quot;statefreqpr=dirichlet(1,1,1,1)&quot;</span><span class="p">]</span>
+
+    <span class="c1"># JC</span>
+    <span class="n">_models</span><span class="p">[</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">][</span><span class="s2">&quot;JC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nst=1&quot;</span><span class="p">,</span> <span class="s2">&quot;statefreqpr=fixed(equal)&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The length of the locus may be necessary when partitions are defined</span>
+<span class="sd">        in the input files using the &quot;.&quot; notation, meaning the entire locus.</span>
+<span class="sd">        Therefore, to convert this notation into workable integers, the size</span>
+<span class="sd">        of the locus must be provided using the set_length method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        partitions will contain the name and range of the partitions for a given</span>
+<span class="sd">        alignment object. Both gene and codon partitions will be stored in this</span>
+<span class="sd">        attribute, but gene partitions are the main entries. An example of</span>
+<span class="sd">        different stored partitions is::</span>
+
+<span class="sd">            partitions = {&quot;partitionA&quot;: ((0, 856), False),</span>
+<span class="sd">                          &quot;partitionB&quot;: ((857, 1450), [857,858,859] }</span>
+
+<span class="sd">        &quot;partitionA&quot; is a simple gene partition ranging from 0 to 856, while</span>
+<span class="sd">        &quot;partitionB&quot; is an assembly of codon partitions. The third element of</span>
+<span class="sd">        the tuple is destined to codon partitions. If there are none, it should</span>
+<span class="sd">        be False. If there are codon partitions, a list should be provided with</span>
+<span class="sd">        the desired initial codons. In the example above, &quot;partitionB&quot; has</span>
+<span class="sd">        actually 3 partitions starting at the first, second and third sequence</span>
+<span class="sd">        nucleotide of the main partition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        partitions_index will remember the index of all added partitions. This</span>
+<span class="sd">        attribute was created because codon models are added to the same parent</span>
+<span class="sd">        partitions, thus losing their actual index. This is important for</span>
+<span class="sd">        Nexus files, where models are applied to the index of the partition.</span>
+<span class="sd">        This will simply store the partition names, which can be accessed using</span>
+<span class="sd">        their index, or searched to return their index. To better support codon</span>
+<span class="sd">        partitions, each entry in the partitions_index will consist in a list,</span>
+<span class="sd">        in which the first element is the partition name, and the second element</span>
+<span class="sd">        is the index of the subpartition. An example would be::</span>
+
+<span class="sd">            partitions_index = [[&quot;partA&quot;, 0], [&quot;partA&quot;, 1], [&quot;partA&quot;, 2],</span>
+<span class="sd">                                [&quot;partB&quot;, 0]]</span>
+
+<span class="sd">        in which, partA has 3 codon partitions, and partB has only one partition</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The partitions_alignments attribute will associate the partition with</span>
+<span class="sd">        the corresponding alignment files. For single alignment partitions,</span>
+<span class="sd">        this will provide information on the file name. For multiple </span>
+<span class="sd">        alignments, besides the information of the file names, it will </span>
+<span class="sd">        associate which alignments are contained in a given partition and </span>
+<span class="sd">        support multi alignment partitions. An example would be::</span>
+
+<span class="sd">            partitions_alignments = {&quot;PartitionA&quot;: [&quot;FileA.fas&quot;],</span>
+<span class="sd">                                     &quot;PartitionB&quot;: [&quot;FileB.fas&quot;, &quot;FileC.fas&quot;]}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The self.models attribute will contain the same key list as</span>
+<span class="sd">        self.partitions and will associate the substitution models to each</span>
+<span class="sd">        partitions. For each partition, the format should be as follows::</span>
+
+<span class="sd">            models[&quot;partA&quot;] = [[[..model_params..]],[..model_names..],</span>
+<span class="sd">                               [&quot;12&quot;, &quot;3&quot;]]</span>
+
+<span class="sd">        The first element is a list that may contain the substitution model</span>
+<span class="sd">        parameters for up to three subpartitions, the second element is also</span>
+<span class="sd">        a list with the corresponding names of the substitution models and</span>
+<span class="sd">        the third list will store any links between models</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">merged_files</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This attribute will keep a record of the original ranges of every file</span>
+<span class="sd">        that was merged. This is useful to split partitions according to files</span>
+<span class="sd">        or to undo any changes. Each entry should be::</span>
+
+<span class="sd">            {&quot;alignment_file1&quot;: (0, 1234), &quot;alignment_file2&quot;: (3444, 6291)}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The counter attribute will be used as an indication of where the last</span>
+<span class="sd">        partition ends when one or more partitions are added</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_format</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Iterator behavior for `Partitions`.</span>
+
+<span class="sd">        The class iterator will iterate over a list containing the partition</span>
+<span class="sd">        names and a modified version of their ranges that is compatible with</span>
+<span class="sd">        other software (unlike the 0 offset of python)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        _ : iter</span>
+<span class="sd">            Iterator of `partitions.items()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Partitions.reset"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep_alignments_range</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clears partitions and attributes</span>
+
+<span class="sd">        Clears partitions and resets object to __init__ state. The original</span>
+<span class="sd">        alignment range can be retained by setting the `keep_alignments_range`</span>
+<span class="sd">        argument to True.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        keep_alignments_range : bool</span>
+<span class="sd">            If True, the `alignments_range` attribute will not be reset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_alignments_range</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Partitions.iter_files"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.iter_files">[docs]</a>    <span class="k">def</span> <span class="nf">iter_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Iterates over `partitions_alignments.items()`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ : iter</span>
+<span class="sd">            Iterator of `partitions_alignments.items()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Partitions.set_length"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.set_length">[docs]</a>    <span class="k">def</span> <span class="nf">set_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set total length of current locus (over all partitions).</span>
+
+<span class="sd">        Sets the length of the locus. This may be important to convert certain</span>
+<span class="sd">        partition defining nomenclature, such as using the &quot;.&quot; to indicate</span>
+<span class="sd">        whole length of the alignment</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length : int</span>
+<span class="sd">            Integer that will be set as `partition_length`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span> <span class="o">=</span> <span class="n">length</span></div>
+
+    <span class="c1">#===========================================================================</span>
+    <span class="c1"># Parsers</span>
+    <span class="c1">#===========================================================================</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_file_format</span><span class="p">(</span><span class="n">partition_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Guesses the format of the partition file (Nexus or RAxML&#39;s).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        partition_format : str</span>
+<span class="sd">            Format of the partition file (&quot;nexus&quot; or &quot;raxml&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">file_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">partition_file</span><span class="p">)</span>
+
+        <span class="c1"># Skips first empty lines, if any</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">file_handle</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">header</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;charset&quot;</span><span class="p">:</span>
+            <span class="n">partition_format</span> <span class="o">=</span> <span class="s2">&quot;nexus&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">partition_format</span> <span class="o">=</span> <span class="s2">&quot;raxml&quot;</span>
+
+        <span class="k">return</span> <span class="n">partition_format</span>
+
+<div class="viewcode-block" id="Partitions.read_from_file"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.read_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partitions_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses partitions from file</span>
+
+<span class="sd">        This method parses a file containing partitions. It supports</span>
+<span class="sd">        partitions files similar to RAxML&#39;s and NEXUS charset blocks. The</span>
+<span class="sd">        NEXUS file, however, must only contain the charset block. The</span>
+<span class="sd">        model_nexus argument provides a namespace for the model variable in</span>
+<span class="sd">        the nexus format, since this information is not present in the file.</span>
+<span class="sd">        However, it assures consistency on the Partition object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partitions_file : str</span>
+<span class="sd">            Path to partitions file.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        PartitionException</span>
+<span class="sd">            When one partition definition cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Resets previous partitions (except alignments_range)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">keep_alignments_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Get the format of the partition file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_format</span><span class="p">(</span><span class="n">partitions_file</span><span class="p">)</span>
+
+        <span class="n">part_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">partitions_file</span><span class="p">)</span>
+
+        <span class="c1"># In order to support unsorted partition ranges, the complete</span>
+        <span class="c1"># partition set will be stored temporary in memory. Even very large</span>
+        <span class="c1"># partition files should result in relatively small data structures.</span>
+        <span class="c1"># Once this variable is populated, it will be sorted according to the</span>
+        <span class="c1"># first element of the range.</span>
+        <span class="n">temp_ranges</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># TODO: Add support for codon partitions in raxml format</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_format</span> <span class="o">==</span> <span class="s2">&quot;raxml&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">part_file</span><span class="p">):</span>
+
+                <span class="c1"># Ignore empty lines</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># A wrongly formatted raxml partition file may be provided, in</span>
+                <span class="c1"># which case an IndexError exception will be raised. This will</span>
+                <span class="c1"># handle that exception</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                    <span class="c1"># Get partition name as string</span>
+                    <span class="n">partition_name</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="c1"># Get partition range as list of int</span>
+                    <span class="n">partition_range_temp</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">partition_range</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
+                            <span class="n">partition_range_temp</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)]</span>
+
+                    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="c1"># A ValueError may be raise when there is a &quot;.&quot;</span>
+                        <span class="c1"># notation in the partition range. If so, convert</span>
+                        <span class="c1"># the &quot;.&quot; to the sequence lenght. If no sequence lenght</span>
+                        <span class="c1"># has been provided raise another exception</span>
+                        <span class="n">pr</span> <span class="o">=</span> <span class="n">partition_range_temp</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">pr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span><span class="p">:</span>
+                                <span class="n">partition_range</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">pr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="n">PartitionException</span><span class="p">(</span>
+                                    <span class="s2">&quot;The length of the locus must be &quot;</span>
+                                    <span class="s2">&quot;provided when partitions are &quot;</span>
+                                    <span class="s2">&quot;defined using &#39;.&#39; notation to &quot;</span>
+                                    <span class="s2">&quot;mean full length&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">e</span>
+
+                    <span class="c1"># Check which alignment file contains the current partition</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">file_name</span> <span class="o">=</span> \
+                                <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span>
+                                 <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">partition_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                            <span class="n">file_name</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">file_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+                    <span class="n">temp_ranges</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">partition_name</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span>
+                                        <span class="n">partition_range</span><span class="p">])</span>
+
+                <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">InvalidPartitionFile</span><span class="p">(</span>
+                        <span class="s2">&quot;Badly formatted partitions file in line </span><span class="si">{}</span><span class="s2"> &quot;</span>
+                        <span class="s2">&quot;with:</span><span class="se">\n\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_format</span> <span class="o">==</span> <span class="s2">&quot;nexus&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">part_file</span><span class="p">:</span>
+                <span class="c1"># Ignore empty lines</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_from_nexus_string</span><span class="p">(</span><span class="n">line</span><span class="p">,</span>
+                                                          <span class="n">return_res</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">PartitionException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">e</span>
+                    <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+                        <span class="n">temp_ranges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+        <span class="c1"># Sort partition ranges according to the first element of the range</span>
+        <span class="n">temp_ranges</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">part</span><span class="p">:</span> <span class="n">part</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">part_range</span> <span class="ow">in</span> <span class="n">temp_ranges</span><span class="p">:</span>
+            <span class="c1"># Add information to partitions storage</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_partition</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                                   <span class="n">locus_range</span><span class="o">=</span><span class="n">part_range</span><span class="p">,</span>
+                                   <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">InvalidPartitionFile</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="Partitions.read_from_nexus_string"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.read_from_nexus_string">[docs]</a>    <span class="k">def</span> <span class="nf">read_from_nexus_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx_string</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">return_res</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses a single nexus string with partition definition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nx_string : str</span>
+<span class="sd">            String with partition definition</span>
+<span class="sd">        file_name : str, optional</span>
+<span class="sd">            String with name of the file corresponding to the partition.</span>
+<span class="sd">        return_res : bool</span>
+<span class="sd">            If True, it will only return the parsed partition information.</span>
+<span class="sd">            If False, it will add the parsed partition to the `Partitions`</span>
+<span class="sd">            object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">nx_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+            <span class="n">partition_name</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="c1"># If this list has 2 elements, it should be a simple gene partition</span>
+            <span class="c1"># If it has 3 elements, it should be a codon partition</span>
+            <span class="n">partition_full</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-</span><span class="se">\\</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span>
+                                      <span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">))</span>
+
+            <span class="c1"># If partition is defined using &quot;.&quot; notation to mean full length</span>
+            <span class="k">if</span> <span class="n">partition_full</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span><span class="p">:</span>
+                    <span class="n">partition_range</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">partition_full</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">PartitionException</span><span class="p">(</span><span class="s2">&quot;The length of the locus must be &quot;</span>
+                                             <span class="s2">&quot;provided when partitions are &quot;</span>
+                                             <span class="s2">&quot;defined using &#39;.&#39; notation to &quot;</span>
+                                             <span class="s2">&quot;mean full length&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">partition_range</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">partition_full</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                                   <span class="nb">int</span><span class="p">(</span><span class="n">partition_full</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Check which alignment file contains the current partition</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">file_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span>
+                                 <span class="n">partition_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="o">*</span><span class="n">y</span><span class="p">)</span> <span class="ow">and</span>
+                                 <span class="n">partition_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="o">*</span><span class="n">y</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="n">return_res</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">partition_name</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">partition_range</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_partition</span><span class="p">(</span><span class="n">partition_name</span><span class="p">,</span> <span class="n">locus_range</span><span class="o">=</span><span class="n">partition_range</span><span class="p">,</span>
+                                   <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="c1"># If, for some reason, the current line cannot be interpreted as a</span>
+        <span class="c1"># charset line, ignore it.</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">return_res</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Partitions.get_partition_names"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.get_partition_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_partition_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list with the name of the partitions</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        names : list</span>
+<span class="sd">            List with names of the partitions. When a parent</span>
+<span class="sd">            partition has multiple codon partitions, it returns a partition</span>
+<span class="sd">            name for every codon starting position present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">part</span> <span class="o">+</span> <span class="s2">&quot;_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">names</span></div>
+
+<div class="viewcode-block" id="Partitions.read_from_dict"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.read_from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">read_from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads partition information from a dict object</span>
+
+<span class="sd">        Parses partitions defined and stored in a special OrderedDict. The</span>
+<span class="sd">        values of dict_obj should be the partition names and their</span>
+<span class="sd">        corresponding values should contain the loci range and substitution</span>
+<span class="sd">        model, if any.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dict_obj : OrderedDict</span>
+<span class="sd">            Ordered dictionary with the definition of the partitions</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Here is an example of a `dict_obj`::</span>
+
+<span class="sd">            dict_obj = OrderedDict((&quot;GeneA&quot;, [(0,234), &quot;GTR&quot;]),</span>
+<span class="sd">                                   (&quot;GeneB&quot;, [(235, 865), &quot;JC&quot;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_obj</span><span class="p">:</span>
+            <span class="c1"># Determining if value contains only the range or the substitution</span>
+            <span class="c1"># model as well</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_partition</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">locus_range</span><span class="o">=</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_partition</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">locus_range</span><span class="o">=</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Partitions.is_single"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.is_single">[docs]</a>    <span class="k">def</span> <span class="nf">is_single</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns whether the current `Partitions` has single or multiple</span>
+<span class="sd">        partitions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            _ : bool</span>
+<span class="sd">            Returns True is there is only a single partition defined,</span>
+<span class="sd">            and False if there are multiple partitions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">values</span><span class="p">()][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_find_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_range</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds the parent partition from a specified range.</span>
+
+<span class="sd">        Finds a parent partition of a codon partition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        max_range : int</span>
+<span class="sd">            The maximum range of the codon partition.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        part : str</span>
+<span class="sd">            The name of the parent partition, from the `partitions` attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">lrange</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">lrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">max_range</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">part</span>
+
+<div class="viewcode-block" id="Partitions.add_partition"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.add_partition">[docs]</a>    <span class="k">def</span> <span class="nf">add_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">locus_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">codon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">use_counter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">auto_correct_name</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds a new partition.</span>
+
+<span class="sd">        Adds a new partition providing the length or the range of current</span>
+<span class="sd">        alignment. If both are provided, the length takes precedence.The range</span>
+<span class="sd">        of the partition should be in python index, that is, the first position</span>
+<span class="sd">        should be 0 and not 1.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of the partition.</span>
+<span class="sd">        length : int, optional</span>
+<span class="sd">            Length of the alignment.</span>
+<span class="sd">        locus_range : list or tuple, optional</span>
+<span class="sd">            Range of the partition.</span>
+<span class="sd">        codon : list</span>
+<span class="sd">            If the codon partitions are already defined, provide the</span>
+<span class="sd">            starting points in list format, e.g: [1,2,3].</span>
+<span class="sd">        use_counter : bool</span>
+<span class="sd">            If True, `locus_range` will be updated according to the `counter`</span>
+<span class="sd">            attribute.</span>
+<span class="sd">        file_name : str</span>
+<span class="sd">            Name of the alignment file.</span>
+<span class="sd">        model_cls :</span>
+<span class="sd">            Specified the substitution model that will be set in `models`.</span>
+<span class="sd">        auto_correct_name : bool</span>
+<span class="sd">            If set to True, when a partition name already exist, add a counter</span>
+<span class="sd">            to the end of the name.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        IMPORTANT NOTE on self.model: The self.model attribute was designed</span>
+<span class="sd">        in a way that allows the storage of different substitution models</span>
+<span class="sd">        inside the same partition name. This is useful for codon partitions that</span>
+<span class="sd">        share the same parent partition name. So, for example, a parent</span>
+<span class="sd">        partition named &quot;PartA&quot; with 3 codon partitions can have a different</span>
+<span class="sd">        model for each one like this::</span>
+
+<span class="sd">            self.models[&quot;PartA&quot;] = [[[..model1_params..], [..model2_params..],</span>
+<span class="sd">                [..model3_params..]], [GTR, GTR, GTR], [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check for duplicate names in partitions</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">auto_correct_name</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">while</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PartitionException</span><span class="p">(</span><span class="s2">&quot;Partition name </span><span class="si">%s</span><span class="s2"> is already in &quot;</span>
+                                         <span class="s2">&quot;partition table&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># When length is provided</span>
+        <span class="k">if</span> <span class="n">length</span><span class="p">:</span>
+            <span class="c1"># Add to or update alignments_range attribute. This will store the</span>
+            <span class="c1"># original range of the alignment</span>
+            <span class="k">if</span> <span class="n">file_name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">:</span>
+                    <span class="n">current_range</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+                    <span class="c1"># If start position is earlier than before, update</span>
+                    <span class="k">if</span> <span class="n">current_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># If stop position if later than before, update</span>
+                    <span class="k">if</span> <span class="n">current_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+            <span class="c1"># Add partition to index list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="c1"># Add partition to alignment list</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_name</span> <span class="k">if</span> <span class="n">file_name</span>
+                                                        <span class="k">else</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_name</span> <span class="k">if</span> <span class="n">file_name</span> <span class="k">else</span>
+                                                    <span class="n">name</span><span class="p">]</span>
+            <span class="c1"># Create empty model attribute for a single partition</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[]],</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="p">[]]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">codon</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="n">length</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span> <span class="o">+=</span> <span class="n">length</span>
+
+        <span class="c1"># When a list/tuple range is provided</span>
+        <span class="k">elif</span> <span class="n">locus_range</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">use_counter</span><span class="p">:</span>
+                <span class="n">locus_range</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># Add to or update alignments_range attribute. This will store the</span>
+            <span class="c1"># original range of the alignment</span>
+            <span class="k">if</span> <span class="n">file_name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">alignments_range</span><span class="p">[</span><span class="n">file_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">locus_range</span><span class="p">)</span>
+
+            <span class="c1"># If the maximum range of the current partition is already included</span>
+            <span class="c1"># in some other partition, and no codon partitions were provided</span>
+            <span class="c1"># using the &quot;codon&quot; argument, then it should be an undefined codon</span>
+            <span class="c1"># partition and should be added to an existing partition</span>
+            <span class="k">if</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">codon</span><span class="p">:</span>
+
+                <span class="c1"># Find the parent partition</span>
+                <span class="n">parent_partition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_parent</span><span class="p">(</span><span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">parent_partition</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">InvalidPartitionFile</span><span class="p">(</span>
+                        <span class="s2">&quot;Could not find parent partition of </span><span class="si">{}</span><span class="s2">. Check the&quot;</span>
+                        <span class="s2">&quot; ranges of your partitions to ensure no range &quot;</span>
+                        <span class="s2">&quot;overlaps&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+                <span class="c1"># If no codon partition is present in the parent partition,</span>
+                <span class="c1"># create one</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">parent_partition</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="c1"># Add partition to index list</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">parent_partition</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="c1"># Create empty model attribute for two partitions</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">parent_partition</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[],</span> <span class="p">[]],</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="p">[]]</span>
+
+                    <span class="n">parent_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">parent_partition</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">parent_partition</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">parent_start</span><span class="p">,</span>
+                                                            <span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Create empty model attribute for additional partitions</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">parent_partition</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">parent_partition</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+                    <span class="c1"># Add partition to index list</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">parent_partition</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">parent_partition</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># If the start of the current partition is already within the range</span>
+            <span class="c1"># of a previous partitions, raise an exception</span>
+            <span class="k">elif</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidPartitionFile</span><span class="p">(</span>
+                    <span class="s2">&quot;Badly formatted partition with range [</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">] starts &quot;</span>
+                    <span class="s2">&quot;inside the range of a previous partitions (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">))</span>
+
+            <span class="c1"># Else, create the new partition. If codon is provided, the codon</span>
+            <span class="c1"># information is automatically added</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">model_cls</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_cls</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Create empty model attribute for a single partition</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[]],</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="p">[]]</span>
+                <span class="k">if</span> <span class="n">codon</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span> <span class="o">=</span> <span class="p">[[</span><span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">codon</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Add partition to index list</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_name</span> <span class="k">if</span>
+                                                            <span class="n">file_name</span> <span class="k">else</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_name</span> <span class="k">if</span> <span class="n">file_name</span>
+                                                        <span class="k">else</span> <span class="n">name</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">locus_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                         <span class="n">codon</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partition_length</span> <span class="o">=</span> <span class="n">locus_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Partitions.remove_partition"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.remove_partition">[docs]</a>    <span class="k">def</span> <span class="nf">remove_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes partitions.</span>
+
+<span class="sd">        Removes a partitions by a given partition or file name. This will</span>
+<span class="sd">        handle any necessary changes on the remaining partitions. The changes</span>
+<span class="sd">        will be straightforward for most attributes, such as partitions_index,</span>
+<span class="sd">        partitions_alignments and models, but it will require a re-structuring</span>
+<span class="sd">        of partitions because the ranges of the subsequent partitions will</span>
+<span class="sd">        have to be adjusted.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partition_name : str</span>
+<span class="sd">            Name of the partition.</span>
+<span class="sd">        file_name : str</span>
+<span class="sd">            Name of the alignment file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">rm_part</span><span class="p">(</span><span class="n">nm</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Remove a partition from self.partitions and update the ranges of</span>
+<span class="sd">            the remaining partitions</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span>
+
+            <span class="n">new_dic</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+            <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">nm</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># Check if the starting position of the next partition is the</span>
+                <span class="c1"># same as the counter. If so, add the vals to the new dict.</span>
+                <span class="c1"># Else, correct the ranges based on the counter</span>
+                <span class="k">if</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">counter</span><span class="p">:</span>
+                    <span class="n">new_dic</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+                    <span class="n">counter</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Get lenght of the partition</span>
+                    <span class="n">part_len</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># Create corrected range</span>
+                    <span class="n">part_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">counter</span><span class="p">,</span> <span class="n">counter</span> <span class="o">+</span> <span class="n">part_len</span><span class="p">)</span>
+                    <span class="c1"># Correct codon position start if any</span>
+                    <span class="k">if</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">codon</span> <span class="o">=</span> <span class="p">[</span><span class="n">counter</span><span class="p">,</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">codon</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">new_dic</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">part_range</span><span class="p">,</span> <span class="n">codon</span><span class="p">]</span>
+                    <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="n">part_len</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="k">return</span> <span class="n">new_dic</span>
+
+        <span class="k">def</span> <span class="nf">remove_routine</span><span class="p">(</span><span class="n">part_name</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Routine that removes a partition based on its name. It ca be used</span>
+<span class="sd">            when calling the remove_partition method with the partition_name</span>
+<span class="sd">            argument, or with the file_name argument when the partition only</span>
+<span class="sd">            contains that file name</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Remove partition from partition_index</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span>
+                                     <span class="n">part_name</span><span class="p">]</span>
+
+            <span class="c1"># Remove partitions_alignments</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">part_name</span><span class="p">]</span>
+
+            <span class="c1"># Remove models</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">part_name</span><span class="p">]</span>
+
+            <span class="c1"># Remove from partitions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span> <span class="o">=</span> <span class="n">rm_part</span><span class="p">(</span><span class="n">part_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">partition_name</span><span class="p">:</span>
+            <span class="c1"># Raise exception if partition name does not exist</span>
+            <span class="k">if</span> <span class="n">partition_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PartitionException</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a partition name&quot;</span> <span class="o">%</span>
+                                         <span class="n">partition_name</span><span class="p">)</span>
+
+            <span class="n">remove_routine</span><span class="p">(</span><span class="n">partition_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">file_name</span><span class="p">:</span>
+
+            <span class="c1"># Set file_found to True, when there is a match. If no match is</span>
+            <span class="c1"># found, raise a PartitionException at the end of the loop.</span>
+            <span class="n">file_found</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">file_list</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+                    <span class="n">file_found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="c1"># If the partitions consists only of the provided file,</span>
+                    <span class="c1"># Remove the entire partition</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">remove_routine</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+                    <span class="c1"># If the partition contains other files, then only remove</span>
+                    <span class="c1"># the current file from the partition</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">part</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_found</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PartitionException</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> file does not belong to any&quot;</span>
+                                         <span class="s2">&quot;partition&quot;</span> <span class="o">%</span> <span class="n">file_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Partitions.change_name"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.change_name">[docs]</a>    <span class="k">def</span> <span class="nf">change_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Changes name of a partition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        old_name : str</span>
+<span class="sd">            Original partition name.</span>
+<span class="sd">        new_name : str</span>
+<span class="sd">            New partition name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Partitions.merge_partitions"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.merge_partitions">[docs]</a>    <span class="k">def</span> <span class="nf">merge_partitions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition_list</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Merges multiple partitions into a single one.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partition_list : list</span>
+<span class="sd">            List with partition names to be merged.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of new partition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">merger</span><span class="p">(</span><span class="n">ranges</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Generator that merges ranges in a list of tuples. For example,</span>
+<span class="sd">            if ranges is [(1, 234), (235, 456), (560, 607), (607,789)]</span>
+<span class="sd">            this generator will yield [(1, 456), (560, 789)]</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">previous</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">last_start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">st</span><span class="p">,</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">ranges</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">previous</span><span class="p">:</span>
+                    <span class="n">last_start</span> <span class="o">=</span> <span class="n">st</span>
+                    <span class="n">previous</span> <span class="o">=</span> <span class="n">en</span>
+                <span class="k">elif</span> <span class="n">st</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">previous</span><span class="p">:</span>
+                    <span class="n">previous</span> <span class="o">=</span> <span class="n">en</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">last_start</span><span class="p">,</span> <span class="n">previous</span>
+                    <span class="n">previous</span> <span class="o">=</span> <span class="n">en</span>
+                    <span class="n">last_start</span> <span class="o">=</span> <span class="n">st</span>
+
+            <span class="k">yield</span> <span class="n">last_start</span><span class="p">,</span> <span class="n">en</span>
+
+        <span class="k">def</span> <span class="nf">flatter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Creates a flat iterator of tuples. If s is [[(1,2), (2,3)], (4,5)]</span>
+<span class="sd">            this will yield ((1,2), (2,3), (4,5))</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">i</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">j</span>
+
+        <span class="c1"># Get new range</span>
+        <span class="n">new_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">merger</span><span class="p">(</span><span class="n">flatter</span><span class="p">((</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                               <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">partition_list</span><span class="p">)))]</span>
+
+        <span class="c1"># Add entries for new partition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span>
+            <span class="n">new_range</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                            <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">partition_list</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">y</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[]],</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="p">[]]</span>
+
+        <span class="c1"># Delete previous partitions and update merged dict</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">partition_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">p</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">merged_files</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">p</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Partitions.split_partition"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.split_partition">[docs]</a>    <span class="k">def</span> <span class="nf">split_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">new_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Splits one partition into two.</span>
+
+<span class="sd">        Splits a partitions with `name` into two with the tuple list provided</span>
+<span class="sd">        by `new_range`. If new_range is None, This will split the partition</span>
+<span class="sd">        by its alignment files instead.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of the partition to be split.</span>
+<span class="sd">        new_range : list or tuple, optional</span>
+<span class="sd">            List of two tuples, containing the ranges of the new partitions.</span>
+<span class="sd">        new_names : list, optional</span>
+<span class="sd">            The names of the new partitions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">new_range</span><span class="p">:</span>
+
+            <span class="c1"># Add new partitions</span>
+            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">new_names</span><span class="p">,</span> <span class="n">new_range</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+                <span class="c1"># Create new partitions_alignments. Keep the original alignment</span>
+                <span class="c1"># file for both</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[]],</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="p">[]]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">aln</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+                <span class="c1">#  Get original range of alignment file</span>
+                <span class="n">new_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_files</span><span class="p">[</span><span class="n">aln</span><span class="p">]</span>
+                <span class="c1"># Add new partitions</span>
+                <span class="n">aln_name</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">aln</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">aln_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_range</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">aln_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">aln</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">aln_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[]],</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="p">[]]</span>
+
+        <span class="c1"># Delete original partition</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_alignments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+    <span class="c1"># ==========================================================================</span>
+    <span class="c1"># Model handling</span>
+    <span class="c1"># ==========================================================================</span>
+
+<div class="viewcode-block" id="Partitions.parse_nexus_model"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.parse_nexus_model">[docs]</a>    <span class="k">def</span> <span class="nf">parse_nexus_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parses a substitution model defined in a prset and/or lset command.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        string : str</span>
+<span class="sd">            String with the prset or lset command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="c1"># Find out which partitions the current parameters apply to. If</span>
+        <span class="c1"># detected, it should be something like &quot;applyto=(1,2)&quot;</span>
+        <span class="n">applyto</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;applyto=\(.*\)&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="c1"># Find parameters</span>
+        <span class="n">nst</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;nst=[0-9]&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+        <span class="n">statefreqpr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;statefreqpr=.*\)&quot;</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+
+        <span class="c1"># Collect params</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">nst</span><span class="p">,</span> <span class="n">statefreqpr</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">applyto</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">applyto</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;applyto=(all)&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">partition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">partition</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">params</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Get target partitions</span>
+                <span class="n">part_index</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
+                              <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[()]&quot;</span><span class="p">,</span> <span class="n">applyto</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">part_index</span><span class="p">:</span>
+                    <span class="n">part</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions_index</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="c1"># Get partition name</span>
+                    <span class="n">part_name</span> <span class="o">=</span> <span class="n">part</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># Get subpartition index. 0 if single partition, other if</span>
+                    <span class="c1"># multiple subpartition</span>
+                    <span class="n">part_subpart</span> <span class="o">=</span> <span class="n">part</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">part_name</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">part_subpart</span><span class="p">]</span> <span class="o">+=</span> <span class="n">params</span></div>
+
+<div class="viewcode-block" id="Partitions.get_model_name"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.get_model_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a list of parameters, return the name of the model</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p : list</span>
+<span class="sd">            List of prset/lset parameters</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        model : str or None</span>
+<span class="sd">            Returns the name of the model if it finds. Else, returns None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">[</span><span class="s2">&quot;mrbayes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">params</span> <span class="o">==</span> <span class="n">p</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">model</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Partitions.set_model"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.set_model">[docs]</a>    <span class="k">def</span> <span class="nf">set_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">links</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">apply_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets substitution model for a given partition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partition : str</span>
+<span class="sd">            Partition name.</span>
+<span class="sd">        models : list</span>
+<span class="sd">            Model names for each of the three codon partitions. If there</span>
+<span class="sd">            are no codon partitions, provide only a single element to the list.</span>
+<span class="sd">        links : list</span>
+<span class="sd">            Provide potential links between codon models. For</span>
+<span class="sd">            example, if codon 1 and 2 are to be linked, it should be:</span>
+<span class="sd">            links=[&quot;12&quot;, &quot;3&quot;]</span>
+<span class="sd">        apply_all : bool</span>
+<span class="sd">            If True, the current model will be applied to all partitions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get list with partitions to be changed</span>
+        <span class="k">if</span> <span class="n">apply_all</span><span class="p">:</span>
+            <span class="n">plist</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plist</span> <span class="o">=</span> <span class="p">[</span><span class="n">partition</span><span class="p">]</span>
+
+        <span class="c1"># Replace &quot;No model&quot; string with None</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;No model&quot;</span> <span class="k">else</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+
+        <span class="c1"># Set model to the whole partition</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># If the current partition was previously defined as having codon</span>
+            <span class="c1"># partitions, revert it</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">plist</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span>
+
+        <span class="c1"># Set codon models</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">plist</span><span class="p">:</span>
+                <span class="c1"># Change the partition in self.partitions to have codon</span>
+                <span class="c1"># partitions</span>
+                <span class="n">st_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">st_idx</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">links</span></div>
+
+<div class="viewcode-block" id="Partitions.write_to_file"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Partitions.write_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_format</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;LG&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes partitions to a file.</span>
+
+<span class="sd">        Writes the Partitions object into an output file according to the</span>
+<span class="sd">        output_format. The supported output formats are RAxML and Nexus. The</span>
+<span class="sd">        `model` option is for the RAxML format only.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_format : str</span>
+<span class="sd">            Output format of partitions file. Can be either &quot;nexus&quot; or</span>
+<span class="sd">            &quot;raxml&quot;.</span>
+<span class="sd">        output_file : str</span>
+<span class="sd">            Path to output file.</span>
+<span class="sd">        model : str</span>
+<span class="sd">            Name of the model for the partitions. &quot;raxml&quot; format only.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;raxml&quot;</span><span class="p">:</span>
+            <span class="n">outfile_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span> <span class="o">+</span> <span class="s2">&quot;.part.File&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">rge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">partition_range</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rge</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="n">outfile_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model</span><span class="p">,</span>
+                                                        <span class="n">part</span><span class="p">,</span>
+                                                        <span class="n">partition_range</span><span class="p">))</span>
+
+            <span class="n">outfile_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;nexus&quot;</span><span class="p">:</span>
+            <span class="n">outfile_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span> <span class="o">+</span> <span class="s2">&quot;.charset&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">rge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">outfile_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;charset </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                                     <span class="n">part</span><span class="p">,</span>
+                                     <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rge</span><span class="p">[</span><span class="mi">0</span><span class="p">]])))</span>
+
+            <span class="n">outfile_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="Zorro"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Zorro">[docs]</a><span class="k">class</span> <span class="nc">Zorro</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class that handles the concatenation of zorro weights.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    alignment_list : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">    suffix : str</span>
+<span class="sd">        Suffix of the zorro weight files, based on the corresponding</span>
+<span class="sd">        input alignments.</span>
+<span class="sd">    zorro_dir : str</span>
+<span class="sd">        Path to directory where zorro weight files are stored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alignment_list</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;_zorro.out&quot;</span><span class="p">,</span> <span class="n">zorro_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">weigth_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="n">suffix</span>
+
+        <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">alignment_list</span><span class="o">.</span><span class="n">alignments</span><span class="o">.</span><span class="n">values</span><span class="p">()]:</span>
+            <span class="c1"># If zorro_dir is provided, use the specified path</span>
+            <span class="k">if</span> <span class="n">zorro_dir</span><span class="p">:</span>
+                <span class="n">zorro_file</span> <span class="o">=</span> <span class="n">splitext</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">zorro_file</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">zorro_dir</span><span class="p">,</span> <span class="n">zorro_file</span><span class="p">),</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="c1"># If zorro_dir is not provided, use the same path as the input alignment</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">zorro_file</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span>
+            <span class="c1"># alignment file is shared with the corresponding zorro file</span>
+            <span class="n">zorro_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">zorro_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weigth_values</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">weigth</span><span class="o">.</span><span class="n">strip</span><span class="p">())))</span> <span class="k">for</span>
+                                   <span class="n">weigth</span> <span class="ow">in</span> <span class="n">zorro_handle</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Zorro.write_to_file"><a class="viewcode-back" href="../../../trifusion.process.data.html#trifusion.process.data.Zorro.write_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Creates a concatenated file with the zorro weights for the</span>
+<span class="sd">        corresponding alignment files.&quot;&quot;&quot;</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">output_file</span> <span class="o">+</span> <span class="s2">&quot;_zorro.out&quot;</span>
+        <span class="n">outfile_handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">weigth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">weigth_values</span><span class="p">:</span>
+            <span class="n">outfile_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">weigth</span><span class="p">)</span>
+        <span class="n">outfile_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Diogo N. Silva&quot;</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

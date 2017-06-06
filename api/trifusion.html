@@ -104,7 +104,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#orthology-backend">Orthology backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#process-backend">Process backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#statistics-backend">Statistics backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of Contents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
@@ -208,13 +208,17 @@ main window and the definition of the majority of the Widgets in the
 kivy language.</li>
 </ul>
 </div></blockquote>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">API documentation of <a class="reference internal" href="trifusion.app.html#module-trifusion.app" title="trifusion.app"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.app</span></code></a> is still under progress.</p>
+</div>
 <div class="section" id="main-screens">
 <h3>Main screens<a class="headerlink" href="#main-screens" title="Permalink to this headline">¶</a></h3>
 <p>The graphical instructions in kivy language for the 8 main screens of
 TriFusion are defined in the <cite>trifusion/data/screens</cite> directory, each screen
 with its own <cite>.kv</cite> file. These files contain only the definition of
-the root widgets of each screen, that is, when the screen is loaded for the
-first time. Widgets that are later added to the screen via some method
+the root widgets of each screen. Other Widgets that are later added to
+the screen via some method
 should be defined in the main <cite>trifusion.trifusion.kv</cite> file.
 The initial setup of these screens in performed in the
 <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.build" title="trifusion.app.TriFusionApp.build"><code class="xref py py-func docutils literal"><span class="pre">build()</span></code></a> method.</p>
@@ -232,6 +236,12 @@ This class can be empty (e.g.
 <a class="reference internal" href="trifusion.data.resources.custom_widgets.html#trifusion.data.resources.custom_widgets.TableCell" title="trifusion.data.resources.custom_widgets.TableCell"><code class="xref py py-func docutils literal"><span class="pre">TableCell()</span></code></a>) or it can harbor
 custom attributes and methods that are useful for that widget
 (e.g. <a class="reference internal" href="trifusion.data.resources.custom_widgets.html#trifusion.data.resources.custom_widgets.FileChooserL" title="trifusion.data.resources.custom_widgets.FileChooserL"><code class="xref py py-func docutils literal"><span class="pre">FileChooserL()</span></code></a>).</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">API documentation of
+<a class="reference internal" href="trifusion.data.resources.custom_widgets.html#module-trifusion.data.resources.custom_widgets" title="trifusion.data.resources.custom_widgets"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.data.resources.custom_widgets</span></code></a> is still under
+progress.</p>
+</div>
 </div>
 <div class="section" id="icons-and-backgrounds">
 <h3>Icons and backgrounds<a class="headerlink" href="#icons-and-backgrounds" title="Permalink to this headline">¶</a></h3>
@@ -270,6 +280,11 @@ orthology search operation, is made in the
 <a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html#module-trifusion.ortho.OrthomclToolbox" title="trifusion.ortho.OrthomclToolbox"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.ortho.OrthomclToolbox</span></code></a> module, in particular using the
 <a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html#trifusion.ortho.OrthomclToolbox.MultiGroupsLight" title="trifusion.ortho.OrthomclToolbox.MultiGroupsLight"><code class="xref py py-class docutils literal"><span class="pre">MultiGroupsLight</span></code></a> and
 <a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html#trifusion.ortho.OrthomclToolbox.GroupLight" title="trifusion.ortho.OrthomclToolbox.GroupLight"><code class="xref py py-class docutils literal"><span class="pre">GroupLight</span></code></a> classes.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">API documentation for <a class="reference internal" href="trifusion.orthomcl_pipeline.html#module-trifusion.orthomcl_pipeline" title="trifusion.orthomcl_pipeline"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.orthomcl_pipeline</span></code></a> and
+<a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html#module-trifusion.ortho.OrthomclToolbox" title="trifusion.ortho.OrthomclToolbox"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.ortho.OrthomclToolbox</span></code></a> is still in progress.</p>
+</div>
 </div>
 <div class="section" id="process-backend">
 <h2>Process backend<a class="headerlink" href="#process-backend" title="Permalink to this headline">¶</a></h2>
@@ -290,8 +305,8 @@ are responsible for generating the data and plotting instructions, while
 the functions in the <a class="reference internal" href="trifusion.base.plotter.html#module-trifusion.base.plotter" title="trifusion.base.plotter"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.base.plotter</span></code></a> module receive that
 information and generate the plot.</p>
 </div>
-<div class="section" id="table-of-contents">
-<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a><ul>
@@ -371,6 +386,17 @@ information and generate the plot.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="trifusion.process.html">trifusion.process package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.process.html#introduction-to-trifusion-s-process-module">Introduction to TriFusion&#8217;s process module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.html#what-it-does">What it does</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.html#submodules-description">Submodules description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#base"><code class="docutils literal"><span class="pre">base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#data"><code class="docutils literal"><span class="pre">data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#error-handling"><code class="docutils literal"><span class="pre">error_handling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#sequence"><code class="docutils literal"><span class="pre">sequence</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="trifusion.process.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.process.base.html">trifusion.process.base module</a><ul class="simple">
 </ul>
@@ -406,17 +432,6 @@ information and generate the plot.</p>
 <li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#implications-for-writing-files">Implications for writing files</a><ul class="simple">
 </ul>
 </li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="trifusion.process.html#introduction-to-trifusion-s-process-module">Introduction to TriFusion&#8217;s process module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#what-it-does">What it does</a></li>
-<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#sub-modules">Sub modules</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#base">base</a></li>
-<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#data">data</a></li>
-<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#error-handling">error_handling</a></li>
-<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#sequence">sequence</a></li>
 </ul>
 </li>
 </ul>

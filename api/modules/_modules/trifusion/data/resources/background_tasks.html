@@ -1,0 +1,1599 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.data.resources.background_tasks &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../../search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trifusion.html">TriFusion modules and API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>trifusion.data.resources.background_tasks</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trifusion.data.resources.background_tasks</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">How to use background tasks</span>
+<span class="sd">===========================</span>
+
+<span class="sd">Tasks that are too time consuming to be executed in TriFusion&#39;s main</span>
+<span class="sd">thread are defined here. These functions should be called from TriFusion&#39;s</span>
+<span class="sd">`app` file in a `threading.Thread` object. These functions must rely</span>
+<span class="sd">on `multiprocessing.Namespace` or `Queue.Queue` objects to transfer</span>
+<span class="sd">data between the worker and main thread.</span>
+
+<span class="sd">Creation of tasks in `trifusion.app`</span>
+<span class="sd">------------------------------------</span>
+
+<span class="sd">There is a `run_in_background` method in `trifusion.app` that greatly</span>
+<span class="sd">facilitates the execution of a task in a worker thread, and also</span>
+<span class="sd">accepts a second function callback that is executed when the worker</span>
+<span class="sd">thread is finished. In brief, a worker thread can be initiated like::</span>
+
+<span class="sd">        p = threading.Thread(target=background_process,</span>
+<span class="sd">                             args=(func, shared_ns, args1))</span>
+<span class="sd">        p.start()</span>
+
+<span class="sd">The background task is provided in the `target` argument, and any</span>
+<span class="sd">potential arguments in the `args` argument.</span>
+
+<span class="sd">Launching waiting dialog</span>
+<span class="sd">------------------------</span>
+
+<span class="sd">While the background task is being executed, a dialog of some sort should</span>
+<span class="sd">be created in the main thread and ideally show some progress. Any</span>
+<span class="sd">custom dialog can be created, but a general `CrunchData` dialog is already</span>
+<span class="sd">created::</span>
+
+<span class="sd">    content = CrunchData()</span>
+<span class="sd">    # Add a custom message</span>
+<span class="sd">    content.ids.msg.text = msg</span>
+<span class="sd">    # Create popup with waiting dialog</span>
+<span class="sd">    self.show_popup(title=&quot;&quot;, content=content, size=size,</span>
+<span class="sd">                    separator_color=(0, 0, 0, 0),</span>
+<span class="sd">                    border_color=tm.c_popup_border,</span>
+<span class="sd">                    auto_dissmiss=False)</span>
+
+<span class="sd">Schedule function that checks the worker thread&#39;s pulse</span>
+<span class="sd">-------------------------------------------------------</span>
+
+<span class="sd">In order to check the pulse of the worker thread and/or receive information</span>
+<span class="sd">from it while it&#39;s busy, a function can be scheduled to be called at</span>
+<span class="sd">regular intervals using kivy&#39;s `Clock` object::</span>
+
+<span class="sd">    # Schedule function that checks the process&#39; pulse</span>
+<span class="sd">    check_func = partial(check_process_status, p, shared_ns)</span>
+<span class="sd">    Clock.schedule_interval(check_func, .1)</span>
+
+<span class="sd">The `check_process_status` function may execute anything, like checking</span>
+<span class="sd">the `Namespace` or `Queue` objects of the worker thread to update the</span>
+<span class="sd">progress. The most important thing, however, is to check if the worker</span>
+<span class="sd">thread is alive, and if not, unschedule itself, close the waiting popup,</span>
+<span class="sd">join the thread, close any connections and relevant objects::</span>
+
+<span class="sd">    def check_process_stats(self, p, shared_ns):</span>
+
+<span class="sd">        if not p.is_alive():</span>
+<span class="sd">            Clock.unschedule(check_func)</span>
+<span class="sd">            self.dismiss_popup()</span>
+<span class="sd">            p.join()</span>
+
+<span class="sd">Whenever possible, it&#39;s desirable to add a kill switch to the</span>
+<span class="sd">`check_process_status` function, which changes the `Namespace.stop` attribute</span>
+<span class="sd">to True, signaling the worker thread to stop::</span>
+
+<span class="sd">    def check_process_stats(self, p, shared_ns):</span>
+
+<span class="sd">        if self.terminate_background:</span>
+<span class="sd">            shared_ns.stop = True</span>
+<span class="sd">            time.sleep(1)</span>
+<span class="sd">            self.dismiss_popup()</span>
+<span class="sd">            Clock.unschedule(check_func)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">process</span> <span class="k">import</span> <span class="n">data</span>
+    <span class="kn">from</span> <span class="nn">process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span><span class="p">,</span>\
+        <span class="n">MultipleSequenceTypes</span><span class="p">,</span> <span class="n">EmptyAlignment</span>
+    <span class="kn">from</span> <span class="nn">process.sequence</span> <span class="k">import</span> <span class="n">AlignmentList</span><span class="p">,</span> <span class="n">Alignment</span>
+    <span class="kn">import</span> <span class="nn">orthomcl_pipeline</span> <span class="k">as</span> <span class="nn">ortho_pipe</span>
+    <span class="kn">from</span> <span class="nn">ortho</span> <span class="k">import</span> <span class="n">OrthomclToolbox</span> <span class="k">as</span> <span class="n">OrthoTool</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">trifusion.process</span> <span class="k">import</span> <span class="n">data</span>
+    <span class="kn">from</span> <span class="nn">trifusion.process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span><span class="p">,</span>\
+        <span class="n">MultipleSequenceTypes</span><span class="p">,</span> <span class="n">EmptyAlignment</span>
+    <span class="kn">from</span> <span class="nn">trifusion.process.sequence</span> <span class="k">import</span> <span class="n">AlignmentList</span><span class="p">,</span> <span class="n">Alignment</span>
+    <span class="kn">import</span> <span class="nn">trifusion.orthomcl_pipeline</span> <span class="k">as</span> <span class="nn">ortho_pipe</span>
+    <span class="kn">from</span> <span class="nn">trifusion.ortho</span> <span class="k">import</span> <span class="n">OrthomclToolbox</span> <span class="k">as</span> <span class="n">OrthoTool</span>
+
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">basename</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">cPickle</span> <span class="k">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KIVY_NO_ARGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+
+
+<div class="viewcode-block" id="remove_tmp"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.remove_tmp">[docs]</a><span class="k">def</span> <span class="nf">remove_tmp</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">sql_con</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Removes TriFusion&#39;s temporary directory and closes sqlite connection.</span>
+
+<span class="sd">    Removes the temporary directory and all its contents and closes</span>
+<span class="sd">    the connection to the sqlite database.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temp_dir : str</span>
+<span class="sd">        Path to the temporary directory</span>
+<span class="sd">    sql_con : sqlite3.Connection</span>
+<span class="sd">        Sqlite3 connection object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Give some time to child threads to exit</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Close database connection</span>
+    <span class="n">sql_con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1"># Remove temporary files</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="load_proc"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.load_proc">[docs]</a><span class="k">def</span> <span class="nf">load_proc</span><span class="p">(</span><span class="n">aln_list</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">nm</span><span class="p">,</span> <span class="n">queue</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Task that loads alignment files into TriFusion.</span>
+
+<span class="sd">    Loads alignment files provided via the `file_list` argument into the</span>
+<span class="sd">    `AlignmentList` object provided via `aln_list`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aln_list : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">    file_list : list</span>
+<span class="sd">        List of paths to alignment files.</span>
+<span class="sd">    nm : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+<span class="sd">    queue :Queue.Queue</span>
+<span class="sd">        Queue object used to transfer the AlignmentList to the main thread.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aln_list</span><span class="p">:</span>
+            <span class="n">aln_list</span><span class="o">.</span><span class="n">add_alignment_files</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span>
+                                         <span class="n">ns</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+            <span class="n">aln_obj</span> <span class="o">=</span> <span class="n">aln_list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aln_obj</span> <span class="o">=</span> <span class="n">AlignmentList</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="n">shared_namespace</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+
+        <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">aln_obj</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">MultipleSequenceTypes</span><span class="p">:</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="s2">&quot;multiple_type&quot;</span>
+
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">except</span> <span class="n">KillByUser</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Unexpected error when loading input data&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_stats_summary"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.get_stats_summary">[docs]</a><span class="k">def</span> <span class="nf">get_stats_summary</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">aln_list</span><span class="p">,</span> <span class="n">active_file_set</span><span class="p">,</span> <span class="n">active_taxa_set</span><span class="p">,</span>
+                        <span class="n">ns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates Statistic&#39;s summary statistics.</span>
+
+<span class="sd">    Executes the `get_summary_stats` method in the background and writes</span>
+<span class="sd">    the output in pickle files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dest : str</span>
+<span class="sd">        Path to directory where the pickle objects with the results will</span>
+<span class="sd">        be created.</span>
+<span class="sd">    aln_list : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">    active_file_set : list</span>
+<span class="sd">        List with the active alignments via their `Alignment.name` attribute.</span>
+<span class="sd">    active_taxa_set : list</span>
+<span class="sd">        List with the active taxa.</span>
+<span class="sd">    ns : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Creating deepcopy to perform changes  without impacting main</span>
+        <span class="c1"># attribute</span>
+        <span class="n">main_aln</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">aln_list</span><span class="p">)</span>
+        <span class="n">main_aln</span><span class="o">.</span><span class="n">set_database_connections</span><span class="p">(</span><span class="n">aln_list</span><span class="o">.</span><span class="n">cur</span><span class="p">,</span> <span class="n">aln_list</span><span class="o">.</span><span class="n">con</span><span class="p">)</span>
+        <span class="c1"># Update alignment object according to active file and taxa sets</span>
+        <span class="n">main_aln</span><span class="o">.</span><span class="n">update_active_alignments</span><span class="p">(</span><span class="n">active_file_set</span><span class="p">)</span>
+        <span class="n">main_aln</span><span class="o">.</span><span class="n">update_taxa_names</span><span class="p">(</span><span class="n">active_taxa_set</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;stats.pc&quot;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh_stats</span><span class="p">,</span> \
+                <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;table.pc&quot;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh_table</span><span class="p">:</span>
+
+            <span class="c1"># Check if active data sets are not empty. If so, raise an</span>
+            <span class="c1"># exception</span>
+            <span class="k">if</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">alignments</span> <span class="o">==</span> <span class="n">OrderedDict</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">taxa_names</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">fh</span> <span class="ow">in</span> <span class="p">[</span><span class="n">fh_stats</span><span class="p">,</span> <span class="n">fh_table</span><span class="p">]:</span>
+                    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;exception&quot;</span><span class="p">:</span> <span class="s2">&quot;Alignment is empty after file &quot;</span>
+                                              <span class="s2">&quot;and taxa filters&quot;</span><span class="p">},</span> <span class="n">fh</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="n">stats</span> <span class="o">=</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">get_summary_stats</span><span class="p">(</span><span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">get_gene_table_stats</span><span class="p">()</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">fh_stats</span><span class="p">)</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">fh_table</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">KillByUser</span><span class="p">:</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="background_process"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.background_process">[docs]</a><span class="k">def</span> <span class="nf">background_process</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ns</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;General execution of a background process.</span>
+
+<span class="sd">    Allows a generic function to be executed in the background with</span>
+<span class="sd">    or without arguments, provided via the `a` argument.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : function</span>
+<span class="sd">        Callback function.</span>
+<span class="sd">    ns : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+<span class="sd">    a : list</span>
+<span class="sd">        List of arguments provided to the `f` function. Can be None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;use_ns&quot;</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;use_ns&quot;</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">f</span><span class="p">()</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">except</span> <span class="n">KillByUser</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Unexpected exit in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="background_export_groups"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.background_export_groups">[docs]</a><span class="k">def</span> <span class="nf">background_export_groups</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">nm</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Specific callback for exporting Orthology groups.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : function</span>
+<span class="sd">        Callback function.</span>
+<span class="sd">    nm : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+<span class="sd">    a : list</span>
+<span class="sd">        List of arguments provided to the `f` function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">shared_namespace</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">KillByUser</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Unexpected error when exporting ortholog &quot;</span>
+                          <span class="s2">&quot;groups&quot;</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="orto_execution"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.orto_execution">[docs]</a><span class="k">def</span> <span class="nf">orto_execution</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">,</span> <span class="n">proteome_files</span><span class="p">,</span> <span class="n">protein_min_len</span><span class="p">,</span>
+                   <span class="n">protein_max_stop</span><span class="p">,</span> <span class="n">usearch_file</span><span class="p">,</span> <span class="n">usearch_evalue</span><span class="p">,</span>
+                   <span class="n">usearch_threads</span><span class="p">,</span> <span class="n">usearch_output</span><span class="p">,</span> <span class="n">mcl_file</span><span class="p">,</span> <span class="n">mcl_inflation</span><span class="p">,</span>
+                   <span class="n">ortholog_prefix</span><span class="p">,</span> <span class="n">group_prefix</span><span class="p">,</span> <span class="n">orto_max_gene</span><span class="p">,</span>
+                   <span class="n">orto_min_sp</span><span class="p">,</span> <span class="n">sqldb</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span> <span class="n">usearch_db</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Execution of the orthology search pipeline.</span>
+
+
+<span class="sd">    Executes all pipeline subprocesses sequentially and updates the</span>
+<span class="sd">    Progess dialog label.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nm : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+
+<span class="sd">    temp_dir : str</span>
+<span class="sd">        Path to TriFusion&#39;s temporary directory.</span>
+<span class="sd">    proteome_files : list</span>
+<span class="sd">        List of pahts to proteome files.</span>
+<span class="sd">    protein_min_len : int</span>
+<span class="sd">        Minimum lenght of protein sequences.</span>
+<span class="sd">    protein_max_stop : int</span>
+<span class="sd">        Maximum percentage of stop codons allowed.</span>
+<span class="sd">    usearch_file : str</span>
+<span class="sd">        Path to usearch executbale.</span>
+<span class="sd">    usearch_evalue: int or float</span>
+<span class="sd">        Evalue for usearch execution.</span>
+<span class="sd">    usearch_threads : int</span>
+<span class="sd">        Number of threads used by usearch execution.</span>
+<span class="sd">    usearch_output : str</span>
+<span class="sd">        Name of usearch&#39;s output file.</span>
+<span class="sd">    mcl_file : str</span>
+<span class="sd">        Path to the mcl executable.</span>
+<span class="sd">    mcl_inflation : list</span>
+<span class="sd">        List of inflation values (int) to perform at the end of the orthology</span>
+<span class="sd">        search.</span>
+<span class="sd">    ortholog_prefix : str</span>
+<span class="sd">        Prefix for the name of the orthologs.</span>
+<span class="sd">    group_prefix : str</span>
+<span class="sd">        Prefix for the name of the group files.</span>
+<span class="sd">    orto_max_gene : int</span>
+<span class="sd">        Maximum number of gene copies allowed when filtering the search</span>
+<span class="sd">        results.</span>
+<span class="sd">    orto_min_sp : int</span>
+<span class="sd">        Minimum number of taxa representation when filtering the search</span>
+<span class="sd">        results.</span>
+<span class="sd">    sqldb : str</span>
+<span class="sd">        Path to the sqlite database.</span>
+<span class="sd">    ortho_dir : str</span>
+<span class="sd">        Path to the directory where the results will be generated.</span>
+<span class="sd">    usearch_db : str</span>
+<span class="sd">        Name of the file used as database for usearch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;schema&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">install_schema</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;adjust&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">adjust_fasta</span><span class="p">(</span><span class="n">proteome_files</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;filter&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">filter_fasta</span><span class="p">(</span><span class="n">protein_min_len</span><span class="p">,</span> <span class="n">protein_max_stop</span><span class="p">,</span>
+                                <span class="n">usearch_db</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;usearch&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">allvsall_usearch</span><span class="p">(</span><span class="n">usearch_db</span><span class="p">,</span> <span class="n">usearch_evalue</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span>
+                                    <span class="n">usearch_threads</span><span class="p">,</span> <span class="n">usearch_output</span><span class="p">,</span>
+                                    <span class="n">usearch_bin</span><span class="o">=</span><span class="n">usearch_file</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;usearch&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;parse&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">blast_parser</span><span class="p">(</span><span class="n">usearch_output</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span>
+                                <span class="n">db_dir</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;usearch&quot;</span><span class="p">,</span> <span class="s2">&quot;parse&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;pairs&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">pairs</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">dump_pairs</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;usearch&quot;</span><span class="p">,</span> <span class="s2">&quot;parse&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pairs&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;mcl&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">mcl</span><span class="p">(</span><span class="n">mcl_inflation</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span> <span class="n">mcl_file</span><span class="o">=</span><span class="n">mcl_file</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;usearch&quot;</span><span class="p">,</span> <span class="s2">&quot;parse&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pairs&quot;</span><span class="p">,</span> <span class="s2">&quot;mcl&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;dump&quot;</span>
+        <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">mcl_groups</span><span class="p">(</span><span class="n">mcl_inflation</span><span class="p">,</span> <span class="n">ortholog_prefix</span><span class="p">,</span> <span class="s2">&quot;1000&quot;</span><span class="p">,</span>
+                              <span class="n">group_prefix</span><span class="p">,</span> <span class="n">ortho_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;usearch&quot;</span><span class="p">,</span> <span class="s2">&quot;parse&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pairs&quot;</span><span class="p">,</span> <span class="s2">&quot;mcl&quot;</span><span class="p">,</span> <span class="s2">&quot;dump&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">nm</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;filter_groups&quot;</span>
+        <span class="n">stats</span><span class="p">,</span> <span class="n">groups_obj</span> <span class="o">=</span> <span class="n">ortho_pipe</span><span class="o">.</span><span class="n">export_filtered_groups</span><span class="p">(</span>
+            <span class="n">mcl_inflation</span><span class="p">,</span>
+            <span class="n">group_prefix</span><span class="p">,</span>
+            <span class="n">orto_max_gene</span><span class="p">,</span>
+            <span class="n">orto_min_sp</span><span class="p">,</span>
+            <span class="n">sqldb</span><span class="p">,</span>
+            <span class="n">join</span><span class="p">(</span><span class="n">ortho_dir</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="n">usearch_db</span><span class="p">),</span>
+            <span class="n">temp_dir</span><span class="p">,</span>
+            <span class="n">ortho_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="n">nm</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">finished_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust&quot;</span><span class="p">,</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="s2">&quot;usearch&quot;</span><span class="p">,</span> <span class="s2">&quot;parse&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;pairs&quot;</span><span class="p">,</span> <span class="s2">&quot;mcl&quot;</span><span class="p">,</span> <span class="s2">&quot;dump&quot;</span><span class="p">,</span> <span class="s2">&quot;filter_groups&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># stats is a dictionary containing the inflation value as</span>
+        <span class="c1">#  key and a list with the orthologs as value</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">stats</span> <span class="o">=</span> <span class="n">stats</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="n">groups_obj</span>
+
+    <span class="k">except</span> <span class="n">KillByUser</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Unexpected exit in Orthology search&quot;</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_active_fileset"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.update_active_fileset">[docs]</a><span class="k">def</span> <span class="nf">update_active_fileset</span><span class="p">(</span><span class="n">aln_obj</span><span class="p">,</span> <span class="n">set_name</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">file_groups</span><span class="p">,</span>
+                          <span class="n">filename_map</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Upates the active files of an `AlignmentList` object</span>
+
+<span class="sd">    This method is similar in purpose to</span>
+<span class="sd">    `AlignmentList.update_active_alignments` but it can convert the set</span>
+<span class="sd">    name of the active group defined in TriFusion to an actual list</span>
+<span class="sd">    of files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aln_obj : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">    set_name : str</span>
+<span class="sd">        Name of the active file group.</span>
+<span class="sd">    file_list : list</span>
+<span class="sd">        List of alignment files loaded into TriFusion.</span>
+<span class="sd">    file_groups : dict</span>
+<span class="sd">        Maps the name of custom file groups to a list of alignment files.</span>
+<span class="sd">    filename_map : dict</span>
+<span class="sd">        Maps the basename of aligment files to their full path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Determine the selected active taxa set from the dropdown menu</span>
+    <span class="k">if</span> <span class="n">set_name</span> <span class="o">==</span> <span class="s2">&quot;All files&quot;</span><span class="p">:</span>
+        <span class="n">aln_obj</span><span class="o">.</span><span class="n">update_active_alignments</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">aln_obj</span>
+    <span class="k">if</span> <span class="n">set_name</span> <span class="o">==</span> <span class="s2">&quot;Active files&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">aln_obj</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">aln_obj</span><span class="o">.</span><span class="n">update_active_alignments</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">filename_map</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">file_groups</span><span class="p">[</span><span class="n">set_name</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">aln_obj</span></div>
+
+
+<div class="viewcode-block" id="update_active_taxaset"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.update_active_taxaset">[docs]</a><span class="k">def</span> <span class="nf">update_active_taxaset</span><span class="p">(</span><span class="n">aln_obj</span><span class="p">,</span> <span class="n">set_name</span><span class="p">,</span> <span class="n">active_taxa_list</span><span class="p">,</span> <span class="n">taxa_groups</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Upates the active taxa of an `AlignmentList` object</span>
+
+<span class="sd">    This method is similar in purpose to</span>
+<span class="sd">    `AlignmentList.update_taxa_names` but it can convert the set</span>
+<span class="sd">    name of the active group defined in TriFusion to an actual list</span>
+<span class="sd">    of taxa.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aln_obj : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">    set_name : str</span>
+<span class="sd">        Name of the active taxa group.</span>
+<span class="sd">    active_taxa_list : list</span>
+<span class="sd">        List of active taxa.</span>
+<span class="sd">    taxa_groups : dict</span>
+<span class="sd">        Maps the name of custom taxa groups to a list of taxon names.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">set_name</span> <span class="o">==</span> <span class="s2">&quot;All taxa&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">aln_obj</span>
+    <span class="k">if</span> <span class="n">set_name</span> <span class="o">==</span> <span class="s2">&quot;Active taxa&quot;</span><span class="p">:</span>
+        <span class="n">tx_set</span> <span class="o">=</span> <span class="n">active_taxa_list</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tx_set</span> <span class="o">=</span> <span class="n">taxa_groups</span><span class="p">[</span><span class="n">set_name</span><span class="p">]</span>
+
+    <span class="c1"># Update active taxa</span>
+    <span class="n">aln_obj</span><span class="o">.</span><span class="n">update_taxa_names</span><span class="p">(</span><span class="n">tx_set</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">aln_obj</span></div>
+
+
+<div class="viewcode-block" id="process_execution"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.process_execution">[docs]</a><span class="k">def</span> <span class="nf">process_execution</span><span class="p">(</span><span class="n">aln_list</span><span class="p">,</span> <span class="n">file_set_name</span><span class="p">,</span> <span class="n">file_list</span><span class="p">,</span> <span class="n">file_groups</span><span class="p">,</span>
+                        <span class="n">filename_map</span><span class="p">,</span>
+                        <span class="n">taxa_set_name</span><span class="p">,</span> <span class="n">active_taxa_list</span><span class="p">,</span> <span class="n">ns</span><span class="p">,</span> <span class="n">taxa_groups</span><span class="p">,</span>
+                        <span class="n">hap_prefix</span><span class="p">,</span> <span class="n">secondary_operations</span><span class="p">,</span> <span class="n">secondary_options</span><span class="p">,</span>
+                        <span class="n">missing_filter_settings</span><span class="p">,</span> <span class="n">taxa_filter_settings</span><span class="p">,</span>
+                        <span class="n">codon_filter_settings</span><span class="p">,</span> <span class="n">variation_filter_settings</span><span class="p">,</span>
+                        <span class="n">output_file</span><span class="p">,</span> <span class="n">rev_infile</span><span class="p">,</span> <span class="n">main_operations</span><span class="p">,</span> <span class="n">zorro_suffix</span><span class="p">,</span>
+                        <span class="n">partitions_file</span><span class="p">,</span> <span class="n">output_formats</span><span class="p">,</span> <span class="n">create_partfile</span><span class="p">,</span>
+                        <span class="n">use_nexus_partitions</span><span class="p">,</span> <span class="n">use_nexus_models</span><span class="p">,</span>
+                        <span class="n">phylip_truncate_name</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">use_app_partitions</span><span class="p">,</span>
+                        <span class="n">consensus_type</span><span class="p">,</span> <span class="n">ld_hat</span><span class="p">,</span> <span class="n">ima2_params</span><span class="p">,</span>
+                        <span class="n">conversion_suffix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The Process execution</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aln_list : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">    file_set_name : str</span>
+<span class="sd">        Name of the active file group.</span>
+<span class="sd">    file_list : list</span>
+<span class="sd">        List of alignment files loaded into TriFusion.</span>
+<span class="sd">    file_groups : dict</span>
+<span class="sd">        Maps the name of custom file groups to a list of alignment files.</span>
+<span class="sd">    filename_map : dict</span>
+<span class="sd">        Maps the basename of aligment files to their full path.</span>
+<span class="sd">    taxa_set_name : str</span>
+<span class="sd">        Name of the active taxa group.</span>
+<span class="sd">    active_taxa_list : list</span>
+<span class="sd">        List of active taxa.</span>
+<span class="sd">    ns : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+<span class="sd">    taxa_groups : dict</span>
+<span class="sd">        Maps the name of custom taxa groups to a list of taxon names.</span>
+<span class="sd">    hap_prefix : str</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.hap_prefix` attribute.</span>
+<span class="sd">    secondary_operations : dict</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.secondary_operations` attribute.</span>
+<span class="sd">    secondary_options : dict</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.secondary_options` attribute.</span>
+<span class="sd">    missing_filter_settings : list</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.missing_filter_settings`</span>
+<span class="sd">        attribute.</span>
+<span class="sd">    taxa_filter_settings : list</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.taxa_filter_settings` attribute.</span>
+<span class="sd">    codon_filter_settings: list</span>
+<span class="sd">         See :attr:`~trifusion.app.TriFusionApp.codon_filter_settings`</span>
+<span class="sd">         attribute.</span>
+<span class="sd">    variation_filter_settings : list</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.variation_filter_settings`</span>
+<span class="sd">        attribute.</span>
+<span class="sd">    output_file : str</span>
+<span class="sd">        Name of the output file.</span>
+<span class="sd">    rev_infile : str</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.rev_infile` attribute.</span>
+<span class="sd">    main_operations : dict</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.main_operations` attribute.</span>
+<span class="sd">    zorro_suffix : str</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.zorro_suffix` attribute.</span>
+<span class="sd">    partitions_file : str</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.partitions_file` attribute.</span>
+<span class="sd">    output_formats : list</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.output_formats` attribute.</span>
+<span class="sd">    create_partfile : bool</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.create_partfile` attribute.</span>
+<span class="sd">    use_nexus_partitions : bool</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.use_nexus_partitions` attribute.</span>
+<span class="sd">    use_nexus_models : bool</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.use_nexus_models` attribute.</span>
+<span class="sd">    phylip_truncate_name : bool</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.phylip_truncate_name`</span>
+<span class="sd">        attribute.</span>
+<span class="sd">    output_dir : str</span>
+<span class="sd">        Path to directory where the output file(s) will be generated.</span>
+<span class="sd">    use_app_partitions : bool</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.use_app_partitions` attribute.</span>
+<span class="sd">    consensus_type : str</span>
+<span class="sd">        Mode of consensus variation handling.</span>
+<span class="sd">    ld_hat : bool</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.ld_hat` attribute.</span>
+<span class="sd">    ima2_params :</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.ima2_options` attribute.</span>
+<span class="sd">    conversion_suffix : str</span>
+<span class="sd">        See :attr:`~trifusion.app.TriFusionApp.conversion_suffix` attribute.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">reverse_concatenation</span><span class="p">(</span><span class="n">aln</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Wrapper of the reverse concatenation operation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aln : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">con</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">con</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_app_partitions</span><span class="p">:</span>
+            <span class="c1"># Retrieve the alignment object that will be reverted. This</span>
+            <span class="c1"># is done first in order to retrieve the length of the locus,</span>
+            <span class="c1"># which is provided to the Partitions object for checking and</span>
+            <span class="c1"># conversion of &quot;.&quot; notation</span>
+            <span class="n">aln</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">retrieve_alignment</span><span class="p">(</span><span class="n">rev_infile</span><span class="p">)</span>
+
+            <span class="c1"># Instanciate Partitions object and set its length attribute</span>
+            <span class="n">partition_obj</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Partitions</span><span class="p">()</span>
+            <span class="n">partition_obj</span><span class="o">.</span><span class="n">set_length</span><span class="p">(</span><span class="n">aln</span><span class="o">.</span><span class="n">locus_length</span><span class="p">)</span>
+
+            <span class="c1"># In case the partitions file is badly formatted or invalid, the</span>
+            <span class="c1"># exception will be returned by the read_from_file method.</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">partition_obj</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">partitions_file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;exception&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Invalid partition file&quot;</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">value</span><span class="p">]}</span>
+                <span class="k">raise</span> <span class="n">data</span><span class="o">.</span><span class="n">InvalidPartitionFile</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># If there are no issues with the partitions file, set the new</span>
+            <span class="c1"># partitions</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">set_partitions</span><span class="p">(</span><span class="n">partition_obj</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;exception&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Invalid partition file&quot;</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+                <span class="p">}</span>
+                <span class="k">raise</span> <span class="n">data</span><span class="o">.</span><span class="n">InvalidPartitionFile</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">aln</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AlignmentList&quot;</span><span class="p">:</span>
+            <span class="n">aln</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">reverse_concatenate</span><span class="p">(</span><span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aln</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">reverse_concatenate</span><span class="p">(</span><span class="n">db_con</span><span class="o">=</span><span class="n">con</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aln</span>
+
+    <span class="k">def</span> <span class="nf">filter_aln</span><span class="p">(</span><span class="n">aln</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="s2">&quot;_filter&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper for alignment filtering operations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aln : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">            AlignmentList object.</span>
+<span class="sd">        table_out : str</span>
+<span class="sd">            Specifies the output table for filtering methods.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check if a minimum taxa representation was specified</span>
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;gap_filter&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">missing_filter_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Filter (minimum taxa)&quot;</span>
+                <span class="n">aln</span><span class="o">.</span><span class="n">filter_min_taxa</span><span class="p">(</span><span class="n">missing_filter_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="c1"># Filter by taxa</span>
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;taxa_filter&quot;</span><span class="p">]:</span>
+            <span class="c1"># Get taxa list from taxa groups</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Filter (by taxa)&quot;</span>
+            <span class="n">taxa_list</span> <span class="o">=</span> <span class="n">taxa_groups</span><span class="p">[</span><span class="n">taxa_filter_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">aln</span><span class="o">.</span><span class="n">filter_by_taxa</span><span class="p">(</span><span class="n">taxa_list</span><span class="p">,</span> <span class="n">taxa_filter_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="c1"># Filter codon positions</span>
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;codon_filter&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Filter (by codon)&quot;</span>
+            <span class="n">aln</span><span class="o">.</span><span class="n">filter_codon_positions</span><span class="p">(</span><span class="n">codon_filter_settings</span><span class="p">,</span>
+                                       <span class="n">table_out</span><span class="o">=</span><span class="n">table_out</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="c1"># Filter missing data</span>
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;gap_filter&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Filter (by missing data)&quot;</span>
+            <span class="k">if</span> <span class="n">missing_filter_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">aln</span><span class="o">.</span><span class="n">filter_missing_data</span><span class="p">(</span><span class="n">missing_filter_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                        <span class="n">missing_filter_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+                                        <span class="n">table_out</span><span class="o">=</span><span class="n">table_out</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="c1"># Filter variation</span>
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;variation_filter&quot;</span><span class="p">]:</span>
+            <span class="c1"># Checks for variable site filter</span>
+            <span class="k">if</span> <span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Filter (by variable sites)&quot;</span>
+                <span class="n">aln</span><span class="o">.</span><span class="n">filter_segregating_sites</span><span class="p">(</span><span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                             <span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                             <span class="n">table_in</span><span class="o">=</span><span class="n">table_out</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+            <span class="c1"># Checks for informative site filter</span>
+            <span class="k">if</span> <span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">or</span> <span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Filter (by informative sites)&quot;</span>
+                <span class="n">aln</span><span class="o">.</span><span class="n">filter_informative_sites</span><span class="p">(</span><span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                             <span class="n">variation_filter_settings</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                                             <span class="n">table_in</span><span class="o">=</span><span class="n">table_out</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="c1"># Pipe the information on the filtered alignments to the main process</span>
+        <span class="c1"># only if it was applied a filter that changes the final alignments</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">aln</span><span class="o">.</span><span class="n">filtered_alignments</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">!=</span> <span class="p">{</span><span class="kc">None</span><span class="p">}:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">filtered_alns</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">filtered_alignments</span>
+
+        <span class="c1"># Reset main label text</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Some filter configurations may result in empty final alignment</span>
+        <span class="c1"># list. In such cases, return and issue warning</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">aln</span><span class="o">.</span><span class="n">alignments</span><span class="p">:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;exception&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Empty alignment&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;The alignment is empty after applying filters&quot;</span><span class="p">]}</span>
+            <span class="k">raise</span> <span class="n">EmptyAlignment</span><span class="p">(</span><span class="s2">&quot;Active alignment is empty&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aln</span>
+
+    <span class="k">def</span> <span class="nf">concatenation</span><span class="p">(</span><span class="n">aln</span><span class="p">,</span> <span class="n">table_in</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper for concatenation operation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aln : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">            AlignmentList object.</span>
+<span class="sd">        table_in : str</span>
+<span class="sd">            Specifies the input table for concatenation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;zorro&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Concatenating ZORRO files&quot;</span>
+            <span class="n">zorro_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Zorro</span><span class="p">(</span><span class="n">aln</span><span class="p">,</span> <span class="n">zorro_suffix</span><span class="p">)</span>
+            <span class="n">zorro_data</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+        <span class="n">aln</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">table_in</span><span class="o">=</span><span class="n">table_in</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="c1"># Sets the single alignment to True, for other method to be aware of</span>
+        <span class="c1"># this</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">sa</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">aln</span>
+
+    <span class="k">def</span> <span class="nf">consensus</span><span class="p">(</span><span class="n">aln</span><span class="p">,</span> <span class="n">table_out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper of the consensus operation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aln : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">            AlignmentList object.</span>
+<span class="sd">        table_out : str</span>
+<span class="sd">            Specifies the output table for filtering methods.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;consensus_single&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">aln</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AlignmentList&quot;</span><span class="p">:</span>
+                <span class="n">aln</span> <span class="o">=</span> <span class="n">aln</span><span class="o">.</span><span class="n">consensus</span><span class="p">(</span><span class="n">consensus_type</span><span class="o">=</span><span class="n">consensus_type</span><span class="p">,</span>
+                                    <span class="n">single_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">table_out</span><span class="o">=</span><span class="n">table_out</span><span class="p">,</span>
+                                    <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">sa</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">aln</span><span class="o">.</span><span class="n">consensus</span><span class="p">(</span><span class="n">consensus_type</span><span class="o">=</span><span class="n">consensus_type</span><span class="p">,</span>
+                              <span class="n">table_out</span><span class="o">=</span><span class="n">table_out</span><span class="p">,</span>
+                              <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aln</span><span class="o">.</span><span class="n">consensus</span><span class="p">(</span><span class="n">consensus_type</span><span class="o">=</span><span class="n">consensus_type</span><span class="p">,</span>
+                          <span class="n">table_out</span><span class="o">=</span><span class="n">table_out</span><span class="p">,</span>
+                          <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aln</span>
+
+    <span class="k">def</span> <span class="nf">writer</span><span class="p">(</span><span class="n">aln</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">suffix_str</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">conv_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+               <span class="n">table_suffix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper for the output writing operations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aln : trifusion.process.sequence.AlignmentList</span>
+<span class="sd">            AlignmentList object.</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            If provided, will overwrite the `output_file` variable.</span>
+<span class="sd">        suffix_str : str</span>
+<span class="sd">            Provides the suffix for the `AlignmentList.write_to_file`</span>
+<span class="sd">            method argument.</span>
+<span class="sd">        conv_suffix : str</span>
+<span class="sd">            Provides the suffix provided for</span>
+<span class="sd">            the conversion of files. This suffix will always precede the</span>
+<span class="sd">            suffix_str, which is meant to apply suffixes specific to secondary</span>
+<span class="sd">            operations.</span>
+<span class="sd">        table_suffix : str</span>
+<span class="sd">            Suffix of the table from where the sequence data will be</span>
+<span class="sd">            retrieved.</span>
+<span class="sd">        table_name : str</span>
+<span class="sd">            Name of the table from where the sequence data will be retrieved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+                <span class="n">outfile</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">outfile</span> <span class="o">=</span> <span class="n">output_file</span>
+
+            <span class="c1"># The output file(s) will only be written after all the required</span>
+            <span class="c1"># operations have been concluded. The reason why there are two &quot;if&quot;</span>
+            <span class="c1"># statement for &quot;concatenation&quot; is that the input alignments must</span>
+            <span class="c1"># be concatenated before any other additional operations. If the</span>
+            <span class="c1"># first if statement did not exist, then all additional options</span>
+            <span class="c1"># would have to be manually written for both &quot;conversion&quot; and</span>
+            <span class="c1"># &quot;concatenation&quot;. As it is, when &quot;concatenation&quot;, the aln_obj is</span>
+            <span class="c1"># firstly converted into the concatenated alignment, and then all</span>
+            <span class="c1"># additional operations are conducted in the same aln_obj</span>
+
+            <span class="k">if</span> <span class="n">aln</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;Alignment&quot;</span><span class="p">:</span>
+                <span class="n">aln</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">output_formats</span><span class="p">,</span>
+                    <span class="n">outfile</span> <span class="k">if</span> <span class="n">outfile</span> <span class="k">else</span> <span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;consensus&quot;</span><span class="p">),</span>
+                    <span class="n">interleave</span><span class="o">=</span><span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;interleave&quot;</span><span class="p">],</span>
+                    <span class="n">partition_file</span><span class="o">=</span><span class="n">create_partfile</span><span class="p">,</span>
+                    <span class="n">use_charset</span><span class="o">=</span><span class="n">use_nexus_partitions</span><span class="p">,</span>
+                    <span class="n">phy_truncate_names</span><span class="o">=</span><span class="n">phylip_truncate_name</span><span class="p">,</span>
+                    <span class="n">ld_hat</span><span class="o">=</span><span class="n">ld_hat</span><span class="p">,</span>
+                    <span class="n">ima2_params</span><span class="o">=</span><span class="n">ima2_params</span><span class="p">,</span>
+                    <span class="n">use_nexus_models</span><span class="o">=</span><span class="n">use_nexus_models</span><span class="p">,</span>
+                    <span class="n">ns_pipe</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span>
+                    <span class="n">table_suffix</span><span class="o">=</span><span class="n">table_suffix</span><span class="p">,</span>
+                    <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">aln</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AlignmentList&quot;</span><span class="p">:</span>
+                <span class="n">aln</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span>
+                    <span class="n">output_formats</span><span class="p">,</span>
+                    <span class="n">output_suffix</span><span class="o">=</span><span class="n">suffix_str</span><span class="p">,</span>
+                    <span class="n">conversion_suffix</span><span class="o">=</span><span class="n">conv_suffix</span><span class="p">,</span>
+                    <span class="n">interleave</span><span class="o">=</span><span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;interleave&quot;</span><span class="p">],</span>
+                    <span class="n">partition_file</span><span class="o">=</span><span class="n">create_partfile</span><span class="p">,</span>
+                    <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                    <span class="n">use_charset</span><span class="o">=</span><span class="n">use_nexus_partitions</span><span class="p">,</span>
+                    <span class="n">phy_truncate_names</span><span class="o">=</span><span class="n">phylip_truncate_name</span><span class="p">,</span>
+                    <span class="n">ld_hat</span><span class="o">=</span><span class="n">ld_hat</span><span class="p">,</span>
+                    <span class="n">ima2_params</span><span class="o">=</span><span class="n">ima2_params</span><span class="p">,</span>
+                    <span class="n">use_nexus_models</span><span class="o">=</span><span class="n">use_nexus_models</span><span class="p">,</span>
+                    <span class="n">ns_pipe</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span>
+                    <span class="n">table_suffix</span><span class="o">=</span><span class="n">table_suffix</span><span class="p">,</span>
+                    <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+
+        <span class="n">aln_object</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">aln_list</span><span class="p">)</span>
+        <span class="c1"># Restore database connections, since they are broken during the</span>
+        <span class="c1"># deepcopy operation</span>
+        <span class="n">aln_object</span><span class="o">.</span><span class="n">set_database_connections</span><span class="p">(</span><span class="n">aln_list</span><span class="o">.</span><span class="n">cur</span><span class="p">,</span> <span class="n">aln_list</span><span class="o">.</span><span class="n">con</span><span class="p">)</span>
+
+        <span class="c1"># Setting the alignment to use.</span>
+        <span class="c1"># Update active file set of the alignment object</span>
+        <span class="n">aln_object</span> <span class="o">=</span> <span class="n">update_active_fileset</span><span class="p">(</span><span class="n">aln_object</span><span class="p">,</span>
+                                           <span class="n">file_set_name</span><span class="p">,</span>
+                                           <span class="n">file_list</span><span class="p">,</span>
+                                           <span class="n">file_groups</span><span class="p">,</span>
+                                           <span class="n">filename_map</span><span class="p">)</span>
+
+        <span class="c1"># Update active taxa set of the alignment object</span>
+        <span class="n">main_aln</span> <span class="o">=</span> <span class="n">update_active_taxaset</span><span class="p">(</span><span class="n">aln_object</span><span class="p">,</span> <span class="n">taxa_set_name</span><span class="p">,</span>
+                                           <span class="n">active_taxa_list</span><span class="p">,</span>
+                                           <span class="n">taxa_groups</span><span class="p">)</span>
+
+        <span class="n">ns</span><span class="o">.</span><span class="n">proc_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">aln_object</span><span class="o">.</span><span class="n">alignments</span><span class="p">)</span>
+
+        <span class="c1"># Initialize attribute tha will store the number of filtered</span>
+        <span class="c1"># alignments for reporting purposes</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">filtered_alns</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># The execution of the process module will begin with all the</span>
+        <span class="c1"># operations on the main output alignment. Only after the main</span>
+        <span class="c1"># output file has been created will the additional secondary output</span>
+        <span class="c1"># files be processed.</span>
+
+        <span class="c1">#####</span>
+        <span class="c1"># Perform operations on MAIN OUTPUT</span>
+        <span class="c1">#####</span>
+
+        <span class="c1"># Set the suffix for the sqlite table harboring the main output</span>
+        <span class="c1"># alignment if any of the secondary operations is specified</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">secondary_operations</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="n">main_table</span> <span class="o">=</span> <span class="s2">&quot;main&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">main_table</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># Reverse concatenation</span>
+        <span class="c1"># Active table: Based on partition names</span>
+        <span class="k">if</span> <span class="n">main_operations</span><span class="p">[</span><span class="s2">&quot;reverse_concatenation&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;reverse_concatenation&quot;</span>
+            <span class="n">main_aln</span> <span class="o">=</span> <span class="n">reverse_concatenation</span><span class="p">(</span><span class="n">main_aln</span><span class="p">)</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;reverse_concatenation&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Filtering</span>
+        <span class="c1"># Active table: * / *main</span>
+        <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;collapse_filter&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> \
+                <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;collapse_file&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;collapse&quot;</span>
+            <span class="c1"># If the the collapse filter is active, perform this</span>
+            <span class="c1"># filtering first. This is because the filter will allow 0% of</span>
+            <span class="c1"># missing data, which will always be as stringent or more than any</span>
+            <span class="c1"># missing data filter set.</span>
+            <span class="n">main_aln</span><span class="o">.</span><span class="n">filter_missing_data</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="n">main_table</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;collapse_filter&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Active table: * / *main</span>
+        <span class="k">if</span> <span class="n">secondary_operations</span><span class="p">[</span><span class="s2">&quot;filter&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> \
+                <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;filter_file&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;filter&quot;</span>
+            <span class="n">main_aln</span> <span class="o">=</span> <span class="n">filter_aln</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="n">main_table</span><span class="p">)</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">)</span>
+        <span class="c1"># Concatenation</span>
+        <span class="c1"># Active table: concatenation</span>
+        <span class="k">if</span> <span class="n">main_operations</span><span class="p">[</span><span class="s2">&quot;concatenation&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;concatenation&quot;</span>
+            <span class="n">main_aln</span> <span class="o">=</span> <span class="n">concatenation</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">table_in</span><span class="o">=</span><span class="n">main_table</span><span class="p">)</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;concatenation&quot;</span><span class="p">)</span>
+        <span class="c1"># Collapsing</span>
+        <span class="c1"># Active table: *main / concatenationmain</span>
+        <span class="k">if</span> <span class="n">secondary_operations</span><span class="p">[</span><span class="s2">&quot;collapse&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> \
+                <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;collapse_file&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;collapse&quot;</span>
+            <span class="n">main_aln</span><span class="o">.</span><span class="n">collapse</span><span class="p">(</span><span class="n">haplotype_name</span><span class="o">=</span><span class="n">hap_prefix</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                                <span class="n">table_out</span><span class="o">=</span><span class="n">main_table</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;collapse&quot;</span><span class="p">)</span>
+        <span class="c1"># Gcoder</span>
+        <span class="c1"># Active table: *main / concatenationmain</span>
+        <span class="k">if</span> <span class="n">secondary_operations</span><span class="p">[</span><span class="s2">&quot;gcoder&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> \
+                <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;gcoder_file&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;gcoder&quot;</span>
+            <span class="n">main_aln</span><span class="o">.</span><span class="n">code_gaps</span><span class="p">(</span><span class="n">table_out</span><span class="o">=</span><span class="n">main_table</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;gcoder&quot;</span><span class="p">)</span>
+        <span class="c1"># Consensus</span>
+        <span class="c1"># Active table: *main / concatenationmain / consensus</span>
+        <span class="k">if</span> <span class="n">secondary_operations</span><span class="p">[</span><span class="s2">&quot;consensus&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> \
+                <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;consensus_file&quot;</span><span class="p">]:</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;consensus&quot;</span>
+            <span class="n">main_aln</span> <span class="o">=</span> <span class="n">consensus</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="n">main_table</span><span class="p">)</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;consensus&quot;</span><span class="p">)</span>
+
+        <span class="c1"># ### Guide on possible final tables</span>
+        <span class="c1"># --- Base types</span>
+        <span class="c1"># 1: Conversion -&gt; * (main -- checks)</span>
+        <span class="c1"># 2: Concatenation -&gt; concatenation (main -- checks)</span>
+        <span class="c1"># 3: Reverse concatenation -&gt; * (main --checks)</span>
+        <span class="c1"># --- Conversion and Reverse concatenation + secondary ops</span>
+        <span class="c1"># 4: Collapse/Filter/Gcoder -&gt; *main (sec --checks)</span>
+        <span class="c1"># 5: Consensus -&gt; *main (sec -- checks)</span>
+        <span class="c1"># 6: Consensus (single file) -&gt; consensus (main -- fallback)</span>
+        <span class="c1"># --- Concatenation + secondary ops</span>
+        <span class="c1"># 7: Filter (only) -&gt; concatenation (main -- fallback)</span>
+        <span class="c1"># 8: Collapse/gcoder -&gt; concatenationmain (sec -- checks)</span>
+        <span class="c1"># 9: Consensus -&gt; concatenationmain (sec -- checks)</span>
+        <span class="c1"># 10: Consensus (single file) -&gt; consensus (main -- fallback)</span>
+
+        <span class="c1"># NOTE ON TABLE NAMES</span>
+        <span class="c1"># Some combinations of operations actually create a table_suffix</span>
+        <span class="c1"># that does not exist in the database. This happens in cases 6, 7 and</span>
+        <span class="c1"># 10. However, in these cases the main table(s) of the Alignment</span>
+        <span class="c1"># object should be used, so we let the sequence fetching methods</span>
+        <span class="c1"># fail to find the suggested table and fallback to the main table.</span>
+
+        <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;write&quot;</span>
+        <span class="n">writer</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">conv_suffix</span><span class="o">=</span><span class="n">conversion_suffix</span><span class="p">,</span>
+               <span class="n">table_suffix</span><span class="o">=</span><span class="n">main_table</span><span class="p">)</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">finished_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;write&quot;</span><span class="p">)</span>
+
+        <span class="c1">#####</span>
+        <span class="c1"># Perform operations on ADDITIONAL OUTPUTS</span>
+        <span class="c1">#####</span>
+
+        <span class="c1"># Stores operations that must be performed before concatenation,</span>
+        <span class="c1"># if it was specified</span>
+        <span class="n">before_conc</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;filter&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Perform the filtering and consensus option separately, since these</span>
+        <span class="c1"># must be done before concatenation</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">secondary_operations</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span>
+                   <span class="n">x</span> <span class="ow">in</span> <span class="n">before_conc</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">and</span>
+                   <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_file&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">]]:</span>
+
+            <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;filter&quot;</span><span class="p">:</span>
+
+                <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;filter&quot;</span>
+
+                <span class="c1"># Remove previous temporary tables</span>
+                <span class="n">aln_object</span><span class="o">.</span><span class="n">remove_tables</span><span class="p">(</span><span class="n">aln_object</span><span class="o">.</span><span class="n">get_tables</span><span class="p">())</span>
+
+                <span class="n">main_aln</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">aln_object</span><span class="p">)</span>
+                <span class="n">main_aln</span><span class="o">.</span><span class="n">set_database_connections</span><span class="p">(</span><span class="n">aln_list</span><span class="o">.</span><span class="n">cur</span><span class="p">,</span> <span class="n">aln_list</span><span class="o">.</span><span class="n">con</span><span class="p">)</span>
+
+                <span class="n">ns</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Creating additional filtered alignments(s)&quot;</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;_filtered&quot;</span>
+                <span class="n">main_aln</span> <span class="o">=</span> <span class="n">filter_aln</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+            <span class="k">if</span> <span class="n">main_operations</span><span class="p">[</span><span class="s2">&quot;concatenation&quot;</span><span class="p">]</span> <span class="ow">and</span> \
+                    <span class="n">main_aln</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AlignmentList&quot;</span><span class="p">:</span>
+
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">output_file</span> <span class="o">+</span> <span class="n">suffix</span>
+
+                <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Concatenating&quot;</span>
+                <span class="n">main_aln</span> <span class="o">=</span> <span class="n">concatenation</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">table_in</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Writing output&quot;</span>
+                <span class="n">writer</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">table_suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Writing output&quot;</span>
+                <span class="n">writer</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">suffix_str</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span> <span class="n">table_suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                       <span class="n">conv_suffix</span><span class="o">=</span><span class="n">conversion_suffix</span><span class="p">)</span>
+
+        <span class="c1"># Remove previous temporary tables</span>
+        <span class="n">aln_object</span><span class="o">.</span><span class="n">remove_tables</span><span class="p">(</span><span class="n">aln_object</span><span class="o">.</span><span class="n">get_tables</span><span class="p">())</span>
+
+        <span class="n">main_aln</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">aln_object</span><span class="p">)</span>
+        <span class="n">main_aln</span><span class="o">.</span><span class="n">set_database_connections</span><span class="p">(</span><span class="n">aln_list</span><span class="o">.</span><span class="n">cur</span><span class="p">,</span> <span class="n">aln_list</span><span class="o">.</span><span class="n">con</span><span class="p">)</span>
+
+        <span class="n">concatenated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">sa</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">secondary_operations</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span>
+                   <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">before_conc</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">and</span>
+                   <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_file&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">]]:</span>
+
+            <span class="n">ns</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">op</span>
+
+            <span class="c1"># Filter data for collapsing</span>
+            <span class="c1"># if secondary_options[&quot;collapse_filter&quot;] and op == &quot;collapse&quot;:</span>
+                <span class="c1"># ns.task = &quot;collapse&quot;</span>
+                <span class="c1"># ns.main_msg = &quot;Filtering for collapse&quot;</span>
+                <span class="c1"># main_aln.filter_missing_data(0, 0, ns=ns)</span>
+
+            <span class="k">if</span> <span class="n">main_operations</span><span class="p">[</span><span class="s2">&quot;concatenation&quot;</span><span class="p">]:</span>
+                <span class="c1"># If suffix was specified, it means that the filter was</span>
+                <span class="c1"># ON. In that case, use that suffix in the table input</span>
+                <span class="c1"># for concatenation.</span>
+                <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;collapse&quot;</span> <span class="ow">and</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;collapse_filter&quot;</span><span class="p">]:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">concatenated</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">main_aln</span> <span class="o">=</span> <span class="n">concatenation</span><span class="p">(</span><span class="n">aln_object</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+                            <span class="n">main_aln</span> <span class="o">=</span> <span class="n">concatenation</span><span class="p">(</span><span class="n">aln_object</span><span class="p">)</span>
+
+                        <span class="n">concatenated</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;consensus&quot;</span><span class="p">:</span>
+
+                <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;_consensus&quot;</span>
+                <span class="n">main_aln</span> <span class="o">=</span> <span class="n">consensus</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+            <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;gcoder&quot;</span><span class="p">:</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;_coded&quot;</span>
+                <span class="n">main_aln</span><span class="o">.</span><span class="n">code_gaps</span><span class="p">(</span><span class="n">table_out</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;collapse&quot;</span><span class="p">:</span>
+
+                <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;_collapsed&quot;</span>
+
+                <span class="c1"># In this case, filter the unconcatenated alignment</span>
+                <span class="c1"># and concatenate again</span>
+                <span class="k">if</span> <span class="n">secondary_options</span><span class="p">[</span><span class="s2">&quot;collapse_filter&quot;</span><span class="p">]:</span>
+                    <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Filtering for collapse&quot;</span>
+                    <span class="n">aln_object</span><span class="o">.</span><span class="n">remove_tables</span><span class="p">(</span><span class="n">aln_object</span><span class="o">.</span><span class="n">get_tables</span><span class="p">())</span>
+                    <span class="n">aln_object</span><span class="o">.</span><span class="n">filter_missing_data</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span>
+                                                   <span class="n">table_out</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                    <span class="k">if</span> <span class="n">main_operations</span><span class="p">[</span><span class="s2">&quot;concatenation&quot;</span><span class="p">]:</span>
+                        <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Concatenation&quot;</span>
+                        <span class="n">main_aln</span> <span class="o">=</span> <span class="n">aln_object</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+                <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Collapse&quot;</span>
+                <span class="n">main_aln</span><span class="o">.</span><span class="n">collapse</span><span class="p">(</span><span class="n">haplotype_name</span><span class="o">=</span><span class="n">hap_prefix</span><span class="p">,</span>
+                                  <span class="n">conversion_suffix</span><span class="o">=</span><span class="n">conversion_suffix</span><span class="p">,</span>
+                                  <span class="n">dest</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                                  <span class="n">table_out</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+
+            <span class="n">ns</span><span class="o">.</span><span class="n">main_msg</span> <span class="o">=</span> <span class="s2">&quot;Writing output&quot;</span>
+            <span class="k">if</span> <span class="n">main_operations</span><span class="p">[</span><span class="s2">&quot;concatenation&quot;</span><span class="p">]:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">output_file</span> <span class="o">+</span> <span class="n">suffix</span>
+                <span class="n">writer</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">table_suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">writer</span><span class="p">(</span><span class="n">main_aln</span><span class="p">,</span> <span class="n">suffix_str</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+                       <span class="n">conv_suffix</span><span class="o">=</span><span class="n">conversion_suffix</span><span class="p">,</span> <span class="n">table_suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="c1"># Resets the taxa_names attribute of the aln_obj to include all taxa</span>
+        <span class="c1"># aln_object.update_taxa_names(all_taxa=True)</span>
+
+    <span class="k">except</span> <span class="n">KillByUser</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="c1"># Resets the taxa_names attribute of the aln_obj to include all taxa</span>
+        <span class="c1"># aln_object.update_taxa_names(all_taxa=True)</span>
+        <span class="k">return</span>
+
+    <span class="k">except</span> <span class="n">EmptyAlignment</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Empty alignment&quot;</span><span class="p">)</span>
+        <span class="c1"># Resets the taxa_names attribute of the aln_obj to include all taxa</span>
+        <span class="c1"># aln_object.update_taxa_names(all_taxa=True)</span>
+        <span class="c1"># ns.exception = &quot;EmptyAlignment&quot;</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="c1"># Log traceback in case any unexpected error occurs. See</span>
+        <span class="c1"># self.log_file for whereabouts of the traceback</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Unexpected exit in Process execution&quot;</span><span class="p">)</span>
+        <span class="c1"># Resets the taxa_names attribute of the aln_obj to include all taxa</span>
+        <span class="c1"># aln_object.update_taxa_names(all_taxa=True)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span> <span class="s2">&quot;exception&quot;</span><span class="p">):</span>
+            <span class="n">ns</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;exception&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Unknown&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;Unexpected error when generating Process &quot;</span>
+                              <span class="s2">&quot;output. Check the app logs.&quot;</span><span class="p">]}</span></div>
+
+
+<div class="viewcode-block" id="load_group_files"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.load_group_files">[docs]</a><span class="k">def</span> <span class="nf">load_group_files</span><span class="p">(</span><span class="n">group_files</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Task that loads orthology group files into TriFusion</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    group_files : list</span>
+<span class="sd">        List of paths to group files.</span>
+<span class="sd">    temp_dir : str</span>
+<span class="sd">        Temporary directory where sqlite database will be created.</span>
+<span class="sd">    ns : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    og : trifusion.ortho.OrthomclToolbox.MultiGroupsLight</span>
+<span class="sd">        `MultiGroupsList` object.</span>
+<span class="sd">    og.filters : list</span>
+<span class="sd">        List of filters for the `MultiGroupsList` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">og</span> <span class="o">=</span> <span class="n">OrthoTool</span><span class="o">.</span><span class="n">MultiGroupsLight</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">,</span>
+                                    <span class="n">groups</span><span class="o">=</span><span class="n">group_files</span><span class="p">,</span>
+                                    <span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">og</span><span class="p">,</span> <span class="n">og</span><span class="o">.</span><span class="n">filters</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="orto_update_filters"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.orto_update_filters">[docs]</a><span class="k">def</span> <span class="nf">orto_update_filters</span><span class="p">(</span><span class="n">ortho_groups</span><span class="p">,</span> <span class="n">gn_filter</span><span class="p">,</span> <span class="n">sp_filter</span><span class="p">,</span> <span class="n">excluded_taxa</span><span class="p">,</span>
+                        <span class="n">group_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Task that updates filters of a `MultiGroupsLight` object</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ortho_groups : trifusion.ortho.OrthomclToolbox.MultiGroupsLight</span>
+<span class="sd">        `MultiGroupsList` object.</span>
+<span class="sd">    gn_filter : int</span>
+<span class="sd">        Filter for maximum gene copies.</span>
+<span class="sd">    sp_filter : int</span>
+<span class="sd">        Filter for minimum taxa representation.</span>
+<span class="sd">    excluded_taxa : list</span>
+<span class="sd">        List of taxa to be excluded.</span>
+<span class="sd">    group_names : list</span>
+<span class="sd">        List with name of group files.</span>
+<span class="sd">    default : bool</span>
+<span class="sd">        If True, the default filters will be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    orto_groups :  trifusion.ortho.OrthomclToolbox.MultiGroupsLight</span>
+<span class="sd">        `MultiGroupsList` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">group_names</span> <span class="ow">or</span> <span class="n">group_names</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">ortho_groups</span><span class="o">.</span><span class="n">update_filters</span><span class="p">(</span><span class="n">gn_filter</span><span class="p">,</span> <span class="n">sp_filter</span><span class="p">,</span> <span class="n">excluded_taxa</span><span class="p">,</span>
+                                        <span class="n">group_names</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ortho_groups</span><span class="o">.</span><span class="n">update_filters</span><span class="p">(</span><span class="n">gn_filter</span><span class="p">,</span> <span class="n">sp_filter</span><span class="p">,</span> <span class="n">excluded_taxa</span><span class="p">,</span>
+                                        <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ortho_groups</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_active_group"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.get_active_group">[docs]</a><span class="k">def</span> <span class="nf">get_active_group</span><span class="p">(</span><span class="n">ortho_groups</span><span class="p">,</span> <span class="n">old_active_group</span><span class="p">,</span> <span class="n">active_group_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Task that retrieves the active `GroupLight` object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ortho_groups : trifusion.ortho.OrthomclToolbox.MultiGroupsLight</span>
+<span class="sd">        `MultiGroupsList` object.</span>
+<span class="sd">    old_active_group : str</span>
+<span class="sd">        Previous active `GroupLight` object.</span>
+<span class="sd">    active_group_name :</span>
+<span class="sd">        Name of the `GroupLight` object that will be active.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    active_group : trifusion.ortho.OrthomclToolbox.GroupLight</span>
+<span class="sd">        `GroupLight` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">old_active_group</span><span class="p">:</span>
+        <span class="n">active_group</span> <span class="o">=</span> <span class="n">ortho_groups</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">active_group_name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">active_group_name</span> <span class="o">==</span> <span class="n">old_active_group</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">active_group</span> <span class="o">=</span> <span class="n">ortho_groups</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">active_group_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">active_group</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_orto_data"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.get_orto_data">[docs]</a><span class="k">def</span> <span class="nf">get_orto_data</span><span class="p">(</span><span class="n">active_group</span><span class="p">,</span> <span class="n">plt_idx</span><span class="p">,</span> <span class="n">filt</span><span class="p">,</span> <span class="n">exclude_taxa</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates plot data for orthology</span>
+
+<span class="sd">    Given a GroupLight object, this function will execute the method that</span>
+<span class="sd">    corresponds to plt_idx to generate data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    active_group : trifusion.ortho.OrthomclToolbox.GroupLight</span>
+<span class="sd">        `GroupLight` object.</span>
+<span class="sd">    plt_idx : str</span>
+<span class="sd">        Identifier of the plot type that must have a correspondence in</span>
+<span class="sd">        the method dictionary below.</span>
+<span class="sd">    filt : list</span>
+<span class="sd">        List with orthology filters.</span>
+<span class="sd">    exclude_ taxa : list</span>
+<span class="sd">        List of taxa to be excluded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Store the plot generation method in a dictionary where keys are</span>
+    <span class="c1"># the text attributes of the plot spinner and the values are</span>
+    <span class="c1"># bound methods</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Taxa distribution&quot;</span><span class="p">:</span> <span class="n">active_group</span><span class="o">.</span><span class="n">bar_species_distribution</span><span class="p">,</span>
+        <span class="s2">&quot;Taxa coverage&quot;</span><span class="p">:</span> <span class="n">active_group</span><span class="o">.</span><span class="n">bar_species_coverage</span><span class="p">,</span>
+        <span class="s2">&quot;Gene copy distribution&quot;</span><span class="p">:</span> <span class="n">active_group</span><span class="o">.</span><span class="n">bar_genecopy_distribution</span><span class="p">,</span>
+        <span class="s2">&quot;Taxa gene copies&quot;</span><span class="p">:</span> <span class="n">active_group</span><span class="o">.</span><span class="n">bar_genecopy_per_species</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Check for excluded taxa. If any have been provided and are different from</span>
+    <span class="c1"># the ones already set in the GroupLight object, then update the taxa</span>
+    <span class="c1"># filter.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">exclude_taxa</span> <span class="ow">and</span> <span class="n">exclude_taxa</span> <span class="o">!=</span> <span class="n">active_group</span><span class="o">.</span><span class="n">excluded_taxa</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="p">(</span><span class="n">exclude_taxa</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">and</span>
+             <span class="n">exclude_taxa</span> <span class="o">!=</span> <span class="n">active_group</span><span class="o">.</span><span class="n">excluded_taxa</span><span class="p">):</span>
+        <span class="c1"># The update_stats flag of the exclude_taxa method is set to True</span>
+        <span class="c1"># to update the group summary stats. This is important for eventual</span>
+        <span class="c1"># corrections to the ortholog cluster filters.</span>
+        <span class="n">active_group</span><span class="o">.</span><span class="n">exclude_taxa</span><span class="p">(</span><span class="n">exclude_taxa</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filt</span><span class="p">:</span>
+        <span class="c1"># If filters AND excluded taxa have been provided, the first thing</span>
+        <span class="c1"># to do is check whether the provided filters are still correct.</span>
+        <span class="c1"># Excluding taxa may lead to changes in the maximum values of the</span>
+        <span class="c1"># ortholog filters, and this needs to be corrected here</span>
+        <span class="k">if</span> <span class="n">exclude_taxa</span> <span class="ow">and</span> <span class="n">exclude_taxa</span> <span class="o">!=</span> <span class="n">active_group</span><span class="o">.</span><span class="n">excluded_taxa</span><span class="p">:</span>
+            <span class="c1"># Correct gene copy filter maximum</span>
+            <span class="n">gn_filt</span> <span class="o">=</span> <span class="n">filt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">filt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">active_group</span><span class="o">.</span><span class="n">max_extra_copy</span> \
+                <span class="k">else</span> <span class="n">active_group</span><span class="o">.</span><span class="n">max_extra_copy</span>
+            <span class="c1"># Correct minimum taxa representation maximum</span>
+            <span class="n">sp_filt</span> <span class="o">=</span> <span class="n">filt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> \
+                <span class="n">filt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_group</span><span class="o">.</span><span class="n">species_list</span><span class="p">)</span> \
+                <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_group</span><span class="o">.</span><span class="n">species_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No taxa have been excluded this time, so we&#39;ll keep the provided</span>
+            <span class="c1"># filters</span>
+            <span class="n">gn_filt</span><span class="p">,</span> <span class="n">sp_filt</span> <span class="o">=</span> <span class="n">filt</span>
+
+        <span class="n">active_group</span><span class="o">.</span><span class="n">update_filters</span><span class="p">(</span><span class="n">gn_filt</span><span class="p">,</span> <span class="n">sp_filt</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">plot_data</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">plt_idx</span><span class="p">](</span><span class="n">filt</span><span class="o">=</span><span class="n">filt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">plot_data</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_stats_data"><a class="viewcode-back" href="../../../../trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.get_stats_data">[docs]</a><span class="k">def</span> <span class="nf">get_stats_data</span><span class="p">(</span><span class="n">aln_obj</span><span class="p">,</span> <span class="n">stats_idx</span><span class="p">,</span> <span class="n">active_file_set</span><span class="p">,</span> <span class="n">active_taxa_set</span><span class="p">,</span>
+                     <span class="n">additional_args</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Task that retrieves the plot data from `AlignmentList` plot methods</span>
+
+<span class="sd">    Given an aln_obj, this function will execute the according method to</span>
+<span class="sd">    generate plot data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aln_obj : `trifusion.process.sequence.AlignmentList`</span>
+<span class="sd">        AlignmentList object.</span>
+<span class="sd">    stats_idx : str</span>
+<span class="sd">        Identifier of the method type that must have a correspondence in</span>
+<span class="sd">        the `methods` dictionary below.</span>
+<span class="sd">    active_filte_set : str</span>
+<span class="sd">        Name of the active file set.</span>
+<span class="sd">    active_taxa_set : str</span>
+<span class="sd">        Name of the active taxa set.</span>
+<span class="sd">    additional_args : dict</span>
+<span class="sd">        Dictionary with keyword arguments that can be provided when the</span>
+<span class="sd">        plot data method is called.</span>
+<span class="sd">    ns : multiprocessing.Namespace</span>
+<span class="sd">        Namespace object that allows communication between main and worker</span>
+<span class="sd">        threads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Creating deepcopy to perform changes without impacting the main attribute</span>
+    <span class="n">main_aln</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">aln_obj</span><span class="p">)</span>
+    <span class="n">main_aln</span><span class="o">.</span><span class="n">set_database_connections</span><span class="p">(</span><span class="n">aln_obj</span><span class="o">.</span><span class="n">cur</span><span class="p">,</span> <span class="n">aln_obj</span><span class="o">.</span><span class="n">con</span><span class="p">)</span>
+
+    <span class="c1"># Update alignment object according to active file and taxa sets</span>
+    <span class="n">main_aln</span><span class="o">.</span><span class="n">update_active_alignments</span><span class="p">(</span><span class="n">active_file_set</span><span class="p">)</span>
+    <span class="n">main_aln</span><span class="o">.</span><span class="n">update_taxa_names</span><span class="p">(</span><span class="n">active_taxa_set</span><span class="p">)</span>
+
+    <span class="c1"># Check if active data sets are not empty. If so, raise an exception</span>
+    <span class="k">if</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">alignments</span> <span class="o">==</span> <span class="n">OrderedDict</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">taxa_names</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">EmptyAlignment</span><span class="p">(</span><span class="s2">&quot;Active alignment is empty&quot;</span><span class="p">)]</span>
+
+    <span class="c1"># List of gene specific idx. These plots only have one gene for the footer</span>
+    <span class="n">gene_specific</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pairwise sequence similarity gn&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">stats_idx</span> <span class="ow">in</span> <span class="n">gene_specific</span><span class="p">:</span>
+        <span class="n">footer</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">main_aln</span><span class="o">.</span><span class="n">taxa_names</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">footer</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">main_aln</span><span class="o">.</span><span class="n">alignments</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">main_aln</span><span class="o">.</span><span class="n">taxa_names</span><span class="p">)]</span>
+
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Gene occupancy&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">gene_occupancy</span><span class="p">,</span>
+               <span class="s2">&quot;Distribution of missing data sp&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">missing_data_per_species</span><span class="p">,</span>
+               <span class="s2">&quot;Distribution of missing data&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">missing_data_distribution</span><span class="p">,</span>
+               <span class="s2">&quot;Distribution of missing orthologs&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">missing_genes_per_species</span><span class="p">,</span>
+               <span class="s2">&quot;Distribution of missing orthologs avg&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">missing_genes_average</span><span class="p">,</span>
+               <span class="s2">&quot;Distribution of sequence size&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">average_seqsize_per_species</span><span class="p">,</span>
+               <span class="s2">&quot;Distribution of sequence size all&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">average_seqsize</span><span class="p">,</span>
+               <span class="s2">&quot;Cumulative distribution of missing genes&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">cumulative_missing_genes</span><span class="p">,</span>
+               <span class="s2">&quot;Proportion of nucleotides or residues&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">characters_proportion</span><span class="p">,</span>
+               <span class="s2">&quot;Proportion of nucleotides or residues sp&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">characters_proportion_per_species</span><span class="p">,</span>
+               <span class="s2">&quot;Pairwise sequence similarity&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">sequence_similarity</span><span class="p">,</span>
+               <span class="s2">&quot;Pairwise sequence similarity sp&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">sequence_similarity_per_species</span><span class="p">,</span>
+               <span class="s2">&quot;Pairwise sequence similarity gn&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">sequence_similarity_gene</span><span class="p">,</span>
+               <span class="s2">&quot;Segregating sites&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">sequence_segregation</span><span class="p">,</span>
+               <span class="s2">&quot;Segregating sites sp&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">sequence_segregation_per_species</span><span class="p">,</span>
+               <span class="s2">&quot;Segregating sites gn&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">sequence_segregation_gene</span><span class="p">,</span>
+               <span class="s2">&quot;Segregating sites prop&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">sequence_segregation</span><span class="p">,</span>
+               <span class="s2">&quot;Alignment length/Polymorphism correlation&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">length_polymorphism_correlation</span><span class="p">,</span>
+               <span class="s2">&quot;Distribution of taxa frequency&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">taxa_distribution</span><span class="p">,</span>
+               <span class="s2">&quot;Allele Frequency Spectrum&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">allele_frequency_spectrum</span><span class="p">,</span>
+               <span class="s2">&quot;Allele Frequency Spectrum prop&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">allele_frequency_spectrum</span><span class="p">,</span>
+               <span class="s2">&quot;Allele Frequency Spectrum gn&quot;</span><span class="p">:</span>
+                   <span class="n">main_aln</span><span class="o">.</span><span class="n">allele_frequency_spectrum_gene</span><span class="p">,</span>
+               <span class="s2">&quot;Missing data outliers&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">outlier_missing_data</span><span class="p">,</span>
+               <span class="s2">&quot;Missing data outliers sp&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">outlier_missing_data_sp</span><span class="p">,</span>
+               <span class="s2">&quot;Segregating sites outliers&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">outlier_segregating</span><span class="p">,</span>
+               <span class="s2">&quot;Segregating sites outliers sp&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">outlier_segregating_sp</span><span class="p">,</span>
+               <span class="s2">&quot;Sequence size outliers sp&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">outlier_sequence_size_sp</span><span class="p">,</span>
+               <span class="s2">&quot;Sequence size outliers&quot;</span><span class="p">:</span> <span class="n">main_aln</span><span class="o">.</span><span class="n">outlier_sequence_size</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">additional_args</span><span class="p">:</span>
+        <span class="n">plot_data</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">stats_idx</span><span class="p">](</span><span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span> <span class="o">**</span><span class="n">additional_args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plot_data</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">stats_idx</span><span class="p">](</span><span class="n">ns</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">plot_data</span><span class="p">,</span> <span class="n">footer</span><span class="p">]</span></div>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Diogo N. Silva&quot;</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

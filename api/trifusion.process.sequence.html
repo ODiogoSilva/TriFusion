@@ -97,11 +97,12 @@
 <li class="toctree-l2"><a class="reference internal" href="trifusion.html#orthology-backend">Orthology backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="trifusion.html#process-backend">Process backend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="trifusion.html#statistics-backend">Statistics backend</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#table-of-contents">Table of Contents</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="trifusion.process.html">trifusion.process package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#introduction-to-trifusion-s-process-module">Introduction to TriFusion&#8217;s process module</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="trifusion.process.html#submodules">Submodules</a></li>
 </ul>
 </li>
@@ -179,35 +180,35 @@
             
   <div class="section" id="module-trifusion.process.sequence">
 <span id="trifusion-process-sequence-module"></span><h1>trifusion.process.sequence module<a class="headerlink" href="#module-trifusion.process.sequence" title="Permalink to this headline">¶</a></h1>
-<p>The <cite>sequence</cite> module of TriFusion contains the main classes handing alignment
-sequence data. These are <cite>Alignment</cite> and <cite>AlignmentList</cite>. Here follows a
-brief explanation of how these classes work and how to deal with the
-sqlite database.</p>
+<p>The <cite>sequence</cite> module of TriFusion contains the main classes handing
+alignment sequence data. These are <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> and
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>. Here follows a brief explanation of how these
+classes work and how to deal with the sqlite database.</p>
 <div class="section" id="alignment-class">
 <h2><cite>Alignment</cite> class<a class="headerlink" href="#alignment-class" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>Alignment</cite> class is the main interface with single alignment files. It
-can be viewed as the building block of an <cite>AlignmentList</cite> object, which
-can have one or more <cite>Alignment</cite> objects. It contains all methods and
-attributes that pertain to a given alignment and are used to retrieve
-information
-or modify it. <strong>However, it is NOT meant to be used independently</strong>, but rather
-within the context of an <cite>AlignmentList</cite> object (See <a class="reference internal" href="#alignmentlist-class">AlignmentList class</a>).
-The data from each alignment is stored in a single sqlite database during
-the execution of TriFusion or the TriSeq/TriStats CLI programs. The connection
-to this database is automatically handled by <cite>AlignmentList</cite>
-for all <cite>Alignment</cite> objects included in it. In this way, we can use the
-<cite>AlignmentList</cite> class to handle the setup of the sqlite3 database, and
-focus on single alignment data handling in general in this class.</p>
+<p>The <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> class is the main interface with single alignment
+files. It can be viewed as the building block of an <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>
+object, which can have one or more <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> objects. It contains
+all methods and attributes that pertain to a given alignment and are used to
+retrieve information or modify it. <strong>However, it is NOT meant to be used
+independently</strong>, but rather within the context of an <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>
+object. The data from each alignment is stored in a single sqlite database
+during the execution of TriFusion or the TriSeq/TriStats CLI programs. The
+connection to this database is automatically handled by
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> for all <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> objects included in it.
+In this way, we can use the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> class to handle the
+setup of the sqlite3 database, and focus on single alignment data handling
+in general in this class.</p>
 <p>The main types of methods defined in this class are:</p>
 <div class="section" id="parsers">
 <h3>Parsers<a class="headerlink" href="#parsers" title="Permalink to this headline">¶</a></h3>
-<p>Parsing methods are defined with <cite>_read_&lt;format&gt;</cite> (e.g. <cite>_read_fasta</cite>) and
-they are always called
-from the <cite>read_alignment</cite> method. When an <cite>Alignment</cite> object is instantiated
-with a path to an alignment file, it automatically detects the format of
-the alignment and keeps that information on the <cite>input_format</cite> attribute.
-The <cite>read_alignment</cite> method then calls the parsing method corresponding to
-that format. That information is stored in a dictionary:</p>
+<p>Parsing methods are defined with <cite>_read_&lt;format&gt;</cite> (e.g. <a class="reference internal" href="#trifusion.process.sequence.Alignment._read_fasta" title="trifusion.process.sequence.Alignment._read_fasta"><code class="xref py py-meth docutils literal"><span class="pre">_read_fasta()</span></code></a>) and
+they are always called from the <a class="reference internal" href="#trifusion.process.sequence.Alignment.read_alignment" title="trifusion.process.sequence.Alignment.read_alignment"><code class="xref py py-meth docutils literal"><span class="pre">read_alignment()</span></code></a> method. When an
+<a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> object is instantiated with a path to an alignment file,
+it automatically detects the format of the alignment and keeps that
+information on the <a class="reference internal" href="#trifusion.process.sequence.Alignment.input_format" title="trifusion.process.sequence.Alignment.input_format"><code class="xref py py-attr docutils literal"><span class="pre">input_format</span></code></a> attribute. The
+<a class="reference internal" href="#trifusion.process.sequence.Alignment.read_alignment" title="trifusion.process.sequence.Alignment.read_alignment"><code class="xref py py-meth docutils literal"><span class="pre">read_alignment()</span></code></a> method then calls the parsing method
+corresponding to that format. That information is stored in a dictionary:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">parsing_methods</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;phylip&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_phylip</span><span class="p">,</span>
     <span class="s2">&quot;fasta&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_fasta</span><span class="p">,</span>
@@ -222,36 +223,37 @@ that format. That information is stored in a dictionary:</p>
 </div>
 <p>Each format has its own parsing method (which can be modified directly). To
 add a new format, it is necessary to add it to the automatic format
-recognition in <cite>trifusion.process.base.Base</cite>. Then, create the new parsing
-method, using the same <cite>_read_&lt;format&gt;</cite> notation and add it to the
-<cite>parsing_methods</cite> dictionary in <cite>read_alignment</cite>.</p>
+recognition in <a class="reference internal" href="trifusion.process.base.html#trifusion.process.base.Base.autofinder" title="trifusion.process.base.Base.autofinder"><code class="xref py py-meth docutils literal"><span class="pre">autofinder()</span></code></a>. Then,
+create the new parsing method, using the same <cite>_read_&lt;format&gt;</cite> notation and
+add it to the <cite>parsing_methods</cite> dictionary in
+<a class="reference internal" href="#trifusion.process.sequence.Alignment.read_alignment" title="trifusion.process.sequence.Alignment.read_alignment"><code class="xref py py-meth docutils literal"><span class="pre">read_alignment()</span></code></a>.</p>
 </div>
 <div class="section" id="data-fetching">
 <h3>Data fetching<a class="headerlink" href="#data-fetching" title="Permalink to this headline">¶</a></h3>
 <p>To facilitate fetching alignment data from the database, several generators
 and data retrieval methods are defined. These should always use the
-<cite>setup_intable</cite> decorator and defined with the <cite>table_suffix</cite>, <cite>table_name</cite>
-and <cite>table</cite> arguments. For instance, the <cite>iter_sequences</cite> method is a
+<a class="reference internal" href="#trifusion.process.sequence.setup_intable" title="trifusion.process.sequence.setup_intable"><code class="xref py py-func docutils literal"><span class="pre">setup_intable()</span></code></a> decorator and defined with the <cite>table_suffix</cite>, <cite>table_name</cite>
+and <cite>table</cite> arguments. For instance, the <a class="reference internal" href="#trifusion.process.sequence.Alignment.iter_sequences" title="trifusion.process.sequence.Alignment.iter_sequences"><code class="xref py py-meth docutils literal"><span class="pre">Alignment.iter_sequences()</span></code></a> method is a
 generator that allows the iteration over the sequences in the alignment
 and is defined as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@setup_intable</span>
 <span class="k">def</span> <span class="nf">iter_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </pre></div>
 </div>
-<p>When calling these methods, only the <cite>table_suffix</cite> and <cite>table_name</cite> have
-to be provided. In fact, the value provided to the <cite>table</cite> argument
-at calling time is ignored. The decorator will check the values of both
-<cite>table_suffix</cite> and <cite>table_name</cite> and evaluate the database table that will
-be used. This final table name will then be provided as
-the <cite>table</cite> argument value within the decorator. In this way, these methods
-can be called like:</p>
+<p>When calling these methods, only the <cite>table_suffix</cite> and <cite>table_name</cite> have to
+be provided. In fact, the value provided to the <cite>table</cite> argument at calling
+time is ignored. The decorator will check the values of both <cite>table_suffix</cite>
+and <cite>table_name</cite> and evaluate the database table that will be used. This
+final table name will then be provided as the <cite>table</cite> argument value within
+the decorator. In this way, these methods can be called like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_sequences</span><span class="p">(</span><span class="n">table_suffix</span><span class="o">=</span><span class="s2">&quot;_collapse&quot;</span><span class="p">):</span>
     <span class="c1"># Do stuff</span>
 </pre></div>
 </div>
-<p>In this case, the <cite>setup_intable</cite> decorator will append the <cite>table_suffix</cite>
-to the name of the original alignment table. If <cite>Alignment.table_name=&#8221;main&#8221;</cite>,
-then the final table name in this case will be &#8220;main_collapse&#8221;.</p>
+<p>In this case, the <a class="reference internal" href="#trifusion.process.sequence.setup_intable" title="trifusion.process.sequence.setup_intable"><code class="xref py py-func docutils literal"><span class="pre">setup_intable()</span></code></a> decorator will append the
+<cite>table_suffix</cite> to the name of the original alignment table. If
+<cite>Alignment.table_name=&#8221;main&#8221;</cite>, then the final table name in this case will
+be &#8220;main_collapse&#8221;.</p>
 <p>Alternatively, we can use <cite>table_name</cite>:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_sequences</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;main_2&quot;</span><span class="p">):</span>
     <span class="c1"># Do stuff</span>
@@ -264,33 +266,33 @@ table name defined by the <cite>table_name</cite> attribute.</p>
 <div class="section" id="alignment-modifiers">
 <h3>Alignment modifiers<a class="headerlink" href="#alignment-modifiers" title="Permalink to this headline">¶</a></h3>
 <p>Methods that perform modifications to the alignment are also defined here.
-For example, the <cite>collapse</cite> method transforms the original alignment into a
-new one that contains only unique sequences. An important factor to
-take into account with alignment modifying methods, is that it may be
-important to preserve the original alignment data for future operations.
+For example, the <a class="reference internal" href="#trifusion.process.sequence.Alignment.collapse" title="trifusion.process.sequence.Alignment.collapse"><code class="xref py py-meth docutils literal"><span class="pre">Alignment.collapse()</span></code></a> method transforms the original
+alignment into a new one that contains only unique sequences. An important
+factor to take into account with alignment modifying methods, is that it may
+be important to preserve the original alignment data for future operations.
 In TriFusion, the original alignment must be available at all times since
 users may perform any number of process executions in a single session.
 Therefore, all methods that can potentially modify the original alignment
-need to be decorated with the <cite>setup_database</cite> function, and must be
-defined with at least the <cite>table_in</cite> and <cite>table_out</cite> arguments. The decorator
-and these arguments will work together to determine the database&#8217;s table
-from where the data will be fetched, and to where the modified alignment
-will be written. For
-instance, the <cite>collapse</cite> method is defined as:</p>
+need to be decorated with the <a class="reference internal" href="#trifusion.process.sequence.setup_database" title="trifusion.process.sequence.setup_database"><code class="xref py py-func docutils literal"><span class="pre">setup_database()</span></code></a> function, and must be
+defined with at least the <cite>table_in</cite> and <cite>table_out</cite> arguments. The
+decorator and these arguments will work together to determine the database&#8217;s
+table from where the data will be fetched, and to where the modified
+alignment will be written. For instance, the <a class="reference internal" href="#trifusion.process.sequence.Alignment.collapse" title="trifusion.process.sequence.Alignment.collapse"><code class="xref py py-meth docutils literal"><span class="pre">Alignment.collapse()</span></code></a>
+method is defined as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@setup_database</span>
 <span class="k">def</span> <span class="nf">collapse</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">table_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="s2">&quot;collapsed&quot;</span><span class="p">,</span>
              <span class="n">use_main_table</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 </pre></div>
 </div>
-<p>If we want to perform a collapse of the original alignment and store
-the modified alignment in a new table, we could call <cite>collapse</cite> like:</p>
+<p>If we want to perform a collapse of the original alignment and store the
+modified alignment in a new table, we could call <a class="reference internal" href="#trifusion.process.sequence.Alignment.collapse" title="trifusion.process.sequence.Alignment.collapse"><code class="xref py py-meth docutils literal"><span class="pre">Alignment.collapse()</span></code></a>
+like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">collapse</span><span class="p">(</span><span class="n">table_out</span><span class="o">=</span><span class="s2">&quot;new_table&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <cite>setup_database</cite> decorator interprets <cite>table_in=None</cite> as an instruction
-to use the table
-with the original alignment, and stores the modified alignment in
-<cite>&#8220;new_table&#8221;</cite>.</p>
+<p>The <a class="reference internal" href="#trifusion.process.sequence.setup_database" title="trifusion.process.sequence.setup_database"><code class="xref py py-func docutils literal"><span class="pre">setup_database()</span></code></a> decorator interprets <cite>table_in=None</cite> as an
+instruction to use the table with the original alignment, and stores the
+modified alignment in <cite>&#8220;new_table&#8221;</cite>.</p>
 <p>However, we may want to perform a collapse operation after a previous
 modification from other method. In that case, we can specify a
 <cite>table_in</cite>:</p>
@@ -299,13 +301,12 @@ modification from other method. In that case, we can specify a
 </div>
 <p>One issue with this approach is that we do not know <em>a priori</em> which
 operations will be requested by the user nor the order. If one execution
-performs, say, a <cite>consensus</cite> and a <cite>collapse</cite>, the new table should be created
-in <cite>consensus</cite> and then used as input in <cite>collapse</cite>. However, if only
-<cite>collapse</cite>
-is called, then the new table should only be created there. To solve this
-issue, the <cite>setup_database</cite> decorator is smart about its arguments.
-We can create a sequence of operations with the same <cite>table_in</cite> and <cite>table_out</cite>
-arguments:</p>
+performs, say, a <cite>consensus</cite> and a <cite>collapse</cite>, the new table should be
+created in <cite>consensus</cite> and then used as input in <cite>collapse</cite>. However,
+if only <cite>collapse</cite> is called, then the new table should only be created
+there. To solve this issue, the <cite>setup_database</cite> decorator is smart about
+its arguments. We can create a sequence of operations with the same
+<cite>table_in</cite> and <cite>table_out</cite> arguments:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">new_table</span> <span class="o">=</span> <span class="s2">&quot;master_table&quot;</span>
 <span class="k">if</span> <span class="s2">&quot;consensus&quot;</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">:</span>
     <span class="n">consensus</span><span class="p">(</span><span class="n">table_in</span><span class="o">=</span><span class="n">new_table</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="n">new_table</span><span class="p">)</span>
@@ -313,20 +314,19 @@ arguments:</p>
     <span class="n">collapse</span><span class="p">(</span><span class="n">table_in</span><span class="o">=</span><span class="n">new_table</span><span class="p">,</span> <span class="n">table_out</span><span class="o">=</span><span class="n">new_table</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In this simple pipeline, the user may perform either a <cite>consensus</cite>, a
-<cite>collapse</cite>, or both. When the first method is called, the
-<cite>setup_database</cite> decorator will check if the table
-provided in <cite>table_in</cite> exists. In the first called method it will not exist,
-so instead of returning an error, it falls back to the original alignment
-table and then writes the modified alignment to &#8220;master_table&#8221;. In the second
-method, <cite>table_in</cite> already exists, so it fetches alignment data from the
-&#8220;master_table&#8221;. This will work whether these methods are called individually
-or in combination.</p>
+<p>In this simple pipeline, the user may perform either a <cite>consensus</cite>,
+a <cite>collapse</cite>, or both. When the first method is called, the <cite>setup_database</cite>
+decorator will check if the table provided in <cite>table_in</cite> exists. In the
+first called method it will not exist, so instead of returning an error,
+it falls back to the original alignment table and then writes the modified
+alignment to &#8220;master_table&#8221;. In the second method, <cite>table_in</cite> already
+exists, so it fetches alignment data from the &#8220;master_table&#8221;. This will work
+whether these methods are called individually or in combination.</p>
 <p>When there is no need to keep the original alignment data (in single
 execution of TriSeq, for instance), the special <cite>use_main_table</cite> argument
-can be provided to tell the method to use the original table as the input and
-output table. If this argument is True, it supersedes
-any information provided by <cite>table_in</cite> or <cite>table_out</cite>:</p>
+can be provided to tell the method to use the original table as the input
+and output table. If this argument is True, it supersedes any information
+provided by <cite>table_in</cite> or <cite>table_out</cite>:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">collapse</span><span class="p">(</span><span class="n">use_main_table</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -334,12 +334,13 @@ any information provided by <cite>table_in</cite> or <cite>table_out</cite>:</p>
 <div class="section" id="writers">
 <h3>Writers<a class="headerlink" href="#writers" title="Permalink to this headline">¶</a></h3>
 <p>Like parsers, writer methods are defined with <cite>_write_&lt;format&gt;</cite> and are
-always called from the <cite>write_to_file</cite> method. When the <cite>write_to_file</cite>
-method is called, a list with the requested output formats is also provided.
-Then, for each format specified in the argument, the corresponding writer
-method is called. That method is responsible for fetching the data from
-the database and write it to an output file in the appropriate format.
-The map between the formats and the methods is stored in a dictionary:</p>
+always called from the <a class="reference internal" href="#trifusion.process.sequence.Alignment.write_to_file" title="trifusion.process.sequence.Alignment.write_to_file"><code class="xref py py-meth docutils literal"><span class="pre">Alignment.write_to_file()</span></code></a> method. When the
+<a class="reference internal" href="#trifusion.process.sequence.Alignment.write_to_file" title="trifusion.process.sequence.Alignment.write_to_file"><code class="xref py py-meth docutils literal"><span class="pre">Alignment.write_to_file()</span></code></a> method is called, a list with the requested
+output formats is also provided. Then, for each format specified in the
+argument, the corresponding writer method is called. That method is
+responsible for fetching the data from the database and write it to an
+output file in the appropriate format. The map between the formats and the
+methods is stored in a dictionary:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">write_methods</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;fasta&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_fasta</span><span class="p">,</span>
     <span class="s2">&quot;phylip&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_phylip</span><span class="p">,</span>
@@ -355,11 +356,12 @@ The map between the formats and the methods is stored in a dictionary:</p>
     <span class="n">write_methods</span><span class="p">[</span><span class="n">fmt</span><span class="p">](</span><span class="n">output_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <cite>output_file</cite> and a <cite>kwargs</cite> dictionary are provided as arguments
-to each of these methods. The <cite>kwargs</cite> dictionary contains all keyword
-arguments used when calling <cite>write_to_file</cite> and each writer method
-fetches the ones relevant to the format. For instance, in the beggining
-of the <cite>_write_fasta</cite> method, the relevant keyword arguments are retrieved:</p>
+<p>The <cite>output_file</cite> and a <cite>kwargs</cite> dictionary are provided as arguments to
+each of these methods. The <cite>kwargs</cite> dictionary contains all keyword
+arguments used when calling <cite>write_to_file</cite> and each writer method fetches
+the ones relevant to the format. For instance, in the beginning of the
+<a class="reference internal" href="#trifusion.process.sequence.Alignment._write_fasta" title="trifusion.process.sequence.Alignment._write_fasta"><code class="xref py py-meth docutils literal"><span class="pre">_write_fasta()</span></code></a> method, the relevant keyword arguments are
+retrieved:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Get relevant keyword arguments</span>
 <span class="n">ld_hat</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ld_hat&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 <span class="n">interleave</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interleave&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -387,14 +389,14 @@ along with the extension in the <cite>format_ext</cite> variable.</p>
 </div>
 <div class="section" id="alignmentlist-class">
 <h2><cite>AlignmentList</cite> class<a class="headerlink" href="#alignmentlist-class" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>AlignmentList</cite> is the main interface between the user and the alignment
-data. It may contain one or more <cite>Alignment</cite> objects, which are considered
-the building blocks of the total data set. These <cite>Alignment</cite> objects are bound
-by the same sqlite database connection.</p>
+<p>The <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> is the main interface between the user and the
+alignment data. It may contain one or more <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> objects,
+which are considered the building blocks of the total data set. These
+<a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> objects are bound by the same sqlite database connection.</p>
 <div class="section" id="how-to-create-an-instance">
 <h3>How to create an instance<a class="headerlink" href="#how-to-create-an-instance" title="Permalink to this headline">¶</a></h3>
-<p>An <cite>AlignmentList</cite> instance can be created with a single argument, which
-is a list of paths to alignment files:</p>
+<p>An <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> instance can be created with a single argument,
+which is a list of paths to alignment files:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">aln_obj</span> <span class="o">=</span> <span class="n">AlignmentList</span><span class="p">([</span><span class="s2">&quot;file1.fas&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.fas&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -405,8 +407,9 @@ to specify the path to the sqlite database:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">aln_obj</span> <span class="o">=</span> <span class="n">AlignmentList</span><span class="p">([</span><span class="s2">&quot;file1.fas&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.fas&quot;</span><span class="p">],</span> <span class="n">sql_path</span><span class="o">=</span><span class="s2">&quot;.sql.db&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A connection to the database can also be provided when instantiating
-the class, so it&#8217;s perhaps more useful to see how the <cite>__init__</cite> works:</p>
+<p>A connection to the database can also be provided when instantiating the
+class, so it&#8217;s perhaps more useful to see how the
+<code class="xref py py-meth docutils literal"><span class="pre">__init__()</span></code> works:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alignment_list</span><span class="p">,</span> <span class="n">sql_db</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">db_cur</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">db_con</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">pbar</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -426,8 +429,10 @@ is provided, the <cite>sql_path</cite> attribute defaults to &#8220;trifusion.sq
 <div class="section" id="adding-alignment-data">
 <h3>Adding alignment data<a class="headerlink" href="#adding-alignment-data" title="Permalink to this headline">¶</a></h3>
 <p>Alignment data can be loaded when initializing the class as above and/or
-added later via the <cite>add_alignments</cite> and <cite>add_alignment_files</cite> methods
-(in fact, the <cite>add_alignment_files</cite> method is the one called at <cite>__init__</cite>):</p>
+added later via the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.add_alignments" title="trifusion.process.sequence.AlignmentList.add_alignments"><code class="xref py py-meth docutils literal"><span class="pre">add_alignments()</span></code></a> and
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList.add_alignment_files" title="trifusion.process.sequence.AlignmentList.add_alignment_files"><code class="xref py py-meth docutils literal"><span class="pre">add_alignment_files()</span></code></a> methods (in fact,
+the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.add_alignment_files" title="trifusion.process.sequence.AlignmentList.add_alignment_files"><code class="xref py py-meth docutils literal"><span class="pre">add_alignment_files()</span></code></a> method is the one called at
+<code class="xref py py-meth docutils literal"><span class="pre">__init__()</span></code>):</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">aln_obj</span><span class="o">.</span><span class="n">add_alignment_files</span><span class="p">([</span><span class="s2">&quot;file3.fas&quot;</span><span class="p">,</span> <span class="s2">&quot;file4.fas&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -442,10 +447,11 @@ are stored in the <cite>duplicate_alignments</cite> attribute.</p>
 alignment already present. The duplications go to the same attribute
 as above.</p>
 </li>
-<li><p class="first">For each provided file, create an <cite>Alignment</cite> object. Errors that occur
-when creating an <cite>Alignment</cite> object are stored in its <cite>e</cite> attribute.
-This attribute is then checked before adding the alignment to the
-<cite>AlignmentList</cite> object.</p>
+<li><p class="first">For each provided file, create an <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> object. Errors
+that occur when creating an <cite>Alignment</cite> object are stored in its
+<a class="reference internal" href="#trifusion.process.sequence.Alignment.e" title="trifusion.process.sequence.Alignment.e"><code class="xref py py-attr docutils literal"><span class="pre">e</span></code></a>
+attribute. This attribute is then checked before adding the alignment to
+the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> object.</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li>Check for <cite>InputError</cite> exception. These are malformated files
@@ -473,12 +479,13 @@ inclusion of the new alignments.</p>
 </div>
 <div class="section" id="wrapping-alignment-methods">
 <h3>Wrapping <cite>Alignment</cite> methods<a class="headerlink" href="#wrapping-alignment-methods" title="Permalink to this headline">¶</a></h3>
-<p>The majority of the methods defined in the <cite>Alignment</cite> object can also be
-accessed in the <cite>AlignmentList</cite> object. These are defined roughly with the
-same arguments in both classes so that their behavior is the same.
-These can be simple wrappers that call the respective <cite>Alignment</cite> method for
-each alignment in the <cite>alignments</cite> attribute. For instance, the
-<cite>change_taxon_name</cite> method is simply:</p>
+<p>The majority of the methods defined in the <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> object can
+also be accessed in the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> object. These are defined
+roughly with the same arguments in both classes so that their behavior is
+the same. These can be simple wrappers that call the respective
+<a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> method for each alignment in the
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList.alignments" title="trifusion.process.sequence.AlignmentList.alignments"><code class="xref py py-attr docutils literal"><span class="pre">alignments</span></code></a> attribute. For instance,
+the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.change_taxon_name" title="trifusion.process.sequence.AlignmentList.change_taxon_name"><code class="xref py py-meth docutils literal"><span class="pre">change_taxon_name()</span></code></a> method is simply:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">change_taxon_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
 
     <span class="k">for</span> <span class="n">alignment_obj</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignments</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -488,14 +495,15 @@ each alignment in the <cite>alignments</cite> attribute. For instance, the
                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">taxa_names</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>To avoid duplicating the argument list, the wrapping method
-can use <cite>args</cite> and <cite>kwargs</cite> to transfer arguments. This ensures that if
-the argument list is modified in the <cite>Alignment</cite> method, it doesn&#8217;t need
-any modification in the wrapper method. For instance, the <cite>write_to_file</cite>
-method of <cite>Alignment</cite> accepts a large number of positional and keyword
-arguments, which would be an hassle to define an maintain in the wrapper
-method of <cite>AlignmentList</cite>. So, the <cite>write_to_file</cite> method of
-<cite>AlignmentList</cite> is simply defined as:</p>
+<p>To avoid duplicating the argument list, the wrapping method can use <cite>args</cite>
+and <cite>kwargs</cite> to transfer arguments. This ensures that if the argument list
+is modified in the <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> method, it doesn&#8217;t need any
+modification in the wrapper method. For instance,
+the <a class="reference internal" href="#trifusion.process.sequence.Alignment.write_to_file" title="trifusion.process.sequence.Alignment.write_to_file"><code class="xref py py-meth docutils literal"><span class="pre">write_to_file()</span></code></a> method of <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> accepts
+a large number of positional and keyword arguments, which would be an hassle
+to define an maintain in the wrapper method of <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>. So,
+the <code class="xref py py-meth docutils literal"><span class="pre">write_to_file()</span></code> method of <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>
+is simply defined as:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">write_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_format</span><span class="p">,</span> <span class="n">conversion_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                   <span class="n">output_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </pre></div>
@@ -507,19 +515,20 @@ normally by the wrapped method.</p>
 </div>
 <div class="section" id="exclusive-alignmentlist-methods">
 <h3>Exclusive <cite>AlignmentList</cite> methods<a class="headerlink" href="#exclusive-alignmentlist-methods" title="Permalink to this headline">¶</a></h3>
-<p>Some methods are exclusive of <cite>AlignmentList</cite> because they only make sense
-to be applied to lists of alignments (e.g. <cite>concatenate</cite>). These have 
-more freedom in how they are defined and called.</p>
+<p>Some methods are exclusive of <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> because they only make
+sense to be applied to lists of alignments (e.g.
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList.concatenate" title="trifusion.process.sequence.AlignmentList.concatenate"><code class="xref py py-meth docutils literal"><span class="pre">concatenate()</span></code></a>). These have more freedom in how they
+are defined and called.</p>
 </div>
 <div class="section" id="active-and-inactive-datasets">
 <h3>Active and inactive datasets<a class="headerlink" href="#active-and-inactive-datasets" title="Permalink to this headline">¶</a></h3>
-<p>Taxa and/or alignments can become &#8216;inactive&#8217;, that is, they
-are temporarily removed from their respective attributes, <cite>taxa_names</cite>
-and <cite>alignments</cite>. This means that these &#8216;inactive&#8217; elements are ignored
-when performing most operations. To
-change the &#8216;active&#8217; status of alignments, the <cite>update_active_alignments</cite>
-and <cite>update_active_alignment</cite> methods are available. For taxa, the
-<cite>update_taxa_names</cite> method can be used:</p>
+<p>Taxa and/or alignments can become &#8216;inactive&#8217;, that is, they are temporarily
+removed from their respective attributes, <cite>taxa_names</cite> and <cite>alignments</cite>.
+This means that these &#8216;inactive&#8217; elements are ignored when performing most
+operations. To change the &#8216;active&#8217; status of alignments,
+the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.update_active_alignments" title="trifusion.process.sequence.AlignmentList.update_active_alignments"><code class="xref py py-meth docutils literal"><span class="pre">update_active_alignments()</span></code></a> and
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList.update_active_alignment" title="trifusion.process.sequence.AlignmentList.update_active_alignment"><code class="xref py py-meth docutils literal"><span class="pre">update_active_alignment()</span></code></a> methods are available. For
+taxa, the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.update_taxa_names" title="trifusion.process.sequence.AlignmentList.update_taxa_names"><code class="xref py py-meth docutils literal"><span class="pre">update_taxa_names()</span></code></a> method can be used:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Set only two active alignments</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">update_active_alignments</span><span class="p">([</span><span class="s2">&quot;file1.fas&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.fas&quot;</span><span class="p">])</span>
 
@@ -527,19 +536,20 @@ and <cite>update_active_alignment</cite> methods are available. For taxa, the
 <span class="bp">self</span><span class="o">.</span><span class="n">update_taxa_names</span><span class="p">([</span><span class="s2">&quot;taxonA&quot;</span><span class="p">,</span> <span class="s2">&quot;taxonB&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>Note that all these modifications
-are reversible. &#8216;Inactive&#8217; elements are stored in the <cite>shelve_alignments</cite>
-attribute for alignments, and <cite>shelved_taxa</cite> for taxa.</p>
+<p>Note that all these modifications are reversible. &#8216;Inactive&#8217; elements are
+stored in the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.shelve_alignments" title="trifusion.process.sequence.AlignmentList.shelve_alignments"><code class="xref py py-attr docutils literal"><span class="pre">shelve_alignments</span></code></a> attribute for
+alignments, and <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.shelved_taxa" title="trifusion.process.sequence.AlignmentList.shelved_taxa"><code class="xref py py-attr docutils literal"><span class="pre">shelved_taxa</span></code></a> for taxa.</p>
 </div>
 <div class="section" id="updating-alignment-objects">
 <h3>Updating <cite>Alignment</cite> objects<a class="headerlink" href="#updating-alignment-objects" title="Permalink to this headline">¶</a></h3>
-<p>Some tasks perform changes to core attributes of <cite>AlignmentList</cite>, but they
-may also be necessary on each <cite>Alignment</cite> object. For instance, the
-<cite>remove_taxa</cite> method is used to remove a list of taxa from the
-<cite>AlignmentList</cite> object. It is easy to change only the relevant <cite>AlignmentList</cite>
-attributes, but this change also requires those particular taxa to be
-removed in all <cite>Alignment</cite> objects. For this reason, such methods should
-be defined in the same way in both classes. Using the <cite>remove_taxa</cite> example:</p>
+<p>Some tasks perform changes to core attributes of <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a>,
+but they may also be necessary on each <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> object. For
+instance, the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.remove_taxa" title="trifusion.process.sequence.AlignmentList.remove_taxa"><code class="xref py py-meth docutils literal"><span class="pre">remove_taxa()</span></code></a> method is used to remove a
+list of taxa from the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> object. It is easy to change
+only the relevant <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> attributes, but this change also
+requires those particular taxa to be removed in all <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a>
+objects. For this reason, such methods should be defined in the same way in
+both classes. Using the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList.remove_taxa" title="trifusion.process.sequence.AlignmentList.remove_taxa"><code class="xref py py-meth docutils literal"><span class="pre">remove_taxa()</span></code></a> example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">remove_taxa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taxa_list</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;remove&quot;</span><span class="p">):</span>
 
     <span class="c1"># &lt;changes to AlignmentList&gt;</span>
@@ -552,34 +562,36 @@ be defined in the same way in both classes. Using the <cite>remove_taxa</cite> e
 </div>
 <div class="section" id="plot-data-methods">
 <h3>Plot data methods<a class="headerlink" href="#plot-data-methods" title="Permalink to this headline">¶</a></h3>
-<p>The <cite>AlignmentList</cite> object contains all methods that generate data for plotting
-in TriFusion&#8217;s Statistics screen and TriStats CLI program. However, it&#8217;s
-important to establish a separation between the generation of plot data,
-and the generation of the plot itself. The <cite>AlignmentList</cite> methods only
-generate the data and relevant instructions necessary to
-to draw the plot. This information is then passed on to the appropriate
-plot generation functions, which are defined in <cite>trifusion.base.plotter</cite>.
-The reason for this separation of tasks is that many different alignment
-analyses are represented by the same plot.</p>
+<p>The <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> object contains all methods that generate data
+for plotting in TriFusion&#8217;s Statistics screen and TriStats CLI program.
+However, it&#8217;s important to establish a separation between the generation of
+plot data, and the generation of the plot itself. The
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> methods only generate the data and relevant
+instructions necessary to to draw the plot. This information is then passed
+on to the appropriate plot generation functions, which are defined in
+<a class="reference internal" href="trifusion.base.plotter.html#module-trifusion.base.plotter" title="trifusion.base.plotter"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.base.plotter</span></code></a>. The reason for this separation of tasks is
+that many different alignment analyses are represented by the same plot.</p>
 <p>The complete process of how new plots can be added to TriFusion is
 described <a class="reference external" href="https://github.com/ODiogoSilva/TriFusion/wiki/Add-Statistics-plot-analysis">here</a>. In this section, we provide only a few guidelines on what
 to expect from these methods.</p>
-<p>All plot data methods must be decorated with the <cite>check_data</cite> function
+<p>All plot data methods must be decorated with the <a class="reference internal" href="#trifusion.process.sequence.check_data" title="trifusion.process.sequence.check_data"><code class="xref py py-func docutils literal"><span class="pre">check_data()</span></code></a> function
 and take at least a <cite>Namespace</cite> argument. In most cases, no more arguments
 are required:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@check_data</span>
 <span class="k">def</span> <span class="nf">gene_occupancy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </pre></div>
 </div>
-<p>The <cite>check_data</cite> decorator is responsible for performing checks before and
-after executing the method. The <cite>Namespace</cite> argument, <cite>ns</cite>, is used to allow
-communication between the main and worker threads of TriFusion.</p>
-<p>Additional keyword arguments may be defined, but in that case they must
-be provided in TriFusion when the <cite>trifusion.app.TriFusionApp.stats_show_plot</cite>
-method is called, using the <cite>additional_args</cite> argument. This object will
-be passed to the <cite>get_stats_data</cite> function in
-<cite>trifusion.data.resources.background_tasks</cite> and used when calling the
-plot data methods:</p>
+<p>The <a class="reference internal" href="#trifusion.process.sequence.check_data" title="trifusion.process.sequence.check_data"><code class="xref py py-func docutils literal"><span class="pre">check_data()</span></code></a> decorator is responsible for performing checks
+before and after executing the method. The <cite>Namespace</cite> argument, <cite>ns</cite>,
+is used to allow communication between the main and worker threads of
+TriFusion.</p>
+<p>Additional keyword arguments may be defined, but in that case they must be
+provided in TriFusion when the
+<a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.stats_show_plot" title="trifusion.app.TriFusionApp.stats_show_plot"><code class="xref py py-meth docutils literal"><span class="pre">trifusion.app.TriFusionApp.stats_show_plot()</span></code></a> method is called,
+using the <cite>additional_args</cite> argument. This object will be passed to the
+<a class="reference internal" href="trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.get_stats_data" title="trifusion.data.resources.background_tasks.get_stats_data"><code class="xref py py-func docutils literal"><span class="pre">get_stats_data()</span></code></a> function
+in <a class="reference internal" href="trifusion.data.resources.background_tasks.html#module-trifusion.data.resources.background_tasks" title="trifusion.data.resources.background_tasks"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.data.resources.background_tasks</span></code></a> and used when calling
+the plot data methods:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">additional_args</span><span class="p">:</span>
     <span class="n">plot_data</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">stats_idx</span><span class="p">](</span><span class="n">ns</span><span class="o">=</span><span class="n">ns</span><span class="p">,</span> <span class="o">**</span><span class="n">additional_args</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
@@ -609,27 +621,28 @@ and not all of them need to be specified.</p>
 </div>
 <div class="section" id="logging-progress">
 <h3>Logging progress<a class="headerlink" href="#logging-progress" title="Permalink to this headline">¶</a></h3>
-<p>The majority of <cite>AlignmentList</cite> methods support the setup and update of
+<p>The majority of <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> methods support the setup and update of
 progress indicators that can be used in TriFusion (GUI) and the CLI programs.
 In the case of TriFusion, the progress indicator is provided via a
 <cite>multiprocessing.Namespace</cite> object that transfers information between the
 main thread (where the GUI changes take place) and the working thread.
 In the case of the CLI programs, the indicator is provided via a <cite>ProgressBar</cite>
-object. In either case, the setup, update and reseting of the progress
-indicators is perfomed by the same methods.</p>
-<p>At the beginning of an operation, the <cite>_set_pipes</cite> method is called:</p>
+object. In either case, the setup, update and resetting of the progress
+indicators is performed by the same methods.</p>
+<p>At the beginning of an operation, the <code class="xref py py-meth docutils literal"><span class="pre">AlignmentList_set_pipes()</span></code>
+method is called:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">_set_pipes</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span> <span class="n">pbar</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignments</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>The <cite>Namespace</cite> object is defined as <cite>ns</cite> and the <cite>ProgressBar</cite> is defined
 as <cite>pbar</cite>. Usually, only one of them is provided, depending on whether it
-was called from TriFusion or from a CLI program. We also set the total
-of the progress indicator. In this case it&#8217;s the number of alignments. In case
-the operation is called from TriFusion using the <cite>Namespace</cite> object, this
-method also checks the number of active alignments. If there is only one
-active alignment, it sets a Namespace attribute that will silence the
-progress logging of the <cite>AlignmentList</cite> object and receive the information
-from the <cite>Alignment</cite> object instead:</p>
+was called from TriFusion or from a CLI program. We also set the total of
+the progress indicator. In this case it&#8217;s the number of alignments. In case
+the operation is called from TriFusion using the <cite>Namespace</cite> object,
+this method also checks the number of active alignments. If there is only
+one active alignment, it sets a Namespace attribute that will silence the
+progress logging of the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> object and receive the
+information from the <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> object instead:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">ns</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">ns</span><span class="o">.</span><span class="n">sa</span> <span class="o">=</span> <span class="kc">True</span>
@@ -638,7 +651,7 @@ from the <cite>Alignment</cite> object instead:</p>
 </pre></div>
 </div>
 <p>Then, inside the task, we can update the progress within a loop using
-the <cite>_update_pipes</cite> method:</p>
+the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList._update_pipes" title="trifusion.process.sequence.AlignmentList._update_pipes"><code class="xref py py-meth docutils literal"><span class="pre">_update_pipes()</span></code></a> method:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">alignment_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignments</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_update_pipes</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span> <span class="n">pbar</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                        <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Some message&quot;</span><span class="p">)</span>
@@ -648,23 +661,24 @@ the <cite>_update_pipes</cite> method:</p>
 In addition we provide the <cite>value</cite> associated with each iteration.
 Optionally, the <cite>msg</cite> argument can be specified, which is used exclusively
 by TriFusion to show a custom message.</p>
-<p>At the end of a task its good pratice to reset the progress indicators
-by using the <cite>_reset_pipes</cite> method:</p>
+<p>At the end of a task its good practice to reset the progress indicators
+by using the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList._reset_pipes" title="trifusion.process.sequence.AlignmentList._reset_pipes"><code class="xref py py-meth docutils literal"><span class="pre">_reset_pipes()</span></code></a> method:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipes</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here, only the <cite>Namespace</cite> object is necessary, since the <cite>ProgressBar</cite>
-indicator is automatically reset on <cite>_set_pipes</cite>.</p>
+indicator is automatically reset on <a class="reference internal" href="#trifusion.process.sequence.AlignmentList._set_pipes" title="trifusion.process.sequence.AlignmentList._set_pipes"><code class="xref py py-meth docutils literal"><span class="pre">_set_pipes()</span></code></a>.</p>
 </div>
 <div class="section" id="incorporating-a-kill-switch">
 <h3>Incorporating a kill switch<a class="headerlink" href="#incorporating-a-kill-switch" title="Permalink to this headline">¶</a></h3>
-<p>All time consuming methods of <cite>AlignmentList</cite> accept a <cite>Namespace</cite> object
-when called from TriFusion, allowing communication between the main thread
-and the worker thread. Since python <cite>threads</cite> cannot be forcibly terminated
-like <cite>processes</cite>, most methods should listen to a kill switch
-flag that is actually an attribute of the <cite>Namespace</cite> object.
-This kill switch is already incorporated into the <cite>_set_pipes</cite>,
-<cite>_update_pipes</cite> and <cite>_reset_pipes</cite> methods.</p>
+<p>All time consuming methods of <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> accept a <cite>Namespace</cite>
+object when called from TriFusion, allowing communication between the main
+thread and the worker thread. Since python <cite>threads</cite> cannot be forcibly
+terminated like <cite>processes</cite>, most methods should listen to a kill switch
+flag that is actually an attribute of the <cite>Namespace</cite> object. This kill
+switch is already incorporated into the <a class="reference internal" href="#trifusion.process.sequence.AlignmentList._set_pipes" title="trifusion.process.sequence.AlignmentList._set_pipes"><code class="xref py py-meth docutils literal"><span class="pre">_set_pipes()</span></code></a>,
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList._update_pipes" title="trifusion.process.sequence.AlignmentList._update_pipes"><code class="xref py py-meth docutils literal"><span class="pre">_update_pipes()</span></code></a> and
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList._reset_pipes" title="trifusion.process.sequence.AlignmentList._reset_pipes"><code class="xref py py-meth docutils literal"><span class="pre">_reset_pipes()</span></code></a> methods.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">ns</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">ns</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -675,52 +689,50 @@ be clicking on the &#8220;Cancel&#8221; button, for example). When this kill sig
 received in the main thread, it sets the <cite>Namespace.stop</cite> attribute to True
 in both main and worker threads. In the worker thread, when the <cite>stop</cite>
 attribute evaluates to True, a custom <cite>KillByUser</cite> exception is raised,
-immediatelly stopping the task. The exeption is then handled in the
-<cite>trifusion.data.resources.background_tasks.process_execution</cite> function
+immediately stopping the task. The exception is then handled in the
+<a class="reference internal" href="trifusion.data.resources.background_tasks.html#trifusion.data.resources.background_tasks.process_execution" title="trifusion.data.resources.background_tasks.process_execution"><code class="xref py py-func docutils literal"><span class="pre">trifusion.data.resources.background_tasks.process_execution()</span></code></a> function
 and transmitted to the main thread.</p>
 </div>
 </div>
 <div class="section" id="using-sqlite">
 <h2>Using SQLite<a class="headerlink" href="#using-sqlite" title="Permalink to this headline">¶</a></h2>
 <p>A great deal of the high performance and memory efficiency of the <cite>sequence</cite>
-module comes from the
-use of sqlite to store and manipulate alignment data on disk rather than RAM.
-This means that parsing, modifying and writing alignment data must be
-done with great care to ensure that only the essential data is loaded into
-memory, while minimizing the number of (expensive) database queries. This
-has some implications for the methods of both <cite>Alignment</cite> and <cite>AlignmentList</cite>
-objects with respect to how parsing, alignment modification and output
-writing is performed.</p>
+module comes from the use of sqlite to store and manipulate alignment data
+on disk rather than RAM. This means that parsing, modifying and writing
+alignment data must be done with great care to ensure that only the
+essential data is loaded into memory, while minimizing the number of (
+expensive) database queries. This has some implications for the methods of
+both <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> and <a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> objects with respect to
+how parsing, alignment modification and output writing is performed.</p>
 <div class="section" id="implications-for-parsing">
 <h3>Implications for parsing<a class="headerlink" href="#implications-for-parsing" title="Permalink to this headline">¶</a></h3>
-<p>When writing or modifying parsing methods it is important to take into account
-that alignment files can be very large (&gt; 1Gb) and loading the entire
-data into memory should be avoided. Whenever possible, only the data of a
-single taxon should be kept in memory before inserting it into the database
-and then releasing that memory. For most formats,
-particularly leave formats, it&#8217;s
-fairly straightforward to do this. However, interleave formats can fragment
-the data from each taxon across the entire file. Since database insertions
-and updates are expensive, loading the data in each line can greatly
-decrease the performance in these formats. Therefore, it&#8217;s preferable
-to read the alignment file once per taxon, join the entire sequence
-of that taxon, and then insert it into the database. This ensures that
-only sequence data from one taxon is kept in memory at any given time and
-only a minimal number of database insertions are performed. It will
-also result in the same file being parsed N times, where N is the number of
-taxa. However, the decrease in speed is marginal, since most lines are
-actually skipped, whereas the efficiency increase is substantial.</p>
+<p>When writing or modifying parsing methods it is important to take into
+account that alignment files can be very large (&gt; 1Gb) and loading the
+entire data into memory should be avoided. Whenever possible, only the data
+of a single taxon should be kept in memory before inserting it into the
+database and then releasing that memory. For most formats, particularly
+leave formats, it&#8217;s fairly straightforward to do this. However, interleave
+formats can fragment the data from each taxon across the entire file. Since
+database insertions and updates are expensive, loading the data in each line
+can greatly decrease the performance in these formats. Therefore,
+it&#8217;s preferable to read the alignment file once per taxon, join the entire
+sequence of that taxon, and then insert it into the database. This ensures
+that only sequence data from one taxon is kept in memory at any given time
+and only a minimal number of database insertions are performed. It will also
+result in the same file being parsed N times, where N is the number of taxa.
+However, the decrease in speed is marginal, since most lines are actually
+skipped, whereas the efficiency increase is substantial.</p>
 </div>
 <div class="section" id="implications-for-fetching-data">
 <h3>Implications for fetching data<a class="headerlink" href="#implications-for-fetching-data" title="Permalink to this headline">¶</a></h3>
 <p>Retrieving data from an sqlite database is not as simple as accessing python
 native data structure. Therefore, a set of methods and generators have
-been defined in the <cite>Alignment</cite> object to facilitate the interface with
+been defined in the <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a> object to facilitate the interface with
 the data in the database (See <a class="reference internal" href="#data-fetching">Data fetching</a>). When some kind of data
 is required from the database, it is preferable to modify or create a
 dedicated method, instead of interacting with the database directly. This
-creates a layer of abstraction between the database and <cite>Alignment</cite>/
-<cite>AlignmentList</cite> methods that greatly facilitates future updates.</p>
+creates a layer of abstraction between the database and <a class="reference internal" href="#trifusion.process.sequence.Alignment" title="trifusion.process.sequence.Alignment"><code class="xref py py-class docutils literal"><span class="pre">Alignment</span></code></a>/
+<a class="reference internal" href="#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> methods that greatly facilitates future updates.</p>
 </div>
 <div class="section" id="implications-for-alignment-modification">
 <h3>Implications for alignment modification<a class="headerlink" href="#implications-for-alignment-modification" title="Permalink to this headline">¶</a></h3>
@@ -901,6 +913,9 @@ only the necessary information.</p>
 </tr>
 <tr class="row-even"><td>interleave_data</td>
 <td>(bool) Attribute that is set to True when interleave data has been created for the alignment data.</td>
+</tr>
+<tr class="row-odd"><td>input_format</td>
+<td>(str) Format of the input alignment file.</td>
 </tr>
 </tbody>
 </table>
@@ -2490,6 +2505,12 @@ decorator. Do not use directly.</p>
 <p class="rubric">Notes</p>
 <p>Ignores data associated with taxa present in the <cite>shelved_taxa</cite>
 attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.sequence.Alignment.input_format">
+<code class="descname">input_format</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.sequence.Alignment.input_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format of the alignment file.</p>
 </dd></dl>
 
 <dl class="attribute">

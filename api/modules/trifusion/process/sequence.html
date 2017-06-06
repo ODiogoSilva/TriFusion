@@ -156,41 +156,40 @@
            <div itemprop="articleBody">
             
   <h1>Source code for trifusion.process.sequence</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The `sequence` module of TriFusion contains the main classes handing alignment</span>
-<span class="sd">sequence data. These are `Alignment` and `AlignmentList`. Here follows a</span>
-<span class="sd">brief explanation of how these classes work and how to deal with the</span>
-<span class="sd">sqlite database.</span>
+<span></span><span class="sd">&quot;&quot;&quot;The `sequence` module of TriFusion contains the main classes handing</span>
+<span class="sd">alignment sequence data. These are :class:`.Alignment` and</span>
+<span class="sd">:class:`.AlignmentList`. Here follows a brief explanation of how these</span>
+<span class="sd">classes work and how to deal with the sqlite database.</span>
 
 <span class="sd">`Alignment` class</span>
 <span class="sd">-----------------</span>
 
-<span class="sd">The `Alignment` class is the main interface with single alignment files. It</span>
-<span class="sd">can be viewed as the building block of an `AlignmentList` object, which</span>
-<span class="sd">can have one or more `Alignment` objects. It contains all methods and</span>
-<span class="sd">attributes that pertain to a given alignment and are used to retrieve</span>
-<span class="sd">information</span>
-<span class="sd">or modify it. **However, it is NOT meant to be used independently**, but rather</span>
-<span class="sd">within the context of an `AlignmentList` object (See `AlignmentList class`_).</span>
-<span class="sd">The data from each alignment is stored in a single sqlite database during</span>
-<span class="sd">the execution of TriFusion or the TriSeq/TriStats CLI programs. The connection</span>
-<span class="sd">to this database is automatically handled by `AlignmentList`</span>
-<span class="sd">for all `Alignment` objects included in it. In this way, we can use the</span>
-<span class="sd">`AlignmentList` class to handle the setup of the sqlite3 database, and</span>
-<span class="sd">focus on single alignment data handling in general in this class.</span>
+<span class="sd">The :class:`.Alignment` class is the main interface with single alignment</span>
+<span class="sd">files. It can be viewed as the building block of an :class:`.AlignmentList`</span>
+<span class="sd">object, which can have one or more :class:`.Alignment` objects. It contains</span>
+<span class="sd">all methods and attributes that pertain to a given alignment and are used to</span>
+<span class="sd">retrieve information or modify it. **However, it is NOT meant to be used</span>
+<span class="sd">independently**, but rather within the context of an :class:`.AlignmentList`</span>
+<span class="sd">object. The data from each alignment is stored in a single sqlite database</span>
+<span class="sd">during the execution of TriFusion or the TriSeq/TriStats CLI programs. The</span>
+<span class="sd">connection to this database is automatically handled by</span>
+<span class="sd">:class:`.AlignmentList` for all :class:`.Alignment` objects included in it.</span>
+<span class="sd">In this way, we can use the :class:`.AlignmentList` class to handle the</span>
+<span class="sd">setup of the sqlite3 database, and focus on single alignment data handling</span>
+<span class="sd">in general in this class.</span>
 
 <span class="sd">The main types of methods defined in this class are:</span>
 
 <span class="sd">Parsers</span>
 <span class="sd">~~~~~~~</span>
 
-<span class="sd">Parsing methods are defined with `_read_&lt;format&gt;` (e.g. `_read_fasta`) and</span>
-<span class="sd">they are always called</span>
-<span class="sd">from the `read_alignment` method. When an `Alignment` object is instantiated</span>
-<span class="sd">with a path to an alignment file, it automatically detects the format of</span>
-<span class="sd">the alignment and keeps that information on the `input_format` attribute.</span>
-<span class="sd">The `read_alignment` method then calls the parsing method corresponding to</span>
-<span class="sd">that format. That information is stored in a dictionary::</span>
+<span class="sd">Parsing methods are defined with `_read_&lt;format&gt;` (e.g. :meth:`~Alignment._read_fasta`) and</span>
+<span class="sd">they are always called from the :meth:`~.Alignment.read_alignment` method. When an</span>
+<span class="sd">:class:`.Alignment` object is instantiated with a path to an alignment file,</span>
+<span class="sd">it automatically detects the format of the alignment and keeps that</span>
+<span class="sd">information on the :attr:`~.Alignment.input_format` attribute. The</span>
+<span class="sd">:meth:`~.Alignment.read_alignment` method then calls the parsing method</span>
+<span class="sd">corresponding to that format. That information is stored in a dictionary::</span>
 
 <span class="sd">    parsing_methods = {</span>
 <span class="sd">        &quot;phylip&quot;: self._read_phylip,</span>
@@ -205,37 +204,38 @@
 
 <span class="sd">Each format has its own parsing method (which can be modified directly). To</span>
 <span class="sd">add a new format, it is necessary to add it to the automatic format</span>
-<span class="sd">recognition in `trifusion.process.base.Base`. Then, create the new parsing</span>
-<span class="sd">method, using the same `_read_&lt;format&gt;` notation and add it to the</span>
-<span class="sd">`parsing_methods` dictionary in `read_alignment`.</span>
+<span class="sd">recognition in :meth:`~trifusion.process.base.Base.autofinder`. Then,</span>
+<span class="sd">create the new parsing method, using the same `_read_&lt;format&gt;` notation and</span>
+<span class="sd">add it to the `parsing_methods` dictionary in</span>
+<span class="sd">:meth:`~.Alignment.read_alignment`.</span>
 
 <span class="sd">Data fetching</span>
 <span class="sd">~~~~~~~~~~~~~</span>
 
 <span class="sd">To facilitate fetching alignment data from the database, several generators</span>
 <span class="sd">and data retrieval methods are defined. These should always use the</span>
-<span class="sd">`setup_intable` decorator and defined with the `table_suffix`, `table_name`</span>
-<span class="sd">and `table` arguments. For instance, the `iter_sequences` method is a</span>
+<span class="sd">:func:`.setup_intable` decorator and defined with the `table_suffix`, `table_name`</span>
+<span class="sd">and `table` arguments. For instance, the :meth:`.Alignment.iter_sequences` method is a</span>
 <span class="sd">generator that allows the iteration over the sequences in the alignment</span>
 <span class="sd">and is defined as::</span>
 
 <span class="sd">    @setup_intable</span>
 <span class="sd">    def iter_sequences(self, table_suffix=&quot;&quot;, table_name=None, table=None):</span>
 
-<span class="sd">When calling these methods, only the `table_suffix` and `table_name` have</span>
-<span class="sd">to be provided. In fact, the value provided to the `table` argument</span>
-<span class="sd">at calling time is ignored. The decorator will check the values of both</span>
-<span class="sd">`table_suffix` and `table_name` and evaluate the database table that will</span>
-<span class="sd">be used. This final table name will then be provided as</span>
-<span class="sd">the `table` argument value within the decorator. In this way, these methods</span>
-<span class="sd">can be called like::</span>
+<span class="sd">When calling these methods, only the `table_suffix` and `table_name` have to</span>
+<span class="sd">be provided. In fact, the value provided to the `table` argument at calling</span>
+<span class="sd">time is ignored. The decorator will check the values of both `table_suffix`</span>
+<span class="sd">and `table_name` and evaluate the database table that will be used. This</span>
+<span class="sd">final table name will then be provided as the `table` argument value within</span>
+<span class="sd">the decorator. In this way, these methods can be called like::</span>
 
 <span class="sd">    for seq in self.iter_sequences(table_suffix=&quot;_collapse&quot;):</span>
 <span class="sd">        # Do stuff</span>
 
-<span class="sd">In this case, the `setup_intable` decorator will append the `table_suffix`</span>
-<span class="sd">to the name of the original alignment table. If `Alignment.table_name=&quot;main&quot;`,</span>
-<span class="sd">then the final table name in this case will be &quot;main_collapse&quot;.</span>
+<span class="sd">In this case, the :func:`.setup_intable` decorator will append the</span>
+<span class="sd">`table_suffix` to the name of the original alignment table. If</span>
+<span class="sd">`Alignment.table_name=&quot;main&quot;`, then the final table name in this case will</span>
+<span class="sd">be &quot;main_collapse&quot;.</span>
 
 <span class="sd">Alternatively, we can use `table_name`::</span>
 
@@ -251,33 +251,33 @@
 <span class="sd">~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">Methods that perform modifications to the alignment are also defined here.</span>
-<span class="sd">For example, the `collapse` method transforms the original alignment into a</span>
-<span class="sd">new one that contains only unique sequences. An important factor to</span>
-<span class="sd">take into account with alignment modifying methods, is that it may be</span>
-<span class="sd">important to preserve the original alignment data for future operations.</span>
+<span class="sd">For example, the :meth:`.Alignment.collapse` method transforms the original</span>
+<span class="sd">alignment into a new one that contains only unique sequences. An important</span>
+<span class="sd">factor to take into account with alignment modifying methods, is that it may</span>
+<span class="sd">be important to preserve the original alignment data for future operations.</span>
 <span class="sd">In TriFusion, the original alignment must be available at all times since</span>
 <span class="sd">users may perform any number of process executions in a single session.</span>
 <span class="sd">Therefore, all methods that can potentially modify the original alignment</span>
-<span class="sd">need to be decorated with the `setup_database` function, and must be</span>
-<span class="sd">defined with at least the `table_in` and `table_out` arguments. The decorator</span>
-<span class="sd">and these arguments will work together to determine the database&#39;s table</span>
-<span class="sd">from where the data will be fetched, and to where the modified alignment</span>
-<span class="sd">will be written. For</span>
-<span class="sd">instance, the `collapse` method is defined as::</span>
+<span class="sd">need to be decorated with the :func:`.setup_database` function, and must be</span>
+<span class="sd">defined with at least the `table_in` and `table_out` arguments. The</span>
+<span class="sd">decorator and these arguments will work together to determine the database&#39;s</span>
+<span class="sd">table from where the data will be fetched, and to where the modified</span>
+<span class="sd">alignment will be written. For instance, the :meth:`.Alignment.collapse`</span>
+<span class="sd">method is defined as::</span>
 
 <span class="sd">    @setup_database</span>
 <span class="sd">    def collapse(..., table_in=None, table_out=&quot;collapsed&quot;,</span>
 <span class="sd">                 use_main_table=False):</span>
 
-<span class="sd">If we want to perform a collapse of the original alignment and store</span>
-<span class="sd">the modified alignment in a new table, we could call `collapse` like::</span>
+<span class="sd">If we want to perform a collapse of the original alignment and store the</span>
+<span class="sd">modified alignment in a new table, we could call :meth:`.Alignment.collapse`</span>
+<span class="sd">like::</span>
 
 <span class="sd">    collapse(table_out=&quot;new_table&quot;)</span>
 
-<span class="sd">The `setup_database` decorator interprets `table_in=None` as an instruction</span>
-<span class="sd">to use the table</span>
-<span class="sd">with the original alignment, and stores the modified alignment in</span>
-<span class="sd">`&quot;new_table&quot;`.</span>
+<span class="sd">The :func:`.setup_database` decorator interprets `table_in=None` as an</span>
+<span class="sd">instruction to use the table with the original alignment, and stores the</span>
+<span class="sd">modified alignment in `&quot;new_table&quot;`.</span>
 
 <span class="sd">However, we may want to perform a collapse operation after a previous</span>
 <span class="sd">modification from other method. In that case, we can specify a</span>
@@ -287,13 +287,12 @@
 
 <span class="sd">One issue with this approach is that we do not know *a priori* which</span>
 <span class="sd">operations will be requested by the user nor the order. If one execution</span>
-<span class="sd">performs, say, a `consensus` and a `collapse`, the new table should be created</span>
-<span class="sd">in `consensus` and then used as input in `collapse`. However, if only</span>
-<span class="sd">`collapse`</span>
-<span class="sd">is called, then the new table should only be created there. To solve this</span>
-<span class="sd">issue, the `setup_database` decorator is smart about its arguments.</span>
-<span class="sd">We can create a sequence of operations with the same `table_in` and `table_out`</span>
-<span class="sd">arguments::</span>
+<span class="sd">performs, say, a `consensus` and a `collapse`, the new table should be</span>
+<span class="sd">created in `consensus` and then used as input in `collapse`. However,</span>
+<span class="sd">if only `collapse` is called, then the new table should only be created</span>
+<span class="sd">there. To solve this issue, the `setup_database` decorator is smart about</span>
+<span class="sd">its arguments. We can create a sequence of operations with the same</span>
+<span class="sd">`table_in` and `table_out` arguments::</span>
 
 <span class="sd">    new_table = &quot;master_table&quot;</span>
 <span class="sd">    if &quot;consensus&quot; in operations:</span>
@@ -301,21 +300,20 @@
 <span class="sd">    if &quot;collapse&quot; in operations:</span>
 <span class="sd">        collapse(table_in=new_table, table_out=new_table)</span>
 
-<span class="sd">In this simple pipeline, the user may perform either a `consensus`, a</span>
-<span class="sd">`collapse`, or both. When the first method is called, the</span>
-<span class="sd">`setup_database` decorator will check if the table</span>
-<span class="sd">provided in `table_in` exists. In the first called method it will not exist,</span>
-<span class="sd">so instead of returning an error, it falls back to the original alignment</span>
-<span class="sd">table and then writes the modified alignment to &quot;master_table&quot;. In the second</span>
-<span class="sd">method, `table_in` already exists, so it fetches alignment data from the</span>
-<span class="sd">&quot;master_table&quot;. This will work whether these methods are called individually</span>
-<span class="sd">or in combination.</span>
+<span class="sd">In this simple pipeline, the user may perform either a `consensus`,</span>
+<span class="sd">a `collapse`, or both. When the first method is called, the `setup_database`</span>
+<span class="sd">decorator will check if the table provided in `table_in` exists. In the</span>
+<span class="sd">first called method it will not exist, so instead of returning an error,</span>
+<span class="sd">it falls back to the original alignment table and then writes the modified</span>
+<span class="sd">alignment to &quot;master_table&quot;. In the second method, `table_in` already</span>
+<span class="sd">exists, so it fetches alignment data from the &quot;master_table&quot;. This will work</span>
+<span class="sd">whether these methods are called individually or in combination.</span>
 
 <span class="sd">When there is no need to keep the original alignment data (in single</span>
 <span class="sd">execution of TriSeq, for instance), the special `use_main_table` argument</span>
-<span class="sd">can be provided to tell the method to use the original table as the input and</span>
-<span class="sd">output table. If this argument is True, it supersedes</span>
-<span class="sd">any information provided by `table_in` or `table_out`::</span>
+<span class="sd">can be provided to tell the method to use the original table as the input</span>
+<span class="sd">and output table. If this argument is True, it supersedes any information</span>
+<span class="sd">provided by `table_in` or `table_out`::</span>
 
 <span class="sd">    collapse(use_main_table=True)</span>
 
@@ -323,12 +321,13 @@
 <span class="sd">~~~~~~~</span>
 
 <span class="sd">Like parsers, writer methods are defined with `_write_&lt;format&gt;` and are</span>
-<span class="sd">always called from the `write_to_file` method. When the `write_to_file`</span>
-<span class="sd">method is called, a list with the requested output formats is also provided.</span>
-<span class="sd">Then, for each format specified in the argument, the corresponding writer</span>
-<span class="sd">method is called. That method is responsible for fetching the data from</span>
-<span class="sd">the database and write it to an output file in the appropriate format.</span>
-<span class="sd">The map between the formats and the methods is stored in a dictionary::</span>
+<span class="sd">always called from the :meth:`.Alignment.write_to_file` method. When the</span>
+<span class="sd">:meth:`.Alignment.write_to_file` method is called, a list with the requested</span>
+<span class="sd">output formats is also provided. Then, for each format specified in the</span>
+<span class="sd">argument, the corresponding writer method is called. That method is</span>
+<span class="sd">responsible for fetching the data from the database and write it to an</span>
+<span class="sd">output file in the appropriate format. The map between the formats and the</span>
+<span class="sd">methods is stored in a dictionary::</span>
 
 <span class="sd">    write_methods = {</span>
 <span class="sd">        &quot;fasta&quot;: self._write_fasta,</span>
@@ -344,11 +343,12 @@
 <span class="sd">    for fmt in output_format:</span>
 <span class="sd">        write_methods[fmt](output_file, **kwargs)</span>
 
-<span class="sd">The `output_file` and a `kwargs` dictionary are provided as arguments</span>
-<span class="sd">to each of these methods. The `kwargs` dictionary contains all keyword</span>
-<span class="sd">arguments used when calling `write_to_file` and each writer method</span>
-<span class="sd">fetches the ones relevant to the format. For instance, in the beggining</span>
-<span class="sd">of the `_write_fasta` method, the relevant keyword arguments are retrieved::</span>
+<span class="sd">The `output_file` and a `kwargs` dictionary are provided as arguments to</span>
+<span class="sd">each of these methods. The `kwargs` dictionary contains all keyword</span>
+<span class="sd">arguments used when calling `write_to_file` and each writer method fetches</span>
+<span class="sd">the ones relevant to the format. For instance, in the beginning of the</span>
+<span class="sd">:meth:`~.Alignment._write_fasta` method, the relevant keyword arguments are</span>
+<span class="sd">retrieved::</span>
 
 <span class="sd">    # Get relevant keyword arguments</span>
 <span class="sd">    ld_hat = kwargs.get(&quot;ld_hat&quot;, False)</span>
@@ -376,16 +376,16 @@
 <span class="sd">`AlignmentList` class</span>
 <span class="sd">---------------------</span>
 
-<span class="sd">The `AlignmentList` is the main interface between the user and the alignment</span>
-<span class="sd">data. It may contain one or more `Alignment` objects, which are considered</span>
-<span class="sd">the building blocks of the total data set. These `Alignment` objects are bound</span>
-<span class="sd">by the same sqlite database connection.</span>
+<span class="sd">The :class:`.AlignmentList` is the main interface between the user and the</span>
+<span class="sd">alignment data. It may contain one or more :class:`.Alignment` objects,</span>
+<span class="sd">which are considered the building blocks of the total data set. These</span>
+<span class="sd">:class:`.Alignment` objects are bound by the same sqlite database connection.</span>
 
 <span class="sd">How to create an instance</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">An `AlignmentList` instance can be created with a single argument, which</span>
-<span class="sd">is a list of paths to alignment files::</span>
+<span class="sd">An :class:`.AlignmentList` instance can be created with a single argument,</span>
+<span class="sd">which is a list of paths to alignment files::</span>
 
 <span class="sd">    aln_obj = AlignmentList([&quot;file1.fas&quot;, &quot;file2.fas&quot;])</span>
 
@@ -396,8 +396,9 @@
 
 <span class="sd">    aln_obj = AlignmentList([&quot;file1.fas&quot;, &quot;file2.fas&quot;], sql_path=&quot;.sql.db&quot;)</span>
 
-<span class="sd">A connection to the database can also be provided when instantiating</span>
-<span class="sd">the class, so it&#39;s perhaps more useful to see how the `__init__` works::</span>
+<span class="sd">A connection to the database can also be provided when instantiating the</span>
+<span class="sd">class, so it&#39;s perhaps more useful to see how the</span>
+<span class="sd">:meth:`~.AlignmentList.__init__` works::</span>
 
 <span class="sd">    def __init__(self, alignment_list, sql_db=None, db_cur=None, db_con=None,</span>
 <span class="sd">                 pbar=None):</span>
@@ -418,8 +419,10 @@
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">Alignment data can be loaded when initializing the class as above and/or</span>
-<span class="sd">added later via the `add_alignments` and `add_alignment_files` methods</span>
-<span class="sd">(in fact, the `add_alignment_files` method is the one called at `__init__`)::</span>
+<span class="sd">added later via the :meth:`~AlignmentList.add_alignments` and</span>
+<span class="sd">:meth:`~AlignmentList.add_alignment_files` methods (in fact,</span>
+<span class="sd">the :meth:`~AlignmentList.add_alignment_files` method is the one called at</span>
+<span class="sd">:meth:`~.AlignmentList.__init__`)::</span>
 
 <span class="sd">    aln_obj.add_alignment_files([&quot;file3.fas&quot;, &quot;file4.fas&quot;])</span>
 
@@ -431,10 +434,11 @@
 <span class="sd">  2. Check for file duplications between the loaded files and any</span>
 <span class="sd">     alignment already present. The duplications go to the same attribute</span>
 <span class="sd">     as above.</span>
-<span class="sd">  3. For each provided file, create an `Alignment` object. Errors that occur</span>
-<span class="sd">     when creating an `Alignment` object are stored in its `e` attribute.</span>
-<span class="sd">     This attribute is then checked before adding the alignment to the</span>
-<span class="sd">     `AlignmentList` object.</span>
+<span class="sd">  3. For each provided file, create an :class:`.Alignment` object. Errors</span>
+<span class="sd">     that occur when creating an `Alignment` object are stored in its</span>
+<span class="sd">     :attr:`~.Alignment.e`</span>
+<span class="sd">     attribute. This attribute is then checked before adding the alignment to</span>
+<span class="sd">     the :class:`.AlignmentList` object.</span>
 <span class="sd">      1. Check for `InputError` exception. These are malformated files</span>
 <span class="sd">         and are stored in the `bad_alignments` attribute.</span>
 <span class="sd">      2. Check for `AlignmentUnequalLength` exception. These are sequence</span>
@@ -455,12 +459,13 @@
 <span class="sd">Wrapping `Alignment` methods</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">The majority of the methods defined in the `Alignment` object can also be</span>
-<span class="sd">accessed in the `AlignmentList` object. These are defined roughly with the</span>
-<span class="sd">same arguments in both classes so that their behavior is the same.</span>
-<span class="sd">These can be simple wrappers that call the respective `Alignment` method for</span>
-<span class="sd">each alignment in the `alignments` attribute. For instance, the</span>
-<span class="sd">`change_taxon_name` method is simply::</span>
+<span class="sd">The majority of the methods defined in the :class:`.Alignment` object can</span>
+<span class="sd">also be accessed in the :class:`.AlignmentList` object. These are defined</span>
+<span class="sd">roughly with the same arguments in both classes so that their behavior is</span>
+<span class="sd">the same. These can be simple wrappers that call the respective</span>
+<span class="sd">:class:`.Alignment` method for each alignment in the</span>
+<span class="sd">:attr:`~.AlignmentList.alignments` attribute. For instance,</span>
+<span class="sd">the :meth:`~.AlignmentList.change_taxon_name` method is simply::</span>
 
 <span class="sd">    def change_taxon_name(self, old_name, new_name):</span>
 
@@ -470,14 +475,15 @@
 <span class="sd">        self.taxa_names = [new_name if x == old_name else x</span>
 <span class="sd">                           for x in self.taxa_names]</span>
 
-<span class="sd">To avoid duplicating the argument list, the wrapping method</span>
-<span class="sd">can use `args` and `kwargs` to transfer arguments. This ensures that if</span>
-<span class="sd">the argument list is modified in the `Alignment` method, it doesn&#39;t need</span>
-<span class="sd">any modification in the wrapper method. For instance, the `write_to_file`</span>
-<span class="sd">method of `Alignment` accepts a large number of positional and keyword</span>
-<span class="sd">arguments, which would be an hassle to define an maintain in the wrapper</span>
-<span class="sd">method of `AlignmentList`. So, the `write_to_file` method of</span>
-<span class="sd">`AlignmentList` is simply defined as::</span>
+<span class="sd">To avoid duplicating the argument list, the wrapping method can use `args`</span>
+<span class="sd">and `kwargs` to transfer arguments. This ensures that if the argument list</span>
+<span class="sd">is modified in the :class:`.Alignment` method, it doesn&#39;t need any</span>
+<span class="sd">modification in the wrapper method. For instance,</span>
+<span class="sd">the :meth:`~.Alignment.write_to_file` method of :class:`.Alignment` accepts</span>
+<span class="sd">a large number of positional and keyword arguments, which would be an hassle</span>
+<span class="sd">to define an maintain in the wrapper method of :class:`.AlignmentList`. So,</span>
+<span class="sd">the :meth:`~:AlignmentList.write_to_file` method of :class:`.AlignmentList`</span>
+<span class="sd">is simply defined as::</span>
 
 <span class="sd">    def write_to_file(self, output_format, conversion_suffix=&quot;&quot;,</span>
 <span class="sd">                      output_suffix=&quot;&quot;, *args, **kwargs):</span>
@@ -490,20 +496,21 @@
 <span class="sd">Exclusive `AlignmentList` methods</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">Some methods are exclusive of `AlignmentList` because they only make sense</span>
-<span class="sd">to be applied to lists of alignments (e.g. `concatenate`). These have </span>
-<span class="sd">more freedom in how they are defined and called.</span>
+<span class="sd">Some methods are exclusive of :class:`.AlignmentList` because they only make</span>
+<span class="sd">sense to be applied to lists of alignments (e.g.</span>
+<span class="sd">:meth:`~.AlignmentList.concatenate`). These have more freedom in how they</span>
+<span class="sd">are defined and called.</span>
 
 <span class="sd">Active and inactive datasets</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">Taxa and/or alignments can become &#39;inactive&#39;, that is, they</span>
-<span class="sd">are temporarily removed from their respective attributes, `taxa_names`</span>
-<span class="sd">and `alignments`. This means that these &#39;inactive&#39; elements are ignored</span>
-<span class="sd">when performing most operations. To</span>
-<span class="sd">change the &#39;active&#39; status of alignments, the `update_active_alignments`</span>
-<span class="sd">and `update_active_alignment` methods are available. For taxa, the</span>
-<span class="sd">`update_taxa_names` method can be used::</span>
+<span class="sd">Taxa and/or alignments can become &#39;inactive&#39;, that is, they are temporarily</span>
+<span class="sd">removed from their respective attributes, `taxa_names` and `alignments`.</span>
+<span class="sd">This means that these &#39;inactive&#39; elements are ignored when performing most</span>
+<span class="sd">operations. To change the &#39;active&#39; status of alignments,</span>
+<span class="sd">the :meth:`~AlignmentList.update_active_alignments` and</span>
+<span class="sd">:meth:`~AlignmentList.update_active_alignment` methods are available. For</span>
+<span class="sd">taxa, the :meth:`~AlignmentList.update_taxa_names` method can be used::</span>
 
 <span class="sd">    # Set only two active alignments</span>
 <span class="sd">    self.update_active_alignments([&quot;file1.fas&quot;, &quot;file2.fas&quot;])</span>
@@ -511,20 +518,21 @@
 <span class="sd">    # Set only two active taxa</span>
 <span class="sd">    self.update_taxa_names([&quot;taxonA&quot;, &quot;taxonB&quot;])</span>
 
-<span class="sd">Note that all these modifications</span>
-<span class="sd">are reversible. &#39;Inactive&#39; elements are stored in the `shelve_alignments`</span>
-<span class="sd">attribute for alignments, and `shelved_taxa` for taxa.</span>
+<span class="sd">Note that all these modifications are reversible. &#39;Inactive&#39; elements are</span>
+<span class="sd">stored in the :attr:`~.AlignmentList.shelve_alignments` attribute for</span>
+<span class="sd">alignments, and :attr:`~.AlignmentList.shelved_taxa` for taxa.</span>
 
 <span class="sd">Updating `Alignment` objects</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">Some tasks perform changes to core attributes of `AlignmentList`, but they</span>
-<span class="sd">may also be necessary on each `Alignment` object. For instance, the</span>
-<span class="sd">`remove_taxa` method is used to remove a list of taxa from the</span>
-<span class="sd">`AlignmentList` object. It is easy to change only the relevant `AlignmentList`</span>
-<span class="sd">attributes, but this change also requires those particular taxa to be</span>
-<span class="sd">removed in all `Alignment` objects. For this reason, such methods should</span>
-<span class="sd">be defined in the same way in both classes. Using the `remove_taxa` example::</span>
+<span class="sd">Some tasks perform changes to core attributes of :class:`.AlignmentList`,</span>
+<span class="sd">but they may also be necessary on each :class:`.Alignment` object. For</span>
+<span class="sd">instance, the :meth:`~.AlignmentList.remove_taxa` method is used to remove a</span>
+<span class="sd">list of taxa from the :class:`.AlignmentList` object. It is easy to change</span>
+<span class="sd">only the relevant :class:`.AlignmentList` attributes, but this change also</span>
+<span class="sd">requires those particular taxa to be removed in all :class:`.Alignment`</span>
+<span class="sd">objects. For this reason, such methods should be defined in the same way in</span>
+<span class="sd">both classes. Using the :meth:`~.AlignmentList.remove_taxa` example::</span>
 
 <span class="sd">    def remove_taxa(self, taxa_list, mode=&quot;remove&quot;):</span>
 
@@ -538,37 +546,39 @@
 <span class="sd">Plot data methods</span>
 <span class="sd">~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">The `AlignmentList` object contains all methods that generate data for plotting</span>
-<span class="sd">in TriFusion&#39;s Statistics screen and TriStats CLI program. However, it&#39;s</span>
-<span class="sd">important to establish a separation between the generation of plot data,</span>
-<span class="sd">and the generation of the plot itself. The `AlignmentList` methods only</span>
-<span class="sd">generate the data and relevant instructions necessary to</span>
-<span class="sd">to draw the plot. This information is then passed on to the appropriate</span>
-<span class="sd">plot generation functions, which are defined in `trifusion.base.plotter`.</span>
-<span class="sd">The reason for this separation of tasks is that many different alignment</span>
-<span class="sd">analyses are represented by the same plot.</span>
+<span class="sd">The :class:`.AlignmentList` object contains all methods that generate data</span>
+<span class="sd">for plotting in TriFusion&#39;s Statistics screen and TriStats CLI program.</span>
+<span class="sd">However, it&#39;s important to establish a separation between the generation of</span>
+<span class="sd">plot data, and the generation of the plot itself. The</span>
+<span class="sd">:class:`.AlignmentList` methods only generate the data and relevant</span>
+<span class="sd">instructions necessary to to draw the plot. This information is then passed</span>
+<span class="sd">on to the appropriate plot generation functions, which are defined in</span>
+<span class="sd">:mod:`trifusion.base.plotter`. The reason for this separation of tasks is</span>
+<span class="sd">that many different alignment analyses are represented by the same plot.</span>
 
 <span class="sd">The complete process of how new plots can be added to TriFusion is</span>
 <span class="sd">described here_. In this section, we provide only a few guidelines on what</span>
 <span class="sd">to expect from these methods.</span>
 
-<span class="sd">All plot data methods must be decorated with the `check_data` function</span>
+<span class="sd">All plot data methods must be decorated with the :func:`.check_data` function</span>
 <span class="sd">and take at least a `Namespace` argument. In most cases, no more arguments</span>
 <span class="sd">are required::</span>
 
 <span class="sd">    @check_data</span>
 <span class="sd">    def gene_occupancy(self, ns=None):</span>
 
-<span class="sd">The `check_data` decorator is responsible for performing checks before and</span>
-<span class="sd">after executing the method. The `Namespace` argument, `ns`, is used to allow</span>
-<span class="sd">communication between the main and worker threads of TriFusion.</span>
+<span class="sd">The :func:`.check_data` decorator is responsible for performing checks</span>
+<span class="sd">before and after executing the method. The `Namespace` argument, `ns`,</span>
+<span class="sd">is used to allow communication between the main and worker threads of</span>
+<span class="sd">TriFusion.</span>
 
-<span class="sd">Additional keyword arguments may be defined, but in that case they must</span>
-<span class="sd">be provided in TriFusion when the `trifusion.app.TriFusionApp.stats_show_plot`</span>
-<span class="sd">method is called, using the `additional_args` argument. This object will</span>
-<span class="sd">be passed to the `get_stats_data` function in</span>
-<span class="sd">`trifusion.data.resources.background_tasks` and used when calling the</span>
-<span class="sd">plot data methods::</span>
+<span class="sd">Additional keyword arguments may be defined, but in that case they must be</span>
+<span class="sd">provided in TriFusion when the</span>
+<span class="sd">:meth:`trifusion.app.TriFusionApp.stats_show_plot` method is called,</span>
+<span class="sd">using the `additional_args` argument. This object will be passed to the</span>
+<span class="sd">:func:`~trifusion.data.resources.background_tasks.get_stats_data` function</span>
+<span class="sd">in :mod:`trifusion.data.resources.background_tasks` and used when calling</span>
+<span class="sd">the plot data methods::</span>
 
 <span class="sd">    if additional_args:</span>
 <span class="sd">        plot_data = methods[stats_idx](ns=ns, **additional_args)</span>
@@ -603,28 +613,29 @@
 <span class="sd">Logging progress</span>
 <span class="sd">~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">The majority of `AlignmentList` methods support the setup and update of</span>
+<span class="sd">The majority of :class:`.AlignmentList` methods support the setup and update of</span>
 <span class="sd">progress indicators that can be used in TriFusion (GUI) and the CLI programs.</span>
 <span class="sd">In the case of TriFusion, the progress indicator is provided via a</span>
 <span class="sd">`multiprocessing.Namespace` object that transfers information between the</span>
 <span class="sd">main thread (where the GUI changes take place) and the working thread.</span>
 <span class="sd">In the case of the CLI programs, the indicator is provided via a `ProgressBar`</span>
-<span class="sd">object. In either case, the setup, update and reseting of the progress</span>
-<span class="sd">indicators is perfomed by the same methods.</span>
+<span class="sd">object. In either case, the setup, update and resetting of the progress</span>
+<span class="sd">indicators is performed by the same methods.</span>
 
-<span class="sd">At the beginning of an operation, the `_set_pipes` method is called::</span>
+<span class="sd">At the beginning of an operation, the :meth:`~.AlignmentList_set_pipes`</span>
+<span class="sd">method is called::</span>
 
 <span class="sd">    self._set_pipes(ns, pbar, total=len(self.alignments))</span>
 
 <span class="sd">The `Namespace` object is defined as `ns` and the `ProgressBar` is defined</span>
 <span class="sd">as `pbar`. Usually, only one of them is provided, depending on whether it</span>
-<span class="sd">was called from TriFusion or from a CLI program. We also set the total</span>
-<span class="sd">of the progress indicator. In this case it&#39;s the number of alignments. In case</span>
-<span class="sd">the operation is called from TriFusion using the `Namespace` object, this</span>
-<span class="sd">method also checks the number of active alignments. If there is only one</span>
-<span class="sd">active alignment, it sets a Namespace attribute that will silence the</span>
-<span class="sd">progress logging of the `AlignmentList` object and receive the information</span>
-<span class="sd">from the `Alignment` object instead::</span>
+<span class="sd">was called from TriFusion or from a CLI program. We also set the total of</span>
+<span class="sd">the progress indicator. In this case it&#39;s the number of alignments. In case</span>
+<span class="sd">the operation is called from TriFusion using the `Namespace` object,</span>
+<span class="sd">this method also checks the number of active alignments. If there is only</span>
+<span class="sd">one active alignment, it sets a Namespace attribute that will silence the</span>
+<span class="sd">progress logging of the :class:`.AlignmentList` object and receive the</span>
+<span class="sd">information from the :class:`.Alignment` object instead::</span>
 
 <span class="sd">    if ns:</span>
 <span class="sd">        if len(self.alignments) == 1:</span>
@@ -633,7 +644,7 @@
 <span class="sd">            ns.sa = False</span>
 
 <span class="sd">Then, inside the task, we can update the progress within a loop using</span>
-<span class="sd">the `_update_pipes` method::</span>
+<span class="sd">the :meth:`~.AlignmentList._update_pipes` method::</span>
 
 <span class="sd">    for p, alignment_obj in enumerate(list(self.alignments.values())):</span>
 <span class="sd">        self._update_pipes(ns, pbar, value=p + 1,</span>
@@ -644,24 +655,25 @@
 <span class="sd">Optionally, the `msg` argument can be specified, which is used exclusively</span>
 <span class="sd">by TriFusion to show a custom message.</span>
 
-<span class="sd">At the end of a task its good pratice to reset the progress indicators</span>
-<span class="sd">by using the `_reset_pipes` method::</span>
+<span class="sd">At the end of a task its good practice to reset the progress indicators</span>
+<span class="sd">by using the :meth:`~.AlignmentList._reset_pipes` method::</span>
 
 <span class="sd">    self._reset_pipes(ns)</span>
 
 <span class="sd">Here, only the `Namespace` object is necessary, since the `ProgressBar`</span>
-<span class="sd">indicator is automatically reset on `_set_pipes`.</span>
+<span class="sd">indicator is automatically reset on :meth:`~.AlignmentList._set_pipes`.</span>
 
 <span class="sd">Incorporating a kill switch</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">All time consuming methods of `AlignmentList` accept a `Namespace` object</span>
-<span class="sd">when called from TriFusion, allowing communication between the main thread</span>
-<span class="sd">and the worker thread. Since python `threads` cannot be forcibly terminated</span>
-<span class="sd">like `processes`, most methods should listen to a kill switch</span>
-<span class="sd">flag that is actually an attribute of the `Namespace` object.</span>
-<span class="sd">This kill switch is already incorporated into the `_set_pipes`,</span>
-<span class="sd">`_update_pipes` and `_reset_pipes` methods. ::</span>
+<span class="sd">All time consuming methods of :class:`.AlignmentList` accept a `Namespace`</span>
+<span class="sd">object when called from TriFusion, allowing communication between the main</span>
+<span class="sd">thread and the worker thread. Since python `threads` cannot be forcibly</span>
+<span class="sd">terminated like `processes`, most methods should listen to a kill switch</span>
+<span class="sd">flag that is actually an attribute of the `Namespace` object. This kill</span>
+<span class="sd">switch is already incorporated into the :meth:`~.AlignmentList._set_pipes`,</span>
+<span class="sd">:meth:`~.AlignmentList._update_pipes` and</span>
+<span class="sd">:meth:`~.AlignmentList._reset_pipes` methods. ::</span>
 
 <span class="sd">    if ns:</span>
 <span class="sd">        if ns.stop:</span>
@@ -672,55 +684,53 @@
 <span class="sd">received in the main thread, it sets the `Namespace.stop` attribute to True</span>
 <span class="sd">in both main and worker threads. In the worker thread, when the `stop`</span>
 <span class="sd">attribute evaluates to True, a custom `KillByUser` exception is raised,</span>
-<span class="sd">immediatelly stopping the task. The exeption is then handled in the</span>
-<span class="sd">`trifusion.data.resources.background_tasks.process_execution` function</span>
+<span class="sd">immediately stopping the task. The exception is then handled in the</span>
+<span class="sd">:func:`trifusion.data.resources.background_tasks.process_execution` function</span>
 <span class="sd">and transmitted to the main thread.</span>
 
 <span class="sd">Using SQLite</span>
 <span class="sd">------------</span>
 
 <span class="sd">A great deal of the high performance and memory efficiency of the `sequence`</span>
-<span class="sd">module comes from the</span>
-<span class="sd">use of sqlite to store and manipulate alignment data on disk rather than RAM.</span>
-<span class="sd">This means that parsing, modifying and writing alignment data must be</span>
-<span class="sd">done with great care to ensure that only the essential data is loaded into</span>
-<span class="sd">memory, while minimizing the number of (expensive) database queries. This</span>
-<span class="sd">has some implications for the methods of both `Alignment` and `AlignmentList`</span>
-<span class="sd">objects with respect to how parsing, alignment modification and output</span>
-<span class="sd">writing is performed.</span>
+<span class="sd">module comes from the use of sqlite to store and manipulate alignment data</span>
+<span class="sd">on disk rather than RAM. This means that parsing, modifying and writing</span>
+<span class="sd">alignment data must be done with great care to ensure that only the</span>
+<span class="sd">essential data is loaded into memory, while minimizing the number of (</span>
+<span class="sd">expensive) database queries. This has some implications for the methods of</span>
+<span class="sd">both :class:`.Alignment` and :class:`.AlignmentList` objects with respect to</span>
+<span class="sd">how parsing, alignment modification and output writing is performed.</span>
 
 <span class="sd">Implications for parsing</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
-<span class="sd">When writing or modifying parsing methods it is important to take into account</span>
-<span class="sd">that alignment files can be very large (&gt; 1Gb) and loading the entire</span>
-<span class="sd">data into memory should be avoided. Whenever possible, only the data of a</span>
-<span class="sd">single taxon should be kept in memory before inserting it into the database</span>
-<span class="sd">and then releasing that memory. For most formats,</span>
-<span class="sd">particularly leave formats, it&#39;s</span>
-<span class="sd">fairly straightforward to do this. However, interleave formats can fragment</span>
-<span class="sd">the data from each taxon across the entire file. Since database insertions</span>
-<span class="sd">and updates are expensive, loading the data in each line can greatly</span>
-<span class="sd">decrease the performance in these formats. Therefore, it&#39;s preferable</span>
-<span class="sd">to read the alignment file once per taxon, join the entire sequence</span>
-<span class="sd">of that taxon, and then insert it into the database. This ensures that</span>
-<span class="sd">only sequence data from one taxon is kept in memory at any given time and</span>
-<span class="sd">only a minimal number of database insertions are performed. It will</span>
-<span class="sd">also result in the same file being parsed N times, where N is the number of</span>
-<span class="sd">taxa. However, the decrease in speed is marginal, since most lines are</span>
-<span class="sd">actually skipped, whereas the efficiency increase is substantial.</span>
+<span class="sd">When writing or modifying parsing methods it is important to take into</span>
+<span class="sd">account that alignment files can be very large (&gt; 1Gb) and loading the</span>
+<span class="sd">entire data into memory should be avoided. Whenever possible, only the data</span>
+<span class="sd">of a single taxon should be kept in memory before inserting it into the</span>
+<span class="sd">database and then releasing that memory. For most formats, particularly</span>
+<span class="sd">leave formats, it&#39;s fairly straightforward to do this. However, interleave</span>
+<span class="sd">formats can fragment the data from each taxon across the entire file. Since</span>
+<span class="sd">database insertions and updates are expensive, loading the data in each line</span>
+<span class="sd">can greatly decrease the performance in these formats. Therefore,</span>
+<span class="sd">it&#39;s preferable to read the alignment file once per taxon, join the entire</span>
+<span class="sd">sequence of that taxon, and then insert it into the database. This ensures</span>
+<span class="sd">that only sequence data from one taxon is kept in memory at any given time</span>
+<span class="sd">and only a minimal number of database insertions are performed. It will also</span>
+<span class="sd">result in the same file being parsed N times, where N is the number of taxa.</span>
+<span class="sd">However, the decrease in speed is marginal, since most lines are actually</span>
+<span class="sd">skipped, whereas the efficiency increase is substantial.</span>
 
 <span class="sd">Implications for fetching data</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">Retrieving data from an sqlite database is not as simple as accessing python</span>
 <span class="sd">native data structure. Therefore, a set of methods and generators have</span>
-<span class="sd">been defined in the `Alignment` object to facilitate the interface with</span>
+<span class="sd">been defined in the :class:`.Alignment` object to facilitate the interface with</span>
 <span class="sd">the data in the database (See `Data fetching`_). When some kind of data</span>
 <span class="sd">is required from the database, it is preferable to modify or create a</span>
 <span class="sd">dedicated method, instead of interacting with the database directly. This</span>
-<span class="sd">creates a layer of abstraction between the database and `Alignment`/</span>
-<span class="sd">`AlignmentList` methods that greatly facilitates future updates.</span>
+<span class="sd">creates a layer of abstraction between the database and :class:`.Alignment`/</span>
+<span class="sd">:class:`.AlignmentList` methods that greatly facilitates future updates.</span>
 
 <span class="sd">Implications for alignment modification</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
@@ -1335,6 +1345,8 @@
 <span class="sd">    interleave_data : bool</span>
 <span class="sd">        Attribute that is set to True when interleave data has been</span>
 <span class="sd">        created for the alignment data.</span>
+<span class="sd">    input_format : str</span>
+<span class="sd">        Format of the input alignment file.</span>
 <span class="sd">    </span>
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1511,6 +1523,9 @@
                 <span class="c1"># attribute</span>
                 <span class="k">if</span> <span class="n">input_format</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">input_format</span> <span class="o">=</span> <span class="n">input_format</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    Format of the alignment file.</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
 
                 <span class="c1"># parsing the alignment</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">read_alignment</span><span class="p">()</span>

@@ -1,0 +1,10 @@
+trifusion\.process\.base module
+===============================
+
+.. automodule:: trifusion.process.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :special-members: __call__
+    :special-members: __call__
+    :special-members: __call__
