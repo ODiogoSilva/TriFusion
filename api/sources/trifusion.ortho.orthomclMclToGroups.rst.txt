@@ -1,0 +1,7 @@
+trifusion\.ortho\.orthomclMclToGroups module
+============================================
+
+.. automodule:: trifusion.ortho.orthomclMclToGroups
+    :members:
+    :undoc-members:
+    :show-inheritance:

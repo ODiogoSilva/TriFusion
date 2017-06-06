@@ -1,0 +1,7 @@
+trifusion\.ortho\.OrthomclToolbox module
+========================================
+
+.. automodule:: trifusion.ortho.OrthomclToolbox
+    :members:
+    :undoc-members:
+    :show-inheritance:

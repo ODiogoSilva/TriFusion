@@ -1,0 +1,7 @@
+trifusion\.data\.resources\.stats module
+========================================
+
+.. automodule:: trifusion.data.resources.stats
+    :members:
+    :undoc-members:
+    :show-inheritance:

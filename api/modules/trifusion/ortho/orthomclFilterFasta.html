@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.ortho.orthomclFilterFasta &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../trifusion.html">TriFusion modules and API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>trifusion.ortho.orthomclFilterFasta</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trifusion.ortho.orthomclFilterFasta</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python2</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">trifusion.process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span>
+
+
+<div class="viewcode-block" id="orthomcl_filter_fasta"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclFilterFasta.html#trifusion.ortho.orthomclFilterFasta.orthomcl_filter_fasta">[docs]</a><span class="k">def</span> <span class="nf">orthomcl_filter_fasta</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">min_length</span><span class="p">,</span> <span class="n">max_stop_percent</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span>
+                             <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">handle_seq</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">stop_cnt</span><span class="p">):</span>
+        <span class="n">is_bad</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">stop_percent</span> <span class="o">=</span> <span class="p">((</span><span class="n">length</span> <span class="o">-</span> <span class="n">stop_cnt</span><span class="p">)</span> <span class="o">/</span> <span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="k">if</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="n">min_length</span> <span class="ow">or</span> <span class="n">stop_percent</span> <span class="o">&gt;</span> <span class="n">max_stop_percent</span><span class="p">:</span>
+            <span class="n">bad</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">seq</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">is_bad</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">good</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">seq</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_bad</span>
+
+    <span class="n">good</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="n">db</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;backstage_files&quot;</span><span class="p">,</span> <span class="s2">&quot;poorProteins.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">input_dir</span><span class="p">)]</span>
+
+    <span class="n">reject_rates</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Setup progression information</span>
+    <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
+        <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Filtering file </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">input_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">seq_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">reject_seq_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">current_seq</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">current_len</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">current_stop_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># process lines of one file</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">input_file</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">current_seq</span><span class="p">:</span>
+                    <span class="n">seq_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">reject_seq_count</span> <span class="o">+=</span> <span class="n">handle_seq</span><span class="p">(</span><span class="n">current_seq</span><span class="p">,</span>
+                                                   <span class="n">current_len</span><span class="p">,</span>
+                                                   <span class="n">current_stop_cnt</span><span class="p">)</span>
+                    <span class="n">current_seq</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">current_len</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">current_stop_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">line_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">current_len</span> <span class="o">+=</span> <span class="n">line_len</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^A-Za-z]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="n">current_stop_cnt</span> <span class="o">+=</span> <span class="n">line_len</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="n">current_seq</span> <span class="o">+=</span> <span class="n">line</span>
+
+        <span class="n">reject_seq_count</span> <span class="o">+=</span> <span class="n">handle_seq</span><span class="p">(</span><span class="n">current_seq</span><span class="p">,</span>
+                                       <span class="n">current_len</span><span class="p">,</span>
+                                       <span class="n">current_stop_cnt</span><span class="p">)</span>
+        <span class="n">seq_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># add file stats to reject count if it qualifies</span>
+        <span class="k">if</span> <span class="n">reject_seq_count</span><span class="p">:</span>
+            <span class="n">pct</span> <span class="o">=</span> <span class="n">reject_seq_count</span> <span class="o">/</span> <span class="n">seq_count</span> <span class="o">*</span> <span class="mi">100</span>
+            <span class="k">if</span> <span class="n">pct</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">reject_rates</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">input_file</span><span class="p">,</span> <span class="n">pct</span><span class="p">])</span>
+
+        <span class="n">input_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">good</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">bad</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Fernando Alves&quot;</span>
+
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

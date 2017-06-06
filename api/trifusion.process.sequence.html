@@ -26,7 +26,7 @@
 
   
   
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
   
 
   
@@ -40,7 +40,7 @@
         <link rel="prev" title="trifusion.process.error_handling module" href="trifusion.process.error_handling.html"/> 
 
   
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -164,7 +164,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/trifusion.process.sequence.rst.txt" rel="nofollow"> View page source</a>
+            <a href="sources/trifusion.process.sequence.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -738,7 +738,7 @@ alignment parsing is advised. It&#8217;s quite easy to let the entire alignment
 be loaded into RAM, particularly when writing in interleave format.</p>
 <dl class="class">
 <dt id="trifusion.process.sequence.Alignment">
-<em class="property">class </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">Alignment</code><span class="sig-paren">(</span><em>input_alignment</em>, <em>input_format=None</em>, <em>partitions=None</em>, <em>locus_length=None</em>, <em>sequence_code=None</em>, <em>taxa_list=None</em>, <em>taxa_idx=None</em>, <em>sql_cursor=None</em>, <em>sql_con=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">Alignment</code><span class="sig-paren">(</span><em>input_alignment</em>, <em>input_format=None</em>, <em>partitions=None</em>, <em>locus_length=None</em>, <em>sequence_code=None</em>, <em>taxa_list=None</em>, <em>taxa_idx=None</em>, <em>sql_cursor=None</em>, <em>sql_con=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="trifusion.process.base.html#trifusion.process.base.Base" title="trifusion.process.base.Base"><code class="xref py py-class docutils literal"><span class="pre">trifusion.process.base.Base</span></code></a></p>
 <p>Main interface for single alignment files.</p>
 <p>The <cite>Alignment</cite> class is the main interface for single alignment files,
@@ -996,7 +996,7 @@ only the necessary information.</p>
 </table>
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._check_partitions">
-<code class="descname">_check_partitions</code><span class="sig-paren">(</span><em>partition_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._check_partitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._check_partitions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_check_partitions</code><span class="sig-paren">(</span><em>partition_obj</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._check_partitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._check_partitions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Consistency check of the <cite>partition_obj</cite> for <cite>Alignment</cite> object.</p>
 <p>Performs checks to ensure that a <cite>partition_obj</cite> is consistent
 with the alignment data of the <cite>Alignment</cite> object.</p>
@@ -1020,7 +1020,7 @@ with the alignment data of the <cite>Alignment</cite> object.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._create_table">
-<code class="descname">_create_table</code><span class="sig-paren">(</span><em>table_name</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._create_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._create_table" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_create_table</code><span class="sig-paren">(</span><em>table_name</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._create_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._create_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new table in the database.</p>
 <p>Convenience method that creates a new table in the sqlite database.
 It accepts a custom Cursor object, which overrides the <cite>cur</cite>
@@ -1045,7 +1045,7 @@ attribute.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._eval_missing_symbol">
-<code class="descname">_eval_missing_symbol</code><span class="sig-paren">(</span><em>sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._eval_missing_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._eval_missing_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_eval_missing_symbol</code><span class="sig-paren">(</span><em>sequence</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._eval_missing_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._eval_missing_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates missing data symbol from sequence string.</p>
 <p>This method is performed when sequence data is being parsed from the
 alignment and only executes when the missing data symbol stored in
@@ -1072,7 +1072,7 @@ Protein, this character is set as the symbol.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._filter_columns">
-<code class="descname">_filter_columns</code><span class="sig-paren">(</span><em>gap_threshold</em>, <em>missing_threshold</em>, <em>table_in</em>, <em>table_out</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._filter_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._filter_columns" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_filter_columns</code><span class="sig-paren">(</span><em>gap_threshold</em>, <em>missing_threshold</em>, <em>table_in</em>, <em>table_out</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._filter_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._filter_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters alignment columns based on missing data content.</p>
 <p>Filters alignment columns based on the amount of missing data and
 gap content. If the calculated content is higher than a defined
@@ -1123,7 +1123,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._filter_terminals">
-<code class="descname">_filter_terminals</code><span class="sig-paren">(</span><em>table_in</em>, <em>table_out</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._filter_terminals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._filter_terminals" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_filter_terminals</code><span class="sig-paren">(</span><em>table_in</em>, <em>table_out</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._filter_terminals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._filter_terminals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace gaps at alignment&#8217;s extremities with missing data.</p>
 <p>This method should not be called directly. Instead it is used by the
 <cite>filter_missing_data</cite> method.</p>
@@ -1158,7 +1158,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._get_interleave_data">
-<code class="descname">_get_interleave_data</code><span class="sig-paren">(</span><em>table_name=None</em>, <em>table_suffix=None</em>, <em>ns_pipe=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._get_interleave_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._get_interleave_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_get_interleave_data</code><span class="sig-paren">(</span><em>table_name=None</em>, <em>table_suffix=None</em>, <em>ns_pipe=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._get_interleave_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._get_interleave_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds an interleave matrix on the database.</p>
 <p>When the user requests an interleave output format, this method
 rearranges the data matrix (which is leave in the database) in
@@ -1195,7 +1195,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._read_fasta">
-<code class="descname">_read_fasta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._read_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_fasta" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_read_fasta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._read_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_fasta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alignment parser for fasta format.</p>
 <p>Parses a fasta alignment file and stores taxa and sequence data in
 the database.</p>
@@ -1221,7 +1221,7 @@ in <cite>read_alignment</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._read_interleave_nexus">
-<code class="descname">_read_interleave_nexus</code><span class="sig-paren">(</span><em>ntaxa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._read_interleave_nexus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_interleave_nexus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_read_interleave_nexus</code><span class="sig-paren">(</span><em>ntaxa</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._read_interleave_nexus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_interleave_nexus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alignment parser for interleave nexus format.</p>
 <p>Parses an interleave nexus alignment file and stores taxa and
 sequence data in the database.This method is only called from the
@@ -1269,7 +1269,7 @@ gains in memory efficient are much larger.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._read_interleave_phylip">
-<code class="descname">_read_interleave_phylip</code><span class="sig-paren">(</span><em>ntaxa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._read_interleave_phylip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_interleave_phylip" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_read_interleave_phylip</code><span class="sig-paren">(</span><em>ntaxa</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._read_interleave_phylip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_interleave_phylip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alignment parser for interleave phylip format.</p>
 <p>Parses an interleave phylip alignment file and stores taxa and
 sequence data in the database. This method is only called from the
@@ -1317,7 +1317,7 @@ gains in memory efficient are much larger.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._read_loci">
-<code class="descname">_read_loci</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._read_loci"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_loci" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_read_loci</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._read_loci"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_loci" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alignment parser for pyRAD and ipyrad loci format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1341,7 +1341,7 @@ in <cite>read_alignment</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._read_nexus">
-<code class="descname">_read_nexus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._read_nexus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_nexus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_read_nexus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._read_nexus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_nexus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alignment parser for nexus format.</p>
 <p>Parses a nexus alignment file and stores taxa and sequence data in
 the database.</p>
@@ -1367,7 +1367,7 @@ in <cite>read_alignment</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._read_phylip">
-<code class="descname">_read_phylip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._read_phylip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_phylip" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_read_phylip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._read_phylip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_phylip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alignment parser for phylip format.</p>
 <p>Parses a phylip alignment file and stored taxa and sequence data in
 the database.</p>
@@ -1393,7 +1393,7 @@ in <cite>read_alignment</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._read_stockholm">
-<code class="descname">_read_stockholm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._read_stockholm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_stockholm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_read_stockholm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._read_stockholm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._read_stockholm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alignment parser for stockholm format.</p>
 <p>Parses a stockholm alignment file and stores taxa and sequence data in
 the database.</p>
@@ -1419,7 +1419,7 @@ in <cite>read_alignment</cite>.</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.Alignment._reset_pipes">
-<em class="property">static </em><code class="descname">_reset_pipes</code><span class="sig-paren">(</span><em>ns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._reset_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._reset_pipes" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_reset_pipes</code><span class="sig-paren">(</span><em>ns</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._reset_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._reset_pipes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset progress indicators for both GUI and CLI task executions.</p>
 <p>This should be done at the end of any task that initialized the
 progress objects, but it only affects the Namespace object. It
@@ -1445,7 +1445,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._set_format">
-<code class="descname">_set_format</code><span class="sig-paren">(</span><em>input_format</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._set_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._set_format" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_set_format</code><span class="sig-paren">(</span><em>input_format</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._set_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._set_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manually set the input format of the <cite>Alignment</cite> object.</p>
 <p>Manually sets the input format associated with the <cite>Alignment</cite> object</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1464,7 +1464,7 @@ in TriFusion.</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.Alignment._set_pipes">
-<em class="property">static </em><code class="descname">_set_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>total=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._set_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._set_pipes" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_set_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>total=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._set_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._set_pipes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup of progress indicators for both GUI and CLI task executions.</p>
 <blockquote>
 <div><p>This handles the setup of the objects responsible for updating
@@ -1528,7 +1528,7 @@ therefore, the progress information shoud come from here.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._table_exists">
-<code class="descname">_table_exists</code><span class="sig-paren">(</span><em>table_name</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._table_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._table_exists" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_table_exists</code><span class="sig-paren">(</span><em>table_name</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._table_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._table_exists" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a table exists in the database.</p>
 <p>Convenience method that checks if a table exists in the database.
 It accepts a custom Cursor object, which overrides the <cite>cur</cite>
@@ -1568,7 +1568,7 @@ Therefore, this can be used simply like:</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.Alignment._test_range">
-<em class="property">static </em><code class="descname">_test_range</code><span class="sig-paren">(</span><em>s</em>, <em>min_val</em>, <em>max_val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._test_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._test_range" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_test_range</code><span class="sig-paren">(</span><em>s</em>, <em>min_val</em>, <em>max_val</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._test_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._test_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if a given <cite>s</cite> integer in inside a specified range.</p>
 <p>Wrapper for the tests that determine whether a certain value
 (<cite>s</cite>) is within the range provided by <cite>min_val</cite> and <cite>max_val</cite>.
@@ -1604,7 +1604,7 @@ lower and/or upper boundaries, respectively.</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.Alignment._update_pipes">
-<em class="property">static </em><code class="descname">_update_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>value=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._update_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._update_pipes" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_update_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>value=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._update_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._update_pipes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update progress indicators for both GUI and CLI task executions.</p>
 <p>This method provides a single interface for updating the progress
 objects <cite>ns</cite> or <cite>pbar</cite>, which should have been initialized at the
@@ -1659,7 +1659,7 @@ therefore, the progress information shoud come from here.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._write_fasta">
-<code class="descname">_write_fasta</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._write_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_fasta" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_write_fasta</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._write_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_fasta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> object into fasta output format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1708,7 +1708,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._write_gphocs">
-<code class="descname">_write_gphocs</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._write_gphocs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_gphocs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_write_gphocs</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._write_gphocs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_gphocs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> object into gphocs file format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1740,7 +1740,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._write_ima2">
-<code class="descname">_write_ima2</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._write_ima2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_ima2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_write_ima2</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._write_ima2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_ima2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> object into ima2 file format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1795,7 +1795,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._write_mcmctree">
-<code class="descname">_write_mcmctree</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._write_mcmctree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_mcmctree" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_write_mcmctree</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._write_mcmctree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_mcmctree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> object into mcmctree file format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1837,7 +1837,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._write_nexus">
-<code class="descname">_write_nexus</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._write_nexus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_nexus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_write_nexus</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._write_nexus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_nexus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> object into nexus file format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1909,7 +1909,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._write_phylip">
-<code class="descname">_write_phylip</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._write_phylip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_phylip" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_write_phylip</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._write_phylip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_phylip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> object into phylip format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1977,7 +1977,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment._write_stockholm">
-<code class="descname">_write_stockholm</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment._write_stockholm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_stockholm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_write_stockholm</code><span class="sig-paren">(</span><em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment._write_stockholm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment._write_stockholm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> object into stockholm file format.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2009,7 +2009,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.change_taxon_name">
-<code class="descname">change_taxon_name</code><span class="sig-paren">(</span><em>old_name</em>, <em>new_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.change_taxon_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.change_taxon_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">change_taxon_name</code><span class="sig-paren">(</span><em>old_name</em>, <em>new_name</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.change_taxon_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.change_taxon_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Changes the name of a particular taxon.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2031,7 +2031,7 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.code_gaps">
-<code class="descname">code_gaps</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.code_gaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.code_gaps" title="Permalink to this definition">¶</a></dt>
+<code class="descname">code_gaps</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.code_gaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.code_gaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Code gap patterns as binary matrix at the end of alignment.</p>
 <p>This method codes gaps present in the alignment in binary format,
 according to the method of Simmons and Ochoterena (2000), to be read
@@ -2078,7 +2078,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.collapse">
-<code class="descname">collapse</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.collapse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.collapse" title="Permalink to this definition">¶</a></dt>
+<code class="descname">collapse</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.collapse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.collapse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collapses equal sequences into unique haplotypes.</p>
 <p>Collapses equal sequences into unique haplotypes. This method fetches
 the sequences for the current alignment and creates a new database
@@ -2163,7 +2163,7 @@ are much faster.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.consensus">
-<code class="descname">consensus</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.consensus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.consensus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">consensus</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.consensus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.consensus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a consensus sequence from the alignment.</p>
 <p>Converts the current <cite>Alignment</cite> alignment data into a single
 consensus sequence. The <cite>consensus_type</cite> argument determines how
@@ -2232,7 +2232,7 @@ wrong happens.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.filter_codon_positions">
-<code class="descname">filter_codon_positions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.filter_codon_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_codon_positions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_codon_positions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.filter_codon_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_codon_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter alignment according to codon positions.</p>
 <p>Filters codon positions from <cite>Alignment</cite> object with DNA sequence
 type. The <cite>position_list</cite> argument determines which codon positions
@@ -2286,7 +2286,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.filter_informative_sites">
-<code class="descname">filter_informative_sites</code><span class="sig-paren">(</span><em>min_val</em>, <em>max_val</em>, <em>table_in=None</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.filter_informative_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_informative_sites" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_informative_sites</code><span class="sig-paren">(</span><em>min_val</em>, <em>max_val</em>, <em>table_in=None</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.filter_informative_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_informative_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the variable sites from alignment are within range.</p>
 <p>Similar to <cite>filter_segregating_sites</cite> method, but only considers
 informative sites (variable sites present in more than 2 taxa).</p>
@@ -2337,7 +2337,7 @@ range. False if not.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.filter_missing_data">
-<code class="descname">filter_missing_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.filter_missing_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_missing_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_missing_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.filter_missing_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_missing_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters alignment according to missing data.</p>
 <p>Filters gaps and true missing data from the alignment using tolerance
 thresholds for each type of missing data. Both thresholds are maximum
@@ -2387,7 +2387,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.filter_segregating_sites">
-<code class="descname">filter_segregating_sites</code><span class="sig-paren">(</span><em>min_val</em>, <em>max_val</em>, <em>table_in=None</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.filter_segregating_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_segregating_sites" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_segregating_sites</code><span class="sig-paren">(</span><em>min_val</em>, <em>max_val</em>, <em>table_in=None</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.filter_segregating_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.filter_segregating_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the segregating sites from alignment are within range.</p>
 <p>Evaluates the number of segregating sites of the current alignment
 and returns True if it falls between the range specified by the
@@ -2439,7 +2439,7 @@ range. False if not.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.get_sequence">
-<code class="descname">get_sequence</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.get_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.get_sequence" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_sequence</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.get_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.get_sequence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the sequence string for a given taxon.</p>
 <p>Returns the sequence string of the corresponding <cite>taxon</cite>. If the
 taxon does not exist in the table, raises a KeyError.
@@ -2503,7 +2503,7 @@ stored in the database, and then further usages will use that table.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.iter_alignment">
-<code class="descname">iter_alignment</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.iter_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_alignment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iter_alignment</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.iter_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_alignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator for (taxon, sequence) tuples.</p>
 <p>Generator that yields (taxon, sequence) tuples from the database.
 Sequence data is retrieved from a database table specified either by
@@ -2555,7 +2555,7 @@ decorator. Do not use directly.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.iter_columns">
-<code class="descname">iter_columns</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.iter_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_columns" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iter_columns</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.iter_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator over alignment columns.</p>
 <p>Generator that yields the alignment columns in a list of characters.
 Sequence data is retrieved from a database table specified either by
@@ -2615,7 +2615,7 @@ RAM usage and speed.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.iter_columns_uniq">
-<code class="descname">iter_columns_uniq</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.iter_columns_uniq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_columns_uniq" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iter_columns_uniq</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.iter_columns_uniq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_columns_uniq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator over unique characters of an alignment column.</p>
 <p>Generator that yields unique elements of alignment columns in a list.
 Sequence data is retrieved from a database table specified either by
@@ -2674,7 +2674,7 @@ RAM usage and speed.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.iter_sequences">
-<code class="descname">iter_sequences</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.iter_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_sequences" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iter_sequences</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.iter_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.iter_sequences" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator over sequence strings in the alignment.</p>
 <p>Generator for sequence data of the <cite>Alignment</cite> object.
 Sequence data is retrieved from a database table specified either by
@@ -2754,7 +2754,7 @@ with each partition and they default to None</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.read_alignment">
-<code class="descname">read_alignment</code><span class="sig-paren">(</span><em>size_check=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.read_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.read_alignment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_alignment</code><span class="sig-paren">(</span><em>size_check=True</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.read_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.read_alignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main alignment parser method.</p>
 <p>This is the main alignment parsing method that is called when the
 <cite>Alignment</cite> object is instantiated with a file path as the argument.
@@ -2779,13 +2779,13 @@ taxa (default is True).</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.remove_alignment">
-<code class="descname">remove_alignment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.remove_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.remove_alignment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_alignment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.remove_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.remove_alignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes alignment data from the database.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.remove_taxa">
-<code class="descname">remove_taxa</code><span class="sig-paren">(</span><em>taxa_list_file</em>, <em>mode='remove'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.remove_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.remove_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_taxa</code><span class="sig-paren">(</span><em>taxa_list_file</em>, <em>mode='remove'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.remove_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.remove_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes taxa from the <cite>Alignment</cite> object.</p>
 <p>Removes taxa based on the  <cite>taxa_list_file</cite> argument from the
 <cite>Alignment</cite> object.</p>
@@ -2830,7 +2830,7 @@ gaps and will only be used when nexus is in the output format</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.reverse_concatenate">
-<code class="descname">reverse_concatenate</code><span class="sig-paren">(</span><em>table_in=''</em>, <em>db_con=None</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.reverse_concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.reverse_concatenate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reverse_concatenate</code><span class="sig-paren">(</span><em>table_in=''</em>, <em>db_con=None</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.reverse_concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.reverse_concatenate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reverses the alignment according to the <cite>partitions</cite> attribute.</p>
 <p>This method splits the current alignment according to the
 partitions set in the <cite>partitions</cite> attribute. Returns an
@@ -2866,7 +2866,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.set_partitions">
-<code class="descname">set_partitions</code><span class="sig-paren">(</span><em>partitions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.set_partitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.set_partitions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_partitions</code><span class="sig-paren">(</span><em>partitions</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.set_partitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.set_partitions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the <cite>partition</cite> attribute.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2884,7 +2884,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.shelve_taxa">
-<code class="descname">shelve_taxa</code><span class="sig-paren">(</span><em>lst</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.shelve_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.shelve_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">shelve_taxa</code><span class="sig-paren">(</span><em>lst</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.shelve_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.shelve_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shelves taxa from <cite>Alignment</cite> methods.</p>
 <p>The taxa provided in the <cite>lst</cite> argument will be ignored in
 subsequent operations. In practice, taxa from the <cite>taxa_list</cite>
@@ -2958,7 +2958,7 @@ be removed (which would mess up the link between the two indexes)</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.Alignment.write_loci_correspondence">
-<em class="property">static </em><code class="descname">write_loci_correspondence</code><span class="sig-paren">(</span><em>hap_dict</em>, <em>output_file</em>, <em>dest='./'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.write_loci_correspondence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.write_loci_correspondence" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">write_loci_correspondence</code><span class="sig-paren">(</span><em>hap_dict</em>, <em>output_file</em>, <em>dest='./'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.write_loci_correspondence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.write_loci_correspondence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the file mapping taxa to unique haplotypes for <cite>collapse</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2985,7 +2985,7 @@ sharing the same haplotype.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.Alignment.write_to_file">
-<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>output_format</em>, <em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#Alignment.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.write_to_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>output_format</em>, <em>output_file</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#Alignment.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.Alignment.write_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes alignment data into an output file.</p>
 <p>Writes the alignment object into a specified output file,
 automatically adding the extension, according to the specified
@@ -3132,14 +3132,14 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="exception">
 <dt id="trifusion.process.sequence.AlignmentException">
-<em class="property">exception </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">AlignmentException</code><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentException" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">AlignmentException</code><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
 <p>Generic Alignment object exception.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="trifusion.process.sequence.AlignmentList">
-<em class="property">class </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">AlignmentList</code><span class="sig-paren">(</span><em>alignment_list</em>, <em>sql_db=None</em>, <em>db_cur=None</em>, <em>db_con=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">AlignmentList</code><span class="sig-paren">(</span><em>alignment_list</em>, <em>sql_db=None</em>, <em>db_cur=None</em>, <em>db_con=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="trifusion.process.base.html#trifusion.process.base.Base" title="trifusion.process.base.Base"><code class="xref py py-class docutils literal"><span class="pre">trifusion.process.base.Base</span></code></a></p>
 <p>Main interface for groups of <cite>Alignment</cite> objects.</p>
 <p>The <cite>AlignmentList</cite> class can be seen as a group of <cite>Alignment</cite> objects
@@ -3470,7 +3470,7 @@ object (<cite>db_cur</cite>) to connect to an existing database.</p>
 </table>
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList._create_table">
-<code class="descname">_create_table</code><span class="sig-paren">(</span><em>table_name</em>, <em>index=None</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._create_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._create_table" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_create_table</code><span class="sig-paren">(</span><em>table_name</em>, <em>index=None</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._create_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._create_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new table in the database.</p>
 <p>Convenience method that creates a new table in the sqlite database.
 It accepts a custom Cursor object, which overrides the <cite>cur</cite>
@@ -3500,7 +3500,7 @@ attribute. Optionally, an index can also be specified.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList._get_filename_list">
-<code class="descname">_get_filename_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._get_filename_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._get_filename_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_get_filename_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._get_filename_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._get_filename_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list with the <cite>Alignment.name</cite> of alignments.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3518,7 +3518,7 @@ attribute. Optionally, an index can also be specified.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList._get_informative_sites">
-<code class="descname">_get_informative_sites</code><span class="sig-paren">(</span><em>aln</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._get_informative_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._get_informative_sites" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_get_informative_sites</code><span class="sig-paren">(</span><em>aln</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._get_informative_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._get_informative_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates number of informative sites in an <cite>Alignment</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3547,7 +3547,7 @@ attribute. Optionally, an index can also be specified.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList._get_taxa_list">
-<code class="descname">_get_taxa_list</code><span class="sig-paren">(</span><em>only_active=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._get_taxa_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._get_taxa_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_get_taxa_list</code><span class="sig-paren">(</span><em>only_active=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._get_taxa_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._get_taxa_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the global taxa list from all alignments.</p>
 <p>If called with no arguments, it returns the taxa list from <em>all</em>
 alignments, including the &#8216;inactive&#8217; ones. The <cite>only_active</cite>
@@ -3575,7 +3575,7 @@ argument can be set to True to return only the taxa list from the
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.AlignmentList._mad_based_outlier">
-<em class="property">static </em><code class="descname">_mad_based_outlier</code><span class="sig-paren">(</span><em>p</em>, <em>threshold=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._mad_based_outlier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._mad_based_outlier" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_mad_based_outlier</code><span class="sig-paren">(</span><em>p</em>, <em>threshold=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._mad_based_outlier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._mad_based_outlier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate MAD based outliers.</p>
 <p>An outlier detection method based on median absolute deviation. This
 code was adapted from <a class="reference external" href="http://stackoverflow.com/a/22357811/1990165">http://stackoverflow.com/a/22357811/1990165</a>.
@@ -3601,7 +3601,7 @@ robust to smaller data sets.</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.AlignmentList._reset_pipes">
-<em class="property">static </em><code class="descname">_reset_pipes</code><span class="sig-paren">(</span><em>ns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._reset_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._reset_pipes" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_reset_pipes</code><span class="sig-paren">(</span><em>ns</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._reset_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._reset_pipes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset progress indicators for both GUI and CLI task executions.</p>
 <p>This should be done at the end of any task that initialized the
 progress objects, but it only affects the Namespace object. It
@@ -3623,13 +3623,13 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList._reset_summary_stats">
-<code class="descname">_reset_summary_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._reset_summary_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._reset_summary_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_reset_summary_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._reset_summary_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._reset_summary_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets the <cite>summary_stats</cite> attribute.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList._set_pipes">
-<code class="descname">_set_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>total=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._set_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._set_pipes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_set_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>total=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._set_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._set_pipes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup of progress indicators for both GUI and CLI task executions.</p>
 <p>This handles the setup of the objects responsible for updating
 the progress of task&#8217;s execution of both TriFusion (GUI) and
@@ -3687,7 +3687,7 @@ are piped from the <cite>Alignment</cite> object instead.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList._table_exists">
-<code class="descname">_table_exists</code><span class="sig-paren">(</span><em>table_name</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._table_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._table_exists" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_table_exists</code><span class="sig-paren">(</span><em>table_name</em>, <em>cur=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._table_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._table_exists" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a table exists in the database.</p>
 <p>Convenience method that checks if a table exists in the database.
 It accepts a custom Cursor object, which overrides the <cite>cur</cite>
@@ -3727,7 +3727,7 @@ Therefore, this can be used simply like:</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.sequence.AlignmentList._update_pipes">
-<em class="property">static </em><code class="descname">_update_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>value=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList._update_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._update_pipes" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_update_pipes</code><span class="sig-paren">(</span><em>ns=None</em>, <em>pbar=None</em>, <em>value=None</em>, <em>msg=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList._update_pipes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList._update_pipes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update progress indicators for both GUI and CLI task executions.</p>
 <p>This method provides a single interface for updating the progress
 objects <cite>ns</cite> or <cite>pbar</cite>, which should have been initialized at the
@@ -3777,7 +3777,7 @@ is being piped directly from the <cite>Alignment</cite> object.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.add_alignment_files">
-<code class="descname">add_alignment_files</code><span class="sig-paren">(</span><em>file_name_list</em>, <em>pbar=None</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.add_alignment_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.add_alignment_files" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_alignment_files</code><span class="sig-paren">(</span><em>file_name_list</em>, <em>pbar=None</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.add_alignment_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.add_alignment_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a list of alignment files to the current <cite>AlignmentList</cite>.</p>
 <p>Adds a list of alignment paths to the current <cite>AlignmentList</cite>. Each
 path in the list is used to instantiate an <cite>Alignment</cite> object and
@@ -3809,7 +3809,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.add_alignments">
-<code class="descname">add_alignments</code><span class="sig-paren">(</span><em>alignment_obj_list</em>, <em>ignore_paths=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.add_alignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.add_alignments" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_alignments</code><span class="sig-paren">(</span><em>alignment_obj_list</em>, <em>ignore_paths=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.add_alignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.add_alignments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a list of <cite>Alignment</cite> objects to the current <cite>AlignmentList</cite>.</p>
 <p>Adds a list of alignments, already as <cite>Alignment</cite> objects, to the
 current <cite>AlignmentList</cite>. This method performs several checks
@@ -3849,7 +3849,7 @@ checked with the loaded alignments.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.allele_frequency_spectrum">
-<code class="descname">allele_frequency_spectrum</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.allele_frequency_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.allele_frequency_spectrum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allele_frequency_spectrum</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.allele_frequency_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.allele_frequency_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for the allele frequency spectrum.</p>
 <p>Calculates the allele frequency spectrum of the entire
 alignment data set. Here, multiple alignments are effectively treated
@@ -3885,7 +3885,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.allele_frequency_spectrum_gene">
-<code class="descname">allele_frequency_spectrum_gene</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.allele_frequency_spectrum_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.allele_frequency_spectrum_gene" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allele_frequency_spectrum_gene</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.allele_frequency_spectrum_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.allele_frequency_spectrum_gene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for the allele frequency spectrum of an <cite>Alignment</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3913,13 +3913,13 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.aln_names">
-<code class="descname">aln_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.aln_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.aln_names" title="Permalink to this definition">¶</a></dt>
+<code class="descname">aln_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.aln_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.aln_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of basenames of <cite>alignments</cite> file paths.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.average_seqsize">
-<code class="descname">average_seqsize</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.average_seqsize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.average_seqsize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">average_seqsize</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.average_seqsize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.average_seqsize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for the average sequence size for the entire data set.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3947,7 +3947,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.average_seqsize_per_species">
-<code class="descname">average_seqsize_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.average_seqsize_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.average_seqsize_per_species" title="Permalink to this definition">¶</a></dt>
+<code class="descname">average_seqsize_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.average_seqsize_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.average_seqsize_per_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for average sequence size per taxon.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3982,13 +3982,13 @@ formatted alignments</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.change_taxon_name">
-<code class="descname">change_taxon_name</code><span class="sig-paren">(</span><em>old_name</em>, <em>new_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.change_taxon_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.change_taxon_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">change_taxon_name</code><span class="sig-paren">(</span><em>old_name</em>, <em>new_name</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.change_taxon_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.change_taxon_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Changes the name of a taxon.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.characters_proportion">
-<code class="descname">characters_proportion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.characters_proportion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.characters_proportion" title="Permalink to this definition">¶</a></dt>
+<code class="descname">characters_proportion</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.characters_proportion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.characters_proportion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for the proportion of nt/aa for the data set.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -4017,7 +4017,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.characters_proportion_per_species">
-<code class="descname">characters_proportion_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.characters_proportion_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.characters_proportion_per_species" title="Permalink to this definition">¶</a></dt>
+<code class="descname">characters_proportion_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.characters_proportion_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.characters_proportion_per_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for the proportion of nt/aa per species.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -4047,13 +4047,13 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.clear_alignments">
-<code class="descname">clear_alignments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.clear_alignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.clear_alignments" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clear_alignments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.clear_alignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.clear_alignments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clears all attributes and data from the <cite>AlignmentList</cite> object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.code_gaps">
-<code class="descname">code_gaps</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.code_gaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.code_gaps" title="Permalink to this definition">¶</a></dt>
+<code class="descname">code_gaps</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.code_gaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.code_gaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Code gaps in each <cite>Alignment</cite> object.</p>
 <p>This wraps the execution of <cite>code_gaps</cite> method for
 each <cite>Alignment</cite> object in the <cite>alignments</cite> attribute.</p>
@@ -4098,7 +4098,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.collapse">
-<code class="descname">collapse</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.collapse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.collapse" title="Permalink to this definition">¶</a></dt>
+<code class="descname">collapse</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.collapse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.collapse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collapses equal sequences for each <cite>Alignment</cite> object.</p>
 <p>This wraps the execution of <cite>collapse</cite> method for
 each <cite>Alignment</cite> object in the <cite>alignments</cite> attribute.</p>
@@ -4176,7 +4176,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.concatenate">
-<code class="descname">concatenate</code><span class="sig-paren">(</span><em>table_in=''</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.concatenate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">concatenate</code><span class="sig-paren">(</span><em>table_in=''</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.concatenate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concatenates alignments into a single <cite>Alignment</cite> object.</p>
 <p>Concatenates multiple sequence alignments creating a single <cite>Alignment</cite>
 object and the auxiliary Partitions object defining the partitions
@@ -4229,7 +4229,7 @@ previous one where thousands of queries could be performed.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.consensus">
-<code class="descname">consensus</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.consensus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.consensus" title="Permalink to this definition">¶</a></dt>
+<code class="descname">consensus</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.consensus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.consensus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates consensus sequences for each alignment.</p>
 <p>This wraps the execution of <cite>consensus</cite> method for
 each <cite>Alignment</cite> object in the <cite>alignments</cite> attribute. It has an
@@ -4292,7 +4292,7 @@ only returned when the <cite>single_file</cite> parameter is set to True.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.cumulative_missing_genes">
-<code class="descname">cumulative_missing_genes</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.cumulative_missing_genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.cumulative_missing_genes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cumulative_missing_genes</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.cumulative_missing_genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.cumulative_missing_genes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for a distribution of the maximum number of genes
 available for consecutive thresholds of missing data.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -4334,7 +4334,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.filter_by_taxa">
-<code class="descname">filter_by_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>filter_mode</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.filter_by_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_by_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_by_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>filter_mode</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.filter_by_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_by_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters <cite>alignments</cite> if they contain or exclude certain taxa.</p>
 <p>Filters the <cite>alignments</cite> attribute by a given taxa list.
 The filtering may be performed to filter alignments
@@ -4368,7 +4368,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.filter_codon_positions">
-<code class="descname">filter_codon_positions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.filter_codon_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_codon_positions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_codon_positions</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.filter_codon_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_codon_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters codon positions in each <cite>Alignment</cite> object.</p>
 <p>This wraps the execution of <cite>filter_codon_positions</cite> method for
 each <cite>Alignment</cite> object in the <cite>alignments</cite> attribute.</p>
@@ -4419,7 +4419,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.filter_informative_sites">
-<code class="descname">filter_informative_sites</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.filter_informative_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_informative_sites" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_informative_sites</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.filter_informative_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_informative_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters <cite>Alignment</cite> objects according to informative sites number.</p>
 <p>Filters <cite>alignments</cite> according to whether or not their number
 of informative sites is within a specified range. <cite>Alignment</cite> objects
@@ -4466,7 +4466,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.filter_min_taxa">
-<code class="descname">filter_min_taxa</code><span class="sig-paren">(</span><em>min_taxa</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.filter_min_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_min_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_min_taxa</code><span class="sig-paren">(</span><em>min_taxa</em>, <em>ns=None</em>, <em>pbar=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.filter_min_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_min_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters <cite>alignments</cite> by minimum taxa proportion.</p>
 <p>Filters <cite>Alignment</cite> objects based on a minimum taxa representation
 threshold. Alignments with less that the specified minimum taxa
@@ -4503,7 +4503,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.filter_missing_data">
-<code class="descname">filter_missing_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.filter_missing_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_missing_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_missing_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.filter_missing_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_missing_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters missing data in each <cite>Alignment</cite> object.</p>
 <p>This wraps the execution of <cite>filter_missing_data</cite> method for
 each <cite>Alignment</cite> object in the <cite>alignments</cite> attribute.</p>
@@ -4558,7 +4558,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.filter_segregating_sites">
-<code class="descname">filter_segregating_sites</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.filter_segregating_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_segregating_sites" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filter_segregating_sites</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.filter_segregating_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.filter_segregating_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters <cite>Alignment</cite> objects according to segregating sites number.</p>
 <p>Filters <cite>alignments</cite> according to whether or not their number
 of segregating sites is within a specified range. <cite>Alignment</cite> objects
@@ -4611,7 +4611,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.format_list">
-<code class="descname">format_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.format_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.format_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">format_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.format_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.format_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of unique sequence types from <cite>Alignment</cite> objects.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -4636,7 +4636,7 @@ strings.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.gene_occupancy">
-<code class="descname">gene_occupancy</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.gene_occupancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.gene_occupancy" title="Permalink to this definition">¶</a></dt>
+<code class="descname">gene_occupancy</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.gene_occupancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.gene_occupancy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create data for gene occupancy plot.</p>
 <p>Creates data for an interpolation plot to visualize the amount of
 missing genes in a alignment dataset.</p>
@@ -4663,7 +4663,7 @@ in TriFusion.</dd>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.get_gene_table_stats">
-<code class="descname">get_gene_table_stats</code><span class="sig-paren">(</span><em>active_alignments=None</em>, <em>sortby=None</em>, <em>ascending=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.get_gene_table_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.get_gene_table_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_gene_table_stats</code><span class="sig-paren">(</span><em>active_alignments=None</em>, <em>sortby=None</em>, <em>ascending=True</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.get_gene_table_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.get_gene_table_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns summary statistics for each <cite>Alignment</cite>.</p>
 <p>Gets summary statistics for each individual gene for the gene table
 view of TriFusion. Summary statistics have already been calculated in
@@ -4706,7 +4706,7 @@ get_summary_stats.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.get_summary_stats">
-<code class="descname">get_summary_stats</code><span class="sig-paren">(</span><em>active_alignments=None</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.get_summary_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.get_summary_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_summary_stats</code><span class="sig-paren">(</span><em>active_alignments=None</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.get_summary_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.get_summary_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates summary statistics for the &#8216;active&#8217; alignments.</p>
 <p>Creates/Updates summary statistics for the active alignments.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -4741,7 +4741,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.get_tables">
-<code class="descname">get_tables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.get_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.get_tables" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_tables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.get_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.get_tables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return list with <cite>table_name</cite> of <em>all</em> <cite>Alignment</cite> objects.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -4759,7 +4759,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.iter_alignment_files">
-<code class="descname">iter_alignment_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.iter_alignment_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.iter_alignment_files" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iter_alignment_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.iter_alignment_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.iter_alignment_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an iterable on <cite>Alignment.path</cite> of each alignment.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -4777,7 +4777,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.length_polymorphism_correlation">
-<code class="descname">length_polymorphism_correlation</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.length_polymorphism_correlation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.length_polymorphism_correlation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">length_polymorphism_correlation</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.length_polymorphism_correlation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.length_polymorphism_correlation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for correlation between alignment length and
 informative sites.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -4807,7 +4807,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.missing_data_distribution">
-<code class="descname">missing_data_distribution</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.missing_data_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_data_distribution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">missing_data_distribution</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.missing_data_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_data_distribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create data for overall distribution of missing data plot.</p>
 <p>Creates data for overall distribution of missing data. This will
 calculate the amount of gaps, missing and actual data.</p>
@@ -4836,7 +4836,7 @@ in TriFusion.</dd>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.missing_data_per_species">
-<code class="descname">missing_data_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.missing_data_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_data_per_species" title="Permalink to this definition">¶</a></dt>
+<code class="descname">missing_data_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.missing_data_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_data_per_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for missing data proportion per species plot.</p>
 <p>For each taxon in <cite>taxon_list</cite> calculate the proportion of gap,
 missing and actual data.</p>
@@ -4869,7 +4869,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.missing_genes_average">
-<code class="descname">missing_genes_average</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.missing_genes_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_genes_average" title="Permalink to this definition">¶</a></dt>
+<code class="descname">missing_genes_average</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.missing_genes_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_genes_average" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates histogram data with average missing taxa.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -4897,7 +4897,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.missing_genes_per_species">
-<code class="descname">missing_genes_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.missing_genes_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_genes_per_species" title="Permalink to this definition">¶</a></dt>
+<code class="descname">missing_genes_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.missing_genes_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.missing_genes_per_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data with distribution of missing genes per species plot.</p>
 <p>Calculates, for each taxon, the number of alignments where it is
 present.</p>
@@ -4934,7 +4934,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.outlier_missing_data">
-<code class="descname">outlier_missing_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.outlier_missing_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_missing_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">outlier_missing_data</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.outlier_missing_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_missing_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create data for missing data alignment outliers.</p>
 <p>Get data for outlier detection of genes based on the distribution of
 average missing data per gene. Data points will be based on the
@@ -4970,7 +4970,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.outlier_missing_data_sp">
-<code class="descname">outlier_missing_data_sp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.outlier_missing_data_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_missing_data_sp" title="Permalink to this definition">¶</a></dt>
+<code class="descname">outlier_missing_data_sp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.outlier_missing_data_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_missing_data_sp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create data for missing data taxa outliers.</p>
 <p>Gets data for outlier detection of species based on missing data. For
 this analysis, genes for which a taxa is completely absent will be
@@ -5006,7 +5006,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.outlier_segregating">
-<code class="descname">outlier_segregating</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.outlier_segregating"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_segregating" title="Permalink to this definition">¶</a></dt>
+<code class="descname">outlier_segregating</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.outlier_segregating"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_segregating" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for segregating site alignment outliers.</p>
 <p>Generates data for the outlier detection of genes based on
 segregating sites. The data will be based on the number of alignments
@@ -5039,7 +5039,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.outlier_segregating_sp">
-<code class="descname">outlier_segregating_sp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.outlier_segregating_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_segregating_sp" title="Permalink to this definition">¶</a></dt>
+<code class="descname">outlier_segregating_sp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.outlier_segregating_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_segregating_sp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create data for segregating sites taxa outliers.</p>
 <p>Generates data for the outlier detection of species based on their
 average pair-wise proportion of segregating sites. Comparisons
@@ -5071,7 +5071,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.outlier_sequence_size">
-<code class="descname">outlier_sequence_size</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.outlier_sequence_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_sequence_size" title="Permalink to this definition">¶</a></dt>
+<code class="descname">outlier_sequence_size</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.outlier_sequence_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_sequence_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for sequence size alignment outliers.</p>
 <p>Generates data for the outlier detection of genes based on their
 sequence length (excluding missing data).</p>
@@ -5102,7 +5102,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.outlier_sequence_size_sp">
-<code class="descname">outlier_sequence_size_sp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.outlier_sequence_size_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_sequence_size_sp" title="Permalink to this definition">¶</a></dt>
+<code class="descname">outlier_sequence_size_sp</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.outlier_sequence_size_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.outlier_sequence_size_sp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create data for sequence size taxa outliers.</p>
 <p>Generates data for the outlier detection of species based on their
 sequence length (excluding missing data)</p>
@@ -5139,7 +5139,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.remove_file">
-<code class="descname">remove_file</code><span class="sig-paren">(</span><em>filename_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.remove_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.remove_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_file</code><span class="sig-paren">(</span><em>filename_list</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.remove_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.remove_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes alignments.</p>
 <p>Removes <cite>Alignment</cite> objects from <cite>alignments</cite> and <cite>shelve_alignments</cite>
 based on their <cite>name</cite> attribute.</p>
@@ -5159,7 +5159,7 @@ based on their <cite>name</cite> attribute.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.remove_tables">
-<code class="descname">remove_tables</code><span class="sig-paren">(</span><em>preserve_tables=None</em>, <em>trash_tables=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.remove_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.remove_tables" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_tables</code><span class="sig-paren">(</span><em>preserve_tables=None</em>, <em>trash_tables=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.remove_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.remove_tables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Drops tables from the database.</p>
 <p>This method can be used to drop tables from the database.</p>
 <p>If no arguments are provided it will remove <em>all</em>  database tables
@@ -5189,7 +5189,7 @@ Takes precedence over <cite>preserve_tables</cite> if both are provided.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.remove_taxa">
-<code class="descname">remove_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>mode='remove'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.remove_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.remove_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>mode='remove'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.remove_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.remove_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes the specified taxa.</p>
 <p>Removes the specified taxa from the global <cite>AlignmentList</cite> attributes
 and from each <cite>Alignment</cite> object.</p>
@@ -5230,7 +5230,7 @@ containig the taxa names.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.resume_database">
-<code class="descname">resume_database</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.resume_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.resume_database" title="Permalink to this definition">¶</a></dt>
+<code class="descname">resume_database</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.resume_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.resume_database" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconnects to the sqlite database.</p>
 <p>The connection to the database can be closes or even severed when
 passing objects between threads. This methods allows the
@@ -5240,7 +5240,7 @@ reconnection of the database for the <cite>AlignmentList</cite> and
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.retrieve_alignment">
-<code class="descname">retrieve_alignment</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.retrieve_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.retrieve_alignment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">retrieve_alignment</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.retrieve_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.retrieve_alignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <cite>Alignment</cite> object with a given <cite>name</cite>.</p>
 <p>Retrieves the <cite>Alignment</cite> object with a matching <cite>name</cite> attribute
 from <cite>alignments</cite> or <cite>shelve_alignments</cite>. Returns None if no match
@@ -5267,7 +5267,7 @@ is found.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.reverse_concatenate">
-<code class="descname">reverse_concatenate</code><span class="sig-paren">(</span><em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.reverse_concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.reverse_concatenate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reverse_concatenate</code><span class="sig-paren">(</span><em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.reverse_concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.reverse_concatenate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reverse a concatenated file according to the partitions.</p>
 <p>This is basically a wrapper of the <cite>reverse_concatenate</cite> method
 of <cite>Alignment</cite> and is rarely useful. It is preferable to retrieve
@@ -5298,7 +5298,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.select_by_taxa">
-<code class="descname">select_by_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>mode='strict'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.select_by_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.select_by_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">select_by_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>mode='strict'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.select_by_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.select_by_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Selects a list of <cite>Alignment</cite> objects by taxa.</p>
 <p>This method is used to select <cite>Alignments</cite> based on whether they
 contain or exclude certain taxa. The selected alignments are
@@ -5346,7 +5346,7 @@ one of the provided taxa.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.sequence_segregation">
-<code class="descname">sequence_segregation</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.sequence_segregation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_segregation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sequence_segregation</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.sequence_segregation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_segregation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for overall distribution of segregating sites.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -5379,7 +5379,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.sequence_segregation_gene">
-<code class="descname">sequence_segregation_gene</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.sequence_segregation_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_segregation_gene" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sequence_segregation_gene</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.sequence_segregation_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_segregation_gene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create data for a sliding window analysis of segregating sites.</p>
 <p>Retrieves an alignment using <cite>gene_name</cite> and calculates the
 number of segregating sites along the alignment length
@@ -5419,7 +5419,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.sequence_segregation_per_species">
-<code class="descname">sequence_segregation_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.sequence_segregation_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_segregation_per_species" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sequence_segregation_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.sequence_segregation_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_segregation_per_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for a triangular matrix of sequence segregation for
 pairs of taxa.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -5447,7 +5447,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.sequence_similarity">
-<code class="descname">sequence_similarity</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.sequence_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_similarity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sequence_similarity</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.sequence_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_similarity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for average sequence similarity plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -5473,7 +5473,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.sequence_similarity_gene">
-<code class="descname">sequence_similarity_gene</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.sequence_similarity_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_similarity_gene" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sequence_similarity_gene</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.sequence_similarity_gene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_similarity_gene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for sliding window sequence similarity for alignment.</p>
 <p>Retrieves an alignment using <cite>gene_name</cite> and calculates the
 average pair-wise sequence similarity along the alignment length
@@ -5513,7 +5513,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.sequence_similarity_per_species">
-<code class="descname">sequence_similarity_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.sequence_similarity_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_similarity_per_species" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sequence_similarity_per_species</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.sequence_similarity_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.sequence_similarity_per_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for sequence similarity per species pair plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -5540,7 +5540,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.set_database_connections">
-<code class="descname">set_database_connections</code><span class="sig-paren">(</span><em>cur</em>, <em>con</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.set_database_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.set_database_connections" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_database_connections</code><span class="sig-paren">(</span><em>cur</em>, <em>con</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.set_database_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.set_database_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides Connection and Cursor to <cite>Alignment</cite> objects.</p>
 <p>Sets the database connections manually for <em>all</em> (even the
 shelved ones) <cite>Alignment</cite> objects.</p>
@@ -5564,7 +5564,7 @@ shelved ones) <cite>Alignment</cite> objects.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.set_partition_from_alignment">
-<code class="descname">set_partition_from_alignment</code><span class="sig-paren">(</span><em>alignment_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.set_partition_from_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.set_partition_from_alignment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_partition_from_alignment</code><span class="sig-paren">(</span><em>alignment_obj</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.set_partition_from_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.set_partition_from_alignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates <cite>partitions</cite> object with the provided <cite>Alignment</cite> object.</p>
 <p>Uses the <cite>partitions</cite> of an <cite>Alignment</cite> object to set the <cite>partitions</cite>
 attribute of <cite>AlignmentList</cite></p>
@@ -5618,7 +5618,7 @@ conversion of the consensus alignments into a single Alignment object</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.taxa_distribution">
-<code class="descname">taxa_distribution</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.taxa_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.taxa_distribution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">taxa_distribution</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.taxa_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.taxa_distribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates data for a distribution of taxa frequency across alignments.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -5653,7 +5653,7 @@ in TriFusion.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.update_active_alignment">
-<code class="descname">update_active_alignment</code><span class="sig-paren">(</span><em>aln_name</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.update_active_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.update_active_alignment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_active_alignment</code><span class="sig-paren">(</span><em>aln_name</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.update_active_alignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.update_active_alignment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the &#8216;active&#8217; status of a single alignment.</p>
 <p>Changes the &#8216;active&#8217; status of a single alignment in a specified
 direction.</p>
@@ -5680,7 +5680,7 @@ the <cite>taxa_names</cite> attribute is also updated.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.update_active_alignments">
-<code class="descname">update_active_alignments</code><span class="sig-paren">(</span><em>aln_list=None</em>, <em>all_files=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.update_active_alignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.update_active_alignments" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_active_alignments</code><span class="sig-paren">(</span><em>aln_list=None</em>, <em>all_files=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.update_active_alignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.update_active_alignments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the active alignments.</p>
 <p>Sets the &#8216;active&#8217; alignments stored in the <cite>alignments</cite> attribute
 and the &#8216;inactive&#8217; alignments stored in the <cite>shelve_alignments</cite>
@@ -5712,7 +5712,7 @@ the <cite>taxa_names</cite> attribute is also updated.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.update_taxa_names">
-<code class="descname">update_taxa_names</code><span class="sig-paren">(</span><em>taxa_list=None</em>, <em>all_taxa=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.update_taxa_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.update_taxa_names" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_taxa_names</code><span class="sig-paren">(</span><em>taxa_list=None</em>, <em>all_taxa=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.update_taxa_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.update_taxa_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the active taxa.</p>
 <p>Sets the &#8216;active&#8217; taxa stored in the <cite>taxa_names</cite> attribute and the
 &#8216;inactive&#8217; taxa stored in the <cite>shelved_taxa</cite> attribute, based on
@@ -5739,7 +5739,7 @@ set all taxa as &#8216;active&#8217;.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.write_taxa_to_file">
-<code class="descname">write_taxa_to_file</code><span class="sig-paren">(</span><em>file_name='Taxa_list.csv'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.write_taxa_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.write_taxa_to_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_taxa_to_file</code><span class="sig-paren">(</span><em>file_name='Taxa_list.csv'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.write_taxa_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.write_taxa_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the taxa in <cite>taxa_list</cite> to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -5757,7 +5757,7 @@ set all taxa as &#8216;active&#8217;.</p>
 
 <dl class="method">
 <dt id="trifusion.process.sequence.AlignmentList.write_to_file">
-<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>output_format</em>, <em>conversion_suffix=''</em>, <em>output_suffix=''</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentList.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.write_to_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>output_format</em>, <em>conversion_suffix=''</em>, <em>output_suffix=''</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentList.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentList.write_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes <cite>Alignment</cite> objects into files.</p>
 <p>Wrapper of the <cite>write_to_file</cite> method of the <cite>Alignment</cite> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -5896,14 +5896,14 @@ The suffix is append to <cite>Alignment.table_name</cite>.</p>
 
 <dl class="exception">
 <dt id="trifusion.process.sequence.AlignmentUnequalLength">
-<em class="property">exception </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">AlignmentUnequalLength</code><a class="reference internal" href="_modules/trifusion/process/sequence.html#AlignmentUnequalLength"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentUnequalLength" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">AlignmentUnequalLength</code><a class="reference internal" href="modules/trifusion/process/sequence.html#AlignmentUnequalLength"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.AlignmentUnequalLength" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
 <p>Raised when sequences in alignment have unequal length.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="trifusion.process.sequence.LookupDatabase">
-<em class="property">class </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">LookupDatabase</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#LookupDatabase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.LookupDatabase" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.process.sequence.</code><code class="descname">LookupDatabase</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#LookupDatabase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.LookupDatabase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Decorator handling hash lookup table with pre-calculated values.</p>
 <p>This decorator class is used to decorate class methods that calculate 
@@ -5963,7 +5963,7 @@ the Cursor is reset.</p>
 </table>
 <dl class="method">
 <dt id="trifusion.process.sequence.LookupDatabase.__call__">
-<code class="descname">__call__</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#LookupDatabase.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.LookupDatabase.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#LookupDatabase.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.LookupDatabase.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps the call of <cite>func</cite>.</p>
 <p>When the decorated method is called, this code is wrapped around
 its execution. It accepts an arbitrary number of positional arguments
@@ -6009,7 +6009,7 @@ result is returned.</p>
 
 <dl class="function">
 <dt id="trifusion.process.sequence.check_data">
-<code class="descclassname">trifusion.process.sequence.</code><code class="descname">check_data</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#check_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.check_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.process.sequence.</code><code class="descname">check_data</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#check_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.check_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator handling the result from AlignmentList plotting methods.</p>
 <p>This should decorate all plotting methods from the <cite>AlignmentList</cite> class.
 It can be used to control warnings and handle exceptions when calling
@@ -6050,7 +6050,7 @@ that a dictionary is always return with a single key:value
 
 <dl class="function">
 <dt id="trifusion.process.sequence.setup_database">
-<code class="descclassname">trifusion.process.sequence.</code><code class="descname">setup_database</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#setup_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.setup_database" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.process.sequence.</code><code class="descname">setup_database</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#setup_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.setup_database" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator handling the active database tables.</p>
 <p>Decorates methods from the <cite>Alignment</cite> object that use and
 perform modifications to the original alignment data. All methods 
@@ -6124,7 +6124,7 @@ means that the main database will be used for all methods.</p>
 
 <dl class="function">
 <dt id="trifusion.process.sequence.setup_intable">
-<code class="descclassname">trifusion.process.sequence.</code><code class="descname">setup_intable</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/sequence.html#setup_intable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.setup_intable" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.process.sequence.</code><code class="descname">setup_intable</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/sequence.html#setup_intable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.sequence.setup_intable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator handling active database table when fetching data.</p>
 <p>This class is mean to decorate methods of the <cite>Alignment</cite> class that
 retrieves alignment data from the database. The requirement is that
@@ -6226,15 +6226,15 @@ database. If it does not exist, <cite>table</cite> will revert to
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
 
   
 
   
   
-    <script type="text/javascript" src="_static/js/theme.js"></script>
+    <script type="text/javascript" src="static/js/theme.js"></script>
   
 
   

@@ -1,0 +1,19 @@
+trifusion\.base package
+=======================
+
+Submodules
+----------
+
+.. toctree::
+
+   trifusion.base.html_creator
+   trifusion.base.plotter
+   trifusion.base.sanity
+
+Module contents
+---------------
+
+.. automodule:: trifusion.base
+    :members:
+    :undoc-members:
+    :show-inheritance:

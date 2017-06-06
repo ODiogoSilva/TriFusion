@@ -26,7 +26,7 @@
 
   
   
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
   
 
   
@@ -41,7 +41,7 @@
         <link rel="prev" title="trifusion.ortho.orthomclPairs module" href="trifusion.ortho.orthomclPairs.html"/> 
 
   
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -166,7 +166,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/trifusion.ortho.protein2dna.rst.txt" rel="nofollow"> View page source</a>
+            <a href="sources/trifusion.ortho.protein2dna.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -188,14 +188,14 @@ functions that compile and store DNA sequences, convert them into amino acid
 sequences and then tries to match them to the original protein sequences.</p>
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.convert_group">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">convert_group</code><span class="sig-paren">(</span><em>sqldb</em>, <em>cds_file_list</em>, <em>protein_db</em>, <em>group_sequences</em>, <em>usearch_bin</em>, <em>output_dir</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#convert_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.convert_group" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">convert_group</code><span class="sig-paren">(</span><em>sqldb</em>, <em>cds_file_list</em>, <em>protein_db</em>, <em>group_sequences</em>, <em>usearch_bin</em>, <em>output_dir</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#convert_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.convert_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience function that wraps all required operations to convert protein
 to nucleotide files from a Group object</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.convert_protein_file">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">convert_protein_file</code><span class="sig-paren">(</span><em>pairs</em>, <em>group_obj</em>, <em>id_db</em>, <em>output_dir</em>, <em>shared_ns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#convert_protein_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.convert_protein_file" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">convert_protein_file</code><span class="sig-paren">(</span><em>pairs</em>, <em>group_obj</em>, <em>id_db</em>, <em>output_dir</em>, <em>shared_ns</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#convert_protein_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.convert_protein_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>A given protein file will be converted into their corresponding nucleotide
 sequences using a previously set database using the create_db function
 :return:</p>
@@ -203,7 +203,7 @@ sequences using a previously set database using the create_db function
 
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.create_db">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">create_db</code><span class="sig-paren">(</span><em>f_list</em>, <em>dest='./'</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#create_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.create_db" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">create_db</code><span class="sig-paren">(</span><em>f_list</em>, <em>dest='./'</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#create_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.create_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a fasta database file containing the translated protein sequences
 from the cds files. The final transcripts.fas file will be use
 by USEARCH to get matches between the original protein sequences and their
@@ -215,7 +215,7 @@ so that they will be later retrieved
 
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.create_query">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">create_query</code><span class="sig-paren">(</span><em>input_list</em>, <em>dest='./'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#create_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.create_query" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">create_query</code><span class="sig-paren">(</span><em>input_list</em>, <em>dest='./'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#create_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.create_query" title="Permalink to this definition">¶</a></dt>
 <dd><p>To speed things up, all sequences in the input protein files will be
 concatenated into a single file, which will be used as query in USEARCH.
 :param input_list: List, with file names of the protein files to convert</p>
@@ -223,7 +223,7 @@ concatenated into a single file, which will be used as query in USEARCH.
 
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.create_query_from_dict">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">create_query_from_dict</code><span class="sig-paren">(</span><em>protein_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#create_query_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.create_query_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">create_query_from_dict</code><span class="sig-paren">(</span><em>protein_dict</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#create_query_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.create_query_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analogous to create_query, but begins from a dictionary provided by
 processed group files
 :param protein_dict: dictionary</p>
@@ -231,21 +231,21 @@ processed group files
 
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.get_pairs">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">get_pairs</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#get_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.get_pairs" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">get_pairs</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#get_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.get_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses the output of USEARCH and creates a dictionary with the header
 pairs between original protein and transcripts</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.pair_search">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">pair_search</code><span class="sig-paren">(</span><em>usearch_bin</em>, <em>dest='./'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#pair_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.pair_search" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">pair_search</code><span class="sig-paren">(</span><em>usearch_bin</em>, <em>dest='./'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#pair_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.pair_search" title="Permalink to this definition">¶</a></dt>
 <dd><p>This will use USEARCH to search for translated transcript sequences
 identical to the original protein files</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="trifusion.ortho.protein2dna.translate">
-<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">translate</code><span class="sig-paren">(</span><em>sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/protein2dna.html#translate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.translate" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.ortho.protein2dna.</code><code class="descname">translate</code><span class="sig-paren">(</span><em>sequence</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/protein2dna.html#translate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.protein2dna.translate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Translates a DNA string into an amino acid sequence
 :param sequence: string. DNA sequence
 :return: String. Protein sequence</p>
@@ -304,15 +304,15 @@ identical to the original protein files</p>
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
 
   
 
   
   
-    <script type="text/javascript" src="_static/js/theme.js"></script>
+    <script type="text/javascript" src="static/js/theme.js"></script>
   
 
   

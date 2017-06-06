@@ -1,0 +1,7 @@
+trifusion\.data\.resources\.custom\_widgets module
+==================================================
+
+.. automodule:: trifusion.data.resources.custom_widgets
+    :members:
+    :undoc-members:
+    :show-inheritance:

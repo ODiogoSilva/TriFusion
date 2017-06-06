@@ -26,7 +26,7 @@
 
   
   
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
   
 
   
@@ -40,7 +40,7 @@
         <link rel="prev" title="trifusion.process package" href="trifusion.process.html"/> 
 
   
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -164,7 +164,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/trifusion.process.base.rst.txt" rel="nofollow"> View page source</a>
+            <a href="sources/trifusion.process.base.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -186,7 +186,7 @@ to handle the generation of temporary data during their execution as well
 as keyboard interruptions.</p>
 <dl class="class">
 <dt id="trifusion.process.base.Base">
-<em class="property">class </em><code class="descclassname">trifusion.process.base.</code><code class="descname">Base</code><a class="reference internal" href="_modules/trifusion/process/base.html#Base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.process.base.</code><code class="descname">Base</code><a class="reference internal" href="modules/trifusion/process/base.html#Base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
@@ -217,7 +217,7 @@ as keyboard interruptions.</p>
 </table>
 <dl class="method">
 <dt id="trifusion.process.base.Base.autofinder">
-<code class="descname">autofinder</code><span class="sig-paren">(</span><em>reference_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#Base.autofinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.autofinder" title="Permalink to this definition">¶</a></dt>
+<code class="descname">autofinder</code><span class="sig-paren">(</span><em>reference_file</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#Base.autofinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.autofinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Autodetects format, missing data symbol and sequence type.</p>
 <p>Attempts to find the file format, missing data symbol and sequence
 type from a reference file. Due to performance reasons, this function
@@ -257,7 +257,7 @@ symbol as string in the second element</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.base.Base.duplicate_taxa">
-<em class="property">static </em><code class="descname">duplicate_taxa</code><span class="sig-paren">(</span><em>taxa_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#Base.duplicate_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.duplicate_taxa" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">duplicate_taxa</code><span class="sig-paren">(</span><em>taxa_list</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#Base.duplicate_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.duplicate_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identified duplicate items in a list.</p>
 <p>Used to detect, for instance, duplicated taxa in the Alignment object</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -282,7 +282,7 @@ symbol as string in the second element</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.base.Base.get_loci_taxa">
-<em class="property">static </em><code class="descname">get_loci_taxa</code><span class="sig-paren">(</span><em>loci_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#Base.get_loci_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.get_loci_taxa" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">get_loci_taxa</code><span class="sig-paren">(</span><em>loci_file</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#Base.get_loci_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.get_loci_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the list of taxa from a .loci file.</p>
 <p>This is required prior to parsing the alignment in order to 
 correctly add missing data when certain taxa are not present in 
@@ -309,7 +309,7 @@ a locus</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.base.Base.guess_code">
-<em class="property">static </em><code class="descname">guess_code</code><span class="sig-paren">(</span><em>sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#Base.guess_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.guess_code" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">guess_code</code><span class="sig-paren">(</span><em>sequence</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#Base.guess_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.guess_code" title="Permalink to this definition">¶</a></dt>
 <dd><p>Guess the sequence type, i.e. protein.</p>
 <p>Guesses the code of the provided <cite>sequence</cite>, that is, if it is a
 DNA or Protein sequence based on the first sequence of 
@@ -351,7 +351,7 @@ will be evaluated during the alignment parsing.</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.base.Base.read_basic_csv">
-<em class="property">static </em><code class="descname">read_basic_csv</code><span class="sig-paren">(</span><em>file_handle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#Base.read_basic_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.read_basic_csv" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">read_basic_csv</code><span class="sig-paren">(</span><em>file_handle</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#Base.read_basic_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.read_basic_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a basic CSV into a list.</p>
 <p>Parses a simples CSV file with only one column and one
 or more lines while stripping whitespace.</p>
@@ -377,7 +377,7 @@ or more lines while stripping whitespace.</p>
 
 <dl class="staticmethod">
 <dt id="trifusion.process.base.Base.rm_illegal">
-<em class="property">static </em><code class="descname">rm_illegal</code><span class="sig-paren">(</span><em>taxon_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#Base.rm_illegal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.rm_illegal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">rm_illegal</code><span class="sig-paren">(</span><em>taxon_string</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#Base.rm_illegal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.Base.rm_illegal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes illegal characters from taxon name.</p>
 <p>The illegal characters are defined in the <cite>illegal_chars</cite>
 variable</p>
@@ -405,7 +405,7 @@ variable</p>
 
 <dl class="class">
 <dt id="trifusion.process.base.CleanUp">
-<em class="property">class </em><code class="descclassname">trifusion.process.base.</code><code class="descname">CleanUp</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#CleanUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.CleanUp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.process.base.</code><code class="descname">CleanUp</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#CleanUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.CleanUp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Decorator class that handles temporary data for TriSeq and TriStats.</p>
 <p>This decorator class wraps the main execution functions of TriSeq and
@@ -463,7 +463,7 @@ calling the main function).</p>
 </table>
 <dl class="method">
 <dt id="trifusion.process.base.CleanUp.__call__">
-<code class="descname">__call__</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#CleanUp.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.CleanUp.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#CleanUp.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.CleanUp.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps the call of <cite>func</cite>.</p>
 <p>When the main <cite>func</cite> is called, this code is wrapped around its
 execution. This mainly ensures that the temporary data stored in
@@ -490,7 +490,7 @@ object.</p>
 
 <dl class="function">
 <dt id="trifusion.process.base.merger">
-<code class="descclassname">trifusion.process.base.</code><code class="descname">merger</code><span class="sig-paren">(</span><em>ranges</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#merger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.merger" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.process.base.</code><code class="descname">merger</code><span class="sig-paren">(</span><em>ranges</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#merger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.merger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator that merges continuous ranges of tuples in a list.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -509,7 +509,7 @@ object.</p>
 
 <dl class="function">
 <dt id="trifusion.process.base.print_col">
-<code class="descclassname">trifusion.process.base.</code><code class="descname">print_col</code><span class="sig-paren">(</span><em>text</em>, <em>color</em>, <em>i=0</em>, <em>quiet=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/base.html#print_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.print_col" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trifusion.process.base.</code><code class="descname">print_col</code><span class="sig-paren">(</span><em>text</em>, <em>color</em>, <em>i=0</em>, <em>quiet=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/process/base.html#print_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.base.print_col" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom print function for terminal updates of CLI programs.</p>
 <p>This print function homogenizes the progress logging of all CLI programs
 while providing some freedom on the formatting of the progress message,
@@ -604,15 +604,15 @@ printed to the terminal</p>
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
 
   
 
   
   
-    <script type="text/javascript" src="_static/js/theme.js"></script>
+    <script type="text/javascript" src="static/js/theme.js"></script>
   
 
   

@@ -1,0 +1,7 @@
+trifusion\.ortho\.orthomclInstallSchema module
+==============================================
+
+.. automodule:: trifusion.ortho.orthomclInstallSchema
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,20 @@
+trifusion\.data\.resources package
+==================================
+
+Submodules
+----------
+
+.. toctree::
+
+   trifusion.data.resources.background_tasks
+   trifusion.data.resources.custom_widgets
+   trifusion.data.resources.info_data
+   trifusion.data.resources.stats
+
+Module contents
+---------------
+
+.. automodule:: trifusion.data.resources
+    :members:
+    :undoc-members:
+    :show-inheritance:

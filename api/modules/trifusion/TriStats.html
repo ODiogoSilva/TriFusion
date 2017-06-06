@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.TriStats &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../trifusion.html">TriFusion modules and API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>trifusion.TriStats</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trifusion.TriStats</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python2</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1">#  Copyright 2012 Unknown &lt;diogo@arch&gt;</span>
+<span class="c1">#  </span>
+<span class="c1">#  This program is free software; you can redistribute it and/or modify</span>
+<span class="c1">#  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">#  the Free Software Foundation; either version 2 of the License, or</span>
+<span class="c1">#  (at your option) any later version.</span>
+<span class="c1">#  </span>
+<span class="c1">#  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">#  GNU General Public License for more details.</span>
+<span class="c1">#  </span>
+<span class="c1">#  You should have received a copy of the GNU General Public License</span>
+<span class="c1">#  along with this program; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,</span>
+<span class="c1">#  MA 02110-1301, USA.</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="c1"># Suppress import warnings</span>
+<span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    <span class="kn">import</span> <span class="nn">configparser</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">process.sequence</span> <span class="k">import</span> <span class="o">*</span>
+        <span class="kn">from</span> <span class="nn">base.plotter</span> <span class="k">import</span> <span class="o">*</span>
+        <span class="kn">from</span> <span class="nn">process.base</span> <span class="k">import</span> <span class="n">print_col</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="n">CleanUp</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">trifusion.process.sequence</span> <span class="k">import</span> <span class="o">*</span>
+        <span class="kn">from</span> <span class="nn">trifusion.base.plotter</span> <span class="k">import</span> <span class="o">*</span>
+        <span class="kn">from</span> <span class="nn">trifusion.process.base</span> <span class="k">import</span> <span class="n">print_col</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">,</span>\
+            <span class="n">CleanUp</span>
+
+
+<div class="viewcode-block" id="HandledException"><a class="viewcode-back" href="../../trifusion.TriStats.html#trifusion.TriStats.HandledException">[docs]</a><span class="k">class</span> <span class="nc">HandledException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="generate_cfg_template"><a class="viewcode-back" href="../../trifusion.TriStats.html#trifusion.TriStats.generate_cfg_template">[docs]</a><span class="k">def</span> <span class="nf">generate_cfg_template</span><span class="p">():</span>
+
+    <span class="n">template_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;stats_template.ini&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="n">template_fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># Configuration template file for statistical analyses that can be passed to</span>
+<span class="s2"># TriStats.py using the -cfg option. Section and option names mimic the names</span>
+<span class="s2"># Present in the Statistics side panel.</span>
+
+<span class="s2"># For each option, three values are possible but not necessarily all used.</span>
+<span class="s2"># The allowed values are provided above each option.</span>
+<span class="s2"># The values are:</span>
+<span class="s2">#   - species: Creates a plot focusing on the taxa</span>
+<span class="s2">#   - average: Creates a plot that averages over all alignments</span>
+<span class="s2">#   - gene: Creates a plot for a single gene. Can only be used with single</span>
+<span class="s2">#           input files</span>
+
+<span class="s2">[General Information]</span>
+<span class="s2"># Options available: species average</span>
+<span class="s2">distribution_sequence_size: species average</span>
+<span class="s2"># Options available: species average</span>
+<span class="s2">proportion_nucleotides_residues: species average</span>
+<span class="s2"># Options available: average</span>
+<span class="s2">distribution_taxa_frequency: average</span>
+
+<span class="s2">[Polymorphism and Variation]</span>
+<span class="s2"># Options available: gene species average</span>
+<span class="s2">sequence_similarity: species average</span>
+<span class="s2"># Options available: gene species average</span>
+<span class="s2">segregating_sites: species average</span>
+<span class="s2"># Options available: average</span>
+<span class="s2">alignment_pol_correlation: average</span>
+<span class="s2"># Options available: gene average</span>
+<span class="s2">allele_frequency_spectrum: average</span>
+
+<span class="s2">[Missing Data]</span>
+<span class="s2"># Options available: average</span>
+<span class="s2">gene_occupancy: average</span>
+<span class="s2"># Options available: species average</span>
+<span class="s2">distribution_missing_genes: species average</span>
+<span class="s2"># Options available: species average</span>
+<span class="s2">distribution_missing_data: species average</span>
+<span class="s2"># Options available: average</span>
+<span class="s2">cumulative_distribution_missing_genes: average</span>
+
+<span class="s2">[Outlier Detection]</span>
+<span class="s2"># Options available: species average</span>
+<span class="s2">missing_data_outliers: species average</span>
+<span class="s2"># Options available: species average</span>
+<span class="s2">segregating_sites_outliers: species average</span>
+<span class="s2"># Options available: species average</span>
+<span class="s2">sequence_size_outliers: species average</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">template_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="main_checks"><a class="viewcode-back" href="../../trifusion.TriStats.html#trifusion.TriStats.main_checks">[docs]</a><span class="k">def</span> <span class="nf">main_checks</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">arg</span><span class="o">.</span><span class="n">infile</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">arg</span><span class="o">.</span><span class="n">generate_cfg</span><span class="p">:</span>
+        <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Must provide input data using the &#39;-in&#39; option&quot;</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../trifusion.TriStats.html#trifusion.TriStats.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Command line interface for &quot;</span>
+                                                 <span class="s2">&quot;TriFusion Statistics module&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Main execution</span>
+    <span class="n">main_exec</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Main execution&quot;</span><span class="p">)</span>
+    <span class="n">main_exec</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-in&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;infile&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Provide the input files.&quot;</span><span class="p">)</span>
+    <span class="n">main_exec</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;project_name&quot;</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the output directory&quot;</span><span class="p">)</span>
+    <span class="n">main_exec</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-cfg&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;config_file&quot;</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the configuration file with the &quot;</span>
+                                <span class="s2">&quot;statistical analyses to be executed&quot;</span><span class="p">)</span>
+    <span class="n">main_exec</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--generate-cfg&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;generate_cfg&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generates a configuration template file&quot;</span><span class="p">)</span>
+    <span class="n">main_exec</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-quiet&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;quiet&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+                           <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Removes all&quot;</span>
+                           <span class="s2">&quot; terminal output&quot;</span><span class="p">)</span>
+
+    <span class="n">arg</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">main_checks</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+    <span class="n">stats_main</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
+
+
+<span class="nd">@CleanUp</span>
+<span class="k">def</span> <span class="nf">stats_main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Executing TriStats module at </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">),</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%I:%M:%S&quot;</span><span class="p">)),</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">generate_cfg</span><span class="p">:</span>
+        <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Generating configuration template file&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generate_cfg_template</span><span class="p">()</span>
+
+    <span class="c1"># Create temporary directory</span>
+    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="s2">&quot;.trifusion-temp&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+
+    <span class="c1"># Set path to temporary sqlite database</span>
+    <span class="n">sql_db</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="s2">&quot;trifusion.db&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Arguments</span>
+    <span class="n">input_files</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">infile</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">project_name</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config_file</span>
+
+    <span class="c1"># Read configuration file</span>
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Reading configuration file&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="c1"># Parse alignments</span>
+    <span class="c1"># Support wildcards as arguments for windows</span>
+    <span class="n">fl</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;win32&quot;</span><span class="p">,</span> <span class="s2">&quot;cygwin&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">input_files</span><span class="p">:</span>
+            <span class="n">fl</span> <span class="o">+=</span> <span class="n">glob</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">input_files</span> <span class="o">=</span> <span class="n">fl</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Parsing </span><span class="si">%s</span><span class="s2"> alignments&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_files</span><span class="p">),</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">alignments</span> <span class="o">=</span> <span class="n">AlignmentList</span><span class="p">(</span><span class="n">input_files</span><span class="p">,</span> <span class="n">sql_db</span><span class="o">=</span><span class="n">sql_db</span><span class="p">)</span>
+
+    <span class="c1"># Create output dir</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+    <span class="c1"># Variable mapping each available option with the appropriate statistics</span>
+    <span class="c1"># and plotting methods</span>
+    <span class="n">func_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="s2">&quot;general information&quot;</span><span class="p">,</span> <span class="s2">&quot;distribution_sequence_size&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">average_seqsize_per_species</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">box_plot</span><span class="p">,</span> <span class="s2">&quot;avg_seqsize_species.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;general information&quot;</span><span class="p">,</span> <span class="s2">&quot;distribution_sequence_size&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">average_seqsize</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s2">&quot;avg_seqsize.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;general information&quot;</span><span class="p">,</span> <span class="s2">&quot;proportion_nucleotides_residues&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">characters_proportion_per_species</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">stacked_bar_plot</span><span class="p">,</span> <span class="s2">&quot;char_proportions_sp.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;general information&quot;</span><span class="p">,</span> <span class="s2">&quot;proportion_nucleotides_residues&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">characters_proportion</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">bar_plot</span><span class="p">,</span> <span class="s2">&quot;char_proportions.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;general information&quot;</span><span class="p">,</span> <span class="s2">&quot;distribution_taxa_frequency&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">taxa_distribution</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s2">&quot;distribution_taxa_frequency.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;sequence_similarity&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">sequence_similarity_per_species</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">triangular_heat</span><span class="p">,</span> <span class="s2">&quot;similarity_distribution_sp.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;sequence_similarity&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">sequence_similarity</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s2">&quot;similarity_distribution.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;sequence_similarity&quot;</span><span class="p">,</span> <span class="s2">&quot;gene&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">sequence_similarity_gene</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">sliding_window</span><span class="p">,</span> <span class="s2">&quot;similarity_distribution_gn.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;segregating_sites&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">sequence_segregation_per_species</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">triangular_heat</span><span class="p">,</span> <span class="s2">&quot;segregating_sites_sp.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;segregating_sites&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">sequence_segregation</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s2">&quot;segregating_sites.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;segregating_sites&quot;</span><span class="p">,</span> <span class="s2">&quot;gene&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">sequence_segregation_gene</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">sliding_window</span><span class="p">,</span> <span class="s2">&quot;segregating_sites_gn.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;alignment_pol_correlation&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">length_polymorphism_correlation</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">scatter_plot</span><span class="p">,</span> <span class="s2">&quot;length_polymorphism_correlation.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;allele_frequency_spectrum&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">allele_frequency_spectrum</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s2">&quot;allele_frequency_spectrum.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;polymorphism and variation&quot;</span><span class="p">,</span> <span class="s2">&quot;allele_frequency_spectrum&quot;</span><span class="p">,</span> <span class="s2">&quot;gene&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">allele_frequency_spectrum_gene</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s2">&quot;allele_frequency_spectrum_gn.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;missing data&quot;</span><span class="p">,</span> <span class="s2">&quot;gene_occupancy&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">gene_occupancy</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">interpolation_plot</span><span class="p">,</span> <span class="s2">&quot;gene_occupancy.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;missing data&quot;</span><span class="p">,</span> <span class="s2">&quot;distribution_missing_genes&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">missing_genes_per_species</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">bar_plot</span><span class="p">,</span> <span class="s2">&quot;missing_gene_distribution.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;missing data&quot;</span><span class="p">,</span> <span class="s2">&quot;distribution_missing_genes&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">missing_genes_average</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_plot</span><span class="p">,</span> <span class="s2">&quot;missing_gene_distribution_avg.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;missing data&quot;</span><span class="p">,</span> <span class="s2">&quot;distribution_missing_data&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">missing_data_per_species</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">stacked_bar_plot</span><span class="p">,</span> <span class="s2">&quot;missing_data_distribution_sp.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;missing data&quot;</span><span class="p">,</span> <span class="s2">&quot;distribution_missing_data&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">missing_data_distribution</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">histogram_smooth</span><span class="p">,</span> <span class="s2">&quot;missing_data_distribution.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;missing data&quot;</span><span class="p">,</span> <span class="s2">&quot;cumulative_distribution_missing_genes&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">cumulative_missing_genes</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">bar_plot</span><span class="p">,</span> <span class="s2">&quot;cumulative_distribution_missing_genes.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;outlier detection&quot;</span><span class="p">,</span> <span class="s2">&quot;missing_data_outliers&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">outlier_missing_data_sp</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">outlier_densisty_dist</span><span class="p">,</span> <span class="s2">&quot;Missing_data_outliers_sp.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;outlier detection&quot;</span><span class="p">,</span> <span class="s2">&quot;missing_data_outliers&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">outlier_missing_data</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">outlier_densisty_dist</span><span class="p">,</span> <span class="s2">&quot;Missing_data_outliers.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;outlier detection&quot;</span><span class="p">,</span> <span class="s2">&quot;segregating_sites_outliers&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">outlier_segregating_sp</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">outlier_densisty_dist</span><span class="p">,</span> <span class="s2">&quot;Segregating_sites_outliers_sp.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;outlier detection&quot;</span><span class="p">,</span> <span class="s2">&quot;segregating_sites_outliers&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">outlier_segregating</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">outlier_densisty_dist</span><span class="p">,</span> <span class="s2">&quot;Segregating_sites_outliers.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;outlier detection&quot;</span><span class="p">,</span> <span class="s2">&quot;sequence_size_outliers&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">outlier_sequence_size_sp</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">outlier_densisty_dist</span><span class="p">,</span> <span class="s2">&quot;Sequence_size_outliers_sp.png&quot;</span><span class="p">)],</span>
+
+        <span class="p">(</span><span class="s2">&quot;outlier detection&quot;</span><span class="p">,</span> <span class="s2">&quot;sequence_size_outliers&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">alignments</span><span class="o">.</span><span class="n">outlier_sequence_size</span><span class="p">,</span>
+             <span class="p">(</span><span class="n">outlier_densisty_dist</span><span class="p">,</span> <span class="s2">&quot;Sequence_size_outliers.png&quot;</span><span class="p">)]</span>
+    <span class="p">}</span>
+
+    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Parsing configuation file options&quot;</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Iterate over each individual option</span>
+    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+
+                <span class="n">section</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="c1"># Check if current option is available or supported</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">func_map</span><span class="p">:</span>
+                    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Generating plot for option: </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="c1"># Get appropriate method list</span>
+                    <span class="n">funcs</span> <span class="o">=</span> <span class="n">func_map</span><span class="p">[(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span>
+                    <span class="c1"># Retrieve plot data using statistics method</span>
+                    <span class="n">plot_data</span> <span class="o">=</span> <span class="n">funcs</span><span class="p">[</span><span class="mi">0</span><span class="p">]()</span>
+
+                    <span class="c1"># Check for exceptions in plot data</span>
+                    <span class="k">if</span> <span class="s2">&quot;exception&quot;</span> <span class="ow">in</span> <span class="n">plot_data</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">plot_data</span><span class="p">[</span><span class="s2">&quot;exception&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">EmptyData</span><span class="p">:</span>
+                            <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Option </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2"> has no data for &quot;</span>
+                                      <span class="s2">&quot;plotting&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                                      <span class="n">YELLOW</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">plot_data</span><span class="p">[</span><span class="s2">&quot;exception&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">InvalidSequenceType</span><span class="p">:</span>
+                            <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Invalid sequence type for option </span><span class="si">%s</span><span class="s2"> - &quot;</span>
+                                      <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span>
+                                      <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span>
+                                       <span class="n">alignments</span><span class="o">.</span><span class="n">sequence_code</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># Generate plot object</span>
+                    <span class="n">plot_obj</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">lgd</span> <span class="o">=</span> <span class="n">funcs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span><span class="o">**</span><span class="n">plot_data</span><span class="p">)</span>
+                    <span class="n">plot_obj</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+                    <span class="c1"># Save plot to file, including the legend object, if</span>
+                    <span class="c1"># available</span>
+                    <span class="k">if</span> <span class="n">lgd</span><span class="p">:</span>
+                        <span class="n">plot_obj</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">funcs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
+                                         <span class="n">bbox_extra_artists</span><span class="o">=</span><span class="p">(</span><span class="n">lgd</span><span class="p">,),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">plot_obj</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">funcs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
+                                         <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">print_col</span><span class="p">(</span><span class="s2">&quot;Invalid option: </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">. Skipping.&quot;</span> <span class="o">%</span>
+                              <span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Diogo N. Silva&quot;</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

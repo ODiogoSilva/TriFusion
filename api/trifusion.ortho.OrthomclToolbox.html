@@ -26,7 +26,7 @@
 
   
   
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/theme.css" type="text/css" />
   
 
   
@@ -40,7 +40,7 @@
         <link rel="prev" title="trifusion.ortho package" href="trifusion.ortho.html"/> 
 
   
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -165,7 +165,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/trifusion.ortho.OrthomclToolbox.rst.txt" rel="nofollow"> View page source</a>
+            <a href="sources/trifusion.ortho.OrthomclToolbox.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -182,7 +182,7 @@
 <span id="trifusion-ortho-orthomcltoolbox-module"></span><h1>trifusion.ortho.OrthomclToolbox module<a class="headerlink" href="#module-trifusion.ortho.OrthomclToolbox" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="trifusion.ortho.OrthomclToolbox.Cluster">
-<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">Cluster</code><span class="sig-paren">(</span><em>line_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">Cluster</code><span class="sig-paren">(</span><em>line_string</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Object for clusters of the OrthoMCL groups file. It is useful to set a
 number of attributes that will make subsequent filtration and
@@ -207,7 +207,7 @@ processing much easier</p>
 </table>
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Cluster.apply_filter">
-<code class="descname">apply_filter</code><span class="sig-paren">(</span><em>gene_threshold</em>, <em>species_threshold</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Cluster.apply_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster.apply_filter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_filter</code><span class="sig-paren">(</span><em>gene_threshold</em>, <em>species_threshold</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Cluster.apply_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster.apply_filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method will update two Cluster attributes, self.gene_flag and
 self.species_flag, which will inform downstream objects if this
 cluster respects the gene and species threshold
@@ -219,13 +219,13 @@ present</p>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Cluster.parse_string">
-<code class="descname">parse_string</code><span class="sig-paren">(</span><em>cluster_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Cluster.parse_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster.parse_string" title="Permalink to this definition">¶</a></dt>
+<code class="descname">parse_string</code><span class="sig-paren">(</span><em>cluster_string</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Cluster.parse_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster.parse_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses the string and sets the group name and sequence list attributes</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Cluster.remove_taxa">
-<code class="descname">remove_taxa</code><span class="sig-paren">(</span><em>taxa_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Cluster.remove_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster.remove_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_taxa</code><span class="sig-paren">(</span><em>taxa_list</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Cluster.remove_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Cluster.remove_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes the taxa contained in taxa_list from self.sequences and
 self.species_frequency
 :param taxa_list: list, each element should be a taxon name</p>
@@ -235,7 +235,7 @@ self.species_frequency
 
 <dl class="class">
 <dt id="trifusion.ortho.OrthomclToolbox.Group">
-<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">Group</code><span class="sig-paren">(</span><em>groups_file</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>project_prefix='MyGroups'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">Group</code><span class="sig-paren">(</span><em>groups_file</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>project_prefix='MyGroups'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This represents the main object of the orthomcl toolbox module. It is
 initialized with a file name of a orthomcl groups file and provides
@@ -285,7 +285,7 @@ objects, see MultiGroups object</p>
 </table>
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.bar_genecopy_distribution">
-<code class="descname">bar_genecopy_distribution</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>filt=False</em>, <em>output_file_name='Gene_copy_distribution.png'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.bar_genecopy_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.bar_genecopy_distribution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_genecopy_distribution</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>filt=False</em>, <em>output_file_name='Gene_copy_distribution.png'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.bar_genecopy_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.bar_genecopy_distribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a bar plot with the distribution of gene copies across
 clusters
 :param dest: string, destination directory
@@ -295,14 +295,14 @@ clusters
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.bar_species_coverage">
-<code class="descname">bar_species_coverage</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>filt=False</em>, <em>ns=None</em>, <em>output_file_name='Species_coverage'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.bar_species_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.bar_species_coverage" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_species_coverage</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>filt=False</em>, <em>ns=None</em>, <em>output_file_name='Species_coverage'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.bar_species_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.bar_species_coverage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a stacked bar plot with the proportion of
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.bar_species_distribution">
-<code class="descname">bar_species_distribution</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>filt=False</em>, <em>ns=None</em>, <em>output_file_name='Species_distribution'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.bar_species_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.bar_species_distribution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_species_distribution</code><span class="sig-paren">(</span><em>dest='./'</em>, <em>filt=False</em>, <em>ns=None</em>, <em>output_file_name='Species_distribution'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.bar_species_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.bar_species_distribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a bar plot with the distribution of species numbers across
 clusters
 :param dest: string, destination directory
@@ -312,7 +312,7 @@ clusters
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.basic_group_statistics">
-<code class="descname">basic_group_statistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.basic_group_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.basic_group_statistics" title="Permalink to this definition">¶</a></dt>
+<code class="descname">basic_group_statistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.basic_group_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.basic_group_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method creates a basic table in list format containing basic
 information of the groups file (total number of clusters, total number
 of sequences, number of clusters below the gene threshold, number of
@@ -330,14 +330,14 @@ clusters above gene and species threshold]</dd>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.exclude_taxa">
-<code class="descname">exclude_taxa</code><span class="sig-paren">(</span><em>taxa_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.exclude_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.exclude_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">exclude_taxa</code><span class="sig-paren">(</span><em>taxa_list</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.exclude_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.exclude_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a taxon_name to the excluded_taxa list and updates the
 filtered_groups list</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.export_filtered_group">
-<code class="descname">export_filtered_group</code><span class="sig-paren">(</span><em>output_file_name='filtered_groups'</em>, <em>dest='./'</em>, <em>get_stats=False</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.export_filtered_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.export_filtered_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">export_filtered_group</code><span class="sig-paren">(</span><em>output_file_name='filtered_groups'</em>, <em>dest='./'</em>, <em>get_stats=False</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.export_filtered_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.export_filtered_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export the filtered groups into a new file.
 :param output_file_name: string, name of the filtered groups file
 :param dest: string, path to directory where the filtered groups file
@@ -350,13 +350,13 @@ main process.</p>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.get_filters">
-<code class="descname">get_filters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.get_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.get_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_filters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.get_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.get_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a tuple with the thresholds for max gene copies and min species</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.paralog_per_species_statistic">
-<code class="descname">paralog_per_species_statistic</code><span class="sig-paren">(</span><em>output_file_name='Paralog_per_species.csv'</em>, <em>filt=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.paralog_per_species_statistic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.paralog_per_species_statistic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">paralog_per_species_statistic</code><span class="sig-paren">(</span><em>output_file_name='Paralog_per_species.csv'</em>, <em>filt=True</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.paralog_per_species_statistic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.paralog_per_species_statistic" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method creates a CSV table with information on the number of
 paralog clusters per species
 :param output_file_name: string. Name of the output csv file
@@ -366,7 +366,7 @@ total groups (False)</p>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.retrieve_sequences">
-<code class="descname">retrieve_sequences</code><span class="sig-paren">(</span><em>database</em>, <em>dest='./'</em>, <em>mode='fasta'</em>, <em>filt=True</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.retrieve_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.retrieve_sequences" title="Permalink to this definition">¶</a></dt>
+<code class="descname">retrieve_sequences</code><span class="sig-paren">(</span><em>database</em>, <em>dest='./'</em>, <em>mode='fasta'</em>, <em>filt=True</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.retrieve_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.retrieve_sequences" title="Permalink to this definition">¶</a></dt>
 <dd><p>When provided with a database in Fasta format, this will use the
 Alignment object to retrieve sequences
 :param database: String. Fasta file
@@ -384,7 +384,7 @@ will be created.</p>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.update_filtered_group">
-<code class="descname">update_filtered_group</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.update_filtered_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.update_filtered_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_filtered_group</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.update_filtered_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.update_filtered_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method creates a new filtered group variable, like
 export_filtered_group, but instead of writing into a new file, it
 replaces the self.filtered_groups variable</p>
@@ -392,7 +392,7 @@ replaces the self.filtered_groups variable</p>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.Group.update_filters">
-<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#Group.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.update_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#Group.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.Group.update_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets new values for the self.species_threshold and self.gene_threshold
 and updates the filtered_group
 :param gn_filter: int. Maximum value for gene copies in cluster
@@ -403,7 +403,7 @@ and updates the filtered_group
 
 <dl class="class">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight">
-<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">GroupLight</code><span class="sig-paren">(</span><em>groups_file</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">GroupLight</code><span class="sig-paren">(</span><em>groups_file</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Analogous to Group object but with several changes to reduce memory usage</p>
 <p class="rubric">Methods</p>
@@ -458,7 +458,7 @@ and updates the filtered_group
 </table>
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.bar_genecopy_distribution">
-<code class="descname">bar_genecopy_distribution</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_genecopy_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_genecopy_distribution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_genecopy_distribution</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_genecopy_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_genecopy_distribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a bar plot with the distribution of gene copies across
 clusters
 :param filt: Boolean, whether or not to use the filtered groups.</p>
@@ -466,29 +466,29 @@ clusters
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.bar_genecopy_per_species">
-<code class="descname">bar_genecopy_per_species</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_genecopy_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_genecopy_per_species" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_genecopy_per_species</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_genecopy_per_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_genecopy_per_species" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.bar_species_coverage">
-<code class="descname">bar_species_coverage</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_species_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_species_coverage" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_species_coverage</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_species_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_species_coverage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a stacked bar plot with the proportion of
 :return:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.bar_species_distribution">
-<code class="descname">bar_species_distribution</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_species_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_species_distribution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_species_distribution</code><span class="sig-paren">(</span><em>filt=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.bar_species_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.bar_species_distribution" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.basic_group_statistics">
-<code class="descname">basic_group_statistics</code><span class="sig-paren">(</span><em>update_stats=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.basic_group_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.basic_group_statistics" title="Permalink to this definition">¶</a></dt>
+<code class="descname">basic_group_statistics</code><span class="sig-paren">(</span><em>update_stats=True</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.basic_group_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.basic_group_statistics" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.exclude_taxa">
-<code class="descname">exclude_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>update_stats=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.exclude_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.exclude_taxa" title="Permalink to this definition">¶</a></dt>
+<code class="descname">exclude_taxa</code><span class="sig-paren">(</span><em>taxa_list</em>, <em>update_stats=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.exclude_taxa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.exclude_taxa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the excluded_taxa attribute and updates group statistics if
 update_stats is True. This does not change the Group object data
 permanently, only sets an attribute that will be taken into account
@@ -501,12 +501,12 @@ statistics</p>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.export_filtered_group">
-<code class="descname">export_filtered_group</code><span class="sig-paren">(</span><em>output_file_name='filtered_groups'</em>, <em>dest='./'</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.export_filtered_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.export_filtered_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">export_filtered_group</code><span class="sig-paren">(</span><em>output_file_name='filtered_groups'</em>, <em>dest='./'</em>, <em>shared_namespace=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.export_filtered_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.export_filtered_group" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.groups">
-<code class="descname">groups</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.groups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">groups</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator for group file. This replaces the self.groups attribute of
 the original Group Object. Instead of loading the whole file into
 memory, a generator is created to iterate over its contents. It may
@@ -516,7 +516,7 @@ run a bit slower but its a lot more memory efficient.
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.iter_species_frequency">
-<code class="descname">iter_species_frequency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.iter_species_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.iter_species_frequency" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iter_species_frequency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.iter_species_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.iter_species_frequency" title="Permalink to this definition">¶</a></dt>
 <dd><p>In order to prevent permanent changes to the species_frequency
 attribute due to the filtering of taxa, this iterable should be used
 instead of the said variable. This creates a temporary deepcopy of
@@ -525,7 +525,7 @@ species_frequency which will be iterated over and eventually modified.</p>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.retrieve_sequences">
-<code class="descname">retrieve_sequences</code><span class="sig-paren">(</span><em>sqldb</em>, <em>protein_db</em>, <em>dest='./'</em>, <em>shared_namespace=None</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.retrieve_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.retrieve_sequences" title="Permalink to this definition">¶</a></dt>
+<code class="descname">retrieve_sequences</code><span class="sig-paren">(</span><em>sqldb</em>, <em>protein_db</em>, <em>dest='./'</em>, <em>shared_namespace=None</em>, <em>outfile=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.retrieve_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.retrieve_sequences" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -548,7 +548,7 @@ single output file. This is used for the nucleotide sequence export
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.GroupLight.update_filters">
-<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em>, <em>update_stats=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.update_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em>, <em>update_stats=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#GroupLight.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.GroupLight.update_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the group filter attributes and group summary stats if
 update_stats is True. This method does not change the
 data of the Group object, only sets attributes that will be taken into
@@ -565,7 +565,7 @@ statistics</p>
 
 <dl class="class">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups">
-<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">MultiGroups</code><span class="sig-paren">(</span><em>groups_files=None</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>project_prefix='MyGroups'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">MultiGroups</code><span class="sig-paren">(</span><em>groups_files=None</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>project_prefix='MyGroups'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Creates an object composed of multiple Group objects</p>
 <p class="rubric">Methods</p>
@@ -618,21 +618,21 @@ statistics</p>
 </table>
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.add_group">
-<code class="descname">add_group</code><span class="sig-paren">(</span><em>group_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.add_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.add_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_group</code><span class="sig-paren">(</span><em>group_obj</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.add_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.add_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a group object
 :param group_obj: Group object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.add_multigroups">
-<code class="descname">add_multigroups</code><span class="sig-paren">(</span><em>multigroup_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.add_multigroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.add_multigroups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_multigroups</code><span class="sig-paren">(</span><em>multigroup_obj</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.add_multigroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.add_multigroups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merges a MultiGroup object
 :param multigroup_obj: MultiGroup object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.bar_orthologs">
-<code class="descname">bar_orthologs</code><span class="sig-paren">(</span><em>output_file_name='Final_orthologs'</em>, <em>dest='./'</em>, <em>stats='total'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.bar_orthologs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.bar_orthologs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_orthologs</code><span class="sig-paren">(</span><em>output_file_name='Final_orthologs'</em>, <em>dest='./'</em>, <em>stats='total'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.bar_orthologs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.bar_orthologs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a bar plot with the final ortholog values for each group file
 :param output_file_name: string. Name of output file
 :param dest: string. output directory
@@ -650,7 +650,7 @@ display bars for total, species compliant and gene compliant stats</div></blockq
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.basic_multigroup_statistics">
-<code class="descname">basic_multigroup_statistics</code><span class="sig-paren">(</span><em>output_file_name='multigroup_base_statistics.csv'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.basic_multigroup_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.basic_multigroup_statistics" title="Permalink to this definition">¶</a></dt>
+<code class="descname">basic_multigroup_statistics</code><span class="sig-paren">(</span><em>output_file_name='multigroup_base_statistics.csv'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.basic_multigroup_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.basic_multigroup_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -665,12 +665,12 @@ display bars for total, species compliant and gene compliant stats</div></blockq
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.get_gnames">
-<code class="descname">get_gnames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.get_gnames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.get_gnames" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_gnames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.get_gnames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.get_gnames" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.get_group">
-<code class="descname">get_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.get_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.get_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.get_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.get_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a group object based on its name. If the name does not match
 any group object, returns None
 :param group_id: string. Name of group object</p>
@@ -678,26 +678,26 @@ any group object, returns None
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.group_overlap">
-<code class="descname">group_overlap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.group_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.group_overlap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">group_overlap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.group_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.group_overlap" title="Permalink to this definition">¶</a></dt>
 <dd><p>This will find the overlap of orthologs between two group files.
 THIS METHOD IS TEMPORARY AND EXPERIMENTAL</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.iter_gnames">
-<code class="descname">iter_gnames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.iter_gnames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.iter_gnames" title="Permalink to this definition">¶</a></dt>
+<code class="descname">iter_gnames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.iter_gnames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.iter_gnames" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.remove_group">
-<code class="descname">remove_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.remove_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.remove_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.remove_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.remove_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes a group object according to its name
 :param group_id: string, name matching a Group object name attribute</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroups.update_filters">
-<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em>, <em>group_names=None</em>, <em>default=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.update_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em>, <em>group_names=None</em>, <em>default=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroups.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroups.update_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>This will not change the Group object themselves, only the filter
 mapping. The filter is only applied when the Group object is retrieved
 to reduce computations
@@ -710,7 +710,7 @@ to reduce computations
 
 <dl class="class">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight">
-<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">MultiGroupsLight</code><span class="sig-paren">(</span><em>db_path</em>, <em>groups=None</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>project_prefix='MyGroups'</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">MultiGroupsLight</code><span class="sig-paren">(</span><em>db_path</em>, <em>groups=None</em>, <em>gene_threshold=None</em>, <em>species_threshold=None</em>, <em>project_prefix='MyGroups'</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Creates an object composed of multiple Group objects like MultiGroups.
 However, instead of storing the groups in memory, these are shelved in
@@ -758,21 +758,21 @@ the disk</p>
 </table>
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.add_group">
-<code class="descname">add_group</code><span class="sig-paren">(</span><em>group_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.add_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.add_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_group</code><span class="sig-paren">(</span><em>group_obj</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.add_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.add_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a group object
 :param group_obj: Group object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.add_multigroups">
-<code class="descname">add_multigroups</code><span class="sig-paren">(</span><em>multigroup_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.add_multigroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.add_multigroups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_multigroups</code><span class="sig-paren">(</span><em>multigroup_obj</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.add_multigroups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.add_multigroups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merges a MultiGroup object
 :param multigroup_obj: MultiGroup object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.bar_orthologs">
-<code class="descname">bar_orthologs</code><span class="sig-paren">(</span><em>group_names=None</em>, <em>output_file_name='Final_orthologs'</em>, <em>dest='./'</em>, <em>stats='all'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.bar_orthologs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.bar_orthologs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bar_orthologs</code><span class="sig-paren">(</span><em>group_names=None</em>, <em>output_file_name='Final_orthologs'</em>, <em>dest='./'</em>, <em>stats='all'</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.bar_orthologs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.bar_orthologs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a bar plot with the final ortholog values for each group file
 :param group_names: list. If None, all groups in self.group_stats will
 be used to generate the plot. Else, only the groups with the names in
@@ -798,13 +798,13 @@ display bars for total, species compliant and gene compliant stats</div></blockq
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.clear_groups">
-<code class="descname">clear_groups</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.clear_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.clear_groups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clear_groups</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.clear_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.clear_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clears the current MultiGroupsLight object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.get_group">
-<code class="descname">get_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.get_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.get_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.get_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.get_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a group object based on its name. If the name does not match
 any group object, returns None
 :param group_id: string. Name of group object</p>
@@ -812,7 +812,7 @@ any group object, returns None
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.get_multigroup_statistics">
-<code class="descname">get_multigroup_statistics</code><span class="sig-paren">(</span><em>group_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.get_multigroup_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.get_multigroup_statistics" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_multigroup_statistics</code><span class="sig-paren">(</span><em>group_obj</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.get_multigroup_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.get_multigroup_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -825,14 +825,14 @@ any group object, returns None
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.remove_group">
-<code class="descname">remove_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.remove_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.remove_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_group</code><span class="sig-paren">(</span><em>group_id</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.remove_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.remove_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes a group object according to its name
 :param group_id: string, name matching a Group object name attribute</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trifusion.ortho.OrthomclToolbox.MultiGroupsLight.update_filters">
-<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em>, <em>excluded_taxa</em>, <em>group_names=None</em>, <em>default=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.update_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_filters</code><span class="sig-paren">(</span><em>gn_filter</em>, <em>sp_filter</em>, <em>excluded_taxa</em>, <em>group_names=None</em>, <em>default=False</em><span class="sig-paren">)</span><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#MultiGroupsLight.update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.MultiGroupsLight.update_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>This will not change the Group object themselves, only the filter
 mapping. The filter is only applied when the Group object is retrieved
 to reduce computations</p>
@@ -855,7 +855,7 @@ to reduce computations</p>
 
 <dl class="exception">
 <dt id="trifusion.ortho.OrthomclToolbox.OrthoGroupException">
-<em class="property">exception </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">OrthoGroupException</code><a class="reference internal" href="_modules/trifusion/ortho/OrthomclToolbox.html#OrthoGroupException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.OrthoGroupException" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">trifusion.ortho.OrthomclToolbox.</code><code class="descname">OrthoGroupException</code><a class="reference internal" href="modules/trifusion/ortho/OrthomclToolbox.html#OrthoGroupException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.ortho.OrthomclToolbox.OrthoGroupException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
 </dd></dl>
 
@@ -910,15 +910,15 @@ to reduce computations</p>
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="static/jquery.js"></script>
+      <script type="text/javascript" src="static/underscore.js"></script>
+      <script type="text/javascript" src="static/doctools.js"></script>
 
   
 
   
   
-    <script type="text/javascript" src="_static/js/theme.js"></script>
+    <script type="text/javascript" src="static/js/theme.js"></script>
   
 
   

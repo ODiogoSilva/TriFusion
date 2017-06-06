@@ -1,0 +1,7 @@
+trifusion\.TriStats module
+==========================
+
+.. automodule:: trifusion.TriStats
+    :members:
+    :undoc-members:
+    :show-inheritance:
