@@ -1,0 +1,520 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TriFusion modules and API reference &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="index.html"/>
+        <link rel="next" title="trifusion.base package" href="trifusion.base.html"/>
+        <link rel="prev" title="Welcome to TriFusion’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TriFusion modules and API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#trifusion-gui">TriFusion GUI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#main-screens">Main screens</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-widgets">Custom widgets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#icons-and-backgrounds">Icons and backgrounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-tasks-in-the-background">Running tasks in the background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#in-app-help">In-App help</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#orthology-backend">Orthology backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#process-backend">Process backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statistics-backend">Statistics backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of Contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.html">trifusion.process package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.TriFusion.html">trifusion.TriFusion module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.TriOrtho.html">trifusion.TriOrtho module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.TriSeq.html">trifusion.TriSeq module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.TriStats.html">trifusion.TriStats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.app.html">trifusion.app module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.orthomcl_pipeline.html">trifusion.orthomcl_pipeline module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>TriFusion modules and API reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/trifusion.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-trifusion">
+<span id="trifusion-modules-and-api-reference"></span><h1>TriFusion modules and API reference<a class="headerlink" href="#module-trifusion" title="Permalink to this headline">¶</a></h1>
+<p>Welcome to the TriFusion API reference guide. This reference guide details
+the sub-packages and modules used for each component of TriFusion.</p>
+<p>This guide is intended for power users and developers that wish to modify
+the source and/or contribute with new code. A brief description of each
+main component of TriFusion follows below with the relevant modules and
+classes specified. These descriptions can be used to send you on your
+way to the sections of interest, where a more detailed documentation
+is available.</p>
+<div class="section" id="trifusion-gui">
+<h2>TriFusion GUI<a class="headerlink" href="#trifusion-gui" title="Permalink to this headline">¶</a></h2>
+<p>The core graphical interface of TriFusion is controlled by two main files:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="trifusion.app.html#module-trifusion.app" title="trifusion.app"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.app</span></code></a>: Contains the <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp" title="trifusion.app.TriFusionApp"><code class="xref py py-class docutils literal"><span class="pre">TriFusionApp</span></code></a>
+class, with most of the methods and attributes responsible for
+the interactivity and event handling of the TriFusion application.</li>
+<li><code class="xref py py-mod docutils literal"><span class="pre">trifusion.trifusion.kv</span></code>: Contains graphical instructions for the
+main window and the definition of the majority of the Widgets in the
+kivy language.</li>
+</ul>
+</div></blockquote>
+<div class="section" id="main-screens">
+<h3>Main screens<a class="headerlink" href="#main-screens" title="Permalink to this headline">¶</a></h3>
+<p>The graphical instructions in kivy language for the 8 main screens of
+TriFusion are defined in the <cite>trifusion/data/screens</cite> directory, each screen
+with its own <cite>.kv</cite> file. These files contain only the definition of
+the root widgets of each screen, that is, when the screen is loaded for the
+first time. Widgets that are later added to the screen via some method
+should be defined in the main <cite>trifusion.trifusion.kv</cite> file.
+The initial setup of these screens in performed in the
+<a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.build" title="trifusion.app.TriFusionApp.build"><code class="xref py py-func docutils literal"><span class="pre">build()</span></code></a> method.</p>
+</div>
+<div class="section" id="custom-widgets">
+<h3>Custom widgets<a class="headerlink" href="#custom-widgets" title="Permalink to this headline">¶</a></h3>
+<p>Custom widgets can be created using the <cite>kivy</cite> toolkit. <cite>Kivy</cite> provides
+a convenient way of defining graphical instructions to build the Widget&#8217;s
+layout using the kivy language instead of directly with python. Therefore,
+the layout of new widgets can be defined in the <cite>trifusion.trifusion.kv</cite> file.
+If they need to be used by the python code, they also have to be defined
+as a new class in the <a class="reference internal" href="trifusion.data.resources.custom_widgets.html#module-trifusion.data.resources.custom_widgets" title="trifusion.data.resources.custom_widgets"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.data.resources.custom_widgets</span></code></a> module
+and imported in the module where they will be used.
+This class can be empty (e.g.
+<a class="reference internal" href="trifusion.data.resources.custom_widgets.html#trifusion.data.resources.custom_widgets.TableCell" title="trifusion.data.resources.custom_widgets.TableCell"><code class="xref py py-func docutils literal"><span class="pre">TableCell()</span></code></a>) or it can harbor
+custom attributes and methods that are useful for that widget
+(e.g. <a class="reference internal" href="trifusion.data.resources.custom_widgets.html#trifusion.data.resources.custom_widgets.FileChooserL" title="trifusion.data.resources.custom_widgets.FileChooserL"><code class="xref py py-func docutils literal"><span class="pre">FileChooserL()</span></code></a>).</p>
+</div>
+<div class="section" id="icons-and-backgrounds">
+<h3>Icons and backgrounds<a class="headerlink" href="#icons-and-backgrounds" title="Permalink to this headline">¶</a></h3>
+<p>Icons and background images are stored in the <cite>trifusion/data/backgrounds</cite>
+directory. In either python or kivy files, these backgrounds can be
+reference with the path relative to the package root. For example, in any
+python file, they can be referenced like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">bn</span> <span class="o">=</span> <span class="s2">&quot;data/backgrounds/check_ok.png&quot;</span>
+</pre></div>
+</div>
+<p>Or in any kivy file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">background_normal</span><span class="p">:</span> <span class="s2">&quot;data/backgrounds/bt_process.png&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-tasks-in-the-background">
+<h3>Running tasks in the background<a class="headerlink" href="#running-tasks-in-the-background" title="Permalink to this headline">¶</a></h3>
+<p>Time consuming operations are executed in worker threads separated from the
+main GUI thread. These background tasks are defined in
+<a class="reference internal" href="trifusion.data.resources.background_tasks.html#module-trifusion.data.resources.background_tasks" title="trifusion.data.resources.background_tasks"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.data.resources.background_tasks</span></code></a>. The module documentation
+provides more information on how to setup background tasks in TriFusion.</p>
+</div>
+<div class="section" id="in-app-help">
+<h3>In-App help<a class="headerlink" href="#in-app-help" title="Permalink to this headline">¶</a></h3>
+<p>Help buttons are spread throughout TriFusion. The help information is defined
+in multiple dictionary objects in <a class="reference internal" href="trifusion.data.resources.info_data.html#module-trifusion.data.resources.info_data" title="trifusion.data.resources.info_data"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.data.resources.info_data</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="orthology-backend">
+<h2>Orthology backend<a class="headerlink" href="#orthology-backend" title="Permalink to this headline">¶</a></h2>
+<p>The orthology search pipeline is defined in
+<a class="reference internal" href="trifusion.orthomcl_pipeline.html#module-trifusion.orthomcl_pipeline" title="trifusion.orthomcl_pipeline"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.orthomcl_pipeline</span></code></a>. This module can be used as a CLI program
+to execute the pipeline and is also used by TriFusion as a library.</p>
+<p>The handling and exploration of ortholog group files, the output of the
+orthology search operation, is made in the
+<a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html#module-trifusion.ortho.OrthomclToolbox" title="trifusion.ortho.OrthomclToolbox"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.ortho.OrthomclToolbox</span></code></a> module, in particular using the
+<a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html#trifusion.ortho.OrthomclToolbox.MultiGroupsLight" title="trifusion.ortho.OrthomclToolbox.MultiGroupsLight"><code class="xref py py-class docutils literal"><span class="pre">MultiGroupsLight</span></code></a> and
+<a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html#trifusion.ortho.OrthomclToolbox.GroupLight" title="trifusion.ortho.OrthomclToolbox.GroupLight"><code class="xref py py-class docutils literal"><span class="pre">GroupLight</span></code></a> classes.</p>
+</div>
+<div class="section" id="process-backend">
+<h2>Process backend<a class="headerlink" href="#process-backend" title="Permalink to this headline">¶</a></h2>
+<p>The main functionality of the Process module (and the TriSeq CLI) program
+are provided by the modules in the <a class="reference internal" href="trifusion.process.html#module-trifusion.process" title="trifusion.process"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.process</span></code></a> sub package.
+Classes that handle alignment data are defined in
+<a class="reference internal" href="trifusion.process.sequence.html#module-trifusion.process.sequence" title="trifusion.process.sequence"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.process.sequence</span></code></a>, while data set partitions are handled
+in the <a class="reference internal" href="trifusion.process.data.html#module-trifusion.process.data" title="trifusion.process.data"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.process.data</span></code></a> module.</p>
+</div>
+<div class="section" id="statistics-backend">
+<h2>Statistics backend<a class="headerlink" href="#statistics-backend" title="Permalink to this headline">¶</a></h2>
+<p>The generation of plot data in the Statistics screen or by the TriStats
+CLI program is a joint effort between the
+<a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> class and the plotting
+functions defined in the <a class="reference internal" href="trifusion.base.plotter.html#module-trifusion.base.plotter" title="trifusion.base.plotter"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.base.plotter</span></code></a> module. Briefly,
+the methods of the <a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> class
+are responsible for generating the data and plotting instructions, while
+the functions in the <a class="reference internal" href="trifusion.base.plotter.html#module-trifusion.base.plotter" title="trifusion.base.plotter"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.base.plotter</span></code></a> module receive that
+information and generate the plot.</p>
+</div>
+<div class="section" id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.base.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.html_creator.html">trifusion.base.html_creator module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.plotter.html">trifusion.base.plotter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.sanity.html">trifusion.base.sanity module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.base.html#module-trifusion.base">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.html#html-creator"><cite>html_creator</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.html#plotter"><cite>plotter</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.html#sanity"><cite>sanity</cite></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.data.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.data.resources.html">trifusion.data.resources package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.data.resources.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.background_tasks.html">trifusion.data.resources.background_tasks module</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#how-to-use-background-tasks">How to use background tasks</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#creation-of-tasks-in-trifusion-app">Creation of tasks in <cite>trifusion.app</cite></a></li>
+<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#launching-waiting-dialog">Launching waiting dialog</a></li>
+<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#schedule-function-that-checks-the-worker-thread-s-pulse">Schedule function that checks the worker thread&#8217;s pulse</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.custom_widgets.html">trifusion.data.resources.custom_widgets module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.info_data.html">trifusion.data.resources.info_data module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.stats.html">trifusion.data.resources.stats module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.data.resources.html#module-trifusion.data.resources">Module contents</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.html#background-tasks"><cite>background_tasks</cite></a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.html#custom-widgets">&#8216;custom_widgets`</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.html#info-data"><cite>info_data</cite></a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.html#stats"><cite>stats</cite></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.data.html#module-trifusion.data">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html#backgrounds"><cite>backgrounds</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html#resources"><cite>resources</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html#screens"><cite>screens</cite></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.ortho.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.OrthomclToolbox.html">trifusion.ortho.OrthomclToolbox module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.complement_orthologs.html">trifusion.ortho.complement_orthologs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.error_handling.html">trifusion.ortho.error_handling module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.orthomclBlastParser.html">trifusion.ortho.orthomclBlastParser module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.orthomclDumpPairsFiles.html">trifusion.ortho.orthomclDumpPairsFiles module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.orthomclFilterFasta.html">trifusion.ortho.orthomclFilterFasta module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.orthomclInstallSchema.html">trifusion.ortho.orthomclInstallSchema module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.orthomclLoadBlast.html">trifusion.ortho.orthomclLoadBlast module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.orthomclMclToGroups.html">trifusion.ortho.orthomclMclToGroups module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.orthomclPairs.html">trifusion.ortho.orthomclPairs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.protein2dna.html">trifusion.ortho.protein2dna module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.ortho.html#module-trifusion.ortho">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.process.html">trifusion.process package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.process.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.base.html">trifusion.process.base module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.data.html">trifusion.process.data module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.error_handling.html">trifusion.process.error_handling module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.sequence.html">trifusion.process.sequence module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.sequence.html#alignment-class"><cite>Alignment</cite> class</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#parsers">Parsers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#data-fetching">Data fetching</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#alignment-modifiers">Alignment modifiers</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#writers">Writers</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.sequence.html#alignmentlist-class"><cite>AlignmentList</cite> class</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#how-to-create-an-instance">How to create an instance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#adding-alignment-data">Adding alignment data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#wrapping-alignment-methods">Wrapping <cite>Alignment</cite> methods</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#exclusive-alignmentlist-methods">Exclusive <cite>AlignmentList</cite> methods</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#active-and-inactive-datasets">Active and inactive datasets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#updating-alignment-objects">Updating <cite>Alignment</cite> objects</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#plot-data-methods">Plot data methods</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#logging-progress">Logging progress</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#incorporating-a-kill-switch">Incorporating a kill switch</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.sequence.html#using-sqlite">Using SQLite</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#implications-for-parsing">Implications for parsing</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#implications-for-fetching-data">Implications for fetching data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#implications-for-alignment-modification">Implications for alignment modification</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.sequence.html#implications-for-writing-files">Implications for writing files</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.html#introduction-to-trifusion-s-process-module">Introduction to TriFusion&#8217;s process module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#what-it-does">What it does</a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.process.html#sub-modules">Sub modules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#base">base</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#data">data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#error-handling">error_handling</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.process.html#sequence">sequence</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.TriFusion.html">trifusion.TriFusion module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.TriOrtho.html">trifusion.TriOrtho module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.TriSeq.html">trifusion.TriSeq module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.TriStats.html">trifusion.TriStats module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.app.html">trifusion.app module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trifusion.orthomcl_pipeline.html">trifusion.orthomcl_pipeline module</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="trifusion.base.html" class="btn btn-neutral float-right" title="trifusion.base package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to TriFusion’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.ortho.orthomclInstallSchema &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../trifusion.html">TriFusion modules and API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>trifusion.ortho.orthomclInstallSchema</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trifusion.ortho.orthomclInstallSchema</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python2</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">sqlite3</span> <span class="k">as</span> <span class="nn">lite</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1">##############################################################</span>
+
+
+<div class="viewcode-block" id="createSimilarSequencesTable"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclInstallSchema.html#trifusion.ortho.orthomclInstallSchema.createSimilarSequencesTable">[docs]</a><span class="k">def</span> <span class="nf">createSimilarSequencesTable</span><span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE SimilarSequences (</span><span class="se">\</span>
+<span class="s2">        QUERY_ID VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        SUBJECT_ID VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        QUERY_TAXON_ID VARCHAR(40),</span><span class="se">\</span>
+<span class="s2">        SUBJECT_TAXON_ID VARCHAR(40),</span><span class="se">\</span>
+<span class="s2">        EVALUE_MANT FLOAT,</span><span class="se">\</span>
+<span class="s2">        EVALUE_EXP INT,</span><span class="se">\</span>
+<span class="s2">        PERCENT_IDENTITY FLOAT,</span><span class="se">\</span>
+<span class="s2">        PERCENT_MATCH FLOAT,</span><span class="se">\</span>
+<span class="s2">        PRIMARY KEY(QUERY_ID, SUBJECT_ID)</span><span class="se">\</span>
+<span class="s2">        )&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX ss_qtaxexp_ix</span><span class="se">\</span>
+<span class="s2">        ON SimilarSequences(query_id, subject_taxon_id,</span><span class="se">\</span>
+<span class="s2">        evalue_exp, evalue_mant,</span><span class="se">\</span>
+<span class="s2">        query_taxon_id, subject_id)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX ss_seqs_ix</span><span class="se">\</span>
+<span class="s2">        ON SimilarSequences(query_id, subject_id,</span><span class="se">\</span>
+<span class="s2">        evalue_exp, evalue_mant, percent_match)&quot;</span><span class="p">)</span></div>
+
+<span class="c1">##############################################################</span>
+
+
+<div class="viewcode-block" id="createInParalogTable"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclInstallSchema.html#trifusion.ortho.orthomclInstallSchema.createInParalogTable">[docs]</a><span class="k">def</span> <span class="nf">createInParalogTable</span> <span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE InParalog (</span><span class="se">\</span>
+<span class="s2">        SEQUENCE_ID_A VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        SEQUENCE_ID_B VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        TAXON_ID VARCHAR(40),</span><span class="se">\</span>
+<span class="s2">        UNNORMALIZED_SCORE FLOAT,</span><span class="se">\</span>
+<span class="s2">        NORMALIZED_SCORE FLOAT)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX inparalog_seqa_ix</span><span class="se">\</span>
+<span class="s2">        ON InParalog(sequence_id_a)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX inparalog_seqb_ix</span><span class="se">\</span>
+<span class="s2">        ON InParalog(sequence_id_b)&quot;</span><span class="p">)</span></div>
+
+<span class="c1">##############################################################</span>
+
+
+<div class="viewcode-block" id="createOrthologTable"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclInstallSchema.html#trifusion.ortho.orthomclInstallSchema.createOrthologTable">[docs]</a><span class="k">def</span> <span class="nf">createOrthologTable</span><span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE Ortholog (</span><span class="se">\</span>
+<span class="s2">        SEQUENCE_ID_A VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        SEQUENCE_ID_B VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        TAXON_ID_A VARCHAR(40),</span><span class="se">\</span>
+<span class="s2">        TAXON_ID_B VARCHAR(40),</span><span class="se">\</span>
+<span class="s2">        UNNORMALIZED_SCORE FLOAT,</span><span class="se">\</span>
+<span class="s2">        NORMALIZED_SCORE FLOAT)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX ortholog_seq_a_ix</span><span class="se">\</span>
+<span class="s2">        ON Ortholog(sequence_id_a)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX ortholog_seq_b_ix</span><span class="se">\</span>
+<span class="s2">        ON Ortholog (sequence_id_b)&quot;</span><span class="p">)</span></div>
+
+<span class="c1">##############################################################</span>
+
+
+<div class="viewcode-block" id="createCoOrthologTable"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclInstallSchema.html#trifusion.ortho.orthomclInstallSchema.createCoOrthologTable">[docs]</a><span class="k">def</span> <span class="nf">createCoOrthologTable</span><span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE CoOrtholog (</span><span class="se">\</span>
+<span class="s2">        SEQUENCE_ID_A VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        SEQUENCE_ID_B VARCHAR(60),</span><span class="se">\</span>
+<span class="s2">        TAXON_ID_A VARCHAR(40),</span><span class="se">\</span>
+<span class="s2">        TAXON_ID_B VARCHAR(40),</span><span class="se">\</span>
+<span class="s2">        UNNORMALIZED_SCORE FLOAT,</span><span class="se">\</span>
+<span class="s2">        NORMALIZED_SCORE FLOAT)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX coortholog_seq_a_ix</span><span class="se">\</span>
+<span class="s2">        ON CoOrtholog(sequence_id_a)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE INDEX coortholog_seq_b_ix</span><span class="se">\</span>
+<span class="s2">        ON CoOrtholog (sequence_id_b)&quot;</span><span class="p">)</span></div>
+
+<span class="c1">##############################################################</span>
+
+
+<div class="viewcode-block" id="createInterTaxonMatchView"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclInstallSchema.html#trifusion.ortho.orthomclInstallSchema.createInterTaxonMatchView">[docs]</a><span class="k">def</span> <span class="nf">createInterTaxonMatchView</span><span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;DROP VIEW IF EXISTS InterTaxonMatch&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE VIEW InterTaxonMatch</span><span class="se">\</span>
+<span class="s2">        AS SELECT ss.query_id, ss.subject_id, ss.subject_taxon_id,</span><span class="se">\</span>
+<span class="s2">        ss.evalue_mant, ss.evalue_exp</span><span class="se">\</span>
+<span class="s2">        FROM SimilarSequences ss</span><span class="se">\</span>
+<span class="s2">        WHERE ss.subject_taxon_id != ss.query_taxon_id&quot;</span><span class="p">)</span></div>
+
+<span class="c1">##############################################################</span>
+
+
+<div class="viewcode-block" id="execute"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclInstallSchema.html#trifusion.ortho.orthomclInstallSchema.execute">[docs]</a><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">out_dir</span><span class="p">):</span>
+
+    <span class="c1"># Remove any previous DB</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">&quot;orthoDB.db&quot;</span><span class="p">)):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">&quot;orthoDB.db&quot;</span><span class="p">))</span>
+
+    <span class="n">con</span> <span class="o">=</span> <span class="n">lite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">&quot;orthoDB.db&quot;</span><span class="p">))</span>
+
+    <span class="k">with</span> <span class="n">con</span><span class="p">:</span>
+
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">createSimilarSequencesTable</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+        <span class="n">createInParalogTable</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+        <span class="n">createOrthologTable</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+        <span class="n">createCoOrthologTable</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+        <span class="n">createInterTaxonMatchView</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">execute</span><span class="p">(</span><span class="s2">&quot;./&quot;</span><span class="p">)</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Fernando Alves and Diogo N. Silva&quot;</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

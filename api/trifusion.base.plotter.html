@@ -1,0 +1,847 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.base.plotter module &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="index.html"/>
+        <link rel="up" title="trifusion.base package" href="trifusion.base.html"/>
+        <link rel="next" title="trifusion.base.sanity module" href="trifusion.base.sanity.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="trifusion.html">TriFusion modules and API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#trifusion-gui">TriFusion GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#orthology-backend">Orthology backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#process-backend">Process backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#statistics-backend">Statistics backend</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#table-of-contents">Table of Contents</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="trifusion.base.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.base.html#module-trifusion.base">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.html">trifusion.process package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="trifusion.html">TriFusion modules and API reference</a> &raquo;</li>
+        
+          <li><a href="trifusion.base.html">trifusion.base package</a> &raquo;</li>
+        
+      <li>trifusion.base.plotter module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/trifusion.base.plotter.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-trifusion.base.plotter">
+<span id="trifusion-base-plotter-module"></span><h1>trifusion.base.plotter module<a class="headerlink" href="#module-trifusion.base.plotter" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="trifusion.base.plotter.bar_plot">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">bar_plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#bar_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.bar_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a bar plot from a <cite>data</cite> array.</p>
+<p>If a multi-dimensional array is provided, it will create a stacked bar
+plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Single or multi-dimensional array with plot data.</p>
+</div></blockquote>
+<p><strong>labels</strong> : list</p>
+<blockquote>
+<div><p>List of xtick labels. Should have the same length as <cite>data</cite>.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+<p><strong>lgd_list</strong> : list</p>
+<blockquote>
+<div><p>For categorical plots, provide the label of each category.</p>
+</div></blockquote>
+<p><strong>reverse_x</strong> : bool</p>
+<blockquote>
+<div><p>If True, reverse the x-axis orientation.</p>
+</div></blockquote>
+<p><strong>table_header</strong> : list</p>
+<blockquote>
+<div><p>List with the header of the table object. Each element represents
+a column.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>lgd</strong> : matplotlib.Legend</p>
+<blockquote>
+<div><p>Legend object of the plot.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.box_plot">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">box_plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#box_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.box_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates box (whisker) plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Single or multi-dimensional array with plot data.</p>
+</div></blockquote>
+<p><strong>labels</strong> : list</p>
+<blockquote>
+<div><p>List of xtick labels. Should have the same length as <cite>data</cite>.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.pyplot.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>_</strong> : None</p>
+<blockquote>
+<div><p>Placeholder for the legend object. Not used here but assures
+consistency across other plotting methods.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.histogram_plot">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">histogram_plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#histogram_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.histogram_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an histogram from data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Array with plot data.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+<p><strong>table_header</strong> : list</p>
+<blockquote>
+<div><p>List with the header of the table object. Each element represents
+a column.</p>
+</div></blockquote>
+<p><strong>real_bin_num</strong> : bool</p>
+<blockquote>
+<div><p>If True, then the table data will be forced to be in real numbers.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>lgd</strong> : matplotlib.Legend</p>
+<blockquote>
+<div><p>Legend object of the plot.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.histogram_smooth">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">histogram_smooth</code><span class="sig-paren">(</span><em>data</em>, <em>ax_names=None</em>, <em>table_header=None</em>, <em>title=None</em>, <em>legend=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#histogram_smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.histogram_smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a smooth histogram-like plot.</p>
+<p>Creates a smooth line plot with colored areas with the same distribution
+as an histogram. It supports a multi-dimensional array, in which case
+each array will be used to create vertically stacked subplots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Array with plot data.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+<p><strong>table_header</strong> : list</p>
+<blockquote>
+<div><p>List with the header of the table object. Each element represents
+a column.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>legend</strong> : list</p>
+<blockquote>
+<div><p>If using a multi-dimensional array, provide the name of each
+subplot.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.pyplot.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>_</strong> : None</p>
+<blockquote>
+<div><p>Placeholder for the legend object. Not used here but assures
+consistency across other plotting methods.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.interpolation_plot">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">interpolation_plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#interpolation_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.interpolation_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates black and white interpolation plot</p>
+<p>Creates a black and white interpolation plot from data, which must consist
+of a 0/1 matrix for absence/presence of taxa in genes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Single or multi-dimensional array with plot data.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.pyplot.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>_</strong> : None</p>
+<blockquote>
+<div><p>Placeholder for the legend object. Not used here but assures
+consistency across other plotting methods.</p>
+</div></blockquote>
+<p><strong>_</strong> : None</p>
+<blockquote class="last">
+<div><p>Placeholder for the table header list. Not used here but assures
+consistency across other plotting methods.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.multi_bar_plot">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">multi_bar_plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#multi_bar_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.multi_bar_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a multiple bar plot.</p>
+<p>Creates a multiple bar plot from a multi-dimensional array. The bar
+plots from each array will be grouped and displayed side by side.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Single or multi-dimensional array.</p>
+</div></blockquote>
+<p><strong>labels</strong> : list</p>
+<blockquote>
+<div><p>List of xtick labels. Should have the same length as <cite>data</cite>.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>lgd_list</strong> : list</p>
+<blockquote>
+<div><p>For categorical plots, provide the label of each category.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>lgd</strong> : matplotlib.Legend</p>
+<blockquote>
+<div><p>Legend object of the plot.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.outlier_densisty_dist">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">outlier_densisty_dist</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#outlier_densisty_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.outlier_densisty_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a density distribution for outlier plots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>1D array containing data points.</p>
+</div></blockquote>
+<p><strong>outliers</strong> : numpy.array</p>
+<blockquote>
+<div><p>1D array containing the outliers.</p>
+</div></blockquote>
+<p><strong>outliers_labels</strong> : list or numpy.array</p>
+<blockquote>
+<div><p>1D array containing the labels for each outlier.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>lgd</strong> : matplotlib.Legend</p>
+<blockquote>
+<div><p>Legend object of the plot.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.scatter_plot">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">scatter_plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#scatter_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.scatter_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a scatter plot from a 2D array.</p>
+<p>Builds a scatter plot from a 2D array. Also calculates the
+correlation coefficient if requested by the <cite>correlation</cite> argument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>2D array containing the x and y data points.</p>
+</div></blockquote>
+<p><strong>correlation</strong> : bool</p>
+<blockquote>
+<div><p>If True, the spearman&#8217;s rank correlation coefficient is calculated
+and added to the plot as an annotation</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+<p><strong>table_header</strong> : list</p>
+<blockquote>
+<div><p>List with the header of the table object. Each element represents
+a column.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.pyplot.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>_</strong> : None</p>
+<blockquote>
+<div><p>Placeholder for the legend object. Not used here but assures
+consistency across other plotting methods.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.set_props">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">set_props</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#set_props"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.set_props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator used to set general plot attributes</p>
+<p>This decorator is use to automatically set several plot properties based
+on the arguments provided to the plotting functions. In this way,
+there is no need to write repetitive code in each function. The accepted
+arguments are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>ax_names : list.
+Axis names. First element is x-axis label, second is y-axis label</li>
+<li>title : str.
+Title of the plot</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.sliding_window">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">sliding_window</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#sliding_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.sliding_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a sliding window plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Array with plot data.</p>
+</div></blockquote>
+<p><strong>window_size</strong> : int</p>
+<blockquote>
+<div><p>Length of window size for sliding window.</p>
+</div></blockquote>
+<p><strong>table_header</strong> : list</p>
+<blockquote>
+<div><p>List with the header of the table object. Each element represents
+a column.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.pyplot.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>_</strong> : None</p>
+<blockquote>
+<div><p>Placeholder for the legend object. Not used here but assures
+consistency across other plotting methods.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.stacked_bar_plot">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">stacked_bar_plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#stacked_bar_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.stacked_bar_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a stacked bar plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Multi-dimensional array.</p>
+</div></blockquote>
+<p><strong>labels</strong> : list</p>
+<blockquote>
+<div><p>List of xtick labels. Should have the same length as <cite>data</cite>.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>table_header</strong> : list</p>
+<blockquote>
+<div><p>List with the header of the table object. Each element represents
+a column.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>ax_names</strong> : list</p>
+<blockquote>
+<div><p>List with the labels for the x-axis (first element) and y-axis
+(second element).</p>
+</div></blockquote>
+<p><strong>normalize</strong> : bool</p>
+<blockquote>
+<div><p>If True, values of the <cite>data</cite> array will be normalized by the
+<cite>normalize_factor</cite></p>
+</div></blockquote>
+<p><strong>normalize_factor</strong> : int or float</p>
+<blockquote>
+<div><p>Number used to normalize values of the <cite>data</cite> array.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>lgd</strong> : matplotlib.Legend</p>
+<blockquote>
+<div><p>Legend object of the plot.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.base.plotter.triangular_heat">
+<code class="descclassname">trifusion.base.plotter.</code><code class="descname">triangular_heat</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/base/plotter.html#triangular_heat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.base.plotter.triangular_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a triangular heatmap plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : numpy.array</p>
+<blockquote>
+<div><p>Triangular array with plot data.</p>
+</div></blockquote>
+<p><strong>labels</strong> : list</p>
+<blockquote>
+<div><p>List of xtick labels. Should have the same length as <cite>data</cite>.</p>
+</div></blockquote>
+<p><strong>title</strong> : str</p>
+<blockquote>
+<div><p>Title of the plot.</p>
+</div></blockquote>
+<p><strong>color_label</strong> : str</p>
+<blockquote>
+<div><p>Label for colorbar.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.pyplot.Figure</p>
+<blockquote>
+<div><p>Figure object of the plot.</p>
+</div></blockquote>
+<p><strong>_</strong> : None</p>
+<blockquote>
+<div><p>Placeholder for the legend object. Not used here but assures
+consistency across other plotting methods.</p>
+</div></blockquote>
+<p><strong>table</strong> : list</p>
+<blockquote class="last">
+<div><p>Table data in list format. Each item in the list corresponds to a
+table row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="trifusion.base.sanity.html" class="btn btn-neutral float-right" title="trifusion.base.sanity module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

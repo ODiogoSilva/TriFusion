@@ -1,0 +1,986 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.data.resources.background_tasks module &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="index.html"/>
+        <link rel="up" title="trifusion.data.resources package" href="trifusion.data.resources.html"/>
+        <link rel="next" title="trifusion.data.resources.custom_widgets module" href="trifusion.data.resources.custom_widgets.html"/>
+        <link rel="prev" title="trifusion.data.resources package" href="trifusion.data.resources.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="trifusion.html">TriFusion modules and API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#trifusion-gui">TriFusion GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#orthology-backend">Orthology backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#process-backend">Process backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#statistics-backend">Statistics backend</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#table-of-contents">Table of Contents</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="trifusion.data.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.data.html#module-trifusion.data">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.process.html">trifusion.process package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="trifusion.html">TriFusion modules and API reference</a> &raquo;</li>
+        
+          <li><a href="trifusion.data.html">trifusion.data package</a> &raquo;</li>
+        
+          <li><a href="trifusion.data.resources.html">trifusion.data.resources package</a> &raquo;</li>
+        
+      <li>trifusion.data.resources.background_tasks module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/trifusion.data.resources.background_tasks.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-trifusion.data.resources.background_tasks">
+<span id="trifusion-data-resources-background-tasks-module"></span><h1>trifusion.data.resources.background_tasks module<a class="headerlink" href="#module-trifusion.data.resources.background_tasks" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-use-background-tasks">
+<h2>How to use background tasks<a class="headerlink" href="#how-to-use-background-tasks" title="Permalink to this headline">¶</a></h2>
+<p>Tasks that are too time consuming to be executed in TriFusion&#8217;s main
+thread are defined here. These functions should be called from TriFusion&#8217;s
+<cite>app</cite> file in a <cite>threading.Thread</cite> object. These functions must rely
+on <cite>multiprocessing.Namespace</cite> or <cite>Queue.Queue</cite> objects to transfer
+data between the worker and main thread.</p>
+<div class="section" id="creation-of-tasks-in-trifusion-app">
+<h3>Creation of tasks in <cite>trifusion.app</cite><a class="headerlink" href="#creation-of-tasks-in-trifusion-app" title="Permalink to this headline">¶</a></h3>
+<p>There is a <cite>run_in_background</cite> method in <cite>trifusion.app</cite> that greatly
+facilitates the execution of a task in a worker thread, and also
+accepts a second function callback that is executed when the worker
+thread is finished. In brief, a worker thread can be initiated like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">background_process</span><span class="p">,</span>
+                     <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">shared_ns</span><span class="p">,</span> <span class="n">args1</span><span class="p">))</span>
+<span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The background task is provided in the <cite>target</cite> argument, and any
+potential arguments in the <cite>args</cite> argument.</p>
+</div>
+<div class="section" id="launching-waiting-dialog">
+<h3>Launching waiting dialog<a class="headerlink" href="#launching-waiting-dialog" title="Permalink to this headline">¶</a></h3>
+<p>While the background task is being executed, a dialog of some sort should
+be created in the main thread and ideally show some progress. Any
+custom dialog can be created, but a general <cite>CrunchData</cite> dialog is already
+created:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">content</span> <span class="o">=</span> <span class="n">CrunchData</span><span class="p">()</span>
+<span class="c1"># Add a custom message</span>
+<span class="n">content</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">msg</span>
+<span class="c1"># Create popup with waiting dialog</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">show_popup</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">separator_color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">border_color</span><span class="o">=</span><span class="n">tm</span><span class="o">.</span><span class="n">c_popup_border</span><span class="p">,</span>
+                <span class="n">auto_dissmiss</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="schedule-function-that-checks-the-worker-thread-s-pulse">
+<h3>Schedule function that checks the worker thread&#8217;s pulse<a class="headerlink" href="#schedule-function-that-checks-the-worker-thread-s-pulse" title="Permalink to this headline">¶</a></h3>
+<p>In order to check the pulse of the worker thread and/or receive information
+from it while it&#8217;s busy, a function can be scheduled to be called at
+regular intervals using kivy&#8217;s <cite>Clock</cite> object:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Schedule function that checks the process&#39; pulse</span>
+<span class="n">check_func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">check_process_status</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">shared_ns</span><span class="p">)</span>
+<span class="n">Clock</span><span class="o">.</span><span class="n">schedule_interval</span><span class="p">(</span><span class="n">check_func</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>check_process_status</cite> function may execute anything, like checking
+the <cite>Namespace</cite> or <cite>Queue</cite> objects of the worker thread to update the
+progress. The most important thing, however, is to check if the worker
+thread is alive, and if not, unschedule itself, close the waiting popup,
+join the thread, close any connections and relevant objects:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_process_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">shared_ns</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+        <span class="n">Clock</span><span class="o">.</span><span class="n">unschedule</span><span class="p">(</span><span class="n">check_func</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dismiss_popup</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Whenever possible, it&#8217;s desirable to add a kill switch to the
+<cite>check_process_status</cite> function, which changes the <cite>Namespace.stop</cite> attribute
+to True, signaling the worker thread to stop:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_process_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">shared_ns</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminate_background</span><span class="p">:</span>
+        <span class="n">shared_ns</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dismiss_popup</span><span class="p">()</span>
+        <span class="n">Clock</span><span class="o">.</span><span class="n">unschedule</span><span class="p">(</span><span class="n">check_func</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.background_export_groups">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">background_export_groups</code><span class="sig-paren">(</span><em>f</em>, <em>nm</em>, <em>a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#background_export_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.background_export_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specific callback for exporting Orthology groups.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f</strong> : function</p>
+<blockquote>
+<div><p>Callback function.</p>
+</div></blockquote>
+<p><strong>nm</strong> : multiprocessing.Namespace</p>
+<blockquote>
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+<p><strong>a</strong> : list</p>
+<blockquote class="last">
+<div><p>List of arguments provided to the <cite>f</cite> function.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.background_process">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">background_process</code><span class="sig-paren">(</span><em>f</em>, <em>ns</em>, <em>a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#background_process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.background_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>General execution of a background process.</p>
+<p>Allows a generic function to be executed in the background with
+or without arguments, provided via the <cite>a</cite> argument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f</strong> : function</p>
+<blockquote>
+<div><p>Callback function.</p>
+</div></blockquote>
+<p><strong>ns</strong> : multiprocessing.Namespace</p>
+<blockquote>
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+<p><strong>a</strong> : list</p>
+<blockquote class="last">
+<div><p>List of arguments provided to the <cite>f</cite> function. Can be None.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.get_active_group">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">get_active_group</code><span class="sig-paren">(</span><em>ortho_groups</em>, <em>old_active_group</em>, <em>active_group_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#get_active_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.get_active_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Task that retrieves the active <cite>GroupLight</cite> object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ortho_groups</strong> : trifusion.ortho.OrthomclToolbox.MultiGroupsLight</p>
+<blockquote>
+<div><p><cite>MultiGroupsList</cite> object.</p>
+</div></blockquote>
+<p><strong>old_active_group</strong> : str</p>
+<blockquote>
+<div><p>Previous active <cite>GroupLight</cite> object.</p>
+</div></blockquote>
+<p><strong>active_group_name :</strong></p>
+<blockquote>
+<div><p>Name of the <cite>GroupLight</cite> object that will be active.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>active_group</strong> : trifusion.ortho.OrthomclToolbox.GroupLight</p>
+<blockquote class="last">
+<div><p><cite>GroupLight</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.get_orto_data">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">get_orto_data</code><span class="sig-paren">(</span><em>active_group</em>, <em>plt_idx</em>, <em>filt</em>, <em>exclude_taxa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#get_orto_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.get_orto_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates plot data for orthology</p>
+<p>Given a GroupLight object, this function will execute the method that
+corresponds to plt_idx to generate data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>active_group</strong> : trifusion.ortho.OrthomclToolbox.GroupLight</p>
+<blockquote>
+<div><p><cite>GroupLight</cite> object.</p>
+</div></blockquote>
+<p><strong>plt_idx</strong> : str</p>
+<blockquote>
+<div><p>Identifier of the plot type that must have a correspondence in
+the method dictionary below.</p>
+</div></blockquote>
+<p><strong>filt</strong> : list</p>
+<blockquote>
+<div><p>List with orthology filters.</p>
+</div></blockquote>
+<p><strong>exclude_ taxa</strong> : list</p>
+<blockquote class="last">
+<div><p>List of taxa to be excluded.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.get_stats_data">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">get_stats_data</code><span class="sig-paren">(</span><em>aln_obj</em>, <em>stats_idx</em>, <em>active_file_set</em>, <em>active_taxa_set</em>, <em>additional_args</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#get_stats_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.get_stats_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Task that retrieves the plot data from <cite>AlignmentList</cite> plot methods</p>
+<p>Given an aln_obj, this function will execute the according method to
+generate plot data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>aln_obj</strong> : <cite>trifusion.process.sequence.AlignmentList</cite></p>
+<blockquote>
+<div><p>AlignmentList object.</p>
+</div></blockquote>
+<p><strong>stats_idx</strong> : str</p>
+<blockquote>
+<div><p>Identifier of the method type that must have a correspondence in
+the <cite>methods</cite> dictionary below.</p>
+</div></blockquote>
+<p><strong>active_filte_set</strong> : str</p>
+<blockquote>
+<div><p>Name of the active file set.</p>
+</div></blockquote>
+<p><strong>active_taxa_set</strong> : str</p>
+<blockquote>
+<div><p>Name of the active taxa set.</p>
+</div></blockquote>
+<p><strong>additional_args</strong> : dict</p>
+<blockquote>
+<div><p>Dictionary with keyword arguments that can be provided when the
+plot data method is called.</p>
+</div></blockquote>
+<p><strong>ns</strong> : multiprocessing.Namespace</p>
+<blockquote class="last">
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.get_stats_summary">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">get_stats_summary</code><span class="sig-paren">(</span><em>dest</em>, <em>aln_list</em>, <em>active_file_set</em>, <em>active_taxa_set</em>, <em>ns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#get_stats_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.get_stats_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Statistic&#8217;s summary statistics.</p>
+<p>Executes the <cite>get_summary_stats</cite> method in the background and writes
+the output in pickle files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dest</strong> : str</p>
+<blockquote>
+<div><p>Path to directory where the pickle objects with the results will
+be created.</p>
+</div></blockquote>
+<p><strong>aln_list</strong> : trifusion.process.sequence.AlignmentList</p>
+<blockquote>
+<div><p>AlignmentList object.</p>
+</div></blockquote>
+<p><strong>active_file_set</strong> : list</p>
+<blockquote>
+<div><p>List with the active alignments via their <cite>Alignment.name</cite> attribute.</p>
+</div></blockquote>
+<p><strong>active_taxa_set</strong> : list</p>
+<blockquote>
+<div><p>List with the active taxa.</p>
+</div></blockquote>
+<p><strong>ns</strong> : multiprocessing.Namespace</p>
+<blockquote class="last">
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.load_group_files">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">load_group_files</code><span class="sig-paren">(</span><em>group_files</em>, <em>temp_dir</em>, <em>ns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#load_group_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.load_group_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Task that loads orthology group files into TriFusion</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>group_files</strong> : list</p>
+<blockquote>
+<div><p>List of paths to group files.</p>
+</div></blockquote>
+<p><strong>temp_dir</strong> : str</p>
+<blockquote>
+<div><p>Temporary directory where sqlite database will be created.</p>
+</div></blockquote>
+<p><strong>ns</strong> : multiprocessing.Namespace</p>
+<blockquote>
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>og</strong> : trifusion.ortho.OrthomclToolbox.MultiGroupsLight</p>
+<blockquote>
+<div><p><cite>MultiGroupsList</cite> object.</p>
+</div></blockquote>
+<p><strong>og.filters</strong> : list</p>
+<blockquote class="last">
+<div><p>List of filters for the <cite>MultiGroupsList</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.load_proc">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">load_proc</code><span class="sig-paren">(</span><em>aln_list</em>, <em>file_list</em>, <em>nm</em>, <em>queue</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#load_proc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.load_proc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Task that loads alignment files into TriFusion.</p>
+<p>Loads alignment files provided via the <cite>file_list</cite> argument into the
+<cite>AlignmentList</cite> object provided via <cite>aln_list</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>aln_list</strong> : trifusion.process.sequence.AlignmentList</p>
+<blockquote>
+<div><p>AlignmentList object.</p>
+</div></blockquote>
+<p><strong>file_list</strong> : list</p>
+<blockquote>
+<div><p>List of paths to alignment files.</p>
+</div></blockquote>
+<p><strong>nm</strong> : multiprocessing.Namespace</p>
+<blockquote>
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+<p><strong>queue :Queue.Queue</strong></p>
+<blockquote class="last">
+<div><p>Queue object used to transfer the AlignmentList to the main thread.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.orto_execution">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">orto_execution</code><span class="sig-paren">(</span><em>nm</em>, <em>temp_dir</em>, <em>proteome_files</em>, <em>protein_min_len</em>, <em>protein_max_stop</em>, <em>usearch_file</em>, <em>usearch_evalue</em>, <em>usearch_threads</em>, <em>usearch_output</em>, <em>mcl_file</em>, <em>mcl_inflation</em>, <em>ortholog_prefix</em>, <em>group_prefix</em>, <em>orto_max_gene</em>, <em>orto_min_sp</em>, <em>sqldb</em>, <em>ortho_dir</em>, <em>usearch_db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#orto_execution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.orto_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execution of the orthology search pipeline.</p>
+<p>Executes all pipeline subprocesses sequentially and updates the
+Progess dialog label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nm</strong> : multiprocessing.Namespace</p>
+<blockquote>
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+<p><strong>temp_dir</strong> : str</p>
+<blockquote>
+<div><p>Path to TriFusion&#8217;s temporary directory.</p>
+</div></blockquote>
+<p><strong>proteome_files</strong> : list</p>
+<blockquote>
+<div><p>List of pahts to proteome files.</p>
+</div></blockquote>
+<p><strong>protein_min_len</strong> : int</p>
+<blockquote>
+<div><p>Minimum lenght of protein sequences.</p>
+</div></blockquote>
+<p><strong>protein_max_stop</strong> : int</p>
+<blockquote>
+<div><p>Maximum percentage of stop codons allowed.</p>
+</div></blockquote>
+<p><strong>usearch_file</strong> : str</p>
+<blockquote>
+<div><p>Path to usearch executbale.</p>
+</div></blockquote>
+<p><strong>usearch_evalue: int or float</strong></p>
+<blockquote>
+<div><p>Evalue for usearch execution.</p>
+</div></blockquote>
+<p><strong>usearch_threads</strong> : int</p>
+<blockquote>
+<div><p>Number of threads used by usearch execution.</p>
+</div></blockquote>
+<p><strong>usearch_output</strong> : str</p>
+<blockquote>
+<div><p>Name of usearch&#8217;s output file.</p>
+</div></blockquote>
+<p><strong>mcl_file</strong> : str</p>
+<blockquote>
+<div><p>Path to the mcl executable.</p>
+</div></blockquote>
+<p><strong>mcl_inflation</strong> : list</p>
+<blockquote>
+<div><p>List of inflation values (int) to perform at the end of the orthology
+search.</p>
+</div></blockquote>
+<p><strong>ortholog_prefix</strong> : str</p>
+<blockquote>
+<div><p>Prefix for the name of the orthologs.</p>
+</div></blockquote>
+<p><strong>group_prefix</strong> : str</p>
+<blockquote>
+<div><p>Prefix for the name of the group files.</p>
+</div></blockquote>
+<p><strong>orto_max_gene</strong> : int</p>
+<blockquote>
+<div><p>Maximum number of gene copies allowed when filtering the search
+results.</p>
+</div></blockquote>
+<p><strong>orto_min_sp</strong> : int</p>
+<blockquote>
+<div><p>Minimum number of taxa representation when filtering the search
+results.</p>
+</div></blockquote>
+<p><strong>sqldb</strong> : str</p>
+<blockquote>
+<div><p>Path to the sqlite database.</p>
+</div></blockquote>
+<p><strong>ortho_dir</strong> : str</p>
+<blockquote>
+<div><p>Path to the directory where the results will be generated.</p>
+</div></blockquote>
+<p><strong>usearch_db</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of the file used as database for usearch.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.orto_update_filters">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">orto_update_filters</code><span class="sig-paren">(</span><em>ortho_groups</em>, <em>gn_filter</em>, <em>sp_filter</em>, <em>excluded_taxa</em>, <em>group_names=None</em>, <em>default=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#orto_update_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.orto_update_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Task that updates filters of a <cite>MultiGroupsLight</cite> object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ortho_groups</strong> : trifusion.ortho.OrthomclToolbox.MultiGroupsLight</p>
+<blockquote>
+<div><p><cite>MultiGroupsList</cite> object.</p>
+</div></blockquote>
+<p><strong>gn_filter</strong> : int</p>
+<blockquote>
+<div><p>Filter for maximum gene copies.</p>
+</div></blockquote>
+<p><strong>sp_filter</strong> : int</p>
+<blockquote>
+<div><p>Filter for minimum taxa representation.</p>
+</div></blockquote>
+<p><strong>excluded_taxa</strong> : list</p>
+<blockquote>
+<div><p>List of taxa to be excluded.</p>
+</div></blockquote>
+<p><strong>group_names</strong> : list</p>
+<blockquote>
+<div><p>List with name of group files.</p>
+</div></blockquote>
+<p><strong>default</strong> : bool</p>
+<blockquote>
+<div><p>If True, the default filters will be used.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>orto_groups</strong> :  trifusion.ortho.OrthomclToolbox.MultiGroupsLight</p>
+<blockquote class="last">
+<div><p><cite>MultiGroupsList</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.process_execution">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">process_execution</code><span class="sig-paren">(</span><em>aln_list</em>, <em>file_set_name</em>, <em>file_list</em>, <em>file_groups</em>, <em>filename_map</em>, <em>taxa_set_name</em>, <em>active_taxa_list</em>, <em>ns</em>, <em>taxa_groups</em>, <em>hap_prefix</em>, <em>secondary_operations</em>, <em>secondary_options</em>, <em>missing_filter_settings</em>, <em>taxa_filter_settings</em>, <em>codon_filter_settings</em>, <em>variation_filter_settings</em>, <em>output_file</em>, <em>rev_infile</em>, <em>main_operations</em>, <em>zorro_suffix</em>, <em>partitions_file</em>, <em>output_formats</em>, <em>create_partfile</em>, <em>use_nexus_partitions</em>, <em>use_nexus_models</em>, <em>phylip_truncate_name</em>, <em>output_dir</em>, <em>use_app_partitions</em>, <em>consensus_type</em>, <em>ld_hat</em>, <em>ima2_params</em>, <em>conversion_suffix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#process_execution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.process_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Process execution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>aln_list</strong> : trifusion.process.sequence.AlignmentList</p>
+<blockquote>
+<div><p>AlignmentList object.</p>
+</div></blockquote>
+<p><strong>file_set_name</strong> : str</p>
+<blockquote>
+<div><p>Name of the active file group.</p>
+</div></blockquote>
+<p><strong>file_list</strong> : list</p>
+<blockquote>
+<div><p>List of alignment files loaded into TriFusion.</p>
+</div></blockquote>
+<p><strong>file_groups</strong> : dict</p>
+<blockquote>
+<div><p>Maps the name of custom file groups to a list of alignment files.</p>
+</div></blockquote>
+<p><strong>filename_map</strong> : dict</p>
+<blockquote>
+<div><p>Maps the basename of aligment files to their full path.</p>
+</div></blockquote>
+<p><strong>taxa_set_name</strong> : str</p>
+<blockquote>
+<div><p>Name of the active taxa group.</p>
+</div></blockquote>
+<p><strong>active_taxa_list</strong> : list</p>
+<blockquote>
+<div><p>List of active taxa.</p>
+</div></blockquote>
+<p><strong>ns</strong> : multiprocessing.Namespace</p>
+<blockquote>
+<div><p>Namespace object that allows communication between main and worker
+threads.</p>
+</div></blockquote>
+<p><strong>taxa_groups</strong> : dict</p>
+<blockquote>
+<div><p>Maps the name of custom taxa groups to a list of taxon names.</p>
+</div></blockquote>
+<p><strong>hap_prefix</strong> : str</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.hap_prefix" title="trifusion.app.TriFusionApp.hap_prefix"><code class="xref py py-attr docutils literal"><span class="pre">hap_prefix</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>secondary_operations</strong> : dict</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.secondary_operations" title="trifusion.app.TriFusionApp.secondary_operations"><code class="xref py py-attr docutils literal"><span class="pre">secondary_operations</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>secondary_options</strong> : dict</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.secondary_options" title="trifusion.app.TriFusionApp.secondary_options"><code class="xref py py-attr docutils literal"><span class="pre">secondary_options</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>missing_filter_settings</strong> : list</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.missing_filter_settings" title="trifusion.app.TriFusionApp.missing_filter_settings"><code class="xref py py-attr docutils literal"><span class="pre">missing_filter_settings</span></code></a>
+attribute.</p>
+</div></blockquote>
+<p><strong>taxa_filter_settings</strong> : list</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.taxa_filter_settings" title="trifusion.app.TriFusionApp.taxa_filter_settings"><code class="xref py py-attr docutils literal"><span class="pre">taxa_filter_settings</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>codon_filter_settings: list</strong></p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.codon_filter_settings" title="trifusion.app.TriFusionApp.codon_filter_settings"><code class="xref py py-attr docutils literal"><span class="pre">codon_filter_settings</span></code></a>
+attribute.</p>
+</div></blockquote>
+<p><strong>variation_filter_settings</strong> : list</p>
+<blockquote>
+<div><p>See <code class="xref py py-attr docutils literal"><span class="pre">variation_filter_settings</span></code>
+attribute.</p>
+</div></blockquote>
+<p><strong>output_file</strong> : str</p>
+<blockquote>
+<div><p>Name of the output file.</p>
+</div></blockquote>
+<p><strong>rev_infile</strong> : str</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.rev_infile" title="trifusion.app.TriFusionApp.rev_infile"><code class="xref py py-attr docutils literal"><span class="pre">rev_infile</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>main_operations</strong> : dict</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.main_operations" title="trifusion.app.TriFusionApp.main_operations"><code class="xref py py-attr docutils literal"><span class="pre">main_operations</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>zorro_suffix</strong> : str</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.zorro_suffix" title="trifusion.app.TriFusionApp.zorro_suffix"><code class="xref py py-attr docutils literal"><span class="pre">zorro_suffix</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>partitions_file</strong> : str</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.partitions_file" title="trifusion.app.TriFusionApp.partitions_file"><code class="xref py py-attr docutils literal"><span class="pre">partitions_file</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>output_formats</strong> : list</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.output_formats" title="trifusion.app.TriFusionApp.output_formats"><code class="xref py py-attr docutils literal"><span class="pre">output_formats</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>create_partfile</strong> : bool</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.create_partfile" title="trifusion.app.TriFusionApp.create_partfile"><code class="xref py py-attr docutils literal"><span class="pre">create_partfile</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>use_nexus_partitions</strong> : bool</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.use_nexus_partitions" title="trifusion.app.TriFusionApp.use_nexus_partitions"><code class="xref py py-attr docutils literal"><span class="pre">use_nexus_partitions</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>use_nexus_models</strong> : bool</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.use_nexus_models" title="trifusion.app.TriFusionApp.use_nexus_models"><code class="xref py py-attr docutils literal"><span class="pre">use_nexus_models</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>phylip_truncate_name</strong> : bool</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.phylip_truncate_name" title="trifusion.app.TriFusionApp.phylip_truncate_name"><code class="xref py py-attr docutils literal"><span class="pre">phylip_truncate_name</span></code></a>
+attribute.</p>
+</div></blockquote>
+<p><strong>output_dir</strong> : str</p>
+<blockquote>
+<div><p>Path to directory where the output file(s) will be generated.</p>
+</div></blockquote>
+<p><strong>use_app_partitions</strong> : bool</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.use_app_partitions" title="trifusion.app.TriFusionApp.use_app_partitions"><code class="xref py py-attr docutils literal"><span class="pre">use_app_partitions</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>consensus_type</strong> : str</p>
+<blockquote>
+<div><p>Mode of consensus variation handling.</p>
+</div></blockquote>
+<p><strong>ld_hat</strong> : bool</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.ld_hat" title="trifusion.app.TriFusionApp.ld_hat"><code class="xref py py-attr docutils literal"><span class="pre">ld_hat</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>ima2_params :</strong></p>
+<blockquote>
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.ima2_options" title="trifusion.app.TriFusionApp.ima2_options"><code class="xref py py-attr docutils literal"><span class="pre">ima2_options</span></code></a> attribute.</p>
+</div></blockquote>
+<p><strong>conversion_suffix</strong> : str</p>
+<blockquote class="last">
+<div><p>See <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.conversion_suffix" title="trifusion.app.TriFusionApp.conversion_suffix"><code class="xref py py-attr docutils literal"><span class="pre">conversion_suffix</span></code></a> attribute.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.remove_tmp">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">remove_tmp</code><span class="sig-paren">(</span><em>temp_dir</em>, <em>sql_con</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#remove_tmp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.remove_tmp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes TriFusion&#8217;s temporary directory and closes sqlite connection.</p>
+<p>Removes the temporary directory and all its contents and closes
+the connection to the sqlite database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>temp_dir</strong> : str</p>
+<blockquote>
+<div><p>Path to the temporary directory</p>
+</div></blockquote>
+<p><strong>sql_con</strong> : sqlite3.Connection</p>
+<blockquote class="last">
+<div><p>Sqlite3 connection object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.update_active_fileset">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">update_active_fileset</code><span class="sig-paren">(</span><em>aln_obj</em>, <em>set_name</em>, <em>file_list</em>, <em>file_groups</em>, <em>filename_map</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#update_active_fileset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.update_active_fileset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upates the active files of an <cite>AlignmentList</cite> object</p>
+<p>This method is similar in purpose to
+<cite>AlignmentList.update_active_alignments</cite> but it can convert the set
+name of the active group defined in TriFusion to an actual list
+of files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>aln_obj</strong> : trifusion.process.sequence.AlignmentList</p>
+<blockquote>
+<div><p>AlignmentList object.</p>
+</div></blockquote>
+<p><strong>set_name</strong> : str</p>
+<blockquote>
+<div><p>Name of the active file group.</p>
+</div></blockquote>
+<p><strong>file_list</strong> : list</p>
+<blockquote>
+<div><p>List of alignment files loaded into TriFusion.</p>
+</div></blockquote>
+<p><strong>file_groups</strong> : dict</p>
+<blockquote>
+<div><p>Maps the name of custom file groups to a list of alignment files.</p>
+</div></blockquote>
+<p><strong>filename_map</strong> : dict</p>
+<blockquote class="last">
+<div><p>Maps the basename of aligment files to their full path.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="trifusion.data.resources.background_tasks.update_active_taxaset">
+<code class="descclassname">trifusion.data.resources.background_tasks.</code><code class="descname">update_active_taxaset</code><span class="sig-paren">(</span><em>aln_obj</em>, <em>set_name</em>, <em>active_taxa_list</em>, <em>taxa_groups</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/data/resources/background_tasks.html#update_active_taxaset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.data.resources.background_tasks.update_active_taxaset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upates the active taxa of an <cite>AlignmentList</cite> object</p>
+<p>This method is similar in purpose to
+<cite>AlignmentList.update_taxa_names</cite> but it can convert the set
+name of the active group defined in TriFusion to an actual list
+of taxa.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>aln_obj</strong> : trifusion.process.sequence.AlignmentList</p>
+<blockquote>
+<div><p>AlignmentList object.</p>
+</div></blockquote>
+<p><strong>set_name</strong> : str</p>
+<blockquote>
+<div><p>Name of the active taxa group.</p>
+</div></blockquote>
+<p><strong>active_taxa_list</strong> : list</p>
+<blockquote>
+<div><p>List of active taxa.</p>
+</div></blockquote>
+<p><strong>taxa_groups</strong> : dict</p>
+<blockquote class="last">
+<div><p>Maps the name of custom taxa groups to a list of taxon names.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="trifusion.data.resources.custom_widgets.html" class="btn btn-neutral float-right" title="trifusion.data.resources.custom_widgets module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="trifusion.data.resources.html" class="btn btn-neutral" title="trifusion.data.resources package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

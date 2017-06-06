@@ -1,0 +1,7 @@
+trifusion\.orthomcl\_pipeline module
+====================================
+
+.. automodule:: trifusion.orthomcl_pipeline
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+trifusion\.TriFusion module
+===========================
+
+.. automodule:: trifusion.TriFusion
+    :members:
+    :undoc-members:
+    :show-inheritance:

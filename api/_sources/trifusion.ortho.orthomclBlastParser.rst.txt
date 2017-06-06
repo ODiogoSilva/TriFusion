@@ -1,0 +1,7 @@
+trifusion\.ortho\.orthomclBlastParser module
+============================================
+
+.. automodule:: trifusion.ortho.orthomclBlastParser
+    :members:
+    :undoc-members:
+    :show-inheritance:

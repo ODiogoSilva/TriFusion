@@ -1,0 +1,685 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.ortho.orthomclPairs &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../trifusion.html">TriFusion modules and API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>trifusion.ortho.orthomclPairs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for trifusion.ortho.orthomclPairs</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python2</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">sqlite3</span> <span class="k">as</span> <span class="nn">lite</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">trifusion.process.error_handling</span> <span class="k">import</span> <span class="n">KillByUser</span>
+
+
+<span class="sd">&quot;&quot;&quot;my @steps = ( # Common</span>
+<span class="sd">       [&#39;updateMinimumEvalueExponent&#39;],</span>
+<span class="sd">       [&#39;bestQueryTaxonScore&#39;],</span>
+<span class="sd">       [&#39;qtscore_ix&#39;],</span>
+
+<span class="sd">       # Ortholog</span>
+<span class="sd">       [&#39;bestHit&#39;],</span>
+<span class="sd">       [&#39;best_hit_ix&#39;],</span>
+<span class="sd">       [&#39;ortholog&#39;, [&quot;drop table BestHit&quot;]],</span>
+<span class="sd">       [&#39;orthologTaxon&#39;],</span>
+<span class="sd">       [&#39;orthologAvg&#39;],</span>
+<span class="sd">       [&#39;orthologAvgIndex&#39;],</span>
+<span class="sd">       [&#39;orthologsNormalization&#39;, [&quot;drop table OrthologAvgScore&quot;, &quot;drop table OrthologTaxon&quot;, &quot;drop table OrthologTemp&quot;]],</span>
+
+<span class="sd">       # InParalog</span>
+<span class="sd">       [&#39;bestInterTaxonScore&#39;, [&quot;drop table BestQueryTaxonScore&quot;]],</span>
+<span class="sd">       [&#39;bis_uids_ix&#39;],</span>
+<span class="sd">       [&#39;uniqueSimSeqsQueryId&#39;],</span>
+<span class="sd">       [&#39;ust_qids_ix&#39;],</span>
+<span class="sd">       [&#39;betterHit&#39;, [&quot;drop table BestInterTaxonScore&quot;, &quot;drop table UniqSimSeqsQueryId&quot;]],</span>
+<span class="sd">       [&#39;better_hit_ix&#39;],</span>
+<span class="sd">       [&#39;inParalog&#39;, [&quot;drop table BetterHit&quot;]],</span>
+<span class="sd">       [&#39;inParalogTaxonAvg&#39;],</span>
+<span class="sd">       [&#39;orthologUniqueId&#39;],</span>
+<span class="sd">       [&#39;orthologUniqueIdIndex&#39;],</span>
+<span class="sd">       [&#39;inplgOrthTaxonAvg&#39;, [&quot;drop table OrthologUniqueId&quot;]],</span>
+<span class="sd">       [&#39;inParalogAvg&#39;,[&quot;drop table InParalogTaxonAvg&quot;, &quot;drop table InplgOrthTaxonAvg&quot;]],</span>
+<span class="sd">       [&#39;inParalogAvgIndex&#39;],</span>
+<span class="sd">       [&#39;inParalogsNormalization&#39;, [&quot;drop table InParalogAvgScore&quot;, &quot;drop table InParalogTemp&quot;]],</span>
+
+<span class="sd">       # CoOrtholog</span>
+<span class="sd">       [&#39;inParalog2Way&#39;],</span>
+<span class="sd">       [&#39;in2a_ix&#39;],</span>
+<span class="sd">       [&#39;in2b_ix&#39;],</span>
+<span class="sd">       [&#39;ortholog2Way&#39;],</span>
+<span class="sd">       [&#39;ortholog2WayIndex&#39;],</span>
+<span class="sd">       [&#39;inplgOrthoInplg&#39;],</span>
+<span class="sd">       [&#39;inParalogOrtholog&#39;],</span>
+<span class="sd">       [&#39;coOrthologCandidate&#39;, [&quot;drop table Ortholog2Way&quot;, &quot;drop table InParalog2Way&quot;, &quot;drop table InplgOrthoInplg&quot;, &quot;drop table InParalogOrtholog&quot;]],</span>
+<span class="sd">       [&#39;coOrthologNotOrtholog&#39;, [&quot;drop table CoOrthologCandidate&quot;]],</span>
+<span class="sd">       [&#39;coOrthologNotOrthologIndex&#39;],</span>
+<span class="sd">       [&#39;coOrtholog&#39;, [&quot;drop table CoOrthNotOrtholog&quot;]],</span>
+<span class="sd">       [&#39;coOrthologTaxon&#39;],</span>
+<span class="sd">       [&#39;coOrthologAvg&#39;],</span>
+<span class="sd">       [&#39;coOrthologAvgIndex&#39;],</span>
+<span class="sd">       [&#39;coOrthologsNormalization&#39;, [&quot;drop table CoOrthologAvgScore&quot;, &quot;drop table CoOrthologTaxon&quot;, &quot;drop table CoOrthologTemp&quot;]],</span>
+<span class="sd">       [&#39;cleanall&#39;, [&quot;truncate table InParalog&quot;, &quot;truncate table Ortholog&quot;, &quot;truncate table CoOrtholog&quot;]],</span>
+<span class="sd">      );</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">################################################################################</span>
+<span class="c1">############################### Auxiliar    #################################</span>
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="orthologTaxonSub"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.orthologTaxonSub">[docs]</a><span class="k">def</span> <span class="nf">orthologTaxonSub</span> <span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">co</span><span class="p">):</span>
+
+    <span class="c1">#assuming in perl a var is true if not &quot;&quot;</span>
+    <span class="n">coCaps</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">co</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="s2">&quot;Co&quot;</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">coCaps</span> <span class="o">+</span> <span class="s1">&#39;OrthologTaxon&#39;</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">coCaps</span> <span class="o">+</span> <span class="s1">&#39;OrthologTemp&#39;</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table </span><span class="si">%s</span><span class="s2"> as</span><span class="se">\</span>
+<span class="s2">        select case</span><span class="se">\</span>
+<span class="s2">        when taxon_id_a &lt; taxon_id_b</span><span class="se">\</span>
+<span class="s2">        then taxon_id_a</span><span class="se">\</span>
+<span class="s2">        else taxon_id_b</span><span class="se">\</span>
+<span class="s2">        end as smaller_tax_id,</span><span class="se">\</span>
+<span class="s2">        case</span><span class="se">\</span>
+<span class="s2">        when taxon_id_a &lt; taxon_id_b</span><span class="se">\</span>
+<span class="s2">        then taxon_id_b</span><span class="se">\</span>
+<span class="s2">        else taxon_id_a</span><span class="se">\</span>
+<span class="s2">        end as bigger_tax_id,</span><span class="se">\</span>
+<span class="s2">        unnormalized_score</span><span class="se">\</span>
+<span class="s2">        from </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">))</span></div>
+
+<span class="c1">#from (?) &quot;, (coCaps + &#39;OrthologTaxon&#39;, coCaps + &#39;OrthologTemp&#39;))</span>
+
+<div class="viewcode-block" id="normalizeOrthologsSub"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.normalizeOrthologsSub">[docs]</a><span class="k">def</span> <span class="nf">normalizeOrthologsSub</span> <span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">co</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+
+    <span class="c1">#assuming in perl a var is true if not &quot;&quot;</span>
+    <span class="n">coCaps</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">co</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="s2">&quot;Co&quot;</span>
+    <span class="n">co</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span> <span class="k">if</span> <span class="n">co</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="s2">&quot;coO&quot;</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">coCaps</span> <span class="o">+</span> <span class="s1">&#39;OrthologAvgScore&#39;</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">coCaps</span> <span class="o">+</span> <span class="s1">&#39;OrthologTaxon&#39;</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table </span><span class="si">%s</span><span class="s2"> as</span><span class="se">\</span>
+<span class="s2">        select smaller_tax_id, bigger_tax_id, avg(unnormalized_score) avg_score</span><span class="se">\</span>
+<span class="s2">        from </span><span class="si">%s</span><span class="se">\</span>
+<span class="s2">        group by smaller_tax_id, bigger_tax_id&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">))</span>
+
+<span class="c1">################################################################</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">co</span><span class="o">+</span><span class="s1">&#39;orthoAvg_ix&#39;</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">coCaps</span><span class="o">+</span><span class="s1">&#39;OrthologAvgScore&#39;</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s</span><span class="s2">(smaller_tax_id,bigger_tax_id,avg_score)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">))</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">coCaps</span> <span class="o">+</span> <span class="s1">&#39;OrthologTemp&#39;</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">coCaps</span> <span class="o">+</span> <span class="s1">&#39;OrthologAvgScore&#39;</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;insert into </span><span class="si">%s</span><span class="s2"> (sequence_id_a, sequence_id_b, taxon_id_a, taxon_id_b, unnormalized_score, normalized_score)</span><span class="se">\</span>
+<span class="s2">        select ot.sequence_id_a, ot.sequence_id_b, ot.taxon_id_a, ot.taxon_id_b, ot.unnormalized_score, ot.unnormalized_score/a.avg_score</span><span class="se">\</span>
+<span class="s2">        from </span><span class="si">%s</span><span class="s2"> ot, </span><span class="si">%s</span><span class="s2"> a</span><span class="se">\</span>
+<span class="s2">        where min(ot.taxon_id_a, ot.taxon_id_b) = a.smaller_tax_id</span><span class="se">\</span>
+<span class="s2">        and max(ot.taxon_id_a, ot.taxon_id_b) = a.bigger_tax_id&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">))</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">############################### Common tables #################################</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="commonTempTables"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.commonTempTables">[docs]</a><span class="k">def</span> <span class="nf">commonTempTables</span> <span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;select min(evalue_exp)</span><span class="se">\</span>
+<span class="s2">        from SimilarSequences</span><span class="se">\</span>
+<span class="s2">        where evalue_mant != 0&quot;</span><span class="p">)</span>
+
+    <span class="n">tup</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+    <span class="n">minEvalueExp</span> <span class="o">=</span> <span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;update SimilarSequences</span><span class="se">\</span>
+<span class="s2">        set evalue_exp = ?</span><span class="se">\</span>
+<span class="s2">        where evalue_exp = 0 and evalue_mant = 0&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">minEvalueExp</span><span class="p">,))</span>
+
+<span class="c1">##########################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table BestQueryTaxonScore as</span><span class="se">\</span>
+<span class="s2">        select im.query_id as query_id, im.subject_taxon_id as subject_taxon_id, low_exp.evalue_exp as evalue_exp, min(im.evalue_mant) as evalue_mant</span><span class="se">\</span>
+<span class="s2">        from InterTaxonMatch im,</span><span class="se">\</span>
+<span class="s2">        (select query_id, subject_taxon_id, min(evalue_exp) as evalue_exp</span><span class="se">\</span>
+<span class="s2">        from InterTaxonMatch</span><span class="se">\</span>
+<span class="s2">        group by query_id, subject_taxon_id) low_exp</span><span class="se">\</span>
+<span class="s2">        where im.query_id = low_exp.query_id</span><span class="se">\</span>
+<span class="s2">        and im.subject_taxon_id = low_exp.subject_taxon_id</span><span class="se">\</span>
+<span class="s2">        and im.evalue_exp = low_exp.evalue_exp</span><span class="se">\</span>
+<span class="s2">        group by im.query_id, im.subject_taxon_id, low_exp.evalue_exp&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index qtscore_ix on BestQueryTaxonScore(query_id, subject_taxon_id, evalue_exp, evalue_mant)&quot;</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1">############################### Orthologs #####################################</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="orthologs"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.orthologs">[docs]</a><span class="k">def</span> <span class="nf">orthologs</span><span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table BestHit as</span><span class="se">\</span>
+<span class="s2">        select s.query_id, s.subject_id,</span><span class="se">\</span>
+<span class="s2">        s.query_taxon_id, s.subject_taxon_id,</span><span class="se">\</span>
+<span class="s2">        s.evalue_exp, s.evalue_mant</span><span class="se">\</span>
+<span class="s2">        from SimilarSequences s, BestQueryTaxonScore cutoff</span><span class="se">\</span>
+<span class="s2">        where s.query_id = cutoff.query_id</span><span class="se">\</span>
+<span class="s2">        and s.subject_taxon_id = cutoff.subject_taxon_id</span><span class="se">\</span>
+<span class="s2">        and s.query_taxon_id != s.subject_taxon_id</span><span class="se">\</span>
+<span class="s2">        and s.evalue_exp &lt;= -5</span><span class="se">\</span>
+<span class="s2">        and s.percent_match &gt;= 50</span><span class="se">\</span>
+<span class="s2">        and (s.evalue_mant &lt; 0.01</span><span class="se">\</span>
+<span class="s2">        or s.evalue_exp = cutoff.evalue_exp</span><span class="se">\</span>
+<span class="s2">        and s.evalue_mant = cutoff.evalue_mant)&quot;</span><span class="p">)</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index best_hit_ix on BestHit(query_id,subject_id)&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table OrthologTemp as</span><span class="se">\</span>
+<span class="s2">        select bh1.query_id as sequence_id_a, bh1.subject_id as sequence_id_b,</span><span class="se">\</span>
+<span class="s2">        bh1.query_taxon_id as taxon_id_a, bh1.subject_taxon_id as taxon_id_b,</span><span class="se">\</span>
+<span class="s2">        case</span><span class="se">\</span>
+<span class="s2">        when bh1.evalue_mant &lt; 0.01 or bh2.evalue_mant &lt; 0.01</span><span class="se">\</span>
+<span class="s2">        then (bh1.evalue_exp + bh2.evalue_exp) / -2</span><span class="se">\</span>
+<span class="s2">        else</span><span class="se">\</span>
+<span class="s2">        (log(bh1.evalue_mant * bh2.evalue_mant)</span><span class="se">\</span>
+<span class="s2">        + bh1.evalue_exp + bh2.evalue_exp) / -2</span><span class="se">\</span>
+<span class="s2">        end as unnormalized_score</span><span class="se">\</span>
+<span class="s2">        from BestHit bh1, BestHit bh2</span><span class="se">\</span>
+<span class="s2">        where bh1.query_id &lt; bh1.subject_id</span><span class="se">\</span>
+<span class="s2">        and bh1.query_id = bh2.subject_id</span><span class="se">\</span>
+<span class="s2">        and bh1.subject_id = bh2.query_id&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">orthologTaxonSub</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">normalizeOrthologsSub</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s2">&quot;Ortholog&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">############################### InParalogs ####################################</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="inparalogs"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.inparalogs">[docs]</a><span class="k">def</span> <span class="nf">inparalogs</span> <span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table BestInterTaxonScore as</span><span class="se">\</span>
+<span class="s2">        select im.query_id as query_id, low_exp.evalue_exp as evalue_exp, min(im.evalue_mant) as evalue_mant</span><span class="se">\</span>
+<span class="s2">        from BestQueryTaxonScore im,</span><span class="se">\</span>
+<span class="s2">        (select query_id, min(evalue_exp) as evalue_exp</span><span class="se">\</span>
+<span class="s2">        from BestQueryTaxonScore</span><span class="se">\</span>
+<span class="s2">        group by query_id) low_exp</span><span class="se">\</span>
+<span class="s2">        where im.query_id = low_exp.query_id</span><span class="se">\</span>
+<span class="s2">        and im.evalue_exp = low_exp.evalue_exp</span><span class="se">\</span>
+<span class="s2">        group by im.query_id, low_exp.evalue_exp&quot;</span><span class="p">)</span>
+
+<span class="c1">###########################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index bis_uids_ix on BestInterTaxonScore(query_id)&quot;</span><span class="p">)</span>
+
+<span class="c1">###########################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table UniqSimSeqsQueryId as</span><span class="se">\</span>
+<span class="s2">        select distinct s.query_id from SimilarSequences s&quot;</span><span class="p">)</span>
+
+<span class="c1">###########################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index ust_qids_ix on UniqSimSeqsQueryId (query_id)&quot;</span><span class="p">)</span>
+
+<span class="c1">###########################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;CREATE TABLE BetterHit as</span><span class="se">\</span>
+<span class="s2">        select s.query_id, s.subject_id,</span><span class="se">\</span>
+<span class="s2">        s.query_taxon_id as taxon_id,</span><span class="se">\</span>
+<span class="s2">        s.evalue_exp, s.evalue_mant</span><span class="se">\</span>
+<span class="s2">        from SimilarSequences s, BestInterTaxonScore bis</span><span class="se">\</span>
+<span class="s2">        where s.query_id != s.subject_id </span><span class="se">\</span>
+<span class="s2">        and s.query_taxon_id = s.subject_taxon_id</span><span class="se">\</span>
+<span class="s2">        and s.query_id = bis.query_id</span><span class="se">\</span>
+<span class="s2">        and s.evalue_exp &lt;= -5</span><span class="se">\</span>
+<span class="s2">        and s.percent_match &gt;= 50</span><span class="se">\</span>
+<span class="s2">        and (s.evalue_mant &lt; 0.001</span><span class="se">\</span>
+<span class="s2">        or s.evalue_exp &lt; bis.evalue_exp</span><span class="se">\</span>
+<span class="s2">        or (s.evalue_exp = bis.evalue_exp and s.evalue_mant &lt;= bis.evalue_mant))</span><span class="se">\</span>
+<span class="s2">        union</span><span class="se">\</span>
+<span class="s2">        select s.query_id, s.subject_id, s.query_taxon_id as taxon_id, s.evalue_exp, s.evalue_mant</span><span class="se">\</span>
+<span class="s2">        from SimilarSequences s</span><span class="se">\</span>
+<span class="s2">        where s.query_taxon_id = s.subject_taxon_id </span><span class="se">\</span>
+<span class="s2">        and s.evalue_exp &lt;= -5</span><span class="se">\</span>
+<span class="s2">        and s.percent_match &gt;= 50</span><span class="se">\</span>
+<span class="s2">        and s.query_id in </span><span class="se">\</span>
+<span class="s2">        (SELECT distinct ust.query_id</span><span class="se">\</span>
+<span class="s2">        from UniqSimSeqsQueryId ust</span><span class="se">\</span>
+<span class="s2">        LEFT OUTER JOIN BestInterTaxonScore bis ON bis.query_id = ust.query_id</span><span class="se">\</span>
+<span class="s2">        WHERE bis.query_id IS NULL)&quot;</span><span class="p">)</span>
+
+<span class="c1">###########################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create index better_hit_ix on BetterHit (query_id,subject_id)&quot;</span><span class="p">)</span>
+
+<span class="c1">###########################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table InParalogTemp as</span><span class="se">\</span>
+<span class="s2">        select bh1.query_id as sequence_id_a, bh1.subject_id as sequence_id_b,</span><span class="se">\</span>
+<span class="s2">        bh1.taxon_id,</span><span class="se">\</span>
+<span class="s2">        case</span><span class="se">\</span>
+<span class="s2">        when bh1.evalue_mant &lt; 0.01 or bh2.evalue_mant &lt; 0.01</span><span class="se">\</span>
+<span class="s2">        then (bh1.evalue_exp + bh2.evalue_exp) / -2</span><span class="se">\</span>
+<span class="s2">        else</span><span class="se">\</span>
+<span class="s2">        (log(bh1.evalue_mant * bh2.evalue_mant)</span><span class="se">\</span>
+<span class="s2">        + bh1.evalue_exp + bh2.evalue_exp) / -2</span><span class="se">\</span>
+<span class="s2">        end as unnormalized_score</span><span class="se">\</span>
+<span class="s2">        from BetterHit bh1, BetterHit bh2</span><span class="se">\</span>
+<span class="s2">        where bh1.query_id &lt; bh1.subject_id</span><span class="se">\</span>
+<span class="s2">        and bh1.query_id = bh2.subject_id</span><span class="se">\</span>
+<span class="s2">        and bh1.subject_id = bh2.query_id&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table InParalogTaxonAvg as</span><span class="se">\</span>
+<span class="s2">        select avg(i.unnormalized_score) average, i.taxon_id as taxon_id</span><span class="se">\</span>
+<span class="s2">        from InParalogTemp i</span><span class="se">\</span>
+<span class="s2">        group by i.taxon_id&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table OrthologUniqueId as</span><span class="se">\</span>
+<span class="s2">        select distinct(sequence_id) from (</span><span class="se">\</span>
+<span class="s2">        select sequence_id_a as sequence_id from Ortholog</span><span class="se">\</span>
+<span class="s2">        union</span><span class="se">\</span>
+<span class="s2">        select sequence_id_b as sequence_id from Ortholog) i&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index ortho_uniq_id_ix on OrthologUniqueId (sequence_id)&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot; create table InplgOrthTaxonAvg as</span><span class="se">\</span>
+<span class="s2">        select avg(i.unnormalized_score) average, i.taxon_id as taxon_id</span><span class="se">\</span>
+<span class="s2">        from InParalogTemp i</span><span class="se">\</span>
+<span class="s2">        where i.sequence_id_a in</span><span class="se">\</span>
+<span class="s2">        (select sequence_id from OrthologUniqueId)</span><span class="se">\</span>
+<span class="s2">        or i.sequence_id_b in</span><span class="se">\</span>
+<span class="s2">        (select sequence_id from OrthologUniqueId)</span><span class="se">\</span>
+<span class="s2">        group by i.taxon_id&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table InParalogAvgScore as</span><span class="se">\</span>
+<span class="s2">        select case</span><span class="se">\</span>
+<span class="s2">        when orth_i.average is NULL</span><span class="se">\</span>
+<span class="s2">        then all_i.average</span><span class="se">\</span>
+<span class="s2">        else orth_i.average</span><span class="se">\</span>
+<span class="s2">        end as avg_score,</span><span class="se">\</span>
+<span class="s2">        all_i.taxon_id</span><span class="se">\</span>
+<span class="s2">        from InParalogTaxonAvg all_i LEFT OUTER JOIN InplgOrthTaxonAvg orth_i</span><span class="se">\</span>
+<span class="s2">        ON all_i.taxon_id = orth_i.taxon_id&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index inparalog_avg_ix on InParalogAvgScore(taxon_id,avg_score)&quot;</span><span class="p">)</span>
+
+<span class="c1">################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot; insert into InParalog(sequence_id_a, sequence_id_b, taxon_id, unnormalized_score, normalized_score)</span><span class="se">\</span>
+<span class="s2">        select it.sequence_id_a, it.sequence_id_b, it.taxon_id, it.unnormalized_score, it.unnormalized_score/a.avg_score</span><span class="se">\</span>
+<span class="s2">        from InParalogTemp it, InParalogAvgScore a</span><span class="se">\</span>
+<span class="s2">        where it.taxon_id = a.taxon_id&quot;</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1">############################### CoOrthologs ###################################</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="coorthologs"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.coorthologs">[docs]</a><span class="k">def</span> <span class="nf">coorthologs</span> <span class="p">(</span><span class="n">cur</span><span class="p">):</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table InParalog2Way as</span><span class="se">\</span>
+<span class="s2">        select sequence_id_a, sequence_id_b from InParalog</span><span class="se">\</span>
+<span class="s2">        union</span><span class="se">\</span>
+<span class="s2">        select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from InParalog&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index in2a_ix on InParalog2Way(sequence_id_a, sequence_id_b)&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index in2b_ix on InParalog2Way(sequence_id_b, sequence_id_a)&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table Ortholog2Way as</span><span class="se">\</span>
+<span class="s2">        select sequence_id_a, sequence_id_b from Ortholog</span><span class="se">\</span>
+<span class="s2">        union</span><span class="se">\</span>
+<span class="s2">        select sequence_id_b as sequence_id_a, sequence_id_a as sequence_id_b from Ortholog&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create unique index ortholog2way_ix on Ortholog2Way(sequence_id_a, sequence_id_b)&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table InplgOrthoInplg as</span><span class="se">\</span>
+<span class="s2">        select ip1.sequence_id_a, ip2.sequence_id_b</span><span class="se">\</span>
+<span class="s2">        from Ortholog2Way o, InParalog2Way ip2, InParalog2Way ip1</span><span class="se">\</span>
+<span class="s2">        where ip1.sequence_id_b = o.sequence_id_a</span><span class="se">\</span>
+<span class="s2">        and o.sequence_id_b = ip2.sequence_id_a&quot;</span><span class="p">)</span>
+
+<span class="c1">##################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table InParalogOrtholog as</span><span class="se">\</span>
+<span class="s2">        select ip.sequence_id_a, o.sequence_id_b</span><span class="se">\</span>
+<span class="s2">        from InParalog2Way ip, Ortholog2Way o</span><span class="se">\</span>
+<span class="s2">        where ip.sequence_id_b = o.sequence_id_a&quot;</span><span class="p">)</span>
+ 
+<span class="c1">##################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table CoOrthologCandidate as</span><span class="se">\</span>
+<span class="s2">        select distinct</span><span class="se">\</span>
+<span class="s2">        min(sequence_id_a, sequence_id_b) as sequence_id_a,</span><span class="se">\</span>
+<span class="s2">        max(sequence_id_a, sequence_id_b) as sequence_id_b</span><span class="se">\</span>
+<span class="s2">        from (select sequence_id_a, sequence_id_b from InplgOrthoInplg</span><span class="se">\</span>
+<span class="s2">        union</span><span class="se">\</span>
+<span class="s2">        select sequence_id_a, sequence_id_b from InParalogOrtholog) t&quot;</span><span class="p">)</span>
+ 
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table CoOrthNotOrtholog as</span><span class="se">\</span>
+<span class="s2">        SELECT cc.sequence_id_a, cc.sequence_id_b</span><span class="se">\</span>
+<span class="s2">        FROM CoOrthologCandidate cc</span><span class="se">\</span>
+<span class="s2">        LEFT OUTER JOIN Ortholog o</span><span class="se">\</span>
+<span class="s2">        ON cc.sequence_id_a = o.sequence_id_a</span><span class="se">\</span>
+<span class="s2">        AND cc.sequence_id_b = o.sequence_id_b</span><span class="se">\</span>
+<span class="s2">        WHERE o.sequence_id_a IS NULL&quot;</span><span class="p">)</span>
+
+<span class="c1">#####################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create index cno_ix on CoOrthNotOrtholog(sequence_id_a,sequence_id_b)&quot;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;create table CoOrthologTemp as</span><span class="se">\</span>
+<span class="s2">        select candidate.sequence_id_a, candidate.sequence_id_b,</span><span class="se">\</span>
+<span class="s2">        ab.query_taxon_id as taxon_id_a, ab.subject_taxon_id as taxon_id_b,</span><span class="se">\</span>
+<span class="s2">        case</span><span class="se">\</span>
+<span class="s2">        when ab.evalue_mant &lt; 0.00001 or ba.evalue_mant &lt; 0.00001</span><span class="se">\</span>
+<span class="s2">        then (ab.evalue_exp + ba.evalue_exp) / -2</span><span class="se">\</span>
+<span class="s2">        else</span><span class="se">\</span>
+<span class="s2">        (log(ab.evalue_mant * ba.evalue_mant)</span><span class="se">\</span>
+<span class="s2">        + ab.evalue_exp + ba.evalue_exp) / -2</span><span class="se">\</span>
+<span class="s2">        end as unnormalized_score</span><span class="se">\</span>
+<span class="s2">        from SimilarSequences ab, SimilarSequences ba, CoOrthNotOrtholog candidate</span><span class="se">\</span>
+<span class="s2">        where ab.query_id = candidate.sequence_id_a</span><span class="se">\</span>
+<span class="s2">        and ab.subject_id = candidate.sequence_id_b</span><span class="se">\</span>
+<span class="s2">        and ab.evalue_exp &lt;= -5</span><span class="se">\</span>
+<span class="s2">        and ab.percent_match &gt;= 50</span><span class="se">\</span>
+<span class="s2">        and ba.query_id = candidate.sequence_id_b</span><span class="se">\</span>
+<span class="s2">        and ba.subject_id = candidate.sequence_id_a</span><span class="se">\</span>
+<span class="s2">        and ba.evalue_exp &lt;= -5</span><span class="se">\</span>
+<span class="s2">        and ba.percent_match &gt;= 50&quot;</span><span class="p">)</span>
+    
+<span class="c1">######################################################################</span>
+
+    <span class="n">orthologTaxonSub</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="s1">&#39;co&#39;</span><span class="p">)</span>
+
+<span class="c1">######################################################################</span>
+
+    <span class="n">normalizeOrthologsSub</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="s2">&quot;Co&quot;</span><span class="p">,</span> <span class="s2">&quot;CoOrtholog&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="execute"><a class="viewcode-back" href="../../../trifusion.ortho.orthomclPairs.html#trifusion.ortho.orthomclPairs.execute">[docs]</a><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span> <span class="n">nm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">con</span> <span class="o">=</span> <span class="n">lite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_dir</span><span class="p">,</span> <span class="s2">&quot;orthoDB.db&quot;</span><span class="p">))</span>
+
+    <span class="k">with</span> <span class="n">con</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">nm</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">con</span><span class="o">.</span><span class="n">create_function</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="p">[</span><span class="n">commonTempTables</span><span class="p">,</span> <span class="n">orthologs</span><span class="p">,</span> <span class="n">inparalogs</span><span class="p">,</span> <span class="n">coorthologs</span><span class="p">]:</span>
+
+            <span class="k">if</span> <span class="n">nm</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">nm</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">KillByUser</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">nm</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">func</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">execute</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Fernando Alves and Diogo N. Silva&quot;</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

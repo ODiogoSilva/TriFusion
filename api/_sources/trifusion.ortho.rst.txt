@@ -1,0 +1,27 @@
+trifusion\.ortho package
+========================
+
+Submodules
+----------
+
+.. toctree::
+
+   trifusion.ortho.OrthomclToolbox
+   trifusion.ortho.complement_orthologs
+   trifusion.ortho.error_handling
+   trifusion.ortho.orthomclBlastParser
+   trifusion.ortho.orthomclDumpPairsFiles
+   trifusion.ortho.orthomclFilterFasta
+   trifusion.ortho.orthomclInstallSchema
+   trifusion.ortho.orthomclLoadBlast
+   trifusion.ortho.orthomclMclToGroups
+   trifusion.ortho.orthomclPairs
+   trifusion.ortho.protein2dna
+
+Module contents
+---------------
+
+.. automodule:: trifusion.ortho
+    :members:
+    :undoc-members:
+    :show-inheritance:

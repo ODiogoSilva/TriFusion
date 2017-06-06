@@ -1,0 +1,7 @@
+trifusion\.TriSeq module
+========================
+
+.. automodule:: trifusion.TriSeq
+    :members:
+    :undoc-members:
+    :show-inheritance:

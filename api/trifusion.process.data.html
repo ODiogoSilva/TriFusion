@@ -1,0 +1,976 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>trifusion.process.data module &mdash; TriFusion 0.5.5 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="TriFusion 0.5.5 documentation" href="index.html"/>
+        <link rel="up" title="trifusion.process package" href="trifusion.process.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TriFusion
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="trifusion.html">TriFusion modules and API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#trifusion-gui">TriFusion GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#orthology-backend">Orthology backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#process-backend">Process backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#statistics-backend">Statistics backend</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#table-of-contents">Table of Contents</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="trifusion.process.html">trifusion.process package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="trifusion.process.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TriFusion</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="trifusion.html">TriFusion modules and API reference</a> &raquo;</li>
+        
+          <li><a href="trifusion.process.html">trifusion.process package</a> &raquo;</li>
+        
+      <li>trifusion.process.data module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/trifusion.process.data.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-trifusion.process.data">
+<span id="trifusion-process-data-module"></span><h1>trifusion.process.data module<a class="headerlink" href="#module-trifusion.process.data" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt id="trifusion.process.data.InvalidPartitionFile">
+<em class="property">exception </em><code class="descclassname">trifusion.process.data.</code><code class="descname">InvalidPartitionFile</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#InvalidPartitionFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.InvalidPartitionFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="trifusion.process.data.PartitionException">
+<em class="property">exception </em><code class="descclassname">trifusion.process.data.</code><code class="descname">PartitionException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#PartitionException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.PartitionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="trifusion.process.data.Partitions">
+<em class="property">class </em><code class="descclassname">trifusion.process.data.</code><code class="descname">Partitions</code><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Alignment partitions interface for <cite>Alignment</cite> and <cite>AlignmentList</cite>.</p>
+<p>The Partitions class is used to define partitions for <cite>Alignment</cite>
+and <cite>AlignmentList</cite> objects and associate substitution models to
+each partition. After instantiating, partitions may be set in two ways:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Partition files: Being Nexus charset blocks and RAxML partition files
+currently supported</li>
+<li>Tuple-like objects: Containing the ranges and names of the partitions</li>
+</ul>
+</div></blockquote>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>partition_length</td>
+<td>(int) Length of the total partitions.</td>
+</tr>
+<tr class="row-even"><td>partitions</td>
+<td>(OrderedDict) Storage of partition names (key) and their range (values).</td>
+</tr>
+<tr class="row-odd"><td>partitions_index</td>
+<td>(list) The index (starting point) for each partition, including codon partitions.</td>
+</tr>
+<tr class="row-even"><td>partitions_alignments</td>
+<td>(OrderedDict) Storage of the partition names (key) and their corresponding alignment files (values).</td>
+</tr>
+<tr class="row-odd"><td>alignments_range</td>
+<td>(OrderedDict) Storage of the alignment names (key) and their range (values).</td>
+</tr>
+<tr class="row-even"><td>models</td>
+<td>(OrderedDict) Storage of partition names (key) and their models (values).</td>
+</tr>
+<tr class="row-odd"><td>merged_files</td>
+<td>(dict) Storage of the original range (values) of every alignment file (key).</td>
+</tr>
+<tr class="row-even"><td>counter</td>
+<td>(int) Indicator of where the last partition ended.</td>
+</tr>
+<tr class="row-odd"><td>partition_format</td>
+<td>(str) Format of the original partition file, if any.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.add_partition" title="trifusion.process.data.Partitions.add_partition"><code class="xref py py-obj docutils literal"><span class="pre">add_partition</span></code></a>(name[,&nbsp;length,&nbsp;locus_range,&nbsp;...])</td>
+<td>Adds a new partition.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.change_name" title="trifusion.process.data.Partitions.change_name"><code class="xref py py-obj docutils literal"><span class="pre">change_name</span></code></a>(old_name,&nbsp;new_name)</td>
+<td>Changes name of a partition.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.get_model_name" title="trifusion.process.data.Partitions.get_model_name"><code class="xref py py-obj docutils literal"><span class="pre">get_model_name</span></code></a>(params)</td>
+<td>Given a list of parameters, return the name of the model</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.get_partition_names" title="trifusion.process.data.Partitions.get_partition_names"><code class="xref py py-obj docutils literal"><span class="pre">get_partition_names</span></code></a>()</td>
+<td>Returns a list with the name of the partitions</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.is_single" title="trifusion.process.data.Partitions.is_single"><code class="xref py py-obj docutils literal"><span class="pre">is_single</span></code></a>()</td>
+<td>Returns whether the current <cite>Partitions</cite> has single or multiple partitions.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.iter_files" title="trifusion.process.data.Partitions.iter_files"><code class="xref py py-obj docutils literal"><span class="pre">iter_files</span></code></a>()</td>
+<td>Iterates over <cite>partitions_alignments.items()</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.merge_partitions" title="trifusion.process.data.Partitions.merge_partitions"><code class="xref py py-obj docutils literal"><span class="pre">merge_partitions</span></code></a>(partition_list,&nbsp;name)</td>
+<td>Merges multiple partitions into a single one.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.parse_nexus_model" title="trifusion.process.data.Partitions.parse_nexus_model"><code class="xref py py-obj docutils literal"><span class="pre">parse_nexus_model</span></code></a>(string)</td>
+<td>Parses a substitution model defined in a prset and/or lset command.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.read_from_dict" title="trifusion.process.data.Partitions.read_from_dict"><code class="xref py py-obj docutils literal"><span class="pre">read_from_dict</span></code></a>(dict_obj)</td>
+<td>Reads partition information from a dict object</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.read_from_file" title="trifusion.process.data.Partitions.read_from_file"><code class="xref py py-obj docutils literal"><span class="pre">read_from_file</span></code></a>(partitions_file)</td>
+<td>Parses partitions from file</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.read_from_nexus_string" title="trifusion.process.data.Partitions.read_from_nexus_string"><code class="xref py py-obj docutils literal"><span class="pre">read_from_nexus_string</span></code></a>(nx_string[,&nbsp;...])</td>
+<td>Parses a single nexus string with partition definition.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.remove_partition" title="trifusion.process.data.Partitions.remove_partition"><code class="xref py py-obj docutils literal"><span class="pre">remove_partition</span></code></a>([partition_name,&nbsp;file_name])</td>
+<td>Removes partitions.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.reset" title="trifusion.process.data.Partitions.reset"><code class="xref py py-obj docutils literal"><span class="pre">reset</span></code></a>([keep_alignments_range])</td>
+<td>Clears partitions and attributes</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.set_length" title="trifusion.process.data.Partitions.set_length"><code class="xref py py-obj docutils literal"><span class="pre">set_length</span></code></a>(length)</td>
+<td>Set total length of current locus (over all partitions).</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.set_model" title="trifusion.process.data.Partitions.set_model"><code class="xref py py-obj docutils literal"><span class="pre">set_model</span></code></a>(partition,&nbsp;models[,&nbsp;links,&nbsp;apply_all])</td>
+<td>Sets substitution model for a given partition.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#trifusion.process.data.Partitions.split_partition" title="trifusion.process.data.Partitions.split_partition"><code class="xref py py-obj docutils literal"><span class="pre">split_partition</span></code></a>(name[,&nbsp;new_range,&nbsp;new_names])</td>
+<td>Splits one partition into two.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Partitions.write_to_file" title="trifusion.process.data.Partitions.write_to_file"><code class="xref py py-obj docutils literal"><span class="pre">write_to_file</span></code></a>(output_format,&nbsp;output_file[,&nbsp;...])</td>
+<td>Writes partitions to a file.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.add_partition">
+<code class="descname">add_partition</code><span class="sig-paren">(</span><em>name</em>, <em>length=None</em>, <em>locus_range=None</em>, <em>codon=False</em>, <em>use_counter=False</em>, <em>file_name=None</em>, <em>model_cls=None</em>, <em>auto_correct_name=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.add_partition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.add_partition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new partition.</p>
+<p>Adds a new partition providing the length or the range of current
+alignment. If both are provided, the length takes precedence.The range
+of the partition should be in python index, that is, the first position
+should be 0 and not 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<blockquote>
+<div><p>Name of the partition.</p>
+</div></blockquote>
+<p><strong>length</strong> : int, optional</p>
+<blockquote>
+<div><p>Length of the alignment.</p>
+</div></blockquote>
+<p><strong>locus_range</strong> : list or tuple, optional</p>
+<blockquote>
+<div><p>Range of the partition.</p>
+</div></blockquote>
+<p><strong>codon</strong> : list</p>
+<blockquote>
+<div><p>If the codon partitions are already defined, provide the
+starting points in list format, e.g: [1,2,3].</p>
+</div></blockquote>
+<p><strong>use_counter</strong> : bool</p>
+<blockquote>
+<div><p>If True, <cite>locus_range</cite> will be updated according to the <cite>counter</cite>
+attribute.</p>
+</div></blockquote>
+<p><strong>file_name</strong> : str</p>
+<blockquote>
+<div><p>Name of the alignment file.</p>
+</div></blockquote>
+<p><strong>model_cls :</strong></p>
+<blockquote>
+<div><p>Specified the substitution model that will be set in <cite>models</cite>.</p>
+</div></blockquote>
+<p><strong>auto_correct_name</strong> : bool</p>
+<blockquote class="last">
+<div><p>If set to True, when a partition name already exist, add a counter
+to the end of the name.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>IMPORTANT NOTE on self.model: The self.model attribute was designed
+in a way that allows the storage of different substitution models
+inside the same partition name. This is useful for codon partitions that
+share the same parent partition name. So, for example, a parent
+partition named &#8220;PartA&#8221; with 3 codon partitions can have a different
+model for each one like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="s2">&quot;PartA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[</span><span class="o">..</span><span class="n">model1_params</span><span class="o">..</span><span class="p">],</span> <span class="p">[</span><span class="o">..</span><span class="n">model2_params</span><span class="o">..</span><span class="p">],</span>
+    <span class="p">[</span><span class="o">..</span><span class="n">model3_params</span><span class="o">..</span><span class="p">]],</span> <span class="p">[</span><span class="n">GTR</span><span class="p">,</span> <span class="n">GTR</span><span class="p">,</span> <span class="n">GTR</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.alignments_range">
+<code class="descname">alignments_range</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.alignments_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.change_name">
+<code class="descname">change_name</code><span class="sig-paren">(</span><em>old_name</em>, <em>new_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.change_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.change_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes name of a partition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>old_name</strong> : str</p>
+<blockquote>
+<div><p>Original partition name.</p>
+</div></blockquote>
+<p><strong>new_name</strong> : str</p>
+<blockquote class="last">
+<div><p>New partition name.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.counter">
+<code class="descname">counter</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.counter" title="Permalink to this definition">¶</a></dt>
+<dd><p>The counter attribute will be used as an indication of where the last
+partition ends when one or more partitions are added</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.get_model_name">
+<code class="descname">get_model_name</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.get_model_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.get_model_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of parameters, return the name of the model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>p</strong> : list</p>
+<blockquote>
+<div><p>List of prset/lset parameters</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>model</strong> : str or None</p>
+<blockquote class="last">
+<div><p>Returns the name of the model if it finds. Else, returns None.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.get_partition_names">
+<code class="descname">get_partition_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.get_partition_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.get_partition_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list with the name of the partitions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>names</strong> : list</p>
+<blockquote class="last">
+<div><p>List with names of the partitions. When a parent
+partition has multiple codon partitions, it returns a partition
+name for every codon starting position present.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.is_single">
+<code class="descname">is_single</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.is_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.is_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the current <cite>Partitions</cite> has single or multiple
+partitions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>_</strong> : bool</p>
+<blockquote class="last">
+<div><p>Returns True is there is only a single partition defined,
+and False if there are multiple partitions.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.iter_files">
+<code class="descname">iter_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.iter_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.iter_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over <cite>partitions_alignments.items()</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>_</strong> : iter</p>
+<blockquote class="last">
+<div><p>Iterator of <cite>partitions_alignments.items()</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.merge_partitions">
+<code class="descname">merge_partitions</code><span class="sig-paren">(</span><em>partition_list</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.merge_partitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.merge_partitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges multiple partitions into a single one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>partition_list</strong> : list</p>
+<blockquote>
+<div><p>List with partition names to be merged.</p>
+</div></blockquote>
+<p><strong>name</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of new partition</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.merged_files">
+<code class="descname">merged_files</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.merged_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>This attribute will keep a record of the original ranges of every file
+that was merged. This is useful to split partitions according to files
+or to undo any changes. Each entry should be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;alignment_file1&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1234</span><span class="p">),</span> <span class="s2">&quot;alignment_file2&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">3444</span><span class="p">,</span> <span class="mi">6291</span><span class="p">)}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.models">
+<code class="descname">models</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.models" title="Permalink to this definition">¶</a></dt>
+<dd><p>The self.models attribute will contain the same key list as
+self.partitions and will associate the substitution models to each
+partitions. For each partition, the format should be as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">models</span><span class="p">[</span><span class="s2">&quot;partA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[[</span><span class="o">..</span><span class="n">model_params</span><span class="o">..</span><span class="p">]],[</span><span class="o">..</span><span class="n">model_names</span><span class="o">..</span><span class="p">],</span>
+                   <span class="p">[</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>The first element is a list that may contain the substitution model
+parameters for up to three subpartitions, the second element is also
+a list with the corresponding names of the substitution models and
+the third list will store any links between models</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.parse_nexus_model">
+<code class="descname">parse_nexus_model</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.parse_nexus_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.parse_nexus_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a substitution model defined in a prset and/or lset command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>string</strong> : str</p>
+<blockquote class="last">
+<div><p>String with the prset or lset command.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.partition_length">
+<code class="descname">partition_length</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.partition_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The length of the locus may be necessary when partitions are defined
+in the input files using the &#8221;.&#8221; notation, meaning the entire locus.
+Therefore, to convert this notation into workable integers, the size
+of the locus must be provided using the set_length method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.partitions">
+<code class="descname">partitions</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.partitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>partitions will contain the name and range of the partitions for a given
+alignment object. Both gene and codon partitions will be stored in this
+attribute, but gene partitions are the main entries. An example of
+different stored partitions is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">partitions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;partitionA&quot;</span><span class="p">:</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">856</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+              <span class="s2">&quot;partitionB&quot;</span><span class="p">:</span> <span class="p">((</span><span class="mi">857</span><span class="p">,</span> <span class="mi">1450</span><span class="p">),</span> <span class="p">[</span><span class="mi">857</span><span class="p">,</span><span class="mi">858</span><span class="p">,</span><span class="mi">859</span><span class="p">]</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>&#8220;partitionA&#8221; is a simple gene partition ranging from 0 to 856, while
+&#8220;partitionB&#8221; is an assembly of codon partitions. The third element of
+the tuple is destined to codon partitions. If there are none, it should
+be False. If there are codon partitions, a list should be provided with
+the desired initial codons. In the example above, &#8220;partitionB&#8221; has
+actually 3 partitions starting at the first, second and third sequence
+nucleotide of the main partition.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.partitions_alignments">
+<code class="descname">partitions_alignments</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.partitions_alignments" title="Permalink to this definition">¶</a></dt>
+<dd><p>The partitions_alignments attribute will associate the partition with
+the corresponding alignment files. For single alignment partitions,
+this will provide information on the file name. For multiple
+alignments, besides the information of the file names, it will
+associate which alignments are contained in a given partition and
+support multi alignment partitions. An example would be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">partitions_alignments</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;PartitionA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;FileA.fas&quot;</span><span class="p">],</span>
+                         <span class="s2">&quot;PartitionB&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;FileB.fas&quot;</span><span class="p">,</span> <span class="s2">&quot;FileC.fas&quot;</span><span class="p">]}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="trifusion.process.data.Partitions.partitions_index">
+<code class="descname">partitions_index</code><em class="property"> = None</em><a class="headerlink" href="#trifusion.process.data.Partitions.partitions_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>partitions_index will remember the index of all added partitions. This
+attribute was created because codon models are added to the same parent
+partitions, thus losing their actual index. This is important for
+Nexus files, where models are applied to the index of the partition.
+This will simply store the partition names, which can be accessed using
+their index, or searched to return their index. To better support codon
+partitions, each entry in the partitions_index will consist in a list,
+in which the first element is the partition name, and the second element
+is the index of the subpartition. An example would be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">partitions_index</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;partA&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;partA&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;partA&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">&quot;partB&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>in which, partA has 3 codon partitions, and partB has only one partition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.read_from_dict">
+<code class="descname">read_from_dict</code><span class="sig-paren">(</span><em>dict_obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.read_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.read_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads partition information from a dict object</p>
+<p>Parses partitions defined and stored in a special OrderedDict. The
+values of dict_obj should be the partition names and their
+corresponding values should contain the loci range and substitution
+model, if any.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dict_obj</strong> : OrderedDict</p>
+<blockquote class="last">
+<div><p>Ordered dictionary with the definition of the partitions</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Here is an example of a <cite>dict_obj</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dict_obj</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="s2">&quot;GeneA&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">234</span><span class="p">),</span> <span class="s2">&quot;GTR&quot;</span><span class="p">]),</span>
+                       <span class="p">(</span><span class="s2">&quot;GeneB&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">235</span><span class="p">,</span> <span class="mi">865</span><span class="p">),</span> <span class="s2">&quot;JC&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.read_from_file">
+<code class="descname">read_from_file</code><span class="sig-paren">(</span><em>partitions_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.read_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.read_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses partitions from file</p>
+<p>This method parses a file containing partitions. It supports
+partitions files similar to RAxML&#8217;s and NEXUS charset blocks. The
+NEXUS file, however, must only contain the charset block. The
+model_nexus argument provides a namespace for the model variable in
+the nexus format, since this information is not present in the file.
+However, it assures consistency on the Partition object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>partitions_file</strong> : str</p>
+<blockquote>
+<div><p>Path to partitions file.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>PartitionException</strong></p>
+<blockquote class="last">
+<div><p>When one partition definition cannot be parsed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.read_from_nexus_string">
+<code class="descname">read_from_nexus_string</code><span class="sig-paren">(</span><em>nx_string</em>, <em>file_name=None</em>, <em>return_res=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.read_from_nexus_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.read_from_nexus_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a single nexus string with partition definition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nx_string</strong> : str</p>
+<blockquote>
+<div><p>String with partition definition</p>
+</div></blockquote>
+<p><strong>file_name</strong> : str, optional</p>
+<blockquote>
+<div><p>String with name of the file corresponding to the partition.</p>
+</div></blockquote>
+<p><strong>return_res</strong> : bool</p>
+<blockquote class="last">
+<div><p>If True, it will only return the parsed partition information.
+If False, it will add the parsed partition to the <cite>Partitions</cite>
+object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.remove_partition">
+<code class="descname">remove_partition</code><span class="sig-paren">(</span><em>partition_name=None</em>, <em>file_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.remove_partition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.remove_partition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes partitions.</p>
+<p>Removes a partitions by a given partition or file name. This will
+handle any necessary changes on the remaining partitions. The changes
+will be straightforward for most attributes, such as partitions_index,
+partitions_alignments and models, but it will require a re-structuring
+of partitions because the ranges of the subsequent partitions will
+have to be adjusted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>partition_name</strong> : str</p>
+<blockquote>
+<div><p>Name of the partition.</p>
+</div></blockquote>
+<p><strong>file_name</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of the alignment file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><em>keep_alignments_range=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears partitions and attributes</p>
+<p>Clears partitions and resets object to __init__ state. The original
+alignment range can be retained by setting the <cite>keep_alignments_range</cite>
+argument to True.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>keep_alignments_range</strong> : bool</p>
+<blockquote class="last">
+<div><p>If True, the <cite>alignments_range</cite> attribute will not be reset.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.set_length">
+<code class="descname">set_length</code><span class="sig-paren">(</span><em>length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.set_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.set_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set total length of current locus (over all partitions).</p>
+<p>Sets the length of the locus. This may be important to convert certain
+partition defining nomenclature, such as using the &#8221;.&#8221; to indicate
+whole length of the alignment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>length</strong> : int</p>
+<blockquote class="last">
+<div><p>Integer that will be set as <cite>partition_length</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.set_model">
+<code class="descname">set_model</code><span class="sig-paren">(</span><em>partition</em>, <em>models</em>, <em>links=None</em>, <em>apply_all=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.set_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.set_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets substitution model for a given partition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>partition</strong> : str</p>
+<blockquote>
+<div><p>Partition name.</p>
+</div></blockquote>
+<p><strong>models</strong> : list</p>
+<blockquote>
+<div><p>Model names for each of the three codon partitions. If there
+are no codon partitions, provide only a single element to the list.</p>
+</div></blockquote>
+<p><strong>links</strong> : list</p>
+<blockquote>
+<div><p>Provide potential links between codon models. For
+example, if codon 1 and 2 are to be linked, it should be:
+links=[&#8220;12&#8221;, &#8220;3&#8221;]</p>
+</div></blockquote>
+<p><strong>apply_all</strong> : bool</p>
+<blockquote class="last">
+<div><p>If True, the current model will be applied to all partitions.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.split_partition">
+<code class="descname">split_partition</code><span class="sig-paren">(</span><em>name</em>, <em>new_range=None</em>, <em>new_names=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.split_partition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.split_partition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits one partition into two.</p>
+<p>Splits a partitions with <cite>name</cite> into two with the tuple list provided
+by <cite>new_range</cite>. If new_range is None, This will split the partition
+by its alignment files instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<blockquote>
+<div><p>Name of the partition to be split.</p>
+</div></blockquote>
+<p><strong>new_range</strong> : list or tuple, optional</p>
+<blockquote>
+<div><p>List of two tuples, containing the ranges of the new partitions.</p>
+</div></blockquote>
+<p><strong>new_names</strong> : list, optional</p>
+<blockquote class="last">
+<div><p>The names of the new partitions.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="trifusion.process.data.Partitions.write_to_file">
+<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>output_format</em>, <em>output_file</em>, <em>model='LG'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Partitions.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Partitions.write_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes partitions to a file.</p>
+<p>Writes the Partitions object into an output file according to the
+output_format. The supported output formats are RAxML and Nexus. The
+<cite>model</cite> option is for the RAxML format only.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>output_format</strong> : str</p>
+<blockquote>
+<div><p>Output format of partitions file. Can be either &#8220;nexus&#8221; or
+&#8220;raxml&#8221;.</p>
+</div></blockquote>
+<p><strong>output_file</strong> : str</p>
+<blockquote>
+<div><p>Path to output file.</p>
+</div></blockquote>
+<p><strong>model</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of the model for the partitions. &#8220;raxml&#8221; format only.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="trifusion.process.data.Zorro">
+<em class="property">class </em><code class="descclassname">trifusion.process.data.</code><code class="descname">Zorro</code><span class="sig-paren">(</span><em>alignment_list</em>, <em>suffix='_zorro.out'</em>, <em>zorro_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Zorro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Zorro" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class that handles the concatenation of zorro weights.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>alignment_list</strong> : trifusion.process.sequence.AlignmentList</p>
+<blockquote>
+<div><p>AlignmentList object.</p>
+</div></blockquote>
+<p><strong>suffix</strong> : str</p>
+<blockquote>
+<div><p>Suffix of the zorro weight files, based on the corresponding
+input alignments.</p>
+</div></blockquote>
+<p><strong>zorro_dir</strong> : str</p>
+<blockquote class="last">
+<div><p>Path to directory where zorro weight files are stored.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#trifusion.process.data.Zorro.write_to_file" title="trifusion.process.data.Zorro.write_to_file"><code class="xref py py-obj docutils literal"><span class="pre">write_to_file</span></code></a>(output_file)</td>
+<td>Creates a concatenated file with the zorro weights for the corresponding alignment files.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="trifusion.process.data.Zorro.write_to_file">
+<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>output_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trifusion/process/data.html#Zorro.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trifusion.process.data.Zorro.write_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a concatenated file with the zorro weights for the
+corresponding alignment files.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Diogo N. Silva.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.5.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

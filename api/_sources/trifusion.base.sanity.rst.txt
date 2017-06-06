@@ -1,0 +1,7 @@
+trifusion\.base\.sanity module
+==============================
+
+.. automodule:: trifusion.base.sanity
+    :members:
+    :undoc-members:
+    :show-inheritance:

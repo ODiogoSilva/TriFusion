@@ -1,0 +1,17 @@
+trifusion\.data package
+=======================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    trifusion.data.resources
+
+Module contents
+---------------
+
+.. automodule:: trifusion.data
+    :members:
+    :undoc-members:
+    :show-inheritance:
