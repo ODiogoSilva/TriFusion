@@ -53,8 +53,7 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
 
         self.aln_obj.filter_missing_data(25, 50, table_out="master_out")
 
-        aln_obj = self.aln_obj.concatenate(alignment_name="test",
-                                           table_in="master_out")
+        aln_obj = self.aln_obj.concatenate(table_in="master_out")
 
         self.assertEqual(aln_obj.locus_length, 90)
 
@@ -156,7 +155,7 @@ class AlignmentTaxaFilters(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.filter_by_taxa("Contain", ["spa", "spb", "spc", "spd"])
+        self.aln_obj.filter_by_taxa(["spa", "spb", "spc", "spd"], "Contain")
 
         self.assertEqual(len(self.aln_obj.alignments), 2)
 
@@ -164,7 +163,7 @@ class AlignmentTaxaFilters(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.filter_by_taxa("Exclude", ["spa", "spb", "spc", "spd"])
+        self.aln_obj.filter_by_taxa(["spa", "spb", "spc", "spd"], "Exclude")
 
         self.assertEqual(len(self.aln_obj.alignments), 5)
 
@@ -174,14 +173,14 @@ class AlignmentTaxaFilters(unittest.TestCase):
 
         self.assertRaises(EmptyAlignment,
                           self.aln_obj.filter_by_taxa,
-                          "Contain", ["no_taxa"])
+                          ["no_taxa"], "Contain")
 
     def test_filter_by_taxa_from_file(self):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        self.aln_obj.filter_by_taxa("Contain",
-                                    "trifusion/tests/data/filter_taxa.txt")
+        self.aln_obj.filter_by_taxa("trifusion/tests/data/filter_taxa.txt",
+                                    "Contain")
 
         self.assertEqual(len(self.aln_obj.alignments), 2)
 

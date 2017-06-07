@@ -1631,6 +1631,7 @@ class MultiGroupsLight(object):
         This will not change the Group object themselves, only the filter
         mapping. The filter is only applied when the Group object is retrieved
         to reduce computations
+
         :param gn_filter: int, filter for max gene copies
         :param sp_filter: int, filter for min species
         :param group_names: list, with names of group objects

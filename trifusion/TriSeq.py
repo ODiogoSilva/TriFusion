@@ -209,13 +209,13 @@ def main_parser(arg, alignment_list):
     if arg.contain_filter:
         print_col("Filtering alignment(s) including a taxa group", GREEN,
                   quiet=arg.quiet)
-        alignments.filter_by_taxa("Contain", arg.contain_filter, pbar=pbar)
+        alignments.filter_by_taxa(arg.contain_filter, "Contain", pbar=pbar)
 
     # Filter by alignments that exclude taxa
     if arg.exclude_filter:
         print_col("Filtering alignments excluding a taxa group", GREEN,
                   quiet=arg.quiet)
-        alignments.filter_by_taxa("Exclude", arg.exclude_filter, pbar=pbar)
+        alignments.filter_by_taxa(arg.exclude_filter, "Exclude", pbar=pbar)
 
     # Filter by codon position
     if arg.codon_filter:
@@ -248,8 +248,7 @@ def main_parser(arg, alignment_list):
     # Concatenation
     if not arg.conversion and not arg.reverse and not arg.consensus:
         print_col("Concatenating", GREEN, quiet=arg.quiet)
-        alignments = alignments.concatenate(alignment_name=os.path.basename(
-            outfile), pbar=pbar)
+        alignments = alignments.concatenate(pbar=pbar)
 
         # Concatenate zorro files
         if arg.zorro:
