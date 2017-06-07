@@ -18,6 +18,80 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+"""
+Nomenclature guide for :class:`.TriFusionApp`.
+==============================================
+
+Given the large number of methods needed to give functionality to
+the app, this nomenclature guide was created to aid in the naming
+of new methods so that the code can be more easily browsed and
+understood. Note that this guide only targets methods that
+perform similar tasks and, therefore, can be grouped by a common
+prefix name. Other methods that perform more unique operations
+may have different names.
+
+Method's names will be given based on their main operation and
+specific task. For example, a method in charge of toggle the side
+panel, should be named "toggle_sidepanel", being "toggle" the
+common prefix and "sidepanel" the keyword linked ot the specific
+task.
+
+1. Toggles.
+
+"toggle_[specific_task]", e.g. "toggle_sidepanel"
+
+Methods use to toggle certain widgets or values/attributes.
+
+2. Dialogues.
+
+"dialog_[specific_task]", e.g. "dialog_format"
+
+Methods that generate dialogues throughout the app, usually in
+the form of popups
+
+3. Populating methods.
+
+"populate_[specific_task]", e.g., "populate_input_files"
+
+Methods that populate certain widgets, usually gridlayouts, with
+other widgets
+
+4. Add/Remove
+
+"add_[specific_task]", e.g., "add_bookmark"
+"remove_[specific_task]", e.g., "remove_taxa_group"
+
+Methods that add or remove widgets, usually buttons/togglebuttons,
+from other widgets
+
+5. Saves.
+
+"save_[specific_task]", e.g., "save_file"
+
+Methods that save specific settings from the several options of the
+sapp
+
+6. Updates.
+
+"update_[specific_task]", e.g., "update_tabs"
+
+Wrapper methods used to update several attributes or widgets of the
+app
+
+7. Checks.
+
+"check_[specific_task]", e.g., "check_filters"
+
+Methods that perform some kind of sanity checks to user input data
+
+8. Unique operations
+
+[specific_task]_[unique_operation], e.g., "sidepanel_animation"
+
+When the method performs a unique operations, the specific_task
+should prefix the name of the method.
+"""
+
 # Standard libraries imports
 from os.path import dirname, exists, splitext
 from collections import OrderedDict
@@ -1175,79 +1249,6 @@ class TriFusionApp(App):
         if sys.argv[1:]:
             Clock.schedule_once(
                 lambda dt: self.load_files_startup(sys.argv[1:]), .1)
-
-        """
-        ------------------------ METHOD NOMENCLATURE GUIDE -----------------
-
-        Given the large number of methods needed to give functionality to
-        the app, this nomenclature guide was created to aid in the naming
-        of new methods so that the code can be more easily browsed and
-        understood. Note that this guide only targets methods that
-        perform similar tasks and, therefore, can be grouped by a common
-        prefix name. Other methods that perform more unique operations
-        may have different names.
-
-        Method's names will be given based on their main operation and
-        specific task. For example, a method in charge of toggle the side
-        panel, should be named "toggle_sidepanel", being "toggle" the
-        common prefix and "sidepanel" the keyword linked ot the specific
-        task.
-
-        1. Toggles.
-
-        "toggle_[specific_task]", e.g. "toggle_sidepanel"
-
-        Methods use to toggle certain widgets or values/attributes.
-
-        2. Dialogues.
-
-        "dialog_[specific_task]", e.g. "dialog_format"
-
-        Methods that generate dialogues throughout the app, usually in
-        the form of popups
-
-        3. Populating methods.
-
-        "populate_[specific_task]", e.g., "populate_input_files"
-
-        Methods that populate certain widgets, usually gridlayouts, with
-        other widgets
-
-        4. Add/Remove
-
-        "add_[specific_task]", e.g., "add_bookmark"
-        "remove_[specific_task]", e.g., "remove_taxa_group"
-
-        Methods that add or remove widgets, usually buttons/togglebuttons,
-        from other widgets
-
-        5. Saves.
-
-        "save_[specific_task]", e.g., "save_file"
-
-        Methods that save specific settings from the several options of the
-        sapp
-
-        6. Updates.
-
-        "update_[specific_task]", e.g., "update_tabs"
-
-        Wrapper methods used to update several attributes or widgets of the
-        app
-
-        7. Checks.
-
-        "check_[specific_task]", e.g., "check_filters"
-
-        Methods that perform some kind of sanity checks to user input data
-
-        8. Unique operations
-
-        [specific_task]_[unique_operation], e.g., "sidepanel_animation"
-
-        When the method performs a unique operations, the specific_task
-        should prefix the name of the method.
-        """
 
     def mouse_zoom(self, *vals):
         """
