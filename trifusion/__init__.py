@@ -9,8 +9,67 @@ classes specified. These descriptions can be used to send you on your
 way to the sections of interest, where a more detailed documentation
 is available.
 
+What is TriFusion
+=================
+
+TriFusion is a GUI and command line application designed to streamline the
+gathering, processing and visualization of phylogenomic data. It is broadly
+divided in these three modules.
+
+Orthology
+---------
+
+Provides a pipeline for running OrthoMCL, with the code ported to python
+and SQLite instead of the original perl and MySQL. OrthoMCL is the most
+popular ortholog detection pipeline, and TriFusion offers an  easy and
+intuitive way of running the pipeline while providing the complete
+range of options available.
+
+In addition to the search pipeline, TriFusion allows the filtering and visual
+exploration of the resulting ortholog groups. In the end, orthologs can
+be exported as protein or DNA sequences.
+
+Process
+-------
+
+At its core, the Process module is a conversion and concatenation tool that
+handles very large sequence alignment data sets. It reads and exports
+alignments into several popular formats used in phylogenetics and population
+genetics. In addition to these main operations, TriFusion offers a wide
+array of manipulations that can be performed on alignment data, such as
+filtering, collapsing, creating consensus, etc.
+
+Statistics
+----------
+
+Generates a wide array of graphical visualizations and statistical
+analyses of alignment data sets.
+
+How can TriFusion be used
+=========================
+
+TriFusion can be used as a:
+
+    - Desktop application with graphical interface (TriFusion).
+    - Command line application (orthomcl_pipeline, TriSeq and TriStats).
+    - Library of high performance classes to parse, modify, export and
+      plot alignment data.
+
+Components of TriFusion
+=======================
+
+The TriFusion package is the result of multiple modular components that
+work in combination to produce the main application. This modularity
+means that the graphical interface is separated from the multiple
+backends that power its features, and each backend works independently
+of each other. This greatly facilitates changing the existing objects
+or creating new ones for specific modules without having to worry about
+other aspects of the package.
+
+Here is a brief overview of the GUI and backend components.
+
 TriFusion GUI
-=============
+-------------
 
 The core graphical interface of TriFusion is controlled by two main files:
 
@@ -25,7 +84,7 @@ The core graphical interface of TriFusion is controlled by two main files:
 .. warning:: API documentation of :mod:`trifusion.app` is still under progress.
 
 Main screens
-------------
+~~~~~~~~~~~~
 
 The graphical instructions in kivy language for the 8 main screens of
 TriFusion are defined in the `trifusion/data/screens` directory, each screen
@@ -37,7 +96,7 @@ The initial setup of these screens in performed in the
 :func:`~trifusion.app.TriFusionApp.build` method.
 
 Custom widgets
---------------
+~~~~~~~~~~~~~~
 
 Custom widgets can be created using the `kivy` toolkit. `Kivy` provides
 a convenient way of defining graphical instructions to build the Widget's
@@ -56,7 +115,7 @@ custom attributes and methods that are useful for that widget
              progress.
 
 Icons and backgrounds
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Icons and background images are stored in the `trifusion/data/backgrounds`
 directory. In either python or kivy files, these backgrounds can be
@@ -70,7 +129,7 @@ Or in any kivy file::
     background_normal: "data/backgrounds/bt_process.png"
 
 Running tasks in the background
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Time consuming operations are executed in worker threads separated from the
 main GUI thread. These background tasks are defined in
@@ -78,13 +137,13 @@ main GUI thread. These background tasks are defined in
 provides more information on how to setup background tasks in TriFusion.
 
 In-App help
------------
+~~~~~~~~~~~
 
 Help buttons are spread throughout TriFusion. The help information is defined
 in multiple dictionary objects in :mod:`trifusion.data.resources.info_data`.
 
 Orthology backend
-=================
+-----------------
 
 The orthology search pipeline is defined in
 :mod:`trifusion.orthomcl_pipeline`. This module can be used as a CLI program
@@ -100,7 +159,7 @@ orthology search operation, is made in the
              :mod:`trifusion.ortho.OrthomclToolbox` is still in progress.
 
 Process backend
-===============
+---------------
 
 The main functionality of the Process module (and the TriSeq CLI) program
 are provided by the modules in the :mod:`trifusion.process` sub package.
@@ -109,7 +168,7 @@ Classes that handle alignment data are defined in
 in the :mod:`trifusion.process.data` module.
 
 Statistics backend
-==================
+------------------
 
 The generation of plot data in the Statistics screen or by the TriStats
 CLI program is a joint effort between the
