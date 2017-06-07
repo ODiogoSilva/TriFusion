@@ -178,8 +178,6 @@ the methods of the :class:`~trifusion.process.sequence.AlignmentList` class
 are responsible for generating the data and plotting instructions, while
 the functions in the :mod:`trifusion.base.plotter` module receive that
 information and generate the plot.
-
-
 """
 
 __version__ = "0.5.8"
