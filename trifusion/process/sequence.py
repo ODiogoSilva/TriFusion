@@ -1,4 +1,4 @@
-"""The `sequence` module of TriFusion contains the main classes handing
+"""The `sequence` module of TriFusion contains the main classes handling
 alignment sequence data. These are :class:`.Alignment` and
 :class:`.AlignmentList`. Here follows a brief explanation of how these
 classes work and how to deal with the sqlite database.
@@ -25,13 +25,21 @@ The main types of methods defined in this class are:
 Parsers
 ~~~~~~~
 
-Parsing methods are defined with `_read_<format>` (e.g. :meth:`~Alignment._read_fasta`) and
-they are always called from the :meth:`~.Alignment.read_alignment` method. When an
-:class:`.Alignment` object is instantiated with a path to an alignment file,
-it automatically detects the format of the alignment and keeps that
-information on the :attr:`~.Alignment.input_format` attribute. The
-:meth:`~.Alignment.read_alignment` method then calls the parsing method
-corresponding to that format. That information is stored in a dictionary::
+Parsing methods are defined for each format with `_read_<format>`:
+
+    - :meth:`~.Alignment._read_phylip`: Parses phylip format.
+    - :meth:`~.Alignment._read_fasta`: Parses fasta format.
+    - :meth:`~.Alignment._read_nexus`: Parses nexus format.
+    - :meth:`~.Alignment._read_loci`: Parses pyRAD/ipyrad loci format.
+    - :meth:`~.Alignment._read_stockholm`: Parses stockholm format.
+
+They are always called from the :meth:`~.Alignment.read_alignment` method,
+and not directly. When an :class:`.Alignment` object is instantiated with a
+path to an alignment file, it automatically detects the format of the
+alignment and keeps that information on the :attr:`~.Alignment.input_format`
+attribute. The :meth:`~.Alignment.read_alignment` method then calls the
+parsing method corresponding to that format. That information is stored in a
+dictionary::
 
     parsing_methods = {
         "phylip": self._read_phylip,
@@ -51,11 +59,40 @@ create the new parsing method, using the same `_read_<format>` notation and
 add it to the `parsing_methods` dictionary in
 :meth:`~.Alignment.read_alignment`.
 
+New parsers must insert alignment data into a table in the sqlite database.
+This table is automatically created when the :class:`.Alignment` object
+is instantiated, and its name is stored in the :attr:`~.Alignment.table_name`
+attribute (see :meth:`~.Alignment._create_table`)::
+
+    cur.execute("CREATE TABLE [{}]("
+                "txId INT,"
+                "taxon TEXT,"
+                "seq TEXT)".format(table_name))
+
+To insert data into the database, a taxon id (`txId`), taxon name (`taxon`)
+and sequence (`seq`) must be provided. For example::
+
+    cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(self.table_name),
+                (0, "spa", "AAA"))
+
 Data fetching
 ~~~~~~~~~~~~~
 
 To facilitate fetching alignment data from the database, several generators
-and data retrieval methods are defined. These should always use the
+and data retrieval methods are defined:
+
+    - :meth:`~.Alignment.iter_columns`: Iterates over the columns of the
+      alignment.
+    - :meth:`~.Alignment.iter_columns_uniq`: Iterates over the columns of
+      the alignment but yields only unique characters.
+    - :meth:`~.Alignment.iter_sequences`: Iterates over each sequence in the
+      alignment.
+    - :meth:`~.Alignment.iter_alignment`: Iterates over both taxon name
+      and sequence in the alignment.
+    - :meth:`~.Alignment.get_sequence`: Return the sequence from a particular
+      taxon.
+
+These should always use the
 :func:`.setup_intable` decorator and defined with the `table_suffix`, `table_name`
 and `table` arguments. For instance, the :meth:`.Alignment.iter_sequences` method is a
 generator that allows the iteration over the sequences in the alignment
@@ -76,8 +113,8 @@ the decorator. In this way, these methods can be called like::
 
 In this case, the :func:`.setup_intable` decorator will append the
 `table_suffix` to the name of the original alignment table. If
-`Alignment.table_name="main"`, then the final table name in this case will
-be "main_collapse".
+:attr:`.Alignment.table_name`="main"`, then the final table name in this
+case will be "main_collapse".
 
 Alternatively, we can use `table_name`::
 
@@ -93,6 +130,17 @@ Alignment modifiers
 ~~~~~~~~~~~~~~~~~~~
 
 Methods that perform modifications to the alignment are also defined here.
+These include:
+
+    - :meth:`~.Alignment.collapse`: Collapses alignment into unique sequences.
+    - :meth:`~.Alignment.consensus`: Merges alignment into a single sequence.
+    - :meth:`~.Alignment.filter_codon_positions`: Filters alignment columns
+      according to codon position.
+    - :meth:`~.Alignment.filter_missing_data`: Filters columns according to
+      missing data.
+    - :meth:`~.Alignment.code_gaps`: Code alignment's indel patterns as a
+      binary matrix.
+
 For example, the :meth:`.Alignment.collapse` method transforms the original
 alignment into a new one that contains only unique sequences. An important
 factor to take into account with alignment modifying methods, is that it may
@@ -143,13 +191,14 @@ its arguments. We can create a sequence of operations with the same
         collapse(table_in=new_table, table_out=new_table)
 
 In this simple pipeline, the user may perform either a `consensus`,
-a `collapse`, or both. When the first method is called, the `setup_database`
-decorator will check if the table provided in `table_in` exists. In the
-first called method it will not exist, so instead of returning an error,
-it falls back to the original alignment table and then writes the modified
-alignment to "master_table". In the second method, `table_in` already
-exists, so it fetches alignment data from the "master_table". This will work
-whether these methods are called individually or in combination.
+a `collapse`, or both. When the first method is called,
+the :func:`.setup_database` decorator will check if the table provided in
+`table_in` exists. In the first called method it will not exist, so instead
+of returning an error, it falls back to the original alignment table and
+then writes the modified alignment to "master_table". In the second method,
+`table_in` already exists, so it fetches alignment data from the
+"master_table". This will work whether these methods are called individually
+or in combination.
 
 When there is no need to keep the original alignment data (in single
 execution of TriSeq, for instance), the special `use_main_table` argument
@@ -162,14 +211,23 @@ provided by `table_in` or `table_out`::
 Writers
 ~~~~~~~
 
-Like parsers, writer methods are defined with `_write_<format>` and are
-always called from the :meth:`.Alignment.write_to_file` method. When the
-:meth:`.Alignment.write_to_file` method is called, a list with the requested
-output formats is also provided. Then, for each format specified in the
-argument, the corresponding writer method is called. That method is
-responsible for fetching the data from the database and write it to an
-output file in the appropriate format. The map between the formats and the
-methods is stored in a dictionary::
+Like parsers, writer methods are defined with `_write_<format>`:
+
+    - :meth:`~.Alignment._write_fasta`: Writes to fasta format.
+    - :meth:`~.Alignment._write_phylip`: Writes to phylip format.
+    - :meth:`~.Alignment._write_nexus`: Writes to nexus format.
+    - :meth:`~.Alignment._write_stockholm`: Writes to stockholm format.
+    - :meth:`~.Alignment._write_gphocs`: Writes to gphocs format.
+    - :meth:`~.Alignment._write_ima2`: Writes to IMa2 format.
+    - :meth:`~.Alignment._write_mcmctree`: Writes to MCMCTree format.
+
+They are always called from the :meth:`.Alignment.write_to_file` method,
+not directly. When the :meth:`.Alignment.write_to_file` method is called,
+a list with the requested output formats is also provided as an argument.
+For each format specified in the argument, the corresponding writer method
+is called. That method is responsible for fetching the data from the
+database and write it to an output file in the appropriate format. The map
+between the formats and the methods is stored in a dictionary::
 
     write_methods = {
         "fasta": self._write_fasta,
@@ -220,7 +278,7 @@ along with the extension in the `format_ext` variable.
 
 The :class:`.AlignmentList` is the main interface between the user and the
 alignment data. It may contain one or more :class:`.Alignment` objects,
-which are considered the building blocks of the total data set. These
+which are considered the building blocks of the data set. These
 :class:`.Alignment` objects are bound by the same sqlite database connection.
 
 How to create an instance
@@ -402,7 +460,7 @@ The complete process of how new plots can be added to TriFusion is
 described here_. In this section, we provide only a few guidelines on what
 to expect from these methods.
 
-All plot data methods must be decorated with the :func:`.check_data` function
+All plot data methods must be decorated with the :func:`.check_data` decorator
 and take at least a `Namespace` argument. In most cases, no more arguments
 are required::
 
