@@ -156,7 +156,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for trifusion.process.sequence</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;The `sequence` module of TriFusion contains the main classes handing</span>
+<span></span><span class="sd">&quot;&quot;&quot;The `sequence` module of TriFusion contains the main classes handling</span>
 <span class="sd">alignment sequence data. These are :class:`.Alignment` and</span>
 <span class="sd">:class:`.AlignmentList`. Here follows a brief explanation of how these</span>
 <span class="sd">classes work and how to deal with the sqlite database.</span>
@@ -183,13 +183,21 @@
 <span class="sd">Parsers</span>
 <span class="sd">~~~~~~~</span>
 
-<span class="sd">Parsing methods are defined with `_read_&lt;format&gt;` (e.g. :meth:`~Alignment._read_fasta`) and</span>
-<span class="sd">they are always called from the :meth:`~.Alignment.read_alignment` method. When an</span>
-<span class="sd">:class:`.Alignment` object is instantiated with a path to an alignment file,</span>
-<span class="sd">it automatically detects the format of the alignment and keeps that</span>
-<span class="sd">information on the :attr:`~.Alignment.input_format` attribute. The</span>
-<span class="sd">:meth:`~.Alignment.read_alignment` method then calls the parsing method</span>
-<span class="sd">corresponding to that format. That information is stored in a dictionary::</span>
+<span class="sd">Parsing methods are defined for each format with `_read_&lt;format&gt;`:</span>
+
+<span class="sd">    - :meth:`~.Alignment._read_phylip`: Parses phylip format.</span>
+<span class="sd">    - :meth:`~.Alignment._read_fasta`: Parses fasta format.</span>
+<span class="sd">    - :meth:`~.Alignment._read_nexus`: Parses nexus format.</span>
+<span class="sd">    - :meth:`~.Alignment._read_loci`: Parses pyRAD/ipyrad loci format.</span>
+<span class="sd">    - :meth:`~.Alignment._read_stockholm`: Parses stockholm format.</span>
+
+<span class="sd">They are always called from the :meth:`~.Alignment.read_alignment` method,</span>
+<span class="sd">and not directly. When an :class:`.Alignment` object is instantiated with a</span>
+<span class="sd">path to an alignment file, it automatically detects the format of the</span>
+<span class="sd">alignment and keeps that information on the :attr:`~.Alignment.input_format`</span>
+<span class="sd">attribute. The :meth:`~.Alignment.read_alignment` method then calls the</span>
+<span class="sd">parsing method corresponding to that format. That information is stored in a</span>
+<span class="sd">dictionary::</span>
 
 <span class="sd">    parsing_methods = {</span>
 <span class="sd">        &quot;phylip&quot;: self._read_phylip,</span>
@@ -209,11 +217,40 @@
 <span class="sd">add it to the `parsing_methods` dictionary in</span>
 <span class="sd">:meth:`~.Alignment.read_alignment`.</span>
 
+<span class="sd">New parsers must insert alignment data into a table in the sqlite database.</span>
+<span class="sd">This table is automatically created when the :class:`.Alignment` object</span>
+<span class="sd">is instantiated, and its name is stored in the :attr:`~.Alignment.table_name`</span>
+<span class="sd">attribute (see :meth:`~.Alignment._create_table`)::</span>
+
+<span class="sd">    cur.execute(&quot;CREATE TABLE [{}](&quot;</span>
+<span class="sd">                &quot;txId INT,&quot;</span>
+<span class="sd">                &quot;taxon TEXT,&quot;</span>
+<span class="sd">                &quot;seq TEXT)&quot;.format(table_name))</span>
+
+<span class="sd">To insert data into the database, a taxon id (`txId`), taxon name (`taxon`)</span>
+<span class="sd">and sequence (`seq`) must be provided. For example::</span>
+
+<span class="sd">    cur.execute(&quot;INSERT INTO [{}] VALUES (?, ?, ?)&quot;.format(self.table_name),</span>
+<span class="sd">                (0, &quot;spa&quot;, &quot;AAA&quot;))</span>
+
 <span class="sd">Data fetching</span>
 <span class="sd">~~~~~~~~~~~~~</span>
 
 <span class="sd">To facilitate fetching alignment data from the database, several generators</span>
-<span class="sd">and data retrieval methods are defined. These should always use the</span>
+<span class="sd">and data retrieval methods are defined:</span>
+
+<span class="sd">    - :meth:`~.Alignment.iter_columns`: Iterates over the columns of the</span>
+<span class="sd">      alignment.</span>
+<span class="sd">    - :meth:`~.Alignment.iter_columns_uniq`: Iterates over the columns of</span>
+<span class="sd">      the alignment but yields only unique characters.</span>
+<span class="sd">    - :meth:`~.Alignment.iter_sequences`: Iterates over each sequence in the</span>
+<span class="sd">      alignment.</span>
+<span class="sd">    - :meth:`~.Alignment.iter_alignment`: Iterates over both taxon name</span>
+<span class="sd">      and sequence in the alignment.</span>
+<span class="sd">    - :meth:`~.Alignment.get_sequence`: Return the sequence from a particular</span>
+<span class="sd">      taxon.</span>
+
+<span class="sd">These should always use the</span>
 <span class="sd">:func:`.setup_intable` decorator and defined with the `table_suffix`, `table_name`</span>
 <span class="sd">and `table` arguments. For instance, the :meth:`.Alignment.iter_sequences` method is a</span>
 <span class="sd">generator that allows the iteration over the sequences in the alignment</span>
@@ -234,8 +271,8 @@
 
 <span class="sd">In this case, the :func:`.setup_intable` decorator will append the</span>
 <span class="sd">`table_suffix` to the name of the original alignment table. If</span>
-<span class="sd">`Alignment.table_name=&quot;main&quot;`, then the final table name in this case will</span>
-<span class="sd">be &quot;main_collapse&quot;.</span>
+<span class="sd">:attr:`.Alignment.table_name`=&quot;main&quot;`, then the final table name in this</span>
+<span class="sd">case will be &quot;main_collapse&quot;.</span>
 
 <span class="sd">Alternatively, we can use `table_name`::</span>
 
@@ -251,6 +288,17 @@
 <span class="sd">~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">Methods that perform modifications to the alignment are also defined here.</span>
+<span class="sd">These include:</span>
+
+<span class="sd">    - :meth:`~.Alignment.collapse`: Collapses alignment into unique sequences.</span>
+<span class="sd">    - :meth:`~.Alignment.consensus`: Merges alignment into a single sequence.</span>
+<span class="sd">    - :meth:`~.Alignment.filter_codon_positions`: Filters alignment columns</span>
+<span class="sd">      according to codon position.</span>
+<span class="sd">    - :meth:`~.Alignment.filter_missing_data`: Filters columns according to</span>
+<span class="sd">      missing data.</span>
+<span class="sd">    - :meth:`~.Alignment.code_gaps`: Code alignment&#39;s indel patterns as a</span>
+<span class="sd">      binary matrix.</span>
+
 <span class="sd">For example, the :meth:`.Alignment.collapse` method transforms the original</span>
 <span class="sd">alignment into a new one that contains only unique sequences. An important</span>
 <span class="sd">factor to take into account with alignment modifying methods, is that it may</span>
@@ -301,13 +349,14 @@
 <span class="sd">        collapse(table_in=new_table, table_out=new_table)</span>
 
 <span class="sd">In this simple pipeline, the user may perform either a `consensus`,</span>
-<span class="sd">a `collapse`, or both. When the first method is called, the `setup_database`</span>
-<span class="sd">decorator will check if the table provided in `table_in` exists. In the</span>
-<span class="sd">first called method it will not exist, so instead of returning an error,</span>
-<span class="sd">it falls back to the original alignment table and then writes the modified</span>
-<span class="sd">alignment to &quot;master_table&quot;. In the second method, `table_in` already</span>
-<span class="sd">exists, so it fetches alignment data from the &quot;master_table&quot;. This will work</span>
-<span class="sd">whether these methods are called individually or in combination.</span>
+<span class="sd">a `collapse`, or both. When the first method is called,</span>
+<span class="sd">the :func:`.setup_database` decorator will check if the table provided in</span>
+<span class="sd">`table_in` exists. In the first called method it will not exist, so instead</span>
+<span class="sd">of returning an error, it falls back to the original alignment table and</span>
+<span class="sd">then writes the modified alignment to &quot;master_table&quot;. In the second method,</span>
+<span class="sd">`table_in` already exists, so it fetches alignment data from the</span>
+<span class="sd">&quot;master_table&quot;. This will work whether these methods are called individually</span>
+<span class="sd">or in combination.</span>
 
 <span class="sd">When there is no need to keep the original alignment data (in single</span>
 <span class="sd">execution of TriSeq, for instance), the special `use_main_table` argument</span>
@@ -320,14 +369,23 @@
 <span class="sd">Writers</span>
 <span class="sd">~~~~~~~</span>
 
-<span class="sd">Like parsers, writer methods are defined with `_write_&lt;format&gt;` and are</span>
-<span class="sd">always called from the :meth:`.Alignment.write_to_file` method. When the</span>
-<span class="sd">:meth:`.Alignment.write_to_file` method is called, a list with the requested</span>
-<span class="sd">output formats is also provided. Then, for each format specified in the</span>
-<span class="sd">argument, the corresponding writer method is called. That method is</span>
-<span class="sd">responsible for fetching the data from the database and write it to an</span>
-<span class="sd">output file in the appropriate format. The map between the formats and the</span>
-<span class="sd">methods is stored in a dictionary::</span>
+<span class="sd">Like parsers, writer methods are defined with `_write_&lt;format&gt;`:</span>
+
+<span class="sd">    - :meth:`~.Alignment._write_fasta`: Writes to fasta format.</span>
+<span class="sd">    - :meth:`~.Alignment._write_phylip`: Writes to phylip format.</span>
+<span class="sd">    - :meth:`~.Alignment._write_nexus`: Writes to nexus format.</span>
+<span class="sd">    - :meth:`~.Alignment._write_stockholm`: Writes to stockholm format.</span>
+<span class="sd">    - :meth:`~.Alignment._write_gphocs`: Writes to gphocs format.</span>
+<span class="sd">    - :meth:`~.Alignment._write_ima2`: Writes to IMa2 format.</span>
+<span class="sd">    - :meth:`~.Alignment._write_mcmctree`: Writes to MCMCTree format.</span>
+
+<span class="sd">They are always called from the :meth:`.Alignment.write_to_file` method,</span>
+<span class="sd">not directly. When the :meth:`.Alignment.write_to_file` method is called,</span>
+<span class="sd">a list with the requested output formats is also provided as an argument.</span>
+<span class="sd">For each format specified in the argument, the corresponding writer method</span>
+<span class="sd">is called. That method is responsible for fetching the data from the</span>
+<span class="sd">database and write it to an output file in the appropriate format. The map</span>
+<span class="sd">between the formats and the methods is stored in a dictionary::</span>
 
 <span class="sd">    write_methods = {</span>
 <span class="sd">        &quot;fasta&quot;: self._write_fasta,</span>
@@ -378,7 +436,7 @@
 
 <span class="sd">The :class:`.AlignmentList` is the main interface between the user and the</span>
 <span class="sd">alignment data. It may contain one or more :class:`.Alignment` objects,</span>
-<span class="sd">which are considered the building blocks of the total data set. These</span>
+<span class="sd">which are considered the building blocks of the data set. These</span>
 <span class="sd">:class:`.Alignment` objects are bound by the same sqlite database connection.</span>
 
 <span class="sd">How to create an instance</span>
@@ -560,7 +618,7 @@
 <span class="sd">described here_. In this section, we provide only a few guidelines on what</span>
 <span class="sd">to expect from these methods.</span>
 
-<span class="sd">All plot data methods must be decorated with the :func:`.check_data` function</span>
+<span class="sd">All plot data methods must be decorated with the :func:`.check_data` decorator</span>
 <span class="sd">and take at least a `Namespace` argument. In most cases, no more arguments</span>
 <span class="sd">are required::</span>
 

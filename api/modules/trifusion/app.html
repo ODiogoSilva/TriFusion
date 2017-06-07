@@ -370,72 +370,126 @@
     <span class="n">_red</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">c_app_red</span>
 
     <span class="n">show_side_panel</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="sd">&quot;&quot;&quot; Setting Boolean controlling the toggling of main headers &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool controlling the toggling of main headers. Is set to True</span>
+<span class="sd">    when the sidepanel is open and False when not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lock_side_panel</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="sd">&quot;&quot;&quot;Setting Boolean that locks the sidepanel while it animates&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;bool that prevents the animation of the sidepanel when True.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute for current screen object</span>
     <span class="n">screen</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Currently open Screen object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Variable containing screen names</span>
     <span class="n">screen_names</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List of basename screen names.&quot;&quot;&quot;</span>
     <span class="n">available_screens</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List of paths to screen files.&quot;&quot;&quot;</span>
     <span class="n">loaded_screens</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps the screen name to a Screen object. Entries are</span>
+<span class="sd">    only populated when Screens are loaded for the first time. This</span>
+<span class="sd">    allows the state of each screen to be saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">plot_screens</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List of screens dedicated for plots.&quot;&quot;&quot;</span>
 
     <span class="c1"># Attributes to know current and previous screen</span>
     <span class="n">current_screen</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with the name of the current Screen object.&quot;&quot;&quot;</span>
     <span class="n">previous_screen</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with the name of the last Screen object.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute to load screens</span>
     <span class="n">index</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with the index of the current screen. The index is </span>
+<span class="sd">    retrieved from the :attr:`~.TriFusionApp.screen_names` attribute. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Create temporary directory for transient files</span>
     <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with path to temporary directory.&quot;&quot;&quot;</span>
     <span class="n">log_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with path to TriFusion&#39;s log file.&quot;&quot;&quot;</span>
     <span class="n">bm_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with path to bookmarks file.&quot;&quot;&quot;</span>
     <span class="n">projects_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with path to projects file.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Getting current directory to fetch the screen kv files</span>
     <span class="n">cur_dir</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String with the current working directory. Used to fetch the kivy</span>
+<span class="sd">    screen files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Only the original input files. SHOULD NOT BE MODIFIED</span>
     <span class="n">file_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1"># Dynamic list containing only the active files</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List with the paths of alignment files loaded into TriFusion.</span>
+<span class="sd">    This attribute should not be modified unless the files are removed </span>
+<span class="sd">    from the application.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">active_file_list</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
-    <span class="c1"># Dictionary mapping file names to their corresponding full paths. This</span>
-    <span class="c1"># attribute must exist, because some parts of the code need only the</span>
-    <span class="c1"># file name instead of the full path, but a connection to the full</span>
-    <span class="c1"># path must  be maintained for future reference</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List with the paths of the active alignment files loaded into TriFusion.</span>
+<span class="sd">    Can be changed during the session.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">filename_map</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary mapping the basename of alignment files to their full path.</span>
+<span class="sd">    Some parts of TriFusion need only the basename of the alignment files,</span>
+<span class="sd">    so this attributes allows the conversion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Setting the list of taxa names</span>
     <span class="n">active_taxa_list</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List with the active taxa loaded into TriFusion. Can be changed</span>
+<span class="sd">    during the session.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute to the home path</span>
     <span class="n">home_path</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">))</span>
+    <span class="sd">&quot;&quot;&quot;String with path to home directory.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute with bookmarks for file chooser. The bookmark attribute is a</span>
-    <span class="c1"># list containing a list with the full path of the bookmarks as the</span>
-    <span class="c1"># first element and a dictionary mapping the full path to the bookmark</span>
-    <span class="c1"># name as the second element</span>
     <span class="n">bookmarks</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">{}]</span>
-    <span class="c1"># For mouse over purposes</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List with information of the bookmarks for the filechoosers. The first</span>
+<span class="sd">    element is a list with the full path of the bookmarks. The second</span>
+<span class="sd">    element is a dictionary mapping the full path to the bookmark name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bookmarks_bt</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of bookmark Button widgets. Used for mouse over purposes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that controls the DragNDrop timing.</span>
     <span class="n">drag_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List that stores the paths of files drag and dropped into TriFusion&#39;s</span>
+<span class="sd">    window.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">drag_c</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer that works as a counter of the number of files that were dropped</span>
+<span class="sd">    into TriFusion&#39;s window. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_popup</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Reference to Popup object, if open.&quot;&quot;&quot;</span>
     <span class="n">_subpopup</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Reference to sub Popup object, if open.&quot;&quot;&quot;</span>
     <span class="n">_exit_popup</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Reference to exit Popup object, if open&quot;&quot;&quot;</span>
 
     <span class="c1"># Dictionary containing the values for the main process operations</span>
     <span class="n">main_operations</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">({</span>
         <span class="s2">&quot;concatenation&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;conversion&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;reverse_concatenation&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary mapping the main operations to a bool value. The active</span>
+<span class="sd">    main operation, if any, has a True value. Only one True value can</span>
+<span class="sd">    exist for the main operations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Dictionary containing all values of the switches and checkboxes in the</span>
     <span class="c1"># process screen</span>
@@ -443,6 +497,10 @@
                                         <span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
                                         <span class="p">(</span><span class="s2">&quot;gcoder&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
                                         <span class="p">(</span><span class="s2">&quot;consensus&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)])</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary mapping the secondary operations to a bool value. Active</span>
+<span class="sd">    secondary operations have a True value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">secondary_options</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">([(</span><span class="s2">&quot;interleave&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
                                       <span class="p">(</span><span class="s2">&quot;zorro&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
@@ -456,50 +514,125 @@
                                       <span class="p">(</span><span class="s2">&quot;variation_filter&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
                                       <span class="p">(</span><span class="s2">&quot;gcoder_file&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
                                       <span class="p">(</span><span class="s2">&quot;consensus_file&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-                                      <span class="p">(</span><span class="s2">&quot;consensus_single&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),])</span>
+                                      <span class="p">(</span><span class="s2">&quot;consensus_single&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)])</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary mapping secondary options to a bool value. Active secondary</span>
+<span class="sd">    options have a True value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that controls whether a file is to be overwritten or skipped</span>
-    <span class="c1"># For it to be active it must be a string with &quot;overwrite&quot; or &quot;skip&quot;,</span>
-    <span class="c1"># otherwise it&#39;s ignored</span>
     <span class="n">file_overwrite</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attribute controlling whether output files should be overwritten</span>
+<span class="sd">    or skipped. Has a None value when inactive, &quot;overwrite&quot; when there is</span>
+<span class="sd">    an instruction to overwrite, and &quot;skip&quot; when there is a instruction to </span>
+<span class="sd">    skip.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file_apply_all</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determines whether the behaviour of </span>
+<span class="sd">    :attr:`~.TriFusionApp.file_overwrite` should be applied to all files </span>
+<span class="sd">    (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attributes for the Orthology screen widgets</span>
     <span class="n">ortho_search_options</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to the </span>
+<span class="sd">    :class:`trifusion.data.resources.custom_widgets.OrthologySearchGrid </span>
+<span class="sd">    object, containing the additional option&#39;s widgets of the Orthology </span>
+<span class="sd">    Search screen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">orto_search_height</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with the height property of the </span>
+<span class="sd">    :attr:`~.TriFusionApp.ortho_search_options` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attribute for the gridlayout widget that will contain all main options</span>
     <span class="c1"># for the process module</span>
     <span class="n">process_grid_wgt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to the </span>
+<span class="sd">    :class:`trifusion.data.resources.custom_widgets.ProcessGeneral object</span>
+<span class="sd">    with the general options widgets of the Process screen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">process_options</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to the </span>
+<span class="sd">    :class:`trifusion.data.resources.custom_widgets.AdditionalProcessContents</span>
+<span class="sd">    object with the additional options widgets of the Process screen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">process_height</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with the height property of the </span>
+<span class="sd">    :attr:`~.TriFusionApp.process_options` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attributes for Statistics summary stats</span>
     <span class="n">stats_summary</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to the</span>
+<span class="sd">    :class:`trifusion.data.resources.custom_widgets.StatsSummary object</span>
+<span class="sd">    containing the widgets of the overall summary statistics in the Statistics</span>
+<span class="sd">    screen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">stats_table</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to the </span>
+<span class="sd">    :class:`trifusion.data.resources.custom_widgets.GeneTable object</span>
+<span class="sd">    containing the widgets of the gene table summary statistics in the</span>
+<span class="sd">    Statistics screen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MAX_TABLE_N</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with the maximum number of rows allowed for the gene table</span>
+<span class="sd">    in the :class:`trifusion.data.resources.custom_widgets.GeneTable object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">gene_table_selection</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pandas DataFrame with the selection of gene summary statistics for the</span>
+<span class="sd">    :class:`trifusion.data.resources.custom_widgets.GeneTable object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">gene_master_table</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List with the table data from the </span>
+<span class="sd">    :class:`trifusion.data.resources.custom_widgets.GeneTable object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attribute for the widget containing the treeview showing the</span>
     <span class="c1"># operations queue</span>
     <span class="n">operation_tv</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;TreeView object containing the queue of operations.&quot;&quot;&quot;</span>
     <span class="n">main_nodes</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps string identifiers of main nodes to</span>
+<span class="sd">    those Node objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attributes containing plot related elements</span>
     <span class="n">plot_backups</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps Statistics plot analyses identifiers to their</span>
+<span class="sd">    respective table data in a list object. This object is only populated</span>
+<span class="sd">    when those analyses are executed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#TODO: Check memory usage of plot_backups</span>
     <span class="n">current_plt_idx</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List that contains two elements. The first is the string identifier</span>
+<span class="sd">    of the current plot analyses. The second is the list of arguments</span>
+<span class="sd">    that should be passed to the respective plotting method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">current_plot</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allownone</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    matplotlib.Figure object of the current plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">current_lgd</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;matplotlib.Legend object associated to the current plot. Can be None.&quot;&quot;&quot;</span>
     <span class="n">current_table</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allownone</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># Alternate version for rapid plot switch. Only available for certain</span>
-    <span class="c1">#   plots</span>
-    <span class="n">alternative_plot</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allownone</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">alternative_lgd</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">alternative_table</span> <span class="o">=</span> <span class="n">ObjectProperty</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">allownone</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;List with table data associated with the current plot.&quot;&quot;&quot;</span>
+
     <span class="c1"># Patch attribute</span>
     <span class="n">plt_patch</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="c1"># Dictionary with the plotmethods and file names for orthology plots</span>
+    <span class="sd">&quot;&quot;&quot;Stores matplotlib.patches objects that may be added to plots.&quot;&quot;&quot;</span>
     <span class="n">orto_plt_method</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;Taxa distribution&quot;</span><span class="p">:</span>
         <span class="p">[</span><span class="n">bar_plot</span><span class="p">,</span> <span class="s2">&quot;Species_distribution.png&quot;</span><span class="p">],</span>
@@ -510,7 +643,12 @@
         <span class="s2">&quot;Taxa gene copies&quot;</span><span class="p">:</span>
         <span class="p">[</span><span class="n">bar_plot</span><span class="p">,</span> <span class="s2">&quot;Species_copy_number.png&quot;</span><span class="p">]</span>
     <span class="p">}</span>
-    <span class="c1"># Dictionary with the plot methods and file names for each stats_idx</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps the string identifier of orthology plot analyses</span>
+<span class="sd">    to a list. This list has two elements. The first is the plotting</span>
+<span class="sd">    method defined in :mod:`trifusion.base.plotter`, and the second is</span>
+<span class="sd">    the name of the temporary figure file that will be generated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">stats_plt_method</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;Gene occupancy&quot;</span><span class="p">:</span>
             <span class="p">[</span><span class="n">interpolation_plot</span><span class="p">,</span> <span class="s2">&quot;gene_occupancy.png&quot;</span><span class="p">],</span>
@@ -569,16 +707,31 @@
             <span class="s2">&quot;Sequence size outliers sp&quot;</span><span class="p">:</span>
             <span class="p">[</span><span class="n">outlier_densisty_dist</span><span class="p">,</span> <span class="s2">&quot;Sequence_size_outliers_sp.png&quot;</span><span class="p">]</span>
         <span class="p">}</span>
-    <span class="c1"># Storage of previous data sets. This is used to evaluate whether the</span>
-    <span class="c1"># plot methods should be run, or if they should be ignored. The Stats</span>
-    <span class="c1"># key refers to the previous active data sets when the stats summary</span>
-    <span class="c1"># statistics overview was performed. It should contain two lists,</span>
-    <span class="c1"># the first with the file set and the second with the taxa set</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps the string identifier of statistics plot analyses</span>
+<span class="sd">    to a list. This list has two elements. The first is the plotting</span>
+<span class="sd">    method defined in :mod:`trifusion.base.plotter`, and the second is</span>
+<span class="sd">    the name of the temporary figure file that will be generated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">previous_sets</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Taxa&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Stats&quot;</span><span class="p">:</span> <span class="p">[]}</span>
-    <span class="c1"># This attribute will store the StatsToggleWgt when changing the screen</span>
-    <span class="c1"># from Statistics. When the Statistics screen is back on active,</span>
-    <span class="c1"># the widget can be restored with this var</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary storing previous data sets defined in TriFusion. This is </span>
+<span class="sd">    used to evaluate whether the plot methods should be executed or ignored. </span>
+<span class="sd">    The Stats key refers to the previous active data sets when the stats </span>
+<span class="sd">    summary statistics overview was performed. It should contain two lists, </span>
+<span class="sd">    the first with the file set and the second with the taxa set. </span>
+<span class="sd">    </span>
+<span class="sd">        previous_sets = {&quot;Files&quot;: [], &quot;Taxa&quot;: [], &quot;Stats&quot;: []}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">previous_stats_toggle</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to </span>
+<span class="sd">    :class:`~trifusion.data.resources.custom_widgets.StatsToggleWgt object.</span>
+<span class="sd">    It&#39;s used to restore the widget to the Statistics screen when exiting</span>
+<span class="sd">    and entering it when a plot is loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attributes for storing taxa and file buttons for side panel. These</span>
     <span class="c1">#  will be used when search for files/taxa and for loading only</span>
@@ -586,96 +739,208 @@
     <span class="c1"># pertains a single file/taxon and it will be a tupple containing the</span>
     <span class="c1">#  main button, information button and remove button.</span>
     <span class="n">sp_file_bts</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of widgets from individual files in the &quot;Files&quot; tab of the</span>
+<span class="sd">    sidepanel. This attribute is used when searching for files and for</span>
+<span class="sd">    loading only Button subsets of very large data sets. Each element</span>
+<span class="sd">    will be a tuple containing the main Button, the information Button,</span>
+<span class="sd">    and the remove Button widgets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sp_taxa_bts</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of widgets from individual taxa in the &quot;Taxa&quot; tab of the</span>
+<span class="sd">    sidepanel. This attribute is used when searching for taxa and for</span>
+<span class="sd">    loading only Button subsets of very large data sets. Each element</span>
+<span class="sd">    will be a tuple containing the main Button, the information Button,</span>
+<span class="sd">    and the remove Button widgets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sp_partition_bts</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of widgets from individual partitions in the &quot;Partitions&quot; tab of the</span>
+<span class="sd">    sidepanel. This attribute is used when searching for partitions and for</span>
+<span class="sd">    loading only Button subsets of very large data sets. Each element</span>
+<span class="sd">    will be a tuple containing the main Button, the counter Button,</span>
+<span class="sd">    and the edit Button widgets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attributes that control the amount of taxa/file buttons showing at the</span>
     <span class="c1"># side panel. To avoid staggering the app with tons of buttons, a</span>
     <span class="c1"># maximum number of buttons showing initially is set. More buttons</span>
     <span class="c1"># can be later added.</span>
     <span class="n">MAX_FILE_BUTTON</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with the maximum number of file Buttons allowed in the &quot;Files&quot;</span>
+<span class="sd">    tab of the sidepanel. Prevents the loading of all file Buttons in</span>
+<span class="sd">    very large datasets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">count_files</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer that servers as a counter of the number of file Buttons currently</span>
+<span class="sd">    loaded into the &quot;Files&quot; tab of the sidepanel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MAX_PARTITION_BUTTON</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with the maximum number of partition Buttons allowed in the </span>
+<span class="sd">    &quot;Partitions&quot; tab of the sidepanel. Prevents the loading of all partition </span>
+<span class="sd">    Buttons in very large datasets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">count_partitions</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer that servers as a counter of the number of partition Buttons </span>
+<span class="sd">    currently loaded into the &quot;Partitions&quot; tab of the sidepanel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attributes storing the toggle buttons from Taxa/File panels. Mostly</span>
-    <span class="c1"># for mouse_over events</span>
-    <span class="c1"># Contains the button widgets from the Files and Taxa tabs</span>
     <span class="n">mouse_over_bts</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">({</span>
         <span class="s2">&quot;Files&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;Taxa&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;Partitions&quot;</span><span class="p">:</span> <span class="p">[]})</span>
-    <span class="c1"># The button text of the previous mouse over event. This will allow the</span>
-    <span class="c1"># assessment of whether the current mouse collision is for the same</span>
-    <span class="c1"># button (in which case the mouse over will not be triggered) or for</span>
-    <span class="c1"># a different button (in which case the mouse over is triggered)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attributes storing the ToggleButton objects from Taxa/File/Partitions </span>
+<span class="sd">    tabs in the sidepanel. Used mostly for mouse over events.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">previous_mouse_over</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="c1"># This is a locking mechanism of the mouse over event. When there is a</span>
-    <span class="c1"># scheduled event for a mouse over this attribute is set to False, which</span>
-    <span class="c1"># prevents further events from being scheduled in the meantime. When the</span>
-    <span class="c1"># scheduled event is dispatched, the lock is released and it returns to</span>
-    <span class="c1"># True</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Button text property of the previous mouse over event. This will </span>
+<span class="sd">    allow the assessment of whether the current mouse collision is for the </span>
+<span class="sd">    same button (in which case the mouse over will not be triggered) or for </span>
+<span class="sd">    a different button (in which case the mouse over is triggered).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">mouse_over_ready</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># Stores the previous mouse over label button so that it can be removed</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that is a locking mechanism of the mouse over event. </span>
+<span class="sd">    When there is a scheduled event for a mouse over this attribute is set </span>
+<span class="sd">    to False, which prevents further events from being scheduled in the </span>
+<span class="sd">    meantime. When the scheduled event is dispatched, the lock is released </span>
+<span class="sd">    and it returns to True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">old_mouse_over</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Label widget of the previous mouse over. Used so that this label can be</span>
+<span class="sd">    removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fancy_bt</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to the </span>
+<span class="sd">    :class:`~trifusion.data.resources.custom_widgets.FancyButton` object</span>
+<span class="sd">    from the current mouse over.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">touch</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="c1"># Attribute that stores paths of currently active removable media</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Touch object. Can be used to query the type of touch on certain events.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">removable_media</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1"># Attribute that locks arrow keys keybindings when a text input is</span>
-    <span class="c1"># focused</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List attribute that stores paths of currently active removable media.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">arrow_block</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that ocks arrow keys keybindings when a text input is</span>
+<span class="sd">    focused.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Whether SidePanel&#39;s More options dialog is active or not</span>
     <span class="n">sp_moreopts</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute of whether the side panel&#39;s MoreOptions dialog is active</span>
+<span class="sd">     (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Whether a FancyDropDown is... well... dropped</span>
     <span class="n">fancy_dropped</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute of whether the </span>
+<span class="sd">    :class:&#39;trifusion.data.resources.custom_widgets.FancyDropDown object</span>
+<span class="sd">    if active (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that stores the last selected button in the sidepanel.</span>
     <span class="n">last_sp_bt</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Files&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Taxa&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Partitions&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that stores the last selected Button object in the sidepanel</span>
+<span class="sd">    for Files, Taxa and Partitions.</span>
+<span class="sd">    </span>
+<span class="sd">        last_sp_bt = {&quot;Files&quot;: None, &quot;Taxa&quot;: None, &quot;Partitions&quot;: None}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that stores information on whether the control key is being</span>
-    <span class="c1"># pressed</span>
     <span class="n">is_control_pressed</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that stores information on whether the control key</span>
+<span class="sd">    is being pressed (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that stores information on whether the shift key is being</span>
-    <span class="c1"># pressed</span>
     <span class="n">is_shift_pressed</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that stores information on whether the shift key</span>
+<span class="sd">    is being pressed (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that stores the previous button for general purpose multi</span>
-    <span class="c1"># selection of toggle buttons using shift clicking</span>
     <span class="n">prev_tb</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attribute that stores the previous Button for general purpose multi</span>
+<span class="sd">    selection of toggle buttons using shift clicking</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">mouse_position</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of the mouse position coordinates in [xpos, ypos].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that determines whether statistics background processes</span>
-    <span class="c1"># should be interrupted or not</span>
     <span class="n">lock_stats</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determines whether statistics background processes</span>
+<span class="sd">    should be interrupted (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attributes used to determine is a specific background process</span>
     <span class="c1"># should be terminated by the user. All values are set to True by</span>
     <span class="c1"># default and their values only change on the start up of the</span>
     <span class="c1"># appropriate function.</span>
 
-    <span class="c1"># For Statistics summary stats</span>
     <span class="n">terminate_stats</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute used to determine if a summary statists background </span>
+<span class="sd">    process should be terminated by the user. Value is True by default and </span>
+<span class="sd">    they only change on the start up of the appropriate background function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># For process execution</span>
     <span class="n">terminate_process_exec</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute used to determine if a process execution background </span>
+<span class="sd">    process should be terminated by the user. Value is True by default and </span>
+<span class="sd">    they only change on the start up of the appropriate background function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># For generic background process</span>
     <span class="n">terminate_background</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute used to determine if a generic background </span>
+<span class="sd">    process should be terminated by the user. Value is True by default and </span>
+<span class="sd">    they only change on the start up of the appropriate background function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># For file loading</span>
     <span class="n">terminate_load_files</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute used to determine if a file loading background </span>
+<span class="sd">    process should be terminated by the user. Value is True by default and </span>
+<span class="sd">    they only change on the start up of the appropriate background function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># For orthology search execution</span>
     <span class="n">terminate_orto_search</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute used to determine if a orthology search background </span>
+<span class="sd">    process should be terminated by the user. Value is True by default and </span>
+<span class="sd">    they only change on the start up of the appropriate background function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># For orthology group export</span>
     <span class="n">terminate_group_export</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute used to determine if a ortholog export background </span>
+<span class="sd">    process should be terminated by the user. Value is True by default and </span>
+<span class="sd">    they only change on the start up of the appropriate background function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1">################################</span>
     <span class="c1">#</span>
@@ -683,160 +948,284 @@
     <span class="c1">#</span>
     <span class="c1">################################</span>
 
-    <span class="c1"># MySQL access</span>
-    <span class="n">mysql_pass</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="n">sqldb</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with path to sqlite database.&quot;&quot;&quot;</span>
 
-    <span class="c1"># OrthoMCL output directory</span>
     <span class="n">ortho_dir</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with path to OrthoMCL output directory.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Export directory for orthology exports</span>
     <span class="n">orto_export_dir</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with path to directory for ortholog exports.&quot;&quot;&quot;</span>
 
-    <span class="c1"># USEARCH database</span>
     <span class="n">usearch_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with path to usearch executable.&quot;&quot;&quot;</span>
     <span class="n">usearch_db</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;goodProteins_db&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with name of usearch&#39;s database file.&quot;&quot;&quot;</span>
     <span class="n">usearch_output</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;AllVsAll.out&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with name of the usearch output file.&quot;&quot;&quot;</span>
     <span class="n">usearch_evalue</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;0.00001&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with evalue for usearch execution.&quot;&quot;&quot;</span>
 
     <span class="c1"># MCL/Groups attributes</span>
     <span class="n">mcl_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with path to mcl executable.&quot;&quot;&quot;</span>
     <span class="n">ortholog_prefix</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;My_group&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with prefix for ortholog groups.&quot;&quot;&quot;</span>
     <span class="n">group_prefix</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;group&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with prefix for orthology search group files.&quot;&quot;&quot;</span>
     <span class="n">mcl_inflation</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">([</span><span class="s2">&quot;3&quot;</span><span class="p">])</span>
+    <span class="sd">&quot;&quot;&quot;List with inflation values, as strings, for the mcl execution.&quot;&quot;&quot;</span>
 
     <span class="c1"># Protein quality filters</span>
-    <span class="n">protein_min_len</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># Absolute</span>
-    <span class="n">protein_max_stop</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Percentage</span>
+    <span class="n">protein_min_len</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Integer with the minimum protein length for OrthoMCL.&quot;&quot;&quot;</span>
+    <span class="n">protein_max_stop</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Integer with the maximum percentage of stops for OrthoMCL.&quot;&quot;&quot;</span>
 
     <span class="c1"># Orthology cluster filters</span>
     <span class="n">orto_max_gene</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with maximum number of gene copies allowed for each</span>
+<span class="sd">    ortholog group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">orto_min_sp</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Integer with the minimum taxa representation allowed for each</span>
+<span class="sd">    ortholog group..</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attributes for exporting groups as protein/nucleotides</span>
     <span class="n">protein_db</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with path to protein database file.&quot;&quot;&quot;</span>
     <span class="n">cds_db</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;List with paths to the CDS files corresponding to proteomes.&quot;&quot;&quot;</span>
 
     <span class="c1"># Attribute containing the path to the proteome files</span>
     <span class="n">proteome_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;List of paths to proteome files loaded into TriFusion.&quot;&quot;&quot;</span>
     <span class="n">active_proteome_files</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List of active proteome files.&quot;&quot;&quot;</span>
 
     <span class="c1"># Attribute containing the orthology group files</span>
     <span class="n">ortho_group_files</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List with paths to ortholog group files loaded into TriFusion.&quot;&quot;&quot;</span>
     <span class="n">ortho_groups</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to a :class:`~trifusion.ortho.OrthomclToolbox.MultiGroupLight`</span>
+<span class="sd">    object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">active_group</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to a :class:`~trifusion.ortho.OrthomclToolbox.GroupLight`</span>
+<span class="sd">    object, currently active.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">active_group_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String with name of the currently active </span>
+<span class="sd">    :class:`~trifusion.ortho.OrthomclToolbox.GroupLight`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># List storing the original alignment object variables. SHOULD NOT BE</span>
-    <span class="c1"># MODIFIED</span>
     <span class="n">alignment_list</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="c1"># List of active alignment object variables.</span>
-    <span class="n">active_alignment_list</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="c1"># List of active partitions</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reference to a :class:`~trifusion.process.sequence.AlignmentList` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">active_partitions</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of currently active partitions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute that determines whether taxa information needs to be updated</span>
     <span class="n">trigger_taxa_update</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determined whether taxa information needs to be</span>
+<span class="sd">    updated (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attributes containing the original and active taxa information</span>
-    <span class="c1"># dictionaries</span>
     <span class="n">original_tx_inf</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps a taxon string to the several informative </span>
+<span class="sd">    properties for the entire loaded data set, shown when clicking the </span>
+<span class="sd">    information button in the sidepanel. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">active_tx_inf</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
-    <span class="c1"># Same as before but for file information</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps a taxon string to the several informative </span>
+<span class="sd">    properties for the active data set, shown when clicking the </span>
+<span class="sd">    information button in the sidepanel. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">original_file_inf</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps a filename string to the several informative </span>
+<span class="sd">    properties for the entire loaded data set, shown when clicking the </span>
+<span class="sd">    information button in the sidepanel. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">active_file_inf</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps a filename string to the several informative </span>
+<span class="sd">    properties for the active data set, shown when clicking the </span>
+<span class="sd">    information button in the sidepanel. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#TODO: must check RAM usage of these dictionaries</span>
 
-    <span class="c1"># Export mode. Tuple with first element &quot;taxa&quot; or &quot;file&quot; and second</span>
-    <span class="c1"># element as &quot;all&quot; or &quot;selected&quot;</span>
     <span class="n">export_mode</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tuple attribute that determines the export mode in the</span>
+<span class="sd">    sidepanel. The first element can be either &#39;taxa&#39; or &#39;file&#39;. The</span>
+<span class="sd">    second element can be &#39;all&#39; or &#39;select&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute storing the sequence types currently loaded</span>
     <span class="n">sequence_types</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String attribute storing the sequence type of alignment files</span>
+<span class="sd">    currently loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Attribute for taxa and file groups</span>
     <span class="n">taxa_groups</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary storing custom taxa groups defined in TriFusion. Keys are</span>
+<span class="sd">    group names and values are a list of taxon names.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file_groups</span> <span class="o">=</span> <span class="n">DictProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary storing custom file groups defined in TriFusion. Keys are</span>
+<span class="sd">    group names and values are a list of filenames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dataset_file</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String attribute with path to a data set file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute containing the objects for the several possible output</span>
-    <span class="c1"># files.</span>
     <span class="n">output_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String with path to output file for Process execution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">output_dir</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with path to output directory for Process execution.&quot;&quot;&quot;</span>
     <span class="n">conversion_suffix</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String with suffix to add for conversion operation of Process</span>
+<span class="sd">    execution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute storing active output formats. Fasta is True by default</span>
     <span class="n">output_formats</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">([</span><span class="s2">&quot;fasta&quot;</span><span class="p">])</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of output currently selected output formats for Process execution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attributes for extra options of output formats</span>
-    <span class="c1"># Determines wheter the Fasta output format will be compliant with LDhat</span>
     <span class="n">ld_hat</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determines whether the Fasta output format shoud</span>
+<span class="sd">    be compliant with LDhat (True) or a regular fasta (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Determines whether the part.File associated with phylip format is</span>
     <span class="c1"># created</span>
     <span class="n">create_partfile</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># Determines whether the charset partitions in Nexus input files are to</span>
-    <span class="c1"># be used in the output file</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determines whether the partition file associated with</span>
+<span class="sd">    the phylip format should be created (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">use_nexus_partitions</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># Determines whether the substitution models defined for the</span>
-    <span class="c1"># partitions are to be used in the output file</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determines whether the charset partitions block </span>
+<span class="sd">    in nexus format should be written (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">use_nexus_models</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># Determines whether taxa names should be truncated to 10 characters</span>
-    <span class="c1"># in a phylip file</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determines whether the substitution models </span>
+<span class="sd">    associated to alignment partitions should be written to the nexus</span>
+<span class="sd">    file (True) or not (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">phylip_truncate_name</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="c1"># Additional options for IMa2 ormat</span>
-    <span class="c1"># [0] - string - population file path</span>
-    <span class="c1"># [1] - string - Population tree string</span>
-    <span class="c1"># [2] - list - mutation model for each partition (one element if</span>
-    <span class="c1"># applies to all)</span>
-    <span class="c1"># [3] - list - inheritance scalaer for each partition (one element if</span>
-    <span class="c1">#  applies to all)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool attribute that determines whether taxa names should be truncated</span>
+<span class="sd">    to 10 characters (True) or not (False) in a phylip output file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">ima2_options</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Four element list of additional options for IMa2 format:</span>
+<span class="sd">    </span>
+<span class="sd">        1. str - population file path</span>
+<span class="sd">        2. str - Population tree string</span>
+<span class="sd">        3. list - mutation model for each partition (one element if</span>
+<span class="sd">    applies to all)</span>
+<span class="sd">        4. list - inheritance scalaer for each partition (one element if</span>
+<span class="sd">     applies to all)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute storing the missing data filter settings. The list should</span>
-    <span class="c1"># contain gap threshold as first element, missing data threshold as</span>
-    <span class="c1"># second element and minimum taxa representation proportion as the third</span>
-    <span class="c1"># element</span>
     <span class="n">missing_filter_settings</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">([(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
-    <span class="c1"># Attribute storing the taxa filter settings. The first element of</span>
-    <span class="c1"># the list should be the filter mode (either &quot;Contain&quot; or &quot;Exclude&quot;)</span>
-    <span class="c1"># and the second element should be a string with the name of the taxa</span>
-    <span class="c1">#  group (from the</span>
-    <span class="c1"># taxa_group attribute)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Two element list attribute storing the missing data filter settings.</span>
+<span class="sd">    The first element is a three element tuple:</span>
+<span class="sd">    </span>
+<span class="sd">        1. bool. Whether the missing data filter is active (True) or not </span>
+<span class="sd">           (False).</span>
+<span class="sd">        2. int. Percentage of gaps allowed.</span>
+<span class="sd">        3. int, Percentage of missing data allowed.</span>
+<span class="sd">    </span>
+<span class="sd">    The second element is a two element tuple:</span>
+<span class="sd">        </span>
+<span class="sd">        1. bool. Whether the minimum taxa representation filter is active </span>
+<span class="sd">           (True) or not (False).</span>
+<span class="sd">        2. int. Percentage of the min taxa representation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">taxa_filter_settings</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
-    <span class="c1"># Attribute storing the alignment filter settings. This will determine</span>
-    <span class="c1"># which codon positions will be written to the output (only for DNA</span>
-    <span class="c1"># sequences), so this will consist of a list containing 3 elements that</span>
-    <span class="c1"># correspond to each position. Positions will be saved or filtered</span>
-    <span class="c1"># depending on the boolean value of the list position. Ex. [True,</span>
-    <span class="c1"># True, True] will save all positions, whereas [True, True, False]</span>
-    <span class="c1"># will only save the first</span>
-    <span class="c1"># two positions</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List attribute storing the taxa filter settings. The first element of</span>
+<span class="sd">    the list should be the filter mode (either &quot;Contain&quot; or &quot;Exclude&quot;)</span>
+<span class="sd">    and the second element should be a string with the name of the taxa</span>
+<span class="sd">    group (from the :attr:`~TriFusionApp.taxa_group` attribute).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">codon_filter_settings</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
-    <span class="c1"># Attribute storing the alignment variation filter settings. For each</span>
-    <span class="c1"># key entry there is a list with two elements, storing the minimum</span>
-    <span class="c1"># and maximum value for that particular statistic. None values are</span>
-    <span class="c1"># allowed, in which case there is no boundary</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List attribute storing the alignment filter settings. This will determine</span>
+<span class="sd">    which codon positions will be written to the output (only for DNA</span>
+<span class="sd">    sequences), so this will consist of a list containing 3 elements that</span>
+<span class="sd">    correspond to each position. Positions will be saved or filtered</span>
+<span class="sd">    depending on the boolean value of the list position. Ex. [True,</span>
+<span class="sd">    True, True] will save all positions, whereas [True, True, False]</span>
+<span class="sd">    will only save the first two positions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">variation_filter</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List attribute storing the alignment variation filter settings. The</span>
+<span class="sd">    elements correspond to:</span>
+<span class="sd">    </span>
+<span class="sd">        1. Minimum variable sites.</span>
+<span class="sd">        2. Maximum variable sites.</span>
+<span class="sd">        3. Minimum informative sites.</span>
+<span class="sd">        4. Maximum informative sites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute determining whether reverse concatenation will use a</span>
-    <span class="c1"># partition file or the partitions defined in the app</span>
     <span class="n">use_app_partitions</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="c1"># Partitions file</span>
-    <span class="n">partitions_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="c1"># Input file for reverse concatenation</span>
-    <span class="n">rev_infile</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool atribute determining whether reverse concatenation will use a</span>
+<span class="sd">    partition file (False) or the partitions defined in the app (True).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute for ZORRO settings</span>
+    <span class="n">partitions_file</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String with path to partitions file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">rev_infile</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    String with nameo the alignment file to be reverse concatenated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">zorro_suffix</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with the suffix of zorro files.&quot;&quot;&quot;</span>
     <span class="n">zorro_dir</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;String with the directory containing the zorro files.&quot;&quot;&quot;</span>
 
     <span class="n">hap_prefix</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="s2">&quot;Hap&quot;</span><span class="p">)</span>
-    <span class="sd">&quot;&quot;&quot;Attribute storing the haplotype prefix.&quot;&quot;&quot;</span>
-
-    <span class="c1">##################################</span>
-    <span class="c1">#</span>
-    <span class="c1"># GUI RELATED METHODS AND FUNCTIONS</span>
-    <span class="c1">#</span>
-    <span class="c1">##################################</span>
+    <span class="sd">&quot;&quot;&quot;String with the haplotype prefix for collapse operation.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TriFusionApp.build"><a class="viewcode-back" href="../../trifusion.app.html#trifusion.app.TriFusionApp.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -7149,17 +7538,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">show_popup</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Choose group file(s) to import&quot;</span><span class="p">,</span>
                         <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">size_hint</span><span class="o">=</span><span class="p">(</span><span class="o">.</span><span class="mi">9</span><span class="p">,</span> <span class="o">.</span><span class="mi">9</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="TriFusionApp.dialog_mysql"><a class="viewcode-back" href="../../trifusion.app.html#trifusion.app.TriFusionApp.dialog_mysql">[docs]</a>    <span class="k">def</span> <span class="nf">dialog_mysql</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates dialog for MySQL settings</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">content</span> <span class="o">=</span> <span class="n">MySQLDialog</span><span class="p">(</span><span class="n">cancel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dismiss_popup</span><span class="p">)</span>
-        <span class="n">content</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">txt_dlg</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mysql_pass</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">show_popup</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;MySQL root password&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-                        <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">150</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="TriFusionApp.dialog_protein_filter"><a class="viewcode-back" href="../../trifusion.app.html#trifusion.app.TriFusionApp.dialog_protein_filter">[docs]</a>    <span class="k">def</span> <span class="nf">dialog_protein_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 

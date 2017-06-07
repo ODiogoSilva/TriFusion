@@ -94,15 +94,16 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="trifusion.html">TriFusion modules and API reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#trifusion-gui">TriFusion GUI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#orthology-backend">Orthology backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#process-backend">Process backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#statistics-backend">Statistics backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#what-is-trifusion">What is TriFusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#how-can-trifusion-be-used">How can TriFusion be used</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#components-of-trifusion">Components of TriFusion</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="trifusion.data.html#backgrounds"><cite>backgrounds</cite></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.data.html#resources"><cite>resources</cite></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trifusion.data.html#screens"><cite>screens</cite></a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="trifusion.data.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="trifusion.data.html#module-trifusion.data">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
@@ -185,17 +186,54 @@
 <span id="trifusion-data-resources-background-tasks-module"></span><h1>trifusion.data.resources.background_tasks module<a class="headerlink" href="#module-trifusion.data.resources.background_tasks" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="how-to-use-background-tasks">
 <h2>How to use background tasks<a class="headerlink" href="#how-to-use-background-tasks" title="Permalink to this headline">¶</a></h2>
-<p>Tasks that are too time consuming to be executed in TriFusion&#8217;s main
-thread are defined here. These functions should be called from TriFusion&#8217;s
-<cite>app</cite> file in a <cite>threading.Thread</cite> object. These functions must rely
-on <cite>multiprocessing.Namespace</cite> or <cite>Queue.Queue</cite> objects to transfer
-data between the worker and main thread.</p>
-<div class="section" id="creation-of-tasks-in-trifusion-app">
-<h3>Creation of tasks in <cite>trifusion.app</cite><a class="headerlink" href="#creation-of-tasks-in-trifusion-app" title="Permalink to this headline">¶</a></h3>
-<p>There is a <cite>run_in_background</cite> method in <cite>trifusion.app</cite> that greatly
-facilitates the execution of a task in a worker thread, and also
-accepts a second function callback that is executed when the worker
-thread is finished. In brief, a worker thread can be initiated like:</p>
+<p>Tasks that are too time consuming to be executed in TriFusion&#8217;s main thread
+are defined here. These functions should be called from
+<a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp" title="trifusion.app.TriFusionApp"><code class="xref py py-class docutils literal"><span class="pre">TriFusionApp</span></code></a> in a <cite>threading.Thread</cite> object. These
+functions must rely on <cite>multiprocessing.Namespace</cite> and <cite>Queue.Queue</cite> objects
+to transfer data between the worker and main thread.</p>
+<div class="section" id="generic-creation-of-background-tasks-in-trifusionapp">
+<h3>Generic creation of background tasks in <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp" title="trifusion.app.TriFusionApp"><code class="xref py py-class docutils literal"><span class="pre">TriFusionApp</span></code></a><a class="headerlink" href="#generic-creation-of-background-tasks-in-trifusionapp" title="Permalink to this headline">¶</a></h3>
+<p>Any method in <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp" title="trifusion.app.TriFusionApp"><code class="xref py py-class docutils literal"><span class="pre">TriFusionApp</span></code></a> can start a task in a
+worker thread, provided it follows a few guidelines described below.
+However, for most cases, there is already a
+<a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.run_in_background" title="trifusion.app.TriFusionApp.run_in_background"><code class="xref py py-meth docutils literal"><span class="pre">run_in_background()</span></code></a> method that greatly
+facilitates this process:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_in_background</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">second_func</span><span class="p">,</span> <span class="n">args1</span><span class="p">,</span> <span class="n">args2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">no_arg2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Crunching data...&quot;</span><span class="p">,</span>
+                      <span class="n">cancel</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>Suppose you have defined a function (<cite>my_func</cite>) in
+<a class="reference internal" href="#module-trifusion.data.resources.background_tasks" title="trifusion.data.resources.background_tasks"><code class="xref py py-mod docutils literal"><span class="pre">background_tasks</span></code></a> that is meant to run in the
+background. This function may take any number of arguments, but in this
+example it takes only one. To execute this function in the background,
+simply call <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.run_in_background" title="trifusion.app.TriFusionApp.run_in_background"><code class="xref py py-meth docutils literal"><span class="pre">run_in_background()</span></code></a> like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">run_in_background</span><span class="p">(</span><span class="n">my_func</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">args1</span><span class="o">=</span><span class="p">[</span><span class="n">my_arg</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This is the simplest example. In many cases <cite>my_func</cite> may return something,
+and we may want to feed that something into another callback in the main
+thread to update application structures or to perform any other task. This
+can be easily accomplished with this method using the <cite>second_func</cite>
+and <cite>args2</cite> arguments:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">run_in_background</span><span class="p">(</span><span class="n">my_func</span><span class="p">,</span> <span class="n">my_callback</span><span class="p">,</span> <span class="n">args1</span><span class="o">=</span><span class="p">[</span><span class="n">my_arg</span><span class="p">],</span> <span class="n">args2</span><span class="o">=</span><span class="p">[</span><span class="n">other_arg</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>In this case, the object returned by <cite>my_func</cite> will be passed directly
+to <cite>my_callback</cite>. Since we also defined arguments to <cite>my_callback</cite>, the
+argument list will be merged before calling <cite>my_callback</cite>. It&#8217;s important
+to note that <cite>my_callback</cite> is being called from the main thread, which
+means that is can change application structures, but it can also freeze the
+application window if it&#8217;s too intensive.</p>
+</div>
+<div class="section" id="custom-creation-of-background-tasks">
+<h3>Custom creation of background tasks<a class="headerlink" href="#custom-creation-of-background-tasks" title="Permalink to this headline">¶</a></h3>
+<p>A <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp" title="trifusion.app.TriFusionApp"><code class="xref py py-class docutils literal"><span class="pre">TriFusionApp</span></code></a> method that need to executed some
+functio in the background must follow some guidelines to ensure that
+it will start and end properly.</p>
+<div class="section" id="use-a-thread-object">
+<h4>Use a <cite>Thread</cite> object<a class="headerlink" href="#use-a-thread-object" title="Permalink to this headline">¶</a></h4>
+<p>A worker thread can be initiated like:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">background_process</span><span class="p">,</span>
                      <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">shared_ns</span><span class="p">,</span> <span class="n">args1</span><span class="p">))</span>
 <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -204,12 +242,13 @@ thread is finished. In brief, a worker thread can be initiated like:</p>
 <p>The background task is provided in the <cite>target</cite> argument, and any
 potential arguments in the <cite>args</cite> argument.</p>
 </div>
-<div class="section" id="launching-waiting-dialog">
-<h3>Launching waiting dialog<a class="headerlink" href="#launching-waiting-dialog" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="create-and-launch-a-waiting-dialog">
+<h4>Create and launch a waiting dialog<a class="headerlink" href="#create-and-launch-a-waiting-dialog" title="Permalink to this headline">¶</a></h4>
 <p>While the background task is being executed, a dialog of some sort should
 be created in the main thread and ideally show some progress. Any
-custom dialog can be created, but a general <cite>CrunchData</cite> dialog is already
-created:</p>
+custom dialog can be created, but a general
+<a class="reference internal" href="trifusion.data.resources.custom_widgets.html#trifusion.data.resources.custom_widgets.CrunchData" title="trifusion.data.resources.custom_widgets.CrunchData"><code class="xref py py-class docutils literal"><span class="pre">CrunchData</span></code></a> dialog is already
+available:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">content</span> <span class="o">=</span> <span class="n">CrunchData</span><span class="p">()</span>
 <span class="c1"># Add a custom message</span>
 <span class="n">content</span><span class="o">.</span><span class="n">ids</span><span class="o">.</span><span class="n">msg</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">msg</span>
@@ -222,7 +261,7 @@ created:</p>
 </div>
 </div>
 <div class="section" id="schedule-function-that-checks-the-worker-thread-s-pulse">
-<h3>Schedule function that checks the worker thread&#8217;s pulse<a class="headerlink" href="#schedule-function-that-checks-the-worker-thread-s-pulse" title="Permalink to this headline">¶</a></h3>
+<h4>Schedule function that checks the worker thread&#8217;s pulse<a class="headerlink" href="#schedule-function-that-checks-the-worker-thread-s-pulse" title="Permalink to this headline">¶</a></h4>
 <p>In order to check the pulse of the worker thread and/or receive information
 from it while it&#8217;s busy, a function can be scheduled to be called at
 regular intervals using kivy&#8217;s <cite>Clock</cite> object:</p>
@@ -244,6 +283,23 @@ join the thread, close any connections and relevant objects:</p>
         <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>If the function in the worker thread returns some object, this woul be
+the place to get that object and pass it to another callback:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_process_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">shared_ns</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">my_callback</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">Clock</span><span class="o">.</span><span class="n">unschedule</span><span class="p">(</span><span class="n">check_func</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dismiss_popup</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-a-kill-switch">
+<h4>Add a kill switch<a class="headerlink" href="#add-a-kill-switch" title="Permalink to this headline">¶</a></h4>
 <p>Whenever possible, it&#8217;s desirable to add a kill switch to the
 <cite>check_process_status</cite> function, which changes the <cite>Namespace.stop</cite> attribute
 to True, signaling the worker thread to stop:</p>
@@ -907,6 +963,7 @@ of taxa.</p>
 </table>
 </dd></dl>
 
+</div>
 </div>
 </div>
 </div>

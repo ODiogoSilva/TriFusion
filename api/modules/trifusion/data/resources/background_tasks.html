@@ -160,19 +160,59 @@
 <span class="sd">How to use background tasks</span>
 <span class="sd">===========================</span>
 
-<span class="sd">Tasks that are too time consuming to be executed in TriFusion&#39;s main</span>
-<span class="sd">thread are defined here. These functions should be called from TriFusion&#39;s</span>
-<span class="sd">`app` file in a `threading.Thread` object. These functions must rely</span>
-<span class="sd">on `multiprocessing.Namespace` or `Queue.Queue` objects to transfer</span>
-<span class="sd">data between the worker and main thread.</span>
+<span class="sd">Tasks that are too time consuming to be executed in TriFusion&#39;s main thread</span>
+<span class="sd">are defined here. These functions should be called from</span>
+<span class="sd">:class:`~trifusion.app.TriFusionApp` in a `threading.Thread` object. These</span>
+<span class="sd">functions must rely on `multiprocessing.Namespace` and `Queue.Queue` objects</span>
+<span class="sd">to transfer data between the worker and main thread.</span>
 
-<span class="sd">Creation of tasks in `trifusion.app`</span>
-<span class="sd">------------------------------------</span>
+<span class="sd">Generic creation of background tasks in :class:`~trifusion.app.TriFusionApp`</span>
+<span class="sd">----------------------------------------------------------------------------</span>
 
-<span class="sd">There is a `run_in_background` method in `trifusion.app` that greatly</span>
-<span class="sd">facilitates the execution of a task in a worker thread, and also</span>
-<span class="sd">accepts a second function callback that is executed when the worker</span>
-<span class="sd">thread is finished. In brief, a worker thread can be initiated like::</span>
+<span class="sd">Any method in :class:`~trifusion.app.TriFusionApp` can start a task in a</span>
+<span class="sd">worker thread, provided it follows a few guidelines described below.</span>
+<span class="sd">However, for most cases, there is already a</span>
+<span class="sd">:meth:`~trifusion.app.TriFusionApp.run_in_background` method that greatly</span>
+<span class="sd">facilitates this process::</span>
+
+<span class="sd">    def run_in_background(self, func, second_func, args1, args2=None,</span>
+<span class="sd">                          no_arg2=False, msg=&quot;Crunching data...&quot;,</span>
+<span class="sd">                          cancel=True):</span>
+
+<span class="sd">Suppose you have defined a function (`my_func`) in</span>
+<span class="sd">:mod:`~trifusion.data.resources.background_tasks` that is meant to run in the</span>
+<span class="sd">background. This function may take any number of arguments, but in this</span>
+<span class="sd">example it takes only one. To execute this function in the background,</span>
+<span class="sd">simply call :meth:`~trifusion.app.TriFusionApp.run_in_background` like this::</span>
+
+<span class="sd">    run_in_background(my_func, None, args1=[my_arg])</span>
+
+<span class="sd">This is the simplest example. In many cases `my_func` may return something,</span>
+<span class="sd">and we may want to feed that something into another callback in the main</span>
+<span class="sd">thread to update application structures or to perform any other task. This</span>
+<span class="sd">can be easily accomplished with this method using the `second_func`</span>
+<span class="sd">and `args2` arguments::</span>
+
+<span class="sd">    run_in_background(my_func, my_callback, args1=[my_arg], args2=[other_arg])</span>
+
+<span class="sd">In this case, the object returned by `my_func` will be passed directly</span>
+<span class="sd">to `my_callback`. Since we also defined arguments to `my_callback`, the</span>
+<span class="sd">argument list will be merged before calling `my_callback`. It&#39;s important</span>
+<span class="sd">to note that `my_callback` is being called from the main thread, which</span>
+<span class="sd">means that is can change application structures, but it can also freeze the</span>
+<span class="sd">application window if it&#39;s too intensive.</span>
+
+<span class="sd">Custom creation of background tasks</span>
+<span class="sd">-----------------------------------</span>
+
+<span class="sd">A :class:`~trifusion.app.TriFusionApp` method that need to executed some</span>
+<span class="sd">functio in the background must follow some guidelines to ensure that</span>
+<span class="sd">it will start and end properly.</span>
+
+<span class="sd">Use a `Thread` object</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">A worker thread can be initiated like::</span>
 
 <span class="sd">        p = threading.Thread(target=background_process,</span>
 <span class="sd">                             args=(func, shared_ns, args1))</span>
@@ -181,13 +221,14 @@
 <span class="sd">The background task is provided in the `target` argument, and any</span>
 <span class="sd">potential arguments in the `args` argument.</span>
 
-<span class="sd">Launching waiting dialog</span>
-<span class="sd">------------------------</span>
+<span class="sd">Create and launch a waiting dialog</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">While the background task is being executed, a dialog of some sort should</span>
 <span class="sd">be created in the main thread and ideally show some progress. Any</span>
-<span class="sd">custom dialog can be created, but a general `CrunchData` dialog is already</span>
-<span class="sd">created::</span>
+<span class="sd">custom dialog can be created, but a general</span>
+<span class="sd">:class:`~trifusion.data.resources.custom_widgets.CrunchData` dialog is already</span>
+<span class="sd">available::</span>
 
 <span class="sd">    content = CrunchData()</span>
 <span class="sd">    # Add a custom message</span>
@@ -199,7 +240,7 @@
 <span class="sd">                    auto_dissmiss=False)</span>
 
 <span class="sd">Schedule function that checks the worker thread&#39;s pulse</span>
-<span class="sd">-------------------------------------------------------</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">In order to check the pulse of the worker thread and/or receive information</span>
 <span class="sd">from it while it&#39;s busy, a function can be scheduled to be called at</span>
@@ -221,6 +262,23 @@
 <span class="sd">            Clock.unschedule(check_func)</span>
 <span class="sd">            self.dismiss_popup()</span>
 <span class="sd">            p.join()</span>
+
+<span class="sd">If the function in the worker thread returns some object, this woul be</span>
+<span class="sd">the place to get that object and pass it to another callback::</span>
+
+<span class="sd">    def check_process_stats(self, p, shared_ns):</span>
+
+<span class="sd">        if not p.is_alive():</span>
+
+<span class="sd">            obj = queue.get()</span>
+<span class="sd">            self.my_callback(obj)</span>
+
+<span class="sd">            Clock.unschedule(check_func)</span>
+<span class="sd">            self.dismiss_popup()</span>
+<span class="sd">            p.join()</span>
+
+<span class="sd">Add a kill switch</span>
+<span class="sd">~~~~~~~~~~~~~~~~~</span>
 
 <span class="sd">Whenever possible, it&#39;s desirable to add a kill switch to the</span>
 <span class="sd">`check_process_status` function, which changes the `Namespace.stop` attribute</span>

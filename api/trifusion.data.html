@@ -94,15 +94,16 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="trifusion.html">TriFusion modules and API reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#trifusion-gui">TriFusion GUI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#orthology-backend">Orthology backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#process-backend">Process backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trifusion.html#statistics-backend">Statistics backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#what-is-trifusion">What is TriFusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#how-can-trifusion-be-used">How can TriFusion be used</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.html#components-of-trifusion">Components of TriFusion</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="trifusion.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">trifusion.data package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#backgrounds"><cite>backgrounds</cite></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resources"><cite>resources</cite></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#screens"><cite>screens</cite></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-trifusion.data">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.ortho.html">trifusion.ortho package</a></li>
@@ -177,8 +178,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="trifusion-data-package">
-<h1>trifusion.data package<a class="headerlink" href="#trifusion-data-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-trifusion.data">
+<span id="trifusion-data-package"></span><h1>trifusion.data package<a class="headerlink" href="#module-trifusion.data" title="Permalink to this headline">¶</a></h1>
+<p>The <cite>data</cite> sub-package is where the background data, kivy screens definition,
+bundled binary and .dll files, background tasks and other general data
+is contained.</p>
+<div class="section" id="backgrounds">
+<h2><cite>backgrounds</cite><a class="headerlink" href="#backgrounds" title="Permalink to this headline">¶</a></h2>
+<p>Stores all the backgrounds and icons of TriFusion.</p>
+</div>
+<div class="section" id="resources">
+<h2><cite>resources</cite><a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+<p>Stores several resources used by TriFusion, including custom widgets,
+definition of background (worker) tasks, information data for in-app help,
+and auxiliary statistics data structures:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="trifusion.data.resources.background_tasks.html#module-trifusion.data.resources.background_tasks" title="trifusion.data.resources.background_tasks"><code class="xref py py-mod docutils literal"><span class="pre">background_tasks</span></code></a>: Includes all
+TriFusion tasks that are executed on the background.</li>
+<li><a class="reference internal" href="trifusion.data.resources.info_data.html#module-trifusion.data.resources.info_data" title="trifusion.data.resources.info_data"><code class="xref py py-mod docutils literal"><span class="pre">info_data</span></code></a>: Contains dictionary
+objects with the in-app help text.</li>
+<li><a class="reference internal" href="trifusion.data.resources.custom_widgets.html#module-trifusion.data.resources.custom_widgets" title="trifusion.data.resources.custom_widgets"><code class="xref py py-mod docutils literal"><span class="pre">custom_widgets</span></code></a>: Contains class
+definition of custom widgets used in TriFusion.</li>
+<li><a class="reference internal" href="trifusion.data.resources.stats.html#module-trifusion.data.resources.stats" title="trifusion.data.resources.stats"><code class="xref py py-mod docutils literal"><span class="pre">stats</span></code></a>: Dictionary with information
+for the Statistics FloatLayout with the plot type switch.</li>
+</ul>
+</div></blockquote>
+<p>It also contains the bundled MCL binary for all supported OS and the usearch
+.dll file, which are required by TriFusion&#8217;s Orthology.</p>
+</div>
+<div class="section" id="screens">
+<h2><cite>screens</cite><a class="headerlink" href="#screens" title="Permalink to this headline">¶</a></h2>
+<p>The definition os the several TriFusion screens in kivy language.</p>
+</div>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -187,9 +219,14 @@
 <li class="toctree-l2"><a class="reference internal" href="trifusion.data.resources.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.data.resources.background_tasks.html">trifusion.data.resources.background_tasks module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#how-to-use-background-tasks">How to use background tasks</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#creation-of-tasks-in-trifusion-app">Creation of tasks in <cite>trifusion.app</cite></a></li>
-<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#launching-waiting-dialog">Launching waiting dialog</a></li>
-<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#schedule-function-that-checks-the-worker-thread-s-pulse">Schedule function that checks the worker thread&#8217;s pulse</a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#generic-creation-of-background-tasks-in-trifusionapp">Generic creation of background tasks in <code class="docutils literal"><span class="pre">TriFusionApp</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#custom-creation-of-background-tasks">Custom creation of background tasks</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#use-a-thread-object">Use a <cite>Thread</cite> object</a></li>
+<li class="toctree-l6"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#create-and-launch-a-waiting-dialog">Create and launch a waiting dialog</a></li>
+<li class="toctree-l6"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#schedule-function-that-checks-the-worker-thread-s-pulse">Schedule function that checks the worker thread&#8217;s pulse</a></li>
+<li class="toctree-l6"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#add-a-kill-switch">Add a kill switch</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -211,28 +248,6 @@
 </ul>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-trifusion.data">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-trifusion.data" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>data</cite> sub-package is where the background data, kivy screens definition,
-bundled binary and .dll files, background tasks and other general data
-is contained.</p>
-<div class="section" id="backgrounds">
-<h3><cite>backgrounds</cite><a class="headerlink" href="#backgrounds" title="Permalink to this headline">¶</a></h3>
-<p>Stores all the backgrounds and icons of TriFusion.</p>
-</div>
-<div class="section" id="resources">
-<h3><cite>resources</cite><a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h3>
-<p>Stores several resources used by TriFusion, including custom widgets,
-definition of background (worker) tasks, information data for in-app help,
-and auxiliary statistics data structures.</p>
-<p>It also contains the bundled MCL binary for all supported OS and the usearch
-.dll file, which are required by TriFusion&#8217;s Orthology.</p>
-</div>
-<div class="section" id="screens">
-<h3><cite>screens</cite><a class="headerlink" href="#screens" title="Permalink to this headline">¶</a></h3>
-<p>The definition os the several TriFusion screens in kivy language.</p>
 </div>
 </div>
 </div>

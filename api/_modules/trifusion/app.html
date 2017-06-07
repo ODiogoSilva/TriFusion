@@ -370,22 +370,37 @@
     <span class="n">_red</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">c_app_red</span>
 
     <span class="n">show_side_panel</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="sd">&quot;&quot;&quot; Setting Boolean controlling the toggling of main headers &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    bool controlling the toggling of main headers. Is set to True</span>
+<span class="sd">    when the sidepanel is open and False when not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lock_side_panel</span> <span class="o">=</span> <span class="n">BooleanProperty</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="sd">&quot;&quot;&quot;Setting Boolean that locks the sidepanel while it animates&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;bool that prevents the animation of the sidepanel when True.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Attribute for current screen object</span>
     <span class="n">screen</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Currently open Screen object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Variable containing screen names</span>
     <span class="n">screen_names</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List of basename screen names.&quot;&quot;&quot;</span>
     <span class="n">available_screens</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List of paths to screen files.&quot;&quot;&quot;</span>
     <span class="n">loaded_screens</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dictionary that maps the screen name to a Screen object. Entries are</span>
+<span class="sd">    only populated when Screens are loaded for the first time. This</span>
+<span class="sd">    allows the state of each screen to be saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">plot_screens</span> <span class="o">=</span> <span class="n">ListProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;List of screens dedicated for plots.&quot;&quot;&quot;</span>
 
     <span class="c1"># Attributes to know current and previous screen</span>
     <span class="n">current_screen</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with the name of the current Screen object.&quot;&quot;&quot;</span>
     <span class="n">previous_screen</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;String with the name of the last Screen object.&quot;&quot;&quot;</span>
 
     <span class="c1"># Attribute to load screens</span>
     <span class="n">index</span> <span class="o">=</span> <span class="n">NumericProperty</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>

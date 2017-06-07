@@ -93,17 +93,27 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TriFusion modules and API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#trifusion-gui">TriFusion GUI</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#main-screens">Main screens</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#custom-widgets">Custom widgets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#icons-and-backgrounds">Icons and backgrounds</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#running-tasks-in-the-background">Running tasks in the background</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#in-app-help">In-App help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-trifusion">What is TriFusion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#orthology">Orthology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#process">Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statistics">Statistics</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#orthology-backend">Orthology backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#process-backend">Process backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#statistics-backend">Statistics backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-can-trifusion-be-used">How can TriFusion be used</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#components-of-trifusion">Components of TriFusion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#trifusion-gui">TriFusion GUI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#main-screens">Main screens</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#custom-widgets">Custom widgets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#icons-and-backgrounds">Icons and backgrounds</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-tasks-in-the-background">Running tasks in the background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#in-app-help">In-App help</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#orthology-backend">Orthology backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#process-backend">Process backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statistics-backend">Statistics backend</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.base.html">trifusion.base package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a></li>
@@ -195,8 +205,61 @@ main component of TriFusion follows below with the relevant modules and
 classes specified. These descriptions can be used to send you on your
 way to the sections of interest, where a more detailed documentation
 is available.</p>
+<div class="section" id="what-is-trifusion">
+<h2>What is TriFusion<a class="headerlink" href="#what-is-trifusion" title="Permalink to this headline">¶</a></h2>
+<p>TriFusion is a GUI and command line application designed to streamline the
+gathering, processing and visualization of phylogenomic data. It is broadly
+divided in these three modules.</p>
+<div class="section" id="orthology">
+<h3>Orthology<a class="headerlink" href="#orthology" title="Permalink to this headline">¶</a></h3>
+<p>Provides a pipeline for running OrthoMCL, with the code ported to python
+and SQLite instead of the original perl and MySQL. OrthoMCL is the most
+popular ortholog detection pipeline, and TriFusion offers an  easy and
+intuitive way of running the pipeline while providing the complete
+range of options available.</p>
+<p>In addition to the search pipeline, TriFusion allows the filtering and visual
+exploration of the resulting ortholog groups. In the end, orthologs can
+be exported as protein or DNA sequences.</p>
+</div>
+<div class="section" id="process">
+<h3>Process<a class="headerlink" href="#process" title="Permalink to this headline">¶</a></h3>
+<p>At its core, the Process module is a conversion and concatenation tool that
+handles very large sequence alignment data sets. It reads and exports
+alignments into several popular formats used in phylogenetics and population
+genetics. In addition to these main operations, TriFusion offers a wide
+array of manipulations that can be performed on alignment data, such as
+filtering, collapsing, creating consensus, etc.</p>
+</div>
+<div class="section" id="statistics">
+<h3>Statistics<a class="headerlink" href="#statistics" title="Permalink to this headline">¶</a></h3>
+<p>Generates a wide array of graphical visualizations and statistical
+analyses of alignment data sets.</p>
+</div>
+</div>
+<div class="section" id="how-can-trifusion-be-used">
+<h2>How can TriFusion be used<a class="headerlink" href="#how-can-trifusion-be-used" title="Permalink to this headline">¶</a></h2>
+<p>TriFusion can be used as a:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Desktop application with graphical interface (TriFusion).</li>
+<li>Command line application (orthomcl_pipeline, TriSeq and TriStats).</li>
+<li>Library of high performance classes to parse, modify, export and
+plot alignment data.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="components-of-trifusion">
+<h2>Components of TriFusion<a class="headerlink" href="#components-of-trifusion" title="Permalink to this headline">¶</a></h2>
+<p>The TriFusion package is the result of multiple modular components that
+work in combination to produce the main application. This modularity
+means that the graphical interface is separated from the multiple
+backends that power its features, and each backend works independently
+of each other. This greatly facilitates changing the existing objects
+or creating new ones for specific modules without having to worry about
+other aspects of the package.</p>
+<p>Here is a brief overview of the GUI and backend components.</p>
 <div class="section" id="trifusion-gui">
-<h2>TriFusion GUI<a class="headerlink" href="#trifusion-gui" title="Permalink to this headline">¶</a></h2>
+<h3>TriFusion GUI<a class="headerlink" href="#trifusion-gui" title="Permalink to this headline">¶</a></h3>
 <p>The core graphical interface of TriFusion is controlled by two main files:</p>
 <blockquote>
 <div><ul class="simple">
@@ -213,7 +276,7 @@ kivy language.</li>
 <p class="last">API documentation of <a class="reference internal" href="trifusion.app.html#module-trifusion.app" title="trifusion.app"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.app</span></code></a> is still under progress.</p>
 </div>
 <div class="section" id="main-screens">
-<h3>Main screens<a class="headerlink" href="#main-screens" title="Permalink to this headline">¶</a></h3>
+<h4>Main screens<a class="headerlink" href="#main-screens" title="Permalink to this headline">¶</a></h4>
 <p>The graphical instructions in kivy language for the 8 main screens of
 TriFusion are defined in the <cite>trifusion/data/screens</cite> directory, each screen
 with its own <cite>.kv</cite> file. These files contain only the definition of
@@ -224,7 +287,7 @@ The initial setup of these screens in performed in the
 <a class="reference internal" href="trifusion.app.html#trifusion.app.TriFusionApp.build" title="trifusion.app.TriFusionApp.build"><code class="xref py py-func docutils literal"><span class="pre">build()</span></code></a> method.</p>
 </div>
 <div class="section" id="custom-widgets">
-<h3>Custom widgets<a class="headerlink" href="#custom-widgets" title="Permalink to this headline">¶</a></h3>
+<h4>Custom widgets<a class="headerlink" href="#custom-widgets" title="Permalink to this headline">¶</a></h4>
 <p>Custom widgets can be created using the <cite>kivy</cite> toolkit. <cite>Kivy</cite> provides
 a convenient way of defining graphical instructions to build the Widget&#8217;s
 layout using the kivy language instead of directly with python. Therefore,
@@ -244,7 +307,7 @@ progress.</p>
 </div>
 </div>
 <div class="section" id="icons-and-backgrounds">
-<h3>Icons and backgrounds<a class="headerlink" href="#icons-and-backgrounds" title="Permalink to this headline">¶</a></h3>
+<h4>Icons and backgrounds<a class="headerlink" href="#icons-and-backgrounds" title="Permalink to this headline">¶</a></h4>
 <p>Icons and background images are stored in the <cite>trifusion/data/backgrounds</cite>
 directory. In either python or kivy files, these backgrounds can be
 reference with the path relative to the package root. For example, in any
@@ -258,20 +321,20 @@ python file, they can be referenced like:</p>
 </div>
 </div>
 <div class="section" id="running-tasks-in-the-background">
-<h3>Running tasks in the background<a class="headerlink" href="#running-tasks-in-the-background" title="Permalink to this headline">¶</a></h3>
+<h4>Running tasks in the background<a class="headerlink" href="#running-tasks-in-the-background" title="Permalink to this headline">¶</a></h4>
 <p>Time consuming operations are executed in worker threads separated from the
 main GUI thread. These background tasks are defined in
 <a class="reference internal" href="trifusion.data.resources.background_tasks.html#module-trifusion.data.resources.background_tasks" title="trifusion.data.resources.background_tasks"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.data.resources.background_tasks</span></code></a>. The module documentation
 provides more information on how to setup background tasks in TriFusion.</p>
 </div>
 <div class="section" id="in-app-help">
-<h3>In-App help<a class="headerlink" href="#in-app-help" title="Permalink to this headline">¶</a></h3>
+<h4>In-App help<a class="headerlink" href="#in-app-help" title="Permalink to this headline">¶</a></h4>
 <p>Help buttons are spread throughout TriFusion. The help information is defined
 in multiple dictionary objects in <a class="reference internal" href="trifusion.data.resources.info_data.html#module-trifusion.data.resources.info_data" title="trifusion.data.resources.info_data"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.data.resources.info_data</span></code></a>.</p>
 </div>
 </div>
 <div class="section" id="orthology-backend">
-<h2>Orthology backend<a class="headerlink" href="#orthology-backend" title="Permalink to this headline">¶</a></h2>
+<h3>Orthology backend<a class="headerlink" href="#orthology-backend" title="Permalink to this headline">¶</a></h3>
 <p>The orthology search pipeline is defined in
 <a class="reference internal" href="trifusion.orthomcl_pipeline.html#module-trifusion.orthomcl_pipeline" title="trifusion.orthomcl_pipeline"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.orthomcl_pipeline</span></code></a>. This module can be used as a CLI program
 to execute the pipeline and is also used by TriFusion as a library.</p>
@@ -287,7 +350,7 @@ orthology search operation, is made in the
 </div>
 </div>
 <div class="section" id="process-backend">
-<h2>Process backend<a class="headerlink" href="#process-backend" title="Permalink to this headline">¶</a></h2>
+<h3>Process backend<a class="headerlink" href="#process-backend" title="Permalink to this headline">¶</a></h3>
 <p>The main functionality of the Process module (and the TriSeq CLI) program
 are provided by the modules in the <a class="reference internal" href="trifusion.process.html#module-trifusion.process" title="trifusion.process"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.process</span></code></a> sub package.
 Classes that handle alignment data are defined in
@@ -295,7 +358,7 @@ Classes that handle alignment data are defined in
 in the <a class="reference internal" href="trifusion.process.data.html#module-trifusion.process.data" title="trifusion.process.data"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.process.data</span></code></a> module.</p>
 </div>
 <div class="section" id="statistics-backend">
-<h2>Statistics backend<a class="headerlink" href="#statistics-backend" title="Permalink to this headline">¶</a></h2>
+<h3>Statistics backend<a class="headerlink" href="#statistics-backend" title="Permalink to this headline">¶</a></h3>
 <p>The generation of plot data in the Statistics screen or by the TriStats
 CLI program is a joint effort between the
 <a class="reference internal" href="trifusion.process.sequence.html#trifusion.process.sequence.AlignmentList" title="trifusion.process.sequence.AlignmentList"><code class="xref py py-class docutils literal"><span class="pre">AlignmentList</span></code></a> class and the plotting
@@ -304,6 +367,7 @@ the methods of the <a class="reference internal" href="trifusion.process.sequenc
 are responsible for generating the data and plotting instructions, while
 the functions in the <a class="reference internal" href="trifusion.base.plotter.html#module-trifusion.base.plotter" title="trifusion.base.plotter"><code class="xref py py-mod docutils literal"><span class="pre">trifusion.base.plotter</span></code></a> module receive that
 information and generate the plot.</p>
+</div>
 </div>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
@@ -327,14 +391,22 @@ information and generate the plot.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="trifusion.data.html">trifusion.data package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.data.html#backgrounds"><cite>backgrounds</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.data.html#resources"><cite>resources</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="trifusion.data.html#screens"><cite>screens</cite></a></li>
 <li class="toctree-l2"><a class="reference internal" href="trifusion.data.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trifusion.data.resources.html">trifusion.data.resources package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="trifusion.data.resources.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="trifusion.data.resources.background_tasks.html">trifusion.data.resources.background_tasks module</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#how-to-use-background-tasks">How to use background tasks</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#creation-of-tasks-in-trifusion-app">Creation of tasks in <cite>trifusion.app</cite></a></li>
-<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#launching-waiting-dialog">Launching waiting dialog</a></li>
-<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#schedule-function-that-checks-the-worker-thread-s-pulse">Schedule function that checks the worker thread&#8217;s pulse</a></li>
+<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#generic-creation-of-background-tasks-in-trifusionapp">Generic creation of background tasks in <code class="docutils literal"><span class="pre">TriFusionApp</span></code></a></li>
+<li class="toctree-l7"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#custom-creation-of-background-tasks">Custom creation of background tasks</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#use-a-thread-object">Use a <cite>Thread</cite> object</a></li>
+<li class="toctree-l8"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#create-and-launch-a-waiting-dialog">Create and launch a waiting dialog</a></li>
+<li class="toctree-l8"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#schedule-function-that-checks-the-worker-thread-s-pulse">Schedule function that checks the worker thread&#8217;s pulse</a></li>
+<li class="toctree-l8"><a class="reference internal" href="trifusion.data.resources.background_tasks.html#add-a-kill-switch">Add a kill switch</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -355,12 +427,6 @@ information and generate the plot.</p>
 </li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="trifusion.data.html#module-trifusion.data">Module contents</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html#backgrounds"><cite>backgrounds</cite></a></li>
-<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html#resources"><cite>resources</cite></a></li>
-<li class="toctree-l3"><a class="reference internal" href="trifusion.data.html#screens"><cite>screens</cite></a></li>
 </ul>
 </li>
 </ul>
