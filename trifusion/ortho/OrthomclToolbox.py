@@ -1542,7 +1542,8 @@ class MultiGroupsLight(object):
                                                   self.gene_threshold,
                                                   self.species_threshold,
                                                   ns=ns)
-                    except:
+                    except Exception as e:
+                        print(e.message)
                         self.bad_groups.append(group_file)
                         continue
                 else:

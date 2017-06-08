@@ -344,7 +344,7 @@ def background_export_groups(f, nm, a):
     except IOError as e:
         print(e)
 
-    except:
+    except Exception as e:
         logging.exception("Unexpected error when exporting ortholog "
                           "groups")
         nm.exception = True

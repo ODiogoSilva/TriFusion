@@ -212,7 +212,8 @@ def has_colours(stream):
         import curses
         curses.setupterm()
         return curses.tigetnum("colors") > 2
-    except:
+    except Exception as e:
+        print(e.message)
         # guess false in case of error
         return False
 

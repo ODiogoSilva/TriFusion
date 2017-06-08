@@ -562,7 +562,8 @@ def main():
 
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
-    except:
+    except Exception as e:
+        print(e.message)
         traceback.print_exc()
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)

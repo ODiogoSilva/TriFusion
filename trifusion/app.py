@@ -11278,7 +11278,8 @@ class TriFusionApp(App):
                                            self.usearch_db)
                     self.dialog_search_report(shared_ns.stats,
                                               shared_ns.groups)
-                except:
+                except Exception as e:
+                    Logger.exception(e.message)
                     if not shared_ns.exception:
                         self.dialog_floatcheck("Unexpected error when "
                                                "search orthologs. Check "
