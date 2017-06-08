@@ -3198,6 +3198,13 @@ class Alignment(Base):
 
             alns.append(current_aln)
 
+        self.cur.execute("CREATE TABLE [.reversedata]("
+                         "taxon TEXT,"
+                         "partition TEXT,"
+                         "seq TEXT)")
+        self.cur.execute("CREATE INDEX revindex ON [.reversedata]("
+                         "partition)")
+
         taxa_list_master = defaultdict(list)
         taxa_idx_master = defaultdict(dict)
 
@@ -3205,9 +3212,8 @@ class Alignment(Base):
 
         rev_cur = self.con.cursor()
 
-        for p, taxon in enumerate(self.taxa_list):
-
-            seq = self.get_sequence(taxon, table_name=table_in)
+        for p, (taxon, seq) in enumerate(
+                self.iter_alignment(table_name=table_in)):
 
             self._update_pipes(ns, pbar, value=p + 1)
 
@@ -3248,12 +3254,31 @@ class Alignment(Base):
                     taxa_list_master[name].append(taxon)
                     taxa_idx_master[name][taxon] = p
 
-                    if not self._table_exists(name, cur=rev_cur):
-                        self._create_table(name, cur=rev_cur)
+                    # if not self._table_exists(name, cur=rev_cur):
+                    #     self._create_table(name, cur=rev_cur)
 
                     rev_cur.execute(
-                        "INSERT INTO [{}] VALUES"
-                        "(?, ?, ?)".format(name), (p, taxon, part_seq))
+                        "INSERT INTO [.reversedata] VALUES"
+                        "(?, ?, ?)".format(name), (taxon, name, part_seq))
+
+        self._set_pipes(ns, pbar, total=len(self.partitions.partitions))
+
+        prev = ""
+        c = 1
+        for tx, part, seq in rev_cur.execute(
+                "SELECT taxon, partition, seq FROM [.reversedata] "
+                "ORDER BY partition"):
+
+            if part != prev:
+                prev = part
+                self._create_table(part)
+                self._update_pipes(ns, pbar, value=c)
+                c += 1
+
+            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
+                part), (0, tx, seq))
+
+        print("????")
 
         concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
         alns = []
