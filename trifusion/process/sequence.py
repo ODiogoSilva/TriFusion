@@ -75,6 +75,13 @@ and sequence (`seq`) must be provided. For example::
     cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(self.table_name),
                 (0, "spa", "AAA"))
 
+At the end of the parsing, these attributes should be set:
+
+    - :attr:`~.Alignment.taxa_list`.
+    - :attr:`~.Alignment.taxa_idx`.
+    - :attr:`~.Alignment.locus_length`.
+    - :attr:`~.Alignment.partitions`.
+
 Data fetching
 ~~~~~~~~~~~~~
 
@@ -2256,13 +2263,6 @@ class Alignment(Base):
         Parses a phylip alignment file and stored taxa and sequence data in
         the database.
 
-        Returns
-        -------
-        size_list : list
-            List of sequence size (int) for each taxon in the alignment file.
-            Used to check size consistency at the end of the alignment parsing
-            in `read_alignment`.
-
         See Also
         --------
         read_alignment
@@ -2362,20 +2362,15 @@ class Alignment(Base):
         
         fh.close()
 
-        return size_list
+        # Checks the size consistency of the alignment
+        if len(set(size_list)) > 1:
+            self.e = AlignmentUnequalLength()
 
     def _read_fasta(self):
         """Alignment parser for fasta format.
 
         Parses a fasta alignment file and stores taxa and sequence data in
         the database.
-
-        Returns
-        -------
-        size_list : list
-            List of sequence size (int) for each taxon in the alignment file.
-            Used to check size consistency at the end of the alignment parsing
-            in `read_alignment`.
 
         See Also
         --------
@@ -2448,17 +2443,12 @@ class Alignment(Base):
 
         fh.close()
 
-        return size_list
+        # Checks the size consistency of the alignment
+        if len(set(size_list)) > 1:
+            self.e = AlignmentUnequalLength()
 
     def _read_loci(self):
         """Alignment parser for pyRAD and ipyrad loci format.
-
-        Returns
-        -------
-        size_list : list
-            List of sequence size (int) for each taxon in the alignment file.
-            Used to check size consistency at the end of the alignment parsing
-            in `read_alignment`.
 
         See Also
         --------
@@ -2470,10 +2460,11 @@ class Alignment(Base):
         # Variable storing the lenght of each sequence
         size_list = []
 
-        taxa_list = self.get_loci_taxa(self.path)
+        self.taxa_list = self.get_loci_taxa(self.path)
+        self.taxa_idx = dict((x, p) for p, x in enumerate(self.taxa_list))
 
         # Create empty dict
-        sequence_data = dict([(tx, []) for tx in taxa_list])
+        sequence_data = OrderedDict([(tx, []) for tx in self.taxa_list])
 
         # Add a counter to name each locus
         locus_c = 1
@@ -2482,21 +2473,32 @@ class Alignment(Base):
         # are filled with missing data.
         present_taxa = []
 
+        # Set default missing data symbol as "n"
+        if not self.sequence_code[1]:
+            self.sequence_code[1] = "n"
+
         for line in fh:
             if not line.strip().startswith("//") and line.strip() != "":
                 fields = line.strip().split()
                 taxon = fields[0].lstrip(">")
                 present_taxa.append(taxon)
-                sequence_data[taxon].append(fields[1].lower())
+                current_sequence = fields[1].lower()
+                sequence_data[taxon].append(current_sequence)
+                size_list.append(len(current_sequence))
 
             elif line.strip().startswith("//"):
 
+                # Checks the size consistency of the alignment
+                if len(set(size_list)) > 1:
+                    self.e = AlignmentUnequalLength()
+
+                size_list = []
+
                 locus_len = len(fields[1])
                 self.locus_length += locus_len
-                size_list.append(locus_len)
 
                 # Adding missing data
-                for tx in taxa_list:
+                for tx in self.taxa_list:
                     if tx not in present_taxa:
                         sequence_data[tx].append(self.sequence_code[1] *
                                                  locus_len)
@@ -2525,13 +2527,6 @@ class Alignment(Base):
 
         Parses a nexus alignment file and stores taxa and sequence data in
         the database.
-
-        Returns
-        -------
-        size_list : list
-            List of sequence size (int) for each taxon in the alignment file.
-            Used to check size consistency at the end of the alignment parsing
-            in `read_alignment`.
 
         See Also
         --------
@@ -2662,20 +2657,15 @@ class Alignment(Base):
 
         fh.close()
 
-        return size_list
+        # Checks the size consistency of the alignment
+        if len(set(size_list)) > 1:
+            self.e = AlignmentUnequalLength()
 
     def _read_stockholm(self):
         """Alignment parser for stockholm format.
 
         Parses a stockholm alignment file and stores taxa and sequence data in
         the database.
-
-        Returns
-        -------
-        size_list : list
-            List of sequence size (int) for each taxon in the alignment file.
-            Used to check size consistency at the end of the alignment parsing
-            in `read_alignment`.
 
         See Also
         --------
@@ -2730,9 +2720,11 @@ class Alignment(Base):
 
         fh.close()
 
-        return size_list
+        # Checks the size consistency of the alignment
+        if len(set(size_list)) > 1:
+            self.e = AlignmentUnequalLength()
 
-    def read_alignment(self, size_check=True):
+    def read_alignment(self):
         """Main alignment parser method.
 
         This is the main alignment parsing method that is called when the
@@ -2741,12 +2733,6 @@ class Alignment(Base):
         it calls the specific method that parses that alignment format.
         After the execution of this method, all attributes of the class will
         be set and the full range of methods can be applied.
-        
-        Parameters
-        ----------
-        size_check : bool, optional
-            If True, perform a check for sequence size consistency across
-            taxa (default is True).
         """
 
         parsing_methods = {
@@ -2757,19 +2743,13 @@ class Alignment(Base):
             "stockholm": self._read_stockholm
         }
 
-        size_list = parsing_methods[self.input_format]()
+        parsing_methods[self.input_format]()
 
         # If the missing data symbol could not be evaluated during alignment
         # parsing, set the defaults
         default_missing = {"DNA": "n", "Protein": "x"}
         if not self.sequence_code[1]:
             self.sequence_code[1] = default_missing[self.sequence_code[0]]
-
-        # Checks the size consistency of the alignment
-        if size_check is True:
-            if len(set(size_list)) > 1:
-                self.e = AlignmentUnequalLength()
-                return
 
         if len(self.taxa_list) != len(set(self.taxa_list)):
             duplicate_taxa = self.duplicate_taxa(self.taxa_list)

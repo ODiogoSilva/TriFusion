@@ -10615,7 +10615,7 @@ class TriFusionApp(App):
                             "Unexpected error when loading input data. "
                             "Check app logs", t="error")
                 except Exception as e:
-                    Logger.exception(e.message)
+                    pass
 
                 # Get the alignment object from the child thread and load
                 # it into the app
