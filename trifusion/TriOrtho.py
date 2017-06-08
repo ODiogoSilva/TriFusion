@@ -20,7 +20,6 @@
 
 import time
 import argparse
-from argparse import RawDescriptionHelpFormatter
 from os.path import join
 import os
 

@@ -169,9 +169,8 @@ try:
     import data.resources.theme.default as tm
     from ortho import protein2dna
     from process.base import Base
-    from process.data import Partitions, InvalidPartitionFile
-    from process.error_handling import EmptyAlignment, EmptyData, KillByUser, \
-        SingleAlignment
+    from process.data import Partitions
+    from process.error_handling import EmptyAlignment, EmptyData, KillByUser
     from process.sequence import AlignmentList
     from data.resources.info_data import orthology_plots, \
         informative_storage
@@ -192,9 +191,9 @@ except ImportError:
     import trifusion.data.resources.theme.default as tm
     from trifusion.ortho import protein2dna
     from trifusion.process.base import Base
-    from trifusion.process.data import Partitions, InvalidPartitionFile
+    from trifusion.process.data import Partitions
     from trifusion.process.error_handling import EmptyAlignment, EmptyData, \
-        KillByUser, SingleAlignment
+        KillByUser
     from trifusion.process.sequence import AlignmentList
     from trifusion.data.resources.info_data import orthology_plots, \
         informative_storage

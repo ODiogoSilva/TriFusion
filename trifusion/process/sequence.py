@@ -672,7 +672,7 @@ try:
     from process.data import Partitions
     from process.data import PartitionException
     from process.error_handling import DuplicateTaxa, KillByUser, \
-        InvalidSequenceType, EmptyData, InputError, EmptyAlignment, \
+        InvalidSequenceType, InputError, EmptyAlignment, \
         MultipleSequenceTypes, SingleAlignment
 except ImportError:
     import trifusion.process as process
@@ -681,7 +681,7 @@ except ImportError:
     from trifusion.process.data import Partitions
     from trifusion.process.data import PartitionException
     from trifusion.process.error_handling import DuplicateTaxa, KillByUser, \
-        InvalidSequenceType, EmptyData, InputError, EmptyAlignment, \
+        InvalidSequenceType, InputError, EmptyAlignment, \
         MultipleSequenceTypes, SingleAlignment
 
 # import pickle
