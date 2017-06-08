@@ -170,7 +170,7 @@ try:
     from ortho import protein2dna
     from process.base import Base
     from process.data import Partitions
-    from process.error_handling import EmptyAlignment, EmptyData, KillByUser
+    from process.error_handling import EmptyAlignment, KillByUser
     from process.sequence import AlignmentList
     from data.resources.info_data import orthology_plots, \
         informative_storage
@@ -192,7 +192,7 @@ except ImportError:
     from trifusion.ortho import protein2dna
     from trifusion.process.base import Base
     from trifusion.process.data import Partitions
-    from trifusion.process.error_handling import EmptyAlignment, EmptyData, \
+    from trifusion.process.error_handling import EmptyAlignment, \
         KillByUser
     from trifusion.process.sequence import AlignmentList
     from trifusion.data.resources.info_data import orthology_plots, \
@@ -465,7 +465,7 @@ class TriFusionApp(App):
     # for the process module
     process_grid_wgt = None
     """
-    Reference to the 
+    Reference to the
     :class:`trifusion.data.resources.custom_widgets.ProcessGeneral object
     with the general options widgets of the Process screen.
     """
@@ -477,7 +477,7 @@ class TriFusionApp(App):
     """
     process_height = None
     """
-    Integer with the height property of the 
+    Integer with the height property of the
     :attr:`~.TriFusionApp.process_options` object.
     """
 
@@ -635,7 +635,7 @@ class TriFusionApp(App):
     The Stats key refers to the previous active data sets when the stats
     summary statistics overview was performed. It should contain two lists,
     the first with the file set and the second with the taxa set.
-    
+
         previous_sets = {"Files": [], "Taxa": [], "Stats": []}
     """
 
@@ -824,7 +824,7 @@ class TriFusionApp(App):
     terminate_process_exec = BooleanProperty(True)
     """
     bool attribute used to determine if a process execution background
-    process should be terminated by the user. Value is True by default and 
+    process should be terminated by the user. Value is True by default and
     they only change on the start up of the appropriate background function.
     """
 
@@ -962,20 +962,20 @@ class TriFusionApp(App):
     """
     active_tx_inf = DictProperty()
     """
-    Dictionary that maps a taxon string to the several informative 
+    Dictionary that maps a taxon string to the several informative
     properties for the active data set, shown when clicking the
-    information button in the sidepanel. 
+    information button in the sidepanel.
     """
     original_file_inf = DictProperty()
     """
-    Dictionary that maps a filename string to the several informative 
-    properties for the entire loaded data set, shown when clicking the 
+    Dictionary that maps a filename string to the several informative
+    properties for the entire loaded data set, shown when clicking the
     information button in the sidepanel. 
     """
     active_file_inf = DictProperty()
     """
     Dictionary that maps a filename string to the several informative 
-    properties for the active data set, shown when clicking the 
+    properties for the active data set, shown when clicking the
     information button in the sidepanel. 
     """
     #TODO: must check RAM usage of these dictionaries
@@ -1041,13 +1041,13 @@ class TriFusionApp(App):
 
     use_nexus_partitions = BooleanProperty(True)
     """
-    bool attribute that determines whether the charset partitions block 
+    bool attribute that determines whether the charset partitions block
     in nexus format should be written (True) or not (False).
     """
 
     use_nexus_models = BooleanProperty(True)
     """
-    bool attribute that determines whether the substitution models 
+    bool attribute that determines whether the substitution models
     associated to alignment partitions should be written to the nexus
     file (True) or not (False).
     """
@@ -1075,14 +1075,14 @@ class TriFusionApp(App):
     Two element list attribute storing the missing data filter settings.
     The first element is a three element tuple:
     
-        1. bool. Whether the missing data filter is active (True) or not 
+        1. bool. Whether the missing data filter is active (True) or not
            (False).
         2. int. Percentage of gaps allowed.
         3. int, Percentage of missing data allowed.
     
     The second element is a two element tuple:
         
-        1. bool. Whether the minimum taxa representation filter is active 
+        1. bool. Whether the minimum taxa representation filter is active
            (True) or not (False).
         2. int. Percentage of the min taxa representation
     """
@@ -2478,12 +2478,11 @@ class TriFusionApp(App):
                                 bt_text[bt.background_normal],
                                 bt, adjust_pos=True, orientation="vertical")
 
-            else:
-                # If no collision is detected, remove any remaining
-                # label widget
-                if collision is False and \
-                        self.old_mouse_over in self.root_window.children:
-                    self.root_window.remove_widget(self.old_mouse_over)
+            # If no collision is detected, remove any remaining
+            # label widget
+            if collision is False and \
+                    self.old_mouse_over in self.root_window.children:
+                self.root_window.remove_widget(self.old_mouse_over)
 
         # Only do this when Statistics screen is on
         if self.screen.name == "Statistics" and not self.show_side_panel \
@@ -4350,7 +4349,7 @@ class TriFusionApp(App):
         """
 
         content = InputTextDialog(cancel=self.dismiss_popup,
-                                  action=lambda x: self.partitions_merge(x))
+                                  action=self.partitions_merge)
 
         self.show_popup(title="Choose name for new partition",
                         content=content,
@@ -9838,10 +9837,8 @@ class TriFusionApp(App):
         disabled)
         """
 
-        """
-        The text of the Output file/directory field changes depending on
-        whether the main operation is a concatenation or a conversion
-        """
+        # The text of the Output file/directory field changes depending on
+        # whether the main operation is a concatenation or a conversion
         file_text = "[size=18][b]Output file[/b][/size]\n[size=13]Save " \
                     "output file to the selected file.[/size]"
         dir_text = "[size=18][b]Output directory[/b][/size]\n[size=13]" \
@@ -10855,7 +10852,8 @@ class TriFusionApp(App):
             if self.current_screen == "Statistics":
                 self.statistics_show_summary()
 
-    def get_taxon_information(self, tx, aln_list):
+    @staticmethod
+    def get_taxon_information(tx, aln_list):
         """
         Akin to the get_taxa_information method, but it only looks for
         the information of a single taxon.
