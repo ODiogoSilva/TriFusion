@@ -709,7 +709,7 @@ class LookupDatabase(object):
     and after finishing all calculations, with a single "disconnect" argument.
     These special method callings are necessary to setup and close the
     database storing the calculated values, respectively.
-    
+
     Parameters
     ----------
     func : function
@@ -1388,18 +1388,17 @@ class Alignment(Base):
         stored in the database, and then further usages will use that table.
         """
 
-        """
-        NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the responsibility
-        of the Alignment class to check on duplicate table names. If an
-        exiting table name is found in the database, the Alignment class
-        assumes that the alignment has already been parsed and inserted into
-        the database. Therefore, it will not parse the alignment file again.
-        This usually happens when creating concatenated or reverse concatenated
-        alignments, where the sequence data is inserted into the database
-        before instantiating the Alignment class. IT IS THE RESPONSABILITY
-        OF THE AlignmentList CLASS AND OTHER WRAPPERS TO ASSESS THE VALIDITY
-        OR NOT OF POTENTIAL DUPLICATE ALIGNMENT FILES.
-        """
+        # NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the
+        # responsibility of the Alignment class to check on duplicate table
+        # names. If an exiting table name is found in the database,
+        # the Alignment class assumes that the alignment has already been
+        # parsed and inserted into the database. Therefore, it will not
+        # parse the alignment file again. This usually happens when creating
+        #  concatenated or reverse concatenated alignments, where the
+        # sequence data is inserted into the database before instantiating
+        # the Alignment class. IT IS THE RESPONSABILITY OF THE AlignmentList
+        #  CLASS AND OTHER WRAPPERS TO ASSESS THE VALIDITY OR NOT OF
+        # POTENTIAL DUPLICATE ALIGNMENT FILES.
 
         # Check if table for current alignment file already exists. If it
         # does not exist, it is assumed that input_alignment is the path to
@@ -2389,6 +2388,7 @@ class Alignment(Base):
         size_list = []
 
         sequence = []
+        taxa = None
         idx = 0
         for line in fh:
             if line.strip().startswith(">"):
@@ -4045,8 +4045,8 @@ class Alignment(Base):
                 for i in range(90, self.locus_length, 90):
                     out_file.write("%s\n" % seq[counter:i])
                     counter = i
-                else:
-                    out_file.write("%s\n" % seq[counter:])
+
+                out_file.write("%s\n" % seq[counter:])
             else:
                 out_file.write(">%s\n%s\n" % (taxon, seq.upper()))
 
@@ -5027,9 +5027,9 @@ class AlignmentList(Base):
 
         self.shelve_alignments = OrderedDict()
         """
-        Stores the "inactive" or "shelved" `Alignment` objects. All 
-        `AlignmentList` methods will operate only on the alignments 
-        attribute, unless explicitly stated otherwise. 
+        Stores the "inactive" or "shelved" `Alignment` objects. All
+        `AlignmentList` methods will operate only on the alignments
+        attribute, unless explicitly stated otherwise.
         Key-value is the same as the `alignments` attribute.
         """
 
@@ -6694,7 +6694,7 @@ class AlignmentList(Base):
             AlignmentList with the partitions as `Alignment` objects.
         """
 
-        concatenated_aln = self.concatenate(alignment_name="concatenated")
+        concatenated_aln = self.concatenate()
 
         reverted_alns = concatenated_aln.reverse_concatenate(db_con=self.con,
                                                              ns=ns)
@@ -7546,7 +7546,7 @@ class AlignmentList(Base):
                 "table_header": ["Taxon"] + legend}
 
     @LookupDatabase
-    def _get_similarity(self, seq1, seq2, aln_len):
+    def _get_similarity(self, seq1=None, seq2=None, aln_len=None):
         """Gets the similarity between two strings and the effective length.
 
         Compares two sequences and calculates the number of similarities.
