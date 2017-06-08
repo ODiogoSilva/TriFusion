@@ -161,6 +161,7 @@ from kivy.lang import Builder
 from kivy.properties import ListProperty, DictProperty
 from kivy.clock import Clock
 from kivy.uix.treeview import TreeViewLabel
+from kivy.logger import Logger
 
 # Local TriFusion imports
 try:
@@ -3046,8 +3047,8 @@ class TriFusionApp(App):
                         return self.dialog_floatcheck(
                             "An unexpected error occurred. Check the app"
                             " logs", t="error")
-                except:
-                    pass
+                except Exception as e:
+                    Logger.exception(e.message)
 
                 try:
                     val = shared_ns.val
@@ -7633,8 +7634,8 @@ class TriFusionApp(App):
                         return self.dialog_floatcheck(
                             "An unexpected error occurred when exporting "
                             "orthologs. Check the app logs.", t="error")
-                except:
-                    pass
+                except Exception as e:
+                    Logger.exception(e.message)
 
                 Clock.unschedule(func)
                 self.dismiss_popup()
@@ -8313,8 +8314,8 @@ class TriFusionApp(App):
         if group_name and group_name.__class__.__name__ == "MultiGroupsLight":
             try:
                 self.ortho_groups = group_name
-            except:
-                pass
+            except Exception as e:
+                Logger.exception(e.message)
 
         if group_name and not \
                 group_name.__class__.__name__ == "MultiGroupsLight":
@@ -10617,8 +10618,8 @@ class TriFusionApp(App):
                         return self.dialog_floatcheck(
                             "Unexpected error when loading input data. "
                             "Check app logs", t="error")
-                except:
-                    pass
+                except Exception as e:
+                    Logger.exception(e.message)
 
                 # Get the alignment object from the child thread and load
                 # it into the app
@@ -11268,8 +11269,8 @@ class TriFusionApp(App):
                     if shared_ns.exception:
                         self.dialog_floatcheck(shared_ns.exception,
                                                t="error")
-                except:
-                    pass
+                except Exception as e:
+                    Logger.exception(e.message)
 
                 try:
                     # Set the protein database file
