@@ -320,8 +320,7 @@ class TriFusionApp(App):
 
     index = NumericProperty(-1)
     """Integer with the index of the current screen. The index is 
-    retrieved from the :attr:`~.TriFusionApp.screen_names` attribute. 
-    """
+    retrieved from the :attr:`~.TriFusionApp.screen_names` attribute."""
 
     temp_dir = StringProperty()
     """String with path to temporary directory."""
