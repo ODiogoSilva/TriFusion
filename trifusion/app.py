@@ -319,8 +319,7 @@ class TriFusionApp(App):
     """String with the name of the last Screen object."""
 
     index = NumericProperty(-1)
-    """
-    Integer with the index of the current screen. The index is 
+    """Integer with the index of the current screen. The index is 
     retrieved from the :attr:`~.TriFusionApp.screen_names` attribute. 
     """
 
