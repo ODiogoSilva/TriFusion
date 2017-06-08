@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #  Copyright 2012 Unknown <diogo@arch>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -79,13 +79,13 @@ iupac_conv = {"v": "acg", "r": "ag", "m": "ac", "s": "cg", "d": "agt",
 
 class CleanUp(object):
     """Decorator class that handles temporary data for TriSeq and TriStats.
-    
+
     This decorator class wraps the main execution functions of TriSeq and
     TriStats programs. The __init__ requires only the function reference,
     defines the name of the temporary directory and evaluates whether the
-    provided `func` is from TriSeq or TriStats. The only requirement of 
+    provided `func` is from TriSeq or TriStats. The only requirement of
     `func` is that its first argument is the argparser namespace (that is,
-    the arguments must be parsed in the corresponding program before 
+    the arguments must be parsed in the corresponding program before
     calling the main function).
     
     Parameters
@@ -128,7 +128,7 @@ class CleanUp(object):
         Parameters
         ----------
         args : list
-            Arbitrary list of positional arguments of `func`. The only 
+            Arbitrary list of positional arguments of `func`. The only
             requirement is that the first element is the argparse namespace
             object.
 
@@ -227,9 +227,9 @@ def print_col(text, color, i=0, quiet=False):
     This print function homogenizes the progress logging of all CLI programs
     while providing some freedom on the formatting of the progress message,
     name the colors of the messages. A list of terminal colors is provided
-    and a `has_colors` function checks whether they are supported on the 
+    and a `has_colors` function checks whether they are supported on the
     terminal. The colors in use are green for normal logging, yellow for
-    warnings and red for errors. The final formatting of the message is 
+    warnings and red for errors. The final formatting of the message is
     something like:
     
     [<Program Name>[-Error/Warning]] <message>
@@ -239,7 +239,7 @@ def print_col(text, color, i=0, quiet=False):
     text : str
         The message that will appear in the terminal
     color : variable reference
-        Reference to the terminal colors defined in process.base. Provided 
+        Reference to the terminal colors defined in process.base. Provided
         that they are imported in the module where they are being called, the
         options are: {GREEN, YELLOW, RED}
     i : int
@@ -404,8 +404,8 @@ class Base(object):
         """
         Get the list of taxa from a .loci file.
         
-        This is required prior to parsing the alignment in order to 
-        correctly add missing data when certain taxa are not present in 
+        This is required prior to parsing the alignment in order to
+        correctly add missing data when certain taxa are not present in
         a locus
         
         Parameters
@@ -441,8 +441,8 @@ class Base(object):
         Guess the sequence type, i.e. protein.
         
         Guesses the code of the provided `sequence`, that is, if it is a
-        DNA or Protein sequence based on the first sequence of 
-        the reference file. The second item of the returned `code` variable 
+        DNA or Protein sequence based on the first sequence of
+        the reference file. The second item of the returned `code` variable
         is a placeholder for the missing data symbol (can be either "?", "n"
         or "x"). This symbol will be evaluated during the Alignment parsing.
 
@@ -467,10 +467,10 @@ class Base(object):
         -----
         The missing symbol character that is provided in the returned `code`
         tuple may be None if the missing character cannot be determined
-        from the first reference sequence that is used to guess the 
-        sequence type. If none of the potential missing data symbol is 
+        from the first reference sequence that is used to guess the
+        sequence type. If none of the potential missing data symbol is
         present in this reference sequence, it will remain undetermined and
-        will be evaluated during the alignment parsing. 
+        will be evaluated during the alignment parsing.
         
         """
 

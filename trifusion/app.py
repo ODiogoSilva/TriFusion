@@ -320,7 +320,7 @@ class TriFusionApp(App):
     """String with the name of the last Screen object."""
 
     index = NumericProperty(-1)
-    """Integer with the index of the current screen. The index is 
+    """Integer with the index of the current screen. The index is
     retrieved from the :attr:`~.TriFusionApp.screen_names` attribute."""
 
     temp_dir = StringProperty()
@@ -341,7 +341,7 @@ class TriFusionApp(App):
     file_list = []
     """
     List with the paths of alignment files loaded into TriFusion.
-    This attribute should not be modified unless the files are removed 
+    This attribute should not be modified unless the files are removed
     from the application.
     """
     active_file_list = ListProperty()
@@ -385,7 +385,7 @@ class TriFusionApp(App):
     drag_c = 0
     """
     Integer that works as a counter of the number of files that were dropped
-    into TriFusion's window. 
+    into TriFusion's window.
     """
 
     _popup = ObjectProperty(None)
@@ -439,26 +439,26 @@ class TriFusionApp(App):
     """
     Attribute controlling whether output files should be overwritten
     or skipped. Has a None value when inactive, "overwrite" when there is
-    an instruction to overwrite, and "skip" when there is a instruction to 
+    an instruction to overwrite, and "skip" when there is a instruction to
     skip.
     """
     file_apply_all = False
     """
-    bool attribute that determines whether the behaviour of 
-    :attr:`~.TriFusionApp.file_overwrite` should be applied to all files 
+    bool attribute that determines whether the behaviour of
+    :attr:`~.TriFusionApp.file_overwrite` should be applied to all files
     (True) or not (False).
     """
 
     ortho_search_options = None
     """
-    Reference to the 
-    :class:`trifusion.data.resources.custom_widgets.OrthologySearchGrid 
-    object, containing the additional option's widgets of the Orthology 
+    Reference to the
+    :class:`trifusion.data.resources.custom_widgets.OrthologySearchGrid
+    object, containing the additional option's widgets of the Orthology
     Search screen.
     """
     orto_search_height = None
     """
-    Integer with the height property of the 
+    Integer with the height property of the
     :attr:`~.TriFusionApp.ortho_search_options` object.
     """
 
@@ -508,7 +508,7 @@ class TriFusionApp(App):
     """
     gene_master_table = []
     """
-    List with the table data from the 
+    List with the table data from the
     :class:`trifusion.data.resources.custom_widgets.GeneTable object.
     """
 
@@ -631,18 +631,18 @@ class TriFusionApp(App):
 
     previous_sets = {"Files": [], "Taxa": [], "Stats": []}
     """
-    Dictionary storing previous data sets defined in TriFusion. This is 
-    used to evaluate whether the plot methods should be executed or ignored. 
-    The Stats key refers to the previous active data sets when the stats 
-    summary statistics overview was performed. It should contain two lists, 
-    the first with the file set and the second with the taxa set. 
+    Dictionary storing previous data sets defined in TriFusion. This is
+    used to evaluate whether the plot methods should be executed or ignored.
+    The Stats key refers to the previous active data sets when the stats
+    summary statistics overview was performed. It should contain two lists,
+    the first with the file set and the second with the taxa set.
     
         previous_sets = {"Files": [], "Taxa": [], "Stats": []}
     """
 
     previous_stats_toggle = None
     """
-    Reference to 
+    Reference to
     :class:`~trifusion.data.resources.custom_widgets.StatsToggleWgt object.
     It's used to restore the widget to the Statistics screen when exiting
     and entering it when a plot is loaded.
@@ -695,13 +695,13 @@ class TriFusionApp(App):
     """
     MAX_PARTITION_BUTTON = NumericProperty(20)
     """
-    Integer with the maximum number of partition Buttons allowed in the 
-    "Partitions" tab of the sidepanel. Prevents the loading of all partition 
+    Integer with the maximum number of partition Buttons allowed in the
+    "Partitions" tab of the sidepanel. Prevents the loading of all partition
     Buttons in very large datasets.
     """
     count_partitions = NumericProperty(0)
     """
-    Integer that servers as a counter of the number of partition Buttons 
+    Integer that servers as a counter of the number of partition Buttons
     currently loaded into the "Partitions" tab of the sidepanel.
     """
 
@@ -710,24 +710,24 @@ class TriFusionApp(App):
         "Taxa": [],
         "Partitions": []})
     """
-    Attributes storing the ToggleButton objects from Taxa/File/Partitions 
+    Attributes storing the ToggleButton objects from Taxa/File/Partitions
     tabs in the sidepanel. Used mostly for mouse over events.
     """
 
     previous_mouse_over = StringProperty("")
     """
-    The Button text property of the previous mouse over event. This will 
-    allow the assessment of whether the current mouse collision is for the 
-    same button (in which case the mouse over will not be triggered) or for 
+    The Button text property of the previous mouse over event. This will
+    allow the assessment of whether the current mouse collision is for the
+    same button (in which case the mouse over will not be triggered) or for
     a different button (in which case the mouse over is triggered).
     """
 
     mouse_over_ready = BooleanProperty(True)
     """
-    bool attribute that is a locking mechanism of the mouse over event. 
-    When there is a scheduled event for a mouse over this attribute is set 
-    to False, which prevents further events from being scheduled in the 
-    meantime. When the scheduled event is dispatched, the lock is released 
+    bool attribute that is a locking mechanism of the mouse over event.
+    When there is a scheduled event for a mouse over this attribute is set
+    to False, which prevents further events from being scheduled in the
+    meantime. When the scheduled event is dispatched, the lock is released
     and it returns to True.
     """
 
@@ -768,7 +768,7 @@ class TriFusionApp(App):
     # Whether a FancyDropDown is... well... dropped
     fancy_dropped = BooleanProperty(False)
     """
-    bool attribute of whether the 
+    bool attribute of whether the
     :class:'trifusion.data.resources.custom_widgets.FancyDropDown object
     if active (True) or not (False).
     """
@@ -817,42 +817,42 @@ class TriFusionApp(App):
 
     terminate_stats = BooleanProperty(True)
     """
-    bool attribute used to determine if a summary statists background 
-    process should be terminated by the user. Value is True by default and 
+    bool attribute used to determine if a summary statists background
+    process should be terminated by the user. Value is True by default and
     they only change on the start up of the appropriate background function.
     """
 
     terminate_process_exec = BooleanProperty(True)
     """
-    bool attribute used to determine if a process execution background 
+    bool attribute used to determine if a process execution background
     process should be terminated by the user. Value is True by default and 
     they only change on the start up of the appropriate background function.
     """
 
     terminate_background = BooleanProperty(True)
     """
-    bool attribute used to determine if a generic background 
+    bool attribute used to determine if a generic background
     process should be terminated by the user. Value is True by default and 
     they only change on the start up of the appropriate background function.
     """
 
     terminate_load_files = BooleanProperty(True)
     """
-    bool attribute used to determine if a file loading background 
+    bool attribute used to determine if a file loading background
     process should be terminated by the user. Value is True by default and 
     they only change on the start up of the appropriate background function.
     """
 
     terminate_orto_search = BooleanProperty(True)
     """
-    bool attribute used to determine if a orthology search background 
+    bool attribute used to determine if a orthology search background
     process should be terminated by the user. Value is True by default and 
     they only change on the start up of the appropriate background function.
     """
 
     terminate_group_export = BooleanProperty(True)
     """
-    bool attribute used to determine if a ortholog export background 
+    bool attribute used to determine if a ortholog export background
     process should be terminated by the user. Value is True by default and 
     they only change on the start up of the appropriate background function.
     """
@@ -936,7 +936,7 @@ class TriFusionApp(App):
     """
     active_group_name = None
     """
-    String with name of the currently active 
+    String with name of the currently active
     :class:`~trifusion.ortho.OrthomclToolbox.GroupLight`.
     """
 
@@ -957,14 +957,14 @@ class TriFusionApp(App):
 
     original_tx_inf = DictProperty()
     """
-    Dictionary that maps a taxon string to the several informative 
-    properties for the entire loaded data set, shown when clicking the 
-    information button in the sidepanel. 
+    Dictionary that maps a taxon string to the several informative
+    properties for the entire loaded data set, shown when clicking the
+    information button in the sidepanel.
     """
     active_tx_inf = DictProperty()
     """
     Dictionary that maps a taxon string to the several informative 
-    properties for the active data set, shown when clicking the 
+    properties for the active data set, shown when clicking the
     information button in the sidepanel. 
     """
     original_file_inf = DictProperty()

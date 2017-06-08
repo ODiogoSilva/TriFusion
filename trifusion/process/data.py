@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-#  
+#
 #  Copyright 2012 Unknown <diogo@arch>
 #  
 #  This program is free software; you can redistribute it and/or modify
@@ -81,10 +81,10 @@ class Partitions(object):
     #   MrBayes models
     # =========================================================================
     """
-    MrBayes substitution models are stored in the dictionary 
-    _models["mrbayes"]. The keys of the dictionary are the name of the 
-    substitution models (usually in capital letters) and the values will 
-    contain the instructions to specific such model in a list. Each element 
+    MrBayes substitution models are stored in the dictionary
+    _models["mrbayes"]. The keys of the dictionary are the name of the
+    substitution models (usually in capital letters) and the values will
+    contain the instructions to specific such model in a list. Each element
     of the list corresponds to one line
     """
 
@@ -158,9 +158,9 @@ class Partitions(object):
         """
         The partitions_alignments attribute will associate the partition with
         the corresponding alignment files. For single alignment partitions,
-        this will provide information on the file name. For multiple 
-        alignments, besides the information of the file names, it will 
-        associate which alignments are contained in a given partition and 
+        this will provide information on the file name. For multiple
+        alignments, besides the information of the file names, it will
+        associate which alignments are contained in a given partition and
         support multi alignment partitions. An example would be::
 
             partitions_alignments = {"PartitionA": ["FileA.fas"],
