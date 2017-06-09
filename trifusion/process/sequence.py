@@ -1282,7 +1282,8 @@ class Alignment(Base):
 
     def __init__(self, input_alignment, input_format=None, partitions=None,
                  locus_length=None, sequence_code=None, taxa_list=None,
-                 taxa_idx=None, sql_cursor=None, sql_con=None):
+                 taxa_idx=None, sql_cursor=None, sql_con=None,
+                 ignore_db_check=False):
 
         self.cur = sql_cursor
         self.con = sql_con
@@ -1368,7 +1369,10 @@ class Alignment(Base):
         else:
             self.taxa_idx = {}
 
-        self.table_name = "".join([x for x in self.path if x.isalnum()])
+        if ignore_db_check:
+            self.table_name = self.path
+        else:
+            self.table_name = "".join([x for x in self.path if x.isalnum()])
         """
         Creates a database table for the current alignment. This will be the
         link attribute between the sqlite database and the remaining methods
@@ -1395,6 +1399,9 @@ class Alignment(Base):
         stored in the database, and then further usages will use that table.
         """
 
+        if ignore_db_check:
+            self.input_format = input_format
+
         # NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the
         # responsibility of the Alignment class to check on duplicate table
         # names. If an exiting table name is found in the database,
@@ -1410,7 +1417,7 @@ class Alignment(Base):
         # Check if table for current alignment file already exists. If it
         # does not exist, it is assumed that input_alignment is the path to
         # the alignment file
-        if not self._table_exists(self.table_name):
+        elif not self._table_exists(self.table_name):
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -3194,7 +3201,8 @@ class Alignment(Base):
                                     locus_length=part_len,
                                     sequence_code=self.sequence_code,
                                     taxa_list=taxa_list,
-                                    taxa_idx=taxa_idx)
+                                    taxa_idx=taxa_idx,
+                                    ignore_db_check=True)
 
             alns.append(current_aln)
 
@@ -3216,21 +3224,24 @@ class Alignment(Base):
 
         self._set_pipes(ns, pbar, total=len(self.taxa_list))
 
-        for p, (taxon, seq) in enumerate(
-                self.iter_alignment(table_name=table_in)):
+        # Get corrected partition names for sqlite database
+        part_map = {}
+        for name, _ in self.partitions:
+            part_map[name] = "".join([x for x in name if x.isalnum()])
+
+        for p, (taxon, seq) in enumerate(self.iter_alignment(table_name=table_in)):
 
             self._update_pipes(ns, pbar, value=p + 1)
 
             for name, part_range in self.partitions:
 
-                name = "".join([x for x in name.split(".")[0] if x.isalnum()])
+                name = part_map[name]
 
                 if part_range[1]:
 
                     for i in range(3):
 
-                        part_seq = seq[part_range[0][0]:
-                                       part_range[0][1] + 1][i::3]
+                        part_seq = seq[part_range[0][0]:part_range[0][1] + 1][i::3]
 
                         if part_seq.replace(self.sequence_code[1], "") == "":
                             continue
@@ -3243,14 +3254,11 @@ class Alignment(Base):
                         if not self._table_exists(cname, cur=rev_cur):
                             self._create_table(cname, cur=rev_cur)
 
-                        rev_cur.execute(
-                            "INSERT INTO [{}] VALUES"
-                            "(?, ?, ?)".format(cname), (p, taxon, part_seq))
+                        rev_cur.execute("INSERT INTO [{}] VALUES(?, ?, ?)".format(cname), (p, taxon, part_seq))
 
                 else:
 
-                    part_seq = seq[part_range[0][0]:
-                                   part_range[0][1] + 1]
+                    part_seq = seq[part_range[0][0]:part_range[0][1] + 1]
 
                     if part_seq.replace(self.sequence_code[1], "") == "":
                         continue
@@ -3261,17 +3269,13 @@ class Alignment(Base):
                     # if not self._table_exists(name, cur=rev_cur):
                     #     self._create_table(name, cur=rev_cur)
 
-                    rev_cur.execute(
-                        "INSERT INTO [.reversedata] VALUES"
-                        "(?, ?, ?)".format(name), (taxon, name, part_seq))
+                    rev_cur.execute("INSERT INTO [.reversedata] VALUES(?, ?, ?)".format(name), (taxon, name, part_seq))
 
         self._set_pipes(ns, pbar, total=len(self.partitions.partitions))
 
         prev = ""
         c = 1
-        for tx, part, seq in rev_cur.execute(
-                "SELECT taxon, partition, seq FROM [.reversedata] "
-                "ORDER BY partition"):
+        for tx, part, seq in rev_cur.execute("SELECT taxon, partition, seq FROM [.reversedata] ORDER BY partition"):
 
             if part != prev:
                 prev = part
@@ -3279,8 +3283,7 @@ class Alignment(Base):
                 self._update_pipes(ns, pbar, value=c)
                 c += 1
 
-            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                part), (0, tx, seq))
+            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(part), (0, tx, seq))
 
         concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
         alns = []
@@ -3288,7 +3291,7 @@ class Alignment(Base):
         # Create Alignment objects for each partition
         for name, part_range in self.partitions:
 
-            name = "".join([x for x in name.split(".")[0] if x.isalnum()])
+            name = part_map[name]
 
             if part_range[1]:
 
@@ -3299,8 +3302,7 @@ class Alignment(Base):
                     taxa_list = taxa_list_master[name + str(i)]
                     taxa_idx = taxa_idx_master[name + str(i)]
 
-                    add_alignment(name + str(i), part_len,
-                                  taxa_list=taxa_list, taxa_idx=taxa_idx)
+                    add_alignment(name + str(i), part_len, taxa_list=taxa_list, taxa_idx=taxa_idx)
 
             else:
 
@@ -3313,6 +3315,9 @@ class Alignment(Base):
                               taxa_idx=taxa_idx)
 
         concatenated_aln.add_alignments(alns, ignore_paths=True)
+
+        if self._table_exists(".reversedata"):
+            self.cur.execute("DROP TABLE [.reversedata]")
 
         return concatenated_aln
 
