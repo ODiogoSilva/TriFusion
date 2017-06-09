@@ -3198,19 +3198,23 @@ class Alignment(Base):
 
             alns.append(current_aln)
 
+        # Create temporary table that will store taxon, sequence and
+        # partition information
         self.cur.execute("CREATE TABLE [.reversedata]("
                          "taxon TEXT,"
                          "partition TEXT,"
                          "seq TEXT)")
+        # Create index on partition column for sorting
         self.cur.execute("CREATE INDEX revindex ON [.reversedata]("
                          "partition)")
+        # Create another sqlite cursor that will handle the new temporary
+        # table
+        rev_cur = self.con.cursor()
 
         taxa_list_master = defaultdict(list)
         taxa_idx_master = defaultdict(dict)
 
         self._set_pipes(ns, pbar, total=len(self.taxa_list))
-
-        rev_cur = self.con.cursor()
 
         for p, (taxon, seq) in enumerate(
                 self.iter_alignment(table_name=table_in)):
@@ -3277,8 +3281,6 @@ class Alignment(Base):
 
             self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
                 part), (0, tx, seq))
-
-        print("????")
 
         concatenated_aln = AlignmentList([], db_con=db_con, db_cur=self.cur)
         alns = []
