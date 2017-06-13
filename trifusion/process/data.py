@@ -743,7 +743,8 @@ class Partitions(object):
                 self.counter = locus_range[1] + 1
                 self.partition_length = locus_range[1] + 1
 
-    def remove_partition(self, partition_name=None, file_name=None):
+    def remove_partition(self, partition_name=None, file_name=None,
+                         file_list=None, ns=None):
         """Removes partitions.
 
         Removes a partitions by a given partition or file name. This will
@@ -759,6 +760,9 @@ class Partitions(object):
             Name of the partition.
         file_name : str
             Name of the alignment file.
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
         """
 
         def rm_part(nm):
@@ -767,12 +771,14 @@ class Partitions(object):
             the remaining partitions
             """
 
-            del self.partitions[nm]
+            for i in nm:
+                del self.partitions[i]
 
             new_dic = OrderedDict()
 
             counter = 0
-            for nm, vals in self.partitions.items():
+            for p, (nm, vals) in enumerate(self.partitions.items()):
+
                 # Check if the starting position of the next partition is the
                 # same as the counter. If so, add the vals to the new dict.
                 # Else, correct the ranges based on the counter
@@ -801,15 +807,20 @@ class Partitions(object):
             argument, or with the file_name argument when the partition only
             contains that file name
             """
-            # Remove partition from partition_index
-            self.partitions_index = [x for x in self.partitions_index if x[0] !=
-                                     part_name]
 
-            # Remove partitions_alignments
-            del self.partitions_alignments[part_name]
+            if not isinstance(part_name, list):
+                part_name = [part_name]
 
-            # Remove models
-            del self.models[part_name]
+            for p in part_name:
+                # Remove partition from partition_index
+                self.partitions_index = [
+                    x for x in self.partitions_index if x[0] != p]
+
+                # Remove partitions_alignments
+                del self.partitions_alignments[p]
+
+                # Remove models
+                del self.models[p]
 
             # Remove from partitions
             self.partitions = rm_part(part_name)
@@ -821,6 +832,17 @@ class Partitions(object):
                                          partition_name)
 
             remove_routine(partition_name)
+
+        if file_list:
+
+            part_list = []
+            for part, fl in self.partitions_alignments.items():
+                if any((x for x in fl if x in file_list)):
+                    part_list.append(part)
+
+            # Not this, will remove a partition containing multiple alignments
+            # if at least one is in the file_list argument
+            remove_routine(part_list)
 
         if file_name:
 

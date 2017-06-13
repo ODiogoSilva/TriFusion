@@ -5789,6 +5789,7 @@ class TriFusionApp(App):
         # Core changes to files
         if (sv_parent == self.root.ids.sv_file and
                 value.text == "Select All"):
+
             if self.file_list:
                 self.active_file_list = self.file_list[:]
                 self.alignment_list.update_active_alignments(

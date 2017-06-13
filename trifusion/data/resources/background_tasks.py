@@ -779,7 +779,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         return aln
 
-    def concatenation(aln, table_in=""):
+    def concatenation(aln, table_in, table_out):
         """Wrapper for concatenation operation
 
         Parameters
@@ -795,7 +795,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             zorro_data = data.Zorro(aln, zorro_suffix)
             zorro_data.write_to_file(output_file)
 
-        aln = aln.concatenate(table_in=table_in, ns=ns)
+        aln.concatenate(table_in=table_in, table_out=table_out, ns=ns)
 
         # Sets the single alignment to True, for other method to be aware of
         # this
@@ -833,7 +833,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         return aln
 
     def writer(aln, filename=None, suffix_str="", conv_suffix="",
-               table_suffix=None, table_name=None):
+               table_name=None):
         """Wrapper for the output writing operations
 
         Parameters
@@ -874,7 +874,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # additional operations are conducted in the same aln_obj
 
             if aln.__class__.__name__ == "Alignment":
-                aln.write_to_file(output_formats,
+                aln.write_to_file(
+                    output_formats,
                     outfile if outfile else join(output_dir, "consensus"),
                     interleave=secondary_options["interleave"],
                     partition_file=create_partfile,
@@ -884,11 +885,11 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     ima2_params=ima2_params,
                     use_nexus_models=use_nexus_models,
                     ns_pipe=ns,
-                    table_suffix=table_suffix,
                     table_name=table_name)
             elif aln.__class__.__name__ == "AlignmentList":
                 aln.write_to_file(
                     output_formats,
+                    output_file=outfile,
                     output_suffix=suffix_str,
                     conversion_suffix=conv_suffix,
                     interleave=secondary_options["interleave"],
@@ -900,7 +901,6 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     ima2_params=ima2_params,
                     use_nexus_models=use_nexus_models,
                     ns_pipe=ns,
-                    table_suffix=table_suffix,
                     table_name=table_name)
 
         except IOError as e:
@@ -941,12 +941,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Perform operations on MAIN OUTPUT
         #####
 
-        # Set the suffix for the sqlite table harboring the main output
+        # Set the name of the sqlite table harboring the main output
         # alignment if any of the secondary operations is specified
-        if any(secondary_operations.values()):
-            main_table = "main"
-        else:
-            main_table = ""
+        main_table = "main_output"
 
         # Reverse concatenation
         # Active table: Based on partition names
@@ -977,7 +974,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Active table: concatenation
         if main_operations["concatenation"]:
             ns.task = "concatenation"
-            main_aln = concatenation(main_aln, table_in=main_table)
+            main_aln = concatenation(main_aln, table_in=main_table,
+                                     table_out=main_table)
             ns.finished_tasks.append("concatenation")
         # Collapsing
         # Active table: *main / concatenationmain
@@ -985,7 +983,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 secondary_options["collapse_file"]:
             ns.task = "collapse"
             main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir,
-                                table_out=main_table, ns=ns)
+                              table_out=main_table, ns=ns, table_in=main_table)
             ns.finished_tasks.append("collapse")
         # Gcoder
         # Active table: *main / concatenationmain
@@ -1002,31 +1000,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             main_aln = consensus(main_aln, table_out=main_table)
             ns.finished_tasks.append("consensus")
 
-        # ### Guide on possible final tables
-        # --- Base types
-        # 1: Conversion -> * (main -- checks)
-        # 2: Concatenation -> concatenation (main -- checks)
-        # 3: Reverse concatenation -> * (main --checks)
-        # --- Conversion and Reverse concatenation + secondary ops
-        # 4: Collapse/Filter/Gcoder -> *main (sec --checks)
-        # 5: Consensus -> *main (sec -- checks)
-        # 6: Consensus (single file) -> consensus (main -- fallback)
-        # --- Concatenation + secondary ops
-        # 7: Filter (only) -> concatenation (main -- fallback)
-        # 8: Collapse/gcoder -> concatenationmain (sec -- checks)
-        # 9: Consensus -> concatenationmain (sec -- checks)
-        # 10: Consensus (single file) -> consensus (main -- fallback)
-
-        # NOTE ON TABLE NAMES
-        # Some combinations of operations actually create a table_suffix
-        # that does not exist in the database. This happens in cases 6, 7 and
-        # 10. However, in these cases the main table(s) of the Alignment
-        # object should be used, so we let the sequence fetching methods
-        # fail to find the suggested table and fallback to the main table.
-
         ns.task = "write"
         writer(main_aln, conv_suffix=conversion_suffix,
-               table_suffix=main_table)
+               table_name=main_table)
         ns.finished_tasks.append("write")
 
         #####

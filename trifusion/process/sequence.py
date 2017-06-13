@@ -1283,7 +1283,7 @@ class Alignment(Base):
     def __init__(self, input_alignment, input_format=None, partitions=None,
                  locus_length=None, sequence_code=None, taxa_list=None,
                  taxa_idx=None, sql_cursor=None, sql_con=None,
-                 ignore_db_check=False):
+                 db_idx=None, ignore_db_check=False):
 
         self.cur = sql_cursor
         self.con = sql_con
@@ -1369,10 +1369,7 @@ class Alignment(Base):
         else:
             self.taxa_idx = {}
 
-        if ignore_db_check:
-            self.table_name = self.path
-        else:
-            self.table_name = "".join([x for x in self.path if x.isalnum()])
+        self.table_name = db_idx
         """
         Creates a database table for the current alignment. This will be the
         link attribute between the sqlite database and the remaining methods
@@ -1399,8 +1396,6 @@ class Alignment(Base):
         stored in the database, and then further usages will use that table.
         """
 
-        if ignore_db_check:
-            self.input_format = input_format
 
         # NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the
         # responsibility of the Alignment class to check on duplicate table
@@ -1417,7 +1412,7 @@ class Alignment(Base):
         # Check if table for current alignment file already exists. If it
         # does not exist, it is assumed that input_alignment is the path to
         # the alignment file
-        elif not self._table_exists(self.table_name):
+        if not ignore_db_check:
 
             # Get alignment format and code. Sequence code is a tuple of
             # (DNA, N) or (Protein, X)
@@ -1428,9 +1423,6 @@ class Alignment(Base):
                 self.input_format, self.sequence_code = self.autofinder(
                     input_alignment)
 
-                # Create database table when there are no issues in the
-                # recognition of the file format and sequence code
-                self._create_table(self.table_name)
 
                 # In case the input format is specified, overwrite the
                 # attribute
@@ -1948,7 +1940,7 @@ class Alignment(Base):
             # object is querying the database at any given time
             lock.acquire(True)
             for tx, seq in self.cur.execute(
-                    "SELECT taxon, seq from [{}]".format(table)):
+                    "SELECT taxon, seq from [alignment_data] WHERE partition='{}'".format(self.table_name)):
                 if tx not in self.shelved_taxa:
                     yield tx, seq
         finally:
@@ -2004,8 +1996,9 @@ class Alignment(Base):
             lock.acquire(True)
             if taxon in self.taxa_list and taxon not in self.shelved_taxa:
                 seq = self.cur.execute(
-                    "SELECT seq FROM [{}] WHERE txId=?".format(table),
-                    (self.taxa_idx[taxon],)).fetchone()[0]
+                    "SELECT seq FROM [alignment_data] WHERE txId=? "
+                    "AND aln_idx=?",
+                    (self.taxa_idx[taxon], self.table_name)).fetchone()[0]
                 return seq
 
             else:
@@ -2045,6 +2038,24 @@ class Alignment(Base):
         self.shelved_taxa = lst
         self.taxa_list = [x for x in self.taxa_list
                           if x not in self.shelved_taxa]
+
+    def _insert_data(self, txId, taxon, seq):
+        """
+
+        Parameters
+        ----------
+        txId
+        taxon
+        seq
+
+        Returns
+        -------
+
+        """
+
+        self.cur.execute("INSERT INTO alignment_data VALUES (?, ?, ?, ?)",
+                         (txId, taxon, seq, self.table_name))
+
 
     def _read_interleave_phylip(self, ntaxa):
         """ Alignment parser for interleave phylip format.
@@ -2133,8 +2144,7 @@ class Alignment(Base):
             size_list.append(len(seq))
 
             # Insert data into database
-            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                self.table_name), (i, taxa, seq))
+            self._insert_data(i, taxa, seq)
 
             fh.close()
 
@@ -2228,8 +2238,7 @@ class Alignment(Base):
 
             size_list.append(len(seq))
 
-            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                self.table_name), (i, taxa, seq))
+            self._insert_data(i, taxa, seq)
 
             fh.close()
 
@@ -2316,8 +2325,8 @@ class Alignment(Base):
 
                     # Oh boy, this seems like an interleave phylip file.
                     # Redirect parsing to appropriate method
-                    self.cur.execute("DELETE FROM [{}]".format(
-                        self.table_name))
+                    # self.cur.execute("DELETE FROM [{}]".format(
+                    #     self.table_name))
                     size_list = self._read_interleave_phylip(taxa_num)
                     break
 
@@ -2349,16 +2358,12 @@ class Alignment(Base):
                     # Evaluate missing data symbol if undefined
                     self._eval_missing_symbol(seq)
 
-                    self.cur.execute("INSERT INTO [{}] VALUES"
-                                     "(?, ?, ?)".format(
-                        self.table_name), (c, taxa, seq))
+                    self._insert_data(c, taxa, seq)
 
                     size_list.append(len(seq))
 
                     # Add counter for interleave processing
                     c += 1
-
-                    # sequence_data.append((taxa, "".join(sequence)))
 
             except IndexError:
                 pass
@@ -2401,9 +2406,7 @@ class Alignment(Base):
                     # Evaluate missing data symbol if undefined
                     self._eval_missing_symbol(seq)
 
-                    self.cur.execute("INSERT INTO [{}] VALUES"
-                                     " (?, ?, ?)".format(
-                        self.table_name), (idx, taxa, seq))
+                    self._insert_data(idx, taxa, seq)
 
                     self.taxa_list.append(taxa)
                     self.taxa_idx[taxa] = idx
@@ -2430,9 +2433,7 @@ class Alignment(Base):
             # Evaluate missing data symbol if undefined
             self._eval_missing_symbol(seq)
 
-            self.cur.execute("INSERT INTO [{}] VALUES"
-                             " (?, ?, ?)".format(
-                self.table_name), (idx, taxa, seq))
+            self._insert_data(idx, taxa, seq)
 
             self.taxa_list.append(taxa)
             self.taxa_idx[taxa] = idx
@@ -2634,9 +2635,7 @@ class Alignment(Base):
                     size_list.append(len(seq))
 
                     # Add sequence to sqlite database
-                    self.cur.execute(
-                        "INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                            self.table_name), (idx, taxa, seq))
+                    self._insert_data(idx, taxa, seq)
 
                     idx += 1
 
@@ -3759,15 +3758,15 @@ class Alignment(Base):
         # If both values were specified, check if s is within range
         if max_val is not None and min_val is not None \
                 and s >= min_val and s <= max_val:
-            return True
+            return "save"
         # If only min_val was specified, check if s is higher
         elif max_val is None and s >= min_val:
-            return True
+            return "save"
         # If only max_val was specified, check if s is lower
         elif min_val is None and s <= max_val:
-            return True
+            return "save"
         else:
-            return False
+            return "shelve"
 
     def filter_segregating_sites(self, min_val, max_val, table_in=None,
                                     ns=None, pbar=None):
@@ -4290,7 +4289,7 @@ class Alignment(Base):
 
                 out_file.write("{} {}\n".format(
                     tx[:cut_space_nex].ljust(tx_space_nex),
-                    seq.upper()))
+                    seq))
 
             out_file.write(";\n\tend;")
 
@@ -4992,7 +4991,7 @@ class AlignmentList(Base):
         DataFrame containing the summary statistics for each `Alignment`
         object. Also populated when the `get_summary_stats` method is
         executed.
-    active_tables : list
+    temporary_tables : list
         List of active database tables associated with the `AlignmentList`
         instance.
     partitions : trifusion.process.data.Partitions
@@ -5025,10 +5024,17 @@ class AlignmentList(Base):
             Path to sqlite3 database file
             """
 
+        self.master_table = "alignment_data"
+        """Name of the table with the original alignment data"""
+
         if not db_cur and not db_con:
             self.con = sqlite3.connect(self.sql_path, check_same_thread=False)
             self.cur = self.con.cursor()
             self.cur.execute("PRAGMA synchronous = OFF")
+
+        if not self._table_exists(self.master_table):
+            self._create_table(self.master_table,
+                               index=("main_idx", "aln_idx"))
 
         self.alignments = OrderedDict()
         """
@@ -5045,10 +5051,23 @@ class AlignmentList(Base):
         Key-value is the same as the `alignments` attribute.
         """
 
+        self.alignment_idx = OrderedDict()
+        """
+        OrderedDict that that maps the "aln_file" column value of the sqlite
+        database, to the path/filename  of the corresponding alignment.
+        """
+
+        self.shelved_idx = []
+        """
+        List with shelved alignment idx.
+        """
+
+        self._idx = 1
+
         self.bad_alignments = []
         """
         Attribute list that stores the Alignment.name attribute of badly
-        formatted alignments
+        formatted alignments.
         """
 
         self.duplicate_alignments = []
@@ -5058,7 +5077,7 @@ class AlignmentList(Base):
 
         self.non_alignments = []
         """
-        Attribute list that stores sequence sets of unequal lenght
+        Attribute list that stores sequence sets of unequal length.
         """
 
         self.taxa_names = []
@@ -5091,25 +5110,41 @@ class AlignmentList(Base):
         """
         self.gap_symbol = "-"
 
-        """
-        Dictionary with summary statistics for the active alignments
-        """
         self.summary_stats = {"genes": 0, "taxa": 0, "seq_len": 0, "gaps": 0,
                               "avg_gaps": [], "missing": 0, "avg_missing": [],
                               "variable": 0, "avg_var": [], "informative": 0,
                               "avg_inf": []}
+        """
+        Dictionary with summary statistics for the active alignments
+        """
 
+        columns = ["genes", "nsites", "taxa", "var", "inf", "gap", "missing"]
+        self.summary_gene_table = pd.DataFrame(columns=columns)
         """
         Dictionary with summary statistics for each alignment.
         """
-        columns = ["genes", "nsites", "taxa", "var", "inf", "gap", "missing"]
-        self.summary_gene_table = pd.DataFrame(columns=columns)
 
+        self.format_ext = {"ima2": ".txt",
+                            "mcmctree": "_mcmctree.phy",
+                            "phylip": ".phy",
+                            "nexus": ".nex",
+                            "fasta": ".fas",
+                            "stockholm": ".stockholm",
+                            "gphocs": ".txt"}
+        """Dictionary that stores the suffix for each output format"""
+
+        self.temporary_tables = []
         """
         Lists the currently active tables. This is mainly used for the
         conversion of the consensus alignments into a single Alignment object
         """
-        self.active_tables = []
+
+        self.interleave_data = False
+
+        self.size = 0
+        """
+        Integer with the size of the complete data set
+        """
 
         # Set partitions object
         self.partitions = Partitions()
@@ -5130,6 +5165,58 @@ class AlignmentList(Base):
             Iterable over `alignments.values()`
         """
         return iter(self.alignments.values())
+
+    def iter_alignments(self, table_name=None, include_txid=False):
+
+        table_name = table_name if table_name else self.master_table
+
+        if not self._table_exists(table_name):
+            table_name = self.master_table
+
+        try:
+
+            lock.acquire(True)
+
+            for txId, taxon, seq, aln_idx in self.cur.execute(
+                    "SELECT txId, taxon, seq, aln_idx "
+                    "FROM [{}] "
+                    "WHERE aln_idx NOT IN ({})".format(
+                        table_name,
+                        ", ".join([str(x) for x in self.shelved_idx]))):
+                if taxon not in self.shelved_taxa:
+                    if include_txid:
+                        yield txId, taxon, seq, aln_idx
+                    else:
+                        yield taxon, seq, aln_idx
+
+        finally:
+            lock.release()
+
+    def iter_columns(self, table_name):
+
+        table_name = table_name if table_name else self.master_table
+
+        if not self._table_exists(table_name):
+            table_name = self.master_table
+
+        try:
+
+            lock.acquire(True)
+
+            query = "SELECT " \
+                    "GROUP_CONCAT(substr(seq, {pos}, 100000)), " \
+                    "aln_idx " \
+                    "FROM [{tb}] " \
+                    "GROUP BY aln_idx"
+
+            for p in xrange(0, self.size, 100000):
+                for res in ((x.split(","), y) for x, y in self.cur.execute(
+                        query.format(pos=p, tb=table_name))):
+                    for col in itertools.izip(*res[0]):
+                        yield col, res[1]
+
+        finally:
+            lock.release()
 
     def _create_table(self, table_name, index=None, cur=None):
         """Creates a new table in the database.
@@ -5155,7 +5242,8 @@ class AlignmentList(Base):
         cur.execute("CREATE TABLE [{}]("
                     "txId INT,"
                     "taxon TEXT,"
-                    "seq TEXT)".format(table_name))
+                    "seq TEXT,"
+                    "aln_idx INT)".format(table_name))
 
         if index:
             cur.execute("CREATE INDEX {} ON [{}]({})".format(
@@ -5197,6 +5285,36 @@ class AlignmentList(Base):
         return cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND"
             " name='{}'".format(table_name)).fetchall()
+
+    def _get_idx(self, aln_path):
+        """Returns the `align_idx` for a given `aln_path`.
+
+        Returns the alignment identifier number in the sqlite database
+        (`aln_idx`) for a given alignment path (`aln_path`).
+
+        Parameters
+        ----------
+        aln_path
+
+        Returns
+        -------
+
+        """
+
+        try:
+            idx = [idx for idx, path in self.alignment_idx.items() if
+                   path == aln_path][0]
+        except IndexError:
+            idx = None
+
+        return idx
+
+    @staticmethod
+    def _check_killswitch(ns):
+
+        if ns:
+            if ns.stop:
+                raise KillByUser("")
 
     def _set_pipes(self, ns=None, pbar=None, total=None, msg=None):
         """Setup of progress indicators for both GUI and CLI task executions.
@@ -5404,35 +5522,34 @@ class AlignmentList(Base):
             Takes precedence over `preserve_tables` if both are provided.
         """
 
-        if not preserve_tables:
-            preserve_tables = []
+        # if not preserve_tables:
+        #     preserve_tables = []
+        #
+        # if not trash_tables:
+        #     trash_tables = []
+        #
+        # tables = self.cur.execute(
+        #     "SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        #
+        # if trash_tables:
+        #     tables_delete = [x[0] for x in tables if x[0] in trash_tables]
+        # else:
+        #     tables_delete = [x[0] for x in tables if x[0] not in
+        #                      preserve_tables]
 
-        if not trash_tables:
-            trash_tables = []
-
-        tables = self.cur.execute(
-            "SELECT name FROM sqlite_master WHERE type='table';").fetchall()
-
-        if trash_tables:
-            tables_delete = [x[0] for x in tables if x[0] in trash_tables]
-        else:
-            tables_delete = [x[0] for x in tables if x[0] not in
-                             preserve_tables]
-
-        for tb in tables_delete:
+        for tb in self.temporary_tables:
             self.cur.execute("DROP TABLE [{}]".format(tb))
+            self.temporary_tables.remove(tb)
 
     def clear_alignments(self):
         """Clears all attributes and data from the `AlignmentList` object."""
 
-        # Drop all database tables related to the current Alignments
-        for aln in self.alignments.values() + self.shelve_alignments.values():
-            aln.remove_alignment()
-
         # Drop active databases of the AlignmentList instance, namely consensus
         # and concatenation, if they exist
-        for table in self.active_tables:
+        for table in self.temporary_tables:
             self.cur.execute("DROP TABLE [{}]".format(table))
+
+        self.cur.execute("DELETE FROM [{}]".format(self.master_table))
 
         self.alignments = {}
         self.shelve_alignments = {}
@@ -5453,7 +5570,7 @@ class AlignmentList(Base):
                               "avg_inf": []}
         columns = ["genes", "nsites", "taxa", "var", "inf", "gap", "missing"]
         self.summary_gene_table = pd.DataFrame(columns=columns)
-        self.active_tables = []
+        self.temporary_tables = []
         self.partitions = Partitions()
 
     def _reset_summary_stats(self):
@@ -5464,7 +5581,8 @@ class AlignmentList(Base):
                               "variable": 0, "avg_var": [], "informative": 0,
                               "avg_inf": []}
 
-    def update_active_alignments(self, aln_list=None, all_files=False):
+    def update_active_alignments(self, aln_list=None, all_files=False,
+                                 ns=None, pbar=None):
         """Sets the active alignments.
 
         Sets the 'active' alignments stored in the `alignments` attribute
@@ -5483,28 +5601,45 @@ class AlignmentList(Base):
         Parameters
         ----------
         aln_list : list
-            List of `Alignment.name` that will be set as 'active'.
+            List of `Alignment.path` that will be set as 'active'.
         all_files : bool
             If True, all alignments become active. Ignores `aln_list`.
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
+        pbar : ProgressBar
+            A ProgressBar object used to log the progress of TriSeq execution.
         """
+
+        self._set_pipes(ns, pbar, total=len(self.alignments.keys() +
+                                            self.shelve_alignments.keys()))
 
         if all_files:
             for aln in self.shelve_alignments:
                 self.alignments[aln] = self.shelve_alignments[aln]
+                self.shelved_idx.remove(self._get_idx(self.alignments[aln]))
 
         elif aln_list is not None:
-            for aln in self.alignments.keys() + self.shelve_alignments.keys():
+
+            for p, aln in enumerate(
+                    self.alignments.keys() + self.shelve_alignments.keys()):
+
+                self._update_pipes(ns, pbar, value=p + 1)
 
                 if aln not in aln_list:
                     try:
                         self.shelve_alignments[aln] = self.alignments[aln]
                         del self.alignments[aln]
+                        self.shelved_idx.append(self._get_idx(
+                            self.shelve_alignments[aln]))
                     except KeyError:
                         pass
                 else:
                     try:
                         self.alignments[aln] = self.shelve_alignments[aln]
                         del self.shelve_alignments[aln]
+                        self.shelved_idx.remove(self._get_idx(
+                            self.alignments[aln]))
                     except KeyError:
                         pass
 
@@ -5530,12 +5665,15 @@ class AlignmentList(Base):
         """
 
         if direction == "shelve":
+            self.shelved_idx.append(self._get_idx(
+                self.alignments[aln_name]))
             self.shelve_alignments[aln_name] = self.alignments[aln_name]
             del self.alignments[aln_name]
 
         else:
             self.alignments[aln_name] = self.shelve_alignments[aln_name]
             del self.shelve_alignments[aln_name]
+            self.shelved_idx.remove(self._get_idx(self.alignments[aln_name]))
 
         # Update taxa names
         self.taxa_names = self._get_taxa_list()
@@ -5668,6 +5806,8 @@ class AlignmentList(Base):
                 length=alignment_obj.locus_length,
                 model_cls=alignment_obj.partitions.models[alignment_obj.name])
 
+        self.size = self.partitions.counter
+
     def add_alignments(self, alignment_obj_list, ignore_paths=False):
         """Add a list of `Alignment` objects to the current `AlignmentList`.
 
@@ -5775,7 +5915,7 @@ class AlignmentList(Base):
                     raise KillByUser("Child thread killed by user")
 
             aln_obj = Alignment(aln_path, sql_cursor=self.cur,
-                                sql_con=self.con)
+                                sql_con=self.con, db_idx=self._idx)
 
             if isinstance(aln_obj.e, InputError):
                 self.bad_alignments.append(aln_obj.path)
@@ -5798,6 +5938,8 @@ class AlignmentList(Base):
                 self.alignments[aln_obj.path] = aln_obj
                 self.set_partition_from_alignment(aln_obj)
                 self.path_list.append(aln_obj.path)
+                self.alignment_idx[self._idx] = aln_obj
+                self._idx += 1
 
         if self.alignments:
             self.taxa_names = self._get_taxa_list()
@@ -5854,7 +5996,7 @@ class AlignmentList(Base):
 
         output_handle.close()
 
-    def concatenate(self, table_in="", ns=None, pbar=None):
+    def concatenate(self, table_in="", table_out="", ns=None, pbar=None):
         """Concatenates alignments into a single `Alignment` object.
 
         Concatenates multiple sequence alignments creating a single `Alignment`
@@ -5894,17 +6036,31 @@ class AlignmentList(Base):
         and taxon information, ready to populate the final concatenation
         table. This approach is an order o magnitude faster than the
         previous one where thousands of queries could be performed.
-
         """
 
+        def fill_missing_taxa(aln, cur):
+
+            missing_tx = set(self.taxa_names) - set(aln_obj.taxa_list)
+
+            for tx in missing_tx:
+                cur.execute(
+                    "INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(
+                        temp_table),
+                    (taxa_idx[tx],
+                     tx,
+                     aln_obj.sequence_code[1] * aln_obj.locus_length,
+                     1))
+
         self._set_pipes(ns, pbar, total=len(self.alignments))
+        # Progress counter
+        c = 1
 
         # Create table temporary table and create an index
-        temp_table = "concatenation_temp"
+        temp_table = ".concatenation"
         self._create_table(temp_table, index=["concidex", "txId"])
 
         # Variables that will store the taxa_list and taxa_idx that will be
-        # provided when instantiating an Alignment object
+        # provided when instantiating the Alignment object
         taxa_list = self.taxa_names
         taxa_idx = dict((tx, idx) for idx, tx in enumerate(self.taxa_names))
 
@@ -5912,36 +6068,41 @@ class AlignmentList(Base):
         # cursor returns the query
         conc_cur = self.con.cursor()
 
-        for p, aln in enumerate(self.alignments.values()):
+        # Defining empty alignment object
+        aln_obj = None
 
-            # Update progress information
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Processing alignment {}".format(aln.name))
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments(table_in):
 
-            # For each taxon present in the current Alignment object,
-            # update the txId in the new table using the taxa_idx local
-            # variable.
-            for tx, seq in aln.iter_alignment(table_suffix=table_in):
+            # This happens when the alignment changes during the iteration.
+            if aln_idx != prev_idx:
 
-                conc_cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                    temp_table), (taxa_idx[tx], tx, seq))
+                # Update progress
+                self._update_pipes(ns, pbar, value=c)
+                c += 1
 
-            # Get all the taxa missing from the current Alignment object
-            missing_tx = set(self.taxa_names) - set(aln.taxa_list)
+                # If prev_idx is already defined, it means this is the second
+                # alignment during the iteration. In that case, fill the table
+                # with missing data from the previous alignment.
+                if prev_idx:
+                    fill_missing_taxa(aln_obj, conc_cur)
 
-            # Insert missing data for the missing taxa in the teporary database
-            for tx in missing_tx:
+                prev_idx = aln_idx
+                aln_obj = self.alignment_idx[aln_idx]
 
-                conc_cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                    temp_table),
-                    (taxa_idx[tx], tx, aln.sequence_code[1] * aln.locus_length))
+            # Add data to temporary table
+            conc_cur.execute("INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(
+                    temp_table), (taxa_idx[taxon], taxon, seq, 1))
 
-        # Set the name of the final concatenated table
-        table = "concatenation"
+        # Perform the fill missing taxa routine for the last alignment
+        # Or when there is only one active alignment.
+        if aln_obj:
+            fill_missing_taxa(aln_obj, conc_cur)
 
-        # Create the table
-        self._create_table(table)
-        self.active_tables.append(table)
+        # Setup final table that will have the concatenation
+        if self._table_exists(table_out):
+            self.cur.execute("DROP TABLE [{}]".format(table_out))
+        self._create_table(table_out, index=["conc_idx", "aln_idx"])
 
         # Reset progress information for next loop
         self._reset_pipes(ns)
@@ -5953,15 +6114,16 @@ class AlignmentList(Base):
         # an index (for perfomance and memory reasons). While seqs are
         # grouped by txId, the GROUP_CONCAT() method is used to return
         # concatenated strings.
-        for p, (idx, tx, seq) in enumerate(self.cur.execute(
-            "SELECT txId, taxon, GROUP_CONCAT(seq, '') FROM [{}] "
-            "GROUP BY txId".format(temp_table))):
+        for p, (idx, tx, seq, aln_idx) in enumerate(conc_cur.execute(
+                "SELECT txId, taxon, GROUP_CONCAT(seq, ''), aln_idx "
+                "FROM [{}] "
+                "GROUP BY txId".format(temp_table))):
 
             self._update_pipes(ns, pbar, value=p + 1,
                                msg="Concatenating taxon {}".format(tx))
 
-            conc_cur.execute("INSERT INTO [{}] VALUES (?, ?, ?)".format(
-                table), (idx, tx, seq))
+            self.cur.execute("INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(
+                table_out), (idx, tx, seq, aln_idx))
 
         # Variable that will store the length of the concatenated alignment
         # and provided it when initializing the Alignment object
@@ -5970,24 +6132,20 @@ class AlignmentList(Base):
         # DROP the temporary table
         self.cur.execute("DROP TABLE [{}]".format(temp_table))
 
-        # Removes partitions that are currently in the shelve
-        for aln_obj in self.shelve_alignments.values():
-            try:
-                self.partitions.remove_partition(file_name=aln_obj.path)
-            except PartitionException:
-                pass
+        aln = Alignment(table_out, sql_con=self.con, sql_cursor=self.cur,
+                        taxa_idx=taxa_idx, taxa_list=taxa_list,
+                        ignore_db_check=True, partitions=self.partitions,
+                        sequence_code=self.sequence_code,
+                        locus_length=locus_length)
 
-        # Create the concatenated file in an Alignment object
-        concatenated_alignment = Alignment(table,
-                                           partitions=self.partitions,
-                                           locus_length=locus_length,
-                                           sql_cursor=self.cur,
-                                           sql_con=self.con,
-                                           sequence_code=self.sequence_code,
-                                           taxa_list=taxa_list,
-                                           taxa_idx=taxa_idx)
+        aln.partitions.models
 
-        return concatenated_alignment
+        # Reset alignment_idx attribute to reflect the single concatenated
+        # alignment
+        self.alignment_idx[1] = aln
+        # Reset the shelved_idx. After the concatenation, the file
+        # no longer takes effect
+        self.shelved_idx = []
 
     def filter_min_taxa(self, min_taxa, ns=None, pbar=None):
         """Filters `alignments` by minimum taxa proportion.
@@ -6019,17 +6177,26 @@ class AlignmentList(Base):
 
         self.filtered_alignments["By minimum taxa"] = 0
 
-        for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
+        filtered_alns = []
+        active_alns = []
 
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Evaluating file {}".format(
-                    basename(alignment_obj.name)))
+        for p, (k, aln_obj) in enumerate(list(self.alignments.items())):
 
-            if len(alignment_obj.taxa_list) < \
+            self._update_pipes(
+                ns, pbar, value=p + 1, msg="Evaluating file {}".format(
+                    basename(aln_obj.name)))
+
+            if len(aln_obj.taxa_list) < \
                     (float(min_taxa) / 100.) * len(self.taxa_names):
-                self.update_active_alignment(k, "shelve")
-                self.partitions.remove_partition(file_name=alignment_obj.path)
+                filtered_alns.append(aln_obj.path)
                 self.filtered_alignments["By minimum taxa"] += 1
+            else:
+                active_alns.append(aln_obj.path)
+
+        # Remove all partitions at once. Much performance, such speed, wow.
+        self.partitions.remove_partition(file_list=filtered_alns)
+        # Update active alignments
+        self.update_active_alignments(active_alns, ns=ns)
 
         self._reset_pipes(ns)
 
@@ -6071,29 +6238,39 @@ class AlignmentList(Base):
             except IOError:
                 pass
 
-        for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
+        # Stores Alignment.path to be filtered
+        filtered_alns = []
+        # Stpres Ailignment.name of active alignments
+        active_alns = []
 
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Filtering file {}".format(
-                    basename(alignment_obj.name)))
+        for p, (k, aln_obj) in enumerate(list(self.alignments.items())):
+
+            self._update_pipes(
+                ns, pbar, value=p + 1, msg="Filtering file {}".format(
+                    basename(aln_obj.name)))
 
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
             if filter_mode.lower() == "contain":
-                if set(taxa_list) - set(alignment_obj.taxa_list) != set():
-                    self.update_active_alignment(k, "shelve")
-                    self.partitions.remove_partition(
-                        file_name=alignment_obj.path)
+                if set(taxa_list) - set(aln_obj.taxa_list) != set():
+                    filtered_alns.append(aln_obj.path)
                     self.filtered_alignments["By taxa"] += 1
+                else:
+                    active_alns.append(aln_obj.path)
 
             # Filter alignments that contain the taxa in taxa list
             if filter_mode.lower() == "exclude":
                 if any((x for x in taxa_list
-                        if x in alignment_obj.taxa_list)):
-                    self.update_active_alignment(k, "shelve")
-                    self.partitions.remove_partition(
-                        file_name=alignment_obj.path)
+                        if x in aln_obj.taxa_list)):
+                    filtered_alns.append(aln_obj.path)
                     self.filtered_alignments["By taxa"] += 1
+                else:
+                    active_alns.append(aln_obj.path)
+
+        # Update partitions
+        self.partitions.remove_partition(file_list=filtered_alns)
+        # Update active files
+        self.update_active_alignments(active_alns, ns=ns)
 
         self.taxa_names = self._get_taxa_list(only_active=True)
 
@@ -6105,7 +6282,8 @@ class AlignmentList(Base):
 
         self._reset_pipes(ns)
 
-    def filter_codon_positions(self, *args, **kwargs):
+    def filter_codon_positions(self, position_list, table_in=None,
+                               table_out=None, ns=None, pbar=None):
         """Filters codon positions in each `Alignment` object.
 
         This wraps the execution of `filter_codon_positions` method for
@@ -6138,27 +6316,265 @@ class AlignmentList(Base):
         Alignment.filter_codon_positions
         """
 
-        ns = kwargs.get("ns", None)
-        pbar = kwargs.pop("pbar", None)
+        def index(length, pos):
+            """
+            index generator
+            """
+            for _ in range(0, length, 3):
+                for j in pos:
+                    if j:
+                        yield 1
+                    else:
+                        yield 0
 
+        # Create temporary table
+        temp_table = ".codonfilter"
+        self._create_table(temp_table)
+
+        # Set progress pipes
         self._set_pipes(ns, pbar, total=len(self.alignments))
 
         # Reset partitions
         self.partitions = Partitions()
 
-        for p, alignment_obj in enumerate(list(self.alignments.values())):
+        # Create out table if does not exist
+        if not self._table_exists(table_out):
+            self._create_table(table_out)
 
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Filtering file {}".format(
-                    basename(alignment_obj.name)))
+        # Set temporary cursor to perform database changes while querying
+        temp_cur = self.con.cursor()
 
-            alignment_obj.filter_codon_positions(*args, **kwargs)
+        # Defining empty alignment object
+        aln_obj = None
 
-            self.set_partition_from_alignment(alignment_obj)
+        prev_idx = ""
+        for p, (txId, taxon, seq, aln_idx) in enumerate(
+                self.iter_alignments(table_in, include_txid=True)):
+
+            # This happens when the alignment changes during the iteration.
+            if aln_idx != prev_idx:
+
+                # Update the partition size of the last alignment
+                if prev_idx:
+                    aln_obj.locus_length = len(final_seq)
+                    self.set_partition_from_alignment(aln_obj)
+
+                aln_obj = self.alignment_idx[aln_idx]
+
+                # Update progress
+                self._update_pipes(ns, pbar, value=p + 1,
+                                   msg="Filtering file {}".format(
+                                       aln_obj.name))
+
+                prev_idx = aln_idx
+
+            # Use itertools.compress to remove positions of the string
+            # based on position list
+            final_seq = "".join(list(itertools.compress(
+                seq, index(aln_obj.locus_length, position_list))))
+
+            # Add data to
+            temp_cur.execute(
+                "INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(temp_table),
+                (txId, taxon, final_seq, aln_idx))
+
+        # Perform partition correction on the last loop element
+        if aln_obj:
+            aln_obj.locus_length = len(final_seq)
+            self.set_partition_from_alignment(aln_obj)
+        
+        # If a previous table_out exist, replace with this new one
+        if self._table_exists(table_out):
+            self.cur.execute("DROP TABLE [{}];".format(table_out))
+
+        # Replace table_out with collapsed table
+        self.cur.execute("ALTER TABLE [{}] RENAME TO [{}]".format(
+            temp_table, table_out))
 
         self._reset_pipes(ns)
 
-    def filter_missing_data(self, *args, **kwargs):
+    def _filter_terminals(self, table_in, table_out, ns=None):
+        """
+
+        Parameters
+        ----------
+        table_in
+        table_out
+        ns
+
+        Returns
+        -------
+
+        """
+
+        # Set progress pipes
+        self._set_pipes(ns, None, total=len(self.alignments))
+
+        # Create temporary table
+        temp_table = ".filterterminals"
+        self._create_table(temp_table)
+
+        # Create temporary cursor to edit database while querying
+        temp_cur = self.con.cursor()
+
+        prev_idx = ""
+        c = 1
+        for txId, taxon, seq, aln_idx in self.iter_alignments(
+                table_in, include_txid=True):
+
+            # This happens when the alignment changes during the iteration
+            if aln_idx != prev_idx:
+
+                # Update progress
+                self._update_pipes(ns, None, value=c,
+                                   msg="Filtering terminals")
+                c += 1
+
+                prev_idx = aln_idx
+
+            # Condition where the sequence only has gaps
+            if not seq.strip("-"):
+                seq = self.sequence_code[1] * len(seq)
+                temp_cur.execute(
+                    "INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(
+                        temp_table), (txId, taxon, seq, aln_idx))
+
+                continue
+
+            seq = list(seq)
+            counter, reverse_counter = 0, -1
+
+            while seq[counter] == "-":
+                seq[counter] = self.sequence_code[1]
+                counter += 1
+
+            while seq[reverse_counter] == "-":
+                seq[reverse_counter] = self.sequence_code[1]
+                reverse_counter -= 1
+
+            temp_cur.execute(
+                "INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(temp_table),
+                (txId, taxon, "".join(seq), aln_idx))
+
+        # Check if input and output tables are the same. If they are,
+        # drop the old table and replace with this new one
+        if self._table_exists(table_out):
+            self.cur.execute("DROP TABLE [{}]".format(table_out))
+
+        self.cur.execute("ALTER TABLE [{}] "
+                         "RENAME TO [{}]".format(temp_table, table_out))
+
+    def _filter_columns(self, gap_threshold, missing_threshold, table_in,
+                        table_out, ns=None, pbar=None):
+
+        # Create pipes
+        self._set_pipes(ns, pbar, total=self.size)
+
+        # Create temporary table
+        temp_table = ".filtercolumns"
+        self._create_table(temp_table)
+
+        # Stores the binary lists that will be used to compress the final
+        # sequences
+        filtered_res = {}
+
+        # Create temporary cursor to edit database while querying
+        temp_cur = self.con.cursor()
+
+        aln_obj = None
+
+        prev_idx = ""
+        for p, (column, aln_idx) in enumerate(self.iter_columns(table_in)):
+
+            # This happes when the alignment changes during the iteration
+            if aln_idx != prev_idx:
+
+                # Add the binary list from the previous alignment
+                if prev_idx:
+                    filtered_res[prev_idx] = filtered_cols
+                
+                aln_obj = self.alignment_idx[aln_idx]
+                taxa_number = len(aln_obj.taxa_list)
+
+                # Reset binary list for next alignment
+                filtered_cols = []
+
+                prev_idx = aln_idx
+
+                # Update progress
+                self._update_pipes(ns, pbar, value=p + 1, 
+                                   msg="Filtering columns")
+
+            cadd = column.count
+            
+            # Calculating metrics
+            gap_proportion = (float(cadd("-")) /
+                              taxa_number) * float(100)
+            missing_proportion = (float(cadd(self.sequence_code[1])) /
+                                  taxa_number) * float(100)
+            total_missing_proportion = gap_proportion + missing_proportion
+
+            if gap_proportion <= gap_threshold and \
+                    total_missing_proportion <= missing_threshold:
+
+                filtered_cols.append(1)
+
+            else:
+                filtered_cols.append(0)
+
+        # Add binary list from last alignment
+        if aln_obj:
+            filtered_res[prev_idx] = filtered_cols
+
+        self._set_pipes(ns, pbar, total=len(self.alignments))
+        c = 1
+
+        aln_obj = None
+
+        # Now we compress the sequences with the binary lists from the
+        # previous iteration
+        prev_idx = ""
+        for p, (txId, taxon, seq, aln_idx) in enumerate(
+                self.iter_alignments(table_in, include_txid=True)):
+
+            if prev_idx != aln_idx:
+
+                if prev_idx:
+                    # Update partition size
+                    aln_obj.locus_length = len(final_seq)
+                    self.set_partition_from_alignment(aln_obj)
+
+                self._update_pipes(ns, pbar, value=c,
+                                   msg="Compressing sequences")
+                c += 1
+
+                aln_obj = self.alignment_idx[aln_idx]
+
+                prev_idx = aln_idx
+
+            final_seq = "".join(compress(seq, filtered_res[aln_idx]))
+
+            temp_cur.execute(
+                "INSERT INTO [{}] VALUES (?, ?, ?, ?)".format(temp_table),
+                (txId, taxon, final_seq, aln_idx))
+
+        if aln_obj:
+            self.set_partition_from_alignment(aln_obj)
+
+        # Check if input and output tables are the same. If they are,
+        # it means that the output table already exists and is being
+        # updated
+        if self._table_exists(table_out):
+            self.cur.execute("DROP TABLE [{}];".format(table_out))
+
+        self.cur.execute("ALTER TABLE [{}] RENAME TO [{}]".format(
+            temp_table, table_out))
+
+        self._reset_pipes(ns)
+
+    def filter_missing_data(self, gap_threshold, missing_threshold,
+                            table_in=None, table_out=None, ns=None,
+                            pbar=None):
         """Filters missing data in each `Alignment` object.
 
         This wraps the execution of `filter_missing_data` method for
@@ -6193,27 +6609,18 @@ class AlignmentList(Base):
         Alignment.filter_missing_data
         """
 
-        ns = kwargs.get("ns", None)
-        pbar = kwargs.pop("pbar", None)
-
         # Reset partitions
         self.partitions = Partitions()
 
-        self._set_pipes(ns, pbar, total=len(self.alignments))
+        self._filter_terminals(table_in, table_out, ns)
 
-        for p, alignment_obj in enumerate(list(self.alignments.values())):
-
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Filtering file {}".format(
-                        basename(alignment_obj.name)))
-
-            alignment_obj.filter_missing_data(*args, **kwargs)
-
-            self.set_partition_from_alignment(alignment_obj)
+        self._filter_columns(gap_threshold, missing_threshold,
+                             table_in, table_out, ns)
 
         self._reset_pipes(ns)
 
-    def filter_segregating_sites(self, *args, **kwargs):
+    def filter_segregating_sites(self, min_val, max_val, table_in=None,
+                                 ns=None, pbar=None):
         """Filters `Alignment` objects according to segregating sites number.
 
         Filters `alignments` according to whether or not their number
@@ -6244,27 +6651,108 @@ class AlignmentList(Base):
         Alignment.filter_segregating_sites
         """
 
-        ns = kwargs.get("ns", None)
-        pbar = kwargs.pop("pbar", None)
-
+        # Set progress pipes
         self._set_pipes(ns, pbar, total=len(self.alignments))
 
         self.filtered_alignments["By variable sites"] = 0
 
-        for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
+        active_alns =
 
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Filtering file {}".format(
-                    basename(alignment_obj.name)))
+        prev_idx = ""
+        c = 1
+        res = None
+        collect = False
+        for column, aln_idx in self.iter_columns(table_in):
 
-            if not alignment_obj.filter_segregating_sites(*args, **kwargs):
-                self.update_active_alignment(k, "shelve")
-                self.partitions.remove_partition(file_name=alignment_obj.path)
-                self.filtered_alignments["By variable sites"] += 1
+            # The collect flag is set to True when the result of the
+            # current alignment is known before finishing it.
+            if collect:
+                # Save the result for the current alignment
+                if res == "shelve":
+                    self.update_active_alignment(
+                        self.alignment_idx[aln_idx].name, "shelve")
+                    self.filtered_alignments["By variable sites"] += 1
+
+                res = False
+                continue
+
+            # This happens when the alignment changes during the iteration.
+            if prev_idx != aln_idx:
+
+                if prev_idx:
+                    # Get the range result from the previous alignment
+                    res = self._test_range(v, min_val, max_val)
+                    print(res)
+
+                    if res == "shelve":
+                        self.update_active_alignment(
+                            self.alignment_idx[aln_idx].name, "shelve")
+                        self.filtered_alignments["By variable sites"] += 1
+
+                    collect = False
+
+                # Update progress
+                self._update_pipes(ns, pbar, value=c,
+                                   msg="Filtering file {}".format(
+                                       self.alignment_idx[aln_idx].name))
+
+                prev_idx = aln_idx
+
+                c += 1
+
+                # Reset variable sites counter
+                v = 0
+
+            # Skip column without variation
+            if v == 1:
+                continue
+
+            if v > 1:
+                v += 1
+
+            # Add these tests so that the method may exit earlier if the
+            # conditions are met, precluding the analysis of the entire
+            # alignment
+            if min_val and v >= min_val and max_val is None:
+                res = "save"
+                collect = True
+
+            if max_val and v > max_val:
+                res = "shelve"
+                collect = True
 
         self._reset_pipes(ns)
 
-    def filter_informative_sites(self, *args, **kwargs):
+    @staticmethod
+    def _test_range(s, min_val, max_val):
+        """
+
+        Parameters
+        ----------
+        s
+        min_val
+        max_val
+
+        Returns
+        -------
+
+        """
+
+        # If both values were specified, check if s is within range
+        if max_val is not None and min_val is not None \
+                and s >= min_val and s <= max_val:
+            return True
+        # If only min_val was specified, check if s is higher
+        elif max_val is None and s >= min_val:
+            return True
+        # If only max_val was specified, check if s is lower
+        elif min_val is None and s <= max_val:
+            return True
+        else:
+            return False
+
+    def filter_informative_sites(self, min_val, max_val, table_in=None,
+                                 ns=None, pbar=None):
         """Filters `Alignment` objects according to informative sites number.
 
         Filters `alignments` according to whether or not their number
@@ -6295,23 +6783,76 @@ class AlignmentList(Base):
         Alignment.filter_informative_sites
         """
 
-        ns = kwargs.get("ns", None)
-        pbar = kwargs.pop("pbar", None)
-
         self._set_pipes(ns, pbar, total=len(self.alignments))
 
         self.filtered_alignments["By informative sites"] = 0
+        
+        prev_idx = ""
+        c = 1
+        res = None
+        collect = False
+        for column, aln_idx in self.iter_columns(table_in):
 
-        for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
+            if collect:
+                if res == "shelve":
+                    self.update_active_alignment(
+                        self.alignment_idx[aln_idx].name, "shelve")
+                    self.filtered_alignments["By informative sites"] += 1
+                res = False
+                continue
+            
+            if prev_idx != aln_idx:
 
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Filtering file {}".format(
-                    basename(alignment_obj.name)))
+                if prev_idx:
 
-            if not alignment_obj.filter_informative_sites(*args, **kwargs):
-                self.update_active_alignment(k, "shelve")
-                self.partitions.remove_partition(file_name=alignment_obj.path)
-                self.filtered_alignments["By informative sites"] += 1
+                    res = self._test_range(s, min_val, max_val)
+
+                    if res == "shelve":
+                        self.update_active_alignment(
+                            self.alignment_idx[aln_idx].name, "shelve")
+                        self.filtered_alignments["By informative sites"] += 1
+                    
+                    collect = False
+                
+                self._update_pipes(ns, pbar, value=c,
+                                   msg="Filtering file {}".format(
+                                       self.alignment_idx[aln_idx].name))
+
+                s = 0
+                c += 1
+            
+            self._check_killswitch(ns)
+
+            v = len([i for i in column if i not in
+                     [self.sequence_code[1], "-"]])
+
+            if v == 1:
+                continue
+
+            if v > 1:
+                s += 1
+
+            # Add these tests so that the method may exit earlier if the
+            # conditions are met, precluding the analysis of the entire
+            # alignment
+            if min_val and s >= min_val and max_val is None:
+                res = "save"
+                collect = True
+
+            if max_val and s > max_val:
+                res = "shelve"
+                collect = True
+
+        # for p, (k, alignment_obj) in enumerate(list(self.alignments.items())):
+        # 
+        #     self._update_pipes(ns, pbar, value=p + 1,
+        #                        msg="Filtering file {}".format(
+        #             basename(alignment_obj.name)))
+        # 
+        #     if not alignment_obj.filter_informative_sites(*args, **kwargs):
+        #         self.update_active_alignment(k, "shelve")
+        #         self.partitions.remove_partition(file_name=alignment_obj.path)
+        #         self.filtered_alignments["By informative sites"] += 1
 
         self._reset_pipes(ns)
 
@@ -6469,7 +7010,8 @@ class AlignmentList(Base):
 
         return selected_alignments
 
-    def code_gaps(self, *args, **kwargs):
+    def code_gaps(self, table_out="gaps", table_in=None, use_main_table=False,
+                  pbar=None, ns=None):
         """Code gaps in each `Alignment` object.
 
         This wraps the execution of `code_gaps` method for
@@ -6498,22 +7040,136 @@ class AlignmentList(Base):
         Alignment.code_gaps
         """
 
-        ns = kwargs.get("ns", None)
-        pbar = kwargs.pop("pbar", None)
+        def gap_listing(sequence, gap_symbol="-"):
+            """ Function that parses a sequence string and returns the
+            position of indel events. The returned list is composed of
+            tuples with the span of each indel """
+            gap = "%s+" % gap_symbol
+            span_regex = ""
+            gap_list, seq_start = [], 0
+            while span_regex is not None:
+                span_regex = re.search(gap, sequence)
+                if span_regex is not None and seq_start == 0:
+                    gap_list.append(span_regex.span())
+                    sequence = sequence[span_regex.span()[1] + 1:]
+                    seq_start = span_regex.span()[1] + 1
+                elif span_regex is not None and seq_start != 0:
+                    gap_list.append((span_regex.span()[0] + seq_start,
+                                     span_regex.span()[1] + seq_start))
+                    sequence = sequence[span_regex.span()[1] + 1:]
+                    seq_start += span_regex.span()[1] + 1
+            return gap_list
+
+        def gap_binary_generator(sequence, gap_list):
+            """ This function contains the algorithm to construct the binary
+             state block for the indel events """
+
+            for cur_gap in gap_list:
+                cur_gap_start, cur_gap_end = cur_gap
+                if sequence[cur_gap_start:cur_gap_end] == "-" * \
+                        (cur_gap_end - cur_gap_start) and \
+                        sequence[cur_gap_start] != "-" and \
+                        sequence[cur_gap_end - 1] != "-":
+                    sequence += "1"
+
+                elif sequence[cur_gap_start:cur_gap_end] == "-" * \
+                        (cur_gap_end - cur_gap_start):
+
+                    if sequence[cur_gap_start] == "-" or \
+                            sequence[cur_gap_end - 1] == "-":
+                        sequence += "-"
+
+                elif sequence[cur_gap_start:cur_gap_end] != "-" * \
+                        (cur_gap_end - cur_gap_start):
+                    sequence += "0"
+            return sequence
 
         self._set_pipes(ns, pbar, total=len(self.alignments))
 
-        for p, alignment_obj in enumerate(self.alignments.values()):
+        master_gaps = {}
 
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Coding file {}".format(
-                        basename(alignment_obj.name)))
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments(table_in):
 
-            alignment_obj.code_gaps(*args, **kwargs)
+            if prev_idx != aln_idx:
+
+                if prev_idx:
+                    master_gaps[prev_idx] = complete_gap_list
+
+                complete_gap_list = []
+
+                prev_idx = aln_idx
+
+            current_list = gap_listing(seq)
+            complete_gap_list += [gap for gap in current_list if gap not in
+                                  complete_gap_list]
+
+        master_gaps[aln_idx] = complete_gap_list
+
+        temp_table = ".codegaps"
+        self._create_table(temp_table)
+
+        temp_cur = self.con.cursor()
+
+        prev_idx = ""
+        for txId, taxon, seq, aln_idx in self.iter_alignments(
+            table_in, include_txid=True):
+
+            if prev_idx != aln_idx:
+
+                if prev_idx:
+                    aln_obj.restriction_range = "{}-{}".format(
+                        int(aln_obj.locus_length),
+                        len(master_gaps[prev_idx]) +
+                        int(aln_obj.locus_length) - 1)
+
+                aln_obj = self.alignment_idx[aln_idx]
+
+                prev_idx = aln_idx
+
+            final_seq = gap_binary_generator(seq, master_gaps[aln_idx])
+
+            temp_cur.execute(
+                "INSERT INTO [.codegaps] VALUES (?, ?, ?, ?)",
+                (txId, taxon, final_seq, aln_idx))
+
+        if self._table_exists(table_out):
+            self.cur.execute("DROP TABLE [{}];".format(table_out))
+
+        # Replace table_out with collapsed table
+        self.cur.execute("ALTER TABLE [.codegaps] RENAME TO [{}]".format(
+            table_out))
 
         self._reset_pipes(ns)
 
-    def collapse(self, *args, **kwargs):
+        #TODO: must check binary gap generator
+
+    @staticmethod
+    def write_loci_correspondence(hap_dict, output_file, dest="./"):
+        """Writes the file mapping taxa to unique haplotypes for `collapse`.
+
+        Parameters
+        ----------
+        hap_dict : dict
+            Dictionary mapping the haplotype (key) to a list of taxa (value)
+            sharing the same haplotype.
+        output_file : str
+            Name of the haplotype correspondence file
+        dest : str, optional
+            Path to directory where the `output_file` will be written.
+        """
+
+        output_handle = open(join(dest, output_file + ".haplotypes"), "w")
+
+        for haplotype, taxa_list in sorted(hap_dict.items()):
+            output_handle.write("%s: %s\n" % (haplotype, "; ".join(taxa_list)))
+
+        output_handle.close()
+
+    def collapse(self,  write_haplotypes=True, haplotypes_file=None,
+                 dest=".", conversion_suffix="", haplotype_name="Hap",
+                 table_in=None, table_out="collapsed", use_main_table=False,
+                 ns=None, pbar=None):
         """Collapses equal sequences for each `Alignment` object.
 
         This wraps the execution of `collapse` method for
@@ -6559,29 +7215,69 @@ class AlignmentList(Base):
         Alignment.collapse
         """
 
-        ns = kwargs.get("ns", None)
-        pbar = kwargs.get("pbar", None)
-
-        write_haplotypes = kwargs.get("write_haplotypes", None)
-        conversion_suffix = kwargs.get("conversion_suffix", None)
-        haplotypes_file = kwargs.get("haplotypes_file", None)
-
         self._set_pipes(ns, pbar, total=len(self.alignments))
+        
+        self._create_table(".collapsed")
+        
+        temp_cur = self.con.cursor()
 
-        for p, alignment_obj in enumerate(self.alignments.values()):
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments(table_in):
 
-            self._update_pipes(ns, pbar, value=p + 1,
-                               msg="Collapsing file {}".format(
-                        basename(alignment_obj.name)))
+            if aln_idx != prev_idx:
 
-            if write_haplotypes:
-                # Set name for haplotypes file
-                output_file = alignment_obj.name.split(".")[0] + \
-                              conversion_suffix + haplotypes_file
-                alignment_obj.collapse(haplotypes_file=output_file, *args,
-                                       **kwargs)
+                if prev_idx:
+                    if write_haplotypes:
+                        if not haplotypes_file:
+                            auto_file = aln_obj.sname + conversion_suffix
+                        self.write_loci_correspondence(hap_dic,
+                                                       auto_file,
+                                                       dest)
+
+                aln_obj = self.alignment_idx[aln_idx]
+
+                # Dict that will store the hashes of each sequence. It will
+                # be used to check if the current sequence has already been
+                # processed. The value will be the haplotype
+                hash_list = {}
+
+                # hap_dic will store the haplotype name as key and a list of
+                # the taxa with the same sequence as a list value
+                hap_dic = {}
+                hap_counter = 0
+
+                prev_idx = aln_idx
+
+            cur_hash = hash(seq)
+            
+            if cur_hash not in hash_list:
+
+                # Create name for new haplotype and update other haplotype
+                # related variables
+                haplotype = "{}_{}".format(haplotype_name, hap_counter + 1)
+                hash_list[cur_hash] = haplotype
+                hap_dic[haplotype] = [taxon]
+
+                # Add data to table
+                temp_cur.execute(
+                    "INSERT INTO [.collapsed] VALUES (?, ?, ?, ?)",
+                    (hap_counter, unicode(haplotype), seq, aln_idx))
+
+                hap_counter += 1
+
             else:
-                alignment_obj.collapse(*args, **kwargs)
+
+                hap_dic[hash_list[cur_hash]].append(taxon)
+
+        # The collapse operation is special in the sense that the former taxon
+        # names are no longer valid. Therefore, we drop the previous table and
+        # populate a new one with the collapsed data
+        if self._table_exists(table_out):
+            self.cur.execute("DROP TABLE [{}];".format(table_out))
+
+        # Replace table_out with collapsed table
+        self.cur.execute("ALTER TABLE [.collapsed] RENAME TO [{}]".format(
+            table_out))
 
         self._reset_pipes(ns)
 
@@ -6644,7 +7340,7 @@ class AlignmentList(Base):
             # Create a table that will harbor the consensus sequences of all
             # Alignment objects
             self._create_table("consensus")
-            self.active_tables.append("consensus")
+            self.temporary_tables.append("consensus")
             consensus_data = []
 
         for p, alignment_obj in enumerate(self.alignments.values()):
@@ -6712,6 +7408,537 @@ class AlignmentList(Base):
                                                              ns=ns)
 
         return reverted_alns
+
+    def _get_interleave_data(self, table_name=None, ns_pipe=None,
+                             pbar=None):
+
+        if self.cur.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND"
+                " name='.interleavedata'").fetchall():
+
+            self.cur.execute("DELETE FROM [.interleavedata]")
+
+        else:
+            self.cur.execute("CREATE TABLE [.interleavedata]("
+                             "taxon TEXT,"
+                             "seq TEXT,"
+                             "slice INT,"
+                             "aln_idx INT)")
+            self.cur.execute("CREATE INDEX interindex ON "
+                            "[.interleavedata](slice, aln_idx)")
+
+        prev_file = ""
+
+        temp_cur = self.con.cursor()
+
+        for taxon, seq, aln_idx in self.iter_alignments(
+                table_name=table_name):
+
+            if aln_idx != prev_file:
+                prev_file = aln_idx
+                aln_obj = self.alignment_idx[aln_idx]
+                
+            counter = 0
+
+            for i in xrange(90, aln_obj.locus_length, 90):
+
+                temp_cur.execute("INSERT INTO [.interleavedata] VALUES "
+                                 " (?, ?, ?, ?)", (taxon, seq[counter:i], i,
+                                                   aln_idx))
+                counter = i
+
+            try:
+                if aln_obj.locus_length % 90:
+                    i += 1
+                    temp_cur.execute("INSERT INTO [.interleavedata] VALUES "
+                                     " (?, ?, ?, ?)",
+                                     (taxon, seq[counter:], i, aln_idx))
+            except UnboundLocalError:
+                temp_cur.execute("INSERT INTO [.interleavedata] VALUES "
+                                 " (?, ?, ?, ?)", (taxon, seq, 0, aln_idx))
+
+        return True
+
+    def _setup_newfile(self, fh, aln_file, output_dir, suffix, output_file,
+                       ns):
+
+        # Close previous file object, if exists
+        if fh:
+            fh.close()
+
+        # Get path/file name of alignment/partition
+        if suffix and not output_file:
+            output_file = self.alignment_idx[aln_file].sname + suffix
+            if output_dir:
+                output_file = join(output_dir, output_file)
+                if not exists(output_dir):
+                    os.makedirs(output_dir)
+        else:
+            output_file = output_file
+
+        if exists(output_file):
+
+            # File exists, issue a warning through the appropriate pipe
+            if ns:
+                if not ns.apply_all:
+                    ns.file_dialog = output_file
+                    while not ns.status:
+                        pass
+
+            # When the dialog has been close, check if the file is to be
+            # skippedor overwriten
+            if ns:
+                if ns.status == "skip":
+                    return None, None
+
+        # Reset pipes, if any
+        if ns:
+            ns.status = None
+
+        # Return new file object
+        fh = open(output_file, "w")
+
+        return fh, output_file
+
+    def _write_fasta(self, suffix, output_file, **kwargs):
+
+        ld_hat = kwargs.get("ld_hat", False)
+        interleave = kwargs.get("interleave", False)
+        output_dir = kwargs.pop("output_dir", None)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        # File object that will be used to write sequence data
+        fh = None
+
+        # Stores the string of the last file
+        prev_file = ""
+
+        for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+            if aln_idx != prev_file:
+                prev_file = aln_idx
+                fh, _ = self._setup_newfile(
+                    fh, aln_idx, output_dir, suffix, output_file, ns)
+
+                # If fh is set to None, the current file is set to skip
+                if not fh:
+                    continue
+
+                # Do stuff at the beginning of the file, before inserting
+                # Sequence data
+
+                # Get Alignment object containing info of the current alignment
+                aln_obj = self.alignment_idx[aln_idx]
+
+                # If LD HAT sub format has been specificed, write the first
+                # line containing the number of sequences, sites and
+                # genotype phase
+                if ld_hat:
+                    fh.write("{} {} {}\n".format(
+                        len(aln_obj.taxa_list), aln_obj.locus_length, "2"))
+
+            # Skip row if fh is not set (skipping files)
+            if not fh:
+                continue
+
+            if ld_hat:
+                # Truncate sequence name to 30 characters
+                fh.write(">%s\n" % (taxon[:30]))
+                # Limit each sequence line to 2000 characters
+                if len(seq) > 2000:
+                    for i in range(0, len(seq), 2000):
+                        fh.write("%s\n" % (seq[i:i + 2000]))
+            elif interleave:
+                fh.write(">{}\n".format(taxon))
+                counter = 0
+                for i in range(90, aln_obj.locus_length, 90):
+                    fh.write("{}\n".format(seq[counter:i]))
+                    counter = i
+
+                fh.write("{}\n".format(seq[counter:]))
+            else:
+                fh.write(">{}\n{}\n".format(taxon, seq))
+
+        # When all files are skipeed, fh remains None
+        if fh:
+            fh.close()
+
+    def _write_phylip_partitions(self, aln_obj, partition_file,
+                                 output_file, model_phylip):
+
+        # In case there is a concatenated alignment being written
+        if not aln_obj.partitions.is_single() and partition_file:
+            partition_file = open(output_file.split(".")[0]
+                                  + "_part.File", "w")
+            for name, lrange in self.partitions:
+                # Get model from app if it exists and there are no codon
+                # positions
+                model = model_phylip if self.partitions.models[name] == \
+                                        [None] or len(
+                    self.partitions.models[name][1]) > 1 \
+                    else self.partitions.models[name][1][0]
+                partition_file.write("%s, %s = %s\n" % (
+                    model if model else
+                    self.sequence_code[0], name,
+                    "-".join([str(x + 1) for x in
+                              lrange[0]])))
+            partition_file.close()
+
+    def _write_phylip(self, suffix, output_file, **kwargs):
+
+        # Get relevant keyword arguments
+        interleave = kwargs.get("interleave", False)
+        tx_space_phy = kwargs.get("tx_space_phy", 40)
+        cut_space_phy = kwargs.get("cut_space_phy", 39)
+        phy_truncate_names = kwargs.get("phy_truncate_names", False)
+        partition_file = kwargs.get("partition_file", None)
+        model_phylip = kwargs.get("model_phylip", None)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+        output_dir = kwargs.get("output_dir", None)
+
+        # File object that will be used to write sequence data
+        fh = None
+
+        # Stores the string of the last file
+        prev_file = ""
+
+        # Change taxa space if phy_truncate_names option is set to True
+        if phy_truncate_names:
+            cut_space_phy = 10
+
+        if interleave:
+
+            if not self.interleave_data:
+                self.interleave_data = self._get_interleave_data(
+                        table_name, ns, pbar)
+
+            for taxon, seq, p, aln_idx in self.cur.execute(
+                "SELECT taxon, seq, slice, aln_idx from [.interleavedata] "
+                "ORDER BY aln_idx, slice"):
+
+                if prev_file != aln_idx:
+                    fh, of = self._setup_newfile(
+                        fh, aln_idx, output_dir, suffix, output_file, ns)
+                    prev_file = aln_idx
+
+                    if not fh:
+                        continue
+
+                    aln_obj = self.alignment_idx[aln_idx]
+                    
+                    self._write_phylip_partitions(aln_obj, partition_file,
+                                                  of, model_phylip)
+
+                    write_tx = True
+                    prev = 90
+
+                if not fh:
+                    continue
+
+                if p != prev:
+                    fh.write("\n")
+                    prev = p
+                    write_tx = False
+
+                if write_tx:
+                    fh.write("{} {}\n".format(
+                        taxon[:cut_space_phy].ljust(tx_space_phy),
+                        seq))
+                else:
+                    fh.write("{}\n".format(seq))
+
+        else:
+
+            for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+                if aln_idx != prev_file:
+                    prev_file = aln_idx
+                    fh, of = self._setup_newfile(
+                        fh, aln_idx, output_dir, suffix, output_file, ns)
+
+                    if not fh:
+                        continue
+
+                    aln_obj = self.alignment_idx[aln_idx]
+
+                    self._write_phylip_partitions(aln_obj, partition_file,
+                                                  of, model_phylip)
+
+                    # Get Alignment object containing info of the current
+                    # alignment
+                    aln_obj = self.alignment_idx[aln_idx]
+
+                    fh.write("{} {}\n".format(len(aln_obj.taxa_list),
+                                              aln_obj.locus_length))
+
+                if not fh:
+                    continue
+
+                fh.write("{} {}\n".format(
+                    taxon[:cut_space_phy].ljust(tx_space_phy),
+                    seq))
+
+        # When all files are skipeed, fh remains None
+        if fh:
+            fh.close()
+
+    @staticmethod
+    def _write_nexus_partitions(aln_obj, use_charset, fh,
+                                use_nexus_models, outgroup_list):
+
+        if use_charset:
+            # Writing partitions, if any
+            if not aln_obj.partitions.is_single():
+                fh.write("\nbegin mrbayes;\n")
+                p = 0
+                # Full gene partitions
+                for name, lrange in aln_obj.partitions:
+                    # If there are codon partitions, write those
+                    if lrange[1]:
+                        for i in lrange[1]:
+                            fh.write("\tcharset %s_%s = %s-%s\\3;\n" %
+                                           (name, i + 1, i + 1,
+                                            lrange[0][1] + 1))
+                            p += 1
+                    else:
+                        fh.write("\tcharset %s = %s-%s;\n" %
+                                       (name, lrange[0][0] + 1,
+                                        lrange[0][1] + 1))
+                        p += 1
+
+                fh.write("\tpartition part = %s: %s;\n\tset "
+                               "partition=part;\nend;\n" %
+                               (p, ", ".join([name for name in
+                                aln_obj.partitions.get_partition_names()])))
+
+        # Write models, if any
+        if use_nexus_models:
+            if any(aln_obj.partitions.models.values()[0][0]):
+
+                fh.write("\nbegin mrbayes;\n")
+                i = 1
+                for name, models in aln_obj.partitions.models.items():
+                    if models[1]:
+                        for m in models[1]:
+                            if m:
+                                m_str = \
+                                    aln_obj.partitions._models["mrbayes"][m]
+                                if not aln_obj.partitions.is_single():
+                                    fh.write("applyto=({}) "
+                                             "lset ".format(i) +
+                                             " ".join(m_str) + "\n")
+                                else:
+                                    fh.write("lset " + " ".join(m_str) + "\n")
+                            i += 1
+                fh.write("end;\n")
+
+        # In case outgroup taxa are specified
+        if outgroup_list is not None:
+
+            # This assures that only the outgroups present in the current
+            #  file are written
+            compliant_outgroups = [taxon for taxon in outgroup_list
+                                   if taxon in aln_obj.taxa_list]
+            if compliant_outgroups is not []:
+                fh.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" %
+                               (" ".join(compliant_outgroups)))
+
+    @staticmethod
+    def _write_nexus_header(aln_obj, fh, gap, interleave):
+
+        if aln_obj.restriction_range is not None:
+            fh.write("#NEXUS\n\nBegin data;\n\tdimensions "
+                     "ntax={} nchar={} ;\n\tformat datatype=mixed"
+                     "({}:1-{}, restriction:{}) interleave={} "
+                     "gap={} missing={} ;\n\tmatrix\n".format(
+                        len(aln_obj.taxa_list),
+                        aln_obj.locus_length,
+                        aln_obj.sequence_code[0],
+                        aln_obj.locus_length - 1,
+                        aln_obj.restriction_range,
+                        "yes" if interleave else "no",
+                        gap,
+                        aln_obj.sequence_code[1].upper()))
+        else:
+            fh.write(
+                "#NEXUS\n\nBegin data;\n\tdimensions ntax={}"
+                " nchar={} ;\n\tformat datatype={} "
+                "interleave={} gap={} missing={} ;\n\t"
+                "matrix\n".format(
+                    len(aln_obj.taxa_list),
+                    aln_obj.locus_length,
+                    aln_obj.sequence_code[0],
+                    "yes" if interleave else "no",
+                    gap,
+                    aln_obj.sequence_code[1].upper()))
+
+    def _write_nexus(self, suffix, output_file, **kwargs):
+
+        # Get relevant keyword arguments
+        interleave = kwargs.get("interleave", False)
+        tx_space_nex = kwargs.get("tx_space_nex", 40)
+        cut_space_nex = kwargs.get("cut_space_nex", 39)
+        gap = kwargs.get("gap", "-")
+        use_charset = kwargs.get("use_charset", True)
+        use_nexus_models = kwargs.get("use_nexus_models", True)
+        outgroup_list = kwargs.get("outgroup_list", None)
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        output_dir = kwargs.get("output_dir", None)
+        ns = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+
+        # File object that will be used to write sequence data
+        fh = None
+
+        # Stores the string of the last file
+        prev_file = ""
+
+        if interleave:
+
+            if not self.interleave_data:
+                self.interleave_data = self._get_interleave_data(
+                        table_name, ns, pbar)
+
+            for taxon, seq, p, aln_idx in self.cur.execute(
+                    "SELECT taxon, seq, slice, aln_idx from [.interleavedata] "
+                    "ORDER BY aln_idx, slice"):
+
+                if aln_idx != prev_file:
+
+                    if fh:
+                        fh.write(";\n\tend;")
+
+                        self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                                     use_nexus_models,
+                                                     outgroup_list)
+
+                    prev_file = aln_idx
+                    fh, of = self._setup_newfile(
+                        fh, aln_idx, output_dir, suffix, output_file, ns)
+
+                    if not fh:
+                        continue
+
+                    aln_obj = self.alignment_idx[aln_idx]
+
+                    self._write_nexus_header(aln_obj, fh, gap, interleave)
+
+                    prev = 90
+
+                if not fh:
+                    continue
+
+                if p != prev:
+                    fh.write("\n")
+                    prev = p
+
+                fh.write("{} {}\n".format(
+                    taxon[:cut_space_nex].ljust(tx_space_nex),
+                    seq.upper()))
+
+        else:
+
+            for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+                if aln_idx != prev_file:
+
+                    if fh:
+                        fh.write(";\n\tend;")
+
+                        self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                                     use_nexus_models,
+                                                     outgroup_list)
+
+                    prev_file = aln_idx
+                    fh, of = self._setup_newfile(
+                        fh, aln_idx, output_dir, suffix, output_file, ns)
+
+                    if not fh:
+                        continue
+
+                    aln_obj = self.alignment_idx[aln_idx]
+
+                    self._write_nexus_header(aln_obj, fh, gap, interleave)
+
+                if not fh:
+                    continue
+
+                fh.write("{} {}\n".format(taxon[:cut_space_nex].ljust(
+                    tx_space_nex), seq))
+
+            if fh:
+                fh.write(";\n\tend;")
+                self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                             use_nexus_models,
+                                             outgroup_list)
+
+        # When all files are skipeed, fh remains None
+        if fh:
+            fh.close()
+
+    def _write_stockholm(self, suffix, **kwargs):
+
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns = kwargs.get("ns_pipe", None)
+        output_dir = kwargs.get("output_dir", None)
+        pbar = kwargs.get("pbar", None)
+
+        # File object that will be used to write sequence data
+        fh = None
+
+        # Stores the string of the last file
+        prev_file = ""
+
+        for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+            if aln_idx != prev_file:
+
+                if fh:
+                    fh.write("//\n")
+
+                prev_file = aln_idx
+                fh, _ = self._setup_newfile(
+                    fh, aln_idx, output_dir, suffix, ns)
+
+                fh.write("# STOCKHOLM V1.0\n")
+
+            fh.write("{}\t{}\n".format(taxon, seq))
+
+        # When all files are skipeed, fh remains None
+        if fh:
+            fh.close()
+
+    def _write_gphocs(self, suffix, **kwargs):
+
+        table_suffix = kwargs.get("table_suffix", None)
+        table_name = kwargs.get("table_name", None)
+        ns = kwargs.get("ns_pipe", None)
+        pbar = kwargs.get("pbar", None)
+        output_dir = kwargs.get("output_dir", None)
+
+        # File object that will be used to write sequence data
+        fh = None
+
+        # Stores the string of the last file
+        prev_file = ""
+
+        for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+            if aln_idx != prev_file:
+
+                prev_file = aln_idx
+                fh, _ = self._setup_newfile(
+                    fh, aln_idx, output_dir, suffix, ns)
+
+                fh.write("{}\n".format(len(self.partitions.partitions)))
 
     def write_to_file(self, output_format, conversion_suffix="",
                       output_suffix="", *args, **kwargs):
@@ -6799,41 +8026,63 @@ class AlignmentList(Base):
 
         ns_pipe = kwargs.get("ns_pipe", None)
         pbar = kwargs.pop("pbar", None)
+        output_file = kwargs.pop("output_file", None)
 
-        self._set_pipes(ns_pipe, pbar, len(self.alignments))
+        write_methods = {
+            "fasta": self._write_fasta,
+            "phylip": self._write_phylip,
+            "nexus": self._write_nexus,
+            "stockholm": self._write_stockholm,
+            "gphocs": self._write_gphocs,
+            # "ima2": self._write_ima2,
+            # "mcmctree": self._write_mcmctree
+        }
 
-        for p, alignment_obj in enumerate(self.alignments.values()):
+        for fmt in output_format:
 
-            self._update_pipes(ns_pipe, pbar, value=p + 1,
-                               msg="Writting file {}".format(
-                                   basename(alignment_obj.name)))
+            if output_file:
+                suffix = None
+                output_file += self.format_ext[fmt]
+            else:
+                suffix = conversion_suffix + output_suffix + \
+                    self.format_ext[fmt]
 
-            output_file_name = alignment_obj.name.split(".")[0] + \
-                conversion_suffix + output_suffix
+            write_methods[fmt](suffix, output_file, **kwargs)
 
-            kwargs["output_file"] = output_file_name
+        # self._set_pipes(ns_pipe, pbar, len(self.alignments))
+
+        # for p, alignment_obj in enumerate(self.alignments.values()):
+
+            # self._update_pipes(ns_pipe, pbar, value=p + 1,
+            #                    msg="Writing file {}".format(
+            #                        basename(alignment_obj.name)))
+
+            # output_file_name = alignment_obj.name.split(".")[0] + \
+            #     conversion_suffix + output_suffix
+            #
+            # kwargs["output_file"] = output_file_name
 
             # Get partition name for current alignment object
-            try:
-                part_name = [x for x, y in
-                             self.partitions.partitions_alignments.items() if
-                             alignment_obj.path in y][0]
-            except IndexError:
-                try:
-                    part_name = [x for x, y in
-                                 self.partitions.partitions_alignments.items()
-                                 if alignment_obj.name in y][0]
-                except IndexError:
-                    part_name = None
-
-            # Get model from partitions
-            if part_name:
-                m = self.partitions.models[part_name]
-                alignment_obj.partitions.set_model(part_name, m[1])
-
-            alignment_obj.write_to_file(output_format, *args, **kwargs)
-
-        self._reset_pipes(ns_pipe)
+        #     try:
+        #         part_name = [x for x, y in
+        #                      self.partitions.partitions_alignments.items() if
+        #                      alignment_obj.path in y][0]
+        #     except IndexError:
+        #         try:
+        #             part_name = [x for x, y in
+        #                          self.partitions.partitions_alignments.items()
+        #                          if alignment_obj.name in y][0]
+        #         except IndexError:
+        #             part_name = None
+        #
+        #     # Get model from partitions
+        #     if part_name:
+        #         m = self.partitions.models[part_name]
+        #         alignment_obj.partitions.set_model(part_name, m[1])
+        #
+        #     alignment_obj.write_to_file(output_format, *args, **kwargs)
+        #
+        # self._reset_pipes(ns_pipe)
 
     def get_gene_table_stats(self, active_alignments=None, sortby=None,
                              ascending=True):
