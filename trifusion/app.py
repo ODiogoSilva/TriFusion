@@ -11533,8 +11533,11 @@ class TriFusionApp(App):
 
                     if shared_ns.total and shared_ns.counter:
                         # Get percentage
-                        perc = int((float(shared_ns.counter) /
-                                    float(shared_ns.total)) * 100.)
+                        try:
+                            perc = int((float(shared_ns.counter) /
+                                        float(shared_ns.total)) * 100.)
+                        except TypeError:
+                            perc = 0
 
                         # Set percentage on progress dialog
                         wgt_ref["counter"].text = "{}%".format(perc)

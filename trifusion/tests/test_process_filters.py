@@ -42,7 +42,7 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
         for aln in self.aln_obj:
             s.append(aln.locus_length)
 
-        self.assertEqual(s, [44, 46])
+        self.assertEqual(s, [42, 43])
 
     def test_filter_and_concat(self):
 
@@ -53,9 +53,9 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
 
         self.aln_obj.filter_missing_data(25, 50, table_out="master_out")
 
-        aln_obj = self.aln_obj.concatenate(table_in="master_out")
+        self.aln_obj.concatenate(table_in="master_out")
 
-        self.assertEqual(aln_obj.locus_length, 90)
+        self.assertEqual(self.aln_obj.size, 85)
 
     def test_no_filters(self):
 
@@ -205,9 +205,8 @@ class AlignmentCodonFilters(unittest.TestCase):
                                             table_out="master_out")
 
         s = []
-        for aln in self.aln_obj:
-            for k, v in aln.iter_alignment(table_suffix="master_out"):
-                s.append(v)
+        for _, seq, _ in self.aln_obj.iter_alignments("master_out"):
+            s.append(seq)
 
         self.assertEqual(s, ["a" * 16] * 10)
 
@@ -219,9 +218,8 @@ class AlignmentCodonFilters(unittest.TestCase):
                                             table_out="master_out")
 
         s = []
-        for aln in self.aln_obj:
-            for k, v in aln.iter_alignment(table_suffix="master_out"):
-                s.append(v)
+        for _, seq, _ in self.aln_obj.iter_alignments("master_out"):
+            s.append(seq)
 
         self.assertEqual(s, ["t" * 16] * 10)
 
@@ -233,9 +231,8 @@ class AlignmentCodonFilters(unittest.TestCase):
                                             table_out="master_out")
 
         s = []
-        for aln in self.aln_obj:
-            for k, v in aln.iter_alignment(table_suffix="master_out"):
-                s.append(v)
+        for _, seq, _ in self.aln_obj.iter_alignments("master_out"):
+            s.append(seq)
 
         self.assertEqual(s, ["g" * 16] * 10)
 
@@ -247,9 +244,8 @@ class AlignmentCodonFilters(unittest.TestCase):
                                             table_out="master_out")
 
         s = []
-        for aln in self.aln_obj:
-            for k, v in aln.iter_alignment(table_suffix="master_out"):
-                s.append(v)
+        for _, seq, _ in self.aln_obj.iter_alignments("master_out"):
+            s.append(seq)
 
         self.assertEqual(s, ["at" * 16] * 10)
 
@@ -261,9 +257,8 @@ class AlignmentCodonFilters(unittest.TestCase):
                                             table_out="master_out")
 
         s = []
-        for aln in self.aln_obj:
-            for k, v in aln.iter_alignment(table_suffix="master_out"):
-                s.append(v)
+        for _, seq, _ in self.aln_obj.iter_alignments("master_out"):
+            s.append(seq)
 
         self.assertEqual(s, ["ag" * 16] * 10)
 
@@ -274,9 +269,8 @@ class AlignmentCodonFilters(unittest.TestCase):
         self.aln_obj.filter_codon_positions([True, True, True])
 
         s = []
-        for aln in self.aln_obj:
-            for k, v in aln:
-                s.append(v)
+        for _, seq, _ in self.aln_obj.iter_alignments():
+            s.append(seq)
 
         self.assertEqual(s, ["atg" * 16] * 10)
 

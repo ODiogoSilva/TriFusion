@@ -662,7 +662,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
     """
 
-    def reverse_concatenation(aln):
+    # Give just a little time for the waiting dialog to open without lag
+    time.sleep(.1)
+
+    def reverse_concatenation(aln, table_in=None, table_out=None):
         """ Wrapper of the reverse concatenation operation
 
         Parameters
@@ -673,42 +676,47 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         con = aln.con
 
-        if not use_app_partitions:
-            # Retrieve the alignment object that will be reverted. This
-            # is done first in order to retrieve the length of the locus,
-            # which is provided to the Partitions object for checking and
-            # conversion of "." notation
-            aln = aln.retrieve_alignment(rev_infile)
+        if use_app_partitions:
 
-            # Instanciate Partitions object and set its length attribute
+            # If there are multiple alignments, concatenate them first and
+            # then apply the reverse concatenation according to the partitions
+            # defined in the app
+            if len(aln.alignments) > 1:
+                aln.concatenate(table_in=table_in, table_out=table_out)
+
+            aln.reverse_concatenate(table_in=table_in, table_out=table_out,
+                                    ns=ns)
+
+        else:
+
+            aln.update_active_alignments([rev_infile])
+
             partition_obj = data.Partitions()
-            partition_obj.set_length(aln.locus_length)
+            partition_obj.set_length(aln.size)
 
-            # In case the partitions file is badly formatted or invalid, the
-            # exception will be returned by the read_from_file method.
-            e = partition_obj.read_from_file(partitions_file)
-            if e:
+            er = partition_obj.read_from_file(partitions_file)
+
+            if er:
                 ns.exception = {
                     "exception": ["Invalid partition file", e.value]}
                 raise data.InvalidPartitionFile("")
 
             # If there are no issues with the partitions file, set the new
             # partitions
-            res = aln.set_partitions(partition_obj)
-            if res:
+            single_aln = aln.retrieve_alignment(rev_infile)
+            er = single_aln.set_partitions(partition_obj)
+            if er:
                 ns.exception = {
-                    "exception": ["Invalid partition file", res.value]
+                    "exception": ["Invalid partition file", er.value]
                 }
                 raise data.InvalidPartitionFile("")
 
-        if aln.__class__.__name__ == "AlignmentList":
-            aln = aln.reverse_concatenate(ns=ns)
-        else:
-            aln = aln.reverse_concatenate(db_con=con, ns=ns)
+            aln.set_partition_from_alignment(single_aln, reset=True)
 
-        return aln
+            aln.reverse_concatenate(table_in=table_in, table_out=table_out,
+                                    ns=ns)
 
-    def filter_aln(aln, table_out="_filter"):
+    def filter_aln(aln, table_in, table_out="_filter"):
         """Wrapper for alignment filtering operations
 
         Parameters
@@ -736,6 +744,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if secondary_options["codon_filter"]:
             ns.main_msg = "Filter (by codon)"
             aln.filter_codon_positions(codon_filter_settings,
+                                       table_in=table_in,
                                        table_out=table_out, ns=ns)
 
         # Filter missing data
@@ -744,6 +753,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             if missing_filter_settings[0][0]:
                 aln.filter_missing_data(missing_filter_settings[0][1],
                                         missing_filter_settings[0][2],
+                                        table_in=table_in,
                                         table_out=table_out, ns=ns)
 
         # Filter variation
@@ -803,34 +813,24 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         return aln
 
-    def consensus(aln, table_out):
+    def consensus(aln, table_in, table_out):
         """Wrapper of the consensus operation
 
         Parameters
         ----------
         aln : trifusion.process.sequence.AlignmentList
             AlignmentList object.
+        table_in : str
+            Specifies the input data table.
         table_out : str
             Specifies the output table for filtering methods.
         """
 
-        if secondary_options["consensus_single"]:
-            if aln.__class__.__name__ == "AlignmentList":
-                aln = aln.consensus(consensus_type=consensus_type,
-                                    single_file=True,
-                                    table_out=table_out,
-                                    ns=ns)
-                ns.sa = True
-            else:
-                aln.consensus(consensus_type=consensus_type,
-                              table_out=table_out,
-                              ns=ns)
-        else:
-            aln.consensus(consensus_type=consensus_type,
-                          table_out=table_out,
-                          ns=ns)
-
-        return aln
+        aln.consensus(consensus_type=consensus_type,
+                      single_file=secondary_options["consensus_single"],
+                      table_in=table_in,
+                      table_out=table_out,
+                      ns=ns)
 
     def writer(aln, filename=None, suffix_str="", conv_suffix="",
                table_name=None):
@@ -949,7 +949,8 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Active table: Based on partition names
         if main_operations["reverse_concatenation"]:
             ns.task = "reverse_concatenation"
-            main_aln = reverse_concatenation(main_aln)
+            reverse_concatenation(main_aln, table_in=main_table,
+                                  table_out=main_table)
             ns.finished_tasks.append("reverse_concatenation")
 
         # Filtering
@@ -961,14 +962,16 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # filtering first. This is because the filter will allow 0% of
             # missing data, which will always be as stringent or more than any
             # missing data filter set.
-            main_aln.filter_missing_data(0, 0, table_out=main_table, ns=ns)
+            main_aln.filter_missing_data(0, 0,table_in=main_table,
+                                         table_out=main_table, ns=ns)
             ns.finished_tasks.append("collapse_filter")
 
         # Active table: * / *main
         if secondary_operations["filter"] and not \
                 secondary_options["filter_file"]:
             ns.task = "filter"
-            main_aln = filter_aln(main_aln, table_out=main_table)
+            main_aln = filter_aln(main_aln, table_in=main_table,
+                                  table_out=main_table)
             ns.finished_tasks.append("filter")
         # Concatenation
         # Active table: concatenation
@@ -982,28 +985,34 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if secondary_operations["collapse"] and not \
                 secondary_options["collapse_file"]:
             ns.task = "collapse"
+            hap_file = output_file if output_file else None
             main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir,
-                              table_out=main_table, ns=ns, table_in=main_table)
+                              table_out=main_table, ns=ns, table_in=main_table,
+                              haplotypes_file=hap_file)
             ns.finished_tasks.append("collapse")
         # Gcoder
         # Active table: *main / concatenationmain
         if secondary_operations["gcoder"] and not \
                 secondary_options["gcoder_file"]:
             ns.task = "gcoder"
-            main_aln.code_gaps(table_out=main_table, ns=ns)
+            main_aln.code_gaps(table_in=main_table, table_out=main_table,
+                               ns=ns)
             ns.finished_tasks.append("gcoder")
         # Consensus
         # Active table: *main / concatenationmain / consensus
         if secondary_operations["consensus"] and not \
                 secondary_options["consensus_file"]:
             ns.task = "consensus"
-            main_aln = consensus(main_aln, table_out=main_table)
+            consensus(main_aln, table_in=main_table, table_out=main_table)
             ns.finished_tasks.append("consensus")
 
         ns.task = "write"
         writer(main_aln, conv_suffix=conversion_suffix,
                table_name=main_table)
         ns.finished_tasks.append("write")
+
+        if not any(secondary_operations.values()):
+            return
 
         #####
         # Perform operations on ADDITIONAL OUTPUTS

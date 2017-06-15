@@ -94,7 +94,8 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_stc(self):
 
-        single_aln = Alignment(dna_data_stc[0], sql_cursor=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_stc[0], sql_cursor=self.aln_obj.cur,
+                               db_idx=self.aln_obj._idx + 1)
 
     def test_load_loci(self):
 
@@ -102,7 +103,8 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_loci(self):
 
-        single_aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur,
+                               db_idx=self.aln_obj._idx + 1)
 
     def test_load_nexus_par(self):
 
@@ -236,7 +238,8 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         fl = self.aln_obj.alignments.keys()
 
-        aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur)
+        aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur,
+                        db_idx=self.aln_obj._idx + 1)
 
         self.aln_obj.add_alignments([aln])
 
@@ -307,8 +310,8 @@ class AlignmentManipulationTest(unittest.TestCase):
 
     def test_concatenation(self):
 
-        aln = self.aln_obj.concatenate()
-        aln.write_to_file(["fasta"], "test")
+        self.aln_obj.concatenate()
+        self.aln_obj.write_to_file(["fasta"], output_file="test")
 
         with open("trifusion/tests/data/BaseConcatenation.fas") as fh1, \
                 open("test.fas") as fh2:
