@@ -55,7 +55,6 @@ class PartitonsTest(ExpectingTestCase):
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
-        self.aln_obj.con.close()
         os.remove(sql_db)
 
     def test_read_from_nexus(self):
@@ -96,8 +95,9 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_single_partition(self):
 
-        self.aln_obj.clear_alignments()
-        self.aln_obj = AlignmentList([dna_data_fas[0]], sql_db=sql_db)
+        self.aln_obj = AlignmentList([dna_data_fas[0]],
+                                     db_con=self.aln_obj.con,
+                                     db_cur=self.aln_obj.cur)
 
         self.assertTrue(self.aln_obj.partitions.is_single())
 

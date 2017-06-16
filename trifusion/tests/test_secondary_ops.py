@@ -37,7 +37,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         aln = self.aln_obj.alignments.values()[0]
 
-        tn = len(list(aln.iter_sequences(table_suffix="_collapse")))
+        tn = len(list(aln.iter_sequences()))
 
         self.assertEqual(tn, 1)
         shutil.rmtree("test_collapse")
@@ -56,7 +56,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         aln = self.aln_obj.alignments.values()[0]
 
-        tn = len(list(aln.iter_sequences(table_suffix="_collapse")))
+        tn = len(list(aln.iter_sequences()))
 
         self.assertEqual(tn, 4)
         shutil.rmtree("test_collapse")
@@ -68,11 +68,13 @@ class SeconaryOpsTest(unittest.TestCase):
         if not os.path.exists("test_collapse"):
             os.makedirs("test_collapse")
 
-        aln = self.aln_obj.concatenate()
-        aln.collapse(haplotype_name="Testing", haplotypes_file="teste",
-                     dest="test_collapse", table_out="_collapse")
+        self.aln_obj.concatenate()
+        self.aln_obj.collapse(haplotype_name="Testing",
+                              haplotypes_file="teste",
+                              dest="test_collapse",
+                              table_out="collapse")
 
-        tn = len(list(aln.iter_sequences(table_suffix="_collapse")))
+        tn = len(list(self.aln_obj.iter_alignments("collapse")))
 
         self.assertEqual(tn, 7)
         shutil.rmtree("test_collapse")
@@ -119,9 +121,9 @@ class SeconaryOpsTest(unittest.TestCase):
 
         self.aln_obj.add_alignment_files(dna_data_fas)
 
-        aln = self.aln_obj.consensus("IUPAC", single_file=True)
+        self.aln_obj.consensus("IUPAC", single_file=True)
 
-        self.assertEqual(len(aln.taxa_list), 7)
+        self.assertEqual(len(self.aln_obj.taxa_names), 7)
 
     def test_consensus_soft_mask(self):
 
@@ -165,13 +167,14 @@ class SeconaryOpsTest(unittest.TestCase):
         # In case the partitions file is badly formatted or invalid, the
         # exception will be returned by the read_from_file method.
         partition_obj.read_from_file(concatenated_small_par[0])
-        aln = self.aln_obj.concatenate()
+        self.aln_obj.concatenate()
+        self.aln_obj.alignments.values()[0].set_partitions(partition_obj)
+        self.aln_obj.set_partition_from_alignment(
+            self.aln_obj.alignments.values()[0], reset=True)
 
-        aln.set_partitions(partition_obj)
+        self.aln_obj.reverse_concatenate()
 
-        alns = aln.reverse_concatenate(db_con=self.aln_obj.con)
-
-        self.assertEqual(len(alns.alignments), 7)
+        self.assertEqual(len(self.aln_obj.alignments), 7)
 
     def test_zorro(self):
 

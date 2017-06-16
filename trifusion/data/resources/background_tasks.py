@@ -873,35 +873,21 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # firstly converted into the concatenated alignment, and then all
             # additional operations are conducted in the same aln_obj
 
-            if aln.__class__.__name__ == "Alignment":
-                aln.write_to_file(
-                    output_formats,
-                    outfile if outfile else join(output_dir, "consensus"),
-                    interleave=secondary_options["interleave"],
-                    partition_file=create_partfile,
-                    use_charset=use_nexus_partitions,
-                    phy_truncate_names=phylip_truncate_name,
-                    ld_hat=ld_hat,
-                    ima2_params=ima2_params,
-                    use_nexus_models=use_nexus_models,
-                    ns_pipe=ns,
-                    table_name=table_name)
-            elif aln.__class__.__name__ == "AlignmentList":
-                aln.write_to_file(
-                    output_formats,
-                    output_file=outfile,
-                    output_suffix=suffix_str,
-                    conversion_suffix=conv_suffix,
-                    interleave=secondary_options["interleave"],
-                    partition_file=create_partfile,
-                    output_dir=output_dir,
-                    use_charset=use_nexus_partitions,
-                    phy_truncate_names=phylip_truncate_name,
-                    ld_hat=ld_hat,
-                    ima2_params=ima2_params,
-                    use_nexus_models=use_nexus_models,
-                    ns_pipe=ns,
-                    table_name=table_name)
+            aln.write_to_file(
+                output_formats,
+                output_file=outfile,
+                output_suffix=suffix_str,
+                conversion_suffix=conv_suffix,
+                interleave=secondary_options["interleave"],
+                partition_file=create_partfile,
+                output_dir=output_dir,
+                use_charset=use_nexus_partitions,
+                phy_truncate_names=phylip_truncate_name,
+                ld_hat=ld_hat,
+                ima2_params=ima2_params,
+                use_nexus_models=use_nexus_models,
+                ns_pipe=ns,
+                table_name=table_name)
 
         except IOError as e:
             logging.exception(e)

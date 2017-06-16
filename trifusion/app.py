@@ -9286,7 +9286,7 @@ class TriFusionApp(App):
 
         # Lists the idx that do not required file name
         idx_no_file = ["ortho_dir", "zorro_dir", "protein_db", "mcl_fix",
-                       "usearch_fix", "cds_db"]
+                       "usearch_fix", "cds_db", "ima2_popfile"]
 
         # Maps idx for which an extension label is provided in the filechooser
         # The key is the idx, the value is the extension to appear in the label
@@ -9321,7 +9321,9 @@ class TriFusionApp(App):
             "mcl_fix":
                 "Select the MCL executable...",
             "usearch_fix":
-                "Select the USEARCH executable..."
+                "Select the USEARCH executable...",
+            "ima2_popfile":
+                " Select the population file for IMa2 format"
         }
 
         # Add extension selection spinner, if idx in idx_with_ext
@@ -11563,8 +11565,7 @@ class TriFusionApp(App):
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
                 # Removes all temporary database tables
-                self.alignment_list.remove_tables(
-                    self.alignment_list.get_tables())
+                self.alignment_list.remove_tables()
                 return
 
             try:
@@ -11606,8 +11607,7 @@ class TriFusionApp(App):
                 self.dismiss_all_popups()
 
                 # Removes all temporary database tables
-                self.alignment_list.remove_tables(
-                    self.alignment_list.get_tables())
+                self.alignment_list.remove_tables()
 
                 p.join()
 

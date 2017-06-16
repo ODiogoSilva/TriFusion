@@ -18,6 +18,7 @@ sql_db = "sequencedb"
 
 data_path = join("trifusion/tests/data/")
 
+
 class AlignmentMissingFiltersTest(unittest.TestCase):
 
     def setUp(self):
