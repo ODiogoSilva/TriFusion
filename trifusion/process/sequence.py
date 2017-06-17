@@ -3075,7 +3075,7 @@ class AlignmentList(Base):
         finally:
             lock.release()
 
-    def iter_columns(self, table_name):
+    def iter_columns(self, table_name=None, aln_idx=None):
 
         table_name = table_name if table_name else self.master_table
 
@@ -3083,7 +3083,7 @@ class AlignmentList(Base):
         # fallback to the master table
         try:
             if not self.cur.execute(
-                "SELECT * FROM {}".format(table_name)).fetchone():
+                    "SELECT * FROM {}".format(table_name)).fetchone():
                 table_name = self.master_table
         except sqlite3.OperationalError:
             table_name = self.master_table
@@ -3096,14 +3096,18 @@ class AlignmentList(Base):
                     "GROUP_CONCAT(substr(seq, {pos}, 100000)), " \
                     "aln_idx " \
                     "FROM [{tb}] " \
-                    "WHERE aln_idx NOT IN ({sh}) " \
+                    "WHERE {cond} " \
                     "GROUP BY aln_idx"
 
-            shelved = ", ".join([str(x) for x in self.shelved_idx])
+            if aln_idx:
+                cond = "aln_idx={} ".format(aln_idx)
+            else:
+                shelved = ", ".join([str(x) for x in self.shelved_idx])
+                cond = "aln_idx NOT in ({})".format(shelved)
 
             for p in xrange(0, self.size, 100000):
                 for res in ((x.split(","), y) for x, y in self.cur.execute(
-                        query.format(pos=p, tb=table_name, sh=shelved))):
+                        query.format(pos=p, tb=table_name, cond=cond))):
                     for col in itertools.izip(*res[0]):
                         yield col, res[1]
 
@@ -5278,7 +5282,7 @@ class AlignmentList(Base):
         self._reset_pipes(ns)
 
     def consensus(self, consensus_type, single_file=False, table_in=None,
-                  table_out="consensus", use_main_table=False, ns=None,
+                  table_out=None, use_main_table=False, ns=None,
                   pbar=None):
         """Creates consensus sequences for each alignment.
 
@@ -5352,6 +5356,8 @@ class AlignmentList(Base):
 
         if use_main_table:
             table_in = table_out = self.master_table
+        else:
+            table_out = table_out if table_out else self.master_table
 
         idx_storage = OrderedDict()
         aln_storage = OrderedDict()
@@ -5568,6 +5574,8 @@ class AlignmentList(Base):
 
             return current_aln
 
+        table_out = table_out if table_out else self.master_table
+
         # If aln_name is provided, reverse concatenation will be applied
         # on a single alignment. Change active file set to contain only
         # that alignment.
@@ -5654,6 +5662,8 @@ class AlignmentList(Base):
             "SELECT txId, taxon, seq, aln_idx "
             "FROM [{}] "
             "ORDER BY aln_idx".format(table_out, temp_table))
+
+        print(self.cur.execute("SELECT * FROM [{}]".format(table_out)).fetchone())
 
         part_idx = 1
         for name, part_range in self.partitions:
@@ -6659,13 +6669,39 @@ class AlignmentList(Base):
             List with overall summary statistics for creating .csv tables.
         """
 
+        def add_data():
+            # Get values for current alignment for average calculations
+            self.summary_stats["avg_gaps"].append(cur_gap)
+            self.summary_stats["avg_missing"].append(cur_missing)
+            self.summary_stats["avg_var"].append(cur_var)
+            self.summary_stats["avg_inf"].append(cur_inf)
+
+            if not any(self.summary_gene_table["genes"] == aln.name):
+                # Get row information for current gene in dict format
+                row_info = (aln.name,
+                            aln.locus_length,
+                            len(aln.taxa_list),
+                            cur_var,
+                            cur_inf,
+                            cur_gap,
+                            cur_missing)
+                # Create DataFrame from dict
+                row_dt = pd.DataFrame(
+                    [row_info], index=[c],
+                    columns=self.summary_gene_table.columns)
+                # Add row DF to main DF
+                self.summary_gene_table = pd.concat(
+                    [self.summary_gene_table,
+                     row_dt])
+
+
         # Update active alignments if they changed since last update
         if active_alignments and \
                 active_alignments != list(self.alignments.keys()):
             self.update_active_alignments(active_alignments)
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = -1
 
         # Set table header for summary_stats
         table = [["Genes", "Taxa", "Alignment length", "Gaps",
@@ -6686,74 +6722,59 @@ class AlignmentList(Base):
         self.summary_stats["taxa"] = len(self.taxa_names)
 
         # Get statistics that require iteration over alignments
-        for p, (_, aln) in enumerate(sorted(self.alignments.items())):
+        prev_idx = ""
+        for col, aln_idx in self.iter_columns():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("Child thread killed by user")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            # Get alignment size info
-            self.summary_stats["seq_len"] += aln.locus_length
+                if prev_idx:
+                    add_data()
 
-            cur_gap, cur_missing = 0, 0
-            cur_var, cur_inf = 0, 0
+                self._update_pipes(ns, None, value=c)
+                c += 1
 
-            for col in aln.iter_columns():
+                # Get current alignment
+                aln = self.alignment_idx[aln_idx]
+                self.summary_stats["seq_len"] += aln.locus_length
+
+                cur_gap, cur_missing = 0, 0
+                cur_var, cur_inf = 0, 0
+
+                prev_idx = aln_idx
 
                 if ns:
                     if ns.stop:
                         raise KillByUser("")
 
-                col = Counter(col)
+            col = Counter(col)
 
-                # Get missing data and gaps
-                if self.sequence_code[1] in col:
-                    self.summary_stats["missing"] += 1
-                    cur_missing += 1
-                if self.gap_symbol in col:
-                    self.summary_stats["gaps"] += 1
-                    cur_gap += 1
+            # Get missing data and gaps
+            if self.sequence_code[1] in col:
+                self.summary_stats["missing"] += 1
+                cur_missing += 1
+            if self.gap_symbol in col:
+                self.summary_stats["gaps"] += 1
+                cur_gap += 1
 
-                # Get variability information
-                # Filter missing data
-                for i in [self.sequence_code[1], self.gap_symbol]:
-                    del col[i]
+            # Get variability information
+            # Filter missing data
+            for i in [self.sequence_code[1], self.gap_symbol]:
+                del col[i]
 
-                # If it's only missing data, ignore
-                if col:
-                    # Get variable sites
-                    if len(col) > 1:
-                        self.summary_stats["variable"] += 1
-                        cur_var += 1
+            # If it's only missing data, ignore
+            if col:
+                # Get variable sites
+                if len(col) > 1:
+                    self.summary_stats["variable"] += 1
+                    cur_var += 1
 
-                    # If any of the remaining sites is present in more than two
-                    # taxa score the site as informative
-                    if len([x for x in col.values() if x >= 2]) >= 2:
-                        self.summary_stats["informative"] += 1
-                        cur_inf += 1
-
-            # Get values for current alignment for average calculations
-            self.summary_stats["avg_gaps"].append(cur_gap)
-            self.summary_stats["avg_missing"].append(cur_missing)
-            self.summary_stats["avg_var"].append(cur_var)
-            self.summary_stats["avg_inf"].append(cur_inf)
-
-            if not any(self.summary_gene_table["genes"] == aln.name):
-                # Get row information for current gene in dict format
-                row_info = (aln.name,
-                            aln.locus_length,
-                            len(aln.taxa_list),
-                            cur_var,
-                            cur_inf,
-                            cur_gap,
-                            cur_missing)
-                # Create DataFrame from dict
-                row_dt = pd.DataFrame([row_info], index=[p],
-                                      columns=self.summary_gene_table.columns)
-                # Add row DF to main DF
-                self.summary_gene_table = pd.concat([self.summary_gene_table,
-                                                     row_dt])
+                # If any of the remaining sites is present in more than two
+                # taxa score the site as informative
+                if len([x for x in col.values() if x >= 2]) >= 2:
+                    self.summary_stats["informative"] += 1
+                    cur_inf += 1
+        if aln_idx:
+            add_data()
 
         # Get average values
         for k in ["avg_gaps", "avg_missing", "avg_var", "avg_inf"]:
@@ -6840,44 +6861,57 @@ class AlignmentList(Base):
             "table_header": list with headers of table.
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        def add_data():
+            data_storage["Gaps"].append(np.mean(gaps_g))
+            data_storage["Missing data"].append(np.mean(missing_g))
+            data_storage["Data"].append(np.mean(data_g))
+
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         legend = ["Gaps", "Missing data", "Data"]
 
         data_storage = OrderedDict((x, []) for x in legend)
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                # Kill switch to interrupt worker
-                if ns.stop:
-                    raise KillByUser("")
-                # Add to progress counter
-                ns.counter += 1
+            if prev_idx != aln_idx:
+                
+                if prev_idx:
+                    # Add data to taxa missing in the current alignment
+                    missing = (x for x in self.taxa_names
+                               if x not in aln.taxa_list)
+                    for tx in missing:
+                        gaps_g.append(0)
+                        missing_g.append(1)
+                        data_g.append(0)
 
-            gaps_g, missing_g, data_g = [], [], []
-            for tx in self.taxa_names:
-                if tx in aln.taxa_list:
-                    seq = aln.get_sequence(tx)
-                    # Get gaps
-                    gaps = float(seq.count("-"))
-                    gaps_g.append(gaps / float(aln.locus_length))
-                    # Get missing data
-                    missing = float(seq.count(aln.sequence_code[1]))
-                    missing_g.append(missing / float(aln.locus_length))
-                    # Get actual data
-                    actual_data = (float(aln.locus_length) - gaps - missing) / \
-                        float(aln.locus_length)
-                    data_g.append(actual_data)
-                else:
-                    gaps_g.append(0)
-                    missing_g.append(1)
-                    data_g.append(0)
+                    add_data()
 
-            data_storage["Gaps"].append(np.mean(gaps_g))
-            data_storage["Missing data"].append(np.mean(missing_g))
-            data_storage["Data"].append(np.mean(data_g))
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                # Get alignment object
+                aln = self.alignment_idx[aln_idx]
+
+                gaps_g, missing_g, data_g = [], [], []
+
+                prev_idx = aln_idx
+
+            # Get gaps
+            gaps = float(seq.count("-"))
+            gaps_g.append(gaps / float(aln.locus_length))
+            # Get missing data
+            missing = float(seq.count(aln.sequence_code[1]))
+            missing_g.append(missing / float(aln.locus_length))
+            # Get actual data
+            actual_data = (float(aln.locus_length) - gaps - missing) / \
+                float(aln.locus_length)
+            data_g.append(actual_data)
+
+        if aln_idx:
+            add_data()
 
         data = [x for x in data_storage.values()]
 
@@ -6926,33 +6960,38 @@ class AlignmentList(Base):
 
         legend = ["Gaps", "Missing", "Data"]
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                # Kill switch to interrupt worker
-                if ns.stop:
-                    raise KillByUser("")
-                # Add to progress counter
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            total_len += aln.locus_length
-            for taxon in data_storage:
-                if taxon in aln.taxa_list:
-                    # Get gaps
-                    seq = aln.get_sequence(taxon)
-                    gaps = seq.count("-")
-                    data_storage[taxon][0] += gaps
-                    # Get missing
-                    missing = seq.count(aln.sequence_code[1])
-                    data_storage[taxon][1] += missing
-                    # Get actual data
-                    actual_data = aln.locus_length - gaps - missing
-                    data_storage[taxon][2] += actual_data
-                else:
-                    data_storage[taxon][1] += aln.locus_length
+                if prev_idx:
+                    # Add data to taxa missing in the current alignment
+                    missing = (x for x in self.taxa_names
+                               if x not in aln.taxa_list)
+                    for tx in missing:
+                        data_storage[tx][1] += aln.locus_length
+
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                aln = self.alignment_idx[aln_idx]
+                total_len += aln.locus_length
+
+                prev_idx = aln_idx
+
+            # Get gaps
+            gaps = seq.count("-")
+            data_storage[taxon][0] += gaps
+            # Get missing
+            missing = seq.count(aln.sequence_code[1])
+            data_storage[taxon][1] += missing
+            # Get actual data
+            actual_data = aln.locus_length - gaps - missing
+            data_storage[taxon][2] += actual_data
 
         data_storage = OrderedDict(sorted(data_storage.items(),
                                           key=lambda x: x[1][1] + x[1][0],
@@ -7004,17 +7043,13 @@ class AlignmentList(Base):
 
         data_storage = OrderedDict((taxon, 0) for taxon in self.taxa_names)
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         for aln in self.alignments.values():
 
-            if ns:
-                # Kill switch to interrupt worker
-                if ns.stop:
-                    raise KillByUser("")
-                # Add to progress counter
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             for key in data_storage:
                 if key not in aln.taxa_list:
@@ -7055,16 +7090,13 @@ class AlignmentList(Base):
 
         data = []
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         for aln in self.alignments.values():
 
-            if ns:
-                # Kill switch
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             data.append(len(set(self.taxa_names) - set(aln.taxa_list)))
 
@@ -7097,23 +7129,24 @@ class AlignmentList(Base):
 
         data_storage = OrderedDict((taxon, []) for taxon in self.taxa_names)
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                # Kill switch
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            for sp, seq in aln:
-                data_storage[sp].append(len(seq.replace("-", "").
-                                        replace(aln.sequence_code[1], "")))
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                prev_idx = aln_idx
+
+            data_storage[taxon].append(
+                len(seq.replace("-", "").replace(self.sequence_code[1], "")))
 
         # Adapt y-axis label according to sequence code
-        seq_code = aln.sequence_code[0]
+        seq_code = self.sequence_code[0]
         ax_ylabel = "Size (bp)" if seq_code == "DNA" else "Size (residues)"
 
         data_storage = OrderedDict(sorted(data_storage.items(), reverse=True,
@@ -7148,16 +7181,13 @@ class AlignmentList(Base):
 
         data_storage = []
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         for aln in self.alignments.values():
 
-            if ns:
-                # Kill switch
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             data_storage.append(aln.locus_length)
 
@@ -7196,20 +7226,21 @@ class AlignmentList(Base):
 
         data_storage = Counter()
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for _, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                #Kill switch
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            for seq in aln.iter_sequences():
-                data_storage += Counter(seq.replace("-", "").
-                                        replace(self.sequence_code[1], ""))
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                prev_idx = aln_idx
+
+            data_storage += Counter(
+                seq.replace("-", "").replace(self.sequence_code[1], ""))
 
         # Determine total number of characters
         chars = float(sum(data_storage.values()))
@@ -7258,22 +7289,23 @@ class AlignmentList(Base):
             "table_header": list with headers of table}
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         data_storage = OrderedDict((x, Counter()) for x in self.taxa_names)
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                # Kill switch
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            for sp, seq in aln:
-                data_storage[sp] += Counter(seq.replace("-", "").
-                                            replace(self.sequence_code[1], ""))
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                prev_idx = aln_idx
+
+            data_storage[taxon] += Counter(
+                seq.replace("-", ""). replace(self.sequence_code[1], ""))
 
         legend = dna_chars if self.sequence_code[0] == "DNA" else \
             list(aminoacid_table.keys())
@@ -7345,35 +7377,6 @@ class AlignmentList(Base):
 
         return float(sim), float(ef_len)
 
-    def _get_informative_sites(self, aln):
-        """Calculates number of informative sites in an `Alignment`.
-
-        Parameters
-        ----------
-        aln : trifusion.process.sequence.Alignment
-            `Alignment` object.
-
-        Returns
-        -------
-        informative_sites : int
-            Number of informative sites for `Alignment` object.
-        """
-
-        informative_sites = 0
-
-        for column in aln.iter_columns():
-
-            column = Counter([x for x in column if x != aln.sequence_code[1] and
-                              x != self.gap_symbol])
-
-            if len(column) > 1:
-                # Remove most common and check the length of the remaining
-                del column[column.most_common()[0][0]]
-                if sum(column.values()) > 1:
-                    informative_sites += 1
-
-        return informative_sites
-
     @check_data
     def sequence_similarity(self, ns=None):
         """Creates data for average sequence similarity plot.
@@ -7396,22 +7399,19 @@ class AlignmentList(Base):
 
         data = []
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         for aln in self.alignments.values():
 
-            # self._get_reference_data(list(aln.sequences()))
-            if ns:
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             aln_similarities = []
 
             for seq1, seq2 in itertools.combinations(aln.iter_sequences(), 2):
 
-                if ns:
-                    if ns.stop:
-                        raise KillByUser("")
+                self._check_killswitch(ns)
 
                 sim, total_len = self._get_similarity(seq1, seq2,
                                                       aln.locus_length)
@@ -7447,8 +7447,8 @@ class AlignmentList(Base):
             "color_label": str, label for colorbar
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         self._get_similarity("connect")
 
@@ -7460,15 +7460,12 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
-            if ns:
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             for tx1, tx2 in itertools.combinations(taxa_pos.keys(), 2):
 
-                if ns:
-                    # Kill switch
-                    if ns.stop:
-                        raise KillByUser("")
+                self._check_killswitch(ns)
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -7578,40 +7575,49 @@ class AlignmentList(Base):
 
             "real_bin_num":
         """
-
-        if ns:
-            ns.files = len(self.alignments)
-
-        data = []
-
-        for aln in self.alignments.values():
-
-            segregating_sites = 0
-
-            if ns:
-                # Kill switch
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
-
-            for column in aln.iter_columns():
-
-                # Remove gaps and missing characters
-                column = set([x for x in column if x != aln.sequence_code[1]
-                              and x != self.gap_symbol])
-
-                if len(column) > 1:
-                    segregating_sites += 1
-
+        
+        def add_data():
             if proportions:
                 data.append(
                     float(segregating_sites / float(aln.locus_length)))
-                ax_names = ["Segregating sites", "Percentage"]
-                real_bin = False
             else:
                 data.append(segregating_sites)
-                ax_names = ["Segregating sites", "Frequency"]
-                real_bin = True
+
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
+
+        data = []
+
+        prev_idx = ""
+        for column, aln_idx in self.iter_columns():
+
+            if prev_idx != aln_idx:
+                
+                if prev_idx:
+                    add_data()
+
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                aln = self.alignment_idx[aln_idx]
+
+                segregating_sites = 0
+
+                prev_idx = aln_idx
+
+            # Remove gaps and missing characters
+            column = set([x for x in column if x != aln.sequence_code[1]
+                          and x != self.gap_symbol])
+
+            if len(column) > 1:
+                segregating_sites += 1
+
+        if proportions:
+            ax_names = ["Segregating sites", "Percentage"]
+            real_bin = False
+        else:
+            ax_names = ["Segregating sites", "Frequency"]
+            real_bin = True
 
         return {"data": data,
                 "ax_names": ax_names,
@@ -7640,8 +7646,8 @@ class AlignmentList(Base):
             "color_label": str, label for colorbar
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         self._get_similarity("connect")
 
@@ -7653,14 +7659,12 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
-            if ns:
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             for tx1, tx2 in itertools.combinations(taxa_pos.keys(), 2):
 
-                if ns:
-                    if ns.stop:
-                        raise KillByUser("")
+                self._check_killswitch(ns)
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -7769,26 +7773,40 @@ class AlignmentList(Base):
             "table_header": list with headers of table
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 0
 
         data_length = []
         data_inf = []
 
-        for aln in self.alignments.values():
+        missing_symbols = [self.sequence_code[1], self.gap_symbol]
 
-            if ns:
-                # Kill switch
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+        prev_idx = ""
+        for column, aln_idx in self.iter_columns():
 
-            # Get informative sites for alignment
-            inf_sites = self._get_informative_sites(aln)
-            data_inf.append(inf_sites)
+            if prev_idx != aln_idx:
 
-            # Get size
-            data_length.append(aln.locus_length)
+                if prev_idx:
+                    data_length.append(aln.locus_length)
+                    data_inf.append(informative_sites)
+
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                aln = self.alignment_idx[aln_idx]
+                informative_sites = 0
+
+                prev_idx = aln_idx
+
+            column = Counter(column)
+            for sym in missing_symbols:
+                del column[sym]
+
+            if len(column) > 1:
+                # Remove most common and check the length of the remaining
+                del column[column.most_common()[0][0]]
+                if sum(column.values()) > 1:
+                    informative_sites += 1
 
         return {"data": [data_length, data_inf],
                 "title": "Correlation between alignment length and number of "
@@ -7832,37 +7850,38 @@ class AlignmentList(Base):
             return {"exception": InvalidSequenceType}
 
         data = []
+        missing_symbols = [self.sequence_code[1], self.gap_symbol]
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 0
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for column, aln_idx in self.iter_columns():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            for column in aln.iter_columns():
+                self._update_pipes(ns, None, value=c)
+                c += 1
 
-                col = [iupac_conv[x] for x in column if
-                                  x != aln.sequence_code[1] and
-                                  x != self.gap_symbol]
-                col_len = len(col)
+                prev_idx = aln_idx
 
-                # Remove gaps and missing characters
-                column = Counter(col)
+            column = Counter(column)
 
-                # Consider only bi-allelic SNPs
-                if len(column) == 2:
-                    # Remove most common and check the length of the remaining
-                    del column[column.most_common()[0][0]]
-                    # Append number of derived alleles
-                    if proportions:
-                        data.append(float(sum(column.values())) /
-                                    float(col_len))
-                    else:
-                        data.append(sum(column.values()))
+            for sym in missing_symbols:
+                del column[sym]
+            # Get length
+            col_len = sum(column.values())
+
+            # Consider only bi-allelic SNPs
+            if len(column) == 2:
+                # Remove most common and check the length of the remaining
+                del column[column.most_common()[0][0]]
+                # Append number of derived alleles
+                if proportions:
+                    data.append(float(sum(column.values())) /
+                                float(col_len))
+                else:
+                    data.append(sum(column.values()))
 
         return {"data": data,
                 "title": "Allele frequency spectrum",
@@ -7871,7 +7890,7 @@ class AlignmentList(Base):
                 "real_bin_num": True}
 
     @check_data
-    def allele_frequency_spectrum_gene(self, gene_name):
+    def allele_frequency_spectrum_gene(self, gene_name, ns):
         """Creates data for the allele frequency spectrum of an `Alignment`.
 
         Parameters
@@ -7901,7 +7920,7 @@ class AlignmentList(Base):
         aln = self.retrieve_alignment(gene_name)
         data = []
 
-        for column in aln.iter_columns():
+        for column, _ in self.iter_columns(aln_idx=aln.db_idx):
 
             # Remove gaps and missing characters
             column = Counter([iupac_conv[x] for x in column if
@@ -7945,17 +7964,15 @@ class AlignmentList(Base):
             "real_bin_num":
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         data = []
 
         for aln in self.alignments.values():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             # Get number of taxa
             data.append(len(aln.taxa_list))
@@ -7994,19 +8011,16 @@ class AlignmentList(Base):
         size_storage = []
         data = []
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=self.alignments)
+        c = 1
 
         # total number of taxa in data set
         taxa = float(len(self.taxa_names))
 
         for aln in self.alignments.values():
 
-            if ns:
-                # Kill switch
-                if ns.stop:
-                    raise KillByUser
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             # Get number of taxa
             size_storage.append((float(len(aln.taxa_list)) / taxa) * 100)
@@ -8088,29 +8102,39 @@ class AlignmentList(Base):
             "outliers_labels": list of outlier labels
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         data_labels = []
         data_points = []
 
-        for gn, aln in self.alignments.items():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            total_len = aln.locus_length * len(aln.taxa_list)
-            gn_data = 0
+                if prev_idx:
+                    m_data = float(gn_data) / float(total_len)
+                    data_points.append(m_data)
+                    data_labels.append(aln.sname)
 
-            for seq in aln.iter_sequences():
-                gn_data += seq.count(self.sequence_code[1]) + \
-                          seq.count(self.gap_symbol)
+                self._update_pipes(ns, None, value=c)
+                c += 1
 
+                aln = self.alignment_idx[aln_idx]
+
+                total_len = aln.locus_length * len(aln.taxa_list)
+                gn_data = 0
+
+                prev_idx = aln_idx
+
+            gn_data += seq.count(self.sequence_code[1]) + \
+                seq.count(self.gap_symbol)
+
+        if prev_idx:
             m_data = float(gn_data) / float(total_len)
             data_points.append(m_data)
-            data_labels.append(gn)
+            data_labels.append(aln.sname)
 
         data_points = np.asarray(data_points)
         data_labels = np.asarray(data_labels)
@@ -8159,28 +8183,27 @@ class AlignmentList(Base):
             "outliers_labels": list of outlier labels}
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         data = dict((tx, []) for tx in self.taxa_names)
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            total_len = aln.locus_length
+                self._update_pipes(ns, None, value=c)
+                c += 1
 
-            # Get missing data for every taxon
-            for tx in data:
-                if tx in aln.taxa_list:
-                    seq = aln.get_sequence(tx)
-                    m_data = float(seq.count(self.sequence_code[1]) +
-                                   seq.count(self.gap_symbol)) / \
-                        float(total_len)
-                    data[tx].append(m_data)
+                aln = self.alignment_idx[aln_idx]
+                total_len = aln.locus_length
+                
+                prev_idx = aln_idx
+
+            m_data = float(seq.count(self.sequence_code[1]) +
+                           seq.count(self.gap_symbol)) / float(total_len)
+            data[taxon].append(m_data)
 
         # Get average for each taxon
         for tx, vals in data.items():
@@ -8236,30 +8259,39 @@ class AlignmentList(Base):
             "outliers_labels": list of outlier labels
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         data_points = []
         data_labels = []
+        missing_symbols = [self.sequence_code[1], self.gap_symbol]
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for column, aln_idx in self.iter_columns():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            segregating_sites = 0
+                if prev_idx:
+                    # Get proportion of segregating sites for current alignment
+                    data_points.append(float(segregating_sites) /
+                                       float(aln.locus_length))
+                    data_labels.append(aln.name)
 
-            for column in aln.iter_columns():
+                self._update_pipes(ns, None, value=c)
+                c += 1
 
-                # Remove gaps and missing characters
-                column = set([x for x in column if x != aln.sequence_code[1] and
-                              x != self.gap_symbol])
+                aln = self.alignment_idx[aln_idx]
 
-                if len(column) > 1:
-                    segregating_sites += 1
+                segregating_sites = 0
+                
+                prev_idx = aln_idx
 
+            column = list(x for x in set(column) if x not in missing_symbols)
+
+            if len(column) > 1:
+                segregating_sites += 1
+
+        if prev_idx:
             # Get proportion of segregating sites for current alignment
             data_points.append(float(segregating_sites) /
                                float(aln.locus_length))
@@ -8307,8 +8339,8 @@ class AlignmentList(Base):
             "outliers_labels": list of outlier labels
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         self._get_similarity("connect")
 
@@ -8316,14 +8348,12 @@ class AlignmentList(Base):
 
         for aln in self.alignments.values():
 
-            if ns:
-                ns.counter += 1
+            self._update_pipes(ns, None, value=c)
+            c += 1
 
             for tx1, tx2 in itertools.combinations(data.keys(), 2):
 
-                if ns:
-                    if ns.stop:
-                        raise KillByUser("")
+                self._check_killswitch(ns)
 
                 try:
                     seq1, seq2 = aln.get_sequence(tx1), aln.get_sequence(tx2)
@@ -8393,29 +8423,37 @@ class AlignmentList(Base):
             "outliers_labels": list of outlier labels
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         data_labels = []
         data_points = []
 
-        for gn, aln in self.alignments.items():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
+                
+                if prev_idx:
+                    gn_avg = np.mean(gn_l)
+                    data_points.append(gn_avg)
+                    data_labels.append(aln.name)
 
-            gn_l = []
+                self._update_pipes(ns, None, value=c)
+                c += 1
+                
+                gn_l = []
+                aln = self.alignment_idx[aln_idx]
 
-            for seq in aln.iter_sequences():
-                gn_l.append(len(seq.
-                              replace(aln.sequence_code[1], "").
-                              replace(self.gap_symbol, "")))
+                prev_idx = aln_idx
 
+            gn_l.append(len(seq.replace(aln.sequence_code[1], "").
+                            replace(self.gap_symbol, "")))
+
+        if prev_idx:
             gn_avg = np.mean(gn_l)
             data_points.append(gn_avg)
-            data_labels.append(gn)
+            data_labels.append(aln.name)
 
         data_points = np.asarray(data_points)
         data_labels = np.asarray(data_labels)
@@ -8459,24 +8497,26 @@ class AlignmentList(Base):
             "outliers_labels": list of outlier labels
         """
 
-        if ns:
-            ns.files = len(self.alignments)
+        self._set_pipes(ns, None, total=len(self.alignments))
+        c = 1
 
         data = dict((tx, []) for tx in self.taxa_names)
 
-        for aln in self.alignments.values():
+        prev_idx = ""
+        for taxon, seq, aln_idx in self.iter_alignments():
 
-            if ns:
-                if ns.stop:
-                    raise KillByUser("")
-                ns.counter += 1
+            if prev_idx != aln_idx:
 
-            for tx in data:
-                if tx in aln.taxa_list:
-                    seq = aln.get_sequence(tx)
-                    s_data = len(seq.replace(aln.sequence_code[1], "").
-                                 replace(self.gap_symbol, ""))
-                    data[tx].append(s_data)
+                self._update_pipes(ns, None, value=c)
+                c += 1
+
+                aln = self.alignment_idx[aln_idx]
+
+                prev_idx = aln_idx
+
+            s_data = len(seq.replace(self.sequence_code[1], "").
+                         replace(self.gap_symbol, ""))
+            data[taxon].append(s_data)
 
         # Get average for each taxon
         for tx, vals in data.items():

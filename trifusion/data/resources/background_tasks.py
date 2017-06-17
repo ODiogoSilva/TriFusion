@@ -255,6 +255,8 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
         threads.
     """
 
+    time.sleep(.4)
+
     try:
         # Creating deepcopy to perform changes  without impacting main
         # attribute

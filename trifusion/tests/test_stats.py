@@ -264,7 +264,7 @@ class SeconaryOpsTest(unittest.TestCase):
     def test_allele_frequency_spectrum_gene(self):
 
         self.assertTrue(self.aln_obj.allele_frequency_spectrum_gene(
-            join(data_path, "BaseConc1.fas")))
+            join(data_path, "BaseConc1.fas"), None))
 
     def test_taxa_distribution(self):
 

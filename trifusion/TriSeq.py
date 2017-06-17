@@ -98,8 +98,6 @@ def main_parser(arg, alignment_list):
         outfile = "".join(arg.outfile)
     elif arg.consensus and arg.consensus_single and not arg.outfile:
         outfile = "consensus"
-    elif conversion is not None and arg.outfile is None:
-        outfile = "".join(alignment_list).split(".")[0]
 
     # The input file at this stage is not necessary
     # If just converting the partition file format do this and exit
@@ -197,7 +195,8 @@ def main_parser(arg, alignment_list):
         partition.read_from_file(arg.reverse)
         # Updating alignment partitions
         aln.set_partitions(partition)
-        alignments = aln.reverse_concatenate(pbar=pbar)
+        alignments.set_partition_from_alignment(aln, reset=True)
+        alignments.reverse_concatenate(pbar=pbar)
 
     # Filtering
     # Filter by minimum taxa
@@ -248,7 +247,7 @@ def main_parser(arg, alignment_list):
     # Concatenation
     if not arg.conversion and not arg.reverse and not arg.consensus:
         print_col("Concatenating", GREEN, quiet=arg.quiet)
-        alignments = alignments.concatenate(pbar=pbar)
+        alignments.concatenate(pbar=pbar)
 
         # Concatenate zorro files
         if arg.zorro:
@@ -271,32 +270,17 @@ def main_parser(arg, alignment_list):
     if arg.consensus:
         consensus_type = arg.consensus[0]
         print_col("Creating consensus sequences", GREEN, quiet=arg.quiet)
-        if arg.consensus_single:
-            if isinstance(alignments, seqset.AlignmentList):
-                alignments = alignments.consensus(
-                    consensus_type, single_file=arg.consensus_single,
-                    pbar=pbar, use_main_table=True)
-            else:
-                alignments.consensus(consensus_type=consensus_type, pbar=pbar,
-                                     use_main_table=True)
-        else:
-            alignments.consensus(consensus_type=consensus_type, pbar=pbar,
-                                 use_main_table=True)
+        alignments.consensus(consensus_type, single_file=arg.consensus_single,
+                             pbar=pbar)
 
     # Write output
     print_col("Writing output", GREEN, quiet=arg.quiet)
-    if isinstance(alignments, seqset.Alignment):
-        alignments.write_to_file(output_format, outfile,
-                                 interleave=interleave,
-                                 partition_file=True,
-                                 use_charset=True,
-                                 ima2_params=arg.ima2_params,
-                                 pbar=pbar)
-    elif isinstance(alignments, seqset.AlignmentList):
-        alignments.write_to_file(output_format,
-                                 interleave=interleave,
-                                 ima2_params=arg.ima2_params,
-                                 pbar=pbar)
+    alignments.write_to_file(output_format, output_file=outfile,
+                             interleave=interleave,
+                             ima2_params=arg.ima2_params,
+                             partition_file=True,
+                             use_charset=True,
+                             pbar=pbar)
 
 
 def get_args(arg_list=None, unittest=False):

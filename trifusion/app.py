@@ -3036,7 +3036,7 @@ class TriFusionApp(App):
 
                 if shared_ns.counter:
                     self._popup.content.ids.msg2.text = "{}/{}".format(
-                        shared_ns.counter, shared_ns.files)
+                        shared_ns.counter, shared_ns.total)
 
             if not p.is_alive():
 
@@ -6586,7 +6586,7 @@ class TriFusionApp(App):
         def check_process(p, ldg_wgt, plt_wgt, ns, dt):
 
             try:
-                ldg.ids.msg.text = "{}/{}".format(ns.counter, ns.files)
+                ldg.ids.msg.text = "{}/{}".format(ns.counter, ns.total)
             except AttributeError:
                 pass
 
