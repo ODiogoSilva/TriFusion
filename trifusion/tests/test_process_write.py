@@ -10,12 +10,15 @@ from trifusion.process.base import Base
 
 x = Base()
 
-sql_db = "sequencedb"
-
+temp_dir = ".temp"
+sql_db = ".temp/sequencedb"
 
 class ProcessWriteSinglesTest(unittest.TestCase):
 
     def setUp(self):
+
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
 
         self.aln_obj = AlignmentList([dna_data_fas[0]], sql_db=sql_db)
 
@@ -29,6 +32,7 @@ class ProcessWriteSinglesTest(unittest.TestCase):
         self.aln_obj.clear_alignments()
         os.remove(sql_db)
         shutil.rmtree("output")
+        shutil.rmtree(temp_dir)
 
     def test_write_gphocs(self):
 
@@ -50,6 +54,9 @@ class ProcessWriteMultisTest(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList([dna_data_fas[0]], sql_db=sql_db)
         os.makedirs("output")
         self.output_dir = os.path.join("output")
@@ -58,7 +65,7 @@ class ProcessWriteMultisTest(unittest.TestCase):
 
         shutil.rmtree("output")
         self.aln_obj.clear_alignments()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_custom_taxaset_nexus(self):
         """
@@ -84,6 +91,9 @@ class ProcessWriteTest(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
         self.aln_obj.concatenate()
         os.makedirs("output")
@@ -93,7 +103,7 @@ class ProcessWriteTest(unittest.TestCase):
 
         self.aln_obj.clear_alignments()
         shutil.rmtree("output")
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_write_fasta(self):
 

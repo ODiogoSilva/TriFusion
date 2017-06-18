@@ -4,6 +4,7 @@ import os
 import unittest
 from data_files import *
 from os.path import join
+import shutil
 
 try:
     from process.sequence import AlignmentList
@@ -14,7 +15,8 @@ except ImportError:
     from trifusion.process.error_handling import *
     from trifusion.process.data import Partitions
 
-sql_db = "sequencedb"
+temp_dir = ".temp"
+sql_db = ".temp/sequencedb"
 
 data_path = join("trifusion/tests/data/")
 
@@ -23,13 +25,16 @@ class SeconaryOpsTest(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_summary_stats_all(self):
 
@@ -228,12 +233,10 @@ class SeconaryOpsTest(unittest.TestCase):
     def test_sequence_similarity(self):
 
         self.assertTrue(self.aln_obj.sequence_similarity())
-        os.remove("pw.db")
 
     def test_sequence_similarity_per_species(self):
 
         self.assertTrue(self.aln_obj.sequence_similarity_per_species())
-        os.remove("pw.db")
 
     def test_sequence_similarity_gene(self):
 

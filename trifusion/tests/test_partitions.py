@@ -6,6 +6,7 @@ import unittest
 from data_files import *
 from collections import OrderedDict
 from os.path import join
+import shutil
 
 try:
     from process.sequence import AlignmentList, Alignment
@@ -41,13 +42,18 @@ class ExpectingTestCase(unittest.TestCase):
             self._fail(self.failureException(msg))
         self._num_expectations += 1
 
-sql_db = "sequencedb"
+temp_dir = ".temp"
+sql_db = ".temp/sequencedb"
 
 data_path = join("trifusion/tests/data/")
+
 
 class PartitonsTest(ExpectingTestCase):
 
     def setUp(self):
+
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
 
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
         self.aln_obj.partitions.reset()
@@ -55,7 +61,7 @@ class PartitonsTest(ExpectingTestCase):
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_read_from_nexus(self):
 
@@ -97,7 +103,8 @@ class PartitonsTest(ExpectingTestCase):
 
         self.aln_obj = AlignmentList([dna_data_fas[0]],
                                      db_con=self.aln_obj.con,
-                                     db_cur=self.aln_obj.cur)
+                                     db_cur=self.aln_obj.cur,
+                                     sql_db=sql_db)
 
         self.assertTrue(self.aln_obj.partitions.is_single())
 
@@ -110,7 +117,7 @@ class PartitonsTest(ExpectingTestCase):
         self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
         self.aln_obj.partitions.remove_partition("BaseConc3.fas")
 
-        # Check keys from partitions, partitions_alignment and models
+        # Check keys from _partitions, partitions_alignment and models
         key_data = [list(self.aln_obj.partitions.partitions.keys()),
                     list(self.aln_obj.partitions.partitions_alignments.keys()),
                     list(self.aln_obj.partitions.models.keys())]
@@ -137,7 +144,7 @@ class PartitonsTest(ExpectingTestCase):
         self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
         self.aln_obj.partitions.remove_partition("BaseConc3.fas")
 
-        # Check keys from partitions, partitions_alignment and models
+        # Check keys from _partitions, partitions_alignment and models
         key_data = [list(self.aln_obj.partitions.partitions.keys()),
                     list(self.aln_obj.partitions.partitions_alignments.keys()),
                     list(self.aln_obj.partitions.models.keys())]
@@ -245,7 +252,8 @@ class PartitonsTest(ExpectingTestCase):
 
         self.aln_obj = AlignmentList(models_nexus_data,
                                      db_con=self.aln_obj.con,
-                                     db_cur=self.aln_obj.cur)
+                                     db_cur=self.aln_obj.cur,
+                                     sql_db=sql_db)
 
         self.assertEqual(self.aln_obj.partitions.models,
                          OrderedDict([('Teste1.fas', [
@@ -268,7 +276,8 @@ class PartitonsTest(ExpectingTestCase):
 
         self.aln_obj = AlignmentList(models_codon_nexus_data,
                                      db_cur=self.aln_obj.cur,
-                                     db_con=self.aln_obj.con)
+                                     db_con=self.aln_obj.con,
+                                     sql_db=sql_db)
 
         self.assertEqual(self.aln_obj.partitions.models,
                          OrderedDict([('Teste1.fas_1', [

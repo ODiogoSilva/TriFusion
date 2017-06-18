@@ -189,13 +189,15 @@ def main_parser(arg, alignment_list):
         if len(alignment_list) > 1:
             raise ArgumentError("Only one input file allowed for reverse "
                                 "concatenation")
-        aln = alignments.alignments.values()[0]
-        # Initializing and reading partition file
-        partition = data.Partitions()
-        partition.read_from_file(arg.reverse)
-        # Updating alignment partitions
-        aln.set_partitions(partition)
-        alignments.set_partition_from_alignment(aln, reset=True)
+        if arg.reverse:
+            aln = alignments.alignments.values()[0]
+            # Initializing and reading partition file
+            partition = data.Partitions()
+            partition.read_from_file(arg.reverse[0])
+            # Updating alignment _partitions
+            aln.set_partitions(partition)
+            alignments.set_partition_from_alignment(aln, reset=True)
+
         alignments.reverse_concatenate(pbar=pbar)
 
     # Filtering
@@ -245,7 +247,7 @@ def main_parser(arg, alignment_list):
                                             pbar=pbar)
 
     # Concatenation
-    if not arg.conversion and not arg.reverse and not arg.consensus:
+    if not arg.conversion and arg.reverse is None and not arg.consensus:
         print_col("Concatenating", GREEN, quiet=arg.quiet)
         alignments.concatenate(pbar=pbar)
 
@@ -318,7 +320,7 @@ def get_args(arg_list=None, unittest=False):
     alternative.add_argument("-r", dest="reverse", help="Reverse a concatenated"
                              " file into its original single locus alignments."
                              " A partition file similar to the one read by "
-                             "RAxML must be provided")
+                             "RAxML must be provided", nargs="*")
     alternative.add_argument("-z", "--zorro-suffix", dest="zorro", type=str,
                              help="Use this option if you wish to concatenate "
                              "auxiliary Zorro files associated with each "

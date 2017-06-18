@@ -12,7 +12,8 @@ try:
 except ImportError:
     from trifusion.process.sequence import AlignmentList, Alignment
 
-sql_db = "sequencedb"
+temp_dir = ".temp"
+sql_db = ".temp/sequencedb"
 
 data_path = join("trifusion/tests/data/")
 
@@ -41,13 +42,16 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_class_instance(self):
 
@@ -166,6 +170,9 @@ class AlignmentManipulationTest(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
 
     def tearDown(self):
@@ -175,7 +182,7 @@ class AlignmentManipulationTest(unittest.TestCase):
         except:
             pass
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_clear_alns(self):
 
@@ -239,7 +246,7 @@ class AlignmentManipulationTest(unittest.TestCase):
         fl = self.aln_obj.alignments.keys()
 
         aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur,
-                        db_idx=self.aln_obj._idx + 1)
+                        db_idx=self.aln_obj._idx + 1, temp_dir=temp_dir)
 
         self.aln_obj.add_alignments([aln])
 
@@ -306,7 +313,7 @@ class AlignmentManipulationTest(unittest.TestCase):
     #
     #     self.assertTrue(compare_inst(aln, aln2,
     #                                  ["log_progression", "locus_length",
-    #                                   "partitions"]))
+    #                                   "_partitions"]))
 
     def test_concatenation(self):
 

@@ -664,6 +664,8 @@ from collections import Counter, defaultdict, OrderedDict
 import itertools
 import re
 import os
+import io
+import json
 from os.path import join, basename, splitext, exists
 from itertools import compress
 from threading import Lock
@@ -1175,15 +1177,13 @@ class Alignment(Base):
         in the sqlite database.
     sql_cursor : sqlite3.Cursor
         Cursor object of the sqlite database.
-    sql_con : sqlite3.Connection
-        Connection object of the sqlite database.
     input_format : str, optional
         File format of `input_alignment`. If `input_alignment` is a
         file path, the format will be automatically detect from the file.
         The value provided with this argument overrides the automatic
         detection's result.
     partitions : `trifusion.process.data.Partitions`, optional
-        If provided, it will set the `partitions` attribute. This should
+        If provided, it will set the `_partitions` attribute. This should
         be used only when `input_alignment` is a database table name.
     locus_length : int, optional
         Sets the length of the current alignment, stored in the `locus_length`
@@ -1201,7 +1201,7 @@ class Alignment(Base):
         used when `input_alignment` is a database table name. Otherwise,
         it is automatically set during alignment parsing.
     taxa_idx : dict, optional
-        Sets the dictionary attribute `taxa_idx` that maps the taxon names
+        Sets the dictionary attribute `_taxa_idx` that maps the taxon names
         to their index in the sqlite database table. This option should only
         be used when `input_alignment` is a database table name. Otherwise,
         it is automatically set during alignment parsing.
@@ -1210,17 +1210,11 @@ class Alignment(Base):
     ----------
     cur : sqlite3.Cursor
         Cursor object of the sqlite database.
-    con : sqlite3.Connection
-        Connection object of the sqlite database.
     db_idx : str
         Name of the sqlite database's table storing the sequence
         data.
-    tables : list
-        Lists the sqlite database's tables created for the `Alignment`
-        instance. The "master" table is always present and represents the
-        original alignment.
     partitions : `trifusion.process.data.Partitions`
-        Stores the partitions and substitution model definition for the
+        Stores the _partitions and substitution model definition for the
         alignment.
     locus_length : int
         Length of the alignment in base pairs or residues.
@@ -1281,23 +1275,22 @@ class Alignment(Base):
     """
 
     def __init__(self, input_alignment, input_format=None, partitions=None,
-                 locus_length=None, sequence_code=None, taxa_list=None,
-                 taxa_idx=None, sql_cursor=None, sql_con=None,
-                 db_idx=None, ignore_db_check=False):
+                 locus_length=None, sequence_code=None,
+                 taxa_idx=None, sql_cursor=None,
+                 db_idx=None, ignore_db_check=False, temp_dir=""):
 
         self.cur = sql_cursor
-        self.con = sql_con
 
         if isinstance(partitions, Partitions):
-            self.partitions = partitions
+            self._partitions = partitions
         else:
-            self.partitions = Partitions()
+            self._partitions = Partitions()
             """
             Initializing a Partitions instance for the current alignment. By
             default, the Partitions instance will assume that the whole Alignment
             object is one single partition. However, if the current alignment is the
-            result of a concatenation, or if a partitions file is provided, the
-            partitions argument can be used. Partitions can be later changed using
+            result of a concatenation, or if a _partitions file is provided, the
+            _partitions argument can be used. Partitions can be later changed using
             the set_partitions method. Substitution models objects are associated
             with each partition and they default to None
             """
@@ -1326,11 +1319,6 @@ class Alignment(Base):
         wrong happens.
         """
 
-        self.taxa_list = None
-        """
-        Attribute that will store the taxa names.
-        """
-
         self.shelved_taxa = []
         """
         Attribute that will store shelved taxa. When retrieving taxa from
@@ -1338,7 +1326,7 @@ class Alignment(Base):
         be ignored
         """
 
-        self.taxa_idx = None
+        self._taxa_idx = None
         """
         Attribute that will store the index of the taxa in the sql database.
         This index is stored in a dictionary instead of being retrieved
@@ -1360,14 +1348,11 @@ class Alignment(Base):
         """
 
         self.sequence_code = sequence_code
-        if taxa_list:
-            self.taxa_list = taxa_list
-        else:
-            self.taxa_list = []
+
         if taxa_idx:
-            self.taxa_idx = taxa_idx
+            self._taxa_idx = taxa_idx
         else:
-            self.taxa_idx = {}
+            self._taxa_idx = OrderedDict()
 
         self.db_idx = db_idx
         """
@@ -1384,16 +1369,6 @@ class Alignment(Base):
         the :class:`.AlignmentList` object.
         """
 
-        self.tables = []
-        """
-        Lists the currently active tables for the Alignment object. The
-        'master' table is always present and represents the original
-        alignment. Additional tables may be added as needed, and then dropped
-        when no longer necessary. When all tables, except the master, need to
-        be removed, this attribute can be used to quickly drop all derived
-        tables
-        """
-
         self.interleave_data = False
         """
         Attribute that is set to True when interleave data has been
@@ -1402,22 +1377,8 @@ class Alignment(Base):
         stored in the database, and then further usages will use that table.
         """
 
+        self.temp_dir = temp_dir if temp_dir else "."
 
-        # NOTE ON POSSIBLE DUPLICATE TABLE NAMES: It is not the
-        # responsibility of the Alignment class to check on duplicate table
-        # names. If an exiting table name is found in the database,
-        # the Alignment class assumes that the alignment has already been
-        # parsed and inserted into the database. Therefore, it will not
-        # parse the alignment file again. This usually happens when creating
-        #  concatenated or reverse concatenated alignments, where the
-        # sequence data is inserted into the database before instantiating
-        # the Alignment class. IT IS THE RESPONSABILITY OF THE AlignmentList
-        #  CLASS AND OTHER WRAPPERS TO ASSESS THE VALIDITY OR NOT OF
-        # POTENTIAL DUPLICATE ALIGNMENT FILES.
-
-        # Check if table for current alignment file already exists. If it
-        # does not exist, it is assumed that input_alignment is the path to
-        # the alignment file
         if not ignore_db_check:
 
             # Get alignment format and code. Sequence code is a tuple of
@@ -1428,7 +1389,6 @@ class Alignment(Base):
             if isinstance(finder_content, Exception) is False:
                 self.input_format, self.sequence_code = self.autofinder(
                     input_alignment)
-
 
                 # In case the input format is specified, overwrite the
                 # attribute
@@ -1449,6 +1409,10 @@ class Alignment(Base):
         # In case there is a table for the provided input_alignment
         else:
             self.input_format = input_format
+            if taxa_idx:
+                self.store_taxa_idx(self.temp_dir, taxa_idx)
+            if partitions:
+                self.store_partitions(self.temp_dir, partitions)
 
     def __iter__(self):
         """Iterator behavior for `Alignment`.
@@ -1515,6 +1479,46 @@ class Alignment(Base):
         """
 
         self.input_format = input_format
+
+    def get_taxa_idx(self):
+
+        return json.load(open(join(self.temp_dir, str(self.db_idx))),
+                         object_pairs_hook=OrderedDict)
+
+    def store_taxa_idx(self, temp_path, tx_idx=None):
+
+        if not self.temp_dir:
+            self.temp_dir = temp_path
+
+        if not self.temp_dir:
+            self.temp_dir = "."
+
+        tx_idx = tx_idx if tx_idx else self._taxa_idx
+
+        with open(join(self.temp_dir, str(self.db_idx)), "w") as fh:
+            json.dump(tx_idx, fh)
+
+        self._taxa_idx = None
+
+    def get_partitions(self):
+
+        with open(join(self.temp_dir, str(self.db_idx) + "_p")) as fh:
+            part = Partitions()
+            part.__dict__ = json.load(fh, object_pairs_hook=OrderedDict)
+
+        return part
+
+    def store_partitions(self, temp_path, partitions_obj=None):
+
+        if not self.temp_dir:
+            self.temp_dir = temp_path if temp_path else "."
+
+        part = partitions_obj if partitions_obj else self._partitions
+
+        with open(join(self.temp_dir, str(self.db_idx) + "_p"), "w") as fh:
+            json.dump(part.__dict__, fh)
+
+        self._partitions = None
 
     @staticmethod
     def _set_pipes(ns=None, pbar=None, total=None, msg=None):
@@ -1836,37 +1840,27 @@ class Alignment(Base):
 
         table_name = table_name if table_name else self.master_table
 
+        tx_idx = self.get_taxa_idx()
+
         try:
             # Locking mechanism necessary to avoid concurrency issues when
             # accessing the database. This ensures that only one Cursor
             # object is querying the database at any given time
             lock.acquire(True)
-            if taxon in self.taxa_list and taxon not in self.shelved_taxa:
+            if taxon in tx_idx and \
+                    taxon not in self.shelved_taxa:
                 seq = self.cur.execute(
                     "SELECT seq "
                     "FROM [{}] "
                     "WHERE txId=? "
                     "AND aln_idx=?".format(table_name),
-                    (self.taxa_idx[taxon], self.db_idx)).fetchone()[0]
+                    (tx_idx[taxon], self.db_idx)).fetchone()[0]
                 return seq
 
             else:
                 raise KeyError
         finally:
             lock.release()
-
-    def remove_alignment(self):
-        """ Removes alignment data from the database. """
-
-        # Drop main alignment
-        self.cur.execute("DROP TABLE [{}]".format(self.db_idx))
-
-        # If additional alignments were created, drop those tables as well
-        for table in self.tables:
-            try:
-                self.cur.execute("DROP TABLE [{}]".format(table))
-            except sqlite3.OperationalError:
-                pass
 
     def shelve_taxa(self, lst):
         """Shelves taxa from `Alignment` methods.
@@ -1884,9 +1878,7 @@ class Alignment(Base):
             List with taxa names that should be ignored.
         """
 
-        self.shelved_taxa = lst
-        self.taxa_list = [x for x in self.taxa_list
-                          if x not in self.shelved_taxa]
+        self.shelved_taxa = [x for x in lst if x in self.get_taxa_idx()]
 
     def _insert_data(self, txId, taxon, seq):
         """
@@ -1906,7 +1898,7 @@ class Alignment(Base):
             lock.acquire(True)
 
             self.cur.execute("INSERT INTO alignment_data VALUES (?, ?, ?, ?)",
-                             (txId, taxon, seq, self.db_idx))
+                             (txId, unicode(taxon), seq, self.db_idx))
 
         finally:
             lock.release()
@@ -1994,7 +1986,7 @@ class Alignment(Base):
                     idx += 1
 
             seq = "".join(sequence)
-            taxa = self.taxa_list[i]
+            taxa = self._taxa_idx.keys()[i]
 
             size_list.append(len(seq))
 
@@ -2084,8 +2076,7 @@ class Alignment(Base):
 
                         idx += 1
 
-            self.taxa_list.append(taxa)
-            self.taxa_idx[taxa] = i
+            self._taxa_idx[taxa] = i
 
             seq = "".join(sequence)
             if not self.locus_length:
@@ -2147,7 +2138,7 @@ class Alignment(Base):
         # Get the number of taxa and sequence length from the file header
         header = fh.readline().split()
         self.locus_length = int(header[1])
-        self.partitions.set_length(self.locus_length)
+        self._partitions.set_length(self.locus_length)
         taxa_num = int(header[0])
 
         # These three following attributes allow the support for
@@ -2205,8 +2196,7 @@ class Alignment(Base):
                     except IndexError:
                         sequence = [""]
 
-                    self.taxa_list.append(taxa)
-                    self.taxa_idx[taxa] = c
+                    self._taxa_idx[taxa] = c
 
                     seq = "".join(sequence)
 
@@ -2223,9 +2213,9 @@ class Alignment(Base):
             except IndexError:
                 pass
 
-        # Updating partitions object
-        self.partitions.add_partition(self.name, self.locus_length,
-                                      file_name=self.path)
+        # Updating _partitions object
+        self._partitions.add_partition(self.name, self.locus_length,
+                                       file_name=self.path)
         
         fh.close()
 
@@ -2263,8 +2253,7 @@ class Alignment(Base):
 
                     self._insert_data(idx, taxa, seq)
 
-                    self.taxa_list.append(taxa)
-                    self.taxa_idx[taxa] = idx
+                    self._taxa_idx[taxa] = idx
 
                     if not self.locus_length:
                         self.locus_length = len(seq)
@@ -2290,19 +2279,18 @@ class Alignment(Base):
 
             self._insert_data(idx, taxa, seq)
 
-            self.taxa_list.append(taxa)
-            self.taxa_idx[taxa] = idx
+            self._taxa_idx[taxa] = idx
 
             if not self.locus_length:
                 self.locus_length = len(seq)
 
         size_list.append(len(seq))
 
-        self.partitions.set_length(self.locus_length)
+        self._partitions.set_length(self.locus_length)
 
-        # Updating partitions object
-        self.partitions.add_partition(self.name, self.locus_length,
-                                      file_name=self.path)
+        # Updating _partitions object
+        self._partitions.add_partition(self.name, self.locus_length,
+                                       file_name=self.path)
 
         fh.close()
 
@@ -2327,8 +2315,8 @@ class Alignment(Base):
         # Variable storing the length of each sequence
         size_list = []
 
-        self.taxa_list = self.get_loci_taxa(self.path)
-        self.taxa_idx = dict((x, p) for p, x in enumerate(self.taxa_list))
+        taxa_list = self.get_loci_taxa(self.path)
+        self._taxa_idx = dict((x, p) for p, x in enumerate(taxa_list))
 
         # Create empty dict
         sequence_data = []
@@ -2352,13 +2340,13 @@ class Alignment(Base):
                 present_taxa.append(taxon)
                 cur_seq = fields[1].lower()
                 sequence_data.append(
-                    (self.taxa_idx[taxon], taxon, cur_seq, self.db_idx))
+                    (self._taxa_idx[taxon], taxon, cur_seq, self.db_idx))
                 size_list.append(len(cur_seq))
 
             # End of a partition in the loci file
             elif line.strip().startswith("//"):
 
-                # Checks the size consistency of the previous partitions
+                # Checks the size consistency of the previous _partitions
                 if len(set(size_list)) > 1:
                     self.e = AlignmentUnequalLength()
 
@@ -2371,15 +2359,15 @@ class Alignment(Base):
                 self.locus_length += locus_len
 
                 # Add partition
-                self.partitions.add_partition("locus_{}".format(locus_c),
-                                              locus_len,
-                                              file_name=self.path)
+                self._partitions.add_partition("locus_{}".format(locus_c),
+                                               locus_len,
+                                               file_name=self.path)
                 
                 # Adding missing data
-                for tx in self.taxa_list:
+                for tx in self._taxa_idx:
                     if tx not in present_taxa:
                         sequence_data.append(
-                            (self.taxa_idx[tx],
+                            (self._taxa_idx[tx],
                              tx,
                              self.sequence_code[1] * locus_len,
                              self.db_idx))
@@ -2396,7 +2384,7 @@ class Alignment(Base):
                 # Reset sequence data for next partition
                 sequence_data = []
 
-        self.partitions.set_length(self.locus_length)
+        self._partitions.set_length(self.locus_length)
 
         fh.close()
 
@@ -2480,7 +2468,7 @@ class Alignment(Base):
                 counter = 2
 
                 # self.locus_length = len(sequence_data[0][2])
-                self.partitions.set_length(self.locus_length)
+                self._partitions.set_length(self.locus_length)
 
             # Start parsing here
             elif counter == 1:
@@ -2503,9 +2491,8 @@ class Alignment(Base):
                     taxa = line.strip().split()[0].replace(" ", "")
                     taxa = self.rm_illegal(taxa)
 
-                    # Update taxa_list and taxa_idx attributes
-                    self.taxa_list.append(taxa)
-                    self.taxa_idx[taxa] = idx
+                    # Update taxa_list and _taxa_idx attributes
+                    self._taxa_idx[taxa] = idx
 
                     # Get sequence string
                     seq = "".join(line.strip().split()[1].split())
@@ -2524,23 +2511,23 @@ class Alignment(Base):
                     self._read_interleave_nexus(ntaxa)
                     counter = 2
 
-            # If partitions are specified using the charset command, this
-            # section will parse the partitions
+            # If _partitions are specified using the charset command, this
+            # section will parse the _partitions
             elif line.strip().startswith("charset"):
-                self.partitions.read_from_nexus_string(line,
-                                                       file_name=self.path)
+                self._partitions.read_from_nexus_string(line,
+                                                        file_name=self.path)
 
             # If substitution models are specified using the lset or prset
             # commands, this will parse the model parameters
             if ("lset" in line.lower() or "prset" in line.lower()) and \
                             counter == 2:
-                self.partitions.parse_nexus_model(line)
+                self._partitions.parse_nexus_model(line)
 
-        # If no partitions have been added during the parsing of the nexus
+        # If no _partitions have been added during the parsing of the nexus
         # file, set a single partition
-        if self.partitions.partitions == OrderedDict():
-            self.partitions.add_partition(self.name, self.locus_length,
-                                          file_name=self.path)
+        if self._partitions.partitions == OrderedDict():
+            self._partitions.add_partition(self.name, self.locus_length,
+                                           file_name=self.path)
 
         fh.close()
 
@@ -2592,15 +2579,14 @@ class Alignment(Base):
 
                 self._insert_data(idx, taxa, sequence)
 
-                self.taxa_list.append(taxa)
-                self.taxa_idx[taxa] = idx
+                self._taxa_idx[taxa] = idx
 
         self.locus_length = len(sequence)
-        self.partitions.set_length(self.locus_length)
+        self._partitions.set_length(self.locus_length)
 
-        # Updating partitions object
-        self.partitions.add_partition(self.name, self.locus_length,
-                                      file_name=self.path)
+        # Updating _partitions object
+        self._partitions.add_partition(self.name, self.locus_length,
+                                       file_name=self.path)
 
         fh.close()
 
@@ -2635,11 +2621,13 @@ class Alignment(Base):
         if not self.sequence_code[1]:
             self.sequence_code[1] = default_missing[self.sequence_code[0]]
 
-        if len(self.taxa_list) != len(set(self.taxa_list)):
-            duplicate_taxa = self.duplicate_taxa(self.taxa_list)
+        if len(self._taxa_idx) != len(set(self._taxa_idx.keys())):
+            duplicate_taxa = self.duplicate_taxa(self._taxa_idx.keys())
             self.e = DuplicateTaxa("The following taxa were duplicated in"
                                    " the alignment: {}".format(
                 "; ".join(duplicate_taxa)))
+
+
 
     def remove_taxa(self, taxa_list_file, mode="remove"):
         """ Removes taxa from the `Alignment` object.
@@ -2665,24 +2653,28 @@ class Alignment(Base):
             The removal mode (default is remove).
         """
 
+        tx_idx = self.get_taxa_idx()
+
         def remove(list_taxa):
             for tx in list_taxa:
                 self.cur.execute(
                     "DELETE FROM alignment_data "
                     "WHERE txId=? AND aln_idx=?",
-                    (self.taxa_idx[tx], self.db_idx))
-                self.taxa_list.remove(tx)
-                del self.taxa_idx[tx]
+                    (tx_idx[tx], self.db_idx))
+                del tx_idx[tx]
+
+            self.store_taxa_idx(self.temp_dir, tx_idx)
 
         def inverse(list_taxa):
-            for tx in list(self.taxa_list):
+            for tx in list(tx_idx.keys()):
                 if tx not in list_taxa:
                     self.cur.execute(
                         "DELETE FROM alignment_data "
                         "WHERE txId=? AND aln_idx=?",
-                        (self.taxa_idx[tx], self.db_idx))
-                    self.taxa_list.remove(tx)
-                    del self.taxa_idx[tx]
+                        (tx_idx[tx], self.db_idx))
+                    del tx_idx[tx]
+
+            self.store_taxa_idx(self.temp_dir, tx_idx)
 
         # Checking if taxa_list is an input csv file:
         try:
@@ -2695,7 +2687,7 @@ class Alignment(Base):
 
         # Filter taxa_list for the taxa that are actually present in this
         # Alignment object
-        taxa_list = [x for x in taxa_list if x in self.taxa_list]
+        taxa_list = [x for x in taxa_list if x in tx_idx]
 
         if mode == "remove":
             remove(taxa_list)
@@ -2713,15 +2705,18 @@ class Alignment(Base):
             New taxon name.
         """
 
+        tx_idx = self.get_taxa_idx()
+
         # Change in taxa_list
-        if old_name in self.taxa_list:
-            self.taxa_list[self.taxa_list.index(old_name)] = new_name
+        if old_name in tx_idx:
             # Change in the database
             self.cur.execute("UPDATE [{}] SET taxon=? WHERE txId=?".format(
-                self.db_idx), (new_name, self.taxa_idx[old_name]))
+                self.db_idx), (new_name, tx_idx[old_name]))
             # Change in taxa_index
-            self.taxa_idx[new_name] = self.taxa_idx[old_name]
-            del self.taxa_idx[old_name]
+            tx_idx[new_name] = tx_idx[old_name]
+            del tx_idx[old_name]
+
+        self.store_taxa_idx(self.temp_dir, tx_idx)
 
     def _check_partitions(self, partition_obj):
         """Consistency check of the `partition_obj` for `Alignment` object.
@@ -2739,7 +2734,7 @@ class Alignment(Base):
         trifusion.process.data.Partitions
         """
 
-        # Checks if total lenght of partitions matches the lenght of the
+        # Checks if total lenght of _partitions matches the lenght of the
         # current alignment
 
         if partition_obj.counter != self.locus_length:
@@ -2764,7 +2759,10 @@ class Alignment(Base):
         if isinstance(er, process.data.InvalidPartitionFile):
             return er
         else:
-            self.partitions = partitions
+            self.store_partitions(self.temp_dir, partitions)
+
+    taxa_idx = property(get_taxa_idx)
+    partitions = property(get_partitions)
 
 
 class AlignmentList(Base):
@@ -2887,6 +2885,7 @@ class AlignmentList(Base):
             """
             Database Cursor object
             """
+            self.sql_path = sql_db
         # If only `sql_db` is provided, set it as the attribute
         elif sql_db:
             self.sql_path = sql_db
@@ -3023,7 +3022,7 @@ class AlignmentList(Base):
         Integer with the size of the complete data set
         """
 
-        # Set partitions object
+        # Set _partitions object
         self.partitions = Partitions()
 
         # if type(alignment_list[0]) is str:
@@ -3635,10 +3634,10 @@ class AlignmentList(Base):
         """
 
         if only_active:
-            full_taxa = list(set().union(*[x.taxa_list for x in
+            full_taxa = list(set().union(*[x.taxa_idx.keys() for x in
                                            self.alignments.values()]))
         else:
-            full_taxa = list(set().union(*[x.taxa_list for x in
+            full_taxa = list(set().union(*[x.taxa_idx.keys() for x in
                                            self.all_alignments.values()]))
 
         return full_taxa
@@ -3654,9 +3653,9 @@ class AlignmentList(Base):
         return [alignment.name for alignment in self.alignments.values()]
 
     def set_partition_from_alignment(self, alignment_obj, reset=False):
-        """Updates `partitions` object with the provided `Alignment` object.
+        """Updates `_partitions` object with the provided `Alignment` object.
 
-        Uses the `partitions` of an `Alignment` object to set the `partitions`
+        Uses the `_partitions` of an `Alignment` object to set the `_partitions`
         attribute of `AlignmentList`
 
         Parameters
@@ -3664,28 +3663,30 @@ class AlignmentList(Base):
         alignment_obj : trifusion.process.sequence.Alignment
             `Alignment` object.
         reset : bool
-            If True, clears the current partitions
+            If True, clears the current _partitions
         """
         
         if reset:
             self.partitions = Partitions()
 
-        # Update partitions object
+        aln_parts = alignment_obj.get_partitions()
+
+        # Update _partitions object
         # NOTE: The use_counter argument is set to False here so that when
         # the locus_range is provided, the counter does not interfere with the
         # ranges.
-        if not alignment_obj.partitions.is_single():
-            for k, v in alignment_obj.partitions:
+        if not aln_parts.is_single():
+            for k, v in aln_parts:
                 self.partitions.add_partition(
                     k, locus_range=v[0], codon=v[1],
                     use_counter=True, file_name=alignment_obj.path,
-                    model_cls=alignment_obj.partitions.models[k])
+                    model_cls=aln_parts.models[k])
         else:
             self.partitions.add_partition(
                 alignment_obj.name, use_counter=True,
                 file_name=alignment_obj.path,
                 length=alignment_obj.locus_length,
-                model_cls=alignment_obj.partitions.models[alignment_obj.name])
+                model_cls=aln_parts.models[alignment_obj.name])
 
         self.size = self.partitions.counter
 
@@ -3731,12 +3732,22 @@ class AlignmentList(Base):
                     if not self.sequence_code:
                         self.sequence_code = alignment_obj.sequence_code
 
+                    sql_path = self.sql_path if self.sql_path else "."
+
+                    alignment_obj.store_taxa_idx(os.path.dirname(sql_path))
+                    alignment_obj.store_partitions(os.path.dirname(sql_path))
+
                     self.alignments[alignment_obj.path] = alignment_obj
                     self.set_partition_from_alignment(alignment_obj)
             else:
                 # Get seq code
                 if not self.sequence_code:
                     self.sequence_code = alignment_obj.sequence_code
+
+                sql_path = self.sql_path if self.sql_path else "."
+
+                alignment_obj.store_taxa_idx(os.path.dirname(sql_path))
+                alignment_obj.store_partitions(os.path.dirname(sql_path))
 
                 self.alignments[alignment_obj.name] = alignment_obj
                 self.set_partition_from_alignment(alignment_obj)
@@ -3796,7 +3807,8 @@ class AlignmentList(Base):
                     raise KillByUser("Child thread killed by user")
 
             aln_obj = Alignment(aln_path, sql_cursor=self.cur,
-                                sql_con=self.con, db_idx=self._idx)
+                                db_idx=self._idx,
+                                temp_dir=os.path.dirname(self.sql_path))
 
             if isinstance(aln_obj.e, InputError):
                 self.bad_alignments.append(aln_obj.path)
@@ -3805,6 +3817,12 @@ class AlignmentList(Base):
             elif isinstance(aln_obj.e, EmptyAlignment):
                 self.bad_alignments.append(aln_obj.path)
             else:
+
+                sql_path = self.sql_path if self.sql_path else "."
+
+                aln_obj.store_taxa_idx(os.path.dirname(sql_path))
+                aln_obj.store_partitions(os.path.dirname(sql_path))
+
                 # Get seq code
                 if not self.sequence_code:
                     self.sequence_code = aln_obj.sequence_code
@@ -3880,7 +3898,7 @@ class AlignmentList(Base):
         """Concatenates alignments into a single `Alignment` object.
 
         Concatenates multiple sequence alignments creating a single `Alignment`
-        object and the auxiliary Partitions object defining the partitions
+        object and the auxiliary Partitions object defining the _partitions
         of the concatenated alignment
 
         Parameters
@@ -3897,7 +3915,7 @@ class AlignmentList(Base):
         Returns
         -------
         concatenated_alignment : trifusion.process.sequence.Alignment
-            The `Alignment` object with the concatenated data and partitions.
+            The `Alignment` object with the concatenated data and _partitions.
 
         Notes
         -----
@@ -3936,7 +3954,7 @@ class AlignmentList(Base):
             """
 
             # Get list of missing taxa in the provided alignment
-            missing_tx = set(self.taxa_names) - set(aln_obj.taxa_list)
+            missing_tx = set(self.taxa_names) - set(aln_obj.taxa_idx.keys())
 
             for tx in missing_tx:
                 # Insert missing data in database
@@ -3957,9 +3975,8 @@ class AlignmentList(Base):
         temp_table = ".concatenation"
         self._create_table(temp_table, index=["concidex", "txId"])
 
-        # Variables that will store the taxa_list and taxa_idx that will be
+        # Variables that will store the taxa_list and _taxa_idx that will be
         # provided when instantiating the Alignment object
-        taxa_list = self.taxa_names
         taxa_idx = dict((tx, idx) for idx, tx in enumerate(self.taxa_names))
 
         # Create new cursor to insert data into database while the main
@@ -4032,11 +4049,14 @@ class AlignmentList(Base):
         # DROP the temporary table
         self.cur.execute("DROP TABLE [{}]".format(temp_table))
 
-        aln = Alignment(table_out, sql_con=self.con, sql_cursor=self.cur,
-                        taxa_idx=taxa_idx, taxa_list=taxa_list,
+        self._idx += 1
+        aln = Alignment(table_out, sql_cursor=self.cur,
+                        taxa_idx=taxa_idx,
                         ignore_db_check=True, partitions=self.partitions,
                         sequence_code=self.sequence_code,
-                        locus_length=locus_length)
+                        locus_length=locus_length,
+                        db_idx=self._idx,
+                        temp_dir=os.path.dirname(self.sql_path))
 
         # Reset alignment_idx attribute to reflect the single concatenated
         # alignment
@@ -4054,8 +4074,8 @@ class AlignmentList(Base):
 
         NOTE: Since this filtering is meant to be performed when executing
         the process operations, it will permanently change the AlignmentList
-        object, which means both self.alignments and self.partitions. Not doing
-        so and removing/adding the partitions would create a great deal of
+        object, which means both self.alignments and self._partitions. Not doing
+        so and removing/adding the _partitions would create a great deal of
         conflicts that can be easily avoided by simply copying the
         AlignmentList object and modifying this object for the process
         execution
@@ -4084,14 +4104,14 @@ class AlignmentList(Base):
                 ns, pbar, value=p + 1, msg="Evaluating file {}".format(
                     basename(aln_obj.name)))
 
-            if len(aln_obj.taxa_list) < \
+            if len(aln_obj.taxa_idx) < \
                     (float(min_taxa) / 100.) * len(self.taxa_names):
                 filtered_alns.append(aln_obj.path)
                 self.filtered_alignments["By minimum taxa"] += 1
             else:
                 active_alns.append(aln_obj.path)
 
-        # Remove all partitions at once. Much performance, such speed, wow.
+        # Remove all _partitions at once. Much performance, such speed, wow.
         self.partitions.remove_partition(file_list=filtered_alns)
         # Update active alignments
         self.update_active_alignments(active_alns, ns=ns)
@@ -4150,7 +4170,7 @@ class AlignmentList(Base):
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
             if filter_mode.lower() == "contain":
-                if set(taxa_list) - set(aln_obj.taxa_list) != set():
+                if set(taxa_list) - set(aln_obj.taxa_idx.keys()) != set():
                     filtered_alns.append(aln_obj.path)
                     self.filtered_alignments["By taxa"] += 1
                 else:
@@ -4159,13 +4179,13 @@ class AlignmentList(Base):
             # Filter alignments that contain the taxa in taxa list
             if filter_mode.lower() == "exclude":
                 if any((x for x in taxa_list
-                        if x in aln_obj.taxa_list)):
+                        if x in aln_obj.taxa_idx.keys())):
                     filtered_alns.append(aln_obj.path)
                     self.filtered_alignments["By taxa"] += 1
                 else:
                     active_alns.append(aln_obj.path)
 
-        # Update partitions
+        # Update _partitions
         self.partitions.remove_partition(file_list=filtered_alns)
         # Update active files
         self.update_active_alignments(active_alns, ns=ns)
@@ -4233,7 +4253,7 @@ class AlignmentList(Base):
         self._set_pipes(ns, pbar, total=len(self.alignments))
         c = 1
 
-        # Reset partitions
+        # Reset _partitions
         self.partitions = Partitions()
 
         # Create out table if does not exist
@@ -4394,7 +4414,7 @@ class AlignmentList(Base):
                     filtered_res[prev_idx] = filtered_cols
                 
                 aln_obj = self.alignment_idx[aln_idx]
-                taxa_number = len(aln_obj.taxa_list)
+                taxa_number = len(aln_obj.taxa_idx)
 
                 # Reset binary list for next alignment
                 filtered_cols = []
@@ -4516,7 +4536,7 @@ class AlignmentList(Base):
         if use_main_table:
             table_in = table_out = self.master_table
 
-        # Reset partitions
+        # Reset _partitions
         self.partitions = Partitions()
 
         self._filter_terminals(table_in, table_out, ns)
@@ -4642,7 +4662,7 @@ class AlignmentList(Base):
         self.filtered_alignments["By variable sites"] = \
             len(self.alignments) - len(active_alns)
 
-        # Update partitions
+        # Update _partitions
         filtered_alns = [x.path for x in self.alignments.values()
                          if x.path not in active_alns]
         self.partitions.remove_partition(file_list=filtered_alns)
@@ -4792,7 +4812,7 @@ class AlignmentList(Base):
         self.filtered_alignments["By informative sites"] = \
             len(self.alignments) - len(active_alns)
 
-        # Update partitions
+        # Update _partitions
         filtered_alns = [x.path for x in self.alignments.values()
                          if x.path not in active_alns]
         self.partitions.remove_partition(file_list=filtered_alns)
@@ -4936,7 +4956,7 @@ class AlignmentList(Base):
 
         for alignment_obj in self.alignments.values():
 
-            alignment_taxa = alignment_obj.taxa_list
+            alignment_taxa = alignment_obj.taxa_idx.keys()
 
             # Selected only the alignments with the exact same taxa
             if mode == "strict":
@@ -5337,20 +5357,22 @@ class AlignmentList(Base):
             size[0] += seq_len
 
             if single_file:
-                # Update partitions
+                # Update _partitions
                 self.partitions.add_partition("consensus", length=seq_len)
-                taxa_list.append(aln_name)
                 taxa_idx[txid] = aln_name
             else:
                 part = Partitions()
                 part.add_partition("consensus", length=seq_len)
+                self._idx += 1
                 aln = Alignment(
                     aln_name,
-                    sql_con=self.con, sql_cursor=self.cur,
-                    taxa_idx=taxa_idx, taxa_list=taxa_list,
+                    sql_cursor=self.cur,
+                    taxa_idx=taxa_idx,
                     ignore_db_check=True, partitions=part,
                     sequence_code=self.sequence_code,
-                    locus_length=seq_len)
+                    locus_length=seq_len,
+                    db_idx=self._idx,
+                    temp_dir=os.path.dirname(self.sql_path))
                 idx_storage[fidx] = aln
                 aln_storage[aln_name] = aln
 
@@ -5366,19 +5388,17 @@ class AlignmentList(Base):
         # cursor returns the query
         temp_cur = self.con.cursor()
 
-        # Variables that will store the taxa_list and taxa_idx to provide
+        # Variables that will store the taxa_list and _taxa_idx to provide
         # to the Alignment object
         if single_file:
-            taxa_list = []
             taxa_idx = {}
         else:
-            taxa_list = ["consensus"]
             taxa_idx = {"consensus": 0}
 
         # Reset AlignmentList size
         size = [0]
 
-        # Reset the partitions object
+        # Reset the _partitions object
         self.partitions = Partitions()
 
         # Create temporary table
@@ -5519,14 +5539,17 @@ class AlignmentList(Base):
 
         if single_file:
             self.size = size[0]
-            aln = Alignment("consensus", sql_con=self.con, sql_cursor=self.cur,
-                            taxa_idx=taxa_idx, taxa_list=taxa_list,
+            self._idx += 1
+            aln = Alignment("consensus", sql_cursor=self.cur,
+                            taxa_idx=taxa_idx,
                             ignore_db_check=True, partitions=self.partitions,
                             sequence_code=self.sequence_code,
-                            locus_length=self.size)
+                            locus_length=self.size,
+                            db_idx=self._idx,
+                            temp_dir=os.path.dirname(self.sql_path))
             self.alignment_idx = OrderedDict()
             self.alignment_idx[1] = aln
-            self.taxa_names = taxa_list
+            self.taxa_names = taxa_idx.keys()
         else:
             self.taxa_names = ["consensus"]
             self.alignment_idx = idx_storage
@@ -5537,11 +5560,11 @@ class AlignmentList(Base):
 
     def reverse_concatenate(self, aln_name=None, table_in=None,
                             table_out=None, pbar=None, ns=None):
-        """Reverse a concatenated file according to the partitions.
+        """Reverse a concatenated file according to the _partitions.
 
         This is basically a wrapper of the `reverse_concatenate` method
         of `Alignment` and is rarely useful. It is preferable to retrieve
-        an `Alignment` object, provide some partitions and then
+        an `Alignment` object, provide some _partitions and then
         perform the reverse concatenation. Since the reverse concatenation
         operation can only be applied to `Alignment` objects, this method
         actually creates a concatenated `Alignment` .
@@ -5557,20 +5580,22 @@ class AlignmentList(Base):
         Returns
         -------
         reverted_alns : AlignmentList
-            AlignmentList with the partitions as `Alignment` objects.
+            AlignmentList with the _partitions as `Alignment` objects.
         """
         
-        def add_alignment(part_name, part_len, taxa_list, taxa_idx, part):
+        def add_alignment(part_name, part_len, taxa_idx, part):
 
             # Create Alignment object
+            self._idx += 1
             current_aln = Alignment(part_name,
                                     sql_cursor=self.cur,
                                     locus_length=part_len,
                                     sequence_code=self.sequence_code,
-                                    taxa_list=taxa_list,
                                     taxa_idx=taxa_idx,
                                     partitions=part,
-                                    ignore_db_check=True)
+                                    ignore_db_check=True,
+                                    db_idx=self._idx,
+                                    temp_dir=os.path.dirname(self.sql_path))
 
             return current_aln
 
@@ -5585,7 +5610,6 @@ class AlignmentList(Base):
         # Set progress pipes
         self._set_pipes(ns, pbar, total=len(self.taxa_names), ignore_sa=True)
 
-        taxa_list_master = defaultdict(list)
         taxa_idx_master = defaultdict(dict)
 
         rev_aln_idx = OrderedDict()
@@ -5606,7 +5630,7 @@ class AlignmentList(Base):
             self._update_pipes(ns, pbar, value=p + 1, ignore_sa=True,
                                msg="Processing taxon {}".format(taxon))
 
-            # Index for partitions
+            # Index for _partitions
             part_idx = 1
 
             for name, part_range in self.partitions:
@@ -5627,7 +5651,6 @@ class AlignmentList(Base):
                         # Adapt name of partition for codon variant
                         cname = name + str(i)
 
-                        taxa_list_master[cname].append(taxon)
                         taxa_idx_master[cname][taxon] = p
 
                         temp_cur.execute(
@@ -5644,7 +5667,6 @@ class AlignmentList(Base):
                         part_idx += 1
                         continue
 
-                    taxa_list_master[name].append(taxon)
                     taxa_idx_master[name][taxon] = p
 
                     temp_cur.execute(
@@ -5663,8 +5685,6 @@ class AlignmentList(Base):
             "FROM [{}] "
             "ORDER BY aln_idx".format(table_out, temp_table))
 
-        print(self.cur.execute("SELECT * FROM [{}]".format(table_out)).fetchone())
-
         part_idx = 1
         for name, part_range in self.partitions:
 
@@ -5678,13 +5698,12 @@ class AlignmentList(Base):
 
                     part_len = (part_range[0][1] - part_range[0][0] + 1) / 3
 
-                    taxa_list = taxa_list_master[cname]
                     taxa_idx = taxa_idx_master[cname]
 
                     p = Partitions()
                     p.add_partition(cname, length=part_len)
 
-                    saln = add_alignment(cname, part_len, taxa_list=taxa_list,
+                    saln = add_alignment(cname, part_len,
                                          taxa_idx=taxa_idx, part=p)
 
                     alns[cname] = saln
@@ -5696,12 +5715,11 @@ class AlignmentList(Base):
 
                 part_len = part_range[0][1] - part_range[0][0] + 1
 
-                taxa_list = taxa_list_master[name]
                 taxa_idx = taxa_idx_master[name]
 
                 p = Partitions()
                 p.add_partition(name, length=part_len)
-                saln = add_alignment(name, part_len, taxa_list=taxa_list,
+                saln = add_alignment(name, part_len,
                                      taxa_idx=taxa_idx, part=p)
 
                 alns[name] = saln
@@ -5926,7 +5944,7 @@ class AlignmentList(Base):
                 # genotype phase
                 if ld_hat:
                     fh.write("{} {} {}\n".format(
-                        len(aln_obj.taxa_list), aln_obj.locus_length, "2"))
+                        len(aln_obj.taxa_idx), aln_obj.locus_length, "2"))
 
             # Skip row if fh is not set (skipping files)
             if not fh:
@@ -6022,6 +6040,10 @@ class AlignmentList(Base):
                     self._write_phylip_partitions(aln_obj, partition_file,
                                                   of, model_phylip)
 
+                    fh.write("{} {}\n".format(
+                        len(aln_obj.taxa_idx) - len(aln_obj.shelved_taxa),
+                        aln_obj.locus_length))
+
                     write_tx = True
                     prev = 90
 
@@ -6061,8 +6083,9 @@ class AlignmentList(Base):
                     # alignment
                     aln_obj = self.alignment_idx[aln_idx]
 
-                    fh.write("{} {}\n".format(len(aln_obj.taxa_list),
-                                              aln_obj.locus_length))
+                    fh.write("{} {}\n".format(
+                        len(aln_obj.taxa_idx) - len(aln_obj.shelved_taxa),
+                        aln_obj.locus_length))
 
                 if not fh:
                     continue
@@ -6080,13 +6103,13 @@ class AlignmentList(Base):
                                 use_nexus_models, outgroup_list):
 
         if use_charset:
-            # Writing partitions, if any
+            # Writing _partitions, if any
             if not aln_obj.partitions.is_single():
                 fh.write("\nbegin mrbayes;\n")
                 p = 0
-                # Full gene partitions
+                # Full gene _partitions
                 for name, lrange in aln_obj.partitions:
-                    # If there are codon partitions, write those
+                    # If there are codon _partitions, write those
                     if lrange[1]:
                         for i in lrange[1]:
                             fh.write("\tcharset %s_%s = %s-%s\\3;\n" %
@@ -6131,7 +6154,7 @@ class AlignmentList(Base):
             # This assures that only the outgroups present in the current
             #  file are written
             compliant_outgroups = [taxon for taxon in outgroup_list
-                                   if taxon in aln_obj.taxa_list]
+                                   if taxon in aln_obj.taxa_idx]
             if compliant_outgroups is not []:
                 fh.write("\nbegin mrbayes;\n\toutgroup %s\nend;\n" %
                                (" ".join(compliant_outgroups)))
@@ -6144,7 +6167,7 @@ class AlignmentList(Base):
                      "ntax={} nchar={} ;\n\tformat datatype=mixed"
                      "({}:1-{}, restriction:{}) interleave={} "
                      "gap={} missing={} ;\n\tmatrix\n".format(
-                        len(aln_obj.taxa_list),
+                        len(aln_obj.taxa_idx) - len(aln_obj.shelved_taxa),
                         aln_obj.locus_length,
                         aln_obj.sequence_code[0],
                         aln_obj.locus_length - 1,
@@ -6158,7 +6181,7 @@ class AlignmentList(Base):
                 " nchar={} ;\n\tformat datatype={} "
                 "interleave={} gap={} missing={} ;\n\t"
                 "matrix\n".format(
-                    len(aln_obj.taxa_list),
+                    len(aln_obj.taxa_idx) - len(aln_obj.shelved_taxa),
                     aln_obj.locus_length,
                     aln_obj.sequence_code[0],
                     "yes" if interleave else "no",
@@ -6535,10 +6558,10 @@ class AlignmentList(Base):
                4. (str) inheritance scalar.
 
         use_charset : bool
-            If True, partitions from the `Partitions` object will be written
+            If True, _partitions from the `Partitions` object will be written
             in the nexus output format (default is True).
         partition_file : bool
-            If True, the auxiliary partitions file will be written (default
+            If True, the auxiliary _partitions file will be written (default
             is True).
         output_dir : str
             If provided, the output file will be written on the specified
@@ -6551,7 +6574,7 @@ class AlignmentList(Base):
             compliant with the format of LD Hat and will truncate sequence
             names and sequence length per line accordingly.
         use_nexus_models : bool
-            If True, writes the partitions charset block in nexus format.
+            If True, writes the _partitions charset block in nexus format.
         ns_pipe : multiprocesssing.Manager.Namespace
             A Namespace object used to communicate with the main thread
             in TriFusion.
@@ -6680,7 +6703,7 @@ class AlignmentList(Base):
                 # Get row information for current gene in dict format
                 row_info = (aln.name,
                             aln.locus_length,
-                            len(aln.taxa_list),
+                            len(aln.taxa_idx),
                             cur_var,
                             cur_inf,
                             cur_gap,
@@ -6827,7 +6850,7 @@ class AlignmentList(Base):
                 if ns.stop:
                     raise KillByUser()
 
-            data.append([1 if x in alignment.taxa_list else 0
+            data.append([1 if x in alignment.taxa_idx else 0
                          for x in self.taxa_names])
 
         data = np.transpose(data)
@@ -6881,7 +6904,7 @@ class AlignmentList(Base):
                 if prev_idx:
                     # Add data to taxa missing in the current alignment
                     missing = (x for x in self.taxa_names
-                               if x not in aln.taxa_list)
+                               if x not in aln.taxa_idx)
                     for tx in missing:
                         gaps_g.append(0)
                         missing_g.append(1)
@@ -6971,7 +6994,7 @@ class AlignmentList(Base):
                 if prev_idx:
                     # Add data to taxa missing in the current alignment
                     missing = (x for x in self.taxa_names
-                               if x not in aln.taxa_list)
+                               if x not in aln.taxa_idx)
                     for tx in missing:
                         data_storage[tx][1] += aln.locus_length
 
@@ -7052,7 +7075,7 @@ class AlignmentList(Base):
             c += 1
 
             for key in data_storage:
-                if key not in aln.taxa_list:
+                if key not in aln.taxa_idx:
                     data_storage[key] += 1
 
         # Sort data in descending order of missing genes
@@ -7098,7 +7121,7 @@ class AlignmentList(Base):
             self._update_pipes(ns, None, value=c)
             c += 1
 
-            data.append(len(set(self.taxa_names) - set(aln.taxa_list)))
+            data.append(len(set(self.taxa_names) - set(aln.taxa_idx.keys())))
 
         return {"data": data,
                 "title": "Distribution of missing taxa",
@@ -7975,7 +7998,7 @@ class AlignmentList(Base):
             c += 1
 
             # Get number of taxa
-            data.append(len(aln.taxa_list))
+            data.append(len(aln.taxa_idx))
 
         return {"data": data,
                 "title": "Distribution of taxa frequency",
@@ -8023,7 +8046,7 @@ class AlignmentList(Base):
             c += 1
 
             # Get number of taxa
-            size_storage.append((float(len(aln.taxa_list)) / taxa) * 100)
+            size_storage.append((float(len(aln.taxa_idx)) / taxa) * 100)
 
         labels = []
         for i in xrange(0, 105, 5):
@@ -8123,7 +8146,7 @@ class AlignmentList(Base):
 
                 aln = self.alignment_idx[aln_idx]
 
-                total_len = aln.locus_length * len(aln.taxa_list)
+                total_len = aln.locus_length * len(aln.taxa_idx)
                 gn_data = 0
 
                 prev_idx = aln_idx

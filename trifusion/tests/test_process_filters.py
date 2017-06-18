@@ -14,7 +14,8 @@ except ImportError:
     from trifusion.process.sequence import AlignmentList
     from trifusion.process.error_handling import *
 
-sql_db = "sequencedb"
+temp_dir = ".temp"
+sql_db = ".temp/sequencedb"
 
 data_path = join("trifusion/tests/data/")
 
@@ -23,13 +24,16 @@ class AlignmentMissingFiltersTest(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_filter_default(self):
 
@@ -120,13 +124,16 @@ class AlignmentTaxaFilters(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_filter_min_taxa(self):
 
@@ -190,13 +197,16 @@ class AlignmentCodonFilters(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList([],sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_codon_filter_pos1(self):
 
@@ -280,13 +290,16 @@ class AlignmentVariationFilters(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_variation_filter_min(self):
 

@@ -9558,7 +9558,7 @@ class TriFusionApp(App):
     @staticmethod
     def check_partition_split(value, prange):
         """
-        Method that validates the text input for manual split of partitions.
+        Method that validates the text input for manual split of _partitions.
         Ensures that the input can be converted to int, and whether it is
         inside the available range.
         """
@@ -9688,7 +9688,7 @@ class TriFusionApp(App):
         if main_op == "reverse_concatenation" and not self.rev_infile and \
                 len(self.file_list) > 1:
             return self.dialog_floatcheck(
-                "Reverse concatenation using partitions defined in "
+                "Reverse concatenation using _partitions defined in "
                 "the app requires only one input alignment. Please select"
                 " a single file to reverse concatenate in the Reverse "
                 "concatenate settings", t="error")
@@ -9706,7 +9706,7 @@ class TriFusionApp(App):
 
         # Check if main operation is reverse concatenation and if the active
         # taxa set smaller than the complete set. If so, issue a warning
-        # that individual partitions that do not contain any of the selected
+        # that individual _partitions that do not contain any of the selected
         # taxa will not be written
         if main_op == "reverse_concatenation" and self.active_taxa_list != \
                 self.alignment_list.taxa_names:
@@ -10877,7 +10877,7 @@ class TriFusionApp(App):
         # active data set is not empty
         if aln_list.alignments:
             for aln in aln_list:
-                if tx in aln.taxa_list:
+                if tx in aln.taxa_idx:
                     sequence.append(aln.get_sequence(tx))
                 else:
                     tx_missing += 1
@@ -10992,7 +10992,7 @@ class TriFusionApp(App):
 
                 # Get number of species
                 file_inf["n_taxa"] = len([x for x in
-                    aln.taxa_list if x in self.active_taxa_list])
+                    aln.taxa_idx if x in self.active_taxa_list])
 
                 # Get length of largest sequence if not aligned, or
                 # alignment length
