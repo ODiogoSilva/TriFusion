@@ -2997,12 +2997,13 @@ class AlignmentList(Base):
         """
 
         self.format_ext = {"ima2": ".txt",
-                            "mcmctree": "_mcmctree.phy",
-                            "phylip": ".phy",
-                            "nexus": ".nex",
-                            "fasta": ".fas",
-                            "stockholm": ".stockholm",
-                            "gphocs": ".txt"}
+                           "mcmctree": "_mcmctree.phy",
+                           "phylip": ".phy",
+                           "nexus": ".nex",
+                           "fasta": ".fas",
+                           "stockholm": ".stockholm",
+                           "gphocs": ".txt",
+                           "snapp": ".nex"}
         """Dictionary that stores the suffix for each output format"""
 
         self.temporary_tables = []
@@ -3074,7 +3075,8 @@ class AlignmentList(Base):
         finally:
             lock.release()
 
-    def iter_columns(self, table_name=None, aln_idx=None):
+    def iter_columns(self, table_name=None, aln_idx=None, include_taxa=False,
+                     group_by=None):
 
         table_name = table_name if table_name else self.master_table
 
@@ -3082,9 +3084,9 @@ class AlignmentList(Base):
         # fallback to the master table
         try:
             if not self.cur.execute(
-                    "SELECT * FROM {}".format(table_name)).fetchone():
+                    "SELECT * FROM [{}]".format(table_name)).fetchone():
                 table_name = self.master_table
-        except sqlite3.OperationalError:
+        except sqlite3.OperationalError as e:
             table_name = self.master_table
 
         try:
@@ -3092,11 +3094,14 @@ class AlignmentList(Base):
             lock.acquire(True)
 
             query = "SELECT " \
+                    "{tx} " \
                     "GROUP_CONCAT(substr(seq, {pos}, 100000)), " \
-                    "aln_idx " \
+                    "{idx} " \
                     "FROM [{tb}] " \
                     "WHERE {cond} " \
-                    "GROUP BY aln_idx"
+                    "GROUP BY {idx}"
+
+            group_idx = group_by if group_by else "aln_idx"
 
             if aln_idx:
                 cond = "aln_idx={} ".format(aln_idx)
@@ -3104,11 +3109,31 @@ class AlignmentList(Base):
                 shelved = ", ".join([str(x) for x in self.shelved_idx])
                 cond = "aln_idx NOT in ({})".format(shelved)
 
+            if include_taxa:
+                tx_query = "GROUP_CONCAT(taxon),"
+            else:
+                tx_query = ""
+
             for p in xrange(0, self.size, 100000):
-                for res in ((x.split(","), y) for x, y in self.cur.execute(
-                        query.format(pos=p, tb=table_name, cond=cond))):
-                    for col in itertools.izip(*res[0]):
-                        yield col, res[1]
+                if include_taxa:
+                    for res in ((z, x.split(","), y) for z, x, y in
+                                self.cur.execute(
+                                    query.format(pos=p,
+                                                 tb=table_name,
+                                                 cond=cond,
+                                                 tx=tx_query,
+                                                 idx=group_idx))):
+                        for col in itertools.izip(*res[1]):
+                            yield res[0].split(","), col, res[2]
+                else:
+                    for res in ((x.split(","), y) for x, y in self.cur.execute(
+                            query.format(pos=p,
+                                         tb=table_name,
+                                         cond=cond,
+                                         tx=tx_query,
+                                         idx=group_idx))):
+                        for col in itertools.izip(*res[0]):
+                            yield col, res[1]
 
         finally:
             lock.release()
@@ -6160,7 +6185,11 @@ class AlignmentList(Base):
                                (" ".join(compliant_outgroups)))
 
     @staticmethod
-    def _write_nexus_header(aln_obj, fh, gap, interleave):
+    def _write_nexus_header(aln_obj, fh, gap, interleave, data_type=None,
+                            nchar=None):
+
+        dtype = data_type if data_type else aln_obj.sequence_code[0]
+        nchar = nchar if nchar else aln_obj.locus_length
 
         if aln_obj.restriction_range is not None:
             fh.write("#NEXUS\n\nBegin data;\n\tdimensions "
@@ -6182,8 +6211,8 @@ class AlignmentList(Base):
                 "interleave={} gap={} missing={} ;\n\t"
                 "matrix\n".format(
                     len(aln_obj.taxa_idx) - len(aln_obj.shelved_taxa),
-                    aln_obj.locus_length,
-                    aln_obj.sequence_code[0],
+                    nchar,
+                    dtype,
                     "yes" if interleave else "no",
                     gap,
                     aln_obj.sequence_code[1].upper()))
@@ -6292,6 +6321,83 @@ class AlignmentList(Base):
         # When all files are skipeed, fh remains None
         if fh:
             fh.close()
+    
+    def _write_snapp(self, suffix, output_file, **kwargs):
+        
+        ns = kwargs.get("ns_pipe", None)
+        table_name = kwargs.get("table_name", None)
+        output_dir = kwargs.get("output_dir", None)
+        pbar = kwargs.get("pbar", None)
+        gap = kwargs.get("gap", "-")
+
+        # Get only alignment object, since this writer is meant for
+        # concatenated alignments
+        aln = self.alignments.values()[0]
+
+        fh, _ = self._setup_newfile(None, aln, output_dir, suffix, output_file,
+                                    ns)
+
+        missing_symbols = ["-", self.sequence_code[1]]
+        data = dict((taxon, []) for taxon in self.taxa_names)
+
+        self._set_pipes(ns, pbar, total=len(self.partitions.partitions))
+        c = 1
+
+        # Check if partition data has already been built in the database.
+        # If not, create it
+        if not self.partition_data:
+            self.partition_data = self._get_partition_data(table_name, ns,
+                                                           pbar)
+
+        # Get data from variable columns
+        ignore_locus = False
+        prev_idx = ""
+        for p, (tx_list, column, part_idx) in enumerate(self.iter_columns(
+                ".partitiondata", include_taxa=True, group_by="part")):
+
+            if prev_idx != part_idx:
+
+                ignore_locus = False
+
+                self._update_pipes(ns, pbar, value=c)
+                c += 1
+
+                prev_idx = part_idx
+
+            if ignore_locus:
+                continue
+
+            # Determine if the site is variable and bi-allelic
+            try:
+                col = "".join([iupac_conv[x] for x in set(column)
+                               if x not in missing_symbols])
+                col = Counter(col).keys()
+            except KeyError:
+                continue
+
+            if not col or len(col) == 1 or len(col) > 2:
+                continue
+            else:
+                # Here the site is variable and biallelic.
+                col = [col[0], iupac["".join(sorted(col))], col[1]]
+                for tx, nuc in zip(tx_list, column):
+                    try:
+                        nuc = col.index(nuc)
+                    except ValueError:
+                        nuc = "n"
+                    data[tx].append(nuc)
+                ignore_locus = True
+
+        # Get len of data
+        data_len = len(data.values()[0])
+
+        # Write nexus header
+        self._write_nexus_header(aln, fh, gap, "no", "integer", str(data_len))
+
+        for tx, vals in data.items():
+            fh.write("{}\t{}\n".format(tx, "".join((str(x) for x in vals))))
+
+        fh.write(";\n\tend;")
 
     def _write_stockholm(self, suffix, output_file, **kwargs):
 
@@ -6584,8 +6690,6 @@ class AlignmentList(Base):
             Name of the table from where the sequence data is fetched.
         """
 
-        ns_pipe = kwargs.get("ns_pipe", None)
-        pbar = kwargs.pop("pbar", None)
         output_file = kwargs.pop("output_file", None)
 
         write_methods = {
@@ -6595,7 +6699,8 @@ class AlignmentList(Base):
             "stockholm": self._write_stockholm,
             "gphocs": self._write_gphocs,
             "ima2": self._write_ima2,
-            "mcmctree": self._write_mcmctree
+            "mcmctree": self._write_mcmctree,
+            "snapp": self._write_snapp
         }
 
         for fmt in output_format:
@@ -6610,6 +6715,8 @@ class AlignmentList(Base):
                     self.format_ext[fmt]
 
             write_methods[fmt](suffix, filename, **kwargs)
+
+            print("?")
 
     def get_gene_table_stats(self, active_alignments=None, sortby=None,
                              ascending=True):

@@ -303,7 +303,7 @@ def get_args(arg_list=None, unittest=False):
     main_exec.add_argument("-of", dest="output_format", nargs="+",
                            default=["nexus"],
                            choices=["nexus", "phylip", "fasta", "mcmctree",
-                                    "ima2", "stockholm", "gphocs"],
+                                    "ima2", "stockholm", "gphocs", "snapp"],
                            help="Format of the output file(s). You may select "
                            "multiple output formats simultaneously (default is"
                            " '%(default)s')")
