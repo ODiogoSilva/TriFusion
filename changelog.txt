@@ -18,6 +18,8 @@ time [0.5.4].
 side panel [0.5.6].
 - Greatly improved performance when importing partition scheme for large
 alignments [0.5.7]
+- Refactored Process backend to greatly improve performance of all operations,
+mainly when dealing with many input alignments. [0.5.10]
 
 ### Statistics
 
