@@ -331,7 +331,8 @@ def get_args(arg_list=None, unittest=False):
         help="(CONCATENATION) Provide a single argument with the name of the "
              "output file.")
     main_ops.add_argument(
-        "-c", "--conversion", dest="conversion", action="store_const", const=True,
+        "-c", "--conversion", dest="conversion", action="store_const",
+        const=True,
         help="(CONVERSION) Specify this option without arguments to convert"
              " each input file passed as argument of the '-in' option. The "
              "name of each output file will be automatically generated based"

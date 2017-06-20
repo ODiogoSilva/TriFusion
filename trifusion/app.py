@@ -9159,7 +9159,7 @@ class TriFusionApp(App):
 
         # Show popup
         self.show_popup(title="Choose output format", content=content,
-                        size=(300, 500))
+                        size=(300, 550))
 
     def dialog_reverse_inlist(self):
 

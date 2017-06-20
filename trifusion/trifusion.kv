@@ -4480,6 +4480,17 @@
                 disabled: False
                 on_release:
                     app.dialog_ima2_extra(popup_level=2)
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            spacing: 10
+            TGToggleButton:
+                height: 40
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
+                id: snapp
+                text: "SNAPP"
+            SettingsBt
     BoxLayout:
         orientation: "horizontal"
         size_hint_y: None
