@@ -80,7 +80,7 @@ class SeconaryOpsTest(unittest.TestCase):
 
         tn = len(list(self.aln_obj.iter_alignments("collapse")))
 
-        self.assertEqual(tn, 7)
+        self.assertEqual(tn, 8)
         shutil.rmtree("test_collapse")
 
     def test_gcoder(self):

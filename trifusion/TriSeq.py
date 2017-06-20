@@ -424,7 +424,7 @@ def get_args(arg_list=None, unittest=False):
     # Output options
     output_opts = parser.add_argument_group("Output options")
     output_opts.add_argument(
-        "--suffix", dest="output_suffix",
+        "--suffix", dest="output_suffix", default="",
         help="Appends the provided suffix at the end of each output file."
              " Supported only for CONVERSION and REVERSE CONCATENATION"
              " operations.")
