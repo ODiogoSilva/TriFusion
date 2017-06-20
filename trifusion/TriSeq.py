@@ -247,7 +247,7 @@ def main_parser(arg, alignment_list):
                                             pbar=pbar)
 
     # Concatenation
-    if not arg.conversion and arg.reverse is None and not arg.consensus:
+    if not arg.conversion and not arg.consensus:
         print_col("Concatenating", GREEN, quiet=arg.quiet)
         alignments.concatenate(pbar=pbar)
 

@@ -221,5 +221,22 @@ class ProcessWriteTest(unittest.TestCase):
                                    output_file=self.output_file,
                                    ld_hat=True)
 
+    def test_write_snapp(self):
+
+        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        os.remove(sql_db)
+        self.aln_obj = AlignmentList(variable_data,  sql_db=sql_db)
+        self.aln_obj.concatenate()
+        self.aln_obj.write_to_file(["snapp"], output_file=self.output_file)
+
+        with open(self.output_file + ".nex") as fh:
+            res = sorted(fh.readlines())
+
+        with open(snapp_output[0]) as fh:
+            ref = sorted(fh.readlines())
+
+        self.assertEqual(res, ref)
+
 if __name__ == "__main__":
     unittest.main()

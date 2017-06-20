@@ -43,10 +43,6 @@ def triseq_arg_check(arg):
         print_col("Ignoring conversion flag (-c) when specifying reverse"
                   " concatenation (-r)", YELLOW, quiet=arg.quiet)
 
-    if arg.outfile and arg.reverse:
-        print_col("Ignoring output file option (-o) when specifying reverse"
-                  " concatenation (-r)", YELLOW, quiet=arg.quiet)
-
     if arg.partition_file is not None and arg.outfile is None:
         print_col("An output file must be provided with option '-o'", RED)
 

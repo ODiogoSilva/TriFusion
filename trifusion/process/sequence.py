@@ -1500,6 +1500,10 @@ class Alignment(Base):
 
         self._taxa_idx = None
 
+    def rm_taxa_idx_json(self):
+
+        os.remove(join(self.temp_dir, str(self.db_idx)))
+
     def get_partitions(self):
 
         with open(join(self.temp_dir, str(self.db_idx) + "_p")) as fh:
@@ -1519,6 +1523,15 @@ class Alignment(Base):
             json.dump(part.__dict__, fh)
 
         self._partitions = None
+
+    def rm_partitions_json(self):
+
+        os.remove(join(self.temp_dir, str(self.db_idx) + "_p"))
+    
+    def rm_json(self):
+        
+        self.rm_taxa_idx_json()
+        self.rm_partitions_json()
 
     @staticmethod
     def _set_pipes(ns=None, pbar=None, total=None, msg=None):
@@ -3460,6 +3473,10 @@ class AlignmentList(Base):
 
         self.cur.execute("DELETE FROM [{}]".format(self.master_table))
 
+        # Remove temporary json auxiliary files from Alignment objects
+        for aln in self.all_alignments.values():
+            aln.rm_json()
+
         self.alignments = OrderedDict()
         self.all_alignments = OrderedDict()
         self.alignment_idx = OrderedDict()
@@ -3680,7 +3697,7 @@ class AlignmentList(Base):
     def set_partition_from_alignment(self, alignment_obj, reset=False):
         """Updates `_partitions` object with the provided `Alignment` object.
 
-        Uses the `_partitions` of an `Alignment` object to set the `_partitions`
+        Uses the `_partitions` of an `Alignment` object to set the `partitions`
         attribute of `AlignmentList`
 
         Parameters
@@ -4085,7 +4102,10 @@ class AlignmentList(Base):
 
         # Reset alignment_idx attribute to reflect the single concatenated
         # alignment
+        self.alignment_idx = OrderedDict()
         self.alignment_idx[1] = aln
+        self.alignments = OrderedDict()
+        self.alignments[aln.path] = aln
         # Reset the shelved_idx. After the concatenation, the file
         # no longer takes effect
         self.shelved_idx = []
@@ -5859,7 +5879,7 @@ class AlignmentList(Base):
 
         for taxon, seq, aln_idx in self.iter_alignments(table_name):
 
-            part_idx = 0
+            part_idx = 1
 
             for name, part_range in self.partitions:
 
@@ -6338,7 +6358,7 @@ class AlignmentList(Base):
                                     ns)
 
         missing_symbols = ["-", self.sequence_code[1]]
-        data = dict((taxon, []) for taxon in self.taxa_names)
+        data = OrderedDict((taxon, []) for taxon in self.taxa_names)
 
         self._set_pipes(ns, pbar, total=len(self.partitions.partitions))
         c = 1
@@ -6352,10 +6372,17 @@ class AlignmentList(Base):
         # Get data from variable columns
         ignore_locus = False
         prev_idx = ""
+        prev_tx = []
         for p, (tx_list, column, part_idx) in enumerate(self.iter_columns(
                 ".partitiondata", include_taxa=True, group_by="part")):
 
             if prev_idx != part_idx:
+
+                if prev_idx and ignore_locus:
+
+                    missing_tx = set(self.taxa_names) - set(prev_tx)
+                    for tx in missing_tx:
+                        data[tx].append("n")
 
                 ignore_locus = False
 
@@ -6363,6 +6390,7 @@ class AlignmentList(Base):
                 c += 1
 
                 prev_idx = part_idx
+                prev_tx = tx_list
 
             if ignore_locus:
                 continue
@@ -6387,6 +6415,12 @@ class AlignmentList(Base):
                         nuc = "n"
                     data[tx].append(nuc)
                 ignore_locus = True
+
+        if prev_idx:
+
+            missing_tx = set(self.taxa_names) - set(prev_tx)
+            for tx in missing_tx:
+                data[tx].append("n")
 
         # Get len of data
         data_len = len(data.values()[0])
@@ -6715,8 +6749,6 @@ class AlignmentList(Base):
                     self.format_ext[fmt]
 
             write_methods[fmt](suffix, filename, **kwargs)
-
-            print("?")
 
     def get_gene_table_stats(self, active_alignments=None, sortby=None,
                              ascending=True):

@@ -116,6 +116,10 @@ variable_data = [
     "trifusion/tests/data/variable_data3.phy"
 ]
 
+snapp_output = [
+    "trifusion/tests/data/snapp_outfile.nex"
+]
+
 gcode_data = [
     "trifusion/tests/data/gcoding.phy"
 ]
