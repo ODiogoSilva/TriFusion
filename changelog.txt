@@ -45,6 +45,8 @@ plotted [0.5.6].
 taxa sets [0.5.2].
 - Fixed issue when reverse concatenating directly from an incorrect partitions
 file [0.5.8].
+- Fixed issue when converting after specifying an output file for
+concatenation. [0.5.11]
 
 ### Statistics
 

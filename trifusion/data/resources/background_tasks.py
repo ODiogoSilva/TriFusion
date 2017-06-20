@@ -896,6 +896,10 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
     try:
 
+        # If concatenation was no specified, reset the output_file variable
+        if not main_operations["concatenation"]:
+            output_file = None
+
         aln_object = deepcopy(aln_list)
         # Restore database connections, since they are broken during the
         # deepcopy operation
