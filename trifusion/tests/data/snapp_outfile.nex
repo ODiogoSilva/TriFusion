@@ -1,0 +1,18 @@
+#NEXUS
+
+Begin data;
+	dimensions ntax=10 nchar=2 ;
+	format datatype=integer interleave=yes gap=- missing=N ;
+	matrix
+Seq10	00
+Seq9	00
+Seq8	00
+Seq3	00
+Seq2	01
+Seq1	22
+Seq7	02
+Seq6	02
+Seq5	00
+Seq4	00
+;
+	end;
