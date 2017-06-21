@@ -17,9 +17,13 @@ time [0.5.4].
 - Added option to invert selection of active Taxon/File buttons in the main
 side panel [0.5.6].
 - Greatly improved performance when importing partition scheme for large
-alignments [0.5.7]
+alignments [0.5.7].
 - Refactored Process backend to greatly improve performance of all operations,
-mainly when dealing with many input alignments. [0.5.10]
+mainly when dealing with many input alignments. [0.5.10].
+- New output format dialog design that informs which formats are available for
+main operations [0.5.11].
+- Added check and warning when selecting output formats that are not valid
+for the current main operation [0.5.11].
 
 ### Statistics
 

@@ -1232,6 +1232,16 @@ class SideLabel(Label):
     pass
 
 
+class InvalidFormatsWarning(BoxLayout):
+    """Warning dialog when selecting invalid formats for main operation
+
+    Dialog issued when selecting invalid output formats for the selected
+    main operation.
+    """
+
+    cancel = ObjectProperty(None)
+
+
 class LoadMoreBt(AnchorLayout):
     """
     Custom button widget for for the "load more button" in the side panel
