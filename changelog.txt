@@ -24,6 +24,7 @@ mainly when dealing with many input alignments. [0.5.10].
 main operations [0.5.11].
 - Added check and warning when selecting output formats that are not valid
 for the current main operation [0.5.11].
+- Several minor UI improvements [0.5.12].
 
 ### Statistics
 

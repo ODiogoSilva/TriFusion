@@ -1853,24 +1853,21 @@ class Alignment(Base):
 
         table_name = table_name if table_name else self.master_table
 
-        tx_idx = self.get_taxa_idx()
-
         try:
             # Locking mechanism necessary to avoid concurrency issues when
             # accessing the database. This ensures that only one Cursor
             # object is querying the database at any given time
             lock.acquire(True)
-            if taxon in tx_idx and \
-                    taxon not in self.shelved_taxa:
-                seq = self.cur.execute(
-                    "SELECT seq "
-                    "FROM [{}] "
-                    "WHERE txId=? "
-                    "AND aln_idx=?".format(table_name),
-                    (tx_idx[taxon], self.db_idx)).fetchone()[0]
-                return seq
-
-            else:
+            try:
+                if taxon not in self.shelved_taxa:
+                    seq = self.cur.execute(
+                        "SELECT seq "
+                        "FROM [{}] "
+                        "WHERE taxon=? "
+                        "AND aln_idx=?".format(table_name),
+                        (taxon, self.db_idx)).fetchone()[0]
+                    return seq
+            except TypeError:
                 raise KeyError
         finally:
             lock.release()
@@ -4028,6 +4025,9 @@ class AlignmentList(Base):
         # Defining empty alignment object
         aln_obj = None
 
+        self._set_pipes(ns, pbar, total=len(self.alignments))
+        c = 1
+
         prev_idx = ""
         for taxon, seq, aln_idx in self.iter_alignments(table_in):
 
@@ -4035,7 +4035,8 @@ class AlignmentList(Base):
             if aln_idx != prev_idx:
 
                 # Update progress
-                self._update_pipes(ns, pbar, value=c)
+                self._update_pipes(ns, pbar, value=c,
+                                   msg="Preparing concatenation data")
                 c += 1
 
                 # If prev_idx is already defined, it means this is the second
@@ -4109,6 +4110,8 @@ class AlignmentList(Base):
         # Reset the shelved_idx. After the concatenation, the file
         # no longer takes effect
         self.shelved_idx = []
+
+        self._reset_pipes(ns)
 
     def filter_min_taxa(self, min_taxa, ns=None, pbar=None):
         """Filters `alignments` by minimum taxa proportion.
@@ -5154,6 +5157,7 @@ class AlignmentList(Base):
                             int(aln_obj.locus_length),
                             len(master_gaps[prev_idx]) +
                             int(aln_obj.locus_length))
+                        aln_obj.locus_length += len(master_gaps[prev_idx])
 
                 aln_obj = self.alignment_idx[aln_idx]
 
@@ -5174,6 +5178,7 @@ class AlignmentList(Base):
                     int(aln_obj.locus_length),
                     len(master_gaps[aln_idx]) +
                     int(aln_obj.locus_length))
+                aln_obj.locus_length += len(master_gaps[prev_idx])
 
         if self._table_exists(table_out):
             self.cur.execute("DROP TABLE [{}];".format(table_out))
@@ -5564,15 +5569,15 @@ class AlignmentList(Base):
                 elif consensus_type == "Remove":
                     continue
 
-        if prev_idx:
-            aln_name = self.alignment_idx[aln_idx].name
-            final_seq = "".join(consensus_seq)
-            if single_file:
-                add_to_database(c - 1, aln_name, final_seq,
-                                final_idx, aln_name)
-            else:
-                add_to_database(0, "consensus", final_seq,
-                                final_idx, aln_name)
+            if prev_idx:
+                aln_name = self.alignment_idx[aln_idx].name
+                final_seq = "".join(consensus_seq)
+                if single_file:
+                    add_to_database(c - 1, aln_name, final_seq,
+                                    final_idx, aln_name)
+                else:
+                    add_to_database(0, "consensus", final_seq,
+                                    final_idx, aln_name)
 
         if self._table_exists(table_out):
             self.cur.execute("DROP TABLE [{}];".format(table_out))
@@ -5791,7 +5796,7 @@ class AlignmentList(Base):
 
         return part_map
 
-    def _get_interleave_data(self, table_name=None, ns_pipe=None,
+    def _get_interleave_data(self, table_name=None, ns=None,
                              pbar=None):
 
         if self.cur.execute(
@@ -5809,16 +5814,23 @@ class AlignmentList(Base):
             self.cur.execute("CREATE INDEX interindex ON "
                             "[.interleavedata](slice, aln_idx)")
 
-        prev_file = ""
-
         temp_cur = self.con.cursor()
 
+        self._set_pipes(ns, pbar, total=len(self.alignments))
+        c = 1
+
+        prev_file = ""
         for taxon, seq, aln_idx in self.iter_alignments(
                 table_name=table_name):
 
             if aln_idx != prev_file:
                 prev_file = aln_idx
                 aln_obj = self.alignment_idx[aln_idx]
+
+                self._update_pipes(ns, pbar, value=c,
+                                   msg="Creating interleave data for file "
+                                       "{}".format(aln_obj.name))
+                c += 1
                 
             counter = 0
 
@@ -5838,6 +5850,8 @@ class AlignmentList(Base):
             except UnboundLocalError:
                 temp_cur.execute("INSERT INTO [.interleavedata] VALUES "
                                  " (?, ?, ?, ?)", (taxon, seq, 0, aln_idx))
+
+        self._reset_pipes(ns)
 
         return True
 
@@ -5874,10 +5888,22 @@ class AlignmentList(Base):
 
         temp_cur = self.con.cursor()
 
+        self._set_pipes(ns, pbar, total=len(self.taxa_names),
+                        ignore_sa=True)
+        c = 1
+
         # Get corrected partition names for sqlite database
         part_map = self._get_part_names()
 
+        prev_tx = ""
         for taxon, seq, aln_idx in self.iter_alignments(table_name):
+
+            if prev_tx != taxon:
+
+                self._update_pipes(ns, pbar, value=c, ignore_sa=True,
+                                   msg="Preparing partition data")
+                c += 1
+                prev_tx = taxon
 
             part_idx = 1
 
@@ -5960,7 +5986,7 @@ class AlignmentList(Base):
         # Stores the string of the last file
         prev_file = ""
 
-        self._set_pipes(ns, pbar, total=len(self.alignments))
+        self._set_pipes(ns, pbar, total=len(self.alignments), ignore_sa=True)
         c = 1
         
         for taxon, seq, aln_idx in self.iter_alignments(table_name):
@@ -5970,8 +5996,12 @@ class AlignmentList(Base):
                 fh, _ = self._setup_newfile(
                     fh, aln_idx, output_dir, suffix, output_file, ns)
 
-                self._update_pipes(ns, pbar, value=c,
-                                   msg="Writing files")
+                # Get Alignment object containing info of the current alignment
+                aln_obj = self.alignment_idx[aln_idx]
+
+                self._update_pipes(ns, pbar, value=c, ignore_sa=True,
+                                   msg="Writing Fasta file "
+                                       "{}".format(aln_obj.name))
                 c += 1
 
                 # If fh is set to None, the current file is set to skip
@@ -5980,9 +6010,6 @@ class AlignmentList(Base):
 
                 # Do stuff at the beginning of the file, before inserting
                 # Sequence data
-
-                # Get Alignment object containing info of the current alignment
-                aln_obj = self.alignment_idx[aln_idx]
 
                 # If LD HAT sub format has been specificed, write the first
                 # line containing the number of sequences, sites and
@@ -6068,6 +6095,9 @@ class AlignmentList(Base):
                 self.interleave_data = self._get_interleave_data(
                         table_name, ns, pbar)
 
+            self._set_pipes(ns, pbar, total=len(self.alignments))
+            c = 1
+
             for taxon, seq, p, aln_idx in self.cur.execute(
                 "SELECT taxon, seq, slice, aln_idx from [.interleavedata] "
                 "ORDER BY aln_idx, slice"):
@@ -6077,10 +6107,15 @@ class AlignmentList(Base):
                         fh, aln_idx, output_dir, suffix, output_file, ns)
                     prev_file = aln_idx
 
+                    aln_obj = self.alignment_idx[aln_idx]
+                    
+                    self._update_pipes(ns, pbar, value=c,
+                                       msg="Writing Phylip file "
+                                           "{}".format(aln_obj.name))
+                    c += 1
+
                     if not fh:
                         continue
-
-                    aln_obj = self.alignment_idx[aln_idx]
                     
                     self._write_phylip_partitions(aln_obj, partition_file,
                                                   of, model_phylip)
@@ -6109,6 +6144,9 @@ class AlignmentList(Base):
 
         else:
 
+            self._set_pipes(ns, pbar, total=len(self.alignments))
+            c = 1
+
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
 
                 if aln_idx != prev_file:
@@ -6120,6 +6158,11 @@ class AlignmentList(Base):
                         continue
 
                     aln_obj = self.alignment_idx[aln_idx]
+
+                    self._update_pipes(ns, pbar, value=c,
+                                       msg="Writing Phylip file "
+                                           "{}".format(aln_obj.name))
+                    c += 1
 
                     self._write_phylip_partitions(aln_obj, partition_file,
                                                   of, model_phylip)
@@ -6264,6 +6307,9 @@ class AlignmentList(Base):
                 self.interleave_data = self._get_interleave_data(
                         table_name, ns, pbar)
 
+            self._set_pipes(ns, pbar, total=len(self.alignments))
+            c = 1
+
             for taxon, seq, p, aln_idx in self.cur.execute(
                     "SELECT taxon, seq, slice, aln_idx "
                     "FROM [.interleavedata] "
@@ -6287,6 +6333,11 @@ class AlignmentList(Base):
 
                     aln_obj = self.alignment_idx[aln_idx]
 
+                    self._update_pipes(ns, pbar, value=c,
+                                       msg="Writing Nexus file "
+                                           "{}".format(aln_obj.name))
+                    c += 1
+
                     self._write_nexus_header(aln_obj, fh, gap, interleave)
 
                     prev = 90
@@ -6303,6 +6354,9 @@ class AlignmentList(Base):
                     seq.upper()))
 
         else:
+
+            self._set_pipes(ns, pbar, total=len(self.alignments))
+            c = 1
 
             for taxon, seq, aln_idx in self.iter_alignments(table_name):
 
@@ -6324,6 +6378,11 @@ class AlignmentList(Base):
 
                     aln_obj = self.alignment_idx[aln_idx]
 
+                    self._update_pipes(ns, pbar, value=c,
+                                       msg="Writing Nexus file "
+                                           "{}".format(aln_obj.name))
+                    c += 1
+
                     self._write_nexus_header(aln_obj, fh, gap, interleave)
 
                 if not fh:
@@ -6338,7 +6397,7 @@ class AlignmentList(Base):
                                              use_nexus_models,
                                              outgroup_list)
 
-        # When all files are skipeed, fh remains None
+        # When all files are skiped, fh remains None
         if fh:
             fh.close()
     
@@ -6360,14 +6419,15 @@ class AlignmentList(Base):
         missing_symbols = ["-", self.sequence_code[1]]
         data = OrderedDict((taxon, []) for taxon in self.taxa_names)
 
-        self._set_pipes(ns, pbar, total=len(self.partitions.partitions))
-        c = 1
-
         # Check if partition data has already been built in the database.
         # If not, create it
         if not self.partition_data:
             self.partition_data = self._get_partition_data(table_name, ns,
                                                            pbar)
+
+        self._set_pipes(ns, pbar, total=len(self.partitions.partitions),
+                        ignore_sa=True)
+        c = 1
 
         # Get data from variable columns
         ignore_locus = False
@@ -6378,6 +6438,11 @@ class AlignmentList(Base):
 
             if prev_idx != part_idx:
 
+                self._update_pipes(ns, pbar, value=c, ignore_sa=True,
+                                   msg="Processing partition "
+                                       "{}".format(part_idx))
+                c += 1
+
                 if prev_idx and ignore_locus:
 
                     missing_tx = set(self.taxa_names) - set(prev_tx)
@@ -6385,9 +6450,6 @@ class AlignmentList(Base):
                         data[tx].append("n")
 
                 ignore_locus = False
-
-                self._update_pipes(ns, pbar, value=c)
-                c += 1
 
                 prev_idx = part_idx
                 prev_tx = tx_list
@@ -6446,6 +6508,9 @@ class AlignmentList(Base):
         # Stores the string of the last file
         prev_file = ""
 
+        self._set_pipes(ns, pbar, total=len(self.alignments))
+        c = 1
+
         for taxon, seq, aln_idx in self.iter_alignments(table_name):
 
             if aln_idx != prev_file:
@@ -6456,6 +6521,12 @@ class AlignmentList(Base):
                 prev_file = aln_idx
                 fh, _ = self._setup_newfile(
                     fh, aln_idx, output_dir, suffix, output_file, ns)
+
+                aln_obj = self.alignment_idx[aln_idx]
+                self._update_pipes(ns, pbar, value=c,
+                                   msg="Writing Stockholm file "
+                                       "{}".format(aln_obj.name))
+                c += 1
 
                 fh.write("# STOCKHOLM V1.0\n")
 
@@ -6481,6 +6552,10 @@ class AlignmentList(Base):
             self.partition_data = self._get_partition_data(table_name, ns,
                                                            pbar)
 
+        self._set_pipes(ns, pbar, total=len(self.partitions.partitions),
+                        ignore_sa=True)
+        c = 1
+
         # Stores the string of the last file
         prev_idx = ""
         prev_part = ""
@@ -6502,6 +6577,12 @@ class AlignmentList(Base):
 
             # Write partition header at the beginning
             if prev_part != pidx:
+
+                self._update_pipes(ns, pbar, value=c, ignore_sa=True,
+                                   msg="Writing G-PhoCS partition "
+                                       "{}".format(pname))
+                c += 1
+
                 fh.write("\n{} {} {}\n".format(
                     pname,
                     len(self.partition_count[pname][0]),
@@ -6550,6 +6631,10 @@ class AlignmentList(Base):
             self.partition_data = self._get_partition_data(table_name, ns,
                                                            pbar)
 
+        self._set_pipes(ns, pbar, total=len(self.partitions.partitions),
+                        ignore_sa=True)
+        c = 1
+
         # Stores the string of the last file
         prev_idx = ""
         prev_part = ""
@@ -6575,6 +6660,11 @@ class AlignmentList(Base):
                 prev_idx = aln_idx
 
             if prev_part != pidx:
+
+                self._update_pipes(ns, pbar, value=c, ignore_sa=True,
+                                   msg="Writing IMa2 partition "
+                                       "{}".format(pname))
+                c += 1
 
                 # Get number of members for each population for the current
                 # partition
@@ -6615,6 +6705,10 @@ class AlignmentList(Base):
             self.partition_data = self._get_partition_data(table_name, ns,
                                                            pbar)
 
+        self._set_pipes(ns, pbar, total=len(self.partitions.partitions),
+                        ignore_sa=True)
+        c = 1
+
         # Stores the string of the last file
         prev_idx = ""
         prev_part = ""
@@ -6632,6 +6726,11 @@ class AlignmentList(Base):
                     continue
 
             if prev_part != pidx:
+
+                self._update_pipes(ns, pbar, value=c, ignore_sa=True,
+                                   msg="Writing MCMCTree partition "
+                                       "{}".format(pname))
+                c += 1
 
                 fh.write("{} {}\n".format(
                     len(self.partition_count[pname][0]),

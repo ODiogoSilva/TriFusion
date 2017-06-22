@@ -9382,6 +9382,8 @@ class TriFusionApp(App):
                         "name. You may leave empty."
             else:
                 title_map["main_output"] = "Choose output file"
+                if self.output_file:
+                    content.ids.text_input.text = basename(self.output_file)
 
         # Custom behaviour for orthology output directory
         elif idx == "ortho_dir":
