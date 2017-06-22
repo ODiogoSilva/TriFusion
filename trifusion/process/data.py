@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-#  
+#
 #  Copyright 2012 Unknown <diogo@arch>
 #  
 #  This program is free software; you can redistribute it and/or modify
@@ -41,30 +41,51 @@ class InvalidPartitionFile(Exception):
 
 
 class Partitions(object):
-    """
-    The Partitions class is used to define partitions for Alignment objects and
-    associate substitution models for each partition. Partitions may be set
-    in two ways:
+    """Alignment partitions interface for `Alignment` and `AlignmentList`.
 
-    ..: Partition files: Being Nexus charset blocks and RAxML partition files
-    currently supported
-    ..: Tuple-like objects: Containing the ranges and names of the partitions
+    The Partitions class is used to define partitions for `Alignment`
+    and `AlignmentList` objects and associate substitution models to
+    each partition. After instantiating, partitions may be set in two ways:
 
-    A SubstitutionModels object will be associated to each partition, and by
-    default there will be no substitution model selected.
+      - Partition files: Being Nexus charset blocks and RAxML partition files
+        currently supported
+      - Tuple-like objects: Containing the ranges and names of the partitions
+
+    Attributes
+    ----------
+    partition_length : int
+        Length of the total partitions.
+    partitions : OrderedDict
+        Storage of partition names (key) and their range (values).
+    partitions_index : list
+        The index (starting point) for each partition, including codon
+        partitions.
+    partitions_alignments : OrderedDict
+        Storage of the partition names (key) and their corresponding
+        alignment files (values).
+    alignments_range : OrderedDict
+        Storage of the alignment names (key) and their range (values).
+    models : OrderedDict
+        Storage of partition names (key) and their models (values).
+    merged_files : dict
+        Storage of the original range (values) of every alignment file (key).
+    counter : int
+        Indicator of where the last partition ended.
+    partition_format : str
+        Format of the original partition file, if any.
     """
 
     _models = {"mrbayes": {}}
 
-    #===========================================================================
+    # =========================================================================
     #   MrBayes models
-    #===========================================================================
+    # =========================================================================
     """
-    MrBayes substitution models are stored in the dictionary _models["mrbayes"].
-    The keys of the dictionary are the name of the substitution models (usually
-    in capital letters) and the values will contain the instructions to
-    specific such model in a list. Each element of the list corresponds to one
-    line
+    MrBayes substitution models are stored in the dictionary
+    _models["mrbayes"]. The keys of the dictionary are the name of the
+    substitution models (usually in capital letters) and the values will
+    contain the instructions to specific such model in a list. Each element
+    of the list corresponds to one line
     """
 
     # GTR
@@ -86,34 +107,24 @@ class Partitions(object):
     _models["mrbayes"]["JC"] = ["nst=1", "statefreqpr=fixed(equal)"]
 
     def __init__(self):
-        """
-        Setting the self._partitions private attribute. This will contain an
-        ordered dictionary with the partition names as keys and information on
-        their range and substitution model object as values. The ranges will be
-        in tuple format with the initial position as the first element and
-        final position as the second element
 
-        e.g. self.partitions["GeneA"] = [(0, 953), SubstitutionModels]
-        Defines the partition GeneA whose sequence spans from 0 to the 953rd
-        character
-        """
-
+        self.partition_length = 0
         """
         The length of the locus may be necessary when partitions are defined
         in the input files using the "." notation, meaning the entire locus.
         Therefore, to convert this notation into workable integers, the size
         of the locus must be provided using the set_length method.
         """
-        self.partition_length = 0
 
+        self.partitions = OrderedDict()
         """
         partitions will contain the name and range of the partitions for a given
         alignment object. Both gene and codon partitions will be stored in this
         attribute, but gene partitions are the main entries. An example of
-        different stored partitions is:
+        different stored partitions is::
 
-        partitions = {"partitionA": ((0, 856), False),
-                      "partitionB": ((857, 1450), [857,858,859] }
+            partitions = {"partitionA": ((0, 856), False),
+                          "partitionB": ((857, 1450), [857,858,859] }
 
         "partitionA" is a simple gene partition ranging from 0 to 856, while
         "partitionB" is an assembly of codon partitions. The third element of
@@ -123,8 +134,8 @@ class Partitions(object):
         actually 3 partitions starting at the first, second and third sequence
         nucleotide of the main partition.
         """
-        self.partitions = OrderedDict()
 
+        self.partitions_index = []
         """
         partitions_index will remember the index of all added partitions. This
         attribute was created because codon models are added to the same parent
@@ -134,42 +145,41 @@ class Partitions(object):
         their index, or searched to return their index. To better support codon
         partitions, each entry in the partitions_index will consist in a list,
         in which the first element is the partition name, and the second element
-        is the index of the subpartition. An example would be:
+        is the index of the subpartition. An example would be::
 
-        self.partitions_index = [["partA", 0], ["partA", 1], ["partA", 2],
-                                 ["partB", 0]]
+            partitions_index = [["partA", 0], ["partA", 1], ["partA", 2],
+                                ["partB", 0]]
 
         in which, partA has 3 codon partitions, and partB has only one partition
 
         """
-        self.partitions_index = []
 
+        self.partitions_alignments = OrderedDict()
         """
         The partitions_alignments attribute will associate the partition with
         the corresponding alignment files. For single alignment partitions,
-        this will provide information on the file name. For multiple alignments,
-        besides the information of the file names, it will associate which
-        alignments are contained in a given partition and support multi
-        alignment partitions. An example would be:
+        this will provide information on the file name. For multiple
+        alignments, besides the information of the file names, it will
+        associate which alignments are contained in a given partition and
+        support multi alignment partitions. An example would be::
 
-        self.partitions_alignments = {"PartitionA": ["FileA.fas"],
-                                      "PartitionB": ["FileB.fas", "FileC.fas"]}
-
-        """
-
-        self.partitions_alignments = OrderedDict()
+            partitions_alignments = {"PartitionA": ["FileA.fas"],
+                                     "PartitionB": ["FileB.fas", "FileC.fas"]}
 
         """
-        """
+
         self.alignments_range = OrderedDict()
+        """
+        """
 
+        self.models = OrderedDict()
         """
         The self.models attribute will contain the same key list as
         self.partitions and will associate the substitution models to each
-        partitions. For each partition, the format should be as follows:
+        partitions. For each partition, the format should be as follows::
 
-        self.models["partA"] = [[[..model_params..]],[..model_names..],
-                                ["12", "3"]]
+            models["partA"] = [[[..model_params..]],[..model_names..],
+                               ["12", "3"]]
 
         The first element is a list that may contain the substitution model
         parameters for up to three subpartitions, the second element is also
@@ -177,43 +187,48 @@ class Partitions(object):
         the third list will store any links between models
         """
 
-        self.models = OrderedDict()
-
+        self.merged_files = {}
         """
         This attribute will keep a record of the original ranges of every file
         that was merged. This is useful to split partitions according to files
-        or to undo any changes. Each entry should be
+        or to undo any changes. Each entry should be::
 
-        {"alignment_file1": (0, 1234), "alignment_file2": (3444, 6291)}
+            {"alignment_file1": (0, 1234), "alignment_file2": (3444, 6291)}
         """
 
-        self.merged_files = {}
-
+        self.counter = 0
         """
         The counter attribute will be used as an indication of where the last
         partition ends when one or more partitions are added
         """
-        self.counter = 0
 
         self.partition_format = None
 
     def __iter__(self):
-        """
+        """Iterator behavior for `Partitions`.
+
         The class iterator will iterate over a list containing the partition
         names and a modified version of their ranges that is compatible with
-        names and a modified version of their ranges that is compatible with
         other software (unlike the 0 offset of python)
-        :return:
+
+        Returns
+        _ : iter
+            Iterator of `partitions.items()`.
         """
 
         return iter(self.partitions.items())
 
     def reset(self, keep_alignments_range=False):
-        """
-        Clears partitions and resets object to __init__ state
-        :param keep_alignments_range: boolean.If True, the alignments_range
-        attribute will not reverse to the init stats
-        :return:
+        """Clears partitions and attributes
+
+        Clears partitions and resets object to __init__ state. The original
+        alignment range can be retained by setting the `keep_alignments_range`
+        argument to True.
+
+        Parameters
+        ----------
+        keep_alignments_range : bool
+            If True, the `alignments_range` attribute will not be reset.
         """
 
         self.partitions = OrderedDict()
@@ -225,15 +240,27 @@ class Partitions(object):
             self.alignments_range = OrderedDict()
 
     def iter_files(self):
+        """Iterates over `partitions_alignments.items()`.
+
+        Returns
+        -------
+        _ : iter
+            Iterator of `partitions_alignments.items()`.
+        """
 
         return iter(self.partitions_alignments.items())
 
     def set_length(self, length):
-        """
+        """Set total length of current locus (over all partitions).
+
         Sets the length of the locus. This may be important to convert certain
         partition defining nomenclature, such as using the "." to indicate
         whole length of the alignment
-        :param length: int. Length of the alignments
+
+        Parameters
+        ----------
+        length : int
+            Integer that will be set as `partition_length`.
         """
 
         self.partition_length = length
@@ -244,8 +271,14 @@ class Partitions(object):
 
     @staticmethod
     def _get_file_format(partition_file):
-        """ Tries to guess the format of the partition file (Whether it is
-         Nexus of RAxML's) """
+        """Guesses the format of the partition file (Nexus or RAxML's).
+
+        Returns
+        -------
+        partition_format : str
+            Format of the partition file ("nexus" or "raxml").
+        """
+
         file_handle = open(partition_file)
 
         # Skips first empty lines, if any
@@ -262,15 +295,24 @@ class Partitions(object):
         return partition_format
 
     def read_from_file(self, partitions_file):
-        """
-        This function parses a file containing partitions. Supports
+        """Parses partitions from file
+
+        This method parses a file containing partitions. It supports
         partitions files similar to RAxML's and NEXUS charset blocks. The
         NEXUS file, however, must only contain the charset block. The
         model_nexus argument provides a namespace for the model variable in
         the nexus format, since this information is not present in the file.
-        However, it assures consistency on the Partition object
-        :param partitions_file: string, file name of the file containing the
-        partitions
+        However, it assures consistency on the Partition object.
+
+        Parameters
+        ----------
+        partitions_file : str
+            Path to partitions file.
+
+        Raises
+        ------
+        PartitionException
+            When one partition definition cannot be parsed.
         """
 
         # Resets previous partitions (except alignments_range)
@@ -281,14 +323,14 @@ class Partitions(object):
 
         part_file = open(partitions_file)
 
-        # In order to support unosrted partition ranges, the complete
+        # In order to support unsorted partition ranges, the complete
         # partition set will be stored temporary in memory. Even very large
         # partition files should result in relatively small data structures.
         # Once this variable is populated, it will be sorted according to the
         # first element of the range.
         temp_ranges = []
 
-        # TODO: Add suport for codon partitions in raxml format
+        # TODO: Add support for codon partitions in raxml format
         if self.partition_format == "raxml":
             for p, line in enumerate(part_file):
 
@@ -301,8 +343,6 @@ class Partitions(object):
                 # handle that exception
                 try:
                     fields = line.split(",")
-                    # Get model name as string
-                    #model_name = fields[0]
                     # Get partition name as string
                     partition_name = fields[1].split("=")[0].strip()
                     # Get partition range as list of int
@@ -336,8 +376,7 @@ class Partitions(object):
                         try:
                             file_name = \
                                 [x for x, y in self.alignments_range.items() if
-                                 partition_range[0] in xrange(*y) and
-                                 partition_range[1] - 1 in xrange(*y)][0]
+                                 y[0] <= partition_range[0] < y[1]][0]
                         except IndexError:
                             file_name = None
                     else:
@@ -377,10 +416,18 @@ class Partitions(object):
 
     def read_from_nexus_string(self, nx_string, file_name=None,
                                return_res=False):
-        """
-        Parses the partition defined in a charset command
-        :param nx_string: string with the charset command.
-        :param file_name: string. Name of the current file name
+        """Parses a single nexus string with partition definition.
+
+        Parameters
+        ----------
+        nx_string : str
+            String with partition definition
+        file_name : str, optional
+            String with name of the file corresponding to the partition.
+        return_res : bool
+            If True, it will only return the parsed partition information.
+            If False, it will add the parsed partition to the `Partitions`
+            object.
         """
 
         try:
@@ -429,11 +476,14 @@ class Partitions(object):
                 pass
 
     def get_partition_names(self):
-        """
-        :return: list containing the names of the partitions. When a parent
-        partition has multiple codon partitions, it returns a partition name
-        for every codon starting position present in the second element
-        of the value
+        """Returns a list with the name of the partitions
+
+        Returns
+        -------
+        names : list
+            List with names of the partitions. When a parent
+            partition has multiple codon partitions, it returns a partition
+            name for every codon starting position present.
         """
 
         names = []
@@ -447,16 +497,24 @@ class Partitions(object):
         return names
 
     def read_from_dict(self, dict_obj):
-        """
+        """Reads partition information from a dict object
+
         Parses partitions defined and stored in a special OrderedDict. The
-        values of dict_obj should be the partition names and their corresponding
-        values should contain the loci range and substitution model, if any
+        values of dict_obj should be the partition names and their
+        corresponding values should contain the loci range and substitution
+        model, if any.
 
-        Example
+        Parameters
+        ----------
+        dict_obj : OrderedDict
+            Ordered dictionary with the definition of the partitions
 
-        dict_obj = OrderedDict(("GeneA", [(0,234), "GTR"]), ("GeneB", [(235,
-                                865), "JC"))
-        :param dict_obj: And OrderedDict object
+        Examples
+        --------
+        Here is an example of a `dict_obj`::
+
+            dict_obj = OrderedDict(("GeneA", [(0,234), "GTR"]),
+                                   ("GeneB", [(235, 865), "JC"))
         """
 
         for k, v in dict_obj:
@@ -468,9 +526,14 @@ class Partitions(object):
                 self.add_partition(k, locus_range=v[0])
 
     def is_single(self):
-        """
-        :return: Boolean. Returns True is there is only a single partition
-        defined, and False if there are multiple partitions
+        """Returns whether the current `Partitions` has single or multiple
+        partitions.
+
+        Returns
+        -------
+            _ : bool
+            Returns True is there is only a single partition defined,
+            and False if there are multiple partitions.
         """
 
         if len(self.partitions) == 1:
@@ -482,10 +545,19 @@ class Partitions(object):
             return False
 
     def _find_parent(self, max_range):
-        """
-        Internal method that finds a parent partition of a codon partition
-        :param max_range: The maximum range of the codon partition
-        :return: The name of the parent partition, from self.partitions
+        """Finds the parent partition from a specified range.
+
+        Finds a parent partition of a codon partition.
+
+        Parameters
+        ----------
+        max_range : int
+            The maximum range of the codon partition.
+
+        Returns
+        -------
+        part : str
+            The name of the parent partition, from the `partitions` attribute.
         """
 
         for part, vals in self.partitions.items():
@@ -496,32 +568,46 @@ class Partitions(object):
     def add_partition(self, name, length=None, locus_range=None, codon=False,
                       use_counter=False, file_name=None, model_cls=None,
                       auto_correct_name=True):
-        """
+        """Adds a new partition.
+
         Adds a new partition providing the length or the range of current
         alignment. If both are provided, the length takes precedence.The range
         of the partition should be in python index, that is, the first position
         should be 0 and not 1.
-        :param name: string. Name of the alignment
-        :param length: int. Length of the alignment
-        :param locus_range: list/tuple. Range of the partition
-        :param codon: If the codon partitions are already defined, provide the
-        starting points in list format, e.g: [1,2,3]
-        :param file_name: string. If the file name is not provided by the name
-        argument (which is instead the name of a partition), use this argument.
-        :param model_cls: list. A model value from another partition object
-        :param auto_correct_name: bool. If True, when a duplicate partition
-        appears, a counter will be appended to the original name until the name
-        is unique. If False, raises an exception.
 
+        Parameters
+        ----------
+        name : str
+            Name of the partition.
+        length : int, optional
+            Length of the alignment.
+        locus_range : list or tuple, optional
+            Range of the partition.
+        codon : list
+            If the codon partitions are already defined, provide the
+            starting points in list format, e.g: [1,2,3].
+        use_counter : bool
+            If True, `locus_range` will be updated according to the `counter`
+            attribute.
+        file_name : str
+            Name of the alignment file.
+        model_cls :
+            Specified the substitution model that will be set in `models`.
+        auto_correct_name : bool
+            If set to True, when a partition name already exist, add a counter
+            to the end of the name.
+
+        Notes
+        -----
         IMPORTANT NOTE on self.model: The self.model attribute was designed
         in a way that allows the storage of different substitution models
         inside the same partition name. This is useful for codon partitions that
         share the same parent partition name. So, for example, a parent
         partition named "PartA" with 3 codon partitions can have a different
-        model for each one like this:
+        model for each one like this::
 
-        self.models["PartA"] = [[[..model1_params..], [..model2_params..],
-            [..model3_params..]], [GTR, GTR, GTR], ["1", "2", "3"]]
+            self.models["PartA"] = [[[..model1_params..], [..model2_params..],
+                [..model3_params..]], [GTR, GTR, GTR], ["1", "2", "3"]]
 
         """
 
@@ -657,16 +743,26 @@ class Partitions(object):
                 self.counter = locus_range[1] + 1
                 self.partition_length = locus_range[1] + 1
 
-    def remove_partition(self, partition_name=None, file_name=None):
-        """
+    def remove_partition(self, partition_name=None, file_name=None,
+                         file_list=None, ns=None):
+        """Removes partitions.
+
         Removes a partitions by a given partition or file name. This will
         handle any necessary changes on the remaining partitions. The changes
         will be straightforward for most attributes, such as partitions_index,
         partitions_alignments and models, but it will require a re-structuring
         of partitions because the ranges of the subsequent partitions will
         have to be adjusted.
-        :param partition_name: string. Name of the partition
-        :param file_name: string. Name of file
+
+        Parameters
+        ----------
+        partition_name : str
+            Name of the partition.
+        file_name : str
+            Name of the alignment file.
+        ns : multiprocesssing.Manager.Namespace
+            A Namespace object used to communicate with the main thread
+            in TriFusion.
         """
 
         def rm_part(nm):
@@ -675,12 +771,14 @@ class Partitions(object):
             the remaining partitions
             """
 
-            del self.partitions[nm]
+            for i in nm:
+                del self.partitions[i]
 
             new_dic = OrderedDict()
 
             counter = 0
-            for nm, vals in self.partitions.items():
+            for p, (nm, vals) in enumerate(self.partitions.items()):
+
                 # Check if the starting position of the next partition is the
                 # same as the counter. If so, add the vals to the new dict.
                 # Else, correct the ranges based on the counter
@@ -709,15 +807,20 @@ class Partitions(object):
             argument, or with the file_name argument when the partition only
             contains that file name
             """
-            # Remove partition from partition_index
-            self.partitions_index = [x for x in self.partitions_index if x[0] !=
-                                     part_name]
 
-            # Remove partitions_alignments
-            del self.partitions_alignments[part_name]
+            if not isinstance(part_name, list):
+                part_name = [part_name]
 
-            # Remove models
-            del self.models[part_name]
+            for p in part_name:
+                # Remove partition from partition_index
+                self.partitions_index = [
+                    x for x in self.partitions_index if x[0] != p]
+
+                # Remove partitions_alignments
+                del self.partitions_alignments[p]
+
+                # Remove models
+                del self.models[p]
 
             # Remove from partitions
             self.partitions = rm_part(part_name)
@@ -729,6 +832,17 @@ class Partitions(object):
                                          partition_name)
 
             remove_routine(partition_name)
+
+        if file_list:
+
+            part_list = []
+            for part, fl in self.partitions_alignments.items():
+                if any((x for x in fl if x in file_list)):
+                    part_list.append(part)
+
+            # Not this, will remove a partition containing multiple alignments
+            # if at least one is in the file_list argument
+            remove_routine(part_list)
 
         if file_name:
 
@@ -752,10 +866,14 @@ class Partitions(object):
                                          "partition" % file_name)
 
     def change_name(self, old_name, new_name):
-        """
-        Changes the name of a single partition
-        :param old_name: string, original partition name
-        :param new_name: string, new partition name
+        """Changes name of a partition.
+
+        Parameters
+        ----------
+        old_name : str
+            Original partition name.
+        new_name : str
+            New partition name.
         """
 
         self.partitions[new_name] = self.partitions.pop(old_name)
@@ -764,10 +882,14 @@ class Partitions(object):
         self.models[new_name] = self.models.pop(old_name)
 
     def merge_partitions(self, partition_list, name):
-        """
-        Merge multiple partitions into a single one with name
-        :param partition_list: list with partition names to be merged
-        :param name: string with name of new partition
+        """Merges multiple partitions into a single one.
+
+        Parameters
+        ----------
+        partition_list : list
+            List with partition names to be merged.
+        name : str
+            Name of new partition
         """
 
         def merger(ranges):
@@ -826,15 +948,20 @@ class Partitions(object):
             del self.models[p]
 
     def split_partition(self, name, new_range=None, new_names=None):
-        """
-        Splits a partitions with name into two with the tuple list provided by
-        new_range. If new_range is None, This will split the partition by its
-        alignment files instead.
-        :param name: string, name of the partition to be split
-        :param new_range: list of 2 tuples, containing the new ranges for the
-        splited partitions
-        :param new_names: list of 2 strings, containing the new names of the
-        splited partitions
+        """Splits one partition into two.
+
+        Splits a partitions with `name` into two with the tuple list provided
+        by `new_range`. If new_range is None, This will split the partition
+        by its alignment files instead.
+
+        Parameters
+        ----------
+        name : str
+            Name of the partition to be split.
+        new_range : list or tuple, optional
+            List of two tuples, containing the ranges of the new partitions.
+        new_names : list, optional
+            The names of the new partitions.
         """
 
         if new_range:
@@ -868,9 +995,12 @@ class Partitions(object):
     # ==========================================================================
 
     def parse_nexus_model(self, string):
-        """
-        Parses a substitution model defined in a prset and/or lset command
-        :param string: string with the prset or lset command
+        """Parses a substitution model defined in a prset and/or lset command.
+
+        Parameters
+        ----------
+        string : str
+            String with the prset or lset command.
         """
 
         string = string.lower()
@@ -903,9 +1033,17 @@ class Partitions(object):
                     self.models[part_name][0][part_subpart] += params
 
     def get_model_name(self, params):
-        """
-        Given a list of parameters, this will try to return the name of the
-        model
+        """Given a list of parameters, return the name of the model
+
+        Parameters
+        ----------
+        p : list
+            List of prset/lset parameters
+
+        Returns
+        -------
+        model : str or None
+            Returns the name of the model if it finds. Else, returns None.
         """
 
         for model, p in self._models["mrbayes"].items():
@@ -915,16 +1053,21 @@ class Partitions(object):
             return None
 
     def set_model(self, partition, models, links=None, apply_all=False):
-        """
-        Sets model (either single or for codon positions) for a given partition
-        :param partition: string, partition name
-        :param models: list, containing the model names for each of the three
-        codon partitions
-        :param links: list, containing potential links between codon models. For
-        example, if codon 1 and 2 are to be linked, it should be:
-        links=["12", "3"]
-        :param apply_all: boolean, whether the current model will be applied to
-        all partitions or not
+        """Sets substitution model for a given partition.
+
+        Parameters
+        ----------
+        partition : str
+            Partition name.
+        models : list
+            Model names for each of the three codon partitions. If there
+            are no codon partitions, provide only a single element to the list.
+        links : list
+            Provide potential links between codon models. For
+            example, if codon 1 and 2 are to be linked, it should be:
+            links=["12", "3"]
+        apply_all : bool
+            If True, the current model will be applied to all partitions.
         """
 
         # Get list with partitions to be changed
@@ -956,9 +1099,22 @@ class Partitions(object):
                 self.models[p][2] = links
 
     def write_to_file(self, output_format, output_file, model="LG"):
-        """ Writes the Partitions object into an output file according to the
-         output_format. The supported output formats are RAxML and Nexus.
-         9The model option is for the RAxML format """
+        """Writes partitions to a file.
+
+        Writes the Partitions object into an output file according to the
+        output_format. The supported output formats are RAxML and Nexus. The
+        `model` option is for the RAxML format only.
+
+        Parameters
+        ----------
+        output_format : str
+            Output format of partitions file. Can be either "nexus" or
+            "raxml".
+        output_file : str
+            Path to output file.
+        model : str
+            Name of the model for the partitions. "raxml" format only.
+        """
 
         if output_format == "raxml":
             outfile_handle = open(output_file + ".part.File", "w")
@@ -983,16 +1139,21 @@ class Partitions(object):
 
 
 class Zorro(object):
+    """
+    Class that handles the concatenation of zorro weights.
+
+    Parameters
+    ----------
+    alignment_list : trifusion.process.sequence.AlignmentList
+        AlignmentList object.
+    suffix : str
+        Suffix of the zorro weight files, based on the corresponding
+        input alignments.
+    zorro_dir : str
+        Path to directory where zorro weight files are stored.
+    """
 
     def __init__(self, alignment_list, suffix="_zorro.out", zorro_dir=None):
-        """
-        :param alignment_list: AlignmentList object
-        :param suffix: sting. The suffix that should be appended to the name of each
-        inut alignment file to match the ZORRO weight file
-        :param zorro_dir: String. If None, the directory of the ZORRO files will be the
-        same as the input files. If a string is provided, then use the ZORRO weight
-        files in the specified path.
-        """
 
         self.weigth_values = []
         self.suffix = suffix
@@ -1012,7 +1173,7 @@ class Zorro(object):
 
     def write_to_file(self, output_file):
         """ Creates a concatenated file with the zorro weights for the
-        corresponding alignment files """
+        corresponding alignment files."""
         outfile = output_file + "_zorro.out"
         outfile_handle = open(outfile, "w")
         for weigth in self.weigth_values:

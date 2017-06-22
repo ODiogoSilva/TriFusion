@@ -1,3 +1,141 @@
+"""
+How to use background tasks
+===========================
+
+Tasks that are too time consuming to be executed in TriFusion's main thread
+are defined here. These functions should be called from
+:class:`~trifusion.app.TriFusionApp` in a `threading.Thread` object. These
+functions must rely on `multiprocessing.Namespace` and `Queue.Queue` objects
+to transfer data between the worker and main thread.
+
+Generic creation of background tasks in :class:`~trifusion.app.TriFusionApp`
+----------------------------------------------------------------------------
+
+Any method in :class:`~trifusion.app.TriFusionApp` can start a task in a
+worker thread, provided it follows a few guidelines described below.
+However, for most cases, there is already a
+:meth:`~trifusion.app.TriFusionApp.run_in_background` method that greatly
+facilitates this process::
+
+    def run_in_background(self, func, second_func, args1, args2=None,
+                          no_arg2=False, msg="Crunching data...",
+                          cancel=True):
+
+Suppose you have defined a function (`my_func`) in
+:mod:`~trifusion.data.resources.background_tasks` that is meant to run in the
+background. This function may take any number of arguments, but in this
+example it takes only one. To execute this function in the background,
+simply call :meth:`~trifusion.app.TriFusionApp.run_in_background` like this::
+
+    run_in_background(my_func, None, args1=[my_arg])
+
+This is the simplest example. In many cases `my_func` may return something,
+and we may want to feed that something into another callback in the main
+thread to update application structures or to perform any other task. This
+can be easily accomplished with this method using the `second_func`
+and `args2` arguments::
+
+    run_in_background(my_func, my_callback, args1=[my_arg], args2=[other_arg])
+
+In this case, the object returned by `my_func` will be passed directly
+to `my_callback`. Since we also defined arguments to `my_callback`, the
+argument list will be merged before calling `my_callback`. It's important
+to note that `my_callback` is being called from the main thread, which
+means that is can change application structures, but it can also freeze the
+application window if it's too intensive.
+
+Custom creation of background tasks
+-----------------------------------
+
+A :class:`~trifusion.app.TriFusionApp` method that need to executed some
+functio in the background must follow some guidelines to ensure that
+it will start and end properly.
+
+Use a `Thread` object
+~~~~~~~~~~~~~~~~~~~~~
+
+A worker thread can be initiated like::
+
+        p = threading.Thread(target=background_process,
+                             args=(func, shared_ns, args1))
+        p.start()
+
+The background task is provided in the `target` argument, and any
+potential arguments in the `args` argument.
+
+Create and launch a waiting dialog
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While the background task is being executed, a dialog of some sort should
+be created in the main thread and ideally show some progress. Any
+custom dialog can be created, but a general
+:class:`~trifusion.data.resources.custom_widgets.CrunchData` dialog is already
+available::
+
+    content = CrunchData()
+    # Add a custom message
+    content.ids.msg.text = msg
+    # Create popup with waiting dialog
+    self.show_popup(title="", content=content, size=size,
+                    separator_color=(0, 0, 0, 0),
+                    border_color=tm.c_popup_border,
+                    auto_dissmiss=False)
+
+Schedule function that checks the worker thread's pulse
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to check the pulse of the worker thread and/or receive information
+from it while it's busy, a function can be scheduled to be called at
+regular intervals using kivy's `Clock` object::
+
+    # Schedule function that checks the process' pulse
+    check_func = partial(check_process_status, p, shared_ns)
+    Clock.schedule_interval(check_func, .1)
+
+The `check_process_status` function may execute anything, like checking
+the `Namespace` or `Queue` objects of the worker thread to update the
+progress. The most important thing, however, is to check if the worker
+thread is alive, and if not, unschedule itself, close the waiting popup,
+join the thread, close any connections and relevant objects::
+
+    def check_process_stats(self, p, shared_ns):
+
+        if not p.is_alive():
+            Clock.unschedule(check_func)
+            self.dismiss_popup()
+            p.join()
+
+If the function in the worker thread returns some object, this woul be
+the place to get that object and pass it to another callback::
+
+    def check_process_stats(self, p, shared_ns):
+
+        if not p.is_alive():
+
+            obj = queue.get()
+            self.my_callback(obj)
+
+            Clock.unschedule(check_func)
+            self.dismiss_popup()
+            p.join()
+
+Add a kill switch
+~~~~~~~~~~~~~~~~~
+
+Whenever possible, it's desirable to add a kill switch to the
+`check_process_status` function, which changes the `Namespace.stop` attribute
+to True, signaling the worker thread to stop::
+
+    def check_process_stats(self, p, shared_ns):
+
+        if self.terminate_background:
+            shared_ns.stop = True
+            time.sleep(1)
+            self.dismiss_popup()
+            Clock.unschedule(check_func)
+
+"""
+
 try:
     from process import data
     from process.error_handling import KillByUser,\
@@ -24,22 +162,19 @@ import time
 import os
 os.environ["KIVY_NO_ARGS"] = "1"
 
-"""
-Tasks that are executed in a background process are placed here and called
-from the App class in TriFusion.py. The reason for this is that
-multiprocessing in Windows does not rely on os.fork to spawn a new process
-child with shared memory maps with the parent. Instead it relies on pickle to
-transfer data. This reliance on pickle prevents application methods from being
-sent to the background process because pickle cannot handle class methods.
-The solution was to define the functions outside the App class and provide
-them with the necessary arguments upon calling.
-"""
-
 
 def remove_tmp(temp_dir, sql_con):
-    """
-    Removes all temporary files in temp directory
-    :param temp_dir: string, path to trifusion's temporary directory
+    """Removes TriFusion's temporary directory and closes sqlite connection.
+
+    Removes the temporary directory and all its contents and closes
+    the connection to the sqlite database.
+
+    Parameters
+    ----------
+    temp_dir : str
+        Path to the temporary directory
+    sql_con : sqlite3.Connection
+        Sqlite3 connection object
     """
 
     # Give some time to child threads to exit
@@ -56,10 +191,27 @@ def remove_tmp(temp_dir, sql_con):
 
 
 def load_proc(aln_list, file_list, nm, queue):
+    """Task that loads alignment files into TriFusion.
+
+    Loads alignment files provided via the `file_list` argument into the
+    `AlignmentList` object provided via `aln_list`.
+
+    Parameters
+    ----------
+    aln_list : trifusion.process.sequence.AlignmentList
+        AlignmentList object.
+    file_list : list
+        List of paths to alignment files.
+    nm : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
+    queue :Queue.Queue
+        Queue object used to transfer the AlignmentList to the main thread.
+    """
     try:
         if aln_list:
             aln_list.add_alignment_files(file_list,
-                                         shared_namespace=nm)
+                                         ns=nm)
             aln_obj = aln_list
         else:
             aln_obj = AlignmentList(file_list, shared_namespace=nm)
@@ -82,16 +234,28 @@ def load_proc(aln_list, file_list, nm, queue):
 
 def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
                         ns):
+    """Calculates Statistic's summary statistics.
+
+    Executes the `get_summary_stats` method in the background and writes
+    the output in pickle files.
+
+    Parameters
+    ----------
+    dest : str
+        Path to directory where the pickle objects with the results will
+        be created.
+    aln_list : trifusion.process.sequence.AlignmentList
+        AlignmentList object.
+    active_file_set : list
+        List with the active alignments via their `Alignment.name` attribute.
+    active_taxa_set : list
+        List with the active taxa.
+    ns : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
     """
-    Runs the get_summary_stats method in the background and writes the output
-    in a pickle file
-    :param aln_list: AlignmentList object
-    :param dest: temporary file where stats will be written
-    :param active_file_set: list, with files to be included in summary
-    statistics
-    :param active_taxa_set: list, with taxa to be included in summary
-    statistics
-    """
+
+    time.sleep(.4)
 
     try:
         # Creating deepcopy to perform changes  without impacting main
@@ -123,12 +287,20 @@ def get_stats_summary(dest, aln_list, active_file_set, active_taxa_set,
 
 
 def background_process(f, ns, a):
-    """
-    Executes the func in the background and returns its value to the
-    shared namespace
-    :param f: bound method
-    :param ns: shared namespace
-    :param a: list arguments
+    """General execution of a background process.
+
+    Allows a generic function to be executed in the background with
+    or without arguments, provided via the `a` argument.
+
+    Parameters
+    ----------
+    f : function
+        Callback function.
+    ns : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
+    a : list
+        List of arguments provided to the `f` function. Can be None.
     """
     try:
         if a:
@@ -153,11 +325,17 @@ def background_process(f, ns, a):
 
 
 def background_export_groups(f, nm, a):
-    """
-    Calls function f with a arguments
-    :param f: bound method
-    :param nm: shared namespace object to provide to bound method
-    :param a: list, with arguments
+    """Specific callback for exporting Orthology groups.
+
+    Parameters
+    ----------
+    f : function
+        Callback function.
+    nm : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
+    a : list
+        List of arguments provided to the `f` function.
     """
     try:
         f(*a, shared_namespace=nm)
@@ -168,7 +346,7 @@ def background_export_groups(f, nm, a):
     except IOError as e:
         print(e)
 
-    except:
+    except Exception as e:
         logging.exception("Unexpected error when exporting ortholog "
                           "groups")
         nm.exception = True
@@ -179,9 +357,55 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
                    usearch_threads, usearch_output, mcl_file, mcl_inflation,
                    ortholog_prefix, group_prefix, orto_max_gene,
                    orto_min_sp, sqldb, ortho_dir, usearch_db):
-    """
+    """Execution of the orthology search pipeline.
+
+
     Executes all pipeline subprocesses sequentially and updates the
-    Progess dialog label
+    Progess dialog label.
+
+    Parameters
+    ----------
+    nm : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
+
+    temp_dir : str
+        Path to TriFusion's temporary directory.
+    proteome_files : list
+        List of pahts to proteome files.
+    protein_min_len : int
+        Minimum lenght of protein sequences.
+    protein_max_stop : int
+        Maximum percentage of stop codons allowed.
+    usearch_file : str
+        Path to usearch executbale.
+    usearch_evalue: int or float
+        Evalue for usearch execution.
+    usearch_threads : int
+        Number of threads used by usearch execution.
+    usearch_output : str
+        Name of usearch's output file.
+    mcl_file : str
+        Path to the mcl executable.
+    mcl_inflation : list
+        List of inflation values (int) to perform at the end of the orthology
+        search.
+    ortholog_prefix : str
+        Prefix for the name of the orthologs.
+    group_prefix : str
+        Prefix for the name of the group files.
+    orto_max_gene : int
+        Maximum number of gene copies allowed when filtering the search
+        results.
+    orto_min_sp : int
+        Minimum number of taxa representation when filtering the search
+        results.
+    sqldb : str
+        Path to the sqlite database.
+    ortho_dir : str
+        Path to the directory where the results will be generated.
+    usearch_db : str
+        Name of the file used as database for usearch.
     """
 
     try:
@@ -288,12 +512,25 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
 
 def update_active_fileset(aln_obj, set_name, file_list, file_groups,
                           filename_map):
-    """
-    This method is similar in purpose and functionality to the
-    update_active_taxaset, but it updates the set of files. It should be
-    used before the said method.
-    :param aln_obj: The alignment object being used during execution of
-    Process operations
+    """Upates the active files of an `AlignmentList` object
+
+    This method is similar in purpose to
+    `AlignmentList.update_active_alignments` but it can convert the set
+    name of the active group defined in TriFusion to an actual list
+    of files.
+
+    Parameters
+    ----------
+    aln_obj : trifusion.process.sequence.AlignmentList
+        AlignmentList object.
+    set_name : str
+        Name of the active file group.
+    file_list : list
+        List of alignment files loaded into TriFusion.
+    file_groups : dict
+        Maps the name of custom file groups to a list of alignment files.
+    filename_map : dict
+        Maps the basename of aligment files to their full path.
     """
     # Determine the selected active taxa set from the dropdown menu
     if set_name == "All files":
@@ -308,15 +545,23 @@ def update_active_fileset(aln_obj, set_name, file_list, file_groups,
 
 
 def update_active_taxaset(aln_obj, set_name, active_taxa_list, taxa_groups):
-    """
-    Do not use this method on the original self.alignment_list or
-    self.active_alignment list, as it may cause unwanted permanent changes
-    to the taxa set.
-    This will take the complete taxa set from self.alignment_list.taxa_names
-    and the currently active taxa set from self.active_taxa_list and remove
-    the all taxa that are not present in the active taxa set from the
-    alignment object passed as argument. If the lists are the same, no taxa
-    will be removed
+    """Upates the active taxa of an `AlignmentList` object
+
+    This method is similar in purpose to
+    `AlignmentList.update_taxa_names` but it can convert the set
+    name of the active group defined in TriFusion to an actual list
+    of taxa.
+
+    Parameters
+    ----------
+    aln_obj : trifusion.process.sequence.AlignmentList
+        AlignmentList object.
+    set_name : str
+        Name of the active taxa group.
+    active_taxa_list : list
+        List of active taxa.
+    taxa_groups : dict
+        Maps the name of custom taxa groups to a list of taxon names.
     """
 
     if set_name == "All taxa":
@@ -343,54 +588,145 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                         phylip_truncate_name, output_dir, use_app_partitions,
                         consensus_type, ld_hat, ima2_params,
                         conversion_suffix):
-    """
-    Process execution function
-    :param ns: Namespace object
+    """The Process execution
+
+    Parameters
+    ----------
+    aln_list : trifusion.process.sequence.AlignmentList
+        AlignmentList object.
+    file_set_name : str
+        Name of the active file group.
+    file_list : list
+        List of alignment files loaded into TriFusion.
+    file_groups : dict
+        Maps the name of custom file groups to a list of alignment files.
+    filename_map : dict
+        Maps the basename of aligment files to their full path.
+    taxa_set_name : str
+        Name of the active taxa group.
+    active_taxa_list : list
+        List of active taxa.
+    ns : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
+    taxa_groups : dict
+        Maps the name of custom taxa groups to a list of taxon names.
+    hap_prefix : str
+        See :attr:`~trifusion.app.TriFusionApp.hap_prefix` attribute.
+    secondary_operations : dict
+        See :attr:`~trifusion.app.TriFusionApp.secondary_operations` attribute.
+    secondary_options : dict
+        See :attr:`~trifusion.app.TriFusionApp.secondary_options` attribute.
+    missing_filter_settings : list
+        See :attr:`~trifusion.app.TriFusionApp.missing_filter_settings`
+        attribute.
+    taxa_filter_settings : list
+        See :attr:`~trifusion.app.TriFusionApp.taxa_filter_settings` attribute.
+    codon_filter_settings: list
+         See :attr:`~trifusion.app.TriFusionApp.codon_filter_settings`
+         attribute.
+    variation_filter_settings : list
+        See :attr:`~trifusion.app.TriFusionApp.variation_filter_settings`
+        attribute.
+    output_file : str
+        Name of the output file.
+    rev_infile : str
+        See :attr:`~trifusion.app.TriFusionApp.rev_infile` attribute.
+    main_operations : dict
+        See :attr:`~trifusion.app.TriFusionApp.main_operations` attribute.
+    zorro_suffix : str
+        See :attr:`~trifusion.app.TriFusionApp.zorro_suffix` attribute.
+    partitions_file : str
+        See :attr:`~trifusion.app.TriFusionApp.partitions_file` attribute.
+    output_formats : list
+        See :attr:`~trifusion.app.TriFusionApp.output_formats` attribute.
+    create_partfile : bool
+        See :attr:`~trifusion.app.TriFusionApp.create_partfile` attribute.
+    use_nexus_partitions : bool
+        See :attr:`~trifusion.app.TriFusionApp.use_nexus_partitions` attribute.
+    use_nexus_models : bool
+        See :attr:`~trifusion.app.TriFusionApp.use_nexus_models` attribute.
+    phylip_truncate_name : bool
+        See :attr:`~trifusion.app.TriFusionApp.phylip_truncate_name`
+        attribute.
+    output_dir : str
+        Path to directory where the output file(s) will be generated.
+    use_app_partitions : bool
+        See :attr:`~trifusion.app.TriFusionApp.use_app_partitions` attribute.
+    consensus_type : str
+        Mode of consensus variation handling.
+    ld_hat : bool
+        See :attr:`~trifusion.app.TriFusionApp.ld_hat` attribute.
+    ima2_params :
+        See :attr:`~trifusion.app.TriFusionApp.ima2_options` attribute.
+    conversion_suffix : str
+        See :attr:`~trifusion.app.TriFusionApp.conversion_suffix` attribute.
+
     """
 
-    def reverse_concatenation(aln):
-        """
-        Wrapper of the reverse concatenation operation
-        :return: AlignmentList object
+    # Give just a little time for the waiting dialog to open without lag
+    time.sleep(.1)
+
+    def reverse_concatenation(aln, table_in=None, table_out=None):
+        """ Wrapper of the reverse concatenation operation
+
+        Parameters
+        ----------
+        aln : trifusion.process.sequence.AlignmentList
+        AlignmentList object.
         """
 
         con = aln.con
 
-        if not use_app_partitions:
-            # Retrieve the alignment object that will be reverted. This
-            # is done first in order to retrieve the length of the locus,
-            # which is provided to the Partitions object for checking and
-            # conversion of "." notation
-            aln = aln.retrieve_alignment(rev_infile)
+        if use_app_partitions:
 
-            # Instanciate Partitions object and set its length attribute
+            # If there are multiple alignments, concatenate them first and
+            # then apply the reverse concatenation according to the partitions
+            # defined in the app
+            if len(aln.alignments) > 1:
+                aln.concatenate(table_in=table_in, table_out=table_out)
+
+            aln.reverse_concatenate(table_in=table_in, table_out=table_out,
+                                    ns=ns)
+
+        else:
+
+            aln.update_active_alignments([rev_infile])
+
             partition_obj = data.Partitions()
-            partition_obj.set_length(aln.locus_length)
+            partition_obj.set_length(aln.size)
 
-            # In case the partitions file is badly formatted or invalid, the
-            # exception will be returned by the read_from_file method.
-            e = partition_obj.read_from_file(partitions_file)
-            if e:
-                ns.exception = {"InvalidPartitionFile": e.value}
+            er = partition_obj.read_from_file(partitions_file)
+
+            if er:
+                ns.exception = {
+                    "exception": ["Invalid partition file", e.value]}
                 raise data.InvalidPartitionFile("")
 
             # If there are no issues with the partitions file, set the new
             # partitions
-            aln.set_partitions(partition_obj)
+            single_aln = aln.retrieve_alignment(rev_infile)
+            er = single_aln.set_partitions(partition_obj)
+            if er:
+                ns.exception = {
+                    "exception": ["Invalid partition file", er.value]
+                }
+                raise data.InvalidPartitionFile("")
 
-        if aln.__class__.__name__ == "AlignmentList":
-            aln = aln.reverse_concatenate(ns=ns)
-        else:
-            aln = aln.reverse_concatenate(db_con=con, ns=ns)
+            aln.set_partition_from_alignment(single_aln, reset=True)
 
-        return aln
+            aln.reverse_concatenate(table_in=table_in, table_out=table_out,
+                                    ns=ns)
 
-    def filter_aln(aln, table_out="_filter"):
-        """
-        Wrapper for filtering operations, given an alignment object
-        :param aln: AlignmentList object
-        :param table_out: string. Suffix of the sqlite table for operations
-        that change alignments
+    def filter_aln(aln, table_in, table_out="_filter"):
+        """Wrapper for alignment filtering operations
+
+        Parameters
+        ----------
+        aln : trifusion.process.sequence.AlignmentList
+            AlignmentList object.
+        table_out : str
+            Specifies the output table for filtering methods.
         """
 
         # Check if a minimum taxa representation was specified
@@ -404,12 +740,13 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # Get taxa list from taxa groups
             ns.main_msg = "Filter (by taxa)"
             taxa_list = taxa_groups[taxa_filter_settings[1]]
-            aln.filter_by_taxa(taxa_filter_settings[0], taxa_list, ns=ns)
+            aln.filter_by_taxa(taxa_list, taxa_filter_settings[0], ns=ns)
 
         # Filter codon positions
         if secondary_options["codon_filter"]:
             ns.main_msg = "Filter (by codon)"
             aln.filter_codon_positions(codon_filter_settings,
+                                       table_in=table_in,
                                        table_out=table_out, ns=ns)
 
         # Filter missing data
@@ -418,6 +755,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             if missing_filter_settings[0][0]:
                 aln.filter_missing_data(missing_filter_settings[0][1],
                                         missing_filter_settings[0][2],
+                                        table_in=table_in,
                                         table_out=table_out, ns=ns)
 
         # Filter variation
@@ -446,15 +784,22 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Some filter configurations may result in empty final alignment
         # list. In such cases, return and issue warning
         if not aln.alignments:
-            ns.exception = "EmptyAlignment"
+            ns.exception = {
+                "exception": ["Empty alignment",
+                              "The alignment is empty after applying filters"]}
             raise EmptyAlignment("Active alignment is empty")
 
         return aln
 
-    def concatenation(aln, table_in=""):
-        """
-        Wrapper for concatenation operation
-        :param aln: AlignmentList object
+    def concatenation(aln, table_in, table_out):
+        """Wrapper for concatenation operation
+
+        Parameters
+        ----------
+        aln : trifusion.process.sequence.AlignmentList
+            AlignmentList object.
+        table_in : str
+            Specifies the input table for concatenation.
         """
 
         if secondary_options["zorro"]:
@@ -462,8 +807,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             zorro_data = data.Zorro(aln, zorro_suffix)
             zorro_data.write_to_file(output_file)
 
-        aln = aln.concatenate(alignment_name=basename(output_file),
-                              table_in=table_in, ns=ns)
+        aln.concatenate(table_in=table_in, table_out=table_out, ns=ns)
 
         # Sets the single alignment to True, for other method to be aware of
         # this
@@ -471,46 +815,48 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
         return aln
 
-    def consensus(aln, table_out):
-        """
-        Wrapper of the consensus operation
-        :param aln: AlignmentObject list
+    def consensus(aln, table_in, table_out):
+        """Wrapper of the consensus operation
+
+        Parameters
+        ----------
+        aln : trifusion.process.sequence.AlignmentList
+            AlignmentList object.
+        table_in : str
+            Specifies the input data table.
+        table_out : str
+            Specifies the output table for filtering methods.
         """
 
-        if secondary_options["consensus_single"]:
-            if aln.__class__.__name__ == "AlignmentList":
-                aln = aln.consensus(consensus_type=consensus_type,
-                                    single_file=True,
-                                    table_out=table_out,
-                                    ns=ns)
-                ns.sa = True
-            else:
-                aln.consensus(consensus_type=consensus_type,
-                              table_out=table_out,
-                              ns=ns)
-        else:
-            aln.consensus(consensus_type=consensus_type,
-                          table_out=table_out,
-                          ns=ns)
-
-        return aln
+        aln.consensus(consensus_type=consensus_type,
+                      single_file=secondary_options["consensus_single"],
+                      table_in=table_in,
+                      table_out=table_out,
+                      ns=ns)
 
     def writer(aln, filename=None, suffix_str="", conv_suffix="",
-               table_suffix=None, table_name=None):
-        """
-        Wrapper for the output writing operations
-        :param aln: AlignmentList object
-        :param filename: string. If provided, it will overwrite the output_file
-        :param suffix_str: string. Provides the suffix for the AlignmentList
-        write_to_file method argument
-        :param conv_suffix: string. Provides the suffix provided for
-        the conversion of files. This suffix will allway precede the
-        suffix_str, which is meant to apply suffixes specific to secondary
-        operations.
-        :param table_suffix: string. Suffix of the table from where the
-        sequence data will be retrieved
-        :param table_name: string. Name of the table from where the
-        sequence data will be retrived
+               table_name=None):
+        """Wrapper for the output writing operations
+
+        Parameters
+        ----------
+        aln : trifusion.process.sequence.AlignmentList
+            AlignmentList object.
+        filename : str
+            If provided, will overwrite the `output_file` variable.
+        suffix_str : str
+            Provides the suffix for the `AlignmentList.write_to_file`
+            method argument.
+        conv_suffix : str
+            Provides the suffix provided for
+            the conversion of files. This suffix will always precede the
+            suffix_str, which is meant to apply suffixes specific to secondary
+            operations.
+        table_suffix : str
+            Suffix of the table from where the sequence data will be
+            retrieved.
+        table_name : str
+            Name of the table from where the sequence data will be retrieved.
         """
 
         try:
@@ -529,40 +875,30 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # firstly converted into the concatenated alignment, and then all
             # additional operations are conducted in the same aln_obj
 
-            if aln.__class__.__name__ == "Alignment":
-                aln.write_to_file(output_formats,
-                    outfile if outfile else join(output_dir, "consensus"),
-                    interleave=secondary_options["interleave"],
-                    partition_file=create_partfile,
-                    use_charset=use_nexus_partitions,
-                    phy_truncate_names=phylip_truncate_name,
-                    ld_hat=ld_hat,
-                    ima2_params=ima2_params,
-                    use_nexus_models=use_nexus_models,
-                    ns_pipe=ns,
-                    table_suffix=table_suffix,
-                    table_name=table_name)
-            elif aln.__class__.__name__ == "AlignmentList":
-                aln.write_to_file(
-                    output_formats,
-                    output_suffix=suffix_str,
-                    conversion_suffix=conv_suffix,
-                    interleave=secondary_options["interleave"],
-                    partition_file=create_partfile,
-                    output_dir=output_dir,
-                    use_charset=use_nexus_partitions,
-                    phy_truncate_names=phylip_truncate_name,
-                    ld_hat=ld_hat,
-                    ima2_params=ima2_params,
-                    use_nexus_models=use_nexus_models,
-                    ns_pipe=ns,
-                    table_suffix=table_suffix,
-                    table_name=table_name)
+            aln.write_to_file(
+                output_formats,
+                output_file=outfile,
+                output_suffix=suffix_str,
+                conversion_suffix=conv_suffix,
+                interleave=secondary_options["interleave"],
+                partition_file=create_partfile,
+                output_dir=output_dir,
+                use_charset=use_nexus_partitions,
+                phy_truncate_names=phylip_truncate_name,
+                ld_hat=ld_hat,
+                ima2_params=ima2_params,
+                use_nexus_models=use_nexus_models,
+                ns_pipe=ns,
+                table_name=table_name)
 
         except IOError as e:
             logging.exception(e)
 
     try:
+
+        # If concatenation was no specified, reset the output_file variable
+        if not main_operations["concatenation"]:
+            output_file = None
 
         aln_object = deepcopy(aln_list)
         # Restore database connections, since they are broken during the
@@ -597,18 +933,16 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Perform operations on MAIN OUTPUT
         #####
 
-        # Set the suffix for the sqlite table harboring the main output
+        # Set the name of the sqlite table harboring the main output
         # alignment if any of the secondary operations is specified
-        if any(secondary_operations.values()):
-            main_table = "main"
-        else:
-            main_table = ""
+        main_table = "main_output"
 
         # Reverse concatenation
         # Active table: Based on partition names
         if main_operations["reverse_concatenation"]:
             ns.task = "reverse_concatenation"
-            main_aln = reverse_concatenation(main_aln)
+            reverse_concatenation(main_aln, table_in=main_table,
+                                  table_out=main_table)
             ns.finished_tasks.append("reverse_concatenation")
 
         # Filtering
@@ -620,70 +954,57 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             # filtering first. This is because the filter will allow 0% of
             # missing data, which will always be as stringent or more than any
             # missing data filter set.
-            main_aln.filter_missing_data(0, 0, table_out=main_table, ns=ns)
+            main_aln.filter_missing_data(0, 0,table_in=main_table,
+                                         table_out=main_table, ns=ns)
             ns.finished_tasks.append("collapse_filter")
 
         # Active table: * / *main
         if secondary_operations["filter"] and not \
                 secondary_options["filter_file"]:
             ns.task = "filter"
-            main_aln = filter_aln(main_aln, table_out=main_table)
+            main_aln = filter_aln(main_aln, table_in=main_table,
+                                  table_out=main_table)
             ns.finished_tasks.append("filter")
         # Concatenation
         # Active table: concatenation
         if main_operations["concatenation"]:
             ns.task = "concatenation"
-            main_aln = concatenation(main_aln, table_in=main_table)
+            main_aln = concatenation(main_aln, table_in=main_table,
+                                     table_out=main_table)
             ns.finished_tasks.append("concatenation")
         # Collapsing
         # Active table: *main / concatenationmain
         if secondary_operations["collapse"] and not \
                 secondary_options["collapse_file"]:
             ns.task = "collapse"
+            hap_file = output_file if output_file else None
             main_aln.collapse(haplotype_name=hap_prefix, dest=output_dir,
-                                table_out=main_table, ns=ns)
+                              table_out=main_table, ns=ns, table_in=main_table,
+                              haplotypes_file=hap_file)
             ns.finished_tasks.append("collapse")
         # Gcoder
         # Active table: *main / concatenationmain
         if secondary_operations["gcoder"] and not \
                 secondary_options["gcoder_file"]:
             ns.task = "gcoder"
-            main_aln.code_gaps(table_out=main_table, ns=ns)
+            main_aln.code_gaps(table_in=main_table, table_out=main_table,
+                               ns=ns)
             ns.finished_tasks.append("gcoder")
         # Consensus
         # Active table: *main / concatenationmain / consensus
         if secondary_operations["consensus"] and not \
                 secondary_options["consensus_file"]:
             ns.task = "consensus"
-            main_aln = consensus(main_aln, table_out=main_table)
+            consensus(main_aln, table_in=main_table, table_out=main_table)
             ns.finished_tasks.append("consensus")
-
-        # ### Guide on possible final tables
-        # --- Base types
-        # 1: Conversion -> * (main -- checks)
-        # 2: Concatenation -> concatenation (main -- checks)
-        # 3: Reverse concatenation -> * (main --checks)
-        # --- Conversion and Reverse concatenation + secondary ops
-        # 4: Collapse/Filter/Gcoder -> *main (sec --checks)
-        # 5: Consensus -> *main (sec -- checks)
-        # 6: Consensus (single file) -> consensus (main -- fallback)
-        # --- Concatenation + secondary ops
-        # 7: Filter (only) -> concatenation (main -- fallback)
-        # 8: Collapse/gcoder -> concatenationmain (sec -- checks)
-        # 9: Consensus -> concatenationmain (sec -- checks)
-        # 10: Consensus (single file) -> consensus (main -- fallback)
-
-        # NOTE ON TABLE NAMES
-        # Some combinations of operations actually create a table_suffix
-        # that does not exist in the database. This happens in cases 6, 7 and
-        # 10. However, in these cases the main table(s) of the Alignment
-        # object should be used, so we let the sequence fetching methods
-        # fail to find the suggested table and fallback to the main table.
 
         ns.task = "write"
         writer(main_aln, conv_suffix=conversion_suffix,
-               table_suffix=main_table)
+               table_name=main_table)
         ns.finished_tasks.append("write")
+
+        if not any(secondary_operations.values()):
+            return
 
         #####
         # Perform operations on ADDITIONAL OUTPUTS
@@ -785,8 +1106,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                                                    table_out=suffix[1:])
                     if main_operations["concatenation"]:
                         ns.main_msg = "Concatenation"
-                        main_aln = aln_object.concatenate(table_in=suffix[1:],
-                                                          ns=ns)
+                        main_aln = aln_object.concatenate(ns=ns)
 
                 ns.main_msg = "Collapse"
                 main_aln.collapse(haplotype_name=hap_prefix,
@@ -828,10 +1148,32 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Resets the taxa_names attribute of the aln_obj to include all taxa
         # aln_object.update_taxa_names(all_taxa=True)
         if not hasattr(ns, "exception"):
-            ns.exception = "Unknown"
+            ns.exception = {
+                "exception": ["Unknown",
+                              "Unexpected error when generating Process "
+                              "output. Check the app logs."]}
 
 
 def load_group_files(group_files, temp_dir, ns=None):
+    """Task that loads orthology group files into TriFusion
+
+    Parameters
+    ----------
+    group_files : list
+        List of paths to group files.
+    temp_dir : str
+        Temporary directory where sqlite database will be created.
+    ns : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
+
+    Returns
+    -------
+    og : trifusion.ortho.OrthomclToolbox.MultiGroupsLight
+        `MultiGroupsList` object.
+    og.filters : list
+        List of filters for the `MultiGroupsList` object.
+    """
     og = OrthoTool.MultiGroupsLight(db_path=temp_dir,
                                     groups=group_files,
                                     ns=ns)
@@ -840,6 +1182,28 @@ def load_group_files(group_files, temp_dir, ns=None):
 
 def orto_update_filters(ortho_groups, gn_filter, sp_filter, excluded_taxa,
                         group_names=None, default=False):
+    """Task that updates filters of a `MultiGroupsLight` object
+
+    Parameters
+    ----------
+    ortho_groups : trifusion.ortho.OrthomclToolbox.MultiGroupsLight
+        `MultiGroupsList` object.
+    gn_filter : int
+        Filter for maximum gene copies.
+    sp_filter : int
+        Filter for minimum taxa representation.
+    excluded_taxa : list
+        List of taxa to be excluded.
+    group_names : list
+        List with name of group files.
+    default : bool
+        If True, the default filters will be used.
+
+    Returns
+    -------
+    orto_groups :  trifusion.ortho.OrthomclToolbox.MultiGroupsLight
+        `MultiGroupsList` object.
+    """
     try:
         if group_names or group_names == []:
             ortho_groups.update_filters(gn_filter, sp_filter, excluded_taxa,
@@ -853,6 +1217,22 @@ def orto_update_filters(ortho_groups, gn_filter, sp_filter, excluded_taxa,
 
 
 def get_active_group(ortho_groups, old_active_group, active_group_name):
+    """Task that retrieves the active `GroupLight` object.
+
+    Parameters
+    ----------
+    ortho_groups : trifusion.ortho.OrthomclToolbox.MultiGroupsLight
+        `MultiGroupsList` object.
+    old_active_group : str
+        Previous active `GroupLight` object.
+    active_group_name :
+        Name of the `GroupLight` object that will be active.
+
+    Returns
+    -------
+    active_group : trifusion.ortho.OrthomclToolbox.GroupLight
+        `GroupLight` object.
+    """
 
     if not old_active_group:
         active_group = ortho_groups.get_group(active_group_name)
@@ -866,15 +1246,22 @@ def get_active_group(ortho_groups, old_active_group, active_group_name):
 
 
 def get_orto_data(active_group, plt_idx, filt, exclude_taxa):
-    """
+    """Creates plot data for orthology
+
     Given a GroupLight object, this function will execute the method that
     corresponds to plt_idx to generate data.
-    :param active_group: GroupLight object. Active group that will be used
-    to plot data
-    :param plt_idx: string. Identifier of the plot type that must have a
-    correspondence in the method dictionary below
-    :return plot_data: dictionary. Has the required data for the
-    plotting methods to generate the plot.
+
+    Parameters
+    ----------
+    active_group : trifusion.ortho.OrthomclToolbox.GroupLight
+        `GroupLight` object.
+    plt_idx : str
+        Identifier of the plot type that must have a correspondence in
+        the method dictionary below.
+    filt : list
+        List with orthology filters.
+    exclude_ taxa : list
+        List of taxa to be excluded.
     """
 
     # Store the plot generation method in a dictionary where keys are
@@ -925,13 +1312,28 @@ def get_orto_data(active_group, plt_idx, filt, exclude_taxa):
 
 def get_stats_data(aln_obj, stats_idx, active_file_set, active_taxa_set,
                      additional_args, ns=None):
-    """
-    Given an aln_obj, this function will execute the according method to
-    generate plot data
+    """Task that retrieves the plot data from `AlignmentList` plot methods
 
-    :param aln_obj: AlignmentObject
-    :param stats_idx: string, identifier that maps to an AlignmentObject method
-    :return: data for plot production
+    Given an aln_obj, this function will execute the according method to
+    generate plot data.
+
+    Parameters
+    ----------
+    aln_obj : `trifusion.process.sequence.AlignmentList`
+        AlignmentList object.
+    stats_idx : str
+        Identifier of the method type that must have a correspondence in
+        the `methods` dictionary below.
+    active_filte_set : str
+        Name of the active file set.
+    active_taxa_set : str
+        Name of the active taxa set.
+    additional_args : dict
+        Dictionary with keyword arguments that can be provided when the
+        plot data method is called.
+    ns : multiprocessing.Namespace
+        Namespace object that allows communication between main and worker
+        threads.
     """
 
     # Creating deepcopy to perform changes without impacting the main attribute

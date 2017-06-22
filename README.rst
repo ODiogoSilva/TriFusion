@@ -1,146 +1,180 @@
-Warning
--------
-
-| TriFusion is still in active development, so the releases are quite a
-  bit out of date
-| and the install scripts and steps may not be properly working. If you
-  have any issues,
-| please contact me directly.
-
 TriFusion
 ---------
+
+Making life easier for phylogenomic data gathering, processing and visualization
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Website: http://odiogosilva.github.io/TriFusion/
 
 | |Build Status|
 | |Code Health|
 | |codecov|
+| |PyPI|
+| |PyPI|
+| |AUR|
 
-Streamlining phylogenomic data gathering, processing and visualization
-                                                                      
+What is TriFusion?
+------------------
 
-TriFusion is a GUI and command line application designed to streamline
-the workflow of phylogenomic projects. With the dramatic increase in
-size of data sets for phylogenetics and population genetics, programming
-has become a crucial tool to gather, process and analyze the data.
-However, this may still represent a hurdle that precludes the execution
-of such projects by a broader range of researchers. TriFusion aims to
-mitigate this issue by providing a user-friendly visual interface that
-empowers users without any programming knowledge with a set of tools and
-operations that can handle large sets of data.
+TriFusion is a modern GUI and command line application designed to make
+the life of anyone with **proteome** and/or **alignment sequence data**
+easier and more pleasurable. Regardless of your experience in
+bioinformatics, TriFusion is easy to use and offers a wide array of
+powerfull features to help you deal with your data. At the same time, it
+was developed to handle the enormous amount of data that is generated
+nowadays.
 
 TriFusion is an open source, cross-platform application written in
 `Python 2.7 <https://www.python.org/>`__ and using the
-`Kivy <https://github.com/kivy/kivy>`__ framework to construct graphical
+`Kivy <https://github.com/kivy/kivy>`__ framework to build the graphical
 interface.
 
+What can TriFusion do for you?
+------------------------------
+
+Here is an overview of what it can do for you across its three main
+modules.
+
+Orthology - Search and explore orthologs across proteomes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  **Searches for ortholog sequences** across multiple species.
+-  Filters ortholog sequences according to the **gene copy number**
+   and/or **number of taxa** present.
+-  **Graphical visualization** of ortholog data.
+-  Exports your orthologs as **protein or nucleotide sequences**.
+
+`Find out more <https://odiogosilva.github.io/TriFusion/#featurette>`__
+
+Process - Blazing fast processing of alignment files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  **Conversion** or **concatenation** of alignment files into several
+   popular formats (`check supported
+   formats <https://github.com/ODiogoSilva/TriFusion/wiki/Supported-Process-formats>`__).
+-  **Collapse** identical sequences into the same haplotype.
+-  Create **consensus** sequences for each alignment with several
+   options on how to handle sequence variation.
+-  **Filter** either alignments (according to whether they contain or
+   exclude certain taxa, to a minimum proportion of taxa, and/or
+   variable sites) or alignment columns (according to codon position,
+   missing data and gaps).
+-  **Code indel patterns** of your alignments into a binary matrix that
+   is appended to the alignment.
+-  **Revert concatenated alignments** or export sub-regions into
+   individual files
+-  Set **gene and codon partitions** as well as **substitution models**
+   (Nexus format)
+-  Create **file/taxa groups** to quickly perform operations on
+   different sets of data.
+-  It's **fast** and **memory efficient**. Converting 3,093 files with
+   376 taxa can be performed in just 30 seconds and using less than 90Mb
+   of RAM memory (`check the benchmarks
+   table <https://github.com/ODiogoSilva/TriFusion/wiki/Benchmarks>`__).
+
+`Find out more <https://odiogosilva.github.io/TriFusion/#featurette>`__
+
+Statistics - Effortless visual exploration of your data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  Provides instant information on overall and per gene **summary
+   statistcs**.
+-  TriFusion offers **dozens of graphical and statistical options** to
+   explore your data:
+
+   -  General information plots.
+   -  Polymorphism and sequence variation plots.
+   -  Missing data plots.
+   -  Outlier plots.
+
+-  Publication ready figures
+
+`Find out more <https://odiogosilva.github.io/TriFusion/#featurette>`__
+
 Installation
-~~~~~~~~~~~~
+------------
 
 Executables binaries
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~
 
 The latest stable release of TriFusion can be installed as a standalone
-application using one of the following installers.
+application using one of the following installers. This **only includes
+the GUI component** of TriFusion. If you also want the command line
+version, see `Installation from source <#installation-from-source>`__.
 
 Linux
-'''''
+^^^^^
 
 -  Debian package based (`See
    list <https://en.wikipedia.org/wiki/Category:Debian-based_distributions>`__):
-   `trifusion-bin-0.4.11-linux.deb <https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.deb>`__
+   `TriFusion-0.5.0.deb <https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.deb>`__
 
 -  RPM package based (`See
    list <https://en.wikipedia.org/wiki/Category:RPM-based_Linux_distributions>`__):
-   `trifusion-bin-0.4.11-linux.rpm <https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/trifusion-bin-0.4.11-linux.rpm>`__
+   `TriFusion-0.5.0.rpm <https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0.rpm>`__
 
 -  ArchLinux/Manjaro (`See
    list <https://wiki.archlinux.org/index.php/Arch_based_distributions>`__):
-   `trifusion-bin-0.4.11 <https://aur.archlinux.org/packages/trifusion-bin/>`__
+   `TriFusion-0.5.0.tar.xz <https://aur.archlinux.org/packages/trifusion-bin/>`__
    is available on AUR.
 
-Windows
-'''''''
+MacOS
+^^^^^
 
--  `TriFusion-0.4.12 64bit
-   installer <https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows64.msi>`__
--  `TriFusion-0.4.12 32bit
-   installer <https://github.com/ODiogoSilva/TriFusion/releases/download/0.4.11/TriFusion-v0.4.12-windows32.msi>`__
+-  `TriFusion-0.5.0.app.zip <https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-MacOS.app.zip>`__
+
+Windows
+^^^^^^^
+
+-  `TriFusion-0.5.0 64bit
+   installer <https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win64.msi>`__
+-  `TriFusion-0.5.0 32bit
+   installer <https://github.com/ODiogoSilva/TriFusion/releases/download/0.5.0/TriFusion-v0.5.0-Win32.msi>`__
 
 Note for Windows 8.x and 10 users:
-                                  
+''''''''''''''''''''''''''''''''''
 
 Executing the TriFusion installer may generate a warning from
 SmartScreen. To continue with the installation, click the "More info"
 label and then "Run anyway".
 
 Installation from source
-^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-TriFusion can be installed directly from source (whether from the latest
-stable release or from the git version), which has its advantages:
+TriFusion is on `PyPi <https://pypi.python.org/pypi/trifusion/>`__ and
+can be easily installed with ``pip``. If you want to use the only the
+command line version run this command on any operating system with
+``pip``.
 
--  Stay on the bleeding edge of the application's development (Git
-   version)
+::
 
--  Minimize the application size install
+    pip install trifusion --user
 
--  Modify the code any way you want. Contributions are welcome.
+For additional installation information or if you want to install the
+complete TriFusion package, `follow these instructions according to your
+operating
+system <https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source>`__.
 
-`Here are instructions on how to install TriFusion from
-source <https://github.com/ODiogoSilva/TriFusion/wiki/Install-from-source>`__.
-(Go ahead, it won't bite.)
+--------------
+
+If you are unconvinced that a terminal version would be useful/pratical,
+check out how easy and fast it is to use TriFusion to process 614 Fasta
+alignments into phylip and nexus output formats :-):
 
 How to use
-~~~~~~~~~~
+----------
 
-GUI version
-^^^^^^^^^^^
-
-Windows
-'''''''
-
-TriFusion should be available in the Start Menu, ready to launch.
-
-Linux
-'''''
-
-If TriFusion was installed using package managers, a TriFusion shortcut
-should have been created and available using your distribution's
-application launcher (Under the Science category). Alternatively,
-TriFusion can be executed from the terminal with the command
-``TriFusion``.
-
-Command line versions
-^^^^^^^^^^^^^^^^^^^^^
-
-Command line versions for each of the three modules in TriFusion are
-only available when installing the program from source. Once installed,
-each module can be executed in the terminal using the following
-commands:
-
--  Orthology search module:
-
-   ``orthomcl_pipeline``
-
--  Process module:
-
-   ``TriSeq``
-
--  Statistics module:
-
-   ``TriStats``
-
-For more information on the command line versions, see the manual.
+Tutorials on how to use TriFusion for its many tasks can be perused
+`here <http://odiogosilva.github.io/TriFusion/#tutorials>`__.
 
 Documentation
-~~~~~~~~~~~~~
+-------------
 
 You can download TriFusion User Guide
 `here <https://github.com/ODiogoSilva/TriFusion/raw/master/docs/manual.pdf>`__.
 
 Citation
-~~~~~~~~
+--------
 
 When using OrthoMCL to find ortholog clusters, please cite the original
 software:
@@ -151,7 +185,7 @@ Assign Proteins to OrthoMCL-DB Groups or to Cluster Proteomes Into New
 Ortholog Groups Current Protocols in Bioinformatics. 2011
 35:6.12.1–6.12.19.
 
-Coming soon!
+We're working on a manuscript for TriFusion now.
 
 .. |Build Status| image:: https://travis-ci.org/ODiogoSilva/TriFusion.svg?branch=master
    :target: https://travis-ci.org/ODiogoSilva/TriFusion
@@ -159,3 +193,9 @@ Coming soon!
    :target: https://landscape.io/github/ODiogoSilva/TriFusion/master
 .. |codecov| image:: https://codecov.io/gh/ODiogoSilva/TriFusion/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/ODiogoSilva/TriFusion
+.. |PyPI| image:: https://img.shields.io/pypi/pyversions/trifusion.svg
+   :target: https://pypi.python.org/pypi/trifusion
+.. |PyPI| image:: https://img.shields.io/pypi/v/trifusion.svg
+   :target: https://pypi.python.org/pypi/trifusion
+.. |AUR| image:: https://img.shields.io/aur/version/trifusion.svg
+   :target: https://aur.archlinux.org/packages/trifusion/

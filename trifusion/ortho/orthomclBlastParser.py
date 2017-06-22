@@ -89,7 +89,7 @@ def get_taxon_and_length(subject, genes):
         subject["queryTaxon"]
     except KeyError:
         print ("couldn't find taxon for gene " + subject["queryId"])
-        
+
     return subject["queryLength"] < subject["subjectLength"]
 
 

@@ -12,7 +12,8 @@ try:
 except ImportError:
     from trifusion.process.sequence import AlignmentList, Alignment
 
-sql_db = "sequencedb"
+temp_dir = ".temp"
+sql_db = ".temp/sequencedb"
 
 data_path = join("trifusion/tests/data/")
 
@@ -41,13 +42,16 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def setUp(self):
 
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
         self.aln_obj = AlignmentList([], sql_db=sql_db)
 
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_class_instance(self):
 
@@ -83,13 +87,19 @@ class LoadAlignmentsTest(unittest.TestCase):
 
         single_aln = Alignment(dna_data_nex[0], sql_cursor=self.aln_obj.cur)
 
+    def test_load_interleave_nex(self):
+
+        single_aln = Alignment(concatenated_interleave_nexus[0],
+                               sql_cursor=self.aln_obj.cur)
+
     def test_load_stc(self):
 
         self.aln_obj = AlignmentList(dna_data_stc, sql_db=sql_db)
 
     def test_load_single_stc(self):
 
-        single_aln = Alignment(dna_data_stc[0], sql_cursor=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_stc[0], sql_cursor=self.aln_obj.cur,
+                               db_idx=self.aln_obj._idx + 1)
 
     def test_load_loci(self):
 
@@ -97,7 +107,8 @@ class LoadAlignmentsTest(unittest.TestCase):
 
     def test_load_single_loci(self):
 
-        single_aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur)
+        single_aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur,
+                               db_idx=self.aln_obj._idx + 1)
 
     def test_load_nexus_par(self):
 
@@ -124,10 +135,43 @@ class LoadAlignmentsTest(unittest.TestCase):
 
         self.aln_obj = AlignmentList(no_data, sql_db=sql_db)
 
+    def test_alternative_missing(self):
+
+        self.aln_obj = AlignmentList(alternative_missing, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "?")
+
+    def test_dna_missing_default(self):
+
+        self.aln_obj = AlignmentList(single_dna, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "n")
+
+    def test_protein_missing_default(self):
+
+        self.aln_obj = AlignmentList(protein_no_missing, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "x")
+
+    def test_dna_missing_eval(self):
+
+        self.aln_obj = AlignmentList(concatenated_medium_nexus, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "n")
+
+    def test_protein_missing_eval(self):
+
+        self.aln_obj = AlignmentList(protein_normal_missing, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.sequence_code[1], "x")
+
 
 class AlignmentManipulationTest(unittest.TestCase):
 
     def setUp(self):
+
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
 
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
 
@@ -138,7 +182,7 @@ class AlignmentManipulationTest(unittest.TestCase):
         except:
             pass
         self.aln_obj.con.close()
-        os.remove(sql_db)
+        shutil.rmtree(temp_dir)
 
     def test_clear_alns(self):
 
@@ -201,7 +245,8 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         fl = self.aln_obj.alignments.keys()
 
-        aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur)
+        aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur,
+                        db_idx=self.aln_obj._idx + 1, temp_dir=temp_dir)
 
         self.aln_obj.add_alignments([aln])
 
@@ -268,12 +313,12 @@ class AlignmentManipulationTest(unittest.TestCase):
     #
     #     self.assertTrue(compare_inst(aln, aln2,
     #                                  ["log_progression", "locus_length",
-    #                                   "partitions"]))
+    #                                   "_partitions"]))
 
     def test_concatenation(self):
 
-        aln = self.aln_obj.concatenate(alignment_name="test")
-        aln.write_to_file(["fasta"], "test")
+        self.aln_obj.concatenate()
+        self.aln_obj.write_to_file(["fasta"], output_file="test")
 
         with open("trifusion/tests/data/BaseConcatenation.fas") as fh1, \
                 open("test.fas") as fh2:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #  Copyright 2012 Unknown <diogo@arch>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -130,6 +130,10 @@ def main():
                            " terminal output")
 
     arg = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
 
     main_checks(arg)
 

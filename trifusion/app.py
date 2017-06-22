@@ -18,6 +18,80 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
+"""
+Nomenclature guide for :class:`.TriFusionApp`.
+==============================================
+
+Given the large number of methods needed to give functionality to
+the app, this nomenclature guide was created to aid in the naming
+of new methods so that the code can be more easily browsed and
+understood. Note that this guide only targets methods that
+perform similar tasks and, therefore, can be grouped by a common
+prefix name. Other methods that perform more unique operations
+may have different names.
+
+Method's names will be given based on their main operation and
+specific task. For example, a method in charge of toggle the side
+panel, should be named "toggle_sidepanel", being "toggle" the
+common prefix and "sidepanel" the keyword linked ot the specific
+task.
+
+1. Toggles.
+
+"toggle_[specific_task]", e.g. "toggle_sidepanel"
+
+Methods use to toggle certain widgets or values/attributes.
+
+2. Dialogues.
+
+"dialog_[specific_task]", e.g. "dialog_format"
+
+Methods that generate dialogues throughout the app, usually in
+the form of popups
+
+3. Populating methods.
+
+"populate_[specific_task]", e.g., "populate_input_files"
+
+Methods that populate certain widgets, usually gridlayouts, with
+other widgets
+
+4. Add/Remove
+
+"add_[specific_task]", e.g., "add_bookmark"
+"remove_[specific_task]", e.g., "remove_taxa_group"
+
+Methods that add or remove widgets, usually buttons/togglebuttons,
+from other widgets
+
+5. Saves.
+
+"save_[specific_task]", e.g., "save_file"
+
+Methods that save specific settings from the several options of the
+sapp
+
+6. Updates.
+
+"update_[specific_task]", e.g., "update_tabs"
+
+Wrapper methods used to update several attributes or widgets of the
+app
+
+7. Checks.
+
+"check_[specific_task]", e.g., "check_filters"
+
+Methods that perform some kind of sanity checks to user input data
+
+8. Unique operations
+
+[specific_task]_[unique_operation], e.g., "sidepanel_animation"
+
+When the method performs a unique operations, the specific_task
+should prefix the name of the method.
+"""
+
 # Standard libraries imports
 from os.path import dirname, exists, splitext
 from collections import OrderedDict
@@ -59,6 +133,7 @@ multiprocessing.freeze_support()
 # Bypass default argument handling from kivy
 os.environ["KIVY_NO_ARGS"] = "1"
 
+# Comment this section until the EventLoop for sphinx building.
 # Kivy imports
 from kivy.config import Config
 
@@ -80,22 +155,22 @@ EventLoop.ensure_window()
 
 from kivy.app import App
 from kivy.animation import Animation
-from kivy.uix.widget import Widget
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
 from kivy.properties import ListProperty, DictProperty
 from kivy.clock import Clock
 from kivy.uix.treeview import TreeViewLabel
+from kivy.logger import Logger
 
 # Local TriFusion imports
 try:
+    from __init__ import __version__, __build__
     import data.resources.theme.default as tm
     from ortho import protein2dna
     from process.base import Base
-    from process.data import Partitions, InvalidPartitionFile
-    from process.error_handling import EmptyAlignment, EmptyData, KillByUser, \
-        SingleAlignment
+    from process.data import Partitions
+    from process.error_handling import EmptyAlignment, KillByUser
     from process.sequence import AlignmentList
     from data.resources.info_data import orthology_plots, \
         informative_storage
@@ -112,12 +187,13 @@ try:
     from base.html_creator import HtmlTemplate
     from ortho.OrthomclToolbox import MultiGroupsLight
 except ImportError:
+    from trifusion import __version__, __build__
     import trifusion.data.resources.theme.default as tm
     from trifusion.ortho import protein2dna
     from trifusion.process.base import Base
-    from trifusion.process.data import Partitions, InvalidPartitionFile
-    from trifusion.process.error_handling import EmptyAlignment, EmptyData, \
-        KillByUser, SingleAlignment
+    from trifusion.process.data import Partitions
+    from trifusion.process.error_handling import EmptyAlignment, \
+        KillByUser
     from trifusion.process.sequence import AlignmentList
     from trifusion.data.resources.info_data import orthology_plots, \
         informative_storage
@@ -133,16 +209,6 @@ except ImportError:
         sliding_window
     from trifusion.base.html_creator import HtmlTemplate
     from trifusion.ortho.OrthomclToolbox import MultiGroupsLight
-
-__version__ = "0.5.0"
-__build__ = "190417"
-__author__ = "Diogo N. Silva"
-__copyright__ = "Diogo N. Silva"
-__credits__ = ["Diogo N. Silva", "Tiago F. Jesus", "Fernando Alves"]
-__license__ = "GPL3"
-__maintainer__ = "Diogo N. Silva"
-__email__ = "o.diogosilva@gmail.com"
-__status__ = "4 - Beta"
 
 ###################################
 # Modifications to kivy source code
@@ -219,73 +285,125 @@ class TriFusionApp(App):
     _blue = tm.c_app_blue
     _red = tm.c_app_red
 
-    # Setting Boolean controlling the toggling of main headers
     show_side_panel = BooleanProperty(False)
-    # Setting Boolean that locks the sidepanel while it animates
+    """
+    bool controlling the toggling of main headers. Is set to True
+    when the sidepanel is open and False when not.
+    """
     lock_side_panel = BooleanProperty(False)
+    """bool that prevents the animation of the sidepanel when True."""
 
-    # Attribute for current screen object
     screen = None
+    """
+    Currently open Screen object.
+    """
 
     # Variable containing screen names
     screen_names = ListProperty()
+    """List of basename screen names."""
     available_screens = ListProperty()
+    """List of paths to screen files."""
     loaded_screens = {}
+    """
+    Dictionary that maps the screen name to a Screen object. Entries are
+    only populated when Screens are loaded for the first time. This
+    allows the state of each screen to be saved.
+    """
     plot_screens = ListProperty()
+    """List of screens dedicated for plots."""
 
     # Attributes to know current and previous screen
     current_screen = StringProperty()
+    """String with the name of the current Screen object."""
     previous_screen = StringProperty()
+    """String with the name of the last Screen object."""
 
-    # Attribute to load screens
     index = NumericProperty(-1)
+    """Integer with the index of the current screen. The index is
+    retrieved from the :attr:`~.TriFusionApp.screen_names` attribute."""
 
-    # Create temporary directory for transient files
     temp_dir = StringProperty()
+    """String with path to temporary directory."""
     log_file = StringProperty()
+    """String with path to TriFusion's log file."""
     bm_file = StringProperty()
+    """String with path to bookmarks file."""
     projects_file = StringProperty()
+    """String with path to projects file."""
 
-    # Getting current directory to fetch the screen kv files
     cur_dir = "."
+    """
+    String with the current working directory. Used to fetch the kivy
+    screen files.
+    """
 
-    # Only the original input files. SHOULD NOT BE MODIFIED
     file_list = []
-    # Dynamic list containing only the active files
+    """
+    List with the paths of alignment files loaded into TriFusion.
+    This attribute should not be modified unless the files are removed
+    from the application.
+    """
     active_file_list = ListProperty()
-    # Dictionary mapping file names to their corresponding full paths. This
-    # attribute must exist, because some parts of the code need only the
-    # file name instead of the full path, but a connection to the full
-    # path must  be maintained for future reference
+    """
+    List with the paths of the active alignment files loaded into TriFusion.
+    Can be changed during the session.
+    """
+
     filename_map = DictProperty()
+    """
+    Dictionary mapping the basename of alignment files to their full path.
+    Some parts of TriFusion need only the basename of the alignment files,
+    so this attributes allows the conversion.
+    """
 
-    # Setting the list of taxa names
     active_taxa_list = ListProperty()
+    """
+    List with the active taxa loaded into TriFusion. Can be changed
+    during the session.
+    """
 
-    # Attribute to the home path
     home_path = unicode(expanduser("~"))
+    """String with path to home directory."""
 
-    # Attribute with bookmarks for file chooser. The bookmark attribute is a
-    # list containing a list with the full path of the bookmarks as the
-    # first element and a dictionary mapping the full path to the bookmark
-    # name as the second element
     bookmarks = [[], {}]
-    # For mouse over purposes
+    """
+    List with information of the bookmarks for the filechoosers. The first
+    element is a list with the full path of the bookmarks. The second
+    element is a dictionary mapping the full path to the bookmark name.
+    """
     bookmarks_bt = []
+    """
+    List of bookmark Button widgets. Used for mouse over purposes.
+    """
 
-    # Attribute that controls the DragNDrop timing.
     drag_files = []
+    """
+    List that stores the paths of files drag and dropped into TriFusion's
+    window.
+    """
     drag_c = 0
+    """
+    Integer that works as a counter of the number of files that were dropped
+    into TriFusion's window.
+    """
 
     _popup = ObjectProperty(None)
+    """Reference to Popup object, if open."""
     _subpopup = ObjectProperty(None)
+    """Reference to sub Popup object, if open."""
     _exit_popup = ObjectProperty(None)
+    """Reference to exit Popup object, if open"""
 
     # Dictionary containing the values for the main process operations
     main_operations = DictProperty({
         "concatenation": False,
         "conversion": False,
         "reverse_concatenation": False})
+    """
+    Dictionary mapping the main operations to a bool value. The active
+    main operation, if any, has a True value. Only one True value can
+    exist for the main operations.
+    """
 
     # Dictionary containing all values of the switches and checkboxes in the
     # process screen
@@ -293,6 +411,10 @@ class TriFusionApp(App):
                                         ("filter", False),
                                         ("gcoder", False),
                                         ("consensus", False)])
+    """
+    Dictionary mapping the secondary operations to a bool value. Active
+    secondary operations have a True value.
+    """
 
     secondary_options = DictProperty([("interleave", False),
                                       ("zorro", False),
@@ -306,50 +428,125 @@ class TriFusionApp(App):
                                       ("variation_filter", False),
                                       ("gcoder_file", False),
                                       ("consensus_file", False),
-                                      ("consensus_single", False),])
+                                      ("consensus_single", False)])
+    """
+    Dictionary mapping secondary options to a bool value. Active secondary
+    options have a True value.
+    """
 
-    # Attribute that controls whether a file is to be overwritten or skipped
-    # For it to be active it must be a string with "overwrite" or "skip",
-    # otherwise it's ignored
     file_overwrite = None
+    """
+    Attribute controlling whether output files should be overwritten
+    or skipped. Has a None value when inactive, "overwrite" when there is
+    an instruction to overwrite, and "skip" when there is a instruction to
+    skip.
+    """
     file_apply_all = False
+    """
+    bool attribute that determines whether the behaviour of
+    :attr:`~.TriFusionApp.file_overwrite` should be applied to all files
+    (True) or not (False).
+    """
 
-    # Attributes for the Orthology screen widgets
     ortho_search_options = None
+    """
+    Reference to the
+    :class:`trifusion.data.resources.custom_widgets.OrthologySearchGrid
+    object, containing the additional option's widgets of the Orthology
+    Search screen.
+    """
     orto_search_height = None
+    """
+    Integer with the height property of the
+    :attr:`~.TriFusionApp.ortho_search_options` object.
+    """
 
     # Attribute for the gridlayout widget that will contain all main options
     # for the process module
     process_grid_wgt = None
+    """
+    Reference to the
+    :class:`trifusion.data.resources.custom_widgets.ProcessGeneral object
+    with the general options widgets of the Process screen.
+    """
     process_options = None
+    """
+    Reference to the 
+    :class:`trifusion.data.resources.custom_widgets.AdditionalProcessContents
+    object with the additional options widgets of the Process screen.
+    """
     process_height = None
+    """
+    Integer with the height property of the
+    :attr:`~.TriFusionApp.process_options` object.
+    """
 
-    # Attributes for Statistics summary stats
     stats_summary = None
+    """
+    Reference to the
+    :class:`trifusion.data.resources.custom_widgets.StatsSummary object
+    containing the widgets of the overall summary statistics in the Statistics
+    screen.
+    """
     stats_table = None
+    """
+    Reference to the 
+    :class:`trifusion.data.resources.custom_widgets.GeneTable object
+    containing the widgets of the gene table summary statistics in the
+    Statistics screen.
+    """
     MAX_TABLE_N = 50
+    """
+    Integer with the maximum number of rows allowed for the gene table
+    in the :class:`trifusion.data.resources.custom_widgets.GeneTable object.
+    """
     gene_table_selection = []
+    """
+    Pandas DataFrame with the selection of gene summary statistics for the
+    :class:`trifusion.data.resources.custom_widgets.GeneTable object.
+    """
     gene_master_table = []
+    """
+    List with the table data from the
+    :class:`trifusion.data.resources.custom_widgets.GeneTable object.
+    """
 
     # Attribute for the widget containing the treeview showing the
     # operations queue
     operation_tv = ObjectProperty(None)
+    """TreeView object containing the queue of operations."""
     main_nodes = DictProperty()
+    """
+    Dictionary that maps string identifiers of main nodes to
+    those Node objects.
+    """
 
     # Attributes containing plot related elements
     plot_backups = {}
+    """
+    Dictionary that maps Statistics plot analyses identifiers to their
+    respective table data in a list object. This object is only populated
+    when those analyses are executed.
+    """
+    #TODO: Check memory usage of plot_backups
     current_plt_idx = ListProperty(None)
+    """
+    List that contains two elements. The first is the string identifier
+    of the current plot analyses. The second is the list of arguments
+    that should be passed to the respective plotting method.
+    """
     current_plot = ObjectProperty(None, allownone=True)
+    """
+    matplotlib.Figure object of the current plot.
+    """
     current_lgd = None
+    """matplotlib.Legend object associated to the current plot. Can be None."""
     current_table = ObjectProperty(None, allownone=True)
-    # Alternate version for rapid plot switch. Only available for certain
-    #   plots
-    alternative_plot = ObjectProperty(None, allownone=True)
-    alternative_lgd = None
-    alternative_table = ObjectProperty(None, allownone=True)
+    """List with table data associated with the current plot."""
+
     # Patch attribute
     plt_patch = None
-    # Dictionary with the plotmethods and file names for orthology plots
+    """Stores matplotlib.patches objects that may be added to plots."""
     orto_plt_method = {
         "Taxa distribution":
         [bar_plot, "Species_distribution.png"],
@@ -360,7 +557,12 @@ class TriFusionApp(App):
         "Taxa gene copies":
         [bar_plot, "Species_copy_number.png"]
     }
-    # Dictionary with the plot methods and file names for each stats_idx
+    """
+    Dictionary that maps the string identifier of orthology plot analyses
+    to a list. This list has two elements. The first is the plotting
+    method defined in :mod:`trifusion.base.plotter`, and the second is
+    the name of the temporary figure file that will be generated.
+    """
     stats_plt_method = {
             "Gene occupancy":
             [interpolation_plot, "gene_occupancy.png"],
@@ -419,16 +621,31 @@ class TriFusionApp(App):
             "Sequence size outliers sp":
             [outlier_densisty_dist, "Sequence_size_outliers_sp.png"]
         }
-    # Storage of previous data sets. This is used to evaluate whether the
-    # plot methods should be run, or if they should be ignored. The Stats
-    # key refers to the previous active data sets when the stats summary
-    # statistics overview was performed. It should contain two lists,
-    # the first with the file set and the second with the taxa set
+    """
+    Dictionary that maps the string identifier of statistics plot analyses
+    to a list. This list has two elements. The first is the plotting
+    method defined in :mod:`trifusion.base.plotter`, and the second is
+    the name of the temporary figure file that will be generated.
+    """
+
     previous_sets = {"Files": [], "Taxa": [], "Stats": []}
-    # This attribute will store the StatsToggleWgt when changing the screen
-    # from Statistics. When the Statistics screen is back on active,
-    # the widget can be restored with this var
+    """
+    Dictionary storing previous data sets defined in TriFusion. This is
+    used to evaluate whether the plot methods should be executed or ignored.
+    The Stats key refers to the previous active data sets when the stats
+    summary statistics overview was performed. It should contain two lists,
+    the first with the file set and the second with the taxa set.
+
+        previous_sets = {"Files": [], "Taxa": [], "Stats": []}
+    """
+
     previous_stats_toggle = None
+    """
+    Reference to
+    :class:`~trifusion.data.resources.custom_widgets.StatsToggleWgt object.
+    It's used to restore the widget to the Statistics screen when exiting
+    and entering it when a plot is loaded.
+    """
 
     # Attributes for storing taxa and file buttons for side panel. These
     #  will be used when search for files/taxa and for loading only
@@ -436,96 +653,208 @@ class TriFusionApp(App):
     # pertains a single file/taxon and it will be a tupple containing the
     #  main button, information button and remove button.
     sp_file_bts = ListProperty()
+    """
+    List of widgets from individual files in the "Files" tab of the
+    sidepanel. This attribute is used when searching for files and for
+    loading only Button subsets of very large data sets. Each element
+    will be a tuple containing the main Button, the information Button,
+    and the remove Button widgets.
+    """
     sp_taxa_bts = ListProperty()
+    """
+    List of widgets from individual taxa in the "Taxa" tab of the
+    sidepanel. This attribute is used when searching for taxa and for
+    loading only Button subsets of very large data sets. Each element
+    will be a tuple containing the main Button, the information Button,
+    and the remove Button widgets.
+    """
     sp_partition_bts = ListProperty()
+    """
+    List of widgets from individual partitions in the "Partitions" tab of the
+    sidepanel. This attribute is used when searching for partitions and for
+    loading only Button subsets of very large data sets. Each element
+    will be a tuple containing the main Button, the counter Button,
+    and the edit Button widgets.
+    """
 
     # Attributes that control the amount of taxa/file buttons showing at the
     # side panel. To avoid staggering the app with tons of buttons, a
     # maximum number of buttons showing initially is set. More buttons
     # can be later added.
     MAX_FILE_BUTTON = NumericProperty(20)
+    """
+    Integer with the maximum number of file Buttons allowed in the "Files"
+    tab of the sidepanel. Prevents the loading of all file Buttons in
+    very large datasets.
+    """
     count_files = NumericProperty(0)
+    """
+    Integer that servers as a counter of the number of file Buttons currently
+    loaded into the "Files" tab of the sidepanel.
+    """
     MAX_PARTITION_BUTTON = NumericProperty(20)
+    """
+    Integer with the maximum number of partition Buttons allowed in the
+    "Partitions" tab of the sidepanel. Prevents the loading of all partition
+    Buttons in very large datasets.
+    """
     count_partitions = NumericProperty(0)
+    """
+    Integer that servers as a counter of the number of partition Buttons
+    currently loaded into the "Partitions" tab of the sidepanel.
+    """
 
-    # Attributes storing the toggle buttons from Taxa/File panels. Mostly
-    # for mouse_over events
-    # Contains the button widgets from the Files and Taxa tabs
     mouse_over_bts = DictProperty({
         "Files": [],
         "Taxa": [],
         "Partitions": []})
-    # The button text of the previous mouse over event. This will allow the
-    # assessment of whether the current mouse collision is for the same
-    # button (in which case the mouse over will not be triggered) or for
-    # a different button (in which case the mouse over is triggered)
+    """
+    Attributes storing the ToggleButton objects from Taxa/File/Partitions
+    tabs in the sidepanel. Used mostly for mouse over events.
+    """
+
     previous_mouse_over = StringProperty("")
-    # This is a locking mechanism of the mouse over event. When there is a
-    # scheduled event for a mouse over this attribute is set to False, which
-    # prevents further events from being scheduled in the meantime. When the
-    # scheduled event is dispatched, the lock is released and it returns to
-    # True
+    """
+    The Button text property of the previous mouse over event. This will
+    allow the assessment of whether the current mouse collision is for the
+    same button (in which case the mouse over will not be triggered) or for
+    a different button (in which case the mouse over is triggered).
+    """
+
     mouse_over_ready = BooleanProperty(True)
-    # Stores the previous mouse over label button so that it can be removed
+    """
+    bool attribute that is a locking mechanism of the mouse over event.
+    When there is a scheduled event for a mouse over this attribute is set
+    to False, which prevents further events from being scheduled in the
+    meantime. When the scheduled event is dispatched, the lock is released
+    and it returns to True.
+    """
+
     old_mouse_over = None
-    fancy_bt = ObjectProperty(FancyButton())
+    """
+    Label widget of the previous mouse over. Used so that this label can be
+    removed.
+    """
+    fancy_bt = None
+    """
+    Reference to the 
+    :class:`~trifusion.data.resources.custom_widgets.FancyButton` object
+    from the current mouse over.
+    """
     touch = None
-    # Attribute that stores paths of currently active removable media
+    """
+    Touch object. Can be used to query the type of touch on certain events.
+    """
+
     removable_media = []
-    # Attribute that locks arrow keys keybindings when a text input is
-    # focused
+    """
+    List attribute that stores paths of currently active removable media.
+    """
+
     arrow_block = BooleanProperty(False)
+    """
+    bool attribute that ocks arrow keys keybindings when a text input is
+    focused.
+    """
 
     # Whether SidePanel's More options dialog is active or not
     sp_moreopts = BooleanProperty(False)
+    """
+    bool attribute of whether the side panel's MoreOptions dialog is active
+     (True) or not (False).
+    """
 
     # Whether a FancyDropDown is... well... dropped
     fancy_dropped = BooleanProperty(False)
+    """
+    bool attribute of whether the
+    :class:'trifusion.data.resources.custom_widgets.FancyDropDown object
+    if active (True) or not (False).
+    """
 
-    # Attribute that stores the last selected button in the sidepanel.
     last_sp_bt = {"Files": None, "Taxa": None, "Partitions": None}
+    """
+    Dictionary that stores the last selected Button object in the sidepanel
+    for Files, Taxa and Partitions.
+    
+        last_sp_bt = {"Files": None, "Taxa": None, "Partitions": None}
+    """
 
-    # Attribute that stores information on whether the control key is being
-    # pressed
     is_control_pressed = BooleanProperty(False)
+    """
+    bool attribute that stores information on whether the control key
+    is being pressed (True) or not (False).
+    """
 
-    # Attribute that stores information on whether the shift key is being
-    # pressed
     is_shift_pressed = BooleanProperty(False)
+    """
+    bool attribute that stores information on whether the shift key
+    is being pressed (True) or not (False).
+    """
 
-    # Attribute that stores the previous button for general purpose multi
-    # selection of toggle buttons using shift clicking
     prev_tb = None
+    """
+    Attribute that stores the previous Button for general purpose multi
+    selection of toggle buttons using shift clicking
+    """
 
     mouse_position = ListProperty()
+    """
+    List of the mouse position coordinates in [xpos, ypos].
+    """
 
-    # Attribute that determines whether statistics background processes
-    # should be interrupted or not
     lock_stats = BooleanProperty(False)
+    """
+    bool attribute that determines whether statistics background processes
+    should be interrupted (True) or not (False).
+    """
 
     # Attributes used to determine is a specific background process
     # should be terminated by the user. All values are set to True by
     # default and their values only change on the start up of the
     # appropriate function.
 
-    # For Statistics summary stats
     terminate_stats = BooleanProperty(True)
+    """
+    bool attribute used to determine if a summary statists background
+    process should be terminated by the user. Value is True by default and
+    they only change on the start up of the appropriate background function.
+    """
 
-    # For process execution
     terminate_process_exec = BooleanProperty(True)
+    """
+    bool attribute used to determine if a process execution background
+    process should be terminated by the user. Value is True by default and
+    they only change on the start up of the appropriate background function.
+    """
 
-    # For generic background process
     terminate_background = BooleanProperty(True)
+    """
+    bool attribute used to determine if a generic background
+    process should be terminated by the user. Value is True by default and 
+    they only change on the start up of the appropriate background function.
+    """
 
-    # For file loading
     terminate_load_files = BooleanProperty(True)
+    """
+    bool attribute used to determine if a file loading background
+    process should be terminated by the user. Value is True by default and 
+    they only change on the start up of the appropriate background function.
+    """
 
-    # For orthology search execution
     terminate_orto_search = BooleanProperty(True)
+    """
+    bool attribute used to determine if a orthology search background
+    process should be terminated by the user. Value is True by default and 
+    they only change on the start up of the appropriate background function.
+    """
 
-    # For orthology group export
     terminate_group_export = BooleanProperty(True)
-
+    """
+    bool attribute used to determine if a ortholog export background
+    process should be terminated by the user. Value is True by default and 
+    they only change on the start up of the appropriate background function.
+    """
 
     ################################
     #
@@ -533,160 +862,284 @@ class TriFusionApp(App):
     #
     ################################
 
-    # MySQL access
-    mysql_pass = StringProperty("")
     sqldb = StringProperty("")
+    """String with path to sqlite database."""
 
-    # OrthoMCL output directory
     ortho_dir = StringProperty("")
+    """String with path to OrthoMCL output directory."""
 
-    # Export directory for orthology exports
     orto_export_dir = StringProperty("")
+    """String with path to directory for ortholog exports."""
 
-    # USEARCH database
     usearch_file = StringProperty("")
+    """String with path to usearch executable."""
     usearch_db = StringProperty("goodProteins_db")
+    """String with name of usearch's database file."""
     usearch_output = StringProperty("AllVsAll.out")
+    """String with name of the usearch output file."""
     usearch_evalue = StringProperty("0.00001")
+    """String with evalue for usearch execution."""
 
     # MCL/Groups attributes
     mcl_file = StringProperty("")
+    """String with path to mcl executable."""
     ortholog_prefix = StringProperty("My_group")
+    """String with prefix for ortholog groups."""
     group_prefix = StringProperty("group")
+    """String with prefix for orthology search group files."""
     mcl_inflation = ListProperty(["3"])
+    """List with inflation values, as strings, for the mcl execution."""
 
     # Protein quality filters
-    protein_min_len = NumericProperty(10)  # Absolute
-    protein_max_stop = NumericProperty(20)  # Percentage
+    protein_min_len = NumericProperty(10)
+    """Integer with the minimum protein length for OrthoMCL."""
+    protein_max_stop = NumericProperty(20)
+    """Integer with the maximum percentage of stops for OrthoMCL."""
 
     # Orthology cluster filters
     orto_max_gene = NumericProperty(1)
+    """
+    Integer with maximum number of gene copies allowed for each
+    ortholog group.
+    """
     orto_min_sp = NumericProperty(3)
+    """
+    Integer with the minimum taxa representation allowed for each
+    ortholog group..
+    """
 
     # Attributes for exporting groups as protein/nucleotides
     protein_db = StringProperty("")
+    """String with path to protein database file."""
     cds_db = ListProperty("")
+    """List with paths to the CDS files corresponding to proteomes."""
 
     # Attribute containing the path to the proteome files
     proteome_files = []
+    """List of paths to proteome files loaded into TriFusion."""
     active_proteome_files = ListProperty()
+    """List of active proteome files."""
 
     # Attribute containing the orthology group files
     ortho_group_files = ListProperty()
+    """List with paths to ortholog group files loaded into TriFusion."""
     ortho_groups = None
+    """
+    Reference to a :class:`~trifusion.ortho.OrthomclToolbox.MultiGroupLight`
+    object.
+    """
     active_group = None
+    """
+    Reference to a :class:`~trifusion.ortho.OrthomclToolbox.GroupLight`
+    object, currently active.
+    """
     active_group_name = None
+    """
+    String with name of the currently active
+    :class:`~trifusion.ortho.OrthomclToolbox.GroupLight`.
+    """
 
-    # List storing the original alignment object variables. SHOULD NOT BE
-    # MODIFIED
     alignment_list = None
-    # List of active alignment object variables.
-    active_alignment_list = None
-    # List of active partitions
+    """
+    Reference to a :class:`~trifusion.process.sequence.AlignmentList` object.
+    """
     active_partitions = ListProperty()
+    """
+    List of currently active partitions.
+    """
 
-    # Attribute that determines whether taxa information needs to be updated
     trigger_taxa_update = False
+    """
+    bool attribute that determined whether taxa information needs to be
+    updated (True) or not (False).
+    """
 
-    # Attributes containing the original and active taxa information
-    # dictionaries
     original_tx_inf = DictProperty()
+    """
+    Dictionary that maps a taxon string to the several informative
+    properties for the entire loaded data set, shown when clicking the
+    information button in the sidepanel.
+    """
     active_tx_inf = DictProperty()
-    # Same as before but for file information
+    """
+    Dictionary that maps a taxon string to the several informative
+    properties for the active data set, shown when clicking the
+    information button in the sidepanel.
+    """
     original_file_inf = DictProperty()
+    """
+    Dictionary that maps a filename string to the several informative
+    properties for the entire loaded data set, shown when clicking the
+    information button in the sidepanel. 
+    """
     active_file_inf = DictProperty()
+    """
+    Dictionary that maps a filename string to the several informative 
+    properties for the active data set, shown when clicking the
+    information button in the sidepanel. 
+    """
+    #TODO: must check RAM usage of these dictionaries
 
-    # Export mode. Tuple with first element "taxa" or "file" and second
-    # element as "all" or "selected"
     export_mode = None
+    """
+    Tuple attribute that determines the export mode in the
+    sidepanel. The first element can be either 'taxa' or 'file'. The
+    second element can be 'all' or 'select'.
+    """
 
-    # Attribute storing the sequence types currently loaded
     sequence_types = StringProperty()
+    """
+    String attribute storing the sequence type of alignment files
+    currently loaded.
+    """
 
     # Attribute for taxa and file groups
     taxa_groups = DictProperty()
+    """
+    Dictionary storing custom taxa groups defined in TriFusion. Keys are
+    group names and values are a list of taxon names.
+    """
     file_groups = DictProperty()
+    """
+    Dictionary storing custom file groups defined in TriFusion. Keys are
+    group names and values are a list of filenames.
+    """
     dataset_file = None
+    """
+    String attribute with path to a data set file.
+    """
 
-    # Attribute containing the objects for the several possible output
-    # files.
     output_file = StringProperty("")
+    """
+    String with path to output file for Process execution.
+    """
     output_dir = StringProperty("")
+    """String with path to output directory for Process execution."""
     conversion_suffix = StringProperty("")
+    """
+    String with suffix to add for conversion operation of Process
+    execution.
+    """
 
-    # Attribute storing active output formats. Fasta is True by default
     output_formats = ListProperty(["fasta"])
+    """
+    List of output currently selected output formats for Process execution.
+    """
 
-    # Attributes for extra options of output formats
-    # Determines wheter the Fasta output format will be compliant with LDhat
     ld_hat = BooleanProperty(False)
+    """
+    bool attribute that determines whether the Fasta output format shoud
+    be compliant with LDhat (True) or a regular fasta (False).
+    """
     # Determines whether the part.File associated with phylip format is
     # created
     create_partfile = BooleanProperty(True)
-    # Determines whether the charset partitions in Nexus input files are to
-    # be used in the output file
+    """
+    bool attribute that determines whether the partition file associated with
+    the phylip format should be created (True) or not (False).
+    """
+
     use_nexus_partitions = BooleanProperty(True)
-    # Determines whether the substitution models defined for the
-    # partitions are to be used in the output file
+    """
+    bool attribute that determines whether the charset partitions block
+    in nexus format should be written (True) or not (False).
+    """
+
     use_nexus_models = BooleanProperty(True)
-    # Determines whether taxa names should be truncated to 10 characters
-    # in a phylip file
+    """
+    bool attribute that determines whether the substitution models
+    associated to alignment partitions should be written to the nexus
+    file (True) or not (False).
+    """
+
     phylip_truncate_name = BooleanProperty(False)
-    # Additional options for IMa2 ormat
-    # [0] - string - population file path
-    # [1] - string - Population tree string
-    # [2] - list - mutation model for each partition (one element if
-    # applies to all)
-    # [3] - list - inheritance scalaer for each partition (one element if
-    #  applies to all)
+    """
+    bool attribute that determines whether taxa names should be truncated
+    to 10 characters (True) or not (False) in a phylip output file.
+    """
+
     ima2_options = ListProperty([None, None, None, None])
+    """
+    Four element list of additional options for IMa2 format:
+    
+        1. str - population file path
+        2. str - Population tree string
+        3. list - mutation model for each partition (one element if
+    applies to all)
+        4. list - inheritance scalaer for each partition (one element if
+     applies to all)
+    """
 
-    # Attribute storing the missing data filter settings. The list should
-    # contain gap threshold as first element, missing data threshold as
-    # second element and minimum taxa representation proportion as the third
-    # element
     missing_filter_settings = ListProperty([(True, 25, 50), (True, 0)])
-    # Attribute storing the taxa filter settings. The first element of
-    # the list should be the filter mode (either "Contain" or "Exclude")
-    # and the second element should be a string with the name of the taxa
-    #  group (from the
-    # taxa_group attribute)
+    """
+    Two element list attribute storing the missing data filter settings.
+    The first element is a three element tuple:
+    
+        1. bool. Whether the missing data filter is active (True) or not
+           (False).
+        2. int. Percentage of gaps allowed.
+        3. int, Percentage of missing data allowed.
+    
+    The second element is a two element tuple:
+        
+        1. bool. Whether the minimum taxa representation filter is active
+           (True) or not (False).
+        2. int. Percentage of the min taxa representation
+    """
+
     taxa_filter_settings = ListProperty([None, None])
-    # Attribute storing the alignment filter settings. This will determine
-    # which codon positions will be written to the output (only for DNA
-    # sequences), so this will consist of a list containing 3 elements that
-    # correspond to each position. Positions will be saved or filtered
-    # depending on the boolean value of the list position. Ex. [True,
-    # True, True] will save all positions, whereas [True, True, False]
-    # will only save the first
-    # two positions
+    """
+    List attribute storing the taxa filter settings. The first element of
+    the list should be the filter mode (either "Contain" or "Exclude")
+    and the second element should be a string with the name of the taxa
+    group (from the :attr:`~TriFusionApp.taxa_group` attribute).
+    """
+
     codon_filter_settings = ListProperty([True, True, True])
-    # Attribute storing the alignment variation filter settings. For each
-    # key entry there is a list with two elements, storing the minimum
-    # and maximum value for that particular statistic. None values are
-    # allowed, in which case there is no boundary
+    """
+    List attribute storing the alignment filter settings. This will determine
+    which codon positions will be written to the output (only for DNA
+    sequences), so this will consist of a list containing 3 elements that
+    correspond to each position. Positions will be saved or filtered
+    depending on the boolean value of the list position. Ex. [True,
+    True, True] will save all positions, whereas [True, True, False]
+    will only save the first two positions.
+    """
+
     variation_filter = ListProperty([None, None, None, None])
+    """
+    List attribute storing the alignment variation filter settings. The
+    elements correspond to:
+    
+        1. Minimum variable sites.
+        2. Maximum variable sites.
+        3. Minimum informative sites.
+        4. Maximum informative sites.
+    """
 
-    # Attribute determining whether reverse concatenation will use a
-    # partition file or the partitions defined in the app
     use_app_partitions = BooleanProperty(False)
-    # Partitions file
+    """
+    bool atribute determining whether reverse concatenation will use a
+    partition file (False) or the partitions defined in the app (True).
+    """
+
     partitions_file = StringProperty("")
-    # Input file for reverse concatenation
+    """
+    String with path to partitions file.
+    """
+    
     rev_infile = StringProperty("")
+    """
+    String with nameo the alignment file to be reverse concatenated.
+    """
 
-    # Attribute for ZORRO settings
     zorro_suffix = StringProperty("")
+    """String with the suffix of zorro files."""
     zorro_dir = StringProperty("")
+    """String with the directory containing the zorro files."""
 
-    # Attribute storing the haplotype prefix
     hap_prefix = StringProperty("Hap")
-
-    ##################################
-    #
-    # GUI RELATED METHODS AND FUNCTIONS
-    #
-    ##################################
+    """String with the haplotype prefix for collapse operation."""
 
     def build(self):
 
@@ -772,6 +1225,8 @@ class TriFusionApp(App):
         # Initialize projects
         self.projects_init()
 
+        self.fancy_bt = ObjectProperty(FancyButton())
+
         # Set schedule for mouse over events on side panel
         Clock.schedule_interval(lambda x: self._on_mouseover_tabs(), .1)
 
@@ -792,79 +1247,6 @@ class TriFusionApp(App):
         if sys.argv[1:]:
             Clock.schedule_once(
                 lambda dt: self.load_files_startup(sys.argv[1:]), .1)
-
-        """
-        ------------------------ METHOD NOMENCLATURE GUIDE -----------------
-
-        Given the large number of methods needed to give functionality to
-        the app, this nomenclature guide was created to aid in the naming
-        of new methods so that the code can be more easily browsed and
-        understood. Note that this guide only targets methods that
-        perform similar tasks and, therefore, can be grouped by a common
-        prefix name. Other methods that perform more unique operations
-        may have different names.
-
-        Method's names will be given based on their main operation and
-        specific task. For example, a method in charge of toggle the side
-        panel, should be named "toggle_sidepanel", being "toggle" the
-        common prefix and "sidepanel" the keyword linked ot the specific
-        task.
-
-        1. Toggles.
-
-        "toggle_[specific_task]", e.g. "toggle_sidepanel"
-
-        Methods use to toggle certain widgets or values/attributes.
-
-        2. Dialogues.
-
-        "dialog_[specific_task]", e.g. "dialog_format"
-
-        Methods that generate dialogues throughout the app, usually in
-        the form of popups
-
-        3. Populating methods.
-
-        "populate_[specific_task]", e.g., "populate_input_files"
-
-        Methods that populate certain widgets, usually gridlayouts, with
-        other widgets
-
-        4. Add/Remove
-
-        "add_[specific_task]", e.g., "add_bookmark"
-        "remove_[specific_task]", e.g., "remove_taxa_group"
-
-        Methods that add or remove widgets, usually buttons/togglebuttons,
-        from other widgets
-
-        5. Saves.
-
-        "save_[specific_task]", e.g., "save_file"
-
-        Methods that save specific settings from the several options of the
-        sapp
-
-        6. Updates.
-
-        "update_[specific_task]", e.g., "update_tabs"
-
-        Wrapper methods used to update several attributes or widgets of the
-        app
-
-        7. Checks.
-
-        "check_[specific_task]", e.g., "check_filters"
-
-        Methods that perform some kind of sanity checks to user input data
-
-        8. Unique operations
-
-        [specific_task]_[unique_operation], e.g., "sidepanel_animation"
-
-        When the method performs a unique operations, the specific_task
-        should prefix the name of the method.
-        """
 
     def mouse_zoom(self, *vals):
         """
@@ -2096,12 +2478,11 @@ class TriFusionApp(App):
                                 bt_text[bt.background_normal],
                                 bt, adjust_pos=True, orientation="vertical")
 
-            else:
-                # If no collision is detected, remove any remaining
-                # label widget
-                if collision is False and \
-                        self.old_mouse_over in self.root_window.children:
-                    self.root_window.remove_widget(self.old_mouse_over)
+            # If no collision is detected, remove any remaining
+            # label widget
+            if collision is False and \
+                    self.old_mouse_over in self.root_window.children:
+                self.root_window.remove_widget(self.old_mouse_over)
 
         # Only do this when Statistics screen is on
         if self.screen.name == "Statistics" and not self.show_side_panel \
@@ -2655,7 +3036,7 @@ class TriFusionApp(App):
 
                 if shared_ns.counter:
                     self._popup.content.ids.msg2.text = "{}/{}".format(
-                        shared_ns.counter, shared_ns.files)
+                        shared_ns.counter, shared_ns.total)
 
             if not p.is_alive():
 
@@ -2664,8 +3045,8 @@ class TriFusionApp(App):
                         return self.dialog_floatcheck(
                             "An unexpected error occurred. Check the app"
                             " logs", t="error")
-                except:
-                    pass
+                except Exception as e:
+                    Logger.exception(e.message)
 
                 try:
                     val = shared_ns.val
@@ -3968,7 +4349,7 @@ class TriFusionApp(App):
         """
 
         content = InputTextDialog(cancel=self.dismiss_popup,
-                                  action=lambda x: self.partitions_merge(x))
+                                  action=self.partitions_merge)
 
         self.show_popup(title="Choose name for new partition",
                         content=content,
@@ -4578,8 +4959,6 @@ class TriFusionApp(App):
                     self.active_file_inf["aln_format"]
                 content.ids.seq_type.text = "%s" % \
                     self.active_file_inf["seq_type"]
-                content.ids.is_aln.text = "%s" % \
-                    self.active_file_inf["is_aln"]
                 content.ids.seq_size.text = "%s" % \
                     self.active_file_inf["aln_len"]
                 content.ids.n_taxa.text = "%s" % \
@@ -4743,6 +5122,82 @@ class TriFusionApp(App):
                                               len(bt_list))
 
         self.prev_tb = value
+
+    def sidepanel_invert_selection(self, panel):
+        """
+        
+        Parameters
+        ----------
+        panel
+
+        Returns
+        -------
+
+        """
+
+        # Set gridlayout and taxa/file list of the appropraite panel
+        if panel == "Files":
+            grid_wgt = self.root.ids.file_sl
+            lst = self.file_list if self.file_list else self.proteome_files
+            active_lst = self.active_file_list if self.file_list \
+                else self.active_proteome_files
+
+        else:
+            grid_wgt = self.root.ids.taxa_sl
+            lst = self.alignment_list.taxa_names
+            active_lst = self.active_taxa_list
+
+        # Storage of active itens
+        active_items = []
+
+        # Invert selection and get the active elements
+        for item in lst:
+
+            if item not in active_lst:
+                active_items.append(item)
+
+        # Update panel with new active elements
+        for wgt in grid_wgt.children:
+
+            # Get only toggle buttons
+            if isinstance(wgt, ToggleButton):
+
+                # Get text. File togglebuttons have the basename of the
+                # active list
+                txt = self.filename_map[wgt.text] if panel == "Files" \
+                    else wgt.text
+
+                if txt in active_items:
+                    wgt.state = "down"
+                
+                else:
+                    wgt.state = "normal"
+
+        # Core changes to taxa
+        if panel == "Taxa":
+
+            self.active_taxa_list = active_items
+            self.update_sp_label()
+
+        elif panel == "Files":
+
+            # Update when alignment files are loaded
+            if self.file_list:
+
+                # update active file list
+                self.active_file_list = active_items
+
+                # Update AlignmentList object
+                self.alignment_list.update_active_alignments(
+                    active_items
+                )
+                
+            # Update when proteome files are loaded
+            if self.proteome_files:
+
+                self.active_proteome_files = active_items
+
+            self.update_file_label()
 
     def toggle_selection(self, value):
         """
@@ -5334,6 +5789,7 @@ class TriFusionApp(App):
         # Core changes to files
         if (sv_parent == self.root.ids.sv_file and
                 value.text == "Select All"):
+
             if self.file_list:
                 self.active_file_list = self.file_list[:]
                 self.alignment_list.update_active_alignments(
@@ -6130,7 +6586,7 @@ class TriFusionApp(App):
         def check_process(p, ldg_wgt, plt_wgt, ns, dt):
 
             try:
-                ldg.ids.msg.text = "{}/{}".format(ns.counter, ns.files)
+                ldg.ids.msg.text = "{}/{}".format(ns.counter, ns.total)
             except AttributeError:
                 pass
 
@@ -6924,17 +7380,6 @@ class TriFusionApp(App):
         self.show_popup(title="Choose group file(s) to import",
                         content=content, size_hint=(.9, .9))
 
-    def dialog_mysql(self):
-        """
-        Creates dialog for MySQL settings
-        """
-
-        content = MySQLDialog(cancel=self.dismiss_popup)
-        content.ids.txt_dlg.text = self.mysql_pass
-
-        self.show_popup(title="MySQL root password", content=content,
-                        size=(200, 150))
-
     def dialog_protein_filter(self):
 
         content = ProteinFilterDialog(cancel=self.dismiss_popup)
@@ -7188,8 +7633,8 @@ class TriFusionApp(App):
                         return self.dialog_floatcheck(
                             "An unexpected error occurred when exporting "
                             "orthologs. Check the app logs.", t="error")
-                except:
-                    pass
+                except Exception as e:
+                    Logger.exception(e.message)
 
                 Clock.unschedule(func)
                 self.dismiss_popup()
@@ -7521,6 +7966,11 @@ class TriFusionApp(App):
         construction
         :param plt_idx: string, identification string of the plot.
         """
+
+        if not plot_data["data"]:
+            self.screen.ids.plot_content.children[0].clear_widgets()
+            return self.dialog_floatcheck("There is not data to plot with"
+                                          "the current filters", t="error")
 
         # Update excluded taxa attribute
         self.screen.ids.header_content.excluded_taxa = \
@@ -7863,8 +8313,8 @@ class TriFusionApp(App):
         if group_name and group_name.__class__.__name__ == "MultiGroupsLight":
             try:
                 self.ortho_groups = group_name
-            except:
-                pass
+            except Exception as e:
+                Logger.exception(e.message)
 
         if group_name and not \
                 group_name.__class__.__name__ == "MultiGroupsLight":
@@ -8709,7 +9159,7 @@ class TriFusionApp(App):
 
         # Show popup
         self.show_popup(title="Choose output format", content=content,
-                        size=(300, 500))
+                        size=(300, 550))
 
     def dialog_reverse_inlist(self):
 
@@ -8836,7 +9286,7 @@ class TriFusionApp(App):
 
         # Lists the idx that do not required file name
         idx_no_file = ["ortho_dir", "zorro_dir", "protein_db", "mcl_fix",
-                       "usearch_fix", "cds_db"]
+                       "usearch_fix", "cds_db", "ima2_popfile"]
 
         # Maps idx for which an extension label is provided in the filechooser
         # The key is the idx, the value is the extension to appear in the label
@@ -8871,7 +9321,9 @@ class TriFusionApp(App):
             "mcl_fix":
                 "Select the MCL executable...",
             "usearch_fix":
-                "Select the USEARCH executable..."
+                "Select the USEARCH executable...",
+            "ima2_popfile":
+                " Select the population file for IMa2 format"
         }
 
         # Add extension selection spinner, if idx in idx_with_ext
@@ -9106,7 +9558,7 @@ class TriFusionApp(App):
     @staticmethod
     def check_partition_split(value, prange):
         """
-        Method that validates the text input for manual split of partitions.
+        Method that validates the text input for manual split of _partitions.
         Ensures that the input can be converted to int, and whether it is
         inside the available range.
         """
@@ -9236,7 +9688,7 @@ class TriFusionApp(App):
         if main_op == "reverse_concatenation" and not self.rev_infile and \
                 len(self.file_list) > 1:
             return self.dialog_floatcheck(
-                "Reverse concatenation using partitions defined in "
+                "Reverse concatenation using _partitions defined in "
                 "the app requires only one input alignment. Please select"
                 " a single file to reverse concatenate in the Reverse "
                 "concatenate settings", t="error")
@@ -9254,7 +9706,7 @@ class TriFusionApp(App):
 
         # Check if main operation is reverse concatenation and if the active
         # taxa set smaller than the complete set. If so, issue a warning
-        # that individual partitions that do not contain any of the selected
+        # that individual _partitions that do not contain any of the selected
         # taxa will not be written
         if main_op == "reverse_concatenation" and self.active_taxa_list != \
                 self.alignment_list.taxa_names:
@@ -9388,10 +9840,8 @@ class TriFusionApp(App):
         disabled)
         """
 
-        """
-        The text of the Output file/directory field changes depending on
-        whether the main operation is a concatenation or a conversion
-        """
+        # The text of the Output file/directory field changes depending on
+        # whether the main operation is a concatenation or a conversion
         file_text = "[size=18][b]Output file[/b][/size]\n[size=13]Save " \
                     "output file to the selected file.[/size]"
         dir_text = "[size=18][b]Output directory[/b][/size]\n[size=13]" \
@@ -10167,7 +10617,7 @@ class TriFusionApp(App):
                         return self.dialog_floatcheck(
                             "Unexpected error when loading input data. "
                             "Check app logs", t="error")
-                except:
+                except Exception as e:
                     pass
 
                 # Get the alignment object from the child thread and load
@@ -10405,7 +10855,8 @@ class TriFusionApp(App):
             if self.current_screen == "Statistics":
                 self.statistics_show_summary()
 
-    def get_taxon_information(self, tx, aln_list):
+    @staticmethod
+    def get_taxon_information(tx, aln_list):
         """
         Akin to the get_taxa_information method, but it only looks for
         the information of a single taxon.
@@ -10426,7 +10877,7 @@ class TriFusionApp(App):
         # active data set is not empty
         if aln_list.alignments:
             for aln in aln_list:
-                if tx in aln.taxa_list:
+                if tx in aln.taxa_idx:
                     sequence.append(aln.get_sequence(tx))
                 else:
                     tx_missing += 1
@@ -10515,8 +10966,6 @@ class TriFusionApp(App):
                 - seq_type: The sequence type. If DNA, RNA, Protein.
                 - n_taxa: Number of taxa
                 - aln_len: Length of the alignment
-                - is_aln: If the input file is in alignment format of
-                non-aligned sequence set format
                 - model: The model of sequence evolution, if applicable.
                  This is
                 usually only present on Nexus input format
@@ -10543,10 +10992,7 @@ class TriFusionApp(App):
 
                 # Get number of species
                 file_inf["n_taxa"] = len([x for x in
-                    aln.taxa_list if x in self.active_taxa_list])
-
-                # Get if is alignment
-                file_inf["is_aln"] = str(aln.is_alignment)
+                    aln.taxa_idx if x in self.active_taxa_list])
 
                 # Get length of largest sequence if not aligned, or
                 # alignment length
@@ -10823,8 +11269,8 @@ class TriFusionApp(App):
                     if shared_ns.exception:
                         self.dialog_floatcheck(shared_ns.exception,
                                                t="error")
-                except:
-                    pass
+                except Exception as e:
+                    Logger.exception(e.message)
 
                 try:
                     # Set the protein database file
@@ -10833,7 +11279,8 @@ class TriFusionApp(App):
                                            self.usearch_db)
                     self.dialog_search_report(shared_ns.stats,
                                               shared_ns.groups)
-                except:
+                except Exception as e:
+                    Logger.exception(e.message)
                     if not shared_ns.exception:
                         self.dialog_floatcheck("Unexpected error when "
                                                "search orthologs. Check "
@@ -11088,8 +11535,11 @@ class TriFusionApp(App):
 
                     if shared_ns.total and shared_ns.counter:
                         # Get percentage
-                        perc = int((float(shared_ns.counter) /
-                                    float(shared_ns.total)) * 100.)
+                        try:
+                            perc = int((float(shared_ns.counter) /
+                                        float(shared_ns.total)) * 100.)
+                        except TypeError:
+                            perc = 0
 
                         # Set percentage on progress dialog
                         wgt_ref["counter"].text = "{}%".format(perc)
@@ -11115,8 +11565,7 @@ class TriFusionApp(App):
                 Clock.unschedule(check_func)
                 self.dismiss_all_popups()
                 # Removes all temporary database tables
-                self.alignment_list.remove_tables(
-                    self.alignment_list.get_tables())
+                self.alignment_list.remove_tables()
                 return
 
             try:
@@ -11158,25 +11607,15 @@ class TriFusionApp(App):
                 self.dismiss_all_popups()
 
                 # Removes all temporary database tables
-                self.alignment_list.remove_tables(
-                    self.alignment_list.get_tables())
+                self.alignment_list.remove_tables()
 
                 p.join()
 
                 # If process execution ended with an error, issue warning.
                 try:
-                    if shared_ns.exception == "EmptyAlignment":
-                        return self.dialog_floatcheck(
-                            "The alignment is empty after applying "
-                            "filters", t="error")
-                    elif "InvalidPartitionFile" in shared_ns.exception:
-                        return self.dialog_warning("Invalid Partition file",
-                            shared_ns.exception["InvalidPartitionFile"])
-                    elif shared_ns.exception == "Unknown":
-                        return self.dialog_floatcheck(
-                            "Unexpected error when generating "
-                            "Process output. Check the app logs.",
-                            t="error")
+
+                    self.dialog_warning(shared_ns.exception["exception"][0],
+                                        shared_ns.exception["exception"][1])
                     man.shutdown()
                 except:
                     if shared_ns.proc_files == 1:

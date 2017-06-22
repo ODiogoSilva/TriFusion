@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #  Copyright 2012 Unknown <diogo@arch>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -29,7 +29,6 @@ with warnings.catch_warnings():
     import shutil
     import time
     import argparse
-    from progressbar import ProgressBar, Timer, Bar, Percentage, SimpleProgress
     from glob import glob
 
     try:
@@ -39,6 +38,8 @@ with warnings.catch_warnings():
         from process.error_handling import *
         from base.sanity import triseq_arg_check, mfilters, post_aln_checks, \
             check_infile_list
+        from progressbar import ProgressBar, Timer, Bar, Percentage, \
+            SimpleProgress
     except ImportError:
         from trifusion.process.base import print_col, RED, GREEN, YELLOW,\
             CleanUp
@@ -47,6 +48,8 @@ with warnings.catch_warnings():
         from trifusion.process.error_handling import *
         from trifusion.base.sanity import triseq_arg_check, mfilters, \
             post_aln_checks, check_infile_list
+        from trifusion.progressbar import ProgressBar, Timer, Bar,\
+            Percentage, SimpleProgress
 
 
 def gen_wgt(msg):
@@ -76,6 +79,10 @@ def main_parser(arg, alignment_list):
     # Set path to temporary sqlite database
     sql_db = os.path.join(tmp_dir, "trifusion.db")
 
+    # If database already exists, erase it. Make sure we start fresh.
+    if os.path.exists(sql_db):
+        os.remove(sql_db)
+
     # Defining main variables
     conversion = arg.conversion
     output_format = arg.output_format
@@ -91,12 +98,10 @@ def main_parser(arg, alignment_list):
         outfile = "".join(arg.outfile)
     elif arg.consensus and arg.consensus_single and not arg.outfile:
         outfile = "consensus"
-    elif conversion is not None and arg.outfile is None:
-        outfile = "".join(alignment_list).split(".")[0]
 
     # The input file at this stage is not necessary
     # If just converting the partition file format do this and exit
-    if arg.partition_file is not None:
+    if arg.partition_file is not None and not alignment_list:
         # Initializing Partitions instance and reading partitions file
         partition = data.Partitions()
         partition.read_from_file(arg.partition_file)
@@ -136,6 +141,21 @@ def main_parser(arg, alignment_list):
               quiet=arg.quiet)
     alignments = seqset.AlignmentList(alignment_list, sql_db=sql_db,
                                       pbar=pbar)
+
+    # If a partitions file was provided, and there is only a single input file,
+    # try to associate the partitions.
+    if len(alignment_list) == 1 and arg.partition_file:
+        aln = alignments.alignments.values()[0]
+        # Initializing and reading partition file
+        partition = data.Partitions()
+        er = partition.read_from_file(arg.partition_file)
+        if er:
+            print_col("Invalid partitions file.", RED)
+        # Updating alignment _partitions
+        er = aln.set_partitions(partition)
+        if er:
+            print_col("Partitions file inconsistent with alignment.", RED)
+        alignments.set_partition_from_alignment(aln, reset=True)
 
     post_aln_checks(arg, alignments)
 
@@ -184,13 +204,16 @@ def main_parser(arg, alignment_list):
         if len(alignment_list) > 1:
             raise ArgumentError("Only one input file allowed for reverse "
                                 "concatenation")
-        aln = alignments.alignments.values()[0]
-        # Initializing and reading partition file
-        partition = data.Partitions()
-        partition.read_from_file(arg.reverse)
-        # Updating alignment partitions
-        aln.set_partitions(partition)
-        alignments = aln.reverse_concatenate(pbar=pbar)
+        if arg.reverse:
+            aln = alignments.alignments.values()[0]
+            # Initializing and reading partition file
+            partition = data.Partitions()
+            partition.read_from_file(arg.reverse)
+            # Updating alignment _partitions
+            aln.set_partitions(partition)
+            alignments.set_partition_from_alignment(aln, reset=True)
+
+        alignments.reverse_concatenate(pbar=pbar)
 
     # Filtering
     # Filter by minimum taxa
@@ -202,13 +225,13 @@ def main_parser(arg, alignment_list):
     if arg.contain_filter:
         print_col("Filtering alignment(s) including a taxa group", GREEN,
                   quiet=arg.quiet)
-        alignments.filter_by_taxa("Contain", arg.contain_filter, pbar=pbar)
+        alignments.filter_by_taxa(arg.contain_filter, "Contain", pbar=pbar)
 
     # Filter by alignments that exclude taxa
     if arg.exclude_filter:
         print_col("Filtering alignments excluding a taxa group", GREEN,
                   quiet=arg.quiet)
-        alignments.filter_by_taxa("Exclude", arg.exclude_filter, pbar=pbar)
+        alignments.filter_by_taxa(arg.exclude_filter, "Exclude", pbar=pbar)
 
     # Filter by codon position
     if arg.codon_filter:
@@ -239,10 +262,9 @@ def main_parser(arg, alignment_list):
                                             pbar=pbar)
 
     # Concatenation
-    if not arg.conversion and not arg.reverse and not arg.consensus:
+    if not arg.conversion and not arg.consensus and len(alignment_list) > 1:
         print_col("Concatenating", GREEN, quiet=arg.quiet)
-        alignments = alignments.concatenate(alignment_name=os.path.basename(
-            outfile), pbar=pbar)
+        alignments.concatenate(pbar=pbar)
 
         # Concatenate zorro files
         if arg.zorro:
@@ -265,35 +287,21 @@ def main_parser(arg, alignment_list):
     if arg.consensus:
         consensus_type = arg.consensus[0]
         print_col("Creating consensus sequences", GREEN, quiet=arg.quiet)
-        if arg.consensus_single:
-            if isinstance(alignments, seqset.AlignmentList):
-                alignments = alignments.consensus(
-                    consensus_type, single_file=arg.consensus_single,
-                    pbar=pbar, use_main_table=True)
-            else:
-                alignments.consensus(consensus_type=consensus_type, pbar=pbar,
-                                     use_main_table=True)
-        else:
-            alignments.consensus(consensus_type=consensus_type, pbar=pbar,
-                                 use_main_table=True)
+        alignments.consensus(consensus_type, single_file=arg.consensus_single,
+                             pbar=pbar)
 
     # Write output
     print_col("Writing output", GREEN, quiet=arg.quiet)
-    if isinstance(alignments, seqset.Alignment):
-        alignments.write_to_file(output_format, outfile,
-                                 interleave=interleave,
-                                 partition_file=True,
-                                 use_charset=True,
-                                 ima2_params=arg.ima2_params,
-                                 pbar=pbar)
-    elif isinstance(alignments, seqset.AlignmentList):
-        alignments.write_to_file(output_format,
-                                 interleave=interleave,
-                                 ima2_params=arg.ima2_params,
-                                 pbar=pbar)
+    alignments.write_to_file(output_format, output_file=outfile,
+                             output_suffix=arg.output_suffix,
+                             interleave=interleave,
+                             ima2_params=arg.ima2_params,
+                             partition_file=True,
+                             use_charset=True,
+                             pbar=pbar)
 
 
-def get_args(arg_list=None):
+def get_args(arg_list=None, unittest=False):
 
     # The inclusion of the argument definition in main, makes it possible to
     # import this file as a module and not triggering argparse. The
@@ -304,62 +312,69 @@ def get_args(arg_list=None):
                                                  "TriFusion Process module")
 
     # Main execution
-    main_exec = parser.add_argument_group("Main execution")
-    main_exec.add_argument("-in", dest="infile", nargs="+", help="Provide the "
-                           "input file name. If multiple files are provided"
-                           ", please separated the names with spaces")
-    main_exec.add_argument("-of", dest="output_format", nargs="+",
-                           default=["nexus"],
-                           choices=["nexus", "phylip", "fasta", "mcmctree",
-                                    "ima2", "stockholm", "gphocs"],
-                           help="Format of the output file(s). You may select "
-                           "multiple output formats simultaneously (default is"
-                           " '%(default)s')")
-    main_exec.add_argument("-o", dest="outfile", help="Name of the output file")
+    general_opts = parser.add_argument_group("General options")
+    general_opts.add_argument(
+        "-in", dest="infile", nargs="+",
+        help="Provide the input file name. If multiple files are provided"
+             ", please separated the names with spaces.")
+    general_opts.add_argument(
+        "-of", dest="output_format", nargs="+", default=["nexus"],
+        choices=["nexus", "phylip", "fasta", "mcmctree", "ima2", "stockholm",
+                 "gphocs", "snapp"],
+        help="Format of the output file(s). You may select multiple output "
+             "formats simultaneously (default is '%(default)s').")
+
+    # Main operations
+    main_ops = parser.add_argument_group("Main operations")
+    main_ops.add_argument(
+        "-o", "--concatenation", dest="outfile",
+        help="(CONCATENATION) Provide a single argument with the name of the "
+             "output file.")
+    main_ops.add_argument(
+        "-c", "--conversion", dest="conversion", action="store_const",
+        const=True,
+        help="(CONVERSION) Specify this option without arguments to convert"
+             " each input file passed as argument of the '-in' option. The "
+             "name of each output file will be automatically generated based"
+             " on the corresponding input file name and an optional suffix "
+             "provided by the '--sufix' option.")
+    main_ops.add_argument(
+        "-r", "--reverse", dest="reverse",
+        help="(REVERSE CONCATENATION) Reverts a single alignment file provided"
+             " by via the 'in' option into multiple alignment files "
+             "according a partitions file. Provide a single partitions file "
+             "(in RAxML or Nexus charset format).")
 
     # Alternative modes
-    alternative = parser.add_argument_group("Alternative execution modes")
-    alternative.add_argument("-c", dest="conversion", action="store_const",
-                             const=True, help="Used for conversion of the "
-                             "input files passed as arguments with the -in "
-                             "option. This flag precludes the usage of the -o "
-                             "option, as the output file name is automatically "
-                             "generated based on the input file name")
-    alternative.add_argument("-r", dest="reverse", help="Reverse a concatenated"
-                             " file into its original single locus alignments."
-                             " A partition file similar to the one read by "
-                             "RAxML must be provided")
-    alternative.add_argument("-z", "--zorro-suffix", dest="zorro", type=str,
-                             help="Use this option if you wish to concatenate "
-                             "auxiliary Zorro files associated with each "
-                             "alignment. Provide the sufix for the concatenated"
-                             " zorro file")
-    alternative.add_argument("-p", "--partition-file", dest="partition_file",
-                             type=str, help="Using this option and providing "
-                             "the partition file will convert it between a "
-                             "RAxML or Nexus format")
-    alternative.add_argument("-s", dest="select", nargs="*", help="Selects "
-                             "alignments containing the provided taxa "
-                             "(separate multiple taxa with whitespace)")
-    alternative.add_argument("--collapse", dest="collapse",
-                             action="store_const",
-                             const=True, default=False, help="Use this flag if "
-                             "you would like to collapse the input alignment(s)"
-                             " into unique haplotypes")
-    alternative.add_argument("--code-gaps", dest="gcoder", action="store_const",
-                             const=True, default=False, help="Use this flag to "
-                             "code the gaps of the alignment into a binary "
-                             "state  matrix that is appended to the end of "
-                             "the alignment")
-    alternative.add_argument("--consensus", dest="consensus", nargs=1,
-                             choices=["First sequence", "IUPAC", "Soft mask",
-                                      "Remove"],
-                             help="Creates a consensus of the final alignments"
-                             " specifying how variation is handled")
-    alternative.add_argument("--consensus-single-file",
-                             dest="consensus_single", action="store_const",
-                             const=True, default=False, help="Merges "
-                             "consensus sequences in a single file")
+    alternative = parser.add_argument_group("Secondary operations")
+    alternative.add_argument(
+        "-z", "--zorro-suffix", dest="zorro", type=str,
+        help="Use this option if you wish to concatenate auxiliary Zorro "
+             "files associated with each alignment. Provide the sufix for "
+             "the concatenated zorro file")
+    alternative.add_argument(
+        "-s", dest="select", nargs="*",
+        help="Selects alignments containing the provided taxa (separate "
+             "multiple taxa with whitespace)")
+    alternative.add_argument(
+        "--collapse", dest="collapse", action="store_const", const=True,
+        default=False,
+        help="Use this flag if you would like to collapse the input "
+             "alignment(s) into unique haplotypes")
+    alternative.add_argument(
+        "--code-gaps", dest="gcoder", action="store_const", const=True,
+        default=False,
+        help="Use this flag to code the gaps of the alignment into a binary "
+             "state  matrix that is appended to the end of the alignment")
+    alternative.add_argument(
+        "--consensus", dest="consensus", nargs=1,
+        choices=["First sequence", "IUPAC", "Soft mask", "Remove"],
+        help="Creates a consensus of the final alignments specifying how "
+             "variation is handled")
+    alternative.add_argument(
+        "--consensus-single-file", dest="consensus_single",
+        action="store_const", const=True, default=False,
+        help="Merges consensus sequences in a single file")
 
     filter_g = parser.add_argument_group("Filter options")
     filter_g.add_argument("--missing-filter", dest="m_filter", nargs=2,
@@ -394,6 +409,25 @@ def get_args(arg_list=None):
                           "informative sites for each alignment. Filters "
                           "alignments with a number of informative sites "
                           "outside the specified range", type=int)
+
+    # Partition options
+    partition_opts = parser.add_argument_group("Partition options")
+    partition_opts.add_argument(
+        "-p", "--partition-file", dest="partition_file", type=str,
+        help="Provide a partitions file in RAxML or Nexus charset format."
+             " If no input files are provided via the 'in' option, this "
+             " will convert the format of the partitions file between RAxML"
+             " and Nexus and exit. If a single input files is provided,"
+             " the partition file will be associate with it when generating"
+             " the output file. Else, it will be ignored.")
+
+    # Output options
+    output_opts = parser.add_argument_group("Output options")
+    output_opts.add_argument(
+        "--suffix", dest="output_suffix", default="",
+        help="Appends the provided suffix at the end of each output file."
+             " Supported only for CONVERSION and REVERSE CONCATENATION"
+             " operations.")
 
     # Formatting options
     formatting = parser.add_argument_group("Formatting options")
@@ -445,10 +479,6 @@ def get_args(arg_list=None):
                               "specified in a csv file containing 1 column "
                               "with a species name in each line or in the "
                               "command line separated by whitespace")
-    # manipulation.add_argument("-outgroup", dest="outgroup_taxa", nargs="*",
-    #                           help="Provide taxon names/number for the "
-    #                           "outgroup  (This option is only supported for "
-    #                           "NEXUS output format files)")
 
     utilities = parser.add_argument_group("Utilities")
     utilities.add_argument("--get-taxa", dest="get_taxa",
@@ -463,6 +493,11 @@ def get_args(arg_list=None):
 
     args = parser.parse_args(arg_list)
 
+    # Print help when no arguments are provided
+    if len(sys.argv) == 1 and not unittest:
+        parser.print_help()
+        sys.exit(1)
+
     return args
 
 
@@ -473,6 +508,7 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
 
 

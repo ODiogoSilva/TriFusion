@@ -374,7 +374,7 @@ def coorthologs (cur):
         select ip.sequence_id_a, o.sequence_id_b\
         from InParalog2Way ip, Ortholog2Way o\
         where ip.sequence_id_b = o.sequence_id_a")
- 
+
 ##################################################################
 
     cur.execute("create table CoOrthologCandidate as\

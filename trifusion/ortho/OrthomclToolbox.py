@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #  Copyright 2012 Unknown <diogo@arch>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -579,6 +579,10 @@ class GroupLight(object):
         x_labels = [x for x in list(data)]
         data = list(data.values())
 
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
+
         # Sort lists
         x_labels = [list(x) for x in zip(*sorted(zip(x_labels, data)))][0]
 
@@ -612,6 +616,10 @@ class GroupLight(object):
 
         x_labels = [x for x in list(data)]
         data = list(data.values())
+
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
 
         x_labels, data = (list(x) for x in zip(*sorted(zip(x_labels, data))))
 
@@ -649,6 +657,10 @@ class GroupLight(object):
 
         data = data.most_common()
 
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
+
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data], [self.all_clusters - x[1] if not
                                       filt else self.all_compliant - x[1]
@@ -678,6 +690,10 @@ class GroupLight(object):
                 data += Counter(dict((x, y) for x, y in cl.items() if y > 1))
 
         data = data.most_common()
+
+        # When data is empty, return an exception
+        if not data:
+            return {"data": None}
 
         x_labels = [str(x[0]) for x in data]
         data = [[x[1] for x in data]]
@@ -1526,7 +1542,8 @@ class MultiGroupsLight(object):
                                                   self.gene_threshold,
                                                   self.species_threshold,
                                                   ns=ns)
-                    except:
+                    except Exception as e:
+                        print(e.message)
                         self.bad_groups.append(group_file)
                         continue
                 else:
@@ -1615,6 +1632,7 @@ class MultiGroupsLight(object):
         This will not change the Group object themselves, only the filter
         mapping. The filter is only applied when the Group object is retrieved
         to reduce computations
+
         :param gn_filter: int, filter for max gene copies
         :param sp_filter: int, filter for min species
         :param group_names: list, with names of group objects

@@ -14,6 +14,10 @@ concatenated_medium_nexus = [
     "trifusion/tests/data/BaseConcatenation.nex"
 ]
 
+concatenated_interleave_nexus = [
+    "trifusion/tests/data/BaseConcatenation_interleave.nex"
+]
+
 concatenated_small_phy = [
     "trifusion/tests/data/BaseConcatenation.phy"
 ]
@@ -112,6 +116,10 @@ variable_data = [
     "trifusion/tests/data/variable_data3.phy"
 ]
 
+snapp_output = [
+    "trifusion/tests/data/snapp_outfile.nex"
+]
+
 gcode_data = [
     "trifusion/tests/data/gcoding.phy"
 ]
@@ -126,4 +134,18 @@ models_codon_nexus_data = [
 
 taxa_to_remove = [
     "trifusion/tests/data/taxa_to_remove.txt"
+]
+
+alternative_missing = [
+    "trifusion/tests/data/alternative_missing1.fasta",
+    "trifusion/tests/data/alternative_missing2.fasta",
+    "trifusion/tests/data/alternative_missing3.fasta"
+]
+
+protein_no_missing = [
+    "trifusion/tests/data/protein_no_missing.fas"
+]
+
+protein_normal_missing = [
+    "trifusion/tests/data/protein_normal_missing.fasta"
 ]

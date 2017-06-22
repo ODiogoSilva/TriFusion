@@ -25,6 +25,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
 
     import os
+    import sys
     import time
     import codecs
     import subprocess
@@ -32,7 +33,6 @@ with warnings.catch_warnings():
     import traceback
     import argparse
     from os.path import abspath, join, basename
-    from subprocess import PIPE
 
     try:
         from process.base import print_col, GREEN, RED
@@ -468,6 +468,10 @@ def main():
                               "CPUs to be used during search operation ("
                               "default is '%(default)s')")
 
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
     arg = parser.parse_args()
 
     # Crete temp directory
@@ -558,7 +562,8 @@ def main():
 
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
-    except:
+    except Exception as e:
+        print(e.message)
         traceback.print_exc()
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)

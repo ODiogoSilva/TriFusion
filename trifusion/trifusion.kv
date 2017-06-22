@@ -762,7 +762,7 @@
     orientation: "vertical"
     ds_type: ""
     size_hint: None, None
-    height: 285
+    height: 310
     width: 270
 
     canvas.before:
@@ -833,6 +833,17 @@
                 text: "Select options"
                 bold: True
                 color: (0.216, 0.67, 0.784, 1)
+
+            TFButton:
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+                size_hint_y: None
+                height: 30
+                text: "Invert selection"
+                bold: True
+                on_release:
+                    app.sidepanel_invert_selection(root.ds_type)
 
             TFButton:
                 text_size: self.size
@@ -1385,11 +1396,6 @@
                 id: seq_type
         PopupBox:
             PopupLabel:
-                text: "Alignment:"
-            PopupText:
-                id: is_aln
-        PopupBox:
-            PopupLabel:
                 text: "Sequence size:"
             PopupText:
                 id: seq_size
@@ -1418,16 +1424,6 @@
         text: "Change taxon name"
         on_touch_down:
             app.change_taxa_name()
-
-
-#    PopupBox:
-#        PopupLabel:
-#            size_hint_x: .6
-#            text: "Taxon name"
-#        TextInput:
-#            size_hint_x: .4
-#            id: taxa_txt
-#            multiline: False
 
 <TaxaPopup>
     orientation: "vertical"
@@ -4484,6 +4480,17 @@
                 disabled: False
                 on_release:
                     app.dialog_ima2_extra(popup_level=2)
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            spacing: 10
+            TGToggleButton:
+                height: 40
+                background_normal: "data/backgrounds/bt_process_off.png"
+                background_down: "data/backgrounds/bt_process.png"
+                id: snapp
+                text: "SNAPP"
+            SettingsBt
     BoxLayout:
         orientation: "horizontal"
         size_hint_y: None
@@ -5629,30 +5636,34 @@
             color: app._blue
             size_hint_y: None
             height: 30
-        BoxLayout:
+        AnchorLayout:
+            id: main
             BoxLayout:
-                id: final_box
-                canvas.before:
-                    Color:
-                        rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                Label:
-                    id: final_txt
-                    bold: True
+                BoxLayout:
+                    id: final_box
+                    canvas.before:
+                        Color:
+                            rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
 
-            BoxLayout:
-                size_hint_x: 1 - final_box.size_hint_x
-                canvas.before:
-                    Color:
-                        rgba: (.4, .4, .4, 1)
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                Label:
-                    id: final_txt2
-                    bold: True
+                BoxLayout:
+                    size_hint_x: 1 - final_box.size_hint_x
+                    canvas.before:
+                        Color:
+                            rgba: (.4, .4, .4, 1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    Label:
+                        id: final_txt2
+                        bold: True
+            Label:
+                size_hint_x: None
+                width: main.width
+                id: final_txt
+                bold: True
 
     Widget:
         size_hint_y: None
@@ -5684,31 +5695,34 @@
         valign: "middle"
         text_size: self.size
         color: (.7,.7,.7,1)
-    BoxLayout:
+    AnchorLayout:
+        id: main
         BoxLayout:
-            id: gf_box
-            canvas.before:
-                Color:
-                    rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            Label:
-                id: gf_txt
-                bold: True
+            BoxLayout:
+                id: gf_box
+                canvas.before:
+                    Color:
+                        rgba: root.bar_color if root.bar_color else (.6, .6, .6, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
 
-        BoxLayout:
-            size_hint_x: 1 - gf_box.size_hint_x
-            canvas.before:
-                Color:
-                    rgba: (.4, .4, .4, 1)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            Label:
-                id: gf_txt2
-                bold: True
-
+            BoxLayout:
+                size_hint_x: 1 - gf_box.size_hint_x
+                canvas.before:
+                    Color:
+                        rgba: (.4, .4, .4, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    id: gf_txt2
+                    bold: True
+        Label:
+            size_hint_x: None
+            width: main.width
+            id: gf_txt
+            bold: True
 
 <Sidebt@ToggleButton>:
     size_hint_y: None
