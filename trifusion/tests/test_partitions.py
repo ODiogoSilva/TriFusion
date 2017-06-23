@@ -61,6 +61,7 @@ class PartitonsTest(ExpectingTestCase):
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
         shutil.rmtree(temp_dir)
 
     def test_read_from_nexus(self):
