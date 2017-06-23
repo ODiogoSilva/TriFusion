@@ -1010,9 +1010,22 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # Perform operations on ADDITIONAL OUTPUTS
         #####
 
+        # Table names for each secondary operation
+        op_tables = {
+            "filter": "filtered",
+            "consensus": "consensus",
+            "gcoder": "coded",
+            "collapse": "collapsed"
+        }
+
         # Stores operations that must be performed before concatenation,
         # if it was specified
         before_conc = ["filter"]
+
+        # The additional outputs workflow has two basic flows. In the first,
+        # it performs tasks that must be executed before concatenating.
+        # In the second, performs tasks that are executed after concatenating.
+        # In this last case, the concatenated data can be generated only once.
 
         # Perform the filtering and consensus option separately, since these
         # must be done before concatenation
@@ -1025,36 +1038,42 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 ns.task = "filter"
 
                 # Remove previous temporary tables
-                aln_object.remove_tables(aln_object.get_tables())
+                aln_object.remove_tables()
 
-                main_aln = deepcopy(aln_object)
+                main_aln = deepcopy(aln_list)
                 main_aln.set_database_connections(aln_list.cur, aln_list.con)
 
                 ns.msg = "Creating additional filtered alignments(s)"
                 suffix = "_filtered"
-                main_aln = filter_aln(main_aln, table_out=suffix[1:])
+                table_name = op_tables[op]
+                main_aln = filter_aln(main_aln, table_in=table_name,
+                                      table_out=table_name)
 
-            if main_operations["concatenation"] and \
-                    main_aln.__class__.__name__ == "AlignmentList":
+            if main_operations["concatenation"]:
 
-                filename = output_file + suffix
+                filename = output_file + "_{}".format(table_name)
 
                 ns.main_msg = "Concatenating"
-                main_aln = concatenation(main_aln, table_in=suffix[1:])
+                main_aln = concatenation(main_aln, table_in=table_name,
+                                         table_out=table_name)
                 ns.main_msg = "Writing output"
-                writer(main_aln, filename=filename, table_suffix=suffix[1:])
+                writer(main_aln, filename=filename, table_name=table_name)
             else:
                 ns.main_msg = "Writing output"
-                writer(main_aln, suffix_str=suffix, table_suffix=suffix[1:],
-                       conv_suffix=conversion_suffix)
+                writer(main_aln, suffix_str="_{}".format(table_name),
+                       table_name=table_name, conv_suffix=conversion_suffix)
 
         # Remove previous temporary tables
-        aln_object.remove_tables(aln_object.get_tables())
+        aln_object.remove_tables()
 
-        main_aln = deepcopy(aln_object)
+        # In the second part, we execute the tasks that can be performed after
+        # the concatenation.
+
+        main_aln = deepcopy(aln_list)
         main_aln.set_database_connections(aln_list.cur, aln_list.con)
 
         concatenated = False
+
         ns.sa = False
 
         for op in [x for x, y in secondary_operations.items() if
@@ -1063,35 +1082,30 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
 
             ns.task = op
 
-            # Filter data for collapsing
-            # if secondary_options["collapse_filter"] and op == "collapse":
-                # ns.task = "collapse"
-                # ns.main_msg = "Filtering for collapse"
-                # main_aln.filter_missing_data(0, 0, ns=ns)
+            table_name = op_tables[op]
 
             if main_operations["concatenation"]:
-                # If suffix was specified, it means that the filter was
-                # ON. In that case, use that suffix in the table input
-                # for concatenation.
                 if op == "collapse" and secondary_options["collapse_filter"]:
                     pass
                 else:
                     if not concatenated:
-                        try:
-                            main_aln = concatenation(aln_object)
-                        except NameError:
-                            main_aln = concatenation(aln_object)
-
+                        main_aln = concatenation(main_aln,
+                                                 table_in="add_concat",
+                                                 table_out="add_concat")
+                        main_aln.master_table = "add_concat"
                         concatenated = True
 
             if op == "consensus":
 
                 suffix = "_consensus"
-                main_aln = consensus(main_aln, table_out=suffix[1:])
+                if main_operations["concatenation"]:
+                    main_aln.alignment_idx.values()[0].name = op
+                consensus(main_aln, table_in=table_name, table_out=table_name)
 
             elif op == "gcoder":
                 suffix = "_coded"
-                main_aln.code_gaps(table_out=suffix[1:], ns=ns)
+                main_aln.code_gaps(table_in=table_name, table_out=table_name,
+                                   ns=ns)
 
             elif op == "collapse":
 
@@ -1101,26 +1115,30 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 # and concatenate again
                 if secondary_options["collapse_filter"]:
                     ns.main_msg = "Filtering for collapse"
-                    aln_object.remove_tables(aln_object.get_tables())
+                    aln_object.remove_tables()
                     aln_object.filter_missing_data(0, 0, ns=ns,
-                                                   table_out=suffix[1:])
+                                                   table_in=table_name,
+                                                   table_out=table_name)
                     if main_operations["concatenation"]:
                         ns.main_msg = "Concatenation"
-                        main_aln = aln_object.concatenate(ns=ns)
+                        aln_object.concatenate(ns=ns, table_in=table_name,
+                                               table_out=table_name)
 
                 ns.main_msg = "Collapse"
+                hap_file = output_file if output_file else None
                 main_aln.collapse(haplotype_name=hap_prefix,
                                   conversion_suffix=conversion_suffix,
-                                  dest=output_dir,
-                                  table_out=suffix[1:], ns=ns)
+                                  haplotypes_file=hap_file,
+                                  dest=output_dir, table_in=table_name,
+                                  table_out=table_name, ns=ns)
 
             ns.main_msg = "Writing output"
             if main_operations["concatenation"]:
                 filename = output_file + suffix
-                writer(main_aln, filename=filename, table_suffix=suffix[1:])
+                writer(main_aln, filename=filename, table_name=table_name)
             else:
                 writer(main_aln, suffix_str=suffix,
-                       conv_suffix=conversion_suffix, table_suffix=suffix[1:])
+                       conv_suffix=conversion_suffix, table_name=table_name)
 
         # Resets the taxa_names attribute of the aln_obj to include all taxa
         # aln_object.update_taxa_names(all_taxa=True)

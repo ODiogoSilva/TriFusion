@@ -391,6 +391,8 @@ class TriFusionApp(App):
     """Reference to Popup object, if open."""
     _subpopup = ObjectProperty(None)
     """Reference to sub Popup object, if open."""
+    _3tpopup = ObjectProperty(None)
+    """Reference to tier 3 popup object, if open"""
     _exit_popup = ObjectProperty(None)
     """Reference to exit Popup object, if open"""
 
@@ -8458,8 +8460,10 @@ class TriFusionApp(App):
 
         if popup_level == 1:
             self._popup = popup_obj
-        else:
+        elif popup_level == 2:
             self._subpopup = popup_obj
+        else:
+            self._3tpopup = popup_obj
 
         if close_bt:
             pos = ((self.root.width / 2) + (self._popup.size[0] / 2) - 25,
@@ -8516,6 +8520,17 @@ class TriFusionApp(App):
         General purpose method to close sub-popups from the screen
         """
         self._subpopup.dismiss()
+
+        try:
+            rm_wgt = [x for x in self.root_window.children if
+                      isinstance(x, CloseFloat)][0]
+            self.root_window.remove_widget(rm_wgt)
+        except IndexError:
+            pass
+
+    def dismiss_3tpopup(self, *args):
+
+        self._3tpopup.dismiss()
 
         try:
             rm_wgt = [x for x in self.root_window.children if
@@ -9159,7 +9174,7 @@ class TriFusionApp(App):
 
         # Show popup
         self.show_popup(title="Choose output format", content=content,
-                        size=(300, 550))
+                        size=(350, 550))
 
     def dialog_reverse_inlist(self):
 
@@ -9278,8 +9293,12 @@ class TriFusionApp(App):
                 bw_wgt.ids.lbl.color = (1, 1, 1, 1)
 
         # Determines cancel action depending on popup_level
-        cancel = self.dismiss_popup if popup_level == 1 else \
-            self.dismiss_subpopup
+        cancel_signal = {
+            1: self.dismiss_popup,
+            2: self.dismiss_subpopup,
+            3: self.dismiss_3tpopup
+        }
+        cancel = cancel_signal[popup_level]
 
         # Lists the idx that require the selection of file extensions
         idx_with_ext = ["export_graphic"]
@@ -9363,6 +9382,8 @@ class TriFusionApp(App):
                         "name. You may leave empty."
             else:
                 title_map["main_output"] = "Choose output file"
+                if self.output_file:
+                    content.ids.text_input.text = basename(self.output_file)
 
         # Custom behaviour for orthology output directory
         elif idx == "ortho_dir":
@@ -9587,6 +9608,20 @@ class TriFusionApp(App):
 
         return True, corrected_val
 
+    def dialog_invalid_formats(self, fmt_list):
+        """Warning dialog when selecting invalid formats for main operation
+
+        Dialog issued when selecting invalid output formats for the selected
+        main operation.
+        """
+
+        content = InvalidFormatsWarning(cancel=self.dismiss_popup)
+
+        content.ids.fmts.flist = fmt_list
+
+        self.show_popup(title="Invalid output formats", content=content,
+                        size=(500, 300), separator_color=self._red)
+
     def dialog_execution(self):
         """
         Generates the dialog for Process execution. It also preforms several
@@ -9597,6 +9632,19 @@ class TriFusionApp(App):
             return self.dialog_floatcheck(
                 "No input files were loaded or are active",
                 t="error")
+
+        if not self.main_operations["concatenation"]:
+            # List of concatenation only formats.
+            concatenation_only = ["mcmctree", "gphocs", "ima2", "snapp"]
+
+            # If concatenation has NOT been specified, check if the any of the
+            # concatenation only formats was specified. If so, launch a warning
+            # dialog
+            invalid_formats = [x for x in self.output_formats
+                               if x in concatenation_only]
+
+            if invalid_formats:
+                return self.dialog_invalid_formats(invalid_formats)
 
         content = ExecutionDialog(cancel=self.dismiss_popup)
 
@@ -11435,7 +11483,7 @@ class TriFusionApp(App):
             al = len(additional_ops)
             max_ops = ml if ml > al else al
 
-            height = 200 + (max_ops * 50)
+            height = 220 + (max_ops * 55)
 
             wgt_ref = {}
 

@@ -29,7 +29,7 @@ class ProcessWriteSinglesTest(unittest.TestCase):
 
     def tearDown(self):
 
-        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
         os.remove(sql_db)
         shutil.rmtree("output")
         shutil.rmtree(temp_dir)
@@ -64,7 +64,7 @@ class ProcessWriteMultisTest(unittest.TestCase):
     def tearDown(self):
 
         shutil.rmtree("output")
-        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
         shutil.rmtree(temp_dir)
 
     def test_custom_taxaset_nexus(self):

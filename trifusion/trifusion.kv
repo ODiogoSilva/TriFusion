@@ -3275,7 +3275,7 @@
 
     BoxLayout:
         size_hint_y: None
-        height: 40
+        height: 45
         orientation: "vertical"
         padding: [70, 0, 0, 0]
         Label:
@@ -3293,7 +3293,7 @@
             text: ""
             bold: True
             size_hint_y: None
-            height: 10
+            height: 15
             text_size: self.size
             halign: "left"
             valign: "middle"
@@ -4383,114 +4383,201 @@
     background_down: "data/backgrounds/settings_down.png"
     background_disabled_normal: "data/backgrounds/settings_disabled.png"
 
+
+<InvalidFormatsWarning>:
+    padding: 10
+    orientation: "vertical"
+    spacing: 10
+    BoxLayout:
+        orientation: "vertical"
+        padding: 10
+        Label:
+            size_hint_y: None
+            height: 30
+            text_size: self.size
+            halign: "justify"
+            valign: "center"
+            text: "The following selected output formats can only be used with the Concatenation main operation:"
+        Label:
+            id: fmts
+            flist: None
+            markup: True
+            text: "\n".join(self.flist) if self.flist else ""
+        Label:
+            size_hint_y: None
+            height: 30
+            text_size: self.size
+            halign: "justify"
+            valign: "center"
+            markup: True
+            text: "Do you wish to [b]Ignore[/b] these formats and proceed?"
+
+    AnchorLayout:
+        size_hint_y: None
+        height: 30
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 10
+            size_hint_x: None
+            width: 200
+            CheckBt:
+                text: "Ignore"
+                id: check_ok
+                background_normal: "data/backgrounds/check_ok.png"
+                background_down: "data/backgrounds/check_cancel.png"
+                on_release:
+                    root.cancel()
+                    app.output_formats = [x for x in app.output_formats if x not in fmts.flist]
+                    app.dialog_execution()
+
+            CheckBt:
+                text: "Cancel"
+                background_normal: "data/backgrounds/check_ok.png"
+                background_down: "data/backgrounds/check_cancel.png"
+                id: check_cancel
+                on_release:
+                    root.cancel()
+
+
 <FormatDialog>:
-    padding: [30, 20, 30, 20]
+    padding: [30, 20, 20, 20]
     spacing: 25
     orientation: "vertical"
     id: format_dlg
-    BoxLayout:
-        orientation: "vertical"
-        spacing: 10
-        BoxLayout:
-            size_hint_y: None
-            height: 40
+    ScrollView:
+        bar_width: 10
+        scroll_type: ["bars"]
+        GridLayout:
+            cols: 1
+            orientation: "vertical"
             spacing: 10
-            TGToggleButton:
-                height: 40
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
-                id: fasta
-                state: "down"
-                text: "Fasta"
-            SettingsBt:
-                disabled: False
-                on_release:
-                    app.dialog_fasta_extra()
-        BoxLayout:
             size_hint_y: None
-            height: 40
-            spacing: 10
-            TGToggleButton:
+            height: self.minimum_height
+            padding: [0, 0, 13, 0]
+            Label:
+                size_hint_y: None
+                height: 15
+                text_size: self.size
+                halign: "left"
+                valign: "bottom"
+                text: "All operations"
+                font_size: 14
+                bold: True
+            Hseparator:
+                c: app._blue
+            BoxLayout:
+                size_hint_y: None
                 height: 40
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
-                id: phylip
-                text: "Phylip"
-            SettingsBt:
-                disabled: False
-                on_release:
-                    app.dialog_phylip_extra()
-        BoxLayout:
-            size_hint_y: None
-            height: 40
-            spacing: 10
-            TGToggleButton:
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: fasta
+                    state: "down"
+                    text: "Fasta"
+                SettingsBt:
+                    disabled: False
+                    on_release:
+                        app.dialog_fasta_extra()
+            BoxLayout:
+                size_hint_y: None
                 height: 40
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
-                id: nexus
-                text: "Nexus"
-            SettingsBt:
-                disabled: False
-                on_release:
-                    app.dialog_nexus_extra()
-        BoxLayout:
-            size_hint_y: None
-            height: 40
-            spacing: 10
-            TGToggleButton:
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: phylip
+                    text: "Phylip"
+                SettingsBt:
+                    disabled: False
+                    on_release:
+                        app.dialog_phylip_extra()
+            BoxLayout:
+                size_hint_y: None
                 height: 40
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
-                id: mcmctree
-                text: "MCMCTree"
-            SettingsBt
-        BoxLayout:
-            size_hint_y: None
-            height: 40
-            spacing: 10
-            TGToggleButton:
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: nexus
+                    text: "Nexus"
+                SettingsBt:
+                    disabled: False
+                    on_release:
+                        app.dialog_nexus_extra()
+
+            BoxLayout:
+                size_hint_y: None
                 height: 40
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
-                id: stockholm
-                text: "Stockholm"
-            SettingsBt
-        BoxLayout:
-            size_hint_y: None
-            height: 40
-            spacing: 10
-            TGToggleButton:
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: stockholm
+                    text: "Stockholm"
+                SettingsBt
+            Label:
+                size_hint_y: None
+                height: 20
+                text_size: self.size
+                halign: "left"
+                valign: "bottom"
+                text: "Concatenation only"
+                font_size: 14
+                bold: True
+            Hseparator:
+                c: app._blue
+            BoxLayout:
+                size_hint_y: None
                 height: 40
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
-                id: gphocs
-                text: "GPhoCS"
-            SettingsBt
-        BoxLayout:
-            size_hint_y: None
-            height: 40
-            spacing: 10
-            TGToggleButton:
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: mcmctree
+                    text: "MCMCTree"
+                SettingsBt
+
+            BoxLayout:
+                size_hint_y: None
                 height: 40
-                background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
-                id: ima2
-                text: "IMa2"
-            SettingsBt:
-                disabled: False
-                on_release:
-                    app.dialog_ima2_extra(popup_level=2)
-        BoxLayout:
-            size_hint_y: None
-            height: 40
-            spacing: 10
-            TGToggleButton:
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: gphocs
+                    text: "GPhoCS"
+                SettingsBt
+            BoxLayout:
+                size_hint_y: None
                 height: 40
-                background_normal: "data/backgrounds/bt_process_off.png"
-                background_down: "data/backgrounds/bt_process.png"
-                id: snapp
-                text: "SNAPP"
-            SettingsBt
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_disabled_normal: "data/backgrounds/bt_process_disabled.png"
+                    id: ima2
+                    text: "IMa2"
+                SettingsBt:
+                    disabled: False
+                    on_release:
+                        app.dialog_ima2_extra(popup_level=2)
+            BoxLayout:
+                size_hint_y: None
+                height: 40
+                spacing: 10
+                TGToggleButton:
+                    height: 40
+                    background_normal: "data/backgrounds/bt_process_off.png"
+                    background_down: "data/backgrounds/bt_process.png"
+                    id: snapp
+                    text: "SNAPP"
+                SettingsBt
     BoxLayout:
         orientation: "horizontal"
         size_hint_y: None
@@ -4656,9 +4743,9 @@
         TFButton:
             id: popfile
             size_hint_x: .6
-            text: "Select"
+            text: "Select" if not app.ima2_options[0] else os.path.basename(app.ima2_options[0])
             on_release:
-                app.dialog_filechooser("ima2_popfile")
+                app.dialog_filechooser("ima2_popfile", popup_level=3)
 
     # Population tree
     BoxLayout:
@@ -4719,7 +4806,10 @@
         TFOKButon:
             id: cancel_bt
             text: "Cancel"
-            on_release: root.cancel()
+            on_release:
+                root.cancel()
+                if None in app.ima2_options and "ima2" in app.output_formats:\
+                app.output_formats.remove("ima2")
 
 
 #===============================================================================
