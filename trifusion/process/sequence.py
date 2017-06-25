@@ -1411,7 +1411,7 @@ class Alignment(Base):
         # In case there is a table for the provided input_alignment
         else:
             self.input_format = input_format
-            self.store_aux_data(self.temp_dir, tx_idx=taxa_idx,
+            self.store_aux_data(tx_idx=taxa_idx,
                                 partitions_obj=partitions)
 
     def __iter__(self):
@@ -1480,10 +1480,7 @@ class Alignment(Base):
 
         self.input_format = input_format
 
-    def store_aux_data(self, temp_path, tx_idx=None, partitions_obj=None):
-
-        if not self.temp_dir:
-            self.temp_dir = temp_path
+    def store_aux_data(self, tx_idx=None, partitions_obj=None):
 
         if not self.temp_dir:
             self.temp_dir = "."
@@ -3072,7 +3069,7 @@ class AlignmentList(Base):
         # fallback to the master table
         try:
             if not self.cur.execute(
-                "SELECT * FROM {}".format(table_name)).fetchone():
+                    "SELECT * FROM {}".format(table_name)).fetchone():
                 table_name = self.master_table
         except sqlite3.OperationalError:
             table_name = self.master_table
@@ -3802,9 +3799,7 @@ class AlignmentList(Base):
                     if not self.sequence_code:
                         self.sequence_code = alignment_obj.sequence_code
 
-                    sql_path = self.sql_path if self.sql_path else "."
-
-                    alignment_obj.store_aux_data(os.path.dirname(sql_path))
+                    alignment_obj.store_aux_data()
 
                     self.alignments[alignment_obj.path] = alignment_obj
                     self.set_partition_from_alignment(alignment_obj)
@@ -3813,9 +3808,7 @@ class AlignmentList(Base):
                 if not self.sequence_code:
                     self.sequence_code = alignment_obj.sequence_code
 
-                sql_path = self.sql_path if self.sql_path else "."
-
-                alignment_obj.store_aux_data(os.path.dirname(sql_path))
+                alignment_obj.store_aux_data()
 
                 self.alignments[alignment_obj.name] = alignment_obj
                 self.set_partition_from_alignment(alignment_obj)
@@ -3886,9 +3879,7 @@ class AlignmentList(Base):
                 self.bad_alignments.append(aln_obj.path)
             else:
 
-                sql_path = self.sql_path if self.sql_path else "."
-
-                aln_obj.store_aux_data(os.path.dirname(sql_path))
+                aln_obj.store_aux_data()
 
                 # Get seq code
                 if not self.sequence_code:
