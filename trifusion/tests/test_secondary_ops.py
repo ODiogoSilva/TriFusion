@@ -158,6 +158,7 @@ class SeconaryOpsTest(unittest.TestCase):
         self.aln_obj.consensus("First sequence", use_main_table=True)
 
         s = []
+        print(self.aln_obj.alignments)
         for aln in self.aln_obj:
             s.append(len(aln.taxa_idx))
 

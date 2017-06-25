@@ -246,6 +246,7 @@ class AlignmentManipulationTest(unittest.TestCase):
         fl = self.aln_obj.alignments.keys()
 
         aln = Alignment(dna_data_loci[0], sql_cursor=self.aln_obj.cur,
+                        sql_con=self.aln_obj.con,
                         db_idx=self.aln_obj._idx + 1, temp_dir=temp_dir)
 
         self.aln_obj.add_alignments([aln])

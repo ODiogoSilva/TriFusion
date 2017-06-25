@@ -9818,7 +9818,7 @@ class TriFusionApp(App):
             content.ids.txt_dlg.select_all()
 
         if idx == "new_folder":
-            popup_level = 20
+            popup_level = 2
         else:
             popup_level = 1
 
@@ -10925,9 +10925,9 @@ class TriFusionApp(App):
         # active data set is not empty
         if aln_list.alignments:
             for aln in aln_list:
-                if tx in aln.taxa_idx:
+                try:
                     sequence.append(aln.get_sequence(tx))
-                else:
+                except KeyError:
                     tx_missing += 1
 
             # Retrieve missing data symbol

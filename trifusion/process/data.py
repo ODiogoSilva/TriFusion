@@ -218,7 +218,7 @@ class Partitions(object):
 
         return iter(self.partitions.items())
 
-    def reset(self, keep_alignments_range=False):
+    def reset(self, keep_alignments_range=False, cur=None):
         """Clears partitions and attributes
 
         Clears partitions and resets object to __init__ state. The original
@@ -230,6 +230,9 @@ class Partitions(object):
         keep_alignments_range : bool
             If True, the `alignments_range` attribute will not be reset.
         """
+
+        if cur:
+            cur.execute("DELETE FROM aux")
 
         self.partitions = OrderedDict()
         self.partitions_index = []
@@ -1161,9 +1164,11 @@ class Zorro(object):
         for file_path in [x.path for x in alignment_list.alignments.values()]:
             # If zorro_dir is provided, use the specified path
             if zorro_dir:
-                zorro_file = splitext(file_path.split(sep)[-1])[0]
-                zorro_file = "{}{}.txt".format(join(zorro_dir, zorro_file), suffix)
-            # If zorro_dir is not provided, use the same path as the input alignment
+                zorro_file = splitext(basename(file_path))[0]
+                zorro_file = "{}{}.txt".format(join(zorro_dir, zorro_file),
+                                               suffix)
+            # If zorro_dir is not provided, use the same path as the input
+            #  alignment
             else:
                 zorro_file = file_path.split(".")[0] + self.suffix + ".txt"
             # alignment file is shared with the corresponding zorro file

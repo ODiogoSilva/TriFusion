@@ -5,6 +5,8 @@
 ## General
 
 - Progressbar2 is now bundled with TriFusion to prevent import issues [0.5.3].
+- Increased performance when updating app structures after loading alignment
+files into TriFusion [0.5.13].
 
 ## Improvements
 

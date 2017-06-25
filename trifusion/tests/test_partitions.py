@@ -56,7 +56,7 @@ class PartitonsTest(ExpectingTestCase):
             os.makedirs(temp_dir)
 
         self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
-        self.aln_obj.partitions.reset()
+        self.aln_obj.partitions.reset(cur=self.aln_obj.cur)
 
     def tearDown(self):
 

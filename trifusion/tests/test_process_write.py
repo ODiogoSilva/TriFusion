@@ -102,6 +102,7 @@ class ProcessWriteTest(unittest.TestCase):
     def tearDown(self):
 
         self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
         shutil.rmtree("output")
         shutil.rmtree(temp_dir)
 
