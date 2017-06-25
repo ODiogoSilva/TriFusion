@@ -11614,6 +11614,8 @@ class TriFusionApp(App):
                 self.dismiss_all_popups()
                 # Removes all temporary database tables
                 self.alignment_list.remove_tables()
+                self.alignment_list.restore_state(state_fl)
+                os.remove(state_fl)
                 return
 
             try:
@@ -11656,6 +11658,8 @@ class TriFusionApp(App):
 
                 # Removes all temporary database tables
                 self.alignment_list.remove_tables()
+                self.alignment_list.restore_state(state_fl)
+                os.remove(state_fl)
 
                 p.join()
 
@@ -11693,6 +11697,8 @@ class TriFusionApp(App):
         shared_ns.finished_tasks = []
         current_op = []
 
+        state_fl = join(self.temp_dir, "main_state")
+
         # Packing arguments to background process
         process_kwargs = {"aln_list": self.alignment_list,
             "file_set_name": self.process_grid_wgt.ids.active_file_set.text,
@@ -11725,7 +11731,8 @@ class TriFusionApp(App):
             "use_app_partitions": bool(self.use_app_partitions),
             "consensus_type": self.process_options.ids.consensus_mode.text,
             "ld_hat": bool(self.ld_hat),
-            "ima2_params": list(self.ima2_options)}
+            "ima2_params": list(self.ima2_options),
+            "state_fl": state_fl}
 
         # Remove lock from background process
         self.terminate_process_exec = False

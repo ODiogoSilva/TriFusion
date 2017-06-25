@@ -664,8 +664,7 @@ from collections import Counter, defaultdict, OrderedDict
 import itertools
 import re
 import os
-import io
-import json
+import pickle
 from os.path import join, basename, splitext, exists
 from itertools import compress
 from threading import Lock
@@ -3410,6 +3409,32 @@ class AlignmentList(Base):
 
         return sorted([basename(x) for x in self.alignments])
 
+    def save_state(self, filepath):
+
+        self.close_database()
+        with open(filepath, "wb") as fh:
+            pickle.dump(self.__dict__, fh)
+        self.resume_database()
+
+    def restore_state(self, filepath):
+
+        self.close_database()
+
+        with open(filepath, "rb") as fh:
+            self.__dict__ = pickle.load(fh)
+
+        self.resume_database()
+
+    def close_database(self):
+
+        self.con.commit()
+        self.con.close()
+        self.con = self.cur = None
+
+        for aln in self.all_alignments.values():
+            aln.cur = None
+            aln.con = None
+
     def resume_database(self):
         """Reconnects to the sqlite database.
 
@@ -3481,10 +3506,12 @@ class AlignmentList(Base):
             Takes precedence over `preserve_tables` if both are provided.
         """
 
+        preserved_tables = ["alignment_data", "aux"]
+
         tables = self.cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table';").fetchall()
 
-        for tb in [x[0] for x in tables if x[0] != self.master_table]:
+        for tb in [x[0] for x in tables if x[0] not in preserved_tables]:
             self.cur.execute("DROP TABLE [{}]".format(tb))
 
     def clear_alignments(self):

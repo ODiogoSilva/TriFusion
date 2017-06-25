@@ -587,7 +587,7 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                         use_nexus_partitions, use_nexus_models,
                         phylip_truncate_name, output_dir, use_app_partitions,
                         consensus_type, ld_hat, ima2_params,
-                        conversion_suffix):
+                        conversion_suffix, state_fl):
     """The Process execution
 
     Parameters
@@ -900,14 +900,16 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         if not main_operations["concatenation"]:
             output_file = None
 
-        aln_object = deepcopy(aln_list)
+        aln_list.save_state(state_fl)
+
+        # aln_object = deepcopy(aln_list)
         # Restore database connections, since they are broken during the
         # deepcopy operation
-        aln_object.set_database_connections(aln_list.cur, aln_list.con)
+        # aln_object.set_database_connections(aln_list.cur, aln_list.con)
 
         # Setting the alignment to use.
         # Update active file set of the alignment object
-        aln_object = update_active_fileset(aln_object,
+        aln_object = update_active_fileset(aln_list,
                                            file_set_name,
                                            file_list,
                                            file_groups,
@@ -1040,13 +1042,14 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 # Remove previous temporary tables
                 aln_object.remove_tables()
 
-                main_aln = deepcopy(aln_list)
-                main_aln.set_database_connections(aln_list.cur, aln_list.con)
+                # main_aln = deepcopy(aln_list)
+                aln_list.restore_state(state_fl)
+                # main_aln.set_database_connections(aln_list.cur, aln_list.con)
 
                 ns.msg = "Creating additional filtered alignments(s)"
                 suffix = "_filtered"
                 table_name = op_tables[op]
-                main_aln = filter_aln(main_aln, table_in=table_name,
+                main_aln = filter_aln(aln_list, table_in=table_name,
                                       table_out=table_name)
 
             if main_operations["concatenation"]:
@@ -1069,8 +1072,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
         # In the second part, we execute the tasks that can be performed after
         # the concatenation.
 
-        main_aln = deepcopy(aln_list)
-        main_aln.set_database_connections(aln_list.cur, aln_list.con)
+        # main_aln = deepcopy(aln_list)
+        # main_aln.set_database_connections(aln_list.cur, aln_list.con)
+        aln_list.restore_state(state_fl)
 
         concatenated = False
 
@@ -1089,22 +1093,22 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                     pass
                 else:
                     if not concatenated:
-                        main_aln = concatenation(main_aln,
+                        aln_list = concatenation(aln_list,
                                                  table_in="add_concat",
                                                  table_out="add_concat")
-                        main_aln.master_table = "add_concat"
+                        aln_list.master_table = "add_concat"
                         concatenated = True
 
             if op == "consensus":
 
                 suffix = "_consensus"
                 if main_operations["concatenation"]:
-                    main_aln.alignment_idx.values()[0].name = op
-                consensus(main_aln, table_in=table_name, table_out=table_name)
+                    aln_list.alignment_idx.values()[0].name = op
+                consensus(aln_list, table_in=table_name, table_out=table_name)
 
             elif op == "gcoder":
                 suffix = "_coded"
-                main_aln.code_gaps(table_in=table_name, table_out=table_name,
+                aln_list.code_gaps(table_in=table_name, table_out=table_name,
                                    ns=ns)
 
             elif op == "collapse":
@@ -1115,18 +1119,18 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
                 # and concatenate again
                 if secondary_options["collapse_filter"]:
                     ns.main_msg = "Filtering for collapse"
-                    aln_object.remove_tables()
-                    aln_object.filter_missing_data(0, 0, ns=ns,
+                    aln_list.remove_tables()
+                    aln_list.filter_missing_data(0, 0, ns=ns,
                                                    table_in=table_name,
                                                    table_out=table_name)
                     if main_operations["concatenation"]:
                         ns.main_msg = "Concatenation"
-                        aln_object.concatenate(ns=ns, table_in=table_name,
+                        aln_list.concatenate(ns=ns, table_in=table_name,
                                                table_out=table_name)
 
                 ns.main_msg = "Collapse"
                 hap_file = output_file if output_file else None
-                main_aln.collapse(haplotype_name=hap_prefix,
+                aln_list.collapse(haplotype_name=hap_prefix,
                                   conversion_suffix=conversion_suffix,
                                   haplotypes_file=hap_file,
                                   dest=output_dir, table_in=table_name,
@@ -1135,9 +1139,9 @@ def process_execution(aln_list, file_set_name, file_list, file_groups,
             ns.main_msg = "Writing output"
             if main_operations["concatenation"]:
                 filename = output_file + suffix
-                writer(main_aln, filename=filename, table_name=table_name)
+                writer(aln_list, filename=filename, table_name=table_name)
             else:
-                writer(main_aln, suffix_str=suffix,
+                writer(aln_list, suffix_str=suffix,
                        conv_suffix=conversion_suffix, table_name=table_name)
 
         # Resets the taxa_names attribute of the aln_obj to include all taxa
