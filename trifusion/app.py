@@ -120,6 +120,8 @@ import threading
 # issues when the full path to the application's directory contains
 # non-ASCII characters. This way, the cur_dir attribute will be always
 # set to "."
+from trifusion.base.mpl_events import Selector, ShowTooltip
+
 called_dir = os.getcwd()
 if getattr(sys, "frozen", False):
     os.chdir(dirname(sys.executable))
@@ -136,6 +138,7 @@ os.environ["KIVY_NO_ARGS"] = "1"
 # Comment this section until the EventLoop for sphinx building.
 # Kivy imports
 from kivy.config import Config
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvas
 
 # Sets some kivy configurations before creating main window
 Config.set("kivy", "desktop", 1)
@@ -7844,8 +7847,7 @@ class TriFusionApp(App):
                                           dest=self.temp_dir, stats=stats)
 
             # Load plot
-            self.load_plot(join(self.temp_dir, "Final_orthologs.png"),
-                           self.screen.ids.plot_content)
+            self.load_plot(self.screen.ids.plot_content)
 
         else:
             self.screen.ids.plot_content.children[0].clear_widgets()
@@ -8029,18 +8031,19 @@ class TriFusionApp(App):
                 bbox_inches="tight", dpi=200)
 
         # Load plot
-        self.load_plot(plot_path,
-                       self.screen.ids.plot_content)
+        self.load_plot(self.screen.ids.plot_content)
 
-    @staticmethod
-    def load_plot(file_path, scatter_wgt):
+    def load_plot(self, scatter_wgt, plt_idx=None):
         """
         Loads a new plot into a ScatterLayout. This will clear all previous
         content and load a new image based on the file_path argument.
         This assumes that the current screen is a plot related screen.
-        :param file_path: string. Path to the image to be loaded
         :param scatter_wgt: ScatterLayout object, where the plot is to be
         loaded
+        :param plt_idx: string. Provide the plot identifier for the
+        stats_plt_method dictionary containing the plot method.
+        If this is not provide, then the matplotlib events will not be
+        triggered
         :return:
         """
 
@@ -8048,8 +8051,17 @@ class TriFusionApp(App):
         scatter_wgt.children[0].clear_widgets()
 
         # Add content
-        img_wgt = Image(source=file_path, nocache=True)
-        scatter_wgt.children[0].add_widget(img_wgt)
+        kv_wgt = FigureCanvas(self.current_plot)
+
+        print("plt_idx: " + plt_idx)
+        if plt_idx:
+            self.tooltip = ShowTooltip(self.current_plot, kv_wgt, self.stats_plt_method[plt_idx][0])
+            self.tooltip.connect()
+            self.selector = Selector(kv_wgt)
+            self.selector.connect()
+
+        scatter_wgt.children[0].add_widget(kv_wgt)
+        # scatter_wgt.children[0].add_widget(self.current_plot.canvas)
 
         # Reset position and scale of Scatter
         scatter_wgt.scale = 1
@@ -10177,9 +10189,7 @@ class TriFusionApp(App):
         # Add plot toolbar
         self.show_plot_toolbar(toolbar_type="stats")
 
-        self.load_plot(
-                join(self.temp_dir, self.stats_plt_method[plt_idx][1]),
-                self.screen.ids.plot_content)
+        self.load_plot(self.screen.ids.plot_content, plt_idx)
 
         if footer:
             self.populate_stats_footer(footer)
@@ -10220,8 +10230,7 @@ class TriFusionApp(App):
         self.current_plot.savefig(join(self.temp_dir, plt_file),
                                   bbox_inches="tight", dpi=200)
 
-        self.load_plot(join(self.temp_dir, plt_file),
-                       self.screen.ids.plot_content)
+        self.load_plot(self.screen.ids.plot_content)
 
     def stats_select_plot(self, gn_idx, sp_idx, avg_idx):
         """
