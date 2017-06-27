@@ -1812,7 +1812,7 @@ class Alignment(Base):
         finally:
             lock.release()
 
-    def get_sequence(self, taxon, table_name=None):
+    def get_sequence(self, taxon, table_name=None, ignore_shelved=False):
         """Returns the sequence string for a given taxon.
 
         Returns the sequence string of the corresponding `taxon`. If the
@@ -1861,7 +1861,15 @@ class Alignment(Base):
             # object is querying the database at any given time
             lock.acquire(True)
             try:
-                if taxon not in self.shelved_taxa:
+                if ignore_shelved:
+                    seq = self.cur.execute(
+                        "SELECT seq "
+                        "FROM [{}] "
+                        "WHERE taxon=? "
+                        "AND aln_idx=?".format(table_name),
+                        (taxon, self.db_idx)).fetchone()[0]
+                    return seq
+                elif taxon not in self.shelved_taxa:
                     seq = self.cur.execute(
                         "SELECT seq "
                         "FROM [{}] "
@@ -4988,13 +4996,13 @@ class AlignmentList(Base):
             self.clear_alignments()
 
         self.all_alignments = OrderedDict(
-            (p, aln) for p, aln in self.all_alignments
+            (p, aln) for p, aln in self.all_alignments.items()
             if p not in filename_list)
         self.alignments = OrderedDict(
-            (p, aln) for p, aln in self.alignments
+            (p, aln) for p, aln in self.alignments.items()
             if p not in filename_list)
         self.alignment_idx = OrderedDict(
-            (idx, aln) for idx, aln in self.alignment_idx
+            (idx, aln) for idx, aln in self.alignment_idx.items()
             if aln.path not in filename_list
         )
 

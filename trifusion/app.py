@@ -4891,7 +4891,7 @@ class TriFusionApp(App):
                 # when calling the popup to avoid repeating this
                 # operation every time taxa  or files are added/removed.
                 self.active_tx_inf = self.get_taxon_information(
-                    tx, self.alignment_list)
+                    tx, self.alignment_list.alignments)
 
                 content = BoxLayout(orientation="vertical", padding=10,
                                     spacing=10)
@@ -10923,8 +10923,8 @@ class TriFusionApp(App):
         sequence = []
         # This assures that the information will only be gathered if the
         # active data set is not empty
-        if aln_list.alignments:
-            for aln in aln_list:
+        if aln_list:
+            for aln in aln_list.values():
                 try:
                     sequence.append(aln.get_sequence(tx, ignore_shelved=True))
                 except KeyError:
@@ -10951,11 +10951,11 @@ class TriFusionApp(App):
 
             # Get number of files containing the taxa in absolute and
             # percentage
-            tx_inf["fl_coverage"] = len(aln_list.alignments) -\
+            tx_inf["fl_coverage"] = len(aln_list) -\
                 tx_missing
             tx_inf["fl_coverage_per"] = \
                 round(((tx_inf["fl_coverage"] * 100) /
-                       len(aln_list.alignments)), 2)
+                       len(aln_list)), 2)
 
         else:
             # This handles the case where the active data set is empty
@@ -10997,7 +10997,8 @@ class TriFusionApp(App):
         for tx in self.alignment_list.taxa_names:
             # Add entry to storage dictionary
             self.original_tx_inf[tx] = \
-                self.get_taxon_information(tx, self.alignment_list)
+                self.get_taxon_information(tx,
+                                           self.alignment_list.all_alignments)
 
     def get_file_information(self, file_name=None, mode="alignment"):
         """
