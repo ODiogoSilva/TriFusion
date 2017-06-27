@@ -4209,7 +4209,9 @@
             spacing: 5
             id: model_bx
             ModelSpinner
-
+    Widget:
+        size_hint_y: None
+        height: 1
     BoxLayout:
         size_hint_y: None
         height: 30
@@ -4233,6 +4235,9 @@
                     text: "Apply All"
                     on_release:
                         app.save_model(root.original_name, root, True)
+    Widget:
+        size_hint_y: None
+        height: 1
 
 <SplitPartitions>:
     orientation: "vertical"

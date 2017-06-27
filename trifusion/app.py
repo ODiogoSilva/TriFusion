@@ -3866,7 +3866,7 @@ class TriFusionApp(App):
             bg = "data/backgrounds/transparent.png" if name != bt.text else \
                 "data/backgrounds/bt_process.png"
             ds_bt = TFButton(size_hint_y=None, height=30, text=name,
-                             background_normal=bg)
+                             background_normal=bg, markup=True)
             ds_bt.bind(on_release=partial(set_ds, bt, name))
             dropdown.ids.grid_wgt.add_widget(ds_bt)
 
@@ -4796,7 +4796,7 @@ class TriFusionApp(App):
         ed_pos = btx.to_window(btx.pos[0], btx.pos[1])
 
         # Set position for partitions dialog
-        size = (240, 260)
+        size = (280, 280)
         pos = [ed_pos[0] + btx.width,
                ed_pos[1] + (btx.height / 2) - (size[1] / 2)]
 
