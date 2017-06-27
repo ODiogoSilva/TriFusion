@@ -10,6 +10,10 @@ files into TriFusion [0.5.13].
 
 ## Improvements
 
+## General
+
+- Added animation for dropdown menus [0.5.17].
+
 ### Process
 
 - Refactored concatenation procedure increasing performance up to 29x in run
@@ -45,6 +49,7 @@ transition [0.5.1].
 ### General
 
 - Fixed total data set information for taxon informative popup [0.5.16].
+- Fixed text flickering for some informative popups [0.5.17].
 
 ### Orthology
 

@@ -3616,6 +3616,7 @@ class TriFusionApp(App):
             sv_bts_width = 60
         else:
             sv_panel_width, sv_bts_width = 0, 0
+            self.sidepanel_remove_moreopts()
 
         # ANIMATIONS with hierarchy
         # Animation of main BoxLayout containing child ScrollViews
@@ -3846,7 +3847,8 @@ class TriFusionApp(App):
             background_color=(0.216, 0.67, 0.784, 1))
 
         # Generate DropDown
-        dropdown = FancyDropDown(pos=(wgt_x, wgt_y), size=size)
+        dropdown = FancyDropDown(pos=(wgt_x, wgt_y), size=size,
+                                 opacity=0)
 
         if add_ds_type:
             for name_tpl in ["All {}", "Active {}"]:
@@ -3871,6 +3873,8 @@ class TriFusionApp(App):
         self.root_window.add_widget(point_wgt)
         self.root_window.add_widget(dropdown)
 
+        Animation(opacity=1, d=.3, t="out_quart").start(dropdown)
+
         self.fancy_dropped = True
 
     def sidepanel_moreopts_dialog(self, bt):
@@ -3894,10 +3898,15 @@ class TriFusionApp(App):
             pos=(bt.x + (bt.width * 2), (bt.y + bt.height + 5)),
             size=(12, 7), background_color=(0.216, 0.67, 0.784, 1))
 
-        dlg_wgt = SP_MoreOpts_Dialog(ds_type=active_tab, pos=(wgt_x, wgt_y))
+        dlg_wgt = SP_MoreOpts_Dialog(ds_type=active_tab,
+                                     pos=(wgt_x, wgt_y - 10),
+                                     opacity=0)
 
         self.root_window.add_widget(dlg_wgt)
         self.root_window.add_widget(point_wgt)
+
+        Animation(opacity=1, d=.3, t="out_quart").start(dlg_wgt)
+        Animation(pos=(wgt_x, wgt_y), d=.3, t="out_quart").start(dlg_wgt)
 
         self.sp_moreopts = True
 
