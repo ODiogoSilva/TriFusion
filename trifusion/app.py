@@ -4885,7 +4885,7 @@ class TriFusionApp(App):
             # Get taxa name
             tx = value.id[:-1]
 
-            if tx in self.active_taxa_list:
+            if tx in self.alignment_list.taxa_names:
 
                 # Get the information from the content list. This is done
                 # when calling the popup to avoid repeating this
@@ -4948,7 +4948,7 @@ class TriFusionApp(App):
             # Get file name
             file_name = value.id[:-1]
 
-            if self.filename_map[file_name] in self.active_file_list:
+            if self.filename_map[file_name] in self.file_list:
 
                 content = FilePopup(cancel=self.dismiss_popup)
 
@@ -10926,7 +10926,7 @@ class TriFusionApp(App):
         if aln_list.alignments:
             for aln in aln_list:
                 try:
-                    sequence.append(aln.get_sequence(tx))
+                    sequence.append(aln.get_sequence(tx, ignore_shelved=True))
                 except KeyError:
                     tx_missing += 1
 
@@ -10994,7 +10994,7 @@ class TriFusionApp(App):
         # Reset trigger for taxa update
         self.trigger_taxa_update = False
 
-        for tx in self.active_taxa_list:
+        for tx in self.alignment_list.taxa_names:
             # Add entry to storage dictionary
             self.original_tx_inf[tx] = \
                 self.get_taxon_information(tx, self.alignment_list)

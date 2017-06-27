@@ -55,6 +55,7 @@ taxa sets [0.5.2].
 file [0.5.8].
 - Fixed issue when converting after specifying an output file for
 concatenation. [0.5.11]
+- Fixed missing informative popups for inactive files/taxa [0.5.15].
 
 ### Statistics
 
