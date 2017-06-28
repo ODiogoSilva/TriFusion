@@ -231,8 +231,8 @@ class Partitions(object):
             If True, the `alignments_range` attribute will not be reset.
         """
 
-        if cur:
-            cur.execute("DELETE FROM aux")
+        # if cur:
+        #     cur.execute("DELETE FROM aux")
 
         self.partitions = OrderedDict()
         self.partitions_index = []
@@ -459,11 +459,13 @@ class Partitions(object):
             # Check which alignment file contains the current partition
             if self.alignments_range:
                 try:
-                    file_name = [x for x, y in self.alignments_range.items() if
-                                 partition_range[0] in xrange(*y) and
-                                 partition_range[1] in xrange(*y)][0]
+                    file_name = \
+                        [x for x, y in self.alignments_range.items() if
+                         y[0] <= partition_range[0] < y[1]][0]
                 except IndexError:
-                    pass
+                    file_name = None
+            else:
+                file_name = None
 
             if return_res:
                 return [partition_name, file_name, partition_range]
@@ -840,8 +842,10 @@ class Partitions(object):
 
             part_list = []
             update_parts = []
+            print(self.partitions_alignments)
             for part, fl in self.partitions_alignments.items():
                 als = [True if x in file_list else False for x in fl]
+                print(als)
                 if als and all(als):
                     part_list.append(part)
                 elif als and any((x for x in fl if x in file_list)):

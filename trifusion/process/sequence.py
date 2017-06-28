@@ -3599,9 +3599,6 @@ class AlignmentList(Base):
         pbar : ProgressBar
             A ProgressBar object used to log the progress of TriSeq execution.
         """
-        #
-        # self._set_pipes(ns, pbar, total=len(self.alignments.keys() +
-        #                                     self.shelve_alignments.keys()))
 
         if all_files:
 

@@ -249,8 +249,126 @@ class PartitonsTest(ExpectingTestCase):
 
         self.expect_equal(cont, True)
 
+    def test_merge_and_split(self):
+
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+
+        self.aln_obj.partitions.merge_partitions(
+            ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas"], "new_part")
+
+        self.aln_obj.partitions.split_partition("new_part")
+
+        key_data = [sorted(self.aln_obj.partitions.partitions.keys()),
+                    sorted(self.aln_obj.partitions.partitions_alignments.keys()),
+                    sorted(self.aln_obj.partitions.models.keys())]
+
+        self.expect_equal(key_data, [["BaseConc1.fas", "BaseConc2.fas",
+                               "BaseConc3.fas", "BaseConc4.fas",
+                               "BaseConc5.fas", "BaseConc6.fas",
+                               "BaseConc7.fas"]] * 3)
+
+    def test_merge_and_custom_split1(self):
+
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+
+        self.aln_obj.partitions.merge_partitions(
+            ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas"], "new_part")
+
+        self.aln_obj.partitions.split_partition("new_part",
+                                                [(0, 50), (51, 254)],
+                                                ["one", "two"])
+
+        key_data = [self.aln_obj.partitions.partitions_alignments["one"],
+                    self.aln_obj.partitions.partitions_alignments["two"]]
+
+        self.assertEqual(key_data,
+                         [['BaseConc1.fas'],
+                          ['BaseConc1.fas', 'BaseConc3.fas', 'BaseConc2.fas']])
+
+    def test_merge_and_custom_split2(self):
+
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+
+        self.aln_obj.partitions.merge_partitions(
+            ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas"], "new_part")
+
+        self.aln_obj.partitions.split_partition("new_part",
+                                                [(0, 84), (85, 254)],
+                                                ["one", "two"])
+
+        key_data = [self.aln_obj.partitions.partitions_alignments["one"],
+                    self.aln_obj.partitions.partitions_alignments["two"]]
+
+        self.assertEqual(key_data,
+                         [['BaseConc1.fas'],
+                          ['BaseConc3.fas', 'BaseConc2.fas']])
+
+    def test_concat_custom_fileset_from_phy_partfile(self):
+
+        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
+
+        self.aln_obj.update_active_alignments(
+            [join(data_path, "BaseConc1.fas"),
+             join(data_path, "BaseConc2.fas")])
+
+        self.aln_obj.concatenate()
+
+        key_data = [
+            sorted(self.aln_obj.partitions.partitions.keys()),
+            sorted(self.aln_obj.partitions.partitions_alignments.keys()),
+            sorted(self.aln_obj.partitions.models.keys())]
+
+        self.expect_equal(key_data, [["BaseConc1.fas", "BaseConc2.fas"]] * 3)
+
+    def test_concat_custom_fileset_from_phy_partfile(self):
+
+        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+
+        self.aln_obj.update_active_alignments(
+            [join(data_path, "BaseConc1.fas"),
+             join(data_path, "BaseConc2.fas")])
+
+        self.aln_obj.concatenate()
+
+        key_data = [
+            sorted(self.aln_obj.partitions.partitions.keys()),
+            sorted(self.aln_obj.partitions.partitions_alignments.keys()),
+            sorted(self.aln_obj.partitions.models.keys())]
+
+        self.expect_equal(key_data, [["BaseConc1.fas", "BaseConc2.fas"]] * 3)
+
+    def test_merge_with_custom_fileset(self):
+
+        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
+        self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
+
+        self.aln_obj.partitions.merge_partitions(
+            ["BaseConc1.fas", "BaseConc2.fas", "BaseConc3.fas"], "new_part")
+
+        self.aln_obj.update_active_alignments(
+            [join(data_path, "BaseConc1.fas"),
+             join(data_path, "BaseConc5.fas")])
+
+        self.aln_obj.concatenate()
+
+        key_data = [
+            sorted(self.aln_obj.partitions.partitions.keys()),
+            sorted(self.aln_obj.partitions.partitions_alignments.keys()),
+            sorted(self.aln_obj.partitions.models.keys())]
+
+        self.expect_equal(key_data, [["BaseConc1.fas", "BaseConc5.fas"]] * 3)
+
     def test_model_detection(self):
 
+        self.aln_obj.clear_alignments()
         self.aln_obj = AlignmentList(models_nexus_data,
                                      db_con=self.aln_obj.con,
                                      db_cur=self.aln_obj.cur,
@@ -275,6 +393,7 @@ class PartitonsTest(ExpectingTestCase):
 
     def test_model_detection_codons(self):
 
+        self.aln_obj.clear_alignments()
         self.aln_obj = AlignmentList(models_codon_nexus_data,
                                      db_cur=self.aln_obj.cur,
                                      db_con=self.aln_obj.con,
