@@ -839,12 +839,18 @@ class Partitions(object):
         if file_list:
 
             part_list = []
+            update_parts = []
             for part, fl in self.partitions_alignments.items():
-                if any((x for x in fl if x in file_list)):
+                als = [True if x in file_list else False for x in fl]
+                if als and all(als):
                     part_list.append(part)
+                elif als and any((x for x in fl if x in file_list)):
+                    part_list.append(part)
+                    update_parts += [x for x in fl if x not in file_list]
 
             # Not this, will remove a partition containing multiple alignments
             # if at least one is in the file_list argument
+            self.update_deleted_partition(update_parts)
             remove_routine(part_list)
 
         if file_name:
@@ -950,6 +956,21 @@ class Partitions(object):
             del self.partitions_alignments[p]
             del self.models[p]
 
+    @staticmethod
+    def _teste_range_overlap(ref, r2):
+
+        # Complete inclusion of r2 in ref
+        if r2[0] >= ref[0] and r2[1] <= ref[1]:
+            return True
+
+        # Partial overlap at minimum value
+        if r2[1] > ref[0] > r2[0]:
+            return True
+
+        # Partial overlap at maximum value
+        if r2[1] > ref[1] > r2[0]:
+            return True
+
     def split_partition(self, name, new_range=None, new_names=None):
         """Splits one partition into two.
 
@@ -974,8 +995,17 @@ class Partitions(object):
                 self.partitions[n] = [r, False]
                 # Create new partitions_alignments. Keep the original alignment
                 # file for both
-                self.partitions_alignments[n] = self.partitions_alignments[name]
                 self.models[n] = [[[]], [None], []]
+
+                if len(self.partitions_alignments[name]) == 1:
+                    self.partitions_alignments[n] = [
+                        self.partitions_alignments[name]]
+                else:
+                    self.partitions_alignments[n] = []
+                    for aln in self.partitions_alignments[name]:
+                        if self._teste_range_overlap(
+                                r, self.merged_files[aln]):
+                            self.partitions_alignments[n].append(aln)
 
         else:
 
@@ -992,6 +1022,16 @@ class Partitions(object):
         del self.partitions[name]
         del self.partitions_alignments[name]
         del self.models[name]
+
+    def update_deleted_partition(self, file_list):
+
+        for fl in file_list:
+
+            new_range = self.merged_files[fl]
+            aln_name = basename(fl)
+            self.partitions[aln_name] = [new_range, False]
+            self.partitions_alignments[aln_name] = [fl]
+            self.models[aln_name] = [[[]], [None], []]
 
     # ==========================================================================
     # Model handling

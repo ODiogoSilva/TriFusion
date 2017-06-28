@@ -4141,6 +4141,8 @@ class AlignmentList(Base):
         # DROP the temporary table
         self.cur.execute("DROP TABLE [{}]".format(temp_table))
 
+        self._correct_partitions()
+
         self._idx += 1
         aln = Alignment(table_out, sql_cursor=self.cur, sql_con=self.con,
                         taxa_idx=taxa_idx,
@@ -4161,6 +4163,12 @@ class AlignmentList(Base):
         self.shelved_idx = []
 
         self._reset_pipes(ns)
+
+    def _correct_partitions(self):
+
+        shelved_alns = [self.alignment_idx[x].path for x in self.shelved_idx]
+
+        self.partitions.remove_partition(file_list=shelved_alns)
 
     def filter_min_taxa(self, min_taxa, ns=None, pbar=None):
         """Filters `alignments` by minimum taxa proportion.
@@ -6237,8 +6245,7 @@ class AlignmentList(Base):
         if fh:
             fh.close()
 
-    @staticmethod
-    def _write_nexus_partitions(aln_obj, use_charset, fh,
+    def _write_nexus_partitions(self, aln_obj, use_charset, fh,
                                 use_nexus_models, outgroup_list):
 
         if use_charset:
@@ -6247,7 +6254,7 @@ class AlignmentList(Base):
                 fh.write("\nbegin mrbayes;\n")
                 p = 0
                 # Full gene _partitions
-                for name, lrange in aln_obj.partitions:
+                for name, lrange in self.partitions:
                     # If there are codon _partitions, write those
                     if lrange[1]:
                         for i in lrange[1]:
@@ -6264,7 +6271,7 @@ class AlignmentList(Base):
                 fh.write("\tpartition part = %s: %s;\n\tset "
                                "partition=part;\nend;\n" %
                                (p, ", ".join([name for name in
-                                aln_obj.partitions.get_partition_names()])))
+                                self.partitions.get_partition_names()])))
 
         # Write models, if any
         if use_nexus_models:
@@ -6272,12 +6279,12 @@ class AlignmentList(Base):
 
                 fh.write("\nbegin mrbayes;\n")
                 i = 1
-                for name, models in aln_obj.partitions.models.items():
+                for name, models in self.partitions.models.items():
                     if models[1]:
                         for m in models[1]:
                             if m:
                                 m_str = \
-                                    aln_obj.partitions._models["mrbayes"][m]
+                                    self.partitions._models["mrbayes"][m]
                                 if not aln_obj.partitions.is_single():
                                     fh.write("applyto=({}) "
                                              "lset ".format(i) +

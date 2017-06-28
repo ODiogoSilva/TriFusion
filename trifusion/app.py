@@ -5433,6 +5433,7 @@ class TriFusionApp(App):
         self.conversion_suffix = ""
         self.gene_table_selection = []
         self.gene_master_table = []
+        self.active_partitions = []
 
         # Clear Statistics screen scatter, if screen is active
         self.dismiss_stats_toggle()
