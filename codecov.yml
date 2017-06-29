@@ -1,2 +1,3 @@
 ignore:
     - trifusion/progressbar/
+    - trifusion/process/error_handling.py
