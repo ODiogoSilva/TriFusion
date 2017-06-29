@@ -67,6 +67,7 @@ concatenation. [0.5.11]
 - Fixed missing informative popups for inactive files/taxa [0.5.15].
 - Fixed several issues of the partition scheme when using custom file data sets
 [0.5.18].
+- Fixed issue with some Nexus badly formatted input files [0.5.19].
 
 ### Statistics
 

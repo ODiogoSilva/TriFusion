@@ -149,3 +149,47 @@ protein_no_missing = [
 protein_normal_missing = [
     "trifusion/tests/data/protein_normal_missing.fasta"
 ]
+
+bad_extraspace_interleave = [
+    "trifusion/tests/data/bad_extra_space_interleave.nex"
+]
+
+bad_no_colon_interleave = [
+    "trifusion/tests/data/bad_no_colon_interleave.nex"
+]
+
+bad_no_end_interleave = [
+    "trifusion/tests/data/bad_no_end_interleave.nex"
+]
+
+bad_no_colon = [
+    "trifusion/tests/data/bad_no_colon.nex"
+]
+
+bad_no_end = [
+    "trifusion/tests/data/bad_no_end.nex"
+]
+
+bad_no_header = [
+    "trifusion/tests/data/bad_no_header.nex"
+]
+
+bad_no_matrix = [
+    "trifusion/tests/data/bad_no_matrix.nex"
+]
+
+bad_no_format_line = [
+    "trifusion/tests/data/bad_no_format_line.nex"
+]
+
+bad_space_in_middle = [
+    "trifusion/tests/data/bad_space_in_middle.nex"
+]
+
+bad_wrong_dimensions = [
+    "trifusion/tests/data/bad_wrong_dimensions.nex"
+]
+
+bad_wrong_size = [
+    "trifusion/tests/data/bad_wrong_size.nex"
+]

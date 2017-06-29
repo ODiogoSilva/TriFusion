@@ -331,7 +331,7 @@ class Base(object):
                             sequence = "".join(next_line.split()[1:]).strip()
                             break
 
-            # Recognition of Stockhold files is based on the existence of the
+            # Recognition of Stockholm files is based on the existence of the
             # string "# stockholm" in the first non-empty line
             # (case insensitive)
             elif header.upper().strip().startswith("# STOCKHOLM") or \

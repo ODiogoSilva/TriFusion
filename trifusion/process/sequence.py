@@ -2108,6 +2108,8 @@ class Alignment(Base):
 
             fh.close()
 
+        return size_list
+
     def _eval_missing_symbol(self, sequence):
         """Evaluates missing data symbol from sequence string.
 
@@ -2438,6 +2440,7 @@ class Alignment(Base):
         counter = 0
         idx = 0
         ntaxa = None
+        locus_length = None
         interleave = None
         for line in fh:
 
@@ -2456,9 +2459,9 @@ class Alignment(Base):
 
             # Fetch the number of sites from nexus header. This will be
             # necessary for efficient interleave parsing
-            if not self.locus_length:
+            if not locus_length:
                 try:
-                    self.locus_length = int(
+                    locus_length = int(
                         re.search(r".*nchar=(.+?)[ ,;]",
                                   line).group(1))
                 except ValueError:
@@ -2479,16 +2482,13 @@ class Alignment(Base):
                 except AttributeError:
                     pass
 
-            # Set the counter to beggin data parsing
+            # Set the counter to begin data parsing
             if line.strip().lower() == "matrix" and counter == 0:
                 counter = 1
 
             # Stop sequence parser here
             elif line.strip() == ";" and counter == 1:
                 counter = 2
-
-                # self.locus_length = len(sequence_data[0][2])
-                self._partitions.set_length(self.locus_length)
 
             # Start parsing here
             elif counter == 1:
@@ -2515,7 +2515,22 @@ class Alignment(Base):
                     self._taxa_idx[taxa] = idx
 
                     # Get sequence string
-                    seq = "".join(line.strip().split()[1].split())
+                    try:
+                        seq = "".join(line.strip().split()[1].split())
+                    except IndexError:
+                        # The parser failed to find the next sequence. This
+                        # may indicate that the ending symbols of the nexus
+                        # file are missing. If the number of gathered taxa
+                        # matches the expected from the header, end parsing.
+                        # If there is a mismatch, set the error attribute.
+                        del self._taxa_idx[taxa]
+                        if len(self._taxa_idx) == ntaxa:
+                            counter = 2
+                            continue
+                        else:
+                            self.e = InputError(
+                                "Could not parse the nexus file to "
+                                "completion.")
 
                     # Evaluate missing data symbol if undefined
                     self._eval_missing_symbol(seq)
@@ -2528,7 +2543,7 @@ class Alignment(Base):
                     idx += 1
 
                 else:
-                    self._read_interleave_nexus(ntaxa)
+                    size_list = self._read_interleave_nexus(ntaxa)
                     counter = 2
 
             # If _partitions are specified using the charset command, this
@@ -2554,6 +2569,15 @@ class Alignment(Base):
         # Checks the size consistency of the alignment
         if len(set(size_list)) > 1:
             self.e = AlignmentUnequalLength()
+            return
+
+        self.locus_length = size_list[0]
+        # self.locus_length = len(sequence_data[0][2])
+        self._partitions.set_length(self.locus_length)
+        
+        if not self._partitions.partitions:
+            self._partitions.add_partition(self.name, self.locus_length,
+                                           file_name=self.path)
 
     def _read_stockholm(self):
         """Alignment parser for stockholm format.
@@ -6407,6 +6431,12 @@ class AlignmentList(Base):
                 fh.write("{} {}\n".format(
                     taxon[:cut_space_nex].ljust(tx_space_nex),
                     seq.upper()))
+
+            if fh:
+                fh.write(";\n\tend;")
+                self._write_nexus_partitions(aln_obj, use_charset, fh,
+                                             use_nexus_models,
+                                             outgroup_list)
 
         else:
 

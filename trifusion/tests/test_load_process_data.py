@@ -327,5 +327,130 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         os.remove("test.fas")
 
+
+class LoadBadAlignmentsTest(unittest.TestCase):
+
+    def setUp(self):
+
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
+        self.aln_obj = None
+
+    def test_bad_extra_space_nexus_interleave(self):
+
+        self.aln_obj = AlignmentList(bad_extraspace_interleave, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.non_alignments,
+                         bad_extraspace_interleave)
+
+    def test_no_final_colon_interleave(self):
+
+        self.aln_obj = AlignmentList(bad_no_colon_interleave, sql_db=sql_db)
+
+        aln_obj = self.aln_obj.alignments.values()[0]
+        data = [aln_obj.name,
+                aln_obj.locus_length,
+                len(aln_obj.taxa_idx)]
+
+        self.assertEqual(data, ["bad_no_colon_interleave.nex",
+                                898,
+                                12])
+
+    def test_no_end_colon_interleave(self):
+
+        self.aln_obj = AlignmentList(bad_no_end_interleave, sql_db=sql_db)
+
+        aln_obj = self.aln_obj.alignments.values()[0]
+        data = [aln_obj.name,
+                aln_obj.locus_length,
+                len(aln_obj.taxa_idx)]
+
+        self.assertEqual(data, ["bad_no_end_interleave.nex",
+                                898,
+                                12])
+
+    def test_bad_no_colon_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_no_colon, sql_db=sql_db)
+
+        aln_obj = self.aln_obj.alignments.values()[0]
+        data = [aln_obj.name,
+                aln_obj.locus_length,
+                len(aln_obj.taxa_idx)]
+
+        self.assertEqual(data, ["bad_no_colon.nex",
+                                898,
+                                12])
+
+    def test_bad_no_end_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_no_end, sql_db=sql_db)
+
+        aln_obj = self.aln_obj.alignments.values()[0]
+        data = [aln_obj.name,
+                aln_obj.locus_length,
+                len(aln_obj.taxa_idx)]
+
+        self.assertEqual(data, ["bad_no_end.nex",
+                                898,
+                                12])
+
+    def test_bad_no_header_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_no_header, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.bad_alignments, bad_no_header)
+
+    def test_bad_no_matrix_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_no_matrix, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.bad_alignments, bad_no_matrix)
+
+    def test_bad_no_format_line_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_no_format_line, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.bad_alignments, bad_no_format_line)
+
+    def test_bad_space_in_middle_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_space_in_middle, sql_db=sql_db)
+
+        aln_obj = self.aln_obj.alignments.values()[0]
+        data = [aln_obj.name,
+                aln_obj.locus_length,
+                len(aln_obj.taxa_idx)]
+
+        self.assertEqual(data, ["bad_space_in_middle.nex",
+                                898,
+                                12])
+
+    def test_bad_wrong_dimensions_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_wrong_dimensions, sql_db=sql_db)
+
+        self.assertEqual(self.aln_obj.bad_alignments, bad_wrong_dimensions)
+
+    def test_bad_wrong_size_nexus(self):
+
+        self.aln_obj = AlignmentList(bad_wrong_size, sql_db=sql_db)
+
+        aln_obj = self.aln_obj.alignments.values()[0]
+        data = [aln_obj.name,
+                aln_obj.locus_length,
+                len(aln_obj.taxa_idx)]
+
+        self.assertEqual(data, ["bad_wrong_size.nex",
+                                898,
+                                12])
+
+    def tearDown(self):
+
+        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+        shutil.rmtree(temp_dir)
+
 if __name__ == "__main__":
     unittest.main()
