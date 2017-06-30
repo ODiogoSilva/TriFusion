@@ -19,6 +19,7 @@
 #  MA 02110-1301, USA.
 
 import os
+import time
 os.environ["KIVY_NO_ARGS"] = "1"
 
 from kivy.uix.togglebutton import ToggleButton
@@ -46,6 +47,7 @@ from kivy.properties import NumericProperty, StringProperty, BooleanProperty,\
 from kivy.uix.screenmanager import Screen
 from kivy.logger import Logger
 from kivy.graphics import Color, Line
+from kivy.clock import Clock
 
 
 import re
@@ -392,6 +394,61 @@ class FileChooserM(FileChooserListView):
         Window.bind(on_key_down=self.keyboard_listen)
         Window.bind(on_key_up=self.release_shift)
 
+        self.buf_dirs = []
+
+    def on_scroll_limit(self, scroll_y):
+
+        def get_items(fls, ttl):
+
+            for index, fn in enumerate(fls):
+
+                def get_nice_size():
+                    # Use a closure for lazy-loading here
+                    return self.get_nice_size(fn)
+
+                ctx = {'name': basename(fn),
+                       'get_nice_size': get_nice_size,
+                       'path': fn,
+                       'controller': wself,
+                       'isdir': self.file_system.is_dir(fn),
+                       'parent': None,
+                       'sep': sep}
+                entry = self._create_entry_widget(ctx)
+                yield index, ttl, entry
+
+        if abs(scroll_y) == 0.0:
+
+            start_len = float(len(self.files))
+
+            files = self.buf_dirs[:100]
+            self.files[:] += files
+            self.buf_dirs = self.buf_dirs[100:]
+
+            end_len = float(start_len + len(files))
+
+            if not files:
+                return
+
+            total = len(files)
+            wself = ref(self)
+
+            self._gitems_gen = get_items(files, total)
+            self._gitems = []
+
+            # cancel any previous clock if exist
+            ev = None
+
+            # show the progression screen
+            self._hide_progress()
+            if self._create_files_entries(no_clear=True):
+                if ev is None:
+                    ev = self._create_files_entries_ev = Clock.schedule_interval(
+                        lambda x: self._create_files_entries(no_clear=True), .1)
+                ev()
+
+            # Adjust scroll_y position
+            self.layout.ids.scrollview.scroll_y = 1 - (start_len / end_len)
+
     def on_double_click(self):
         """
         Even triggered when double clicking a file
@@ -467,7 +524,6 @@ class FileChooserM(FileChooserListView):
         double clicking a directory without multiselect.
         '''
         pass
-
 
     def entry_touched(self, entry, touch):
         """
@@ -574,7 +630,12 @@ class FileChooserM(FileChooserListView):
         is_hidden = self.file_system.is_hidden
         if not self.show_hidden:
             files = [x for x in files if not is_hidden(x)]
+
+        self.buf_dirs = files[100:]
+        files = files[:100]
+
         self.files[:] += files
+
         total = len(files)
         wself = ref(self)
         for index, fn in enumerate(files):
@@ -593,6 +654,56 @@ class FileChooserM(FileChooserListView):
             entry = self._create_entry_widget(ctx)
             yield index, total, entry
 
+    def _create_files_entries(self, *args, **kwargs):
+        # create maximum entries during 50ms max, or 10 minimum (slow system)
+        # (on a "fast system" (core i7 2700K), we can create up to 40 entries
+        # in 50 ms. So 10 is fine for low system.
+        start = time.time()
+        finished = False
+        index = total = count = 1
+        while time.time() - start < 0.05 or count < 10:
+            try:
+                index, total, item = next(self._gitems_gen)
+                self._gitems.append(item)
+                count += 1
+            except StopIteration:
+                finished = True
+                break
+            except TypeError:  # in case _gitems_gen is None
+                finished = True
+                break
+
+        # if this wasn't enough for creating all the entries, show a progress
+        # bar, and report the activity to the user.
+        if not finished:
+            self._show_progress()
+            self._progress.total = total
+            self._progress.index = index
+            return True
+
+        # we created all the files, now push them on the view
+        self._items = items = self._gitems
+        parent = self._gitems_parent
+        if parent is None:
+            if not kwargs.get("no_clear", False):
+                self.dispatch('on_entries_cleared')
+            for entry in items:
+                self.dispatch('on_entry_added', entry, parent)
+        else:
+            parent.entries[:] = items
+            for entry in items:
+                self.dispatch('on_subentry_to_entry', entry, parent)
+        if not kwargs.get("no_clear", False):
+            self.files[:] = self._get_file_paths(items)
+
+        # stop the progression / creation
+        self._hide_progress()
+        self._gitems = None
+        self._gitems_gen = None
+        ev = self._create_files_entries_ev
+        if ev is not None:
+            ev.cancel()
+        return False
 
 class ModalView(ModalView):
 

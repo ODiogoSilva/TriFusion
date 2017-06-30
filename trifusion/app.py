@@ -93,11 +93,6 @@ should prefix the name of the method.
 """
 
 # Standard libraries imports
-from os.path import dirname, exists, splitext
-from collections import OrderedDict
-from functools import partial
-from copy import deepcopy
-from scipy import misc
 import multiprocessing
 import matplotlib.patches as patches
 import subprocess
@@ -110,11 +105,16 @@ import string
 import signal
 import shutil
 import Queue
-import time
 import stat
 import sys
 import os
 import threading
+
+from os.path import dirname, exists, splitext
+from collections import OrderedDict
+from functools import partial
+from copy import deepcopy
+from scipy import misc
 
 # Move to Application's directory. This is a way of avoiding encoding
 # issues when the full path to the application's directory contains
@@ -159,9 +159,7 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
 from kivy.properties import ListProperty, DictProperty
-from kivy.clock import Clock
 from kivy.uix.treeview import TreeViewLabel
-from kivy.logger import Logger
 
 # Local TriFusion imports
 try:

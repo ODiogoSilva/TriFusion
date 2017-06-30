@@ -45,29 +45,36 @@
     is_leaf: not ctx.isdir or ctx.name.endswith('..' + ctx.sep) or self.locked
     on_touch_down: self.collide_point(*args[1].pos) and ctx.controller().entry_touched(self, args[1])
     on_touch_up: self.collide_point(*args[1].pos) and ctx.controller().entry_released(self, args[1])
-    BoxLayout:
+#    BoxLayout:
+#        pos: root.pos
+#        canvas.before:
+#            Color:
+#                rgba: (.4, .4, .4, .5) if root.selected and root.multiselect else (0,0,0,0)
+#            Rectangle:
+#                pos: self.pos
+#                size: self.size
+    Label:
+        id: filename
         pos: root.pos
-        canvas.before:
+        width: (self.texture_size[0] + dp(4)) if self.texture_size else dp(10)
+        halign: 'left'
+        valign: "middle"
+        text_size: self.size
+        shorten: True
+        text: ctx.name
+        canvas.after:
             Color:
-                rgba: (.4, .4, .4, .5) if root.selected and root.multiselect else (0,0,0,0)
+                rgba: (.4, .4, .4, .4) if root.selected and root.multiselect else (0,0,0,0)
             Rectangle:
                 pos: self.pos
                 size: self.size
-        Label:
-            id: filename
-            width: (self.texture_size[0] + dp(4)) if self.texture_size else dp(10)
-            halign: 'left'
-            valign: "middle"
-            text_size: self.size
-            shorten: True
-            text: ctx.name
-        Label:
-            text_size: self.width, None
-            size_hint_x: None
-            halign: 'right'
-            valign: "middle"
-            text_size: self.size
-            text: '{}'.format(ctx.get_nice_size())
+#        Label:
+#            text_size: self.width, None
+#            size_hint_x: None
+#            halign: 'right'
+#            valign: "middle"
+#            text_size: self.size
+#            text: '{}'.format(ctx.get_nice_size())
 
 <-ModalView>
     canvas.before:
@@ -147,12 +154,6 @@
                 text_size: self.size
                 halign: 'left'
                 bold: True
-            Label:
-                text: 'Size'
-                text_size: self.size
-                size_hint_x: None
-                halign: 'right'
-                bold: True
             Widget:
                 # Just for spacing
                 width: '10dp'
@@ -162,6 +163,8 @@
             do_scroll_x: False
             bar_width: 10
             scroll_type: ["bars", "content"]
+            on_scroll_y:
+                root.controller.on_scroll_limit(self.scroll_y)
             Scatter:
                 do_rotation: False
                 do_scale: False
@@ -178,7 +181,6 @@
                     #on_node_expand: root.controller.entry_subselect(args[1])
                     #on_node_collapse: root.controller.close_subselection(args[1]); root.controller.selection = [args[1].path]
                     on_node_expand: root.controller.open_entry(args[1])
-
 
 <-CheckBox>:
     _checkbox_state_image:
