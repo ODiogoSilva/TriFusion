@@ -4094,7 +4094,18 @@
         size_hint_x: None
         width: 295
         on_release:
-            app.sidepanel_load_more_filebts()
+            app.sidepanel_load_more_bts(tab=root.tab)
+
+<LoadMoreSearch>:
+    anchor_x: "left"
+    size_hint_y:None
+    height: 30
+    TFOKButon:
+        text: "Next 20 results"
+        size_hint_x: None
+        width: 295
+        on_release:
+            app.sidepanel_load_more_search(tab=root.tab)
 
 #===============================================================================
 #                               PROCESS SCREEN

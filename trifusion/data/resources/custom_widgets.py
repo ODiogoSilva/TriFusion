@@ -1357,7 +1357,11 @@ class LoadMoreBt(AnchorLayout):
     """
     Custom button widget for for the "load more button" in the side panel
     """
-    pass
+    tab = StringProperty()
+
+
+class LoadMoreSearch(AnchorLayout):
+    tab = StringProperty()
 
 
 class StatsMoreBt(AnchorLayout):

@@ -15,6 +15,7 @@ files into TriFusion [0.5.13].
 - Added animation for dropdown menus [0.5.17].
 - Increased efficiency of filechoosers when opening directories with
 a great number of files [0.5.20].
+- Improved item search in the main side panel [0.5.21].
 
 ### Process
 

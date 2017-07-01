@@ -698,6 +698,11 @@ class TriFusionApp(App):
     "Partitions" tab of the sidepanel. Prevents the loading of all partition
     Buttons in very large datasets.
     """
+
+    MAX_SEARCH = {"files": 20, "taxa": 20, "partitions": 20}
+    found_items = {"files": [], "taxa": [], "partitions": []}
+    search_count = {"files": 0, "taxa": 0, "partitions": 0}
+
     count_partitions = NumericProperty(0)
     """
     Integer that servers as a counter of the number of partition Buttons
@@ -3640,6 +3645,10 @@ class TriFusionApp(App):
         'files' or 'taxa'.
         """
 
+        self.MAX_SEARCH = {"files": 20, "taxa": 20, "partitions": 20}
+        self.found_items = {"files": [], "taxa": [], "partitions": []}
+        self.search_count = {"files": 0, "taxa": 0, "partitions": 0}
+
         if panel == "files":
             # Setting which original button list
             bt_list = self.file_list
@@ -3651,32 +3660,54 @@ class TriFusionApp(App):
             gl_wgt = self.root.ids.taxa_sl
             create_bts_mtd = self.sidepanel_create_bts
         else:
-            bt_list = list(self.alignment_list.partitions.partitions.keys())
+            bt_list = list(self.alignment_list.partitions.
+                           partitions_alignments.items())
             gl_wgt = self.root.ids.partition_sl
             create_bts_mtd = self.sidepanel_create_part_bts
 
+        max_s = self.MAX_SEARCH[panel]
+        search_c = self.search_count[panel]
+
         # Find buttons that match the txt string
         if panel == "files":
-            found_bts = [basename(el) for el in bt_list if
-                         txt.lower() in basename(el).lower()]
+            found_it = [basename(el) for el in bt_list if
+                        txt.lower() in basename(el).lower()]
+        elif panel == "partitions":
+            found_it = [el for el in bt_list
+                        if txt.lower() in el[0].lower()]
         else:
-            found_bts = [el for el in bt_list if txt.lower() in el.lower()]
+            found_it = [el for el in bt_list
+                        if txt.lower() in el.lower()]
+
+        self.found_items[panel] = found_it
 
         # Clear the grid and populate with the found bts
         gl_wgt.clear_widgets()
         mouse_bts = []
-        for txt in found_bts:
-            if panel == "partitions":
-                # Get number of alignment for partition
-                fls = self.alignment_list.partitions.\
-                    partitions_alignments[txt]
-                bt, inf_bt, x_bt = create_bts_mtd([txt, fls])
+        for i in found_it:
+
+            if search_c <= max_s:
+
+                search_c += 1
+
+                if panel == "partitions":
+                    # Get number of alignment for partition
+                    part, fls = i
+                    bt, inf_bt, x_bt = create_bts_mtd([part, fls])
+                else:
+                    bt, inf_bt, x_bt = create_bts_mtd(i)
+                gl_wgt.add_widget(bt)
+                gl_wgt.add_widget(inf_bt)
+                gl_wgt.add_widget(x_bt)
+                mouse_bts.append(bt)
+
             else:
-                bt, inf_bt, x_bt = create_bts_mtd(txt)
-            gl_wgt.add_widget(bt)
-            gl_wgt.add_widget(inf_bt)
-            gl_wgt.add_widget(x_bt)
-            mouse_bts.append(bt)
+                # Check if morebt is already present
+                if not [x for x in gl_wgt.children if
+                        isinstance(x, LoadMoreSearch)]:
+                    gl_wgt.add_widget(LoadMoreSearch(tab=panel))
+
+        self.search_count[panel] = search_c
 
         if panel == "files":
             self.mouse_over_bts["Files"] = mouse_bts
@@ -3727,6 +3758,10 @@ class TriFusionApp(App):
             gl_wgt.add_widget(rm_bt)
             mouse_bts.append(bt)
 
+        self.MAX_SEARCH = {"files": 20, "taxa": 20, "partitions": 20}
+        self.found_items = {"files": [], "taxa": [], "partitions": []}
+        self.search_count = {"files": 0, "taxa": 0, "partitions": 0}
+
         if panel == "files":
             self.mouse_over_bts["Files"] = mouse_bts
         elif panel == "taxa":
@@ -3737,7 +3772,7 @@ class TriFusionApp(App):
         if panel != "taxa":
             try:
                 if self.file_list[self.count_files + 1]:
-                    gl_wgt.add_widget(LoadMoreBt())
+                    gl_wgt.add_widget(LoadMoreBt(tab=panel))
             except IndexError:
                 return
 
@@ -4212,7 +4247,8 @@ class TriFusionApp(App):
                 # Check if morebt is already present
                 if not [x for x in self.root.ids.file_sl.children if
                         isinstance(x, LoadMoreBt)]:
-                    self.root.ids.file_sl.add_widget(LoadMoreBt())
+                    self.root.ids.file_sl.add_widget(LoadMoreBt(
+                        tab="files"))
                 return
 
     def sidepanel_add_bts(self, idx, tab_name, partition_fls=None):
@@ -4262,24 +4298,88 @@ class TriFusionApp(App):
             # Add all three buttons to the storage attribute
             bt_list.append((bt, inf_bt, x_bt))
 
-    def sidepanel_load_more_filebts(self):
+    def sidepanel_load_more_bts(self, tab):
 
-        max_buttons = self.MAX_FILE_BUTTON + self.count_files
+        if tab == "files":
+            c = self.count_files
+            lst = self.file_list
+            grid = self.root.ids.file_sl
+            sv = self.root.ids.sv_file
+            max_its = self.MAX_FILE_BUTTON
+        elif tab == "partitions":
+            c = self.count_partitions
+            lst = self.alignment_list.partitions.partitions_alignments.items()
+            grid = self.root.ids.partition_sl
+            sv = self.root.ids.sv_partition
+            max_its = self.MAX_PARTITION_BUTTON
 
-        self.root.ids.file_sl.remove_widget(
-            self.root.ids.file_sl.children[0])
+        start = float(c)
+        max_buttons = max_its + c
 
-        for _ in range(self.count_files, max_buttons):
+        grid.remove_widget(grid.children[0])
 
-            self.count_files += 1
+        for _ in range(c, max_buttons):
 
             try:
-                infile = basename(self.file_list[self.count_files])
-                self.sidepanel_add_bts(infile, "Files")
+                if tab == "files":
+                    infile = basename(lst[c])
+                    self.sidepanel_add_bts(infile, "Files")
+                elif tab == "partitions":
+                    part, fls = lst[c]
+                    self.sidepanel_add_bts(part, "Partitions",
+                                           partition_fls=fls)
+                c += 1
             except IndexError:
+                sv.scroll_y = 1 - (start / float(c))
                 return
 
-        self.root.ids.file_sl.add_widget(LoadMoreBt())
+        sv.scroll_y = 1 - (start / float(c))
+        grid.add_widget(LoadMoreBt(tab=tab))
+
+    def sidepanel_load_more_search(self, tab):
+
+        if tab == "files":
+            grid = self.root.ids.file_sl
+            sv = self.root.ids.sv_file
+        elif tab == "taxa":
+            grid = self.root.ids.taxa_sl
+            sv = self.root.ids.sv_sp
+        else:
+            grid = self.root.ids.partition_sl
+            sv = self.root.ids.sv_partition
+
+        c = self.search_count[tab]
+        lst = self.found_items[tab]
+        max_its = self.MAX_SEARCH[tab]
+
+        start = float(c)
+        max_buttons = max_its + c
+        self.MAX_SEARCH[tab] = max_buttons
+
+        grid.remove_widget(grid.children[0])
+
+        for _ in range(c, max_buttons):
+
+            try:
+                if tab == "files":
+                    infile = basename(lst[c])
+                    self.sidepanel_add_bts(infile, "Files")
+                elif tab == "taxa":
+                    tx = lst[c]
+                    self.sidepanel_add_bts(tx, "Taxa")
+                elif tab == "partitions":
+                    part, fls = lst[c]
+                    self.sidepanel_add_bts(part, "Partitions",
+                                           partition_fls=fls)
+                c += 1
+            except IndexError:
+                sv.scroll_y = 1 - (start / float(c))
+                self.search_count[tab] = c
+                return
+
+        sv.scroll_y = 1 - (start / float(c))
+        self.search_count[tab] = c
+        grid.add_widget(LoadMoreSearch(tab=tab))
 
     def populate_species(self):
         """
@@ -4348,7 +4448,8 @@ class TriFusionApp(App):
                                        partition_fls=fls)
 
             else:
-                self.root.ids.partition_sl.add_widget(LoadMoreBt())
+                self.root.ids.partition_sl.add_widget(LoadMoreBt(
+                    tab="partitions"))
                 return
 
     def partitions_merge_dialog(self):
@@ -5416,6 +5517,9 @@ class TriFusionApp(App):
         self.sequence_types = ""
         self.MAX_FILE_BUTTON = 20
         self.MAX_PARTITION_BUTTON = 20
+        self.MAX_SEARCH = {"files": 20, "taxa": 20, "partitions": 20}
+        self.found_items = {"files": [], "taxa": [], "partitions": []}
+        self.search_count = {"files": 0, "taxa": 0, "partitions": 0}
         self.mouse_over_bts.clear()
         self.mouse_over_bts = {"Files": [], "Taxa": [], "Partitions": []}
         self.previous_sets = {"Files": [], "Taxa": [], "Stats": []}
