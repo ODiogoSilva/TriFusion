@@ -53,6 +53,7 @@ transition [0.5.1].
 
 - Fixed total data set information for taxon informative popup [0.5.16].
 - Fixed text flickering for some informative popups [0.5.17].
+- Fixed partition label update in side panel after merging or splitting [0.5.22].
 
 ### Orthology
 

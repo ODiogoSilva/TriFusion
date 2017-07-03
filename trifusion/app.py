@@ -4486,6 +4486,7 @@ class TriFusionApp(App):
         # Close popup
         self.dismiss_popup()
         self.repopulate_partitions()
+        self.update_partition_label()
 
     def partitions_split(self, new_range=None, new_names=None):
         """
@@ -4526,6 +4527,7 @@ class TriFusionApp(App):
         # Close popup
         self.dismiss_popup()
         self.repopulate_partitions()
+        self.update_partition_label()
 
     def dialog_partitions_split(self):
 
