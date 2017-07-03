@@ -3038,10 +3038,13 @@ class TriFusionApp(App):
 
             if "img" in self._popup.content.ids:
                 self._popup.content.ids.img.rotation -= 10
-
-                if shared_ns.counter:
-                    self._popup.content.ids.msg2.text = "{}/{}".format(
-                        shared_ns.counter, shared_ns.total)
+                
+                try:
+                    if shared_ns.counter:
+                        self._popup.content.ids.msg2.text = "{}/{}".format(
+                            shared_ns.counter, shared_ns.total)
+                except AttributeError:
+                    pass
 
             if not p.is_alive():
 
