@@ -239,5 +239,22 @@ class ProcessWriteTest(unittest.TestCase):
 
         self.assertEqual(res, ref)
 
+    def test_get_non_contiguous_partitions(self):
+
+        self.aln_obj.partitions.merge_partitions(["BaseConc1.fas", "BaseConc3.fas",
+                                       "BaseConc7.fas"], "non_contiguous")
+
+        self.aln_obj.write_to_file(["mcmctree", "stockholm", "gphocs",
+                                    "snapp"], output_file=self.output_file)
+
+    def test_write_non_contiguous_partitions(self):
+
+        self.aln_obj.partitions.merge_partitions(
+            ["BaseConc1.fas", "BaseConc3.fas",
+             "BaseConc7.fas"], "non_contiguous")
+
+        self.aln_obj.write_to_file(["phylip", "nexus"],
+                                   output_file=self.output_file)
+
 if __name__ == "__main__":
     unittest.main()

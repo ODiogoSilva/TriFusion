@@ -227,10 +227,10 @@ class PartitonsTest(ExpectingTestCase):
                     list(self.aln_obj.partitions.models.keys())]
 
         self.expect_equal(key_data,
-                          [["BaseConc2.fas",
+                          [["part1", "part2", "BaseConc2.fas",
                             "BaseConc3.fas", "BaseConc4.fas",
                             "BaseConc5.fas", "BaseConc6.fas",
-                            "BaseConc7.fas", "part1", "part2"]] * 3)
+                            "BaseConc7.fas"]] * 3)
 
         # Check if remaining partition ranges are continuous
         cont = True

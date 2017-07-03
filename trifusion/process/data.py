@@ -242,6 +242,27 @@ class Partitions(object):
         if not keep_alignments_range:
             self.alignments_range = OrderedDict()
 
+    def _sort_partitions(self):
+
+        part_start = {}
+
+        for name, lrange in self.partitions.items():
+
+            if isinstance(lrange[0][0], int):
+                part_start[name] = lrange[0][0]
+            else:
+                part_start[name] = lrange[0][0][0]
+
+        self.partitions = OrderedDict(sorted(
+            self.partitions.items(),
+            key=lambda x: part_start[x[0]]))
+        self.partitions_alignments = OrderedDict(sorted(
+            self.partitions_alignments.items(),
+            key=lambda x: part_start[x[0]]))
+        self.models = OrderedDict(sorted(
+            self.models.items(),
+            key=lambda x: part_start[x[0]]))
+
     def iter_files(self):
         """Iterates over `partitions_alignments.items()`.
 
@@ -548,6 +569,25 @@ class Partitions(object):
                 return False
         else:
             return False
+
+    def is_contiguous(self):
+        """Returns whether the current partitions have a contiguous range
+
+        Returns
+        -------
+            _ : bool
+             Returns True if all partitions have a contiguous range. Else,
+             False
+        """
+
+        for i in self.partitions.values():
+
+            # If any of the current partitions is a list of tuples instead
+            # of a single tuple, the partitions are not contiguous
+            if not isinstance(i[0][0], int):
+                return False
+
+        return True
 
     def _find_parent(self, max_range):
         """Finds the parent partition from a specified range.
@@ -960,6 +1000,8 @@ class Partitions(object):
             del self.partitions_alignments[p]
             del self.models[p]
 
+        self._sort_partitions()
+
     @staticmethod
     def _teste_range_overlap(ref, r2):
 
@@ -1003,7 +1045,7 @@ class Partitions(object):
 
                 if len(self.partitions_alignments[name]) == 1:
                     self.partitions_alignments[n] = [
-                        self.partitions_alignments[name]]
+                        self.partitions_alignments[name][0]]
                 else:
                     self.partitions_alignments[n] = []
                     for aln in self.partitions_alignments[name]:
@@ -1026,6 +1068,8 @@ class Partitions(object):
         del self.partitions[name]
         del self.partitions_alignments[name]
         del self.models[name]
+
+        self._sort_partitions()
 
     def update_deleted_partition(self, file_list):
 

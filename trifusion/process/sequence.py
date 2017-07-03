@@ -3064,6 +3064,10 @@ class AlignmentList(Base):
         self.interleave_data = False
 
         self.partition_data = False
+        """
+        Boolean attribute that is set to True when the partitioned data table
+        has already been built.
+        """
 
         self.partition_count = {}
 
@@ -5935,7 +5939,8 @@ class AlignmentList(Base):
 
         return True
 
-    def _get_partition_data(self, table_name, ns=None, pbar=None):
+    def _get_partition_data(self, table_name, ns=None, pbar=None,
+                            overide_table=False):
         """
 
         Parameters
@@ -5949,6 +5954,37 @@ class AlignmentList(Base):
 
         """
 
+        def get_partition_seq(seq_str, range_val):
+            """Returns sequence string for current partition.
+
+            Returns the string of the sequence for the current partition. If
+            the partition has a contiguous range, the first element contains
+            a tuple with the starting and ending position (e.g. (0, 85)).
+            If the partition is non-contiguous, then the first element is
+            a list of tuples with each contiguous range.
+
+            Parameters
+            ----------
+            seq_str : str
+                Full sequence string for a given taxon.
+            range_val : list
+                List with the single tuple or list of tuples with the partition
+                ranges.
+
+            Returns
+            -------
+            _ : str
+                String with the sequence of the given partition
+
+            """
+
+            # In this case, the partition is contiguous
+            if isinstance(range_val[0][0], int):
+                return seq_str[range_val[0][0]:range_val[0][1] + 1]
+            # In this case, the partition in non-contiguous
+            else:
+                return "".join([seq_str[x[0]:x[1] + 1] for x in range_val[0]])
+
         partition_table = ".partitiondata"
         if self.cur.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND"
@@ -5958,13 +5994,15 @@ class AlignmentList(Base):
 
         else:
             self.cur.execute("CREATE TABLE [{}]("
+                             "txId INT,"
                              "taxon TEXT,"
                              "seq TEXT,"
                              "part_name TEXT,"
                              "part INT,"
                              "aln_idx INT)".format(partition_table))
+
             self.cur.execute("CREATE INDEX partindex ON "
-                            "[{}](part, aln_idx)".format(partition_table))
+                             "[{}](part, aln_idx)".format(partition_table))
 
         temp_cur = self.con.cursor()
 
@@ -5975,8 +6013,13 @@ class AlignmentList(Base):
         # Get corrected partition names for sqlite database
         part_map = self._get_part_names()
 
+        part_lst = self.partitions.partitions
+        if overide_table:
+            self.partitions = Partitions()
+
         prev_tx = ""
-        for taxon, seq, aln_idx in self.iter_alignments(table_name):
+        for txId, taxon, seq, aln_idx in self.iter_alignments(
+                table_name, include_txid=True):
 
             if prev_tx != taxon:
 
@@ -5987,26 +6030,44 @@ class AlignmentList(Base):
 
             part_idx = 1
 
-            for name, part_range in self.partitions:
+            for name, part_range in part_lst.items():
 
                 name = part_map[name]
 
                 if name not in self.partition_count:
                     self.partition_count[name] = [[], 0]
 
-                part_seq = seq[part_range[0][0]:part_range[0][1] + 1]
+                part_seq = get_partition_seq(seq, part_range)
 
-                if part_seq.replace(self.sequence_code[1], "") == "":
+                if part_seq.replace(self.sequence_code[1], "") == "" and \
+                        not overide_table:
                     part_idx += 1
                     continue
 
+                if overide_table:
+                    if name not in self.partitions.partitions:
+                        self.partitions.add_partition(name,
+                                                      length=len(part_seq))
+
                 temp_cur.execute(
                     "INSERT INTO [{}] "
-                    "VALUES (?, ?, ?, ?, ?)".format(partition_table),
-                    (taxon, part_seq, name, part_idx, aln_idx))
+                    "VALUES (?, ?, ?, ?, ?, ?)".format(partition_table),
+                    (txId, taxon, part_seq, name, part_idx, aln_idx))
                 part_idx += 1
                 self.partition_count[name][0].append(taxon)
                 self.partition_count[name][1] = len(part_seq)
+
+        if overide_table:
+
+            temp_cur.execute("DELETE FROM [{}]".format(table_name))
+
+            temp_cur.execute(
+                "INSERT INTO [{}] "
+                "(txId, taxon, seq, aln_idx) "
+                "SELECT txId, taxon, GROUP_CONCAT(seq, ''), aln_idx "
+                "FROM (SELECT txId, taxon, seq, part, aln_idx FROM [{}] "
+                "ORDER BY part)"
+                "GROUP BY txId".format(table_name, partition_table))
 
         return True
 
@@ -6909,6 +6970,7 @@ class AlignmentList(Base):
         """
 
         output_file = kwargs.pop("output_file", None)
+        table_name = kwargs.get("table_name", self.master_table)
 
         write_methods = {
             "fasta": self._write_fasta,
@@ -6920,6 +6982,12 @@ class AlignmentList(Base):
             "mcmctree": self._write_mcmctree,
             "snapp": self._write_snapp
         }
+
+        if not self.partitions.is_contiguous() and \
+                [x for x in output_format if x in ["nexus", "phylip"]] and \
+                len(self.alignments) == 1:
+            self.partition_data = self._get_partition_data(
+                table_name, overide_table=True)
 
         for fmt in output_format:
 
