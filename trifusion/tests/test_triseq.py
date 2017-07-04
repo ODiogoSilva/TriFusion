@@ -43,7 +43,7 @@ class TriSeqTest(unittest.TestCase):
 
         with open(join(data_path, "BaseConcatenation.fas")) as fh1, \
                 open(join(output_dir, "teste.fas")) as fh2:
-            self.assertEqual(fh1.read(), fh2.read())
+            self.assertEqual(sorted(fh1.readlines()), sorted(fh2.readlines()))
 
     def test_simple_conversion(self):
 

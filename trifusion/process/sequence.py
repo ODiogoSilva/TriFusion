@@ -3206,7 +3206,7 @@ class AlignmentList(Base):
                     "taxa_idx TEXT,"
                     "partitions TEXT)")
 
-        #cur.execute("CREATE INDEX aux_idx ON aux(aln_idx)")
+        cur.execute("CREATE INDEX aux_idx ON aux(aln_idx)")
 
     def _create_table(self, table_name, index=None, cur=None):
         """Creates a new table in the database.
@@ -3777,7 +3777,8 @@ class AlignmentList(Base):
         """
         return [alignment.name for alignment in self.alignments.values()]
 
-    def set_partition_from_alignment(self, alignment_obj, reset=False):
+    def set_partition_from_alignment(self, alignment_obj, reset=False,
+                                     use_private_attr=False):
         """Updates `_partitions` object with the provided `Alignment` object.
 
         Uses the `_partitions` of an `Alignment` object to set the `partitions`
@@ -3794,7 +3795,10 @@ class AlignmentList(Base):
         if reset:
             self.partitions = Partitions()
 
-        aln_parts = alignment_obj.partitions
+        if use_private_attr:
+            aln_parts = alignment_obj._partitions
+        else:
+            aln_parts = alignment_obj.partitions
 
         # Update _partitions object
         # NOTE: The use_counter argument is set to False here so that when
@@ -3937,8 +3941,6 @@ class AlignmentList(Base):
                 self.bad_alignments.append(aln_obj.path)
             else:
 
-                aln_obj.store_aux_data()
-
                 # Get seq code
                 if not self.sequence_code:
                     self.sequence_code = aln_obj.sequence_code
@@ -3950,15 +3952,18 @@ class AlignmentList(Base):
                             self.sequence_code[0],
                             aln_obj.sequence_code[0]))
 
+                self.taxa_names.extend([x for x in aln_obj._taxa_idx.keys()
+                                        if x not in self.taxa_names])
+                self.set_partition_from_alignment(aln_obj,
+                                                  use_private_attr=True)
+
+                aln_obj.store_aux_data()
+
                 self.all_alignments[aln_obj.path] = aln_obj
                 self.alignments[aln_obj.path] = aln_obj
-                self.set_partition_from_alignment(aln_obj)
                 self.path_list.append(aln_obj.path)
                 self.alignment_idx[self._idx] = aln_obj
                 self._idx += 1
-
-        if self.alignments:
-            self.taxa_names = self._get_taxa_list()
 
     def retrieve_alignment(self, name):
         """Return `Alignment` object with a given `name`.
@@ -4071,6 +4076,7 @@ class AlignmentList(Base):
 
             # Get list of missing taxa in the provided alignment
             missing_tx = set(self.taxa_names) - set(aln_obj.taxa_idx.keys())
+            # missing_tx = []
 
             for tx in missing_tx:
                 # Insert missing data in database

@@ -323,7 +323,7 @@ class AlignmentManipulationTest(unittest.TestCase):
 
         with open("trifusion/tests/data/BaseConcatenation.fas") as fh1, \
                 open("test.fas") as fh2:
-            self.assertEqual(fh1.read(), fh2.read())
+            self.assertEqual(sorted(fh1.readlines()), sorted(fh2.readlines()))
 
         os.remove("test.fas")
 
