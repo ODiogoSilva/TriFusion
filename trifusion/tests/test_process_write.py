@@ -231,7 +231,7 @@ class ProcessWriteTest(unittest.TestCase):
         self.aln_obj.concatenate()
         self.aln_obj.write_to_file(["snapp"], output_file=self.output_file)
 
-        with open(self.output_file + ".nex") as fh:
+        with open(self.output_file + "_snapp.nex") as fh:
             res = sorted(fh.readlines())
 
         with open(snapp_output[0]) as fh:
