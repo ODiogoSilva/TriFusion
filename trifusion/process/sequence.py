@@ -2671,8 +2671,6 @@ class Alignment(Base):
                                    " the alignment: {}".format(
                 "; ".join(duplicate_taxa)))
 
-
-
     def remove_taxa(self, taxa_list_file, mode="remove"):
         """ Removes taxa from the `Alignment` object.
 
@@ -3052,7 +3050,7 @@ class AlignmentList(Base):
                            "fasta": ".fas",
                            "stockholm": ".stockholm",
                            "gphocs": ".txt",
-                           "snapp": ".nex"}
+                           "snapp": "_snapp.nex"}
         """Dictionary that stores the suffix for each output format"""
 
         self.temporary_tables = []

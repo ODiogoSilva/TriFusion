@@ -9763,6 +9763,10 @@ class TriFusionApp(App):
             if invalid_formats:
                 return self.dialog_invalid_formats(invalid_formats)
 
+        if not self.output_formats:
+            return self.dialog_floatcheck("No output formats have been "
+                                          "specified", t="error")
+
         content = ExecutionDialog(cancel=self.dismiss_popup)
 
         # Get number of files to be processed

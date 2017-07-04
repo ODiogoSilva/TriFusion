@@ -39,7 +39,10 @@ for the current main operation [0.5.11].
 - Increased memory efficiency of Process execution [0.5.14].
 - Output files are now correctly generated when non-contiguous partitions
 are defined. These partitions are effectively merged before
- writing the output files [0.5.23].
+writing the output files [0.5.23].
+- Added error message when there are no output formats after ignoring
+formats non-compliant with conversion/reverse concatenation [0.5.25].
+- Added custom SNAPP output format extension [0.5.25].
 
 ### Statistics
 
