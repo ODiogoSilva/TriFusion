@@ -788,6 +788,67 @@ class Partitions(object):
                 self.counter = locus_range[1] + 1
                 self.partition_length = locus_range[1] + 1
 
+    def _remove_routine(self, part_name):
+        """
+        Routine that removes a partition based on its name. It ca be used
+        when calling the remove_partition method with the partition_name
+        argument, or with the file_name argument when the partition only
+        contains that file name
+        """
+
+        if not isinstance(part_name, list):
+            part_name = [part_name]
+
+        # Remove partition from partition_index
+        self.partitions_index = [
+            x for x in self.partitions_index if x[0] not in part_name]
+
+        for p in part_name:
+
+            # Remove partitions_alignments
+            del self.partitions_alignments[p]
+
+            # Remove models
+            del self.models[p]
+
+        # Remove from partitions
+        self.partitions = self._rm_part(part_name)
+
+    def _rm_part(self, nm):
+        """
+        Remove a partition from self.partitions and update the ranges of
+        the remaining partitions
+        """
+
+        for i in nm:
+            del self.partitions[i]
+
+        new_dic = OrderedDict()
+
+        counter = 0
+        for p, (nm, vals) in enumerate(self.partitions.items()):
+
+            # Check if the starting position of the next partition is the
+            # same as the counter. If so, add the vals to the new dict.
+            # Else, correct the ranges based on the counter
+            if vals[0][0] == counter:
+                new_dic[nm] = vals
+                counter = vals[0][1] + 1
+            else:
+                # Get lenght of the partition
+                part_len = vals[0][1] - vals[0][0]
+                # Create corrected range
+                part_range = (counter, counter + part_len)
+                # Correct codon position start if any
+                if vals[1]:
+                    codon = [counter, counter + 1, counter + 2]
+                else:
+                    codon = False
+                new_dic[nm] = [part_range, codon]
+                counter = counter + part_len + 1
+
+        return new_dic
+
     def remove_partition(self, partition_name=None, file_name=None,
                          file_list=None, ns=None):
         """Removes partitions.
@@ -810,92 +871,36 @@ class Partitions(object):
             in TriFusion.
         """
 
-        def rm_part(nm):
-            """
-            Remove a partition from self.partitions and update the ranges of
-            the remaining partitions
-            """
-
-            for i in nm:
-                del self.partitions[i]
-
-            new_dic = OrderedDict()
-
-            counter = 0
-            for p, (nm, vals) in enumerate(self.partitions.items()):
-
-                # Check if the starting position of the next partition is the
-                # same as the counter. If so, add the vals to the new dict.
-                # Else, correct the ranges based on the counter
-                if vals[0][0] == counter:
-                    new_dic[nm] = vals
-                    counter = vals[0][1] + 1
-                else:
-                    # Get lenght of the partition
-                    part_len = vals[0][1] - vals[0][0]
-                    # Create corrected range
-                    part_range = (counter, counter + part_len)
-                    # Correct codon position start if any
-                    if vals[1]:
-                        codon = [counter, counter + 1, counter + 2]
-                    else:
-                        codon = False
-                    new_dic[nm] = [part_range, codon]
-                    counter = counter + part_len + 1
-
-            return new_dic
-
-        def remove_routine(part_name):
-            """
-            Routine that removes a partition based on its name. It ca be used
-            when calling the remove_partition method with the partition_name
-            argument, or with the file_name argument when the partition only
-            contains that file name
-            """
-
-            if not isinstance(part_name, list):
-                part_name = [part_name]
-
-            for p in part_name:
-                # Remove partition from partition_index
-                self.partitions_index = [
-                    x for x in self.partitions_index if x[0] != p]
-
-                # Remove partitions_alignments
-                del self.partitions_alignments[p]
-
-                # Remove models
-                del self.models[p]
-
-            # Remove from partitions
-            self.partitions = rm_part(part_name)
-
         if partition_name:
             # Raise exception if partition name does not exist
             if partition_name not in self.partitions:
                 raise PartitionException("%s is not a partition name" %
                                          partition_name)
 
-            remove_routine(partition_name)
+            self._remove_routine(partition_name)
 
         if file_list:
 
             part_list = []
             update_parts = []
-            print(self.partitions_alignments)
             for part, fl in self.partitions_alignments.items():
+                if len(fl) == 1:
+                    if fl[0] in file_list:
+                        part_list.append(part)
+                    continue
+
                 als = [True if x in file_list else False for x in fl]
-                print(als)
-                if als and all(als):
-                    part_list.append(part)
-                elif als and any((x for x in fl if x in file_list)):
-                    part_list.append(part)
-                    update_parts += [x for x in fl if x not in file_list]
+                if als:
+                    if all(als):
+                        part_list.append(part)
+                    elif any((x for x in fl if x in file_list)):
+                        part_list.append(part)
+                        update_parts += [x for x in fl if x not in file_list]
 
             # Not this, will remove a partition containing multiple alignments
             # if at least one is in the file_list argument
             self.update_deleted_partition(update_parts)
-            remove_routine(part_list)
+            self._remove_routine(part_list)
 
         if file_name:
 
@@ -908,7 +913,7 @@ class Partitions(object):
                     # If the partitions consists only of the provided file,
                     # Remove the entire partition
                     if len(file_list) == 1:
-                        remove_routine(part)
+                        self._remove_routine(part)
                     # If the partition contains other files, then only remove
                     # the current file from the partition
                     else:

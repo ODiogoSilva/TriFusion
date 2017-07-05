@@ -3597,7 +3597,7 @@ class AlignmentList(Base):
                               "avg_inf": []}
 
     def update_active_alignments(self, aln_list=None, all_files=False,
-                                 ns=None, pbar=None):
+                                 ns=None, pbar=None, no_taxa_update=False):
         """Sets the active alignments.
 
         Sets the 'active' alignments stored in the `alignments` attribute
@@ -3635,13 +3635,14 @@ class AlignmentList(Base):
         elif aln_list is not None:
 
             self.alignments = OrderedDict(
-                (p, aln) for p, aln in self.all_alignments.items()
-                if p in aln_list)
+                (x, self.all_alignments[x]) for x in aln_list if
+                x in self.all_alignments)
             self.shelved_idx = [idx for idx, aln in self.alignment_idx.items()
                                 if aln.path not in self.alignments]
 
         # Update taxa names
-        self.taxa_names = self._get_taxa_list()
+        if not no_taxa_update:
+            self.taxa_names = self._get_taxa_list()
 
         #Update size
         self.size = sum((x.locus_length for x in self.alignments.values()))
@@ -4272,6 +4273,11 @@ class AlignmentList(Base):
             A ProgressBar object used to log the progress of TriSeq execution.
         """
 
+        def _update_taxa_names(tx_list):
+
+            self.taxa_names.extend([x for x in tx_list if x not in 
+                                    self.taxa_names])
+
         self._set_pipes(ns, pbar, total=len(self.alignments))
 
         self.filtered_alignments["By taxa"] = 0
@@ -4289,13 +4295,18 @@ class AlignmentList(Base):
                 taxa_list = self.read_basic_csv(file_handle)
             except IOError:
                 pass
+        
+        taxa_list = set(taxa_list)
+        self.taxa_names = []
 
         # Stores Alignment.path to be filtered
         filtered_alns = []
-        # Stpres Ailignment.name of active alignments
+        # Stores Alignment.name of active alignments
         active_alns = []
 
         for p, (k, aln_obj) in enumerate(list(self.alignments.items())):
+
+            aln_tx = set(aln_obj.taxa_idx.keys())
 
             self._update_pipes(
                 ns, pbar, value=p + 1, msg="Filtering file {}".format(
@@ -4304,27 +4315,27 @@ class AlignmentList(Base):
             # Filter alignments that do not contain at least all taxa in
             # taxa_list
             if filter_mode.lower() == "contain":
-                if set(taxa_list) - set(aln_obj.taxa_idx.keys()) != set():
+                if not taxa_list.issubset(aln_tx):
                     filtered_alns.append(aln_obj.path)
                     self.filtered_alignments["By taxa"] += 1
                 else:
                     active_alns.append(aln_obj.path)
+                    _update_taxa_names(aln_tx)
 
             # Filter alignments that contain the taxa in taxa list
             if filter_mode.lower() == "exclude":
                 if any((x for x in taxa_list
-                        if x in aln_obj.taxa_idx.keys())):
+                        if x in aln_tx)):
                     filtered_alns.append(aln_obj.path)
                     self.filtered_alignments["By taxa"] += 1
                 else:
                     active_alns.append(aln_obj.path)
+                    _update_taxa_names(aln_tx)
 
         # Update _partitions
         self.partitions.remove_partition(file_list=filtered_alns)
         # Update active files
-        self.update_active_alignments(active_alns, ns=ns)
-
-        self.taxa_names = self._get_taxa_list(only_active=True)
+        self.update_active_alignments(active_alns, ns=ns, no_taxa_update=True)
 
         # If the resulting alignment is empty, raise an Exception
         if self.alignments == {}:
@@ -5154,13 +5165,15 @@ class AlignmentList(Base):
             
             return gap_list
 
-        def gap_binary_generator(sequence, gap_list):
+        def gap_binary_generator(sequence, gap_list, ns):
             """ This function contains the algorithm to construct the binary
              state block for the indel events """
 
             binary_states = []
 
             for span in gap_list:
+
+                self._check_killswitch(ns)
 
                 substr = sequence[span[0]:span[1]]
 
@@ -5252,7 +5265,7 @@ class AlignmentList(Base):
 
                 prev_idx = aln_idx
 
-            final_seq = gap_binary_generator(seq, master_gaps[aln_idx])
+            final_seq = gap_binary_generator(seq, master_gaps[aln_idx], ns)
 
             temp_cur.execute(
                 "INSERT INTO [.codegaps] VALUES (?, ?, ?, ?)",
@@ -5542,6 +5555,8 @@ class AlignmentList(Base):
         temp_table = ".consensus"
         self._create_table(temp_table, index=["conindex", "aln_idx"])
 
+        missing_symbols = [self.sequence_code[1], "-"]
+
         # The First sequence mode is unique in the sense that it does not
         # require an iteration over the columns of each alignment.
         if consensus_type == "First sequence":
@@ -5615,17 +5630,16 @@ class AlignmentList(Base):
 
                     prev_idx = aln_idx
 
-                column = list(set(column))
+                column = set(column)
 
                 # If invariable, include in consensus and skip. Increases speed
                 # when there are no missing or gap characters
                 if len(column) == 1:
-                    consensus_seq.append(column[0])
+                    consensus_seq.append(column.pop())
                     continue
 
                 # Remove missing data and gaps
-                column = sorted([x for x in column if
-                                 x != self.sequence_code[1] and x != "-"])
+                column = [x for x in column if x not in missing_symbols]
 
                 # In case there is only missing/gap characters
                 if not column:
@@ -5900,7 +5914,7 @@ class AlignmentList(Base):
                              "slice INT,"
                              "aln_idx INT)")
             self.cur.execute("CREATE INDEX interindex ON "
-                            "[.interleavedata](slice, aln_idx)")
+                            "[.interleavedata](aln_idx, slice)")
 
         temp_cur = self.con.cursor()
 
@@ -6495,7 +6509,7 @@ class AlignmentList(Base):
 
                 fh.write("{} {}\n".format(
                     taxon[:cut_space_nex].ljust(tx_space_nex),
-                    seq.upper()))
+                    seq))
 
             if fh:
                 fh.write(";\n\tend;")
