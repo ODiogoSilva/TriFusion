@@ -1,3 +1,6 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
 """The `sequence` module of TriFusion contains the main classes handling
 alignment sequence data. These are :class:`.Alignment` and
 :class:`.AlignmentList`. Here follows a brief explanation of how these
