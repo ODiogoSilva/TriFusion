@@ -7953,17 +7953,22 @@ class AlignmentList(Base):
 
         aln_obj = self.retrieve_alignment(gene_name)
 
+        if 0 < window_size < 1:
+            step = int(window_size * aln_obj.locus_length)
+        else:
+            step = int(window_size)
+
         data = []
         
         self._set_pipes(ns, None, total=aln_obj.locus_length, ignore_sa=True)
 
-        for i in range(0, aln_obj.locus_length, window_size):
+        for i in range(0, aln_obj.locus_length, step):
 
             self._update_pipes(ns, None, value=i)
 
             window_similarities = []
 
-            seqs = np.array([[y for y in x[i:i + window_size]] for x in
+            seqs = np.array([[y for y in x[i:i + step]] for x in
                              aln_obj.iter_sequences()])
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
@@ -7971,7 +7976,7 @@ class AlignmentList(Base):
                 self._check_killswitch(ns)
 
                 s, t = self._get_similarity("".join(seq1), "".join(seq2),
-                                            window_size)
+                                            step)
                 if t:
                     sim = s / t
                 else:
@@ -7985,7 +7990,7 @@ class AlignmentList(Base):
         return {"data": data,
                 "title": "Sequence similarity sliding window for gene\n %s"
                          % basename(gene_name),
-                "window_size": window_size,
+                "window_size": step,
                 "ax_names": ["Sequence (bp)", "Similarity (%)"],
                 "table_header": ["Sequence (bp)", "Similarity (%)"]}
 
@@ -8162,17 +8167,30 @@ class AlignmentList(Base):
 
         aln_obj = self.retrieve_alignment(gene_name)
 
+        if 0 < window_size < 1:
+            step = int(window_size * aln_obj.locus_length)
+        else:
+            step = int(window_size)
+
         data = []
 
-        for i in range(0, aln_obj.locus_length, window_size):
+        self._set_pipes(ns, None, total=aln_obj.locus_length, ignore_sa=True)
+
+        for i in range(0, aln_obj.locus_length, step):
+
+            self._update_pipes(ns, None, value=i)
 
             segregating_sites = 0
 
-            seqs = np.array([[y for y in x[i:i + window_size]] for x in
+            seqs = np.array([[y for y in x[i:i + step]] for x in
                              aln_obj.iter_sequences()])
 
             for column in zip(*seqs):
-                column = set([x for x in column if x != aln_obj.sequence_code[1]
+
+                self._check_killswitch(ns)
+
+                column = set([x for x in column
+                              if x != aln_obj.sequence_code[1]
                               and x != "-"])
 
                 if len(column) > 1:
@@ -8183,7 +8201,7 @@ class AlignmentList(Base):
         return {"data": data,
                 "title": "Number of segregating sites sliding window for "
                          "gene\n %s" % basename(gene_name),
-                "window_size": window_size,
+                "window_size": step,
                 "ax_names": ["Sequence (bp)", "Segregating sites"],
                 "table_header": ["Sequence (bp)", "Segregating sites"]}
 

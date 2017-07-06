@@ -543,6 +543,8 @@ class TriFusionApp(App):
     """matplotlib.Legend object associated to the current plot. Can be None."""
     current_table = ObjectProperty(None, allownone=True)
     """List with table data associated with the current plot."""
+    single_gene_idx = None
+    """Index of active alignment for single gene plots"""
 
     # Patch attribute
     plt_patch = None
@@ -10638,6 +10640,13 @@ class TriFusionApp(App):
 
         content.plt_idx = plt_idx
 
+        if self.single_gene_idx is not None:
+            prev_aln = basename(self.file_list[self.single_gene_idx])
+        else:
+            prev_aln = "None"
+        
+        content.ids.previous_gene.text = prev_aln
+
         # By default show up to 20 files at first
         for i in range(20):
             try:
@@ -10648,6 +10657,10 @@ class TriFusionApp(App):
                     disabled_color=(1, 1, 1, 1),
                     background_disabled_down=join("data", "backgrounds",
                                                   "bt_process.png"))
+
+                if f == prev_aln:
+                    bt.state = "down"
+                    bt.disabled = True
 
                 bt.text_size[0] = bt.size[0] * 3
                 bt.bind(on_release=self.toggle_groups)
@@ -10665,6 +10678,64 @@ class TriFusionApp(App):
 
         self.show_popup(title="Select gene for sliding window analysis...",
                         content=content, size_hint=(.4, .9))
+
+    def gene_sliding_window_check(self, aln_name, window, plt_idx):
+        """Checks the size of the sliding window for the selected alignment
+
+        To avoid calculating a sliding window analysis with a very small
+        window size, this function checks these values and warns the user
+        if the sliding window is to small.
+
+        Parameters
+        ----------
+        aln_name : str
+            Name of the selected alignment. These name is expected to be the
+            basename of the :attr:`~.Alignment.path` attribute.
+        window : int or float
+            Size of the window.
+        """
+        
+        self.dismiss_popup()
+
+        # Get alignment object
+        aln = self.alignment_list.retrieve_alignment(
+            self.filename_map[aln_name])
+
+        _window = float(window)
+        # Convert window to absolute value if a float was provided
+        if 0. < _window < 1.:
+            _window = _window * aln.locus_length
+
+        # Check how many windows would be necessary
+        n_win = float(aln.locus_length) / _window
+    
+        self.single_gene_idx = self.file_list.index(aln.path)
+
+        # If the number of windows is higher than 500 (arbitrary), issue a
+        # warning
+        if n_win > 500:
+
+            content = AdjustWindowDialog(cancel=self.dismiss_popup)
+
+            content.ids.msg.text = \
+                "The number of windows for the selected window size " \
+                "([b]{}[/b]) if very large ([b]{}[/b]). This analysis may " \
+                "take a large amount of time to finish. You can adjust the " \
+                "window size below or " \
+                "proceed anyway.".format(window, n_win)
+            
+            content.gene_name = self.filename_map[aln_name]
+            content.gene_len = aln.locus_length
+            content.plt_idx = plt_idx
+
+            self.show_popup(title="Sliding window size warning",
+                            content=content,
+                            size=(420, 300))
+        
+        else:
+            self.stats_show_plot(plt_idx,
+                                 {"gene_name": self.filename_map[aln_name],
+                                  "window_size": _window})
 
     def stats_search_genes(self, txt):
         """

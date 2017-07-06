@@ -54,6 +54,7 @@ in more distinguishable color palettes [0.5.1].
 - Improved sliding window line plots. These line plots are now smoothed with
 an interpolation,  allowing for a much better and fine grained color
 transition [0.5.1].
+- Improved dialogs and warnings for sliding window plots [0.5.27].
 
 ## Bug fixes
 

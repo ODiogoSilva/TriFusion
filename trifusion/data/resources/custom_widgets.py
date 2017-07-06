@@ -1325,6 +1325,10 @@ class RevConcDialog(BoxLayout):
     cancel = ObjectProperty(None)
 
 
+class AdjustWindowDialog(BoxLayout):
+    cancel = ObjectProperty(None)
+
+
 class BtList(BoxLayout):
     cancel = ObjectProperty(None)
 
