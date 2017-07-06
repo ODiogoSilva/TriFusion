@@ -6521,6 +6521,68 @@
 ## STATS Options Buttons
 ##
 
+<AdjustWindowDialog>:
+    orientation: "vertical"
+    spacing: 10
+    padding: 10
+    gene_name: None
+    gene_len: None
+    plt_idx: None
+    Label:
+        markup: True
+        halign: "justify"
+        valign: "middle"
+        text_size: self.size
+        id: msg
+    BoxLayout:
+        size_hint_y: None
+        height: 35
+        id: sliding_window
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                size_hint_y: .7
+                text: "Sliding window size"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Label:
+                size_hint_y: .3
+                text: "Use a decimal number to indicate proportion"
+                font_size: 12
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                color: app._blue
+        TFTextInput:
+            size_hint_x: .15
+            text: "10"
+            input_filter: "float"
+            id: window
+
+    Widget:
+        size_hint_y: None
+        height: 20
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: 30
+        spacing: 10
+        TFOKButon:
+            id: ok_bt
+            background_normal: "data/backgrounds/bt_process.png"
+            background_down: "data/backgrounds/bt_process_off.png"
+            text: "Continue"
+            on_release:
+                app.stats_show_plot(root.plt_idx, {"gene_name": root.gene_name, "window_size": float(window.text)});
+
+        TFOKButon:
+            id: cancel_bt
+            text: "Cancel"
+            on_release: root.cancel()
+
 <SelectGeneDialog>:
     orientation: "vertical"
     spacing: 10
@@ -6530,18 +6592,31 @@
 
     BoxLayout:
         size_hint_y: None
-        height: 30
+        height: 35
         id: sliding_window
-        Label:
-            text: "Sliding window size"
-            bold: True
-            halign: "left"
-            valign: "middle"
-            text_size: self.size
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                size_hint_y: .7
+                text: "Sliding window size"
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+            Label:
+                size_hint_y: .3
+                text: "Use a decimal number to indicate proportion"
+                font_size: 12
+                bold: True
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+                color: app._blue
         TFTextInput:
             size_hint_x: .15
             text: "10"
             id: window
+            input_filter: "float"
 
     Hseparator
 
@@ -6581,6 +6656,32 @@
 
     Hseparator
 
+    BoxLayout:
+        size_hint_y: None
+        height: 35
+        orientation: "vertical"
+        Label:
+            size_hint_y: .3
+            text: "Previous gene:"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            font_size: 11
+        Label:
+            size_hint_y: .7
+            text: "None"
+            id: previous_gene
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+            bold: True
+            color: app._blue
+            shorten: True
+            shorten_from: "right"
+
+    Hseparator
+
     ScrollView:
         bar_width: 8
         scroll_type: ["bars"]
@@ -6603,10 +6704,10 @@
             background_down: "data/backgrounds/bt_process_off.png"
             text: "Select"
             on_release:
-                if [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"] and sliding_window in root.children: \
-                app.stats_show_plot(root.plt_idx, {"gene_name": app.filename_map[[x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]], "window_size": int(window.text)})
-
-                elif [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"] and sliding_window not in root.children: \
+                act_bt = [x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"];
+                if act_bt and sliding_window in root.children: \
+                app.gene_sliding_window_check(act_bt[0], window.text, root.plt_idx)
+                elif act_bt and sliding_window not in root.children: \
                 app.stats_show_plot(root.plt_idx, {"gene_name": app.filename_map[[x.text for x in gn_grid.children if isinstance(x, ToggleButton) and x.state == "down"][0]]})
 
                 else: \
