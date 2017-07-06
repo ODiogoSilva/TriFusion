@@ -7126,7 +7126,6 @@ class AlignmentList(Base):
                     [self.summary_gene_table,
                      row_dt])
 
-
         # Update active alignments if they changed since last update
         if active_alignments and \
                 active_alignments != list(self.alignments.keys()):
@@ -7156,6 +7155,8 @@ class AlignmentList(Base):
         # Get statistics that require iteration over alignments
         prev_idx = ""
         for col, aln_idx in self.iter_columns():
+
+            self._check_killswitch(ns)
 
             if prev_idx != aln_idx:
 
@@ -7953,8 +7954,12 @@ class AlignmentList(Base):
         aln_obj = self.retrieve_alignment(gene_name)
 
         data = []
+        
+        self._set_pipes(ns, None, total=aln_obj.locus_length, ignore_sa=True)
 
         for i in range(0, aln_obj.locus_length, window_size):
+
+            self._update_pipes(ns, None, value=i)
 
             window_similarities = []
 
@@ -7962,6 +7967,8 @@ class AlignmentList(Base):
                              aln_obj.iter_sequences()])
 
             for seq1, seq2 in itertools.combinations(seqs, 2):
+
+                self._check_killswitch(ns)
 
                 s, t = self._get_similarity("".join(seq1), "".join(seq2),
                                             window_size)
