@@ -1855,6 +1855,8 @@ class Alignment(Base):
 
         table_name = table_name if table_name else self.master_table
 
+        taxon = unicode(taxon)
+
         try:
             # Locking mechanism necessary to avoid concurrency issues when
             # accessing the database. This ensures that only one Cursor

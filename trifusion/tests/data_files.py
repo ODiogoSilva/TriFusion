@@ -193,3 +193,7 @@ bad_wrong_dimensions = [
 bad_wrong_size = [
     "trifusion/tests/data/bad_wrong_size.nex"
 ]
+
+non_ascii = [
+    "trifusion/tests/data/non_ascii_names.fas"
+]

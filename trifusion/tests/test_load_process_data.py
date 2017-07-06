@@ -1,4 +1,5 @@
 #!/usr/bin/python2
+# -*- coding: utf-8 -*-
 
 import os
 import shutil
@@ -164,6 +165,49 @@ class LoadAlignmentsTest(unittest.TestCase):
         self.aln_obj = AlignmentList(protein_normal_missing, sql_db=sql_db)
 
         self.assertEqual(self.aln_obj.sequence_code[1], "x")
+
+    def test_non_ascii_taxon_names(self):
+
+        self.aln_obj = AlignmentList(non_ascii, sql_db=sql_db)
+
+        non_ascii_tx = [x for x in self.aln_obj.taxa_names if
+                        x == '\xc3\xa9!"#$%&/=?\'~\xc2\xba\xc2\xaa^"><']
+        self.assertEqual(len(non_ascii_tx), 1)
+
+    def test_non_ascii_iteration(self):
+
+        self.aln_obj = AlignmentList(non_ascii, sql_db=sql_db)
+
+        non_ascii_tx = []
+
+        for tx, _, _ in self.aln_obj.iter_alignments():
+
+            if tx == '\xc3\xa9!"#$%&/=?\'~\xc2\xba\xc2\xaa^"><':
+                non_ascii_tx.append(tx)
+
+        self.assertEqual(len(non_ascii_tx), 1)
+
+    def test_non_ascii_get_taxaidx(self):
+
+        self.aln_obj = AlignmentList(non_ascii, sql_db=sql_db)
+
+        aln = self.aln_obj.alignments.values()[0]
+
+        non_ascii_tx = [x for x in aln.taxa_idx
+                        if x == '\xc3\xa9!"#$%&/=?\'~\xc2\xba\xc2\xaa^"><']
+
+        self.assertEqual(len(non_ascii_tx), 1)
+
+    def test_non_ascii_iter_columns(self):
+
+        self.aln_obj = AlignmentList(non_ascii, sql_db=sql_db)
+
+        tx_list, _, _ = next(self.aln_obj.iter_columns(include_taxa=True))
+
+        non_ascii_tx = [x for x in tx_list
+                        if x == '\xc3\xa9!"#$%&/=?\'~\xc2\xba\xc2\xaa^"><']
+
+        self.assertEqual(len(non_ascii_tx), 1)
 
 
 class AlignmentManipulationTest(unittest.TestCase):
