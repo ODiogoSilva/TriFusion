@@ -4,7 +4,6 @@ python:
     - "2.7"
 
 before_install:
-    - export PYTHONIOENCODING=UTF-8
     - sudo apt-get update -q
     - sudo apt-get install libblas-dev
     - sudo apt-get install liblapack-dev
@@ -22,6 +21,7 @@ install:
     - python setup.py install
 
 script:
+    - export PYTHONIOENCODING=UTF-8
     - nosetests --with-coverage
 
 after_success:
