@@ -1922,12 +1922,17 @@ class Alignment(Base):
 
             lock.acquire(True)
 
-            self.cur.execute("INSERT INTO alignment_data VALUES (?, ?, ?, ?)",
-                             (txId, unicode(taxon), seq, self.db_idx))
+            try:
+                taxon = unicode(taxon)
+            except UnicodeDecodeError:
+                pass
+
+            self.cur.execute(
+                "INSERT INTO alignment_data VALUES (?, ?, ?, ?)",
+                (txId, taxon, seq, self.db_idx))
 
         finally:
             lock.release()
-
 
     def _read_interleave_phylip(self, ntaxa):
         """ Alignment parser for interleave phylip format.
