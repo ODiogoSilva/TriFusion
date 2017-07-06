@@ -68,14 +68,6 @@ def triseq_arg_check(arg):
             "the '-o' option. If you wish to convert a "
             "file, specify it using the '-c' option", RED)
 
-    if len(arg.infile) == 1 and arg.conversion is None and arg.reverse is None\
-            and arg.collapse is None:
-
-        print_col(
-            "Cannot perform concatenation of a single file. Please provide"
-            " additional files to concatenate, or specify the conversion "
-            "'-c' option", RED)
-
     if arg.zorro is not None and len(arg.infile) == 1:
         print_col(
             "The '-z' option cannot be invoked when only a single input "

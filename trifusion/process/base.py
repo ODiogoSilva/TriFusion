@@ -265,7 +265,7 @@ def print_col(text, color, i=0, quiet=False):
             print(text)
 
     if color is RED:
-        raise SystemExit
+        raise SystemExit(1)
 
 
 class Base(object):

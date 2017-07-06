@@ -21,6 +21,99 @@ output_dir = "triseq_test"
 data_path = join("trifusion/tests/data/")
 
 
+class TriSeqSanity(unittest.TestCase):
+
+    def setUp(self):
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+    def tearDown(self):
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+    def test_gap_coding_outformat(self):
+
+        args = get_args(["-in"] + dna_data_fas +
+                        ["-of", "fasta", "-c", "-quiet",
+                         "--code-gaps"],
+                        unittest=True)
+
+        with self.assertRaises(SystemExit) as cm:
+            triseq_arg_check(args)
+
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_gap_coding_warning(self):
+
+        args = get_args(["-in"] + dna_data_fas +
+                        ["-of", "fasta", "nexus", "-c", "-quiet",
+                         "--code-gaps"],
+                        unittest=True)
+
+        triseq_arg_check(args)
+
+    def test_conversion_and_reverse(self):
+
+        args = get_args(["-in"] + dna_data_fas +
+                        ["-r", "teste", "-c"],
+                        unittest=True)
+
+        triseq_arg_check(args)
+
+    def teste_no_output_concatenation(self):
+
+        args = get_args(["-in"] + dna_data_fas +
+                        ["-p", "teste", "-quiet"],
+                        unittest=True)
+
+        with self.assertRaises(SystemExit) as cm:
+            triseq_arg_check(args)
+
+        self.assertEqual(cm.exception.code, 1)
+
+    def teste_no_ima2_params(self):
+
+        args = get_args(["-in"] + dna_data_fas +
+                        ["-o", "teste", "-of", "ima2", "-quiet"],
+                        unittest=True)
+
+        with self.assertRaises(SystemExit) as cm:
+            triseq_arg_check(args)
+
+        self.assertEqual(cm.exception.code, 1)
+
+    def teste_single_concatenation_with_zorro(self):
+
+        args = get_args(["-in", "teste"] +
+                        ["-o", "teste", "-z", "teste", "-quiet"],
+                        unittest=True)
+
+        with self.assertRaises(SystemExit) as cm:
+            triseq_arg_check(args)
+
+        self.assertEqual(cm.exception.code, 1)
+
+    def teste_consensus_outformats(self):
+
+        args = get_args(["-in", "teste"] +
+                        ["--consensus", "IUPAC", "-quiet"],
+                        unittest=True)
+
+        with self.assertRaises(SystemExit) as cm:
+            triseq_arg_check(args)
+
+        self.assertEqual(cm.exception.code, 1)
+
+    def teste_consensus_single_file(self):
+
+        args = get_args(["-in", "teste"] +
+                        ["--consensus-single-file", "-c", "-quiet"],
+                        unittest=True)
+
+        triseq_arg_check(args)
+
+
 class TriSeqTest(unittest.TestCase):
 
     def setUp(self):
