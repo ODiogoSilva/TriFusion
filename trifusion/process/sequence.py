@@ -1926,11 +1926,9 @@ class Alignment(Base):
             try:
                 taxon = unicode(taxon)
             except UnicodeDecodeError:
-                print(taxon)
-                print(type(taxon))
-                print(sys.getdefaultencoding())
-                print(sys.getfilesystemencoding())
-                pass
+                reload(sys)
+                sys.setdefaultencoding("utf8")
+                taxon = unicode(taxon)
 
             self.cur.execute(
                 "INSERT INTO alignment_data VALUES (?, ?, ?, ?)",
