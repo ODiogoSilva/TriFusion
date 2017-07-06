@@ -668,6 +668,7 @@ import itertools
 import re
 import os
 import pickle
+import sys
 from os.path import join, basename, splitext, exists
 from itertools import compress
 from threading import Lock
@@ -1925,6 +1926,10 @@ class Alignment(Base):
             try:
                 taxon = unicode(taxon)
             except UnicodeDecodeError:
+                print(taxon)
+                print(type(taxon))
+                print(sys.getdefaultencoding())
+                print(sys.getfilesystemencoding())
                 pass
 
             self.cur.execute(
