@@ -119,6 +119,7 @@ def printMclAbcFile (cur, filename, nm=None):
 
 
 def execute(db_dir, dest, nm=None):
+
     con = lite.connect(os.path.join(db_dir, "orthoDB.db"))
 
     # Set up progression information
@@ -158,6 +159,8 @@ def execute(db_dir, dest, nm=None):
             nm.counter = 4
         printMclAbcFile(cur, os.path.join(dest, "backstage_files",
                                           "mclInput"), nm=nm)
+
+    con.close()
 
 if __name__ == "__main__":
     execute(".", ".")

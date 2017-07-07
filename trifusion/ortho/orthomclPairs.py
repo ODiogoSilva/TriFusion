@@ -455,6 +455,8 @@ def execute(db_dir, nm=None):
 
             func(cur)
 
+    con.close()
+
 if __name__ == '__main__':
     execute(".")
 

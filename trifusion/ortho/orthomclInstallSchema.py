@@ -120,6 +120,8 @@ def execute(out_dir):
         createCoOrthologTable(cur)
         createInterTaxonMatchView(cur)
 
+    con.close()
+
 if __name__ == "__main__":
     execute("./")
 

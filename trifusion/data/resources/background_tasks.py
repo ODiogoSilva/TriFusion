@@ -482,7 +482,7 @@ def orto_execution(nm, temp_dir, proteome_files, protein_min_len,
             group_prefix,
             orto_max_gene,
             orto_min_sp,
-            sqldb,
+            sqldb + "_out",
             join(ortho_dir, "backstage_files", usearch_db),
             temp_dir,
             ortho_dir, nm=nm)

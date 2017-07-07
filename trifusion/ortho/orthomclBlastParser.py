@@ -252,6 +252,8 @@ def orthomcl_blast_parser(blast_file, fasta_dir, db_dir, nm):
 
         print_previous_subject(subject, cur)
 
+    con.close()
+
 
 # if __name__ == "__main__":
 #     orthomcl_blast_parser("AllVsAll.out", "compliantFasta", ".")

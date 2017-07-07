@@ -24,6 +24,7 @@ def execute(db_dir, similar_seqs_file):
                 cur.execute("INSERT INTO SimilarSequences VALUES(?, ?, ?, ?, "
                             "?, ? ,?, ?)", l)
 
+    con.close()
 
 if __name__ == "__main__":
     execute(".", "sss_nodups.txt")

@@ -1242,6 +1242,7 @@ class TriFusionApp(App):
 
         # Set path to sqlite database
         self.sqldb = join(self.temp_dir, "trifusion.sql3")
+        self.ortho_sqldb = join(self.temp_dir, "trifusion_orto.sql3")
 
         self._start_clean()
 
@@ -7809,10 +7810,10 @@ class TriFusionApp(App):
                  [output_name, output_dir]],
             "protein":
                 [self.active_group.retrieve_sequences,
-                 [self.sqldb, self.protein_db, output_dir]],
+                 [self.ortho_sqldb, self.protein_db, output_dir]],
             "nucleotide":
                 [protein2dna.convert_group,
-                 [self.sqldb, self.cds_db, self.protein_db,
+                 [self.ortho_sqldb, self.cds_db, self.protein_db,
                   self.active_group, self.usearch_file, output_dir]]}
 
         # Get method and args
@@ -11571,7 +11572,7 @@ class TriFusionApp(App):
                 self.group_prefix,
                 self.orto_max_gene,
                 self.orto_min_sp,
-                self.sqldb,
+                self.ortho_sqldb,
                 self.ortho_dir,
                 self.usearch_db))
 

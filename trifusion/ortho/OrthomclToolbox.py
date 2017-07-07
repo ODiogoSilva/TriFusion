@@ -438,8 +438,9 @@ class GroupLight(object):
             shared_namespace.max_pb = shared_namespace.total = p + 1
 
         # Connect to database
-        conn = sqlite3.connect(sqldb, timeout=100000)
-        c = conn.cursor()
+        con = sqlite3.connect(sqldb)
+        c = con.cursor()
+
         table_name = "".join([x for x in protein_db if x.isalnum()]).encode(
             "utf8")
 
@@ -447,18 +448,17 @@ class GroupLight(object):
         if not c.execute("SELECT name FROM sqlite_master WHERE type='table' "
                          "AND name='{}'".format(table_name)).fetchall():
 
-            c.execute("CREATE TABLE {} (seq_id text PRIMARY KEY, seq text)".
+            c.execute("CREATE TABLE [{}] (seq_id text PRIMARY KEY, seq text)".
                       format(table_name))
 
             # Populate database
             with open(protein_db) as ph:
                 seq = ""
                 for line in ph:
-
                     # Kill switch
                     if shared_namespace:
                         if shared_namespace.stop:
-                            conn.close()
+                            con.close()
                             raise KillByUser("")
                         shared_namespace.progress += 1
                         shared_namespace.counter += 1
@@ -466,13 +466,13 @@ class GroupLight(object):
                     if line.startswith(">"):
                         seq_id = line.strip()[1:]
                         if seq != "":
-                            c.execute("INSERT INTO {} VALUES (?, ?)".
+                            c.execute("INSERT INTO [{}] VALUES (?, ?)".
                                       format(table_name), (seq_id, seq))
                         seq = ""
                     else:
                         seq += line.strip()
 
-            conn.commit()
+            con.commit()
 
         if shared_namespace:
             shared_namespace.act = shared_namespace.msg = "Fetching sequences"
@@ -491,7 +491,7 @@ class GroupLight(object):
             # Kill switch
             if shared_namespace:
                 if shared_namespace.stop:
-                    conn.close()
+                    con.close()
                     raise KillByUser("")
 
             # Filter sequences
@@ -516,7 +516,7 @@ class GroupLight(object):
                 seqs = fields[-1].split()
                 for i in seqs:
                     # Query database
-                    c.execute("SELECT * FROM {} WHERE seq_id = ?".
+                    c.execute("SELECT * FROM [{}] WHERE seq_id = ?".
                               format(table_name), (i,))
                     vals = c.fetchone()
                     # Handles cases where the sequence could not be retrieved
@@ -535,7 +535,7 @@ class GroupLight(object):
         if outfile:
             output_handle.close()
 
-        conn.close()
+        con.close()
 
     def export_filtered_group(self, output_file_name="filtered_groups",
                                  dest="./", shared_namespace=None):
