@@ -1,0 +1,7 @@
+charset BaseConc1.fas = 1-85;
+charset BaseConc2.fas = 86-170;
+charset BaseConc3.fas = 171-255;
+charset BaseConc4.fas = 256-.;
+charset BaseConc5.fas = 341-425;
+charset BaseConc6.fas = 426-510;
+charset BaseConc7.fas = 511-.;

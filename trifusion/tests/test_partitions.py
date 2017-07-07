@@ -11,11 +11,13 @@ import shutil
 try:
     from process.sequence import AlignmentList, Alignment
     from process.error_handling import *
-    from process.data import Partitions
+    from process.data import Partitions, InvalidPartitionFile, \
+        PartitionException
 except ImportError:
     from trifusion.process.sequence import AlignmentList, Alignment
     from trifusion.process.error_handling import *
-    from trifusion.process.data import Partitions
+    from trifusion.process.data import Partitions, InvalidPartitionFile, \
+        PartitionException
 
 
 class ExpectingTestCase(unittest.TestCase):
@@ -76,6 +78,84 @@ class PartitonsTest(ExpectingTestCase):
 
         self.assertEqual(len(self.aln_obj.partitions.partitions), 7)
 
+    def test_bad_partitions_phy(self):
+
+        e = self.aln_obj.partitions.read_from_file(partition_bad_phy[0])
+
+        self.assertTrue(isinstance(e, InvalidPartitionFile))
+
+    def test_unsorted_part_phylip(self):
+
+        self.aln_obj.partitions.read_from_file(partition_unsorted_phy[0])
+
+        data = [self.aln_obj.partitions.partitions.keys(),
+                self.aln_obj.partitions.counter]
+
+        self.assertEqual(data, [["BaseConc1.fas", "BaseConc2.fas",
+                                 "BaseConc3.fas", "BaseConc4.fas",
+                                 "BaseConc5.fas", "BaseConc6.fas",
+                                 "BaseConc7.fas"],
+                                595])
+
+    def test_phylip_dot_notation(self):
+
+        self.aln_obj.partitions.read_from_file(partition_dot_not[0])
+
+        data = [self.aln_obj.partitions.partitions.keys(),
+                self.aln_obj.partitions.counter]
+
+        self.assertEqual(data, [["BaseConc1.fas", "BaseConc2.fas",
+                                 "BaseConc3.fas", "BaseConc4.fas",
+                                 "BaseConc5.fas", "BaseConc6.fas",
+                                 "BaseConc7.fas"],
+                                595])
+
+    def test_nexus_dot_notation(self):
+
+        self.aln_obj.partitions.read_from_file(dot_notation_nex[0])
+
+        data = [self.aln_obj.partitions.partitions.keys(),
+                self.aln_obj.partitions.counter]
+
+        self.assertEqual(data, [["BaseConc1.fas", "BaseConc2.fas",
+                                 "BaseConc3.fas", "BaseConc4.fas",
+                                 "BaseConc5.fas", "BaseConc6.fas",
+                                 "BaseConc7.fas"],
+                                595])
+
+    def test_bad_dot_notation(self):
+
+        e = self.aln_obj.partitions.read_from_file(bad_dot_notation_nex[0])
+
+        self.assertTrue(isinstance(e, InvalidPartitionFile))
+
+    def test_import_new_partscheme(self):
+
+        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+
+        self.aln_obj = AlignmentList(concatenated_medium_nexus,
+                                     sql_db=sql_db)
+
+        self.aln_obj.partitions.reset(keep_alignments_range=True)
+
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
+
+        res = self.aln_obj.partitions.get_partition_names()
+
+        self.assertEqual(res, ["BaseConc1.fas", "BaseConc2.fas",
+                               "BaseConc3.fas", "BaseConc4.fas",
+                               "BaseConc5.fas", "BaseConc6.fas",
+                               "BaseConc7.fas"])
+
+    def test_add_duplicate_name(self):
+
+        self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
+
+        self.assertRaises(PartitionException,
+                          self.aln_obj.partitions.add_partition(
+                              "BaseCond1.fas", length=100))
+
     def test_get_partition_names(self):
 
         self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
@@ -113,6 +193,27 @@ class PartitonsTest(ExpectingTestCase):
 
         self.assertFalse(self.aln_obj.partitions.is_single())
 
+    def test_remove_partition_from_file_original(self):
+
+        self.aln_obj.clear_alignments()
+        self.aln_obj.con.close()
+
+        self.aln_obj = AlignmentList(dna_data_fas, sql_db=sql_db)
+
+        self.aln_obj.partitions.remove_partition(
+            file_name="trifusion/tests/data/BaseConc3.fas")
+
+        # Check if remaining partition ranges are continuous
+        cont = True
+        prev = 0
+        for r in self.aln_obj.partitions.partitions.values():
+            if r[0][0] == prev:
+                prev = r[0][1] + 1
+            else:
+                cont = False
+
+        self.expect_equal(cont, True)
+
     def test_remove_partition_from_name(self):
 
         self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
@@ -143,7 +244,7 @@ class PartitonsTest(ExpectingTestCase):
     def test_remove_partition_from_file(self):
 
         self.aln_obj.partitions.read_from_file(concatenated_small_parNex[0])
-        self.aln_obj.partitions.remove_partition("BaseConc3.fas")
+        self.aln_obj.partitions.remove_partition(file_name="BaseConc3.fas")
 
         # Check keys from _partitions, partitions_alignment and models
         key_data = [list(self.aln_obj.partitions.partitions.keys()),

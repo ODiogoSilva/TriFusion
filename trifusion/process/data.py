@@ -522,35 +522,6 @@ class Partitions(object):
 
         return names
 
-    def read_from_dict(self, dict_obj):
-        """Reads partition information from a dict object
-
-        Parses partitions defined and stored in a special OrderedDict. The
-        values of dict_obj should be the partition names and their
-        corresponding values should contain the loci range and substitution
-        model, if any.
-
-        Parameters
-        ----------
-        dict_obj : OrderedDict
-            Ordered dictionary with the definition of the partitions
-
-        Examples
-        --------
-        Here is an example of a `dict_obj`::
-
-            dict_obj = OrderedDict(("GeneA", [(0,234), "GTR"]),
-                                   ("GeneB", [(235, 865), "JC"))
-        """
-
-        for k, v in dict_obj:
-            # Determining if value contains only the range or the substitution
-            # model as well
-            if len(v) > 1:
-                self.add_partition(k, locus_range=v[0])
-            else:
-                self.add_partition(k, locus_range=v[0])
-
     def is_single(self):
         """Returns whether the current `Partitions` has single or multiple
         partitions.

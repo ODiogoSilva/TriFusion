@@ -197,3 +197,27 @@ bad_wrong_size = [
 non_ascii = [
     "trifusion/tests/data/non_ascii_names.fas"
 ]
+
+partition_dot_not = [
+    "trifusion/tests/data/dot_notation.File"
+]
+
+partition_unsorted_phy = [
+    "trifusion/tests/data/unsorted_parts.File"
+]
+
+partition_bad_phy = [
+    "trifusion/tests/data/bad_parts.File"
+]
+
+dot_notation_nex = [
+    "trifusion/tests/data/do_notation.nex"
+]
+
+bad_dot_notation_nex = [
+    "trifusion/tests/data/do_notation.nex"
+]
+
+bad_dot_notation_nex = [
+    "trifusion/tests/data/bad_dot_notation.nex"
+]
