@@ -7596,8 +7596,8 @@ class TriFusionApp(App):
         # Add check for min species. If this filter is set to a number
         # greater that the number of proteome input files (which should
         # represent a single species each) this will issue a warning.
-        if self.proteome_files and \
-                        int(sp_filt) > len(self.active_proteome_files):
+        if self.proteome_files and self.screen.ids.orto_car.index != 1 and \
+                int(sp_filt) > len(self.active_proteome_files):
             return self.dialog_floatcheck("Minimum number of "
                                           "species larger than the provided"
                                           " proteomes", t="warning")
