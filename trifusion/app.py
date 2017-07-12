@@ -10946,12 +10946,13 @@ class TriFusionApp(App):
                 # Unschedule the current function
                 Clock.unschedule(func)
 
+                # Join child process and exit
+                p.join()
+
                 # Clean up alignments that were already loaded into the
                 # AlignmentList object
                 self.alignment_list.remove_file(file_list)
 
-                # Join child process and exit
-                p.join()
                 return
 
         # Check if proteome files have already been loaded. If so, issue

@@ -68,6 +68,7 @@ transition [0.5.1].
 - Fixed text flickering for some informative popups [0.5.17].
 - Fixed partition label update in side panel after merging or splitting [0.5.22].
 - Fixed alignment counter for single partitions after splitting [0.5.23].
+- Fixed occasional crash when canceling the loading of input files [0.5.31].
 
 ### Orthology
 
