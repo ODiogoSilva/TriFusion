@@ -169,9 +169,6 @@ class SeconaryOpsTest(unittest.TestCase):
         self.aln_obj.add_alignment_files(concatenated_small_phy)
 
         self.aln_obj.partitions.read_from_file(concatenated_small_par[0])
-        self.aln_obj.concatenate()
-        self.aln_obj.set_partition_from_alignment(
-            self.aln_obj.alignments.values()[0], reset=True)
 
         self.aln_obj.reverse_concatenate()
 
