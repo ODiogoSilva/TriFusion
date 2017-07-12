@@ -180,7 +180,7 @@ the functions in the :mod:`trifusion.base.plotter` module receive that
 information and generate the plot.
 """
 
-__version__ = "0.5.31"
+__version__ = "0.5.32"
 __build__ = "070717"
 __author__ = "Diogo N. Silva"
 __copyright__ = "Diogo N. Silva"

@@ -523,7 +523,7 @@
             background_normal: "data/backgrounds/bt_process.png"
             background_down: "data/backgrounds/bt_process_off.png"
             on_release:
-                app.file_overwrite = "overwrite"
+                setattr(app, "file_overwrite", "overwrite")
                 app.file_apply_all = True if dlg_chk.active else False
                 root.cancel()
 
@@ -531,7 +531,7 @@
             text: "Skip"
             id: cancel_bt
             on_release:
-                app.file_overwrite = "skip"
+                setattr(app, "file_overwrite", "skip")
                 app.file_apply_all = True if dlg_chk.active else False
                 root.cancel()
 
@@ -539,7 +539,7 @@
             text: "Cancel"
             id: apply_bt
             on_release:
-                app.interrupt_process_exe = True
+                setattr(app, "terminate_process_exec", True)
                 root.cancel()
 
 <InputTextDialog>:

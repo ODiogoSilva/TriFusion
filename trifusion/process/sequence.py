@@ -6222,6 +6222,7 @@ class AlignmentList(Base):
             # skipped or overwritten
             if ns:
                 if ns.status == "skip":
+                    ns.status = None
                     return None, None
 
         # Reset pipes, if any

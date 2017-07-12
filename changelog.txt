@@ -95,6 +95,8 @@ concatenation. [0.5.11]
 - Fixed issue with some Nexus badly formatted input files [0.5.19].
 - Fixed several issues with partition and substitution model setup in Nexus
 and Phylip output formats [0.5.30].
+- Fixed issue with overwrite/skip/cancel when executing process operations
+[0.5.32].
 
 ### Statistics
 
